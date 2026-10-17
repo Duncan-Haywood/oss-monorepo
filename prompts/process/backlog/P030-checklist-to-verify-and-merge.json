@@ -1,0 +1,25 @@
+{
+  "id": "P030",
+  "title": "Move CLAUDE.md pre-merge checklist block into .github/prompts/verify-and-merge.md",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "P017 step 2: the checklist block (~60 lines) is read by every run but used only by merging runs; ~40 files pin CLAUDE.md by path or heading.",
+  "evidence": [
+    "P017 history, 2026-10-16 entries"
+  ],
+  "change": "Repoint checklist_coverage.py, test_manifests.py, validate_workflows.py, sync_tree_counts.py and the queue prompts (grep -rl 'CLAUDE.md' platform/ci gitops/tests) to verify-and-merge.md, then move the block, leaving a 3-line pointer. One PR; run the CLAUDE.md checklist after.",
+  "touches": [
+    "CLAUDE.md",
+    ".github/prompts/verify-and-merge.md",
+    "platform/ci/checklist_coverage.py"
+  ],
+  "metric": "CLAUDE.md bytes (baseline 21,663 on 2026-10-17)",
+  "baseline": "CLAUDE.md 21,663 bytes",
+  "opened": "2026-10-17",
+  "source": "split of P017 by process run 2026-10-17 (P021 asked for per-step rows)",
+  "pr": "pending",
+  "result": "CLAUDE.md 20,095 -> 17,456 bytes (-2,639) by moving the checklist block to verify-and-merge.md; checklist_coverage.py, its tests and workflow paths repointed.",
+  "history": []
+}

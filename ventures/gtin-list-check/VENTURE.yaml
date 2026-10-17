@@ -1,0 +1,32 @@
+name: gtin-list-check
+description: >-
+  Free browser tool that checks a product list's UPC, EAN, GTIN and ISBN column before it is uploaded to a
+  marketplace or retailer: wrong check digits (with an adjacent-swap suggestion), leading zeros lost to
+  Excel (restored only when the check digit proves it), scientific notation like 3.60003E+11 (expanded
+  when provable, flagged as unrecoverable when digits were rounded away), duplicates (a UPC and its
+  EAN-13 form count as one), blanks, placeholders, GS1 reserved prefixes and ISBN-10s, each with its line
+  number. It writes the file back with every provable fix applied. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (build-now pipeline empty, 738 ventures).
+# Archetype: paste-your-file pre-flight checker with an arithmetic core -- the GS1 mod-10 check digit,
+# and the fact that zero-padding preserves it, which lets lost leading zeros be restored *with proof*
+# rather than guessed. Not a duplicate: `merchant-feed-check` and `meta-catalog-csv-check` check a GTIN
+# only as one field inside their own platform's feed rules; this is the standalone bulk list tool for
+# the search "UPC check digit validator" / "Excel removed leading zeros from barcodes" and works for
+# any platform's upload, including Amazon, Shopify, Walmart and retailer EDI sheets.
+#
+# First visitor: a small seller or catalogue manager whose upload was rejected for "invalid GTIN" and
+# who has a spreadsheet of 500-50,000 codes. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the list never leaves the browser (a test asserts no network
+# calls). GS1 registration, brand ownership and marketplace acceptance are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the e-commerce catalogue-ops audience. A paid
+# version, if usage appears, is a GS1 Company Prefix lookup and brand-registry cross-check, saved
+# per-client rule sets and a bulk API behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-GS1-and-every-marketplace
+# clause, trademarks used nominatively, no acceptance promise.

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out the EITC by hand</title>
+<meta name="description" content="Working out the Earned Income Tax Credit by hand usually goes wrong in the same places: using only earned income and ignoring AGI, missing the investment income limit, or assuming married filing separately is always excluded. This free calculator applies the 2025/2026 rules the same way every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out the EITC by hand">
+<meta property="og:description" content="A hand estimate of the EITC has a few common failure points, above all the AGI-vs-earned-income rule, the investment income limit, and the MFS exception. This calculator applies the 2025/2026 rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Looking the credit up from earned income only and stopping there. IRS Publication 596's own EIC Worksheet computes the credit a second time from AGI and keeps the SMALLER of the two -- so a filer with modest earned income but higher AGI (investment income under the limit, unemployment, a working spouse on a joint return) can get a materially smaller credit than an earned-income-only lookup would suggest."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Forgetting the investment income limit entirely. A filer can have low earned income and qualify for a large credit by the phase-in/phase-out math alone, and still be disqualified outright because investment income (interest, dividends, capital gains, rental income) exceeds $12,200 for 2026 -- a flat disqualifier, not a phase-out."}},{"@type":"Question","name":"What arithmetic mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Using the wrong phase-out threshold for the number of children. The phase-out threshold is the SAME dollar figure for 1, 2, or 3+ children ($23,890 single, $31,160 joint for 2026) -- only the 0-children category has its own, lower threshold. It is the phase-OUT RATE and the completed-phaseout ceiling that differ by child count, not the threshold where phase-out begins."}},{"@type":"Question","name":"What eligibility mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Assuming married filing separately always disqualifies the EITC. It generally does -- but a filer with a qualifying child who lived with them more than half the year, who also lived apart from their spouse for the last six months of the year (or is legally separated), can still claim it as if single. A hand check that stops at \"MFS means no EITC\" misses this narrow but real exception."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page computes your total tax liability, verifies the qualifying-child tests, or models a state EITC. Both apply the same published federal phase-in/phase-out formula and eligibility rules to the numbers you enter; verify against IRS Publication 596 or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out the EITC by hand</h1>
+<p class="lede">The headline numbers &mdash; up to $8,231 with three or more
+children &mdash; are easy to find. The part that goes wrong by hand is the
+two-lookup rule, the investment income cliff, and the narrow married-filing-
+separately exception.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Earned income vs. AGI</td><td>Looks the credit up from earned income only and stops.</td><td>Computes the credit from BOTH earned income and AGI and keeps the smaller, per IRS Publication 596's own worksheet.</td></tr>
+<tr><td>Investment income limit</td><td>Forgets it entirely, or treats it as a phase-out instead of a flat disqualifier.</td><td>Checks investment income against the $12,200 limit first and zeroes the credit outright if it's exceeded.</td></tr>
+<tr><td>Phase-out threshold by child count</td><td>Assumes the threshold rises with each additional child.</td><td>Uses the same threshold for 1, 2, or 3+ children -- only the phase-out RATE and ceiling differ.</td></tr>
+<tr><td>Married filing separately</td><td>Assumes MFS always disqualifies the EITC.</td><td>Checks for the living-apart-with-a-qualifying-child exception before disqualifying.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Looking the credit up from earned income only and stopping there. IRS Publication 596's own EIC Worksheet computes the credit a second time from AGI and keeps the SMALLER of the two -- so a filer with modest earned income but higher AGI (investment income under the limit, unemployment, a working spouse on a joint return) can get a materially smaller credit than an earned-income-only lookup would suggest.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Forgetting the investment income limit entirely. A filer can have low earned income and qualify for a large credit by the phase-in/phase-out math alone, and still be disqualified outright because investment income (interest, dividends, capital gains, rental income) exceeds $12,200 for 2026 -- a flat disqualifier, not a phase-out.</p>
+<h3>What arithmetic mistake gets made most often?</h3>
+<p>Using the wrong phase-out threshold for the number of children. The phase-out threshold is the SAME dollar figure for 1, 2, or 3+ children ($23,890 single, $31,160 joint for 2026) -- only the 0-children category has its own, lower threshold. It is the phase-OUT RATE and the completed-phaseout ceiling that differ by child count, not the threshold where phase-out begins.</p>
+<h3>What eligibility mistake gets made most often?</h3>
+<p>Assuming married filing separately always disqualifies the EITC. It generally does -- but a filer with a qualifying child who lived with them more than half the year, who also lived apart from their spouse for the last six months of the year (or is legally separated), can still claim it as if single. A hand check that stops at "MFS means no EITC" misses this narrow but real exception.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page computes your total tax liability, verifies the qualifying-child tests, or models a state EITC. Both apply the same published federal phase-in/phase-out formula and eligibility rules to the numbers you enter; verify against IRS Publication 596 or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal EITC rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

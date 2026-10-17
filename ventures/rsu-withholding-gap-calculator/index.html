@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RSU Tax Withholding Calculator 2026 — Is 22% Enough? Free</title>
+  <meta name="description" content="Free 2026 RSU withholding calculator: see how much federal tax your vest really adds versus the flat 22% your employer withholds, the shortfall you will owe in April, and the extra W-4 withholding per paycheck to close it. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="RSU Tax Withholding Calculator 2026 — is 22% enough?">
+  <meta property="og:description" content="The gap between the 22% withheld on your RSU vest and the tax you actually owe. In your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RSU Withholding Gap Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares the flat 22% federal withholding on an RSU vest with the tax the vest actually adds at your 2026 brackets, plus Additional Medicare Tax, state tax and the underpayment-penalty safe harbor. Entirely client-side.", "featureList": "RSU withholding shortfall, bracket layering, Additional Medicare Tax, safe harbor check, extra W-4 per paycheck"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is tax withheld on my RSUs not enough?", "acceptedAnswer": {"@type": "Answer", "text": "Employers withhold federal income tax on a vest at a flat 22% supplemental rate (37% above $1,000,000). Your real tax is set by your bracket. If your income including the vest reaches the 24%, 32% or 35% bracket, 22% under-withholds and the difference is due when you file."}}, {"@type": "Question", "name": "How much tax do I owe on RSUs?", "acceptedAnswer": {"@type": "Answer", "text": "The vest is ordinary wage income, so the tax it adds is the difference between your tax with and without it. Enter your salary and the vest value and the calculator returns that number, the withholding, and the gap."}}, {"@type": "Question", "name": "Can I be over-withheld on RSUs?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. If your total income lands in the 10% or 12% bracket, the flat 22% takes more than the vest adds. The difference returns as a refund."}}, {"@type": "Question", "name": "How do I avoid an underpayment penalty on a big vest?", "acceptedAnswer": {"@type": "Answer", "text": "Withholding of at least 90% of this year's tax, or 100% of last year's (110% if last year's AGI was over $150,000), meets the safe harbor. Extra W-4 withholding late in the year counts as paid evenly through the year, which a late estimated payment does not."}}, {"@type": "Question", "name": "What is the Additional Medicare Tax on RSUs?", "acceptedAnswer": {"@type": "Answer", "text": "A 0.9% tax on wages over $200,000 single or $250,000 joint (Form 8959). Employers begin withholding at $200,000 of wages regardless of filing status."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published 2026 IRS rules to the numbers you enter and ignores credits, AMT, capital gains on sale, state brackets and more. Confirm with a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RSU WITHHOLDING CALCULATOR · 2026 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Your RSUs vested. Is the 22% your employer withheld enough?</h1>
+    <p>Enter your salary and the vest value. You get the <strong>tax the vest really adds</strong>
+    at your 2026 federal brackets, the <strong>gap versus the flat 22%</strong> withheld, the
+    Additional Medicare Tax, and the <strong>extra W-4 withholding per paycheck</strong> that closes it
+    before the year ends.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your 2026 income</h2>
+    <div class="grid">
+      <div>
+        <label for="wages">Salary and other W-2 wages, excluding the vest ($)</label>
+        <input type="number" id="wages" min="0" step="1" placeholder="e.g. 180000">
+      </div>
+      <div>
+        <label for="vest">RSU income vesting this year, total ($)</label>
+        <input type="number" id="vest" min="0" step="1" placeholder="e.g. 100000">
+      </div>
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="hoh">Head of household</option>
+        </select>
+      </div>
+      <div>
+        <label for="other-income">Other taxable income, optional ($)</label>
+        <input type="number" id="other-income" min="0" step="1" placeholder="interest, spouse wages, etc.">
+      </div>
+      <div>
+        <label for="deduction">Your own deduction instead of standard, optional ($)</label>
+        <input type="number" id="deduction" min="0" step="1" placeholder="standard deduction">
+      </div>
+      <div>
+        <label for="withholding-rate">Federal withholding rate on the vest, optional (%)</label>
+        <input type="number" id="withholding-rate" min="0" step="0.1" placeholder="22">
+      </div>
+      <div>
+        <label for="state-rate">State tax rate on the vest, optional (%)</label>
+        <input type="number" id="state-rate" min="0" step="0.1" placeholder="e.g. 9.3">
+      </div>
+      <div>
+        <label for="state-withheld">State withholding rate on the vest, optional (%)</label>
+        <input type="number" id="state-withheld" min="0" step="0.01" placeholder="e.g. 10.23">
+      </div>
+      <div>
+        <label for="salary-withheld">Federal tax withheld from salary this year, optional ($)</label>
+        <input type="number" id="salary-withheld" min="0" step="1" placeholder="assumes it covers salary">
+      </div>
+      <div>
+        <label for="prior-tax">Last year's total federal tax, optional ($)</label>
+        <input type="number" id="prior-tax" min="0" step="1" placeholder="for the safe harbor">
+      </div>
+      <div>
+        <label for="paychecks">Paychecks left this year, optional</label>
+        <input type="number" id="paychecks" min="0" step="1" placeholder="e.g. 10">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="prior-over-150k"><label for="prior-over-150k">Last year's AGI was over $150,000 (safe harbor is 110%)</label></div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your salary and vest, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="result-table"></tbody></table>
+    <h3>Which brackets the vest lands in</h3>
+    <table><thead><tr><th scope="col">Bracket</th><th scope="col">Vest taxed here</th><th scope="col">Tax</th></tr></thead><tbody id="layer-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Tax year 2026 only.</strong> Brackets and deductions change every year.</li>
+      <li><strong>Wages and ordinary income only.</strong> Tax on selling the shares (capital gain or loss against the vest-day basis), AMT, credits, itemised deductions you have not entered, the 3.8% net investment income tax and the Social Security wage base are not modelled.</li>
+      <li><strong>State tax is a flat rate you enter.</strong> Graduated state brackets, local tax and multi-state sourcing can differ.</li>
+      <li><strong>One total for the year.</strong> Vests are added together; the flat rate and the bracket math do not depend on when in the year each vest happens.</li>
+      <li><strong>Salary withholding is assumed right</strong> unless you enter it, so the result isolates the vest.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is tax withheld on my RSUs not enough?</h3>
+    <p>Employers withhold federal income tax on a vest at a flat 22% supplemental rate (37% above $1,000,000). Your real tax is set by your bracket. If your income including the vest reaches the 24%, 32% or 35% bracket, 22% under-withholds and the difference is due when you file.</p>
+    <h3>How much tax do I owe on RSUs?</h3>
+    <p>The vest is ordinary wage income, so the tax it adds is the difference between your tax with and without it. Enter your salary and the vest value and the calculator returns that number, the withholding, and the gap.</p>
+    <h3>Can I be over-withheld on RSUs?</h3>
+    <p>Yes. If your total income lands in the 10% or 12% bracket, the flat 22% takes more than the vest adds. The difference returns as a refund.</p>
+    <h3>How do I avoid an underpayment penalty on a big vest?</h3>
+    <p>Withholding of at least 90% of this year's tax, or 100% of last year's (110% if last year's AGI was over $150,000), meets the safe harbor. Extra W-4 withholding late in the year counts as paid evenly through the year, which a late estimated payment does not.</p>
+    <h3>What is the Additional Medicare Tax on RSUs?</h3>
+    <p>A 0.9% tax on wages over $200,000 single or $250,000 joint (Form 8959). Employers begin withholding at $200,000 of wages regardless of filing status.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies published 2026 IRS rules to the numbers you enter and ignores credits, AMT, capital gains on sale, state brackets and more. Confirm with a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tax_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Comparing offers with equity? The <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a> haircuts it. Holding stock options too? The <a href="../iso-exercise-amt-calculator/">ISO exercise AMT calculator</a> finds how many you can exercise before AMT.</p>
+    <p>Related: <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>, <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a> the <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a> and the <a href="../bonus-take-home-gross-up-calculator/">bonus take-home and gross-up calculator</a>.</p>
+    <p>Participate in an ESPP too? The <a href="../espp-tax-calculator/">ESPP tax calculator</a> compares selling now with holding for a qualifying sale.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { rsuGap, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["wages", "vest", "other-income", "deduction", "withholding-rate", "state-rate", "state-withheld", "salary-withheld", "prior-tax", "paychecks"];
+    const raw = (id) => $("#" + id).value;
+    const v = (id) => Number(raw(id)) || 0;
+    const p = (id) => (raw(id) === "" ? "" : Number(raw(id)) / 100);
+    const status = $("#form-status"), report = $("#report");
+    const pct = (x) => (x * 100).toFixed(1) + "%";
+
+    function runCalculate() {
+      const r = rsuGap({
+        filingStatus: $("#filing-status").value, wages: v("wages"), vest: v("vest"), otherIncome: v("other-income"),
+        deductionOverride: v("deduction"), withholdingRate: p("withholding-rate"), stateRate: p("state-rate"),
+        stateWithheldRate: p("state-withheld"), salaryWithheld: raw("salary-withheld") === "" ? "" : v("salary-withheld"),
+        priorYearTax: v("prior-tax"), priorYearAgiOver150k: $("#prior-over-150k").checked, paychecksLeft: v("paychecks"),
+      });
+      if (r.invalid) {
+        status.textContent = "Enter an RSU vest amount above zero.";
+        report.hidden = true;
+        return;
+      }
+      const word = r.gap > 0 ? "short" : "over-withheld";
+      $("#report-stats").innerHTML = `The vest adds about <strong>${money(r.federalTaxOnVest)}</strong> of federal income tax (${pct(r.effectiveOnVest)} average, ${Math.round(r.marginalRate * 100)}% on the top dollar). Withholding takes <strong>${money(r.federalWithheld)}</strong>. Federal gap: <strong>${money(r.federalGap)}</strong>. All taxes together you are about <strong>${money(Math.abs(r.gap))} ${word}</strong>.`;
+      const rows = [
+        ["Taxable income without the vest", money(r.taxableBefore)],
+        ["Taxable income with the vest", money(r.taxableAfter)],
+        ["Federal income tax the vest adds", money(r.federalTaxOnVest)],
+        ["Federal income tax withheld on the vest", money(r.federalWithheld)],
+        ["<strong>Federal income tax gap</strong>", `<strong>${money(r.federalGap)}</strong>`],
+        ["Additional Medicare Tax gap", money(r.medicareGap)],
+        ["State tax gap", money(r.stateGap)],
+        ["<strong>Total gap (positive = you owe)</strong>", `<strong>${money(r.gap)}</strong>`],
+        ["Total federal tax for the year", money(r.totalFederalTax)],
+        ["Total federal withheld (salary + vest)", money(r.totalFederalWithheld)],
+        ["Safe-harbor withholding target", money(r.safeHarborTarget)],
+      ];
+      $("#result-table").innerHTML = rows.map(([k, val]) => `<tr><th scope="row">${k}</th><td>${val}</td></tr>`).join("");
+      $("#layer-table").innerHTML = r.layers.map((x) => `<tr><td>${Math.round(x.rate * 100)}%</td><td>${money(x.amount)}</td><td>${money(x.tax)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("tax_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      $("#wages").value = 180000;
+      $("#vest").value = 100000;
+      $("#filing-status").value = "single";
+      $("#prior-over-150k").checked = false;
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: single, $180,000 salary, $100,000 vest. Gap $7,200.25.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your salary and vest, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[project]
+name = "garment-stackopt"
+version = "0.1.0"
+description = "Optimising thin-film stacks for low angle shift at a fixed colour, with non-LLM baselines at equal budget"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-thincolor/src"]

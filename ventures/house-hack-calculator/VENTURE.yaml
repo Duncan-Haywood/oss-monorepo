@@ -1,0 +1,59 @@
+name: house-hack-calculator
+description: >-
+  Free browser calculator for first-time buyers of a 2-4 unit building they will live in: FHA or conventional payment with
+  mortgage insurance, the monthly cost after rent, the rent needed to live free, the highest price at which they live free,
+  the FHA self-sufficiency test for 3-4 units, and the 10-year return versus renting with a flat-prices stress case.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest venture at 0.17 (adu-payback-calculator, a
+# lexical false match). brrrr-calculator, rental-dscr-calculator and fix-and-flip-deal-analyzer model investor purchases;
+# none models owner-occupied low-down financing, the live-in year or the FHA self-sufficiency test.
+#
+# Why this niche: house hacking is the most-discussed first-purchase strategy among aspiring landlords, and the people
+# asking have real money at stake (a six-figure loan) and a real problem (will the rent actually cover it, and will a lender
+# approve it). The arithmetic that matters -- MIP schedule, 75% rent credit, PMI drop-off, live-in versus moved-out cash
+# flow -- is exactly what forum spreadsheets get wrong.
+#
+# First visitor: people searching "house hack calculator", "FHA 3 unit self sufficiency test", "duplex FHA calculator";
+# r/realestateinvesting, r/FirstTimeHomeBuyer and BiggerPockets calculator and "should I house hack" threads. Volume not
+# measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; no account data, nothing stored, no lending decision or loan
+# offer. Page says it is an illustration, not financial or lending advice, lists what is not modelled, tells the reader
+# that MIP rates and lender rules change and must be confirmed, and carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): donations; lead magnet into the real-estate calculator cluster.
+
+hypotheses:
+  - claim: >-
+      Aspiring house hackers will enter a real listing's numbers into a no-signup tool to learn the monthly cost after rent
+      and whether a 3-4 unit FHA loan passes the self-sufficiency test, because forum spreadsheets rarely include the MIP
+      schedule or the 75% rent rule.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing the highest price at which the buyer lives free changes which listings they pursue.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that income tax, depreciation or county loan limits are the common reason the numbers feel wrong, at which point the tool should model them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/house-hack-calculator/
+  analytics: null

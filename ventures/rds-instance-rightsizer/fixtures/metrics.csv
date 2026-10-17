@@ -1,0 +1,4 @@
+db_identifier,cpu_avg,cpu_p95,freeable_mem_gb_min,connections_p95
+orders-prod,12,22,38,180
+reports-replica,9,15,20,60
+dev-sandbox,4,9,6.5,12

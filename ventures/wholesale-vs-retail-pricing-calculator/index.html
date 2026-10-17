@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wholesale vs Retail Pricing Calculator for Makers — Direct, Wholesale, Consignment</title>
+  <meta name="description" content="Free calculator for makers and small brands: what you keep per unit and per order selling direct, wholesale or on consignment, after fees, shipping, your time and payment terms. Runs in your browser.">
+  <meta property="og:title" content="Wholesale vs Retail Pricing Calculator — free, private">
+  <meta property="og:description" content="Direct vs wholesale vs consignment profit, the wholesale price that hits your margin, and what net 60 really costs.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wholesale vs Retail Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares what a maker keeps per unit and per order selling direct, wholesale or on consignment, including fees, shipping, your time, payment terms and sell-through. Runs in your browser.", "featureList": "Direct vs wholesale vs consignment profit, target-margin wholesale price, wholesale discount ladder, net-terms cost, consignment break-even sell-through"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the usual wholesale price for handmade goods?", "acceptedAnswer": {"@type": "Answer", "text": "The common rule of thumb is keystone: wholesale is half of retail, and the shop doubles it. This calculator starts there and lets you change the share, then shows what each channel leaves you per unit and per order after fees, shipping, your time and the cost of waiting to be paid."}}, {"@type": "Question", "name": "Is wholesale worth it compared with selling direct?", "acceptedAnswer": {"@type": "Answer", "text": "Per unit, usually not: a direct sale often earns two to three times the profit. Wholesale wins on volume and on time saved. The page shows how many direct sales one wholesale order equals, so you can judge whether you could realistically sell that many yourself."}}, {"@type": "Question", "name": "How is consignment different from wholesale?", "acceptedAnswer": {"@type": "Answer", "text": "On consignment you make and deliver every unit but are paid only for the ones that sell, and the shop keeps its share. The page shows the sell-through rate you need to break even."}}, {"@type": "Question", "name": "What do net 30 and net 60 terms cost me?", "acceptedAnswer": {"@type": "Answer", "text": "You pay for materials before the shop pays you. The tool prices that wait using a yearly cost of money you choose, and shows the cash you have out before payment arrives."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the numbers you type. Check the result before using it to set prices."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WHOLESALE VS RETAIL PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will wholesale actually make you money?</h1>
+    <p>Enter your unit cost and retail price. See what you <strong>keep per unit and per order</strong> selling direct, wholesale or on consignment, after fees, shipping, your own time and the cost of waiting to be paid, plus the wholesale price that reaches your target margin.</p>
+    <p class="note">Nothing you type leaves this tab.</p>
+  </header>
+  <section class="card">
+    <h2>1. Your numbers</h2>
+    <div class="grid">
+      <div><label for="unitCost">Unit cost (materials + your labour)</label><input type="number" id="unitCost" min="0" step="any" value="12"></div>
+      <div><label for="retailPrice">Retail price</label><input type="number" id="retailPrice" min="0" step="any" value="40"></div>
+      <div><label for="wholesalePct">Wholesale as % of retail</label><input type="number" id="wholesalePct" min="0" step="any" value="50"></div>
+      <div><label for="directFeePct">Direct sale fees (%)</label><input type="number" id="directFeePct" min="0" step="any" value="5.5"></div>
+      <div><label for="directShip">Packaging + postage you absorb, direct</label><input type="number" id="directShip" min="0" step="any" value="4"></div>
+      <div><label for="directMinutes">Handling minutes per direct unit</label><input type="number" id="directMinutes" min="0" step="any" value="6"></div>
+      <div><label for="wholesaleShip">Packaging + freight per wholesale unit</label><input type="number" id="wholesaleShip" min="0" step="any" value="0.6"></div>
+      <div><label for="wholesaleMinutes">Handling minutes per wholesale unit</label><input type="number" id="wholesaleMinutes" min="0" step="any" value="1"></div>
+      <div><label for="minutesRate">Your time, per hour</label><input type="number" id="minutesRate" min="0" step="any" value="25"></div>
+      <div><label for="orderQty">Units in a wholesale order</label><input type="number" id="orderQty" min="0" step="any" value="48"></div>
+      <div><label for="netDays">Payment terms (days; 0 = up front)</label><input type="number" id="netDays" min="0" step="any" value="30"></div>
+      <div><label for="capitalPct">Yearly cost of money (%)</label><input type="number" id="capitalPct" min="0" step="any" value="12"></div>
+      <div><label for="consignPct">Shop's share on consignment (%)</label><input type="number" id="consignPct" min="0" step="any" value="40"></div>
+      <div><label for="sellThroughPct">Consignment sell-through (%)</label><input type="number" id="sellThroughPct" min="0" step="any" value="60"></div>
+      <div><label for="targetMarginPct">Target margin (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="30"></div>
+    </div>
+    <p><button type="button" id="go">Calculate</button><button type="button" class="secondary" id="reset">Reset to example</button></p>
+    <p class="note" id="status">Edit any number and click Calculate. The page starts with an example.</p>
+  </section>
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="findings"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Channel</th><th class="n" scope="col">You receive per unit</th><th class="n" scope="col">Your cost per unit</th><th class="n" scope="col">Profit per unit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note">Consignment figures are per unit placed: you fund every unit but are paid only on the share that sells.</p>
+    <h3>One wholesale order</h3>
+    <p class="stats" id="order"></p>
+    <h3>Price that reaches your target margin</h3>
+    <p class="stats" id="target"></p>
+    <h3>If the wholesale share changes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Wholesale share of retail</th><th class="n" scope="col">Price per unit</th><th class="n" scope="col">Profit per unit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Profit on the order</th></tr></thead><tbody id="ladder"></tbody></table></div>
+  </section>
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Direct</strong> profit = retail price − unit cost − fee % of retail − packaging and postage you absorb − handling minutes at your hourly value.</li>
+      <li><strong>Wholesale</strong> profit = retail × wholesale share − unit cost − bulk packaging and freight − handling − the cost of the money tied up until the shop pays (unit cost × yearly rate × days ÷ 365).</li>
+      <li><strong>Consignment</strong> per unit placed = retail × (1 − shop share) × sell-through − the same cost of making and delivering every unit.</li>
+      <li><strong>Not modelled:</strong> returns and markdown support, shop-required displays or samples, sales tax, trade-show costs, unpaid invoices, and that a wholesale account can lift your brand or cost you retail customers.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the usual wholesale price for handmade goods?</h3>
+    <p>The common rule of thumb is keystone: wholesale is half of retail, and the shop doubles it. This calculator starts there and lets you change the share, then shows what each channel leaves you per unit and per order after fees, shipping, your time and the cost of waiting to be paid.</p>
+    <h3>Is wholesale worth it compared with selling direct?</h3>
+    <p>Per unit, usually not: a direct sale often earns two to three times the profit. Wholesale wins on volume and on time saved. The page shows how many direct sales one wholesale order equals, so you can judge whether you could realistically sell that many yourself.</p>
+    <h3>How is consignment different from wholesale?</h3>
+    <p>On consignment you make and deliver every unit but are paid only for the ones that sell, and the shop keeps its share. The page shows the sell-through rate you need to break even.</p>
+    <h3>What do net 30 and net 60 terms cost me?</h3>
+    <p>You pay for materials before the shop pays you. The tool prices that wait using a yearly cost of money you choose, and shows the cash you have out before payment arrives.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the numbers you type. Check the result before using it to set prices.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>reset</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing handmade goods? See the <a href="../craft-fair-booth-calculator/">craft fair booth calculator</a>, the <a href="../candle-batch-cost-calculator/">candle batch cost calculator</a> and the <a href="../etsy-profit-calculator/">Etsy profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { channels, discountLadder, money, pct, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    const read = () => Object.fromEntries(keys.map((k) => [k, $("#" + k).value]));
+    function run() {
+      const v = read(), c = channels(v);
+      if (c.error) { $("#status").textContent = c.error; $("#report").hidden = true; return false; }
+      $("#rows").innerHTML = [c.direct, c.wholesale, c.consignment].map((x) => `<tr><th scope="row">${esc(x.name)}${x.name === c.best ? " ★" : ""}</th><td class="n">${money(x.revenue)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.profit)}</td><td class="n">${pct(x.margin)}</td></tr>`).join("");
+      $("#findings").innerHTML = c.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#order").textContent = `${c.orderQty} units at ${money(c.wsPrice)} = ${money(c.orderRevenue)} in revenue and ${money(c.orderProfit)} profit. You spend about ${money(c.cashOut)} on materials and shipping before being paid. That profit equals ${c.directEquivalent ?? "–"} direct sales.`;
+      $("#target").textContent = c.priceForTarget === null ? "–" : `For a ${c.o.targetMarginPct}% margin on wholesale you need ${money(c.priceForTarget)} per unit, which is ${c.minWholesalePct}% of your current retail price, or a retail price of ${money(c.retailForTarget)} at your current wholesale share.`;
+      $("#ladder").innerHTML = discountLadder(v).map((l) => `<tr><th scope="row">${l.pct}%</th><td class="n">${money(l.price)}</td><td class="n">${money(l.profit)}</td><td class="n">${pct(l.margin)}</td><td class="n">${money(l.orderProfit)}</td></tr>`).join("");
+      $("#report").hidden = false; $("#status").textContent = "Updated."; return true;
+    }
+    $("#go").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#reset").addEventListener("click", () => { keys.forEach((k) => ($("#" + k).value = DEFAULTS[k])); if (run()) record("reset"); });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    run();
+  </script>
+</body>
+</html>

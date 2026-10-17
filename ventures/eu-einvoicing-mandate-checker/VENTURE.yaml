@@ -1,0 +1,43 @@
+name: eu-einvoicing-mandate-checker
+description: >-
+  Free browser tool for EU businesses facing B2B e-invoicing mandates: pick country (Germany, France, Belgium, Poland, Croatia, Greece, Italy, Spain) and size band to see receive and issue dates, required format, penalties and whether paper or PDF invoicing is still enough, plus the EU ViDA 2030 date. Nothing is uploaded. Not legal or tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no mandate-timeline tool in ventures/ (sibling einvoice-preflight validates invoice files, a different job; the
+# eu-* checkers are other regulations). Not in screened-out.md.
+#
+# First visitor: bookkeeper, SME owner or ERP integrator in DE/FR/BE/PL; search phrases "e-invoicing mandate Germany 2027", "France facturation electronique
+# septembre 2026 PME", "KSeF obowiazek", "Belgium Peppol mandatory 2026". Several of these dates are live or within a year, so demand is current. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into einvoice-preflight; GitHub Sponsors. Paid version, not built: per-client mandate tracker for accounting
+# firms (client list by country and size, dated task list, alerts when a date moves), behind an env-var switch.
+#
+# Liability: first read of fast-moving rules; rejects bad input, names a verify source on every result, says plainly that national authorities decide, carries
+# no-warranty and not-legal-advice clauses. Dates and thresholds were written from memory without network access and must be verified; ethical risk is false comfort
+# from a stale date, mitigated by the verify line and the dated sample.
+
+hypotheses:
+  - claim: >-
+      Bookkeepers and SME owners in Germany, France, Belgium and Poland will use a free checker to learn their receive and issue dates and the required format before choosing an e-invoicing platform.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a date, threshold or penalty differs from the cited law on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-einvoicing-mandate-checker/
+  analytics: null

@@ -1,0 +1,67 @@
+name: youtube-adsense-payout-to-journal
+description: >-
+  Free browser tool that turns a Google AdSense / YouTube payments export into balanced accounting journals
+  for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It books each payment to AdSense revenue, books
+  the US tax Google withholds from non-US creators to a separate withholding-tax receivable account, books the
+  bank deposit, values foreign-currency payments at exchange rates typed in by the user and writes the realised
+  FX gain or loss on its own line, splits the export into one journal per month of payment, and can check the
+  rows against the total that actually reached the bank. Rows no rule recognises are journalled to an
+  uncategorised account rather than dropped. The export is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06. No existing venture covers AdSense. The commercial analogues are A2X, Synder and Link My Books
+# style syncs (platform payouts into Xero and QuickBooks, sold per month); this is the no-account, no-upload,
+# one-export-at-a-time version for YouTube creators, whose AdSense payments arrive once a month net of US tax
+# withholding (for non-US creators) and often in a currency other than the one their books use. Sibling of
+# ko-fi-payout-to-journal, buymeacoffee-payout-to-journal and wise-statement-to-journal; differs in that the
+# export is a short payments list (date, description, amount), withholding rows become a receivable that is
+# grossed up into revenue, and revenue is booked at the earned-month rate against the payment-date rate so the
+# realised FX is visible.
+# Search phrases: "AdSense to QuickBooks", "AdSense to Xero", "how to record YouTube income in QuickBooks",
+# "YouTube creator bookkeeping", "AdSense US tax withholding accounting". Volume not measured with an external tool.
+#
+# Who: YouTube creators who keep their own books (especially outside the US, where AdSense withholds US tax and
+# pays in dollars), and the bookkeepers serving several of them, who today book the net bank deposit as income.
+#
+# Path to revenue (payment rails stay off): lead magnet for the creator and bookkeeper audience. If usage
+# appears, the paid version is what a browser page cannot do: batch many clients, remember the account mapping
+# and rates per client, and add Twitch, Patreon and sponsorship invoices. Not built.
+#
+# Liability: writes a journal from the user's own export and the user's own typed rates, shows the check it
+# ran, states what it does not check (tax treatment, the correctness of the rates), and carries the no-warranty,
+# independent-of-Google and financial-data clauses.
+#
+# Unverified: the column names of the AdSense payments export (assumed Date, Description, Amount and an optional
+# Currency, matched by several aliases), whether a payment row is shown before or after US withholding (assumed
+# after, with withholding as a separate row), how Google words withholding and adjustment rows (matched loosely
+# by description), and the Xero, QuickBooks Online and IIF import layouts are from memory of public help
+# documents; nothing ran against a real AdSense export or a live import. The first export this misreads is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      A YouTube creator or their bookkeeper will paste an AdSense payments export into a no-upload page to get a
+      month-split journal with withholding tax and FX split out, because the alternatives are booking the net
+      bank deposit as income (hiding the withholding credit and the FX) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an AdSense export this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/youtube-adsense-payout-to-journal/
+  analytics: null

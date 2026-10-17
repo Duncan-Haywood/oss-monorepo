@@ -57,9 +57,34 @@ on:
     # from `platform/pages/`; it does not read `platform/marketing/`, whose
     # generated pages land inside `ventures/` and so are already covered here.
     paths:
+      # The development analyses (platform/devlog/) read the prompt system's
+      # logs and reports and the portfolio studies, so a new report or run
+      # record republishes them.
+      - "platform/devlog/**"
+      # The writing section (platform/pages/writing.mjs) renders docs/posts/.
+      - "docs/posts/**"
+      - "prompts/**"
+      - "portfolio/research/**"
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
+      # The engineering status page (`platform/pages/engineering.mjs`) reads
+      # these: a run record lands with nearly every PR, so the page tracks main.
+      - "research/*/LOG.md"
+      - "prompts/runs/**"
+      - "prompts/derived/**"
+      - "prompts/process/backlog/**"
+      - "portfolio/ledger/asks.yaml"
       - ".github/workflows/publish-pages-branch.yml"
+      # The development dashboard reads run records and its own code.
+      - "prompts/runs/**"
+      - "platform/devstats/**"
+  # The dashboard's CI, review and branch numbers move without a merge to
+  # these paths; refresh them every three hours. Publishing is still gated on
+  # vars.PAGES_BRANCH_PUBLISH below.
+  schedule:
+    - cron: "41 */3 * * *"
   workflow_dispatch:
 
 # One publisher at a time, repository-wide rather than per-ref: every run
@@ -75,16 +100,23 @@ concurrency:
 
 permissions:
   contents: write
+  # Read-only, for the development dashboard's PR, review and CI metrics.
+  actions: read
+  pull-requests: read
 
 jobs:
   publish:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # The build is ~2000 files and `check.mjs` crawls the whole artifact for
     # dead links; it takes a couple of minutes on a warm runner. Fifteen is
     # generous without letting a wedged build ride the 360-minute default.
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Enough history for the engineering page's "landed on main" view.
+          # Depth 1 would still build; the page would say history is missing.
+          fetch-depth: 400
 
       - uses: actions/setup-node@v4
         with:
@@ -111,6 +143,7 @@ jobs:
       - name: Build and verify the snapshot (publishing off)
         if: vars.PAGES_BRANCH_PUBLISH != 'true'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CONFIRM: publish-pages-branch
           PUSH: "0"
         run: ./platform/pages/publish-branch.sh
@@ -118,6 +151,7 @@ jobs:
       - name: Build, verify, and publish the snapshot
         if: vars.PAGES_BRANCH_PUBLISH == 'true'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           CONFIRM: publish-pages-branch
           PUSH: "1"
         run: ./platform/pages/publish-branch.sh

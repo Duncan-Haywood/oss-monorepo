@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01KAbV8R3LtRJ6bQ3iu8B8JK",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "chip-systolic-edge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/403",
+  "commits": [
+    "2f0fdef"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "apt-get install of yosys pulled Debian python3-numpy that broke numpy for /usr/local python; used a venv"
+  ],
+  "integrity_issues": [],
+  "notes": "No open PRs; old claude/* branches have no merge base with the rewritten main; remaining mergeable branches (ecstatic-lamport-rinikt, trusting-knuth-mc9kqj duplicates of selfrep-rodbeam; loving-gates-cw08zt, robofab-liftload, sleepy-shannon-ck1uzg) already on main, left without PR. Track 3 drawn at random; took chip-systolic-fanin next step.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prop Firm Challenge Calculator — Pass Probability and Expected Cost</title>
+  <meta name="description" content="Simulate a funded-trader evaluation with your own win rate, reward:risk and risk per trade. Pass probability under a profit target, daily loss limit and static or trailing drawdown, expected fees to pass, funded payouts and the break-even win rate. Free, private, in your browser.">
+  <meta property="og:title" content="Prop Firm Challenge Calculator"><meta property="og:description" content="Will your strategy survive the challenge rules, and is the fee worth it? Monte Carlo pass odds, expected cost to pass and break-even win rate. Private, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Prop Firm Challenge Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Monte Carlo pass probability for funded-trader evaluations, static or trailing drawdown, daily loss limit, expected cost to pass, funded-phase payouts, break-even win rate, risk-per-trade sweep"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I estimate the chance of passing a prop firm challenge?","acceptedAnswer":{"@type":"Answer","text":"Model the challenge as a random walk with walls: your profit target is the upper wall, the maximum drawdown and the daily loss limit are lower walls, and the time limit is a clock. Each trade moves your balance up by your risk times your reward-to-risk ratio with probability equal to your win rate, and down by your risk otherwise. Run that thousands of times and count how many attempts hit the target first. This calculator does exactly that with your own numbers, and shows how the attempts that fail were ended."}},{"@type":"Question","name":"What is the difference between a static and a trailing drawdown?","acceptedAnswer":{"@type":"Answer","text":"A static drawdown floor is fixed at the starting balance minus the allowed loss, so profit gives you a bigger cushion. A trailing drawdown floor follows your highest balance upward, so the cushion stays the same size and profit you have not locked in can disappear. Many firms stop the trailing floor once it reaches the starting balance. The two rules produce very different pass rates for the same strategy, which is why the calculator lets you choose and says which one it used."}},{"@type":"Question","name":"How much does a prop firm challenge really cost if I need several attempts?","acceptedAnswer":{"@type":"Answer","text":"The expected cost to pass is the fee divided by your pass rate. At a 25% pass rate a $540 fee costs $2,160 on average before you are funded, and any single trader can spend far more or less than the average. This is a simulation of assumed inputs rather than a forecast, so treat it as a way to compare rule sets and risk settings, not as a promise."}},{"@type":"Question","name":"What risk per trade gives the best chance of passing?","acceptedAnswer":{"@type":"Answer","text":"Neither the smallest nor the largest. Very small risk rarely breaches a limit but runs out the clock before reaching the target, and large risk reaches the target faster but breaches a loss limit more often. The table under the result sweeps risk per trade across your own rules so you can see where the pass rate peaks, then check that the peak still survives a losing streak."}},{"@type":"Question","name":"Is passing the challenge worth the fee if my edge is small?","acceptedAnswer":{"@type":"Answer","text":"Only if expected payouts exceed the fee. The calculator estimates that by simulating a funded phase with the same strategy, paying you your profit split each time the account gains your payout target, and ending the account on a breach. If your expectancy per trade is zero or negative, no rule set fixes the odds and the fee is the cost of a ticket, which the calculator states plainly."}},{"@type":"Question","name":"Does the calculator send my numbers anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The simulation runs in your browser, nothing is uploaded, and there is no account. A share link stores your inputs in the link itself, so send it only to people who may see them. It does not know any firm's exact rules, so enter the rules from the firm's own terms and check them yourself."}}]}</script>
+  <style>
+    :root{--bg:#eef1f6;--fg:#20232a;--card:#fff;--line:#c7d0dd;--field:#a7b2c4;--accent:#1f4fbf;--warn:#9a3d00;--ok:#0f6b3a;--res:#18233c;--res-fg:#f3f6ff;--res-warn:#ffd09c;--res-ok:#a9e6c3;--res-line:#ffffff2b;font-family:system-ui,sans-serif;color:var(--fg);background:var(--bg)}
+    @media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e6e9f0;--card:#1b202b;--line:#333c4d;--field:#4a566b;--accent:#8fb2ff;--warn:#ffb27a;--ok:#7fd9a6}}
+    body{max-width:1120px;margin:auto;padding:32px 16px;background:var(--bg);color:var(--fg)}
+    header{max-width:760px}h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1;letter-spacing:-.04em;margin:8px 0 16px}
+    a{color:var(--accent)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:18px;align-items:start}
+    section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+    h2{font-size:1.1rem;margin-top:0}h3{font-size:1rem}
+    fieldset{border:0;padding:0;margin:0 0 16px;display:grid;gap:12px}legend{font-weight:700;margin-bottom:8px;padding:0}
+    label{display:grid;gap:4px;font-weight:650;font-size:.9rem}
+    .hint{font-weight:400;font-size:.8rem;opacity:.8}
+    input,select,textarea{font:inherit;padding:9px;border:1px solid var(--field);border-radius:7px;background:var(--card);color:var(--fg);min-width:0}
+    textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+    button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+    @media (prefers-color-scheme:dark){button{color:#0b1020}}
+    button.secondary{background:transparent;color:var(--accent)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    #result{background:var(--res);color:var(--res-fg);border-color:var(--res)}#result a{color:#bcd7ff}
+    #result textarea{width:100%;box-sizing:border-box;background:#0f1830;color:var(--res-fg);border-color:#ffffff40}
+    #result label{color:var(--res-fg)}
+    .hero{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin:6px 0}.ok{color:var(--res-ok)}.warn{color:var(--res-warn)}
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:.86rem}
+    th,td{padding:6px 6px;border-bottom:1px solid var(--res-line);text-align:left;vertical-align:top}td.n,th.n{text-align:right;white-space:nowrap}
+    caption{text-align:left;font-weight:700;padding-bottom:4px}
+    dl{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;text-align:right}
+    .note{font-size:.83rem;opacity:.85;line-height:1.45}
+    #faq,footer{max-width:1120px;margin:18px auto 0}footer{font-size:.83rem}
+    footer label{display:flex;align-items:center;gap:8px;font-weight:600}footer input[type=checkbox]{width:auto;padding:0}
+    #result button.secondary{color:#bcd7ff;border-color:#bcd7ff}
+    @media(max-width:820px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <p>FOR FUNDED-TRADER CHALLENGE ENTRANTS</p>
+    <h1>Will your strategy pass the challenge, and is the fee worth paying?</h1>
+    <p>Enter the firm's rules and your own win rate, reward:risk and risk per trade. The simulator plays the evaluation thousands of times and reports your <strong>pass probability</strong>, how failed attempts ended, the <strong>expected fees to pass</strong>, the value of the funded phase and the win rate you need to break even. It runs privately in your browser and uploads nothing.</p>
+  </header>
+  <main class="layout">
+    <section aria-labelledby="inputs-h">
+      <h2 id="inputs-h">Challenge rules and your strategy</h2>
+      <form id="form" autocomplete="off" novalidate>
+        <fieldset><legend>Challenge rules (from the firm's terms)</legend>
+          <label for="accountSize">Account size ($)<input id="accountSize" type="number" min="0" step="any" value="100000" inputmode="decimal"></label>
+          <label for="profitTargetPct">Profit target (%)<input id="profitTargetPct" type="number" min="0" step="any" value="8" inputmode="decimal"></label>
+          <label for="maxLossPct">Maximum drawdown (%)<input id="maxLossPct" type="number" min="0" step="any" value="10" inputmode="decimal"></label>
+          <label for="dailyLossPct">Daily loss limit (%)<span class="hint">0 for none</span><input id="dailyLossPct" type="number" min="0" step="any" value="5" inputmode="decimal"></label>
+          <label for="drawdownType">Drawdown type<select id="drawdownType"><option value="static">Static (fixed floor)</option><option value="trailing">Trailing (follows your high)</option></select></label>
+          <label for="lockAtStart">Trailing floor stops at starting balance<select id="lockAtStart"><option value="yes">Yes</option><option value="no">No</option></select><span class="hint">Only used with a trailing drawdown</span></label>
+          <label for="minTradingDays">Minimum trading days<span class="hint">0 for none</span><input id="minTradingDays" type="number" min="0" step="1" value="4" inputmode="decimal"></label>
+          <label for="maxDays">Time limit (trading days)<span class="hint">0 for none</span><input id="maxDays" type="number" min="0" step="1" value="30" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Your strategy</legend>
+          <label for="winRatePct">Win rate (%)<input id="winRatePct" type="number" min="0" step="any" value="45" inputmode="decimal"></label>
+          <label for="rewardRisk">Average reward:risk (R)<span class="hint">a 1.5 means a win pays 1.5 times a loss</span><input id="rewardRisk" type="number" min="0" step="any" value="1.5" inputmode="decimal"></label>
+          <label for="riskPerTradePct">Risk per trade (% of account)<input id="riskPerTradePct" type="number" min="0" step="any" value="0.5" inputmode="decimal"></label>
+          <label for="tradesPerDay">Trades per day<input id="tradesPerDay" type="number" min="0" step="1" value="2" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Money</legend>
+          <label for="fee">Challenge fee per attempt ($)<input id="fee" type="number" min="0" step="any" value="540" inputmode="decimal"></label>
+          <label for="profitSplitPct">Profit split you keep (%)<input id="profitSplitPct" type="number" min="0" step="any" value="80" inputmode="decimal"></label>
+          <label for="payoutTargetPct">Payout every (% gain)<input id="payoutTargetPct" type="number" min="0" step="any" value="4" inputmode="decimal"></label>
+          <label for="fundedDays">Funded-phase horizon (days)<span class="hint">0 to ignore payouts</span><input id="fundedDays" type="number" min="0" step="1" value="60" inputmode="decimal"></label>
+        </fieldset>
+        <fieldset><legend>Simulation</legend>
+          <label for="sims">Runs<span class="hint">500 to 50,000</span><input id="sims" type="number" min="0" step="100" value="5000" inputmode="decimal"></label>
+          <label for="seed">Seed<span class="hint">same seed, same answer</span><input id="seed" type="number" min="0" step="1" value="12345" inputmode="decimal"></label>
+        </fieldset>
+        <div class="actions"><button type="submit" id="run">Run simulation</button></div>
+      </form>
+      <p class="note">The simulator assumes every trade risks the same share of the starting balance and that outcomes are independent, so streaks, slippage, fees and news-time rules are not modelled. It does not know any firm's exact rules. Treat it as a way to compare risk settings and rule sets, not as a forecast.</p>
+    </section>
+
+    <section id="result" aria-live="polite" aria-labelledby="result-h">
+      <h2 id="result-h">Simulation result</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="out">
+        <div id="headline" class="hero"></div><div id="subhead"></div>
+        <dl>
+          <dt>Pass probability</dt><dd id="passRate"></dd>
+          <dt>Attempts ended by max drawdown</dt><dd id="failDd"></dd>
+          <dt>Attempts ended by daily loss limit</dt><dd id="failDaily"></dd>
+          <dt>Attempts that ran out of time</dt><dd id="failTime"></dd>
+          <dt>Average days to pass</dt><dd id="days"></dd>
+          <dt>Expected attempts to pass</dt><dd id="attempts"></dd>
+          <dt>Expected fees to pass</dt><dd id="costToPass"></dd>
+          <dt>Average payouts after passing (funded phase)</dt><dd id="payouts"></dd>
+          <dt>Expected value per attempt (payouts minus fee)</dt><dd id="ev"></dd>
+          <dt>Break-even win rate</dt><dd id="breakEven"></dd>
+          <dt>Expectancy per trade</dt><dd id="expectancy"></dd>
+        </dl>
+        <ul id="notes" class="note"></ul>
+        <div class="tablewrap"><table><caption>Pass rate by risk per trade, under your rules</caption><thead><tr><th scope="col" class="n">Risk per trade</th><th scope="col" class="n">Pass probability</th><th scope="col" class="n">Avg days to pass</th><th scope="col" class="n">EV per attempt</th></tr></thead><tbody id="sweep"></tbody></table></div>
+        <label for="summary">Summary (copy to share)</label>
+        <textarea id="summary" rows="9" readonly></textarea>
+        <div class="actions"><button type="button" id="copySummary">Copy summary</button><button type="button" id="csv" class="secondary">Download CSV</button><button type="button" id="share-link" class="secondary">Copy share link</button></div>
+        <p id="shareMsg" class="note" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+    <h3>How do I estimate the chance of passing a prop firm challenge?</h3>
+    <p>Model the challenge as a random walk with walls: your profit target is the upper wall, the maximum drawdown and the daily loss limit are lower walls, and the time limit is a clock. Each trade moves your balance up by your risk times your reward-to-risk ratio with probability equal to your win rate, and down by your risk otherwise. Run that thousands of times and count how many attempts hit the target first. This calculator does exactly that with your own numbers, and shows how the attempts that fail were ended.</p>
+    <h3>What is the difference between a static and a trailing drawdown?</h3>
+    <p>A static drawdown floor is fixed at the starting balance minus the allowed loss, so profit gives you a bigger cushion. A trailing drawdown floor follows your highest balance upward, so the cushion stays the same size and profit you have not locked in can disappear. Many firms stop the trailing floor once it reaches the starting balance. The two rules produce very different pass rates for the same strategy, which is why the calculator lets you choose and says which one it used.</p>
+    <h3>How much does a prop firm challenge really cost if I need several attempts?</h3>
+    <p>The expected cost to pass is the fee divided by your pass rate. At a 25% pass rate a $540 fee costs $2,160 on average before you are funded, and any single trader can spend far more or less than the average. This is a simulation of assumed inputs rather than a forecast, so treat it as a way to compare rule sets and risk settings, not as a promise.</p>
+    <h3>What risk per trade gives the best chance of passing?</h3>
+    <p>Neither the smallest nor the largest. Very small risk rarely breaches a limit but runs out the clock before reaching the target, and large risk reaches the target faster but breaches a loss limit more often. The table under the result sweeps risk per trade across your own rules so you can see where the pass rate peaks, then check that the peak still survives a losing streak.</p>
+    <h3>Is passing the challenge worth the fee if my edge is small?</h3>
+    <p>Only if expected payouts exceed the fee. The calculator estimates that by simulating a funded phase with the same strategy, paying you your profit split each time the account gains your payout target, and ending the account on a breach. If your expectancy per trade is zero or negative, no rule set fixes the odds and the fee is the cost of a ticket, which the calculator states plainly.</p>
+    <h3>Does the calculator send my numbers anywhere?</h3>
+    <p>No. The simulation runs in your browser, nothing is uploaded, and there is no account. A share link stores your inputs in the link itself, so send it only to people who may see them. It does not know any firm's exact rules, so enter the rules from the firm's own terms and check them yourself.</p>
+    <p class="note">Related: <a href="vs-a-trading-spreadsheet.html">how this compares with a trading spreadsheet</a>.</p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. It is a simulation of the inputs you enter, not a forecast or a recommendation to trade or to buy a challenge. Trading carries a risk of loss. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting. The share link stores your inputs in the link itself.</p>
+    <p>Trading in a taxable account too? The <a href="../wash-sale-checker/">wash sale checker</a> flags losses a repurchase would disallow.</p>
+    <p>Not affiliated with any trading firm. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, summaryText, toCsv, encodeState, decodeState, FIELDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (id) => document.getElementById(id);
+    const usd = (n) => { const s = '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return n < 0 ? '-' + s : s; };
+    let last = null;
+    const values = () => Object.fromEntries(FIELDS.map((id) => [id, $(id).value]));
+
+    try {
+      const saved = decodeState(location.hash.replace(/^#/, ''));
+      for (const [k, v] of Object.entries(saved)) if ($(k)) $(k).value = v;
+    } catch { /* a malformed link just falls back to the defaults */ }
+
+    function cell(tr, text, cls) { const td = document.createElement('td'); td.textContent = text; if (cls) td.className = cls; tr.appendChild(td); }
+
+    function render(count = true) {
+      const errors = $('errors'); const out = $('out');
+      try {
+        const r = analyse(values());
+        last = r;
+        errors.hidden = true; errors.textContent = ''; out.hidden = false;
+        const head = $('headline');
+        head.textContent = r.passRatePct + '% chance to pass';
+        head.className = 'hero ' + (r.evPerAttempt >= 0 ? 'ok' : 'warn');
+        $('subhead').textContent = r.expectedCostToPass === null ? 'No simulated attempt passed under these rules.' : 'About ' + r.expectedAttempts + ' attempts and ' + usd(r.expectedCostToPass) + ' in fees on average to pass.';
+        $('passRate').textContent = r.passRatePct + '%';
+        $('failDd').textContent = r.failDrawdownPct + '%';
+        $('failDaily').textContent = r.failDailyPct + '%';
+        $('failTime').textContent = r.failTimePct + '%';
+        $('days').textContent = r.avgDaysToPass === null ? 'n/a' : String(r.avgDaysToPass);
+        $('attempts').textContent = r.expectedAttempts === null ? 'n/a' : String(r.expectedAttempts);
+        $('costToPass').textContent = r.expectedCostToPass === null ? 'n/a' : usd(r.expectedCostToPass);
+        $('payouts').textContent = r.inputs.fundedDays === 0 ? 'not modelled' : String(r.avgPayoutsAfterPass);
+        $('ev').textContent = usd(r.evPerAttempt);
+        $('breakEven').textContent = r.breakEvenWinRatePct === null ? 'not reachable' : r.breakEvenWinRatePct + '%';
+        $('expectancy').textContent = r.expectancyR + 'R';
+        const ul = $('notes'); ul.replaceChildren();
+        for (const n of r.notes) { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); }
+        const tb = $('sweep'); tb.replaceChildren();
+        for (const s of r.sweep) {
+          const tr = document.createElement('tr');
+          cell(tr, s.riskPerTradePct + '%', 'n'); cell(tr, s.passRatePct + '%', 'n'); cell(tr, s.avgDaysToPass === null ? 'n/a' : String(s.avgDaysToPass), 'n'); cell(tr, usd(s.evPerAttempt), 'n');
+          tb.appendChild(tr);
+        }
+        $('summary').value = summaryText(r);
+        if (count) recordUsage('sim_run', $('usageOptOut').checked);
+      } catch (e) {
+        last = null;
+        errors.textContent = e.message; errors.hidden = false; out.hidden = true;
+      }
+    }
+
+    $('form').addEventListener('submit', (ev) => { ev.preventDefault(); render(); });
+    $('usageOptOut').addEventListener('change', () => render(false));
+
+    $('csv').addEventListener('click', () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'prop-firm-risk-sweep.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      recordUsage('csv_exported', $('usageOptOut').checked);
+    });
+
+    $('copySummary').addEventListener('click', async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText($('summary').value); $('shareMsg').textContent = 'Summary copied.'; }
+      catch { $('summary').removeAttribute('readonly'); $('summary').select(); $('shareMsg').textContent = 'Select the summary and copy it.'; }
+      recordUsage('summary_copied', $('usageOptOut').checked);
+    });
+
+    $('share-link').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#' + encodeState(values());
+      try { history.replaceState(null, '', url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); $('shareMsg').textContent = 'Link copied. It contains your inputs, so share it only with people who may see them.'; }
+      catch { $('shareMsg').textContent = 'Copy this link from the address bar. It contains your inputs.'; }
+      recordUsage('share_link_copied', $('usageOptOut').checked);
+    });
+
+    {
+      const control = $('usageOptOut');
+      try {
+        control.checked = readOptOut(localStorage);
+        control.addEventListener('change', () => writeOptOut(localStorage, control.checked));
+      } catch { /* storage blocked: counting stays off the persisted path */ }
+    }
+    render(false);
+  </script>
+</body>
+</html>

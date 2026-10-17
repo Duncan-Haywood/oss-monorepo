@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STR Occupancy Tax Calculator | What Airbnb/Vrbo Collect vs. What You Must Remit</title>
+  <meta name="description" content="Split a short-term rental stay's occupancy tax into what Airbnb or Vrbo already collects and what is left for the host to remit directly, layer by layer -- state, county, city, and a flat per-night fee. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="STR Occupancy Tax Calculator">
+  <meta property="og:description" content="A platform collection agreement rarely covers every tax layer on a listing. See exactly which ones it does, and the dollar amount left for you to file yourself.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"STR Occupancy Tax Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Occupancy tax on one stay split across up to four tax layers (state, county, city, special district) plus a flat per-night fee some jurisdictions charge outside the percentage layers; each layer split between what a platform's collection agreement already remits and what is left for the host to self-file; a taxable base that includes the cleaning fee, which most jurisdictions tax; a monthly rollup from an illustrative bookings-per-month figure; warnings when a layer is fully platform-remitted, fully host-remitted, or named at a 0% rate; and a stay saved automatically to this browser plus a link that reopens the exact figures you entered, so a co-host or bookkeeper sees the same numbers, with nothing uploaded"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Airbnb or Vrbo already pay my occupancy tax for me?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, and rarely all of it. Airbnb and Vrbo each hold collection agreements with some taxing authorities and not others, and those agreements are set per state, county, and city — not per platform. A common pattern is a state sales tax the platform collects and remits automatically, sitting next to a county tourist-development tax it does not, because no agreement covers that county. On the worked example below, $126.50 in total occupancy tax, the platform collects the $69.00 state layer in full and none of the $57.50 county layer, leaving that $57.50 for the host to track and file directly."}},{"@type":"Question","name":"How do I know which tax layers a platform already collects?","acceptedAnswer":{"@type":"Answer","text":"The platform’s own tax help pages, searched by the specific state, county, and city the listing sits in — not by the state alone, since collection agreements are set per authority and a state-level page will not mention a county that is not covered. Some hosts also see it on their payout statement as a line item withheld. When in doubt, ask the county or city tax collector’s office directly whether they have a voluntary collection agreement with the platform for short-term rentals; that office is the authority the money is owed to either way."}},{"@type":"Question","name":"What counts as the taxable base for occupancy tax?","acceptedAnswer":{"@type":"Answer","text":"Most jurisdictions tax the full amount a guest pays for the right to occupy the space, which is usually the nightly rate times nights plus the cleaning fee — not the nightly rate alone. On the worked example, $250 a night for four nights plus a $150 cleaning fee makes a $1,150.00 taxable base, and every tax layer below is a percentage of that figure. A jurisdiction that does not tax the cleaning fee is the exception rather than the rule; check the specific authority’s own guidance and enter $0 there if so."}},{"@type":"Question","name":"What tax rates should I use?","acceptedAnswer":{"@type":"Answer","text":"The ones published by each taxing authority the listing’s address sits inside — state department of revenue, county tax collector, city finance office, and any special district that levies one. This calculator ships no rate table on purpose: rates vary by every layer of jurisdiction, they change, and a table baked into a free tool would be stale in the one place that is expensive to be wrong — a filed remittance. Enter each authority’s current rate and the arithmetic is yours to check."}},{"@type":"Question","name":"What is the flat per-night fee for?","acceptedAnswer":{"@type":"Answer","text":"Some cities and counties charge a fixed dollar amount per night on top of, or instead of, a percentage tax — a tourism assessment or a lodging fee that does not scale with the room rate. It is kept separate from the percentage layers because it is computed differently: nights times a flat rate, not a share of the taxable base. Leave it at zero if the listing’s jurisdiction does not charge one."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your nightly rate, fees, tax layers, and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Can I save this stay or send it to someone else?","acceptedAnswer":{"@type":"Answer","text":"Yes. Your tax layers and the other fields are saved to this browser automatically, so they are still here on your next visit. The copy-link button puts the same figures into the page’s own address after the #, which is never sent to a server or logged anywhere, so sending it to a co-host or bookkeeper uploads nothing."}},{"@type":"Question","name":"Is this tax advice, and does it file anything?","acceptedAnswer":{"@type":"Answer","text":"No to both. It is arithmetic on figures you type, using rates you supply. It is not tax advice and it files nothing — it makes no determination about which authorities tax a specific listing, what a platform’s current collection agreements cover, or what you owe. Verify every figure against each taxing authority’s own guidance, your platform’s tax pages for that specific address, and a qualified tax professional before you rely on it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef0f2; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 820px; margin-bottom: 26px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #143a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #fbfcfd; border: 1px solid #ccd4da; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #12283310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #47535e; margin: -6px 0 14px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9fabb4; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #8c2318; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9fabb4; background: #e9edf0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dbe2e7; }
+    .primary { background: #143a5e; border-color: #143a5e; color: #f2f6f9; }
+    .primary:hover { background: #0f2c48; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .share-status { font-size: .83rem; color: #14603f; }
+    .restore-note { font-size: .85rem; color: #143a5e; background: #e3ecf4; border-radius: 8px; padding: 8px 10px; margin: 10px 0 0; }
+    .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .grid-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .87rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 6px 7px; border-bottom: 1px solid #d5dce1; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .74rem; letter-spacing: .03em; text-transform: uppercase; color: #47535e; font-weight: 700; vertical-align: bottom; }
+    #entry input { padding: 7px; min-width: 84px; }
+    #entry td:first-child input { min-width: 140px; }
+    .result { position: sticky; top: 15px; background: #10222f; color: #eef2f5; border-color: #10222f; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .85rem; opacity: .85; margin: 4px 0 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .83rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    #breakdown tfoot td { font-weight: 700; border-top: 2px solid #9fabb4; }
+    footer { margin-top: 25px; font-size: .82rem; color: #47535e; }
+    footer a { color: #143a5e; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #143a5e; }
+    #faq h3 { margin-bottom: 4px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .grid-two, .grid-three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHORT-TERM RENTAL HOSTS FILING THEIR OWN OCCUPANCY TAX</p>
+    <h1>A platform collection agreement rarely covers every layer.</h1>
+    <p>Airbnb and Vrbo each hold occupancy-tax collection agreements with some taxing authorities and not others, set per state, county, and city. On the stay loaded below &mdash; $250 a night, four nights, a $150 cleaning fee, taxed <strong>$126.50</strong> in total &mdash; the platform collects the <strong>$69.00</strong> state layer in full and none of the <strong>$57.50</strong> county layer. That $57.50 is not withheld anywhere. It is the host&rsquo;s own filing, on every stay, whether or not the payout statement says so.</p>
+    <p>Put your own stay and your own rates in. Everything runs in this browser; nothing is uploaded.</p>
+    <p class="seo-link"><a href="./vs-tracking-it-in-a-spreadsheet.html">This calculator vs. tracking occupancy tax in a spreadsheet</a> &mdash; the layer a hand-built sheet is most likely to drop.</p>
+    <p class="seo-link"><a href="./how-to-find-your-platforms-collection-agreements.html">How to find which tax layers your platform already collects</a> &mdash; four places to check before you guess.</p>
+    <p class="seo-link"><a href="./how-much-occupancy-tax-will-i-have-to-self-file-this-year.html">How much occupancy tax will you have to self-file this year?</a> &mdash; the annual planning total a platform's payout summary never shows.</p>
+  </header>
+
+  <main class="layout">
+    <form id="stayForm">
+      <section>
+        <h2>This stay</h2>
+        <div class="grid-three">
+          <label>Nightly rate ($) <input id="nightlyRate" type="number" min="0" step="0.01" value="250"></label>
+          <label>Nights <input id="nights" type="number" min="0" max="365" step="1" value="4"></label>
+          <label>Cleaning fee ($) <input id="cleaningFee" type="number" min="0" step="0.01" value="150"></label>
+        </div>
+        <p class="hint">Most jurisdictions tax the cleaning fee along with the nightly total &mdash; check the specific authority if unsure, and enter $0 for a layer that does not.</p>
+        <label>Bookings per month (illustrative rollup only) <input id="bookingsPerMonth" type="number" min="0" max="100" step="1" value="6"></label>
+      </section>
+
+      <section>
+        <h2>Tax layers</h2>
+        <p class="hint">One row per taxing authority &mdash; state, county, city, special district. <strong>Rates come from each authority's own current guidance</strong>; this tool ships none. &ldquo;Platform collects&rdquo; is the percentage of <em>that layer</em> a platform's collection agreement already remits for this listing's address &mdash; 100 means fully covered, 0 means it is entirely your own filing. Leave a row's name blank to skip it.</p>
+        <div class="table-wrap">
+          <table id="entry">
+            <thead>
+              <tr>
+                <th scope="col">Layer</th>
+                <th scope="col">Rate %</th>
+                <th scope="col">Platform collects %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="name" data-row="1" aria-label="Row 1 tax layer name" type="text" maxlength="40" value="Florida state sales tax"></td>
+                <td><input class="ratePercent" data-row="1" aria-label="Row 1 tax rate percent" type="number" min="0" max="100" step="0.01" value="6"></td>
+                <td><input class="platformCollectsPercent" data-row="1" aria-label="Row 1 percent the platform collects" type="number" min="0" max="100" step="1" value="100"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="2" aria-label="Row 2 tax layer name" type="text" maxlength="40" value="County tourist development tax"></td>
+                <td><input class="ratePercent" data-row="2" aria-label="Row 2 tax rate percent" type="number" min="0" max="100" step="0.01" value="5"></td>
+                <td><input class="platformCollectsPercent" data-row="2" aria-label="Row 2 percent the platform collects" type="number" min="0" max="100" step="1" value="0"></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="3" aria-label="Row 3 tax layer name" type="text" maxlength="40" value=""></td>
+                <td><input class="ratePercent" data-row="3" aria-label="Row 3 tax rate percent" type="number" min="0" max="100" step="0.01" value=""></td>
+                <td><input class="platformCollectsPercent" data-row="3" aria-label="Row 3 percent the platform collects" type="number" min="0" max="100" step="1" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="name" data-row="4" aria-label="Row 4 tax layer name" type="text" maxlength="40" value=""></td>
+                <td><input class="ratePercent" data-row="4" aria-label="Row 4 tax rate percent" type="number" min="0" max="100" step="0.01" value=""></td>
+                <td><input class="platformCollectsPercent" data-row="4" aria-label="Row 4 percent the platform collects" type="number" min="0" max="100" step="1" value=""></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-two">
+          <label>Flat per-night fee ($, optional) <input id="flatFeePerNight" type="number" min="0" max="1000" step="0.01" value="0"></label>
+          <label>Platform collects of the flat fee (%) <input id="flatFeePlatformCollectsPercent" type="number" min="0" max="100" step="1" value="0"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Work the tax</button>
+          <button type="button" id="clearRows">Clear the example</button>
+          <button type="button" id="copyLink">Copy a link to this stay</button>
+          <span id="shareStatus" class="share-status" role="status" aria-live="polite"></span>
+        </div>
+        <p id="restoreNote" class="restore-note" role="status" aria-live="polite" hidden></p>
+        <p class="hint">This stay is saved automatically to this browser, so it is still here on your next visit &mdash; &ldquo;Clear the example&rdquo; erases both the fields and the saved copy. &ldquo;Copy a link&rdquo; puts every field into the URL after the <code>#</code>, which is never sent to a server or logged anywhere.</p>
+      </section>
+
+      <section>
+        <h2>Layer by layer</h2>
+        <div class="table-wrap">
+          <table id="breakdown">
+            <thead>
+              <tr>
+                <th scope="col">Layer</th>
+                <th scope="col">Tax</th>
+                <th scope="col">Platform collects</th>
+                <th scope="col">You remit</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+            <tfoot id="breakdownFoot"></tfoot>
+          </table>
+        </div>
+        <p class="hint" id="breakdownEmpty">Press &ldquo;Work the tax&rdquo; and the layers fill in.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">You must remit directly, this stay</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="hero-sub" id="heroSub"></p>
+      <p class="empty" id="emptyState">Press &ldquo;Work the tax&rdquo; to see the split.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What the platform does not cover</h3>
+          <p class="gap" id="remitGap">&mdash;</p>
+          <p id="remitText"></p>
+        </div>
+        <dl>
+          <dt class="group">This stay</dt>
+          <dt>Taxable base</dt><dd id="outTaxableBase">&mdash;</dd>
+          <dt>Total occupancy tax</dt><dd id="outTotalTax">&mdash;</dd>
+          <dt>Platform collects</dt><dd id="outPlatformCollected">&mdash;</dd>
+          <dt>You remit</dt><dd id="outHostMustRemit">&mdash;</dd>
+
+          <dt class="group">Illustrative monthly rollup</dt>
+          <dt>Total tax, all bookings</dt><dd id="outMonthlyTax">&mdash;</dd>
+          <dt>Platform collects</dt><dd id="outMonthlyPlatform">&mdash;</dd>
+          <dt>You remit</dt><dd id="outMonthlyHost">&mdash;</dd>
+        </dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Does Airbnb or Vrbo already pay my occupancy tax for me?</h3>
+    <p>Sometimes, and rarely all of it. Airbnb and Vrbo each hold collection agreements with some taxing authorities and not others, and those agreements are set per state, county, and city &mdash; not per platform. A common pattern is a state sales tax the platform collects and remits automatically, sitting next to a county tourist-development tax it does not, because no agreement covers that county. On the worked example below, $126.50 in total occupancy tax, the platform collects the $69.00 state layer in full and none of the $57.50 county layer, leaving that $57.50 for the host to track and file directly.</p>
+
+    <h3>How do I know which tax layers a platform already collects?</h3>
+    <p>The platform&rsquo;s own tax help pages, searched by the specific state, county, and city the listing sits in &mdash; not by the state alone, since collection agreements are set per authority and a state-level page will not mention a county that is not covered. Some hosts also see it on their payout statement as a line item withheld. When in doubt, ask the county or city tax collector&rsquo;s office directly whether they have a voluntary collection agreement with the platform for short-term rentals; that office is the authority the money is owed to either way.</p>
+
+    <h3>What counts as the taxable base for occupancy tax?</h3>
+    <p>Most jurisdictions tax the full amount a guest pays for the right to occupy the space, which is usually the nightly rate times nights plus the cleaning fee &mdash; not the nightly rate alone. On the worked example, $250 a night for four nights plus a $150 cleaning fee makes a $1,150.00 taxable base, and every tax layer below is a percentage of that figure. A jurisdiction that does not tax the cleaning fee is the exception rather than the rule; check the specific authority&rsquo;s own guidance and enter $0 there if so.</p>
+
+    <h3>What tax rates should I use?</h3>
+    <p>The ones published by each taxing authority the listing&rsquo;s address sits inside &mdash; state department of revenue, county tax collector, city finance office, and any special district that levies one. This calculator ships no rate table on purpose: rates vary by every layer of jurisdiction, they change, and a table baked into a free tool would be stale in the one place that is expensive to be wrong &mdash; a filed remittance. Enter each authority&rsquo;s current rate and the arithmetic is yours to check.</p>
+
+    <h3>What is the flat per-night fee for?</h3>
+    <p>Some cities and counties charge a fixed dollar amount per night on top of, or instead of, a percentage tax &mdash; a tourism assessment or a lodging fee that does not scale with the room rate. It is kept separate from the percentage layers because it is computed differently: nights times a flat rate, not a share of the taxable base. Leave it at zero if the listing&rsquo;s jurisdiction does not charge one.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your nightly rate, fees, tax layers, and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Can I save this stay or send it to someone else?</h3>
+    <p>Yes. Your tax layers and the other fields are saved to this browser automatically, so they are still here on your next visit. The copy-link button puts the same figures into the page&rsquo;s own address after the #, which is never sent to a server or logged anywhere, so sending it to a co-host or bookkeeper uploads nothing.</p>
+
+    <h3>Is this tax advice, and does it file anything?</h3>
+    <p>No to both. It is arithmetic on figures you type, using rates you supply. It is not tax advice and it files nothing &mdash; it makes no determination about which authorities tax a specific listing, what a platform&rsquo;s current collection agreements cover, or what you owe. Verify every figure against each taxing authority&rsquo;s own guidance, your platform&rsquo;s tax pages for that specific address, and a qualified tax professional before you rely on it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about which taxing authorities apply to a specific listing, what a platform's current collection agreements cover, or what you owe. It is arithmetic on the numbers you type. Verify every figure against each taxing authority's own guidance, the platform's tax pages for that specific address, and a qualified tax professional before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your nightly rate, fees, tax layers, and the figures worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. This stay is saved to this browser's own storage so it is here next visit, and &ldquo;Copy a link to this stay&rdquo; carries the same figures in the page's own address after the <code>#</code> &mdash; never a query string a server would log, never uploaded, and readable only by whoever you send it to.</p>
+    <p>Comparing payout fees across Airbnb, Vrbo, and direct booking for the same stay? The <a href="../str-host-payout-calculator/">STR host payout calculator</a> is the one for that.</p>
+    <p class="support">Free and open source. If it saves you from a surprise county tax bill, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateTax, round2, LAYER_COUNT, LAYER_FIELDS, GLOBAL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 ? `-${text}` : text;
+    };
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    const cell = (row, field) => document.querySelector(`.${field}[data-row="${row}"]`);
+
+    function readRows() {
+      const rows = [];
+      for (let r = 1; r <= LAYER_COUNT; r += 1) {
+        const row = {};
+        for (const field of LAYER_FIELDS) row[field] = cell(r, field).value;
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function readValues() {
+      const values = { rows: readRows() };
+      for (const id of GLOBAL_INPUT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    // Blanks every cell first, so a restored stay -- from a link or from this
+    // browser's own storage -- never blends with the shipped example rows
+    // still sitting in the markup. Only fields the source actually carries
+    // are then written back in.
+    function applyValues(values) {
+      for (let r = 1; r <= LAYER_COUNT; r += 1) {
+        for (const field of LAYER_FIELDS) cell(r, field).value = '';
+      }
+      for (const id of GLOBAL_INPUT_IDS) el(id).value = '0';
+      if (Array.isArray(values.rows)) {
+        values.rows.forEach((row, index) => {
+          const r = index + 1;
+          if (r > LAYER_COUNT) return;
+          for (const field of LAYER_FIELDS) {
+            if (Object.prototype.hasOwnProperty.call(row, field)) cell(r, field).value = row[field];
+          }
+        });
+      }
+      for (const id of GLOBAL_INPUT_IDS) {
+        if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+      }
+    }
+
+    // Saves whatever is currently typed, not only the last submitted figures.
+    // Wrapped because a browser with site data blocked throws on access
+    // rather than returning null, and a host mid-stay should not lose the
+    // page over a storage setting.
+    function persist() {
+      try { saveBid(localStorage, readValues()); } catch { /* storage blocked */ }
+    }
+
+    function clearInvalid() {
+      for (const input of document.querySelectorAll('#entry input, #stayForm input[type="number"]')) {
+        input.removeAttribute('aria-invalid');
+      }
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before the tax can be worked.';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('breakdownBody').replaceChildren();
+      el('breakdownFoot').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      el('errors').replaceChildren(...errors.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+    }
+
+    function td(text) {
+      const cellEl = document.createElement('td');
+      cellEl.textContent = text;
+      return cellEl;
+    }
+
+    function renderBreakdown(result) {
+      const body = el('breakdownBody');
+      const rows = result.layers.map((line) => {
+        const tr = document.createElement('tr');
+        tr.append(td(line.label), td(money(line.amount)), td(money(line.platformAmount)), td(money(line.hostAmount)));
+        return tr;
+      });
+      if (result.flatFee.amount > 0) {
+        const tr = document.createElement('tr');
+        tr.append(td('Flat per-night fee'), td(money(result.flatFee.amount)), td(money(result.flatFee.platformAmount)), td(money(result.flatFee.hostAmount)));
+        rows.push(tr);
+      }
+      body.replaceChildren(...rows);
+      const foot = document.createElement('tr');
+      foot.append(td('Total'), td(money(result.totalTax)), td(money(result.platformCollected)), td(money(result.hostMustRemit)));
+      el('breakdownFoot').replaceChildren(foot);
+      el('breakdownEmpty').hidden = true;
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').replaceChildren();
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+
+      el('heroNumber').textContent = money(result.hostMustRemit);
+      el('heroSub').textContent = `Of ${money(result.totalTax)} total occupancy tax on this stay, the platform already collects ${money(result.platformCollected)}.`;
+
+      if (result.hostMustRemit > 0 && result.platformCollected > 0) {
+        el('remitGap').textContent = `${money(result.hostMustRemit)} not withheld anywhere`;
+        el('remitText').textContent = `The platform's collection agreements cover ${money(result.platformCollected)} of this stay's ${money(result.totalTax)} in tax. The remaining ${money(result.hostMustRemit)} does not appear on any payout statement -- it is the host's own filing to the authority with no agreement.`;
+      } else if (result.hostMustRemit > 0) {
+        el('remitGap').textContent = `${money(result.hostMustRemit)} entirely your own filing`;
+        el('remitText').textContent = 'None of the tax layers entered are collected by the platform at checkout. The full amount is on you to track and remit.';
+      } else if (result.totalTax > 0) {
+        el('remitGap').textContent = 'Fully covered by the platform';
+        el('remitText').textContent = 'Every layer entered is already collected and remitted by the platform. Confirm that against the platform’s own tax page for this listing’s exact address -- collection agreements are set per jurisdiction and change.';
+      } else {
+        el('remitGap').textContent = 'No tax entered';
+        el('remitText').textContent = 'Add at least one tax layer or a flat per-night fee to see the split.';
+      }
+
+      el('outTaxableBase').textContent = money(result.taxableBase);
+      el('outTotalTax').textContent = money(result.totalTax);
+      el('outPlatformCollected').textContent = money(result.platformCollected);
+      el('outHostMustRemit').textContent = money(result.hostMustRemit);
+      el('outMonthlyTax').textContent = money(result.monthlyTax);
+      el('outMonthlyPlatform').textContent = money(result.monthlyPlatformCollected);
+      el('outMonthlyHost').textContent = money(result.monthlyHostMustRemit);
+
+      el('notes').replaceChildren(...result.warnings.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+
+      renderBreakdown(result);
+    }
+
+    // `track` is false only for the one call this page makes on load when a
+    // link or a saved stay is restored: a page load is not a calculation, and
+    // counting it would tally "tax_worked" for every visitor who did nothing
+    // but open a link somebody sent them.
+    function workTax({ track = true } = {}) {
+      const result = calculateTax(readValues());
+      if (!result.ok) {
+        renderErrors(result.errors);
+        if (track) count('tax_rejected');
+        return null;
+      }
+      render(result);
+      if (track) count('tax_worked');
+      return result;
+    }
+
+    el('stayForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      workTax();
+    });
+
+    el('clearRows').addEventListener('click', () => {
+      applyValues({});
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Enter your own stay and press “Work the tax”.';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('errors').replaceChildren();
+      el('breakdownBody').replaceChildren();
+      el('breakdownFoot').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      el('restoreNote').hidden = true;
+      cell(1, 'name').focus();
+      try { clearBid(localStorage); } catch { /* storage blocked; the reload still clears the form */ }
+      count('example_cleared');
+    });
+
+    async function copyLink() {
+      const query = encodeBid(readValues());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('shareStatus').textContent = query
+        ? 'Link copied — it reopens this stay, every layer included.'
+        : 'Nothing entered yet — the link would open blank.';
+      setTimeout(() => { el('shareStatus').textContent = ''; }, 3000);
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('shareStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    // Recompute and save on every keystroke, not only on the form's own
+    // submit button. Never counted here: only an explicit "Work the tax"
+    // counts as a calculation actually worked.
+    document.addEventListener('input', () => { persist(); workTax({ track: false }); });
+    document.addEventListener('change', () => { persist(); workTax({ track: false }); });
+
+    // A link wins over a saved stay, and either wins over the shipped example.
+    const restored = restoreBid({
+      hash: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    if (restored.source !== 'none') {
+      applyValues(restored.values);
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a shared link — these are the sender’s figures, not the shipped example.'
+        : 'Picked up your last saved stay from this browser. “Clear the example” starts fresh.';
+    }
+
+    // Open on a computed result rather than an em-dash: the defaults above
+    // (or a restored stay) are a real calculation, and the page's own point
+    // -- the gap between total tax and what the platform covers -- is
+    // invisible until something is on screen. No count recorded: a page
+    // load is not a calculation.
+    workTax({ track: false });
+    persist();
+
+    // Remember the visitor's usage-counting choice between visits.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+</body>
+</html>

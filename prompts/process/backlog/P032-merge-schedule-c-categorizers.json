@@ -1,0 +1,30 @@
+{
+  "id": "P032",
+  "title": "Merge freelancer- and self-employed-schedule-c-categorizer into one venture",
+  "status": "dropped",
+  "owner": "agent",
+  "effect": 1,
+  "cost": 2,
+  "problem": "Two ventures do the same job for the same audience: sort a bank/card CSV into IRS Schedule C lines. corpus_dupes.py scores them 0.63; descriptions differ only in 'freelancers and sole proprietors' vs '... and gig workers'.",
+  "evidence": [
+    "python3 portfolio/pipeline/corpus_dupes.py (2026-10-17): 0.63 pair",
+    "ventures/*-schedule-c-categorizer/VENTURE.yaml descriptions"
+  ],
+  "change": "Read both calc.mjs and tests, keep the stronger one, port any rules only the other has, and leave the loser's directory as a pointer or drop it with a redirect page if its URL is published. Check surface-budget.mjs and supersede_check-style dependents first. If they turn out to serve different search terms, drop this row with that reason.",
+  "touches": [
+    "ventures/freelancer-schedule-c-categorizer",
+    "ventures/self-employed-schedule-c-categorizer"
+  ],
+  "metric": "Confirmed duplicate pairs merged",
+  "baseline": "1 plausible true duplicate of 19 pairs >= 0.6",
+  "opened": "2026-10-17",
+  "source": "P015 duplicate review",
+  "pr": null,
+  "result": "Dropped: both are published pages linked from ~20 files (build.mjs, launched.json, expense-tracker, self-employment-tax-calculator, dental-associate-pay-calculator, scores). They target different searches (freelancer vs self-employed/gig worker; the second adds a 1099 gross comparison and personal-row flags), so merging loses a page and breaks links for an effect of 1.",
+  "history": [
+    {
+      "date": "2026-10-17",
+      "note": "Read both VENTURE.yaml, file lists and dependents; dropped, see result."
+    }
+  ]
+}

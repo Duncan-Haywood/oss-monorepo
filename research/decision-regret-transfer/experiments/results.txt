@@ -1,0 +1,35 @@
+E1. binary accept/reject, A+R=1, tau=R. delta(eps) = least excess score for decision regret eps (exact) vs closed form
+  tau=0.5 eps=0.01: brier=0.000100 (eps^2=0.000100) | log=0.000200 (KL=0.000200, eps^2/(2tau(1-tau))=0.000200)
+  tau=0.5 eps=0.05: brier=0.002500 (eps^2=0.002500) | log=0.005008 (KL=0.005008, eps^2/(2tau(1-tau))=0.005000)
+  tau=0.1 eps=0.01: brier=0.000100 (eps^2=0.000100) | log=0.000540 (KL=0.000540, eps^2/(2tau(1-tau))=0.000556)
+  tau=0.1 eps=0.05: brier=0.002500 (eps^2=0.002500) | log=0.012235 (KL=0.012235, eps^2/(2tau(1-tau))=0.013889)
+  tau=0.02 eps=0.01: brier=0.000100 (eps^2=0.000100) | log=0.002215 (KL=0.002215, eps^2/(2tau(1-tau))=0.002551)
+  tau=0.02 eps=0.05: brier=0.002500 (eps^2=0.002500) | log=0.038991 (KL=0.038991, eps^2/(2tau(1-tau))=0.063776)
+E2. guaranteed decision regret at excess log score s=0.01 nats, binary, by fault-cost ratio A/R (tau=R/(A+R), A+R=1)
+  A/R=  1 tau=0.5000: log bound=0.0706 (sqrt(2 tau(1-tau) s)=0.0707) | brier s=0.01 bound=0.1000
+  A/R=  4 tau=0.2000: log bound=0.0584 (sqrt(2 tau(1-tau) s)=0.0566) | brier s=0.01 bound=0.1000
+  A/R= 10 tau=0.0909: log bound=0.0432 (sqrt(2 tau(1-tau) s)=0.0407) | brier s=0.01 bound=0.1000
+  A/R= 50 tau=0.0196: log bound=0.0226 (sqrt(2 tau(1-tau) s)=0.0196) | brier s=0.01 bound=0.1000
+  A/R=200 tau=0.0050: log bound=0.0128 (sqrt(2 tau(1-tau) s)=0.0100) | brier s=0.01 bound=0.1000
+E3. weighted hinge (polyhedral): min over wrong-side (eta,f) of excess risk / decision regret -> linear transfer, constant 1
+  tau=0.5: min excess-risk/regret ratio = 1.0100
+  tau=0.1: min excess-risk/regret ratio = 1.0100
+  tau=0.02: min excess-risk/regret ratio = 1.0100
+E4. adding an audit action, A=R=1: exact delta at eps=0.1 with and without audit at cost c
+  c=None: regions={'accept': (0.0, 0.5), 'reject': (0.5, 1.0)} brier=0.00250 log=0.00501 max regret=1.00
+  c=0.4: regions={'accept': (0.0, 0.4), 'audit': (0.4, 0.6), 'reject': (0.6, 1.0)} brier=0.01000 log=0.02041 max regret=1.00
+  c=0.25: regions={'accept': (0.0, 0.25), 'audit': (0.25, 0.75), 'reject': (0.75, 1.0)} brier=0.01000 log=0.02475 max regret=1.00
+  c=0.1: regions={'accept': (0.0, 0.1), 'audit': (0.1, 0.9), 'reject': (0.9, 1.0)} brier=0.01000 log=0.04440 max regret=1.00
+E5. certificates vs simulation. A=R=1, c=0.2, eta~Beta(2,5), q=expit(slope*logit(eta)+shift+sigma z), 100k draws
+  brier noisy         : excess score=0.0086 realised regret=0.0076 certificate=0.0926 realised/certificate=0.08
+  brier noisier       : excess score=0.0590 realised regret=0.0599 certificate=0.2430 realised/certificate=0.25
+  brier overconfident : excess score=0.0143 realised regret=0.0220 certificate=0.1194 realised/certificate=0.18
+  brier biased-low    : excess score=0.0255 realised regret=0.0416 certificate=0.1598 realised/certificate=0.26
+  brier underconfident: excess score=0.0118 realised regret=0.0196 certificate=0.1084 realised/certificate=0.18
+  log   noisy         : excess score=0.0221 realised regret=0.0076 certificate=0.0880 realised/certificate=0.09
+  log   noisier       : excess score=0.1823 realised regret=0.0599 certificate=0.2692 realised/certificate=0.22
+  log   overconfident : excess score=0.0792 realised regret=0.0220 certificate=0.1725 realised/certificate=0.13
+  log   biased-low    : excess score=0.0832 realised regret=0.0416 certificate=0.1771 realised/certificate=0.23
+  log   underconfident: excess score=0.0329 realised regret=0.0196 certificate=0.1084 realised/certificate=0.18
+E6. worst case: verifier sits exactly on the tight pair (eta just past a region edge, q at the edge): certificate is attained
+  point mass eta=0.15000000000000002, q=tau: excess log=0.012235, delta(eps)=0.012235, regret of acting on q=tau-: 0.0500 = eps

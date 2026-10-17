@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Maple Syrup Sugarbush Profit Calculator</title>
+  <meta name="description" content="Free maple syrup profit calculator: taps and sap to syrup by the rule of 86, then fuel, supplies, equipment, fees and labour, profit per tap and per hour, poor and good seasons, and whether reverse osmosis pays back. Private, runs in your browser.">
+  <meta property="og:title" content="Maple syrup profit per tap and per hour, with a reverse osmosis payback — free, private">
+  <meta property="og:description" content="See what your sugarbush really earns after fuel, equipment and your own time, and whether reverse osmosis would pay for itself. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Maple Syrup Sugarbush Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much money can you make per tap of maple syrup?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on sap per tap, sugar content, your sales channel and what you count your own time as. Many small sugarmakers net a few dollars a tap before labour and far less after it. This page models a whole season: sap to syrup by the rule of 86, fuel, supplies, equipment wear, fees and labour, then reports profit per tap, per hour worked and per gallon."}}, {"@type": "Question", "name": "What is the rule of 86 for maple syrup?", "acceptedAnswer": {"@type": "Answer", "text": "Divide 86 by the sugar content (Brix) of the sap to get the gallons of sap needed for one gallon of syrup. Sap at 2 percent needs about 43 gallons; sap at 3 percent about 29. A higher Brix cuts boiling time and fuel directly, which is why sugar content matters more than tap count for cost."}}, {"@type": "Question", "name": "Is reverse osmosis worth it for a small sugarbush?", "acceptedAnswer": {"@type": "Answer", "text": "It removes water from the sap before the evaporator, so you burn less fuel and boil fewer hours. Against that you pay for the unit, membranes and power. The page compares the season with and without it from your own numbers and gives a payback in years; units tend to pay at larger tap counts and with expensive fuel."}}, {"@type": "Question", "name": "Should I count my own labour?", "acceptedAnswer": {"@type": "Answer", "text": "Show both. Profit before labour is what the operation earns for you; profit after labour at a wage you pick shows whether it beats paying someone, and the per-hour figure tells you what an hour in the sugarhouse is actually worth."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser; nothing is sent anywhere. Downloads are files on your own device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MAPLE SYRUP SUGARBUSH PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your sugarbush really earn, per tap and per hour?</h1>
+    <p>Enter your taps, sap and costs. The page turns sap into syrup with the <strong>rule of 86</strong>, adds <strong>fuel, supplies, equipment wear, fees and your own time</strong>, and shows profit per tap, per hour and per gallon, what a <strong>poor and a good season</strong> do to it, and whether <strong>reverse osmosis would pay for itself</strong>.</p>
+    <p class="note">Your numbers are used in this browser tab and never leave your device. The values are examples; replace them with yours.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Where the syrup goes</h2>
+    <p class="note">One channel per line: name, price per gallon of syrup (a pint at $13 is $104 a gallon), packaging per gallon, percent of sales lost to fees, share of your crop.</p>
+    <label for="channels">Sales channels</label>
+    <textarea id="channels" spellcheck="false" wrap="off"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Your sugarbush and sugarhouse</h2>
+    <div class="grid">
+      <div><label for="taps">Taps</label><input id="taps" inputmode="decimal" value="1000"></div>
+      <div><label for="gal">Sap per tap per season (gallons)</label><input id="gal" inputmode="decimal" value="10"></div>
+      <div><label for="brix">Sap sugar content (Brix %)</label><input id="brix" inputmode="decimal" value="2.2"></div>
+      <div><label for="supplies">Spouts and drops per tap per year ($)</label><input id="supplies" inputmode="decimal" value="0.5"></div>
+      <div><label for="tubing">Tubing system cost per tap ($)</label><input id="tubing" inputmode="decimal" value="9"></div>
+      <div><label for="hours">Hours per tap per season (tapping, lines, collecting)</label><input id="hours" inputmode="decimal" value="0.25"></div>
+      <div><label for="rate">Your labour rate per hour ($)</label><input id="rate" inputmode="decimal" value="18"></div>
+      <div><label for="evap">Evaporator rate (gallons of sap per hour)</label><input id="evap" inputmode="decimal" value="40"></div>
+      <div><label for="fuelbtu">Fuel energy per unit (BTU; a cord of hardwood is about 20,000,000)</label><input id="fuelbtu" inputmode="decimal" value="20000000"></div>
+      <div><label for="fuelprice">Fuel price per unit ($)</label><input id="fuelprice" inputmode="decimal" value="250"></div>
+      <div><label for="eff">Evaporator efficiency (%)</label><input id="eff" inputmode="decimal" value="55"></div>
+      <div><label for="evapcost">Evaporator and sugarhouse equipment cost ($)</label><input id="evapcost" inputmode="decimal" value="12000"></div>
+      <div><label for="overhead">Other costs per season (insurance, licences, fees) ($)</label><input id="overhead" inputmode="decimal" value="1200"></div>
+      <div><label for="rocap">Reverse osmosis unit cost ($; 0 if none)</label><input id="rocap" inputmode="decimal" value="9000"></div>
+      <div><label for="robrix">Concentrate after reverse osmosis (Brix %)</label><input id="robrix" inputmode="decimal" value="8"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="useRo"><label for="useRo">I already use reverse osmosis (otherwise the headline is without it and the comparison shows the difference)</label></div>
+    <p>
+      <button type="button" id="calc">Work out the season</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Edit the numbers, then click Work out the season.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div id="report-findings"></div>
+    <h3>Poor, average and good season</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Season</th><th scope="col" class="n">Syrup (gal)</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Before your labour</th><th scope="col" class="n">After your labour</th><th scope="col" class="n">Per tap</th><th scope="col" class="n">Hours</th></tr></thead><tbody id="season-rows"></tbody></table></div>
+    <h3>With and without reverse osmosis</h3>
+    <div class="scroll"><table><thead><tr><th scope="col"></th><th scope="col" class="n">Fuel</th><th scope="col" class="n">Hours</th><th scope="col" class="n">Reverse osmosis cost</th><th scope="col" class="n">Before your labour</th><th scope="col" class="n">After your labour</th></tr></thead><tbody id="ro-rows"></tbody></table></div>
+    <h3>By sales channel</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Channel</th><th scope="col" class="n">Gallons</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Net of packaging and fees</th><th scope="col" class="n">Net per gallon</th></tr></thead><tbody id="channel-rows"></tbody></table></div>
+    <p><button type="button" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="dl-text">Download summary</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Syrup:</strong> sap gallons times Brix over 86 (the rule of 86). Sap per tap is the biggest input and varies year to year; the season table shows 60% and 130% of what you enter.</li>
+      <li><strong>Fuel:</strong> the heat to bring sap to a boil and evaporate its water (about 1,150 BTU a pound) divided by the evaporator efficiency, priced per unit of fuel. Check it against the cords or gallons you actually burn.</li>
+      <li><strong>Labour:</strong> hours per tap, plus boiling hours from your evaporator rate, plus bottling. Shown before and after paying yourself the wage you enter.</li>
+      <li><strong>Equipment:</strong> tubing wears out over 10 years and the evaporator over 15 here, spread evenly per season.</li>
+      <li><strong>Reverse osmosis:</strong> concentrates the sap to the Brix you enter before boiling, which cuts fuel and boiling hours; the unit, membranes and power are charged against it.</li>
+      <li><strong>Not decided:</strong> grading, licensing, labelling and food-safety rules for selling syrup in your state, taxes, land, sap quality over the season, vacuum pumps and their power, and the cost of capital. Prices and costs here are your inputs, not market quotes.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much money can you make per tap of maple syrup?</h3>
+    <p>It depends on sap per tap, sugar content, your sales channel and what you count your own time as. Many small sugarmakers net a few dollars a tap before labour and far less after it. This page models a whole season: sap to syrup by the rule of 86, fuel, supplies, equipment wear, fees and labour, then reports profit per tap, per hour worked and per gallon.</p>
+    <h3>What is the rule of 86 for maple syrup?</h3>
+    <p>Divide 86 by the sugar content (Brix) of the sap to get the gallons of sap needed for one gallon of syrup. Sap at 2 percent needs about 43 gallons; sap at 3 percent about 29. A higher Brix cuts boiling time and fuel directly, which is why sugar content matters more than tap count for cost.</p>
+    <h3>Is reverse osmosis worth it for a small sugarbush?</h3>
+    <p>It removes water from the sap before the evaporator, so you burn less fuel and boil fewer hours. Against that you pay for the unit, membranes and power. The page compares the season with and without it from your own numbers and gives a payback in years; units tend to pay at larger tap counts and with expensive fuel.</p>
+    <h3>Should I count my own labour?</h3>
+    <p>Show both. Profit before labour is what the operation earns for you; profit after labour at a wage you pick shows whether it beats paying someone, and the per-hour figure tells you what an hour in the sugarhouse is actually worth.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser; nothing is sent anywhere. Downloads are files on your own device.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, food-safety, or financial advice, and it does not replace your accountant, your state agriculture department, or your own judgment. Check every figure before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>profit_calculated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../backyard-honey-profit-calculator/">backyard honey profit calculator</a>, the <a href="../firewood-profit-calculator/">firewood profit calculator</a>, the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a> and the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> cover other small producers' numbers.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, DEFAULT_CHANNELS, resultCsv, summaryText, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : undefined; };
+    let last = null;
+    $("#channels").value = DEFAULT_CHANNELS;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run() {
+      const r = analyze($("#channels").value, {
+        taps: val("#taps"), galPerTap: val("#gal"), brix: val("#brix"), suppliesPerTap: val("#supplies"), tubingPerTap: val("#tubing"),
+        hoursPerTap: val("#hours"), laborRate: val("#rate"), evapSapGph: val("#evap"), fuelBtuPerUnit: val("#fuelbtu"),
+        fuelPricePerUnit: val("#fuelprice"), efficiencyPct: val("#eff"), evaporatorCost: val("#evapcost"), overheadPerSeason: val("#overhead"),
+        roCapital: val("#rocap"), roConcBrix: val("#robrix"), useRo: $("#useRo").checked ? 1 : 0,
+      });
+      last = r;
+      if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return false; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${Math.round(s.syrupGal).toLocaleString("en-US")} gallons</strong> of syrup · revenue ${money(s.revenue)} · before your labour <strong>${money(s.beforeLabor)}</strong> (${money2(s.perHour)} an hour for ${Math.round(s.hours).toLocaleString("en-US")} hours) · after labour ${money(s.profit)}, ${money2(s.perTap)} a tap · all-in cost ${money2(s.costPerGal)} a gallon against ${money2(s.avgPricePerGal)} average price`;
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("");
+      $("#season-rows").innerHTML = r.seasons.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${Math.round(x.syrupGal).toLocaleString("en-US")}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.beforeLabor)}</td><td class="n">${money(x.profit)}</td><td class="n">${money2(x.perTap)}</td><td class="n">${Math.round(x.hours).toLocaleString("en-US")}</td></tr>`).join("");
+      $("#ro-rows").innerHTML = [["Without reverse osmosis", s.without], ["With reverse osmosis", s.withRo]].map(([l, x]) => `<tr><td>${l}</td><td class="n">${money(x.fuel)}</td><td class="n">${Math.round(x.hours).toLocaleString("en-US")}</td><td class="n">${money(x.roCost)}</td><td class="n">${money(x.beforeLabor)}</td><td class="n">${money(x.profit)}</td></tr>`).join("");
+      $("#channel-rows").innerHTML = r.parts.map((p) => `<tr><td>${esc(p.name)}</td><td class="n">${p.gal.toFixed(0)}</td><td class="n">${money(p.revenue)}</td><td class="n">${money(p.net)}</td><td class="n">${money2(p.netPerGal)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Season worked out.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) record("profit_calculated"); });
+    $("#load-ok").addEventListener("click", () => {
+      $("#channels").value = DEFAULT_CHANNELS;
+      run(); record("example_loaded"); status.textContent = "Worked example: made-up numbers for 1,000 taps. Look at how little a gallon nets as bulk against farmers market pints, what a poor season does, and what reverse osmosis changes.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#channels").value = ""; report.hidden = true; last = null; status.textContent = "Edit the numbers, then click Work out the season."; });
+    $("#dl-csv").addEventListener("click", () => { if (last && last.summary) { record("csv_downloaded"); download("maple-season.csv", resultCsv(last), "text/csv"); } });
+    $("#dl-text").addEventListener("click", () => { if (last && last.summary) { record("summary_downloaded"); download("maple-season.txt", summaryText(last), "text/plain"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

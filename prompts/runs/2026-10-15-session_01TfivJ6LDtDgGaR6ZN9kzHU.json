@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01TfivJ6LDtDgGaR6ZN9kzHU",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "osrobot-specialise"
+  ],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 10,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "routed from oss-monorepo prompt.md (research track); work landed upstream per research brief; usage not read",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

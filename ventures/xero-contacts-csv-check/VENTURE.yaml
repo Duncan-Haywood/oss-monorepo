@@ -1,0 +1,36 @@
+name: xero-contacts-csv-check
+description: >-
+  Free browser tool that checks a Xero contacts import CSV before it is uploaded: template
+  headings, the required contact name, contacts whose names collide once case and spacing are
+  ignored, exact duplicate rows, emails holding two addresses, phone and bank numbers Excel turned
+  into scientific notation, ZIP codes that lost their zero, payment terms Xero does not accept and
+  discounts out of range, each with its line number, plus a safe-fixes pass and a splitter. The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The Xero invoice checker already exists
+# (xero-invoice-csv-check); no contacts checker does. Contacts are the first file anyone loads when
+# moving to Xero, from a CRM, a spreadsheet or Sage/QuickBooks/MYOB exports, so the audience is the
+# same bookkeepers and one-person firms and the file arrives earlier in the migration than invoices.
+# Xero rejects or silently merges on duplicate names and mangles numbers Excel has already damaged.
+#
+# First visitor: people searching the literal problems ("Xero contacts import duplicate name",
+# "Xero import contacts CSV error", "Excel phone number E+11 CSV", "CSV leading zero postcode
+# Excel") and Xero Central/community threads, r/Xero and r/bookkeeping. Volume not measured with an
+# external tool.
+#
+# What makes it more than a CSV linter: it models the contact list (name uniqueness under Xero's
+# own comparison, one email per cell, payment-term pairs) and refuses to repair what cannot be
+# recovered: a number already shortened to 4.41E+11 or a ZIP that lost its zero is flagged, never
+# invented.
+#
+# Privacy is the liability boundary: a contact list names customers, emails and phones, so the file
+# never leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper audience, sibling to the
+# Xero invoice and QuickBooks checkers. A paid version, if usage appears, is bulk checks across
+# client files with saved rules behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Xero clause, trademark used nominatively.

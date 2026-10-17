@@ -1,0 +1,57 @@
+name: container-demurrage-detention-calculator
+description: >-
+  Free browser tool for importers, freight forwarders and customs brokers: container count,
+  discharge, pickup and empty-return dates, free days and the carrier's tiered per-day rates in;
+  demurrage and detention per box and in total, each clock's last free day, what one more day
+  costs, what pulling the whole chain earlier is worth (the ceiling on a rush fee worth paying),
+  and a pickup-by-return sensitivity grid out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "container demurrage
+# detention port storage cost importer" scored 0.16 against the nearest venture. Neighbours:
+# import-landed-cost-calculator (duty and fees, not dwell time), truck-detention-pay-calculator
+# (driver detention pay, a different party) and container-load-planner (packing). None of them
+# computes ocean-container demurrage or detention.
+#
+# Why this niche: small importers, forwarders and brokers receive demurrage and detention invoices
+# of thousands of dollars per container, built from a tariff with free days and rising tiered
+# rates, and the "last free day" decides whether it is $0 or $1,400 a box. The bill is arithmetic
+# on a carrier tariff the user already holds, so a private calculator that prices a delay before it
+# happens, and shows what an earlier pickup is worth, is a real decision tool for people who are
+# paid per container moved. Comparable paid tools are enterprise port-visibility products; the
+# single-shipment arithmetic is free to give away and is the lead magnet.
+#
+# Liability boundary: arithmetic on user-typed dates and tariff numbers; the defaults are labelled
+# placeholders, not any carrier's, port's or terminal's tariff; no advice on whether a charge is
+# lawful or disputable; no shipment identifiers asked for; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Importers and forwarders will use a private calculator that prices demurrage and detention
+      from their own tariff and shows the last free day and the value of an earlier pickup,
+      because the carrier invoice shows only the total and the tier structure makes the last
+      days the expensive ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A customs broker or forwarder reports that the arithmetic disagrees with a real invoice computed from the same tariff.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/container-demurrage-detention-calculator/
+  analytics: null

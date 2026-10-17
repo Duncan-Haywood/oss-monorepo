@@ -1,0 +1,39 @@
+name: uk-stamp-duty-calculator
+description: >-
+  Free browser tool for UK home buyers: enter the price and buyer type to see Stamp Duty Land Tax for England and Northern Ireland from April 2025 band by band, with first-time buyer relief, the 5 percent second home rate and the non-UK resident surcharge, and the same price under each buyer status. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no SDLT tool in ventures/ (checked by name for stamp, sdlt).
+#
+# First visitor: a UK home buyer or landlord searching "stamp duty calculator", "first time buyer stamp duty", "second home stamp duty".
+# One of the highest-volume UK money queries (volume not measured). Natural sibling audience to the landlord Section 24 and CGT tools; lead magnet for a future mortgage or conveyancing-cost comparison.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a full buying-costs planner behind an env-var switch.
+#
+# Liability: rates written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Scotland, Wales, companies, leases). Ethical risk is an understated bill; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK home buyers will use a free calculator to see their Stamp Duty band by band and compare buyer statuses.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-stamp-duty-calculator/
+  analytics: null

@@ -1,0 +1,34 @@
+== 1. exact floor vs literal simulation (a=[1,.3], eta=.4, sigma=1, M=3, H=5)
+alpha=0.8 beta=0.0: theory 0.05518  simulated 0.05506  ratio 0.998
+alpha=0.3 beta=0.6: theory 0.03969  simulated 0.03975  ratio 1.002
+alpha=0.1 beta=0.9: theory 0.05044  simulated 0.05048  ratio 1.001
+
+== 2. floor vs H at alpha=1 (invariant) and alpha=0.05 (falls to 1/(1+q) at most); kappa=100, M=1
+H=   1: alpha=1 2.98211   alpha=.05 0.125788
+H=   4: alpha=1 2.98211   alpha=.05 0.111347
+H=  16: alpha=1 2.98211   alpha=.05 0.095992
+H=  64: alpha=1 2.98211   alpha=.05 0.083227
+H= 256: alpha=1 2.98211   alpha=.05 0.077032
+
+== 3. momentum at equal effective step alpha_e=alpha/(1-beta), one mode s=0.4, V=0.01
+alpha_e=0.2: beta=0: 0.00260  beta=0.5: 0.00253  beta=0.9: 0.00251  beta=0.99: 0.00250
+alpha_e=1.0: beta=0: 0.01562  beta=0.5: 0.01339  beta=0.9: 0.01263  beta=0.99: 0.01251
+alpha_e=2.0: beta=0: 0.04167  beta=0.5: 0.02885  beta=0.9: 0.02554  beta=0.99: 0.02505
+alpha_e=3.5: beta=0: 0.14583  beta=0.5: 0.05707  beta=0.9: 0.04542  beta=0.99: 0.04390
+
+== 4. workers M at a fixed floor eps=1e-2 (kappa=200, C=100, best H over a grid)
+M=   1: best H=  25 alpha=0.0053 time=     61625 speedup   1.00x
+M=   2: best H=  25 alpha=0.0107 time=     30875 speedup   2.00x
+M=   4: best H=  25 alpha=0.0212 time=     15375 speedup   4.01x
+M=   8: best H=  38 alpha=0.0440 time=      7728 speedup   7.97x
+M=  16: best H=  38 alpha=0.0865 time=      3864 speedup  15.95x
+M=  64: best H=  38 alpha=0.3161 time=       966 speedup  63.79x
+M= 256: best H=  86 alpha=0.9245 time=       186 speedup 331.32x
+
+== 5. best sync interval H* (grid) vs floor target; sigma=1, M=1, eta=1
+kappa=   50 C= 10: eps=0.1: H*=  7 (  2.1x vs H=1, 1.10x for H=C); eps=0.01: H*= 11 (  5.3x vs H=1, 1.01x for H=C); eps=0.001: H*= 17 (  7.6x vs H=1, 1.20x for H=C)
+kappa=   50 C=100: eps=0.1: H*= 17 (  3.3x vs H=1, 1.42x for H=C); eps=0.01: H*= 25 ( 11.0x vs H=1, 1.36x for H=C); eps=0.001: H*= 38 ( 19.5x vs H=1, 1.30x for H=C)
+kappa=  200 C= 10: eps=0.1: H*=  5 (  1.7x vs H=1, 1.10x for H=C); eps=0.01: H*= 11 (  5.4x vs H=1, 1.01x for H=C); eps=0.001: H*= 38 (  9.8x vs H=1, 1.52x for H=C)
+kappa=  200 C=100: eps=0.1: H*= 17 (  2.6x vs H=1, 1.48x for H=C); eps=0.01: H*= 25 ( 11.8x vs H=1, 1.26x for H=C); eps=0.001: H*= 57 ( 33.6x vs H=1, 1.11x for H=C)
+kappa= 1000 C= 10: eps=0.1: H*=  5 (  1.4x vs H=1, 1.17x for H=C); eps=0.01: H*= 11 (  4.7x vs H=1, 1.00x for H=C); eps=0.001: H*= 38 ( 10.3x vs H=1, 1.64x for H=C)
+kappa= 1000 C=100: eps=0.1: H*= 11 (  2.1x vs H=1, 1.54x for H=C); eps=0.01: H*= 25 (  9.4x vs H=1, 1.31x for H=C); eps=0.001: H*= 86 ( 41.1x vs H=1, 1.03x for H=C)

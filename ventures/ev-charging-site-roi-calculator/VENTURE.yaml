@@ -1,0 +1,51 @@
+name: ev-charging-site-roi-calculator
+description: >-
+  Free browser tool for property owners, fleet managers and charging operators weighing an EV charging site: enter ports,
+  hardware, install and make-ready cost, price per kWh, expected sessions per port per day, energy cost and the utility's
+  demand charge, and get ten-year cash flow with utilization ramp-up, payback, NPV and IRR, the sessions per port per day
+  and the price that break even, the demand-charge drag, and an NPV grid by utilization and price. Level 2 and DC fast
+  presets. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled new-venture session. duplicate_check.py "EV charging station site ROI utilization":
+# closest ebay-fee-calculator 0.28 (word overlap only); no charging-site model exists. Not in screened-out.md.
+#
+# Why this niche: hotels, retail centres, multifamily owners, dealerships and fleets are being asked to install chargers,
+# and the deciding number (sessions per port per day against a demand-charge tariff) is rarely modelled; vendor quotes and
+# free calculators mostly show cost, not break-even utilization. Money is real: a DC fast site is a six-figure decision.
+#
+# First visitor: searches such as "EV charging station ROI calculator", "is EV charging profitable", "EV charger demand
+# charges"; commercial real-estate, hospitality and fleet-electrification audiences. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; not financial, tax, engineering or utility advice; incentive rules are
+# never asserted, only typed in by the user; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-site rollout
+# planner (tariff library, load management, portfolio NPV) or referrals to charger installers.
+
+hypotheses:
+  - claim: >-
+      Charging-site hosts and operators will use a free model that returns break-even utilization and the demand-charge
+      drag for their own quotes, and will share the CSV with partners or lenders.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ev-charging-site-roi-calculator/
+  analytics: null

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Regression-Test Prompts When Switching LLM Models</title>
+  <meta name="description" content="A cheap way to find out which of your prompts break when you change model or edit a prompt: save outputs as JSONL, diff them per case, and gate CI on the result.">
+  <link rel="canonical" href="./how-to-regression-test-prompts-when-switching-llm-models.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do prompts break when I change models?", "acceptedAnswer": {"@type": "Answer", "text": "Models differ in how closely they follow format instructions, how readily they refuse, how long they write and where they stop. A prompt tuned against one model can start returning prose around your JSON, drop a field, or end mid-sentence on another, and none of that shows up in a unit test of the surrounding code."}}, {"@type": "Question", "name": "What should my baseline be?", "acceptedAnswer": {"@type": "Answer", "text": "Run your real prompts over a fixed set of inputs on the current model, and save each result with a stable id as JSONL. Keep 20 to 100 cases that cover your hardest formats. Re-run the same inputs on the candidate model or prompt and save those the same way, then compare the two files."}}, {"@type": "Question", "name": "How do I fail a pull request on a regression?", "acceptedAnswer": {"@type": "Answer", "text": "Run the CLI in your workflow after the candidate run and let its exit code decide: node cli.mjs diff baseline.jsonl candidate.jsonl --max-regressions 0. Exit 1 means regressions exceeded the limit; use --fail-on warn to be stricter."}}, {"@type": "Question", "name": "What does a clean result not tell me?", "acceptedAnswer": {"@type": "Answer", "text": "That the candidate is as good. These are deterministic text checks. They catch format and contract breaks cheaply, and they leave factual accuracy, tone and safety to your own evaluation and review."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; } pre { background: #f7f9fb; padding: 12px; border-radius: 8px; overflow-x: auto; }</style>
+</head>
+<body>
+  <p><a href="./">← LLM Output Regression Diff</a></p>
+  <h1>How to regression-test prompts when switching LLM models</h1>
+  <p>Switching model or editing a prompt changes outputs in ways unit tests do not see. Save before and after outputs, then run the <a href="./">diff tool</a> over them.</p>
+  <h2>Why do prompts break when I change models?</h2>
+  <p>Models differ in how closely they follow format instructions, how readily they refuse, how long they write and where they stop. A prompt tuned against one model can start returning prose around your JSON, drop a field, or end mid-sentence on another, and none of that shows up in a unit test of the surrounding code.</p>
+  <h2>What should my baseline be?</h2>
+  <p>Run your real prompts over a fixed set of inputs on the current model, and save each result with a stable id as JSONL. Keep 20 to 100 cases that cover your hardest formats. Re-run the same inputs on the candidate model or prompt and save those the same way, then compare the two files.</p>
+  <h2>How do I fail a pull request on a regression?</h2>
+  <p>Run the CLI in your workflow after the candidate run and let its exit code decide: node cli.mjs diff baseline.jsonl candidate.jsonl --max-regressions 0. Exit 1 means regressions exceeded the limit; use --fail-on warn to be stricter.</p>
+  <h2>What does a clean result not tell me?</h2>
+  <p>That the candidate is as good. These are deterministic text checks. They catch format and contract breaks cheaply, and they leave factual accuracy, tone and safety to your own evaluation and review.</p>
+  <h2>A minimal CI step</h2>
+  <pre>- run: node cli.mjs diff baseline.jsonl candidate.jsonl --max-regressions 0</pre>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not professional advice; a clean diff does not prove a change is safe. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

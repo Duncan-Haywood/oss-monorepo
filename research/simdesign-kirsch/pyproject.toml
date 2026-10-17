@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-kirsch"
+version = "0.1.0"
+description = "How far below the exact stress concentration does a finite-element peak stress sit, and how does it close with mesh refinement?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

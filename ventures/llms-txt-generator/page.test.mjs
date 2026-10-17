@@ -13,10 +13,28 @@ test('docs page links back to the tool', async () => {
 });
 
 test('every page carries the no-warranty clause', async () => {
-  for (const file of ['index.html', 'what-is-llms-txt.html']) {
+  for (const file of ['index.html', 'what-is-llms-txt.html', 'vs-a-hosted-docs-platform.html', 'vs-writing-llms-txt-by-hand.html']) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), 'utf8');
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
+});
+
+test('vs-writing-llms-txt-by-hand links back to the tool and the guide', async () => {
+  const page = await readFile(new URL('./vs-writing-llms-txt-by-hand.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/);
+  assert.match(page, /href="\.\/what-is-llms-txt\.html"/);
+});
+
+test('vs-writing-llms-txt-by-hand has title, meta description, and FAQPage JSON-LD', async () => {
+  const page = await readFile(new URL('./vs-writing-llms-txt-by-hand.html', import.meta.url), 'utf8');
+  assert.match(page, /<title>.+<\/title>/);
+  assert.match(page, /<meta name="description" content="[^"]+"/);
+  assert.match(page, /"@type":"FAQPage"/);
+});
+
+test('index links to the generic-method comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/vs-writing-llms-txt-by-hand\.html"/);
 });
 
 test('index has title, meta description, and JSON-LD', async () => {

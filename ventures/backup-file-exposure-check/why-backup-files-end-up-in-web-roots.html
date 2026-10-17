@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why Backup Files End Up In Web Roots (And How To Fix Each Way)</title>
+<meta name="description" content="The four common ways a production deployment ends up serving its own backup archive or SQL dump, and the fix for each -- with the cron-job and server-config change that closes it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/backup-file-exposure-check/why-backup-files-end-up-in-web-roots.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to stop a production deployment from exposing its own backup files",
+  "description": "Four common causes of a publicly readable backup archive or SQL dump in production, and the specific fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Never write a backup into the directory the web server serves",
+      "text": "A backup script that runs `tar -czf backup.tar.gz .` or `mysqldump db > backup.sql` from inside the web root writes its output right next to the site it is a copy of. Write backups to a directory entirely outside the served tree -- a sibling `backups/` directory the web server's document root does not include, or straight to off-box storage."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Never leave a manual, one-off backup where you made it",
+      "text": "\"Let me zip the site before I deploy this change\" is a real, common reason a backup.zip appears -- made once, in the web root, for convenience, and then forgotten. Treat any backup made inside the deploy path as temporary: move it out or delete it before the next deploy, the same day it was made."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Add a server rule as a second layer, in case a backup ends up there anyway",
+      "text": "Defense in depth: even with the backup process fixed, a server or CDN rule that denies requests for common backup extensions (.zip, .tar.gz, .sql, .sql.gz, .bak) means a stray copy is not actually reachable."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Rotate every credential a matched dump could have held",
+      "text": "If this checker (or anyone else) finds a real database dump or archive, treat every credential and secret that dump's tables could hold as compromised and rotate it immediately -- there is no way to know for certain it was not already fetched by an automated scanner before you found it."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { font-size: 1.15rem; margin-top: 1.8rem; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the Backup File Exposure Checker</a></p>
+<h1>Why backup files end up in web roots</h1>
+<p>
+  A backup archive or SQL dump only becomes a problem when a <em>production</em> deployment leaves it
+  publicly reachable. There are four common, independent ways that happens, and each has its own
+  fix — fixing one does not fix the others.
+</p>
+
+<h2>1. A backup script writes its output into the served directory</h2>
+<p>
+  A cron job or deploy hook that runs <code>tar -czf backup.tar.gz .</code> or
+  <code>mysqldump mydb &gt; backup.sql</code> from inside the web root writes its output right next
+  to the site it is a copy of — servable like any other file the moment it lands.
+</p>
+<pre><code># Wrong: backup written straight into the served directory
+cd /var/www/myapp && tar -czf backup.tar.gz .
+
+# Right: written outside the served tree entirely
+mysqldump mydb | gzip > /var/backups/myapp/db-$(date +%F).sql.gz</code></pre>
+
+<h2>2. A one-off manual backup gets left where it was made</h2>
+<p>
+  "Let me zip the site before I deploy this change" is a real, common reason a
+  <code>backup.zip</code> appears — made once, in the web root, purely for convenience, and then
+  forgotten once the deploy went fine. Treat any backup made inside the deploy path as temporary:
+  move it out or delete it the same day.
+</p>
+
+<h2>3. No server rule blocking backup extensions as a second layer</h2>
+<p>
+  Defense in depth: even with the backup process fixed, a server or CDN rule that denies requests
+  for common backup extensions means a stray copy — a one-off manual backup, a misconfigured
+  mirror — is not actually reachable.
+</p>
+<pre><code># nginx example
+location ~* \.(zip|tar\.gz|sql|sql\.gz|bak)$ { deny all; return 404; }
+
+# Apache example (.htaccess in the document root)
+&lt;FilesMatch "\.(zip|tar\.gz|sql|sql\.gz|bak)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<h2>4. Backups are kept as files at all, instead of a managed off-box service</h2>
+<p>
+  A dedicated backup service or object-storage bucket with its own access controls never puts the
+  file anywhere a web server could serve it in the first place — it is both safer and more
+  reliable than any deploy-path convention.
+</p>
+
+<h2>If this checker already found an exposure</h2>
+<p>
+  Fix the process cause first (steps 1–2 above), then treat every credential and secret that
+  archive or dump's tables could hold as compromised and rotate it immediately — database
+  passwords, API keys, session secrets, anything a config file or environment table inside the
+  backup could have carried. Rotation is the only remedy once a backup has been served publicly,
+  even once: there is no way to know for certain it was not already fetched by an automated
+  scanner before you found it.
+</p>
+
+<p>
+  Run the <a href="index.html">Backup File Exposure Checker</a> against your production URL to see
+  which of these, if any, apply to your deployment right now. Only run it against a site you own
+  or are authorised to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review. You are responsible for reviewing and verifying its guidance before relying on it. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+name: uk-marriage-allowance-calculator
+description: >-
+  Free browser tool for UK married couples and civil partners: enter both incomes to see if you qualify for Marriage Allowance in 2025/26 or 2026/27, the tax saved (up to 252 pounds a year), any cost to the lower earner, and the value of a claim backdated up to four years. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no Marriage Allowance tool in ventures/ (checked by name and content; uk-dividend-tax-calculator only mentions it).
+#
+# First visitor: a UK married or civil-partnered person searching "marriage allowance calculator", "can I claim marriage allowance", "marriage allowance backdate".
+# Evergreen, seasonal around the January Self Assessment deadline; millions of eligible couples have not claimed; volume not measured. Adjacent to the other UK tax tools here for cross-links.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The service competes with paid claim-for-you firms that take a cut of a free claim; the honest edge is saying it is free on GOV.UK.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Married Couple's Allowance, earlier-year incomes, Scottish detail). Ethical risk is a wrong eligibility answer; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK couples will use a free calculator to check Marriage Allowance eligibility and the value of backdating before claiming on GOV.UK.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-marriage-allowance-calculator/
+  analytics: null

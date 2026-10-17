@@ -1,0 +1,47 @@
+name: dry-cleaner-profit-calculator
+description: >-
+  Free browser tool for dry cleaner owners and buyers: enter dry-clean and laundered pieces, prices, supplies per piece, damage claims, card
+  fees, labor, fixed costs and loan payments, and see monthly operating profit, contribution per piece, break-even pieces, the average price
+  change that reaches zero profit, debt coverage, and price and volume sensitivity. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; portfolio/pipeline/duplicate_check.py top score 0.29 (wash-and-fold-price-calculator;
+# no dry-cleaner tool in ventures/). Not in screened-out.md.
+#
+# First visitor: an independent dry cleaner owner, or someone sizing a plant purchase and a loan; search phrases "dry cleaner profit
+# calculator", "how much does a dry cleaner make", "dry cleaning break even". Volume not measured with an external tool.
+#
+# Who: independent plants, where labor and rent are largely fixed so volume and a few dollars of average price decide the month. Path to
+# revenue (payment rails stay off): lead magnet; GitHub Sponsors. Saved scenarios and POS-export import behind an env-var switch is the
+# possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, rate or market is claimed, sample figures
+# are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice clauses and lists
+# what it does not decide (market prices, solvent and waste rules, lease and lender terms, tax).
+
+hypotheses:
+  - claim: >-
+      Independent dry cleaner owners and buyers will enter pieces, prices and costs to see break-even pieces and the price rise that covers
+      their loan, because POS reports show revenue and counts but never divide fixed labor and rent into a break-even volume.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even, price-change or debt-coverage arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dry-cleaner-profit-calculator/
+  analytics: null

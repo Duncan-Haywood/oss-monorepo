@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code Settings Check — find hooks that never fire and permission rules that never match</title>
+  <meta name="description" content="Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can't compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Claude Code Settings Check">
+  <meta property="og:description" content="A hook whose matcher can't compile never fires, and it fails silently -- no error, no log line, nothing. This free tool checks a pasted settings.json for that and five other structural mistakes, in your browser, with nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Claude Code Settings Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that checks a pasted Claude Code settings.json and settings.local.json for structural mistakes in the hooks and permissions sections: an invalid matcher regex, a hook with no command, a misspelled event or hook type name, a malformed permission rule, a rule duplicated across lists, and a rule that contradicts itself across the two files.","featureList":"Hook matcher regex validation; empty/missing hook command detection; hook event and type name caution against documented names; permission rule syntax validation (balanced parentheses, empty specifiers, whitespace); duplicate-rule detection within and across allow/deny/ask; cross-file contradiction detection between settings.json and settings.local.json; copyable findings summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this tool check in a settings.json file?","acceptedAnswer":{"@type":"Answer","text":"Two sections: hooks (a matcher regex that fails to compile, a matcher group with no hook commands, a hook entry with an empty or missing command, and event/type names checked against this tool's documented list as a caution) and permissions (a rule string with unbalanced parentheses, trailing text after the closing parenthesis, an empty specifier, leading or trailing whitespace, a rule duplicated within one list, and a rule appearing in more than one of allow/deny/ask)."}},{"@type":"Question","name":"Does this tool contact a network or Anthropic's servers?","acceptedAnswer":{"@type":"Answer","text":"No. Every check is a deterministic, structural check against the text you paste, entirely in your browser. It never uploads anything and never calls an LLM."}},{"@type":"Question","name":"Does a clean result mean my hooks and permissions work correctly?","acceptedAnswer":{"@type":"Answer","text":"No. This tool checks the shape of the file, not Claude Code's runtime behaviour. A hook can be perfectly well-formed and still not do what you intended, and this tool has no way to observe that. It also does not know which file or list Claude Code honours when two rules disagree -- it only tells you that they disagree, and points you at the current documentation to resolve it."}},{"@type":"Question","name":"Why check settings.local.json against settings.json together?","acceptedAnswer":{"@type":"Answer","text":"Because a rule that contradicts itself across the two files is invisible if you only ever look at one of them -- a deny in the shared, committed settings.json and an allow for the exact same rule in your own settings.local.json is easy to introduce and easy to miss, since nothing about either file alone looks wrong."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}h3{font-size:1rem}
+    p{color:var(--muted)}.lede{max-width:700px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    textarea{display:block;width:100%;min-height:170px;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);margin-top:4px;resize:vertical}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:760px){.grid2{grid-template-columns:1fr}}
+    .notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900;font-size:.9rem;border-radius:6px;margin:14px 0}
+    .small{font-size:.86rem}
+    .toggle{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}
+    .toggle input{width:auto;margin:0}
+    .summary{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 14px}
+    .summary[hidden]{display:none}
+    .stat{background:#f8f9fc;border:1px solid var(--line);border-radius:9px;padding:8px 14px;text-align:center;min-width:90px}
+    .stat strong{display:block;font-size:1.4rem}
+    .stat.high strong{color:#a3211a}.stat.medium strong{color:#8a5a00}.stat.low strong{color:#3a6b3f}
+    ul.findings{list-style:none;margin:0;padding:0}
+    ul.findings li{border-left:4px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0;background:#f8f9fc}
+    ul.findings li.high{border-left-color:#a3211a;background:#fdf1f0}
+    ul.findings li.medium{border-left-color:#c98a00;background:#fdf7e8}
+    ul.findings li.low{border-left-color:#3a6b3f;background:#f1f8f2}
+    .findings code{background:#eef2fa;padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
+    .findings .src{font-size:.8rem;color:var(--muted);display:block;margin-bottom:2px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:.86rem}
+    footer p{margin:.6rem 0}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <p class="small"><a href="https://github.com/sponsors/Duncan-Haywood">Free tools</a></p>
+  <h1>Claude Code Settings Check</h1>
+  <p class="lede">Paste a <code>settings.json</code> (and, optionally, <code>settings.local.json</code>) and get every structural mistake in its <code>hooks</code> and <code>permissions</code> sections flagged in seconds — a matcher that can't compile, a hook with no command, a rule with unbalanced parentheses, a rule duplicated across lists, and a rule that contradicts itself across the two files.</p>
+  <p class="notice"><strong>Structural checks, not a runtime test.</strong> This tool never runs your hooks and never calls an LLM — it only looks at the text you paste and flags known failure shapes in it. It does not know which file or list Claude Code honours when two rules disagree; it only tells you that they disagree.</p>
+
+  <section class="panel">
+    <h2>1. Paste your settings.json</h2>
+    <p class="small">The project's shared, committed configuration. Nothing here is uploaded — everything runs in this page.</p>
+    <label for="projectInput">settings.json
+      <textarea id="projectInput" spellcheck="false" placeholder='{"hooks": {...}, "permissions": {...}}'></textarea>
+    </label>
+    <label for="localInput">settings.local.json (optional — your own machine's overrides)
+      <textarea id="localInput" spellcheck="false" placeholder="Leave blank if you don't have one"></textarea>
+    </label>
+    <div class="row">
+      <button id="checkBtn" type="button">Check</button>
+      <button id="loadExample" type="button" class="secondary">Load a broken example</button>
+      <button id="clearAll" type="button" class="secondary">Clear all</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <div id="summaryOut" class="summary" hidden>
+      <div class="stat high"><strong id="highCount">0</strong><span class="small">high-severity</span></div>
+      <div class="stat medium"><strong id="mediumCount">0</strong><span class="small">medium-severity</span></div>
+      <div class="stat low"><strong id="lowCount">0</strong><span class="small">caution</span></div>
+    </div>
+    <p id="statusOut" class="small" role="status" aria-live="polite">Paste a settings.json above, or load the example, then press Check.</p>
+    <ul id="findingsList" class="findings"></ul>
+    <button id="copySummary" type="button" hidden>Copy findings summary</button>
+    <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous check events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that a check ran or a summary was copied. Nothing you paste — no settings, hook commands, or file paths — is ever recorded, uploaded, or sent to an analytics service. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What does this tool check in a settings.json file?</h3>
+  <p>Two sections: hooks (a matcher regex that fails to compile, a matcher group with no hook commands, a hook entry with an empty or missing command, and event/type names checked against this tool's documented list as a caution) and permissions (a rule string with unbalanced parentheses, trailing text after the closing parenthesis, an empty specifier, leading or trailing whitespace, a rule duplicated within one list, and a rule appearing in more than one of allow/deny/ask).</p>
+  <h3>Does this tool contact a network or Anthropic's servers?</h3>
+  <p>No. Every check is a deterministic, structural check against the text you paste, entirely in your browser. It never uploads anything and never calls an LLM.</p>
+  <h3>Does a clean result mean my hooks and permissions work correctly?</h3>
+  <p>No. This tool checks the shape of the file, not Claude Code's runtime behaviour. A hook can be perfectly well-formed and still not do what you intended, and this tool has no way to observe that. It also does not know which file or list Claude Code honours when two rules disagree -- it only tells you that they disagree, and points you at the current documentation to resolve it.</p>
+  <h3>Why check settings.local.json against settings.json together?</h3>
+  <p>Because a rule that contradicts itself across the two files is invisible if you only ever look at one of them -- a deny in the shared, committed settings.json and an allow for the exact same rule in your own settings.local.json is easy to introduce and easy to miss, since nothing about either file alone looks wrong.</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee of how Claude Code will behave at runtime, and it does not replace testing your configuration in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking any finding against Claude Code's current documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The settings text you paste, and every finding this tool produces, never leaves your device — there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Auditing an MCP server's launch config instead? See <a href="../mcp-config-risk-check/">MCP Config Risk Check</a>. Checking a Claude Code Skill's frontmatter instead? See <a href="../skill-manifest-check/">Skill Manifest Check</a>. Checking a pasted file for hidden or invisible Unicode instead? See <a href="../hidden-unicode-check/">Hidden Unicode Check</a>. Checking a Claude Code subagent definition instead? See <a href="../claude-code-subagent-check/">Claude Code Subagent Check</a>. Checking a hook's command text for dangerous shapes instead of the file's structure? See <a href="../claude-code-hooks-security-check/">Claude Code Hooks Security Check</a>.</p>
+    <p>See <a href="./vs-reading-the-settings-json-by-eye.html">this checker vs. reading the settings.json by eye</a>.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { lintSettings, summaryText } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  const EXAMPLE_PROJECT = JSON.stringify({
+    hooks: {
+      PreToolUse: [
+        { matcher: "Bash(", hooks: [{ type: "command", command: "echo checking" }] },
+      ],
+      PreTolUse: [
+        { hooks: [{ command: "" }] },
+      ],
+    },
+    permissions: {
+      allow: ["Read", "Bash(git status:*)", "Bash(git status:*)"],
+      deny: ["Bash(rm -rf *)", "Bash(git status:*)"],
+    },
+  }, null, 2);
+
+  const EXAMPLE_LOCAL = JSON.stringify({
+    permissions: {
+      allow: ["Bash(rm -rf *)"],
+    },
+  }, null, 2);
+
+  $("loadExample").addEventListener("click", () => {
+    $("projectInput").value = EXAMPLE_PROJECT;
+    $("localInput").value = EXAMPLE_LOCAL;
+    runCheck();
+  });
+
+  $("clearAll").addEventListener("click", () => {
+    $("projectInput").value = "";
+    $("localInput").value = "";
+    $("findingsList").innerHTML = "";
+    $("summaryOut").hidden = true;
+    $("copySummary").hidden = true;
+    $("statusOut").hidden = false;
+    $("statusOut").textContent = "Paste a settings.json above, or load the example, then press Check.";
+    lastResult = null;
+  });
+
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (e) => setUsageEnabled(e.target.checked));
+
+  let lastResult = null;
+
+  function severityLabel(sev) {
+    return sev === "high" ? "High" : sev === "medium" ? "Medium" : "Caution";
+  }
+
+  function renderFindings(result) {
+    const list = $("findingsList");
+    list.innerHTML = "";
+    for (const f of result.findings) {
+      const li = document.createElement("li");
+      li.className = f.severity;
+      const src = document.createElement("span");
+      src.className = "src";
+      src.textContent = f.source;
+      const body = document.createElement("span");
+      body.innerHTML = `<strong>${severityLabel(f.severity)}</strong> (${f.category}): ${escapeHtml(f.detail)}`;
+      li.append(src, body);
+      list.appendChild(li);
+    }
+    $("highCount").textContent = String(result.counts.high);
+    $("mediumCount").textContent = String(result.counts.medium);
+    $("lowCount").textContent = String(result.counts.low);
+    $("summaryOut").hidden = false;
+    $("copySummary").hidden = false;
+    $("statusOut").hidden = result.findings.length > 0;
+    if (result.findings.length === 0) {
+      $("statusOut").hidden = false;
+      $("statusOut").textContent = "No structural issues found. This checks the file's shape only -- see \"Does a clean result mean my hooks and permissions work correctly?\" below.";
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function runCheck() {
+    const projectText = $("projectInput").value;
+    const localText = $("localInput").value;
+    if (projectText.trim() === "" && localText.trim() === "") {
+      $("findingsList").innerHTML = "";
+      $("summaryOut").hidden = true;
+      $("copySummary").hidden = true;
+      $("statusOut").hidden = false;
+      $("statusOut").textContent = "Paste a settings.json above, or load the example, then press Check.";
+      lastResult = null;
+      return;
+    }
+    lastResult = lintSettings(projectText, localText);
+    renderFindings(lastResult);
+    countUsage("check_run");
+  }
+
+  $("checkBtn").addEventListener("click", runCheck);
+
+  $("copySummary").addEventListener("click", async () => {
+    if (!lastResult) return;
+    const text = summaryText(lastResult);
+    try {
+      await navigator.clipboard.writeText(text);
+      $("copyStatus").textContent = "Copied.";
+      countUsage("summary_copied");
+    } catch {
+      $("copyStatus").textContent = "Could not copy automatically -- select the findings and copy manually.";
+    }
+    setTimeout(() => { $("copyStatus").textContent = ""; }, 4000);
+  });
+</script>
+</body>
+</html>

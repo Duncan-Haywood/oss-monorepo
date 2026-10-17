@@ -1,0 +1,86 @@
+name: fba-reimbursement-claim-finder
+description: >-
+  Free browser tool that compares an Amazon FBA Inventory Ledger with the
+  Reimbursements report and lists, per SKU, the lost and damaged units that
+  were neither found nor reimbursed, valued, aged against the claim window
+  (soonest-expiring first), with a draft Seller Support case text. An optional
+  inbound-shipments file adds shipments that arrived short (units sent minus
+  units received, netted against inbound reimbursements, 9-month window). The
+  files are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Amazon FBA sellers lose
+# units in the warehouse every month and Amazon reimburses only part of it
+# automatically; recovering the rest is a paid-service category (recovery
+# services keep a percentage of what they win and need seller-account access).
+# The comparison itself is arithmetic on two reports the seller can download,
+# which is why a no-signup, no-access, file-in tool can do the same first step:
+# the sellers with real inventory volume (thousands of units, tens of dollars
+# each) are the ones with real money on the table. Existing answers: paid
+# recovery services, spreadsheets, and Seller Central's own ledger, which shows
+# lost and damaged units but never nets them against reimbursements.
+#
+# First visitor: r/FulfillmentByAmazon and seller forums asking "did Amazon
+# reimburse my lost inventory", "FBA reimbursement report", "inventory ledger
+# lost". Search volume not measured.
+#
+# What makes it more than a total: reimbursements are matched to the oldest
+# losses first so the newest stay claimable; found units and reversals net
+# correctly; customer-return and other reasons do not offset lost units; claims
+# are aged (too new / claimable / expiring / past window) with editable window
+# and wait; value comes from the seller's own reimbursements per SKU before a
+# typed default; unknown-events, overpaid SKUs and a reimbursements file that
+# starts later than the ledger are flagged instead of silently overstating.
+#
+# Privacy is the liability boundary: the files never leave the browser (a test
+# asserts no network calls), so the portfolio holds no seller data and needs no
+# Amazon credential or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet into the amazon seller
+# profit analyzer. A paid tier, if usage appears, is multi-period history and
+# case-tracking (which claims were filed and paid), local-only, behind an
+# env-var switch; not built. Not built: an SP-API integration that files cases
+# for the seller, which needs credentials and terms review.
+#
+# Liability: arithmetic on the user's files and a typed value, model and
+# omissions stated on the page, no advice, no warranty, independent-of-Amazon
+# clause, "Amazon decides every claim", claim window flagged as editable because
+# Amazon changes it. The draft case text asserts nothing beyond the ledger.
+#
+# Unverified: column names and the 18-month/45-day defaults are from memory of
+# public Seller Central documentation and no real export was available; the
+# first user report of an unread file or a wrong window is the priority fix.
+
+hypotheses:
+  - claim: >-
+      FBA sellers will run a no-signup comparison of their ledger and
+      reimbursements to find unclaimed lost or damaged units rather than pay a
+      recovery service a percentage or grant it account access.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing units close to the claim-window limit leads at least one seller to
+      file a case, and the monthly re-run is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fba-reimbursement-claim-finder/
+  analytics: null

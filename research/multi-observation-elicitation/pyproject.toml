@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-observation-elicitation"
+version = "0.1.0"
+description = "Multi-observation elicitation of drift scale for verifiable training: pair scores for variance, degree table, tail-driven audit cost, pooled pairs, correlated-draw bias"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

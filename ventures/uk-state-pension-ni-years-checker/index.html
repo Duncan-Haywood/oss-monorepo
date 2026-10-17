@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK State Pension NI Years Checker 2026/27 — Is Buying Voluntary Class 3 Worth It?</title>
+  <meta name="description" content="Free UK State Pension checker for 2026/27: your State Pension age, projected qualifying years, whether to buy voluntary Class 3 National Insurance years, the cost, the extra weekly pension and the payback. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK State Pension NI years checker 2026/27. Free, private">
+  <meta property="og:description" content="Find out if buying missing National Insurance years pays back, and the deadline for each.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK State Pension NI Years Checker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many National Insurance years do I need for the full State Pension?", "acceptedAnswer": {"@type": "Answer", "text": "You need 35 qualifying years for the full new State Pension and at least 10 to get anything. Each qualifying year adds one thirty-fifth of the full amount, about \u00a36.89 a week in 2026/27."}}, {"@type": "Question", "name": "Is it worth paying voluntary National Insurance contributions?", "acceptedAnswer": {"@type": "Answer", "text": "Often yes, when you will not reach 35 years otherwise. A year of Class 3 costs about \u00a3923 at the 2025/26 rate and adds about \u00a3359 a year of pension for life, so it pays back in around 2.6 years of retirement. It is worth nothing once you already have 35 years."}}, {"@type": "Question", "name": "How far back can I fill gaps in my National Insurance record?", "acceptedAnswer": {"@type": "Answer", "text": "Generally six tax years back. The special extended window for older gaps closed on 5 April 2025, so each year's deadline now arrives six years after it ends and you lose the chance if you wait."}}, {"@type": "Question", "name": "What is the minimum number of years for any State Pension?", "acceptedAnswer": {"@type": "Answer", "text": "Ten. With fewer than 10 qualifying years, no new State Pension is paid. If you are close, buying the missing years is the most valuable use of the scheme."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK STATE PENSION NI YEARS CHECKER 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should you buy missing National Insurance years?</h1>
+    <p>Enter your birth date and the qualifying years on your GOV.UK State Pension forecast. See your State Pension age, how many years you will reach, and whether buying voluntary Class 3 years for recent gaps pays back, with the deadline for each.</p>
+    <p class="note">Written from the published rules without a live lookup. Rates and rules change; GOV.UK and the Future Pension Centre decide. Not financial advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your record</h2>
+    <div class="grid">
+      <div><label for="dob">Date of birth (born on or after 6 April 1960)</label><input id="dob" type="date"></div>
+      <div><label for="today">Today</label><input id="today" type="date"></div>
+      <div><label for="currentYears">Qualifying years so far (from your forecast)</label><input id="currentYears" type="text" inputmode="numeric" placeholder="18"></div>
+      <div><label for="futureYears">Years you will still pay NI or get credits (blank = every year to State Pension age)</label><input id="futureYears" type="text" inputmode="numeric" placeholder=""></div>
+      <div><label for="gapYears">Gap years in the last 6 you could still fill (0 to 6)</label><input id="gapYears" type="text" inputmode="numeric" placeholder="4"></div>
+      <div><label for="yearCost">Cost of one voluntary year (£)</label><input id="yearCost" type="text" inputmode="decimal" placeholder="923"></div>
+      <div><label for="fullRate">Full State Pension per week (£)</label><input id="fullRate" type="text" inputmode="decimal" placeholder="241.30"></div>
+      <div><label for="forecast">Your forecast weekly amount, if you have one (£, optional)</label><input id="forecast" type="text" inputmode="decimal" placeholder=""></div>
+      <div><label for="lifeTo">Plan to age</label><input id="lifeTo" type="text" inputmode="numeric" placeholder="85"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my years</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter the details, then click Check my years.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Value</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Deadlines to fill a gap year</h3>
+    <div class="scroll"><table><thead><tr><th>Tax year</th><th class="n">Last day to pay</th></tr></thead><tbody id="deadlines"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> State Pension age for birth dates from 6 April 1960 (66 to 68), the 35-year and 10-year rules, projected qualifying years, the cost, extra weekly pension and payback of voluntary years, and the six-year deadlines.</li>
+      <li><strong>Gives:</strong> a plain verdict, the arithmetic behind it and a text file for your records.</li>
+      <li><strong>Not decided:</strong> which of your past years are actually gaps (your National Insurance record on GOV.UK shows that), the starting amount for years before April 2016, contracted-out adjustments, Pension Credit and other benefit interactions, the exact Class 3 rate for each older year, Class 2 for the self-employed, tax on the pension, and future rate rises. The Future Pension Centre and an adviser decide these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How many National Insurance years do I need for the full State Pension?</h3>
+    <p>You need 35 qualifying years for the full new State Pension and at least 10 to get anything. Each qualifying year adds one thirty-fifth of the full amount, about £6.89 a week in 2026/27.</p>
+    <h3>Is it worth paying voluntary National Insurance contributions?</h3>
+    <p>Often yes, when you will not reach 35 years otherwise. A year of Class 3 costs about £923 at the 2025/26 rate and adds about £359 a year of pension for life, so it pays back in around 2.6 years of retirement. It is worth nothing once you already have 35 years.</p>
+    <h3>How far back can I fill gaps in my National Insurance record?</h3>
+    <p>Generally six tax years back. The special extended window for older gaps closed on 5 April 2025, so each year's deadline now arrives six years after it ends and you lose the chance if you wait.</p>
+    <h3>What is the minimum number of years for any State Pension?</h3>
+    <p>Ten. With fewer than 10 qualifying years, no new State Pension is paid. If you are close, buying the missing years is the most valuable use of the scheme.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax advice or financial advice. You are responsible for verifying its output on GOV.UK, with the Future Pension Centre, or with a qualified adviser before you pay anything.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-pension-annual-allowance-calculator/">UK pension annual allowance calculator</a>, the <a href="../uk-self-assessment-tax-calculator/">UK Self Assessment tax calculator</a> the <a href="../uk-salary-sacrifice-calculator/">UK salary sacrifice calculator</a> and the <a href="../uk-pension-withdrawal-tax-calculator/">UK pension withdrawal tax calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, gapDeadlines, parseDate, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { dob: "dob", today: "today", currentYears: "currentYears", futureYears: "futureYears", gapYears: "gapYears", yearCost: "yearCost", fullRate: "fullRate", forecast: "forecast", lifeTo: "lifeTo" };
+    const IDLE = "Enter the details, then click Check my years.";
+    const pills = (list) => list.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+    const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+    $("#today").value = todayIso();
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const input = read();
+      const r = compute(input);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.extraWeekly > 0
+        ? `Buying ${r.buy} year${r.buy === 1 ? "" : "s"} for ${gbp(r.cost)} adds about ${gbp(r.extraWeekly)} a week, paying back in about ${r.paybackYears.toFixed(1)} years`
+        : "Buying more years would not raise your State Pension on these numbers";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = pills(r.findings);
+      const line = (label, v, cls = "") => `<tr class="${cls}"><td>${esc(label)}</td><td class="n">${esc(v)}</td></tr>`;
+      const age = `${r.spa.years}${r.spa.months ? " years " + r.spa.months + " months" : ""}`;
+      $("#rows").innerHTML = line("State Pension age", age) + line("Qualifying years projected", String(r.projected)) + line("Weekly pension without buying", gbp(r.base)) + line("Years worth buying", String(r.buy)) + line("Cost", gbp(r.cost)) + line("Weekly pension after buying", gbp(r.after)) + line(`Net gain to age ${r.lifeTo} (before tax)`, gbp(r.lifetimeGain), "total");
+      $("#deadlines").innerHTML = gapDeadlines(parseDate(input.today)).map((d) => `<tr><td>${esc(d.year)}</td><td class="n">${esc(d.deadline)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify your record and the quote on GOV.UK before paying.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: born 1975, 18 years so far, 4 fillable gap years.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) { $("#" + id).value = ""; } $("#today").value = todayIso(); report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-state-pension-ni-years.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

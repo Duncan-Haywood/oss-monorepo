@@ -1,0 +1,37 @@
+name: uk-minimum-wage-checker
+description: >-
+  Free browser tool for UK small employers: enter one pay period's pay, hours actually worked, deductions and accommodation to see the effective hourly rate against the National Living Wage and NMW, the shortfall, and arrears and HMRC penalty exposure. Nothing is uploaded. Not legal or payroll advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no minimum-wage tool in ventures/ (siblings: uk-employer-hiring-cost-calculator, uk-holiday-pay-calculator).
+#
+# First visitor: UK small-business owner or bookkeeper searching "national minimum wage calculator", "minimum wage deductions uniform", "is my employee paid minimum wage 2026". April uprating spike; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: multi-worker CSV check, salaried-hours averaging, behind an env-var switch.
+#
+# Liability: rates written from memory without network access (2026/27 21+ GBP 12.71, 18-20 GBP 10.85, under 18 and apprentice GBP 8.00; the 2026/27 accommodation offset GBP 11.10 is an assumption); every result names GOV.UK as the source to verify, carries no-warranty and not-advice clauses, and says what it does not decide. Ethical risk is false reassurance on an underpayment; mitigated by the verify line and the "Not decided" list.
+hypotheses:
+  - claim: >-
+      UK small employers worried about NMW compliance will use a free private checker that counts unpaid hours and deductions, and download the result for their pay records.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-minimum-wage-checker/
+  analytics: null

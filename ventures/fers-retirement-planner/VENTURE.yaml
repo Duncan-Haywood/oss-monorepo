@@ -1,0 +1,60 @@
+name: fers-retirement-planner
+description: >-
+  Free browser tool for federal employees under FERS: enter birth month, service start, pay, sick leave and TSP and get the
+  annuity, Special Retirement Supplement and TSP income at every retirement age, the month each kind of retirement first opens
+  (MRA+10, MRA+30, 60+20, 62+5), the MRA+10 reduction, the 1.1% multiplier at 62, survivor cost, COLA and what one more year
+  adds, plus a CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nearest were retirement-withdrawal-sequencer 0.15 and
+# pension-lump-sum-vs-annuity-calculator 0.08; nothing in ventures/ or screened-out.md covers FERS. The same session ran 40+
+# niche checks first and dropped (each already built at 0.5-0.85): mechanics lien deadlines, quarterly estimated tax, SaaS churn
+# cohorts, SAFE dilution, menu engineering, tip pools, Schedule C categorizer, newsletter sponsorship, travel nurse, locum,
+# HOA reserve, FBA aged inventory, court reporter, IFTA.
+#
+# Why this niche: about 2.3 million civilian federal employees are under FERS, the choice of retirement date is worth tens of
+# thousands of dollars a year over a long life, and the rules (four eligibility paths, a 1.1% cliff at 62, a supplement that
+# vanishes with MRA+10, COLA from 62 only) are exactly the kind people model by hand. Free answers are OPM's one-scenario
+# calculators and agency HR; paid ones are retirement-consultant and FEDweek-style subscriptions. Several of those people are
+# also behind a deferred-resignation / RIF wave, which is when this question gets urgent.
+#
+# First visitor: searches "FERS retirement calculator", "FERS supplement calculator", "MRA+10 reduction", "should I retire at 62
+# FERS 1.1%"; r/fednews, r/FedEmployees. Volume not measured -- named per DIRECTION.md as the
+# graduation condition, not yet verified.
+#
+# Liability boundary: arithmetic on typed figures; "Not decided" list names everything excluded; the page says the rules were
+# written from memory of OPM guidance and that OPM and the agency HR office are the authority; no accounts, nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A paid version would add law-enforcement and CSRS
+# provisions, a saved scenario file and a PDF for the HR appointment -- needs an owner decision on accounts and rails.
+#
+# Unverified: the MRA table, the 2,087-hour sick leave conversion and the supplement's service count (sick leave excluded) were
+# written from memory and not checked against an OPM estimate. COLA, high-3 (36 months of projected pay) and TSP growth are
+# simplifications. A government-employee audience is a trust-sensitive one: a wrong figure is the kill criterion below.
+
+hypotheses:
+  - claim: >-
+      Federal employees within ten years of retirement will use a free no-signup tool to compare every retirement age, instead of
+      waiting for an HR estimate or paying a consultant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that disagrees with their OPM estimate by more than rounding, at which point the rule that differs is fixed or removed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fers-retirement-planner/
+  analytics: null

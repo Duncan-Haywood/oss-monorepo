@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Webhook Signature Debugger — Why Your Stripe, GitHub or Shopify Signature Doesn't Match</title>
+  <meta name="description" content="Webhook signature verification failed? Paste the headers, raw body and secret to verify the HMAC for Stripe, GitHub, Shopify, Slack and Svix, and see exactly why it does not match. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Why is my webhook signature failing?">
+  <meta property="og:description" content="Verify a Stripe, GitHub, Shopify, Slack or Standard Webhooks signature in your browser and find the byte that differs.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Webhook Signature Debugger","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste a webhook request's headers, raw body and signing secret to verify the HMAC signature for Stripe, GitHub, Shopify, Slack and Standard Webhooks, and find out why it does not match: re-serialised JSON, trailing newline, CRLF, secret whitespace or the wrong secret. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my Stripe webhook signature verification fail?","acceptedAnswer":{"@type":"Answer","text":"The usual cause is that the body being hashed is not the exact bytes Stripe sent. Frameworks that parse JSON first and then re-serialise it change whitespace and key order, which changes the HMAC. Verify against the raw request body. The second most common cause is the wrong whsec_ secret: each endpoint has its own, and stripe listen prints a different one than the dashboard."}},{"@type":"Question","name":"What exactly is signed for each provider?","acceptedAnswer":{"@type":"Answer","text":"Stripe signs the timestamp, a dot, then the raw body, using HMAC-SHA256 with the secret and hex output. GitHub signs the raw body (sha256= prefix, hex). Shopify signs the raw body and base64-encodes the result. Slack signs v0:timestamp:body (hex, v0= prefix). Standard Webhooks (Svix, Clerk, Resend and others) sign id.timestamp.body, base64-encode the result, and use the base64-decoded part of the whsec_ secret as the key."}},{"@type":"Question","name":"Does this tool upload my webhook secret or payload?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is computed in this page with the browser's Web Crypto API. Nothing is sent anywhere and the page makes no network calls. Even so, prefer a test-mode or already-rotated secret when debugging, and rotate any live secret you paste into a shared screen or ticket."}},{"@type":"Question","name":"Why does a valid signature still get rejected by my server?","acceptedAnswer":{"@type":"Answer","text":"Stripe, Slack and Standard Webhooks libraries also reject requests whose timestamp is more than about five minutes from your server clock. A correct signature on an old request fails that check, which is the replay protection working. Check server time (NTP) if live requests fail this way."}},{"@type":"Question","name":"Is this a security audit?","acceptedAnswer":{"@type":"Answer","text":"No. It checks one request against one secret and suggests likely causes. It does not review your endpoint's other defences and is not security advice. No warranty."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.error { background: #fde8e8; color: #9a3412; }
+    .pill.warn { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    .pill.ok { background: #dcf3e3; color: #14532d; }
+    .finding { margin: 8px 0; padding: 10px 12px; border-radius: 8px; background: #f7f9fb; border-left: 4px solid #a8b3c1; }
+    .finding.error { border-color: #9a3412; } .finding.warn { border-color: #b7791f; } .finding.ok { border-color: #14532d; }
+    select, input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; }
+    label.block { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea.short { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WEBHOOK SIGNATURE DEBUGGER · RUNS IN YOUR BROWSER</p>
+    <h1>Why is my webhook signature failing?</h1>
+    <p>Paste the request headers, the <strong>raw</strong> body and your signing secret. The page computes the HMAC the way <strong>Stripe, GitHub, Shopify, Slack</strong> and <strong>Standard Webhooks</strong> (Svix, Clerk, Resend) define it, tells you whether it verifies, and, when it does not, tries the usual culprits: re-serialised JSON, a trailing newline, CRLF line endings, whitespace in the secret, a <code>whsec_</code> secret used in the wrong form.</p>
+    <p class="note">Nothing is uploaded. Your secret and payload are used in this tab by the browser's Web Crypto API and never leave your device; the page makes no network calls of its own. Prefer a test-mode or rotated secret when you debug.</p>
+  </header>
+
+  <section class="card">
+    <h2>The request</h2>
+    <label class="block" for="headers">Headers (as received, one per line)</label>
+    <textarea id="headers" class="short" spellcheck="false" placeholder="Stripe-Signature: t=1700000000,v1=5257a869..."></textarea>
+    <label class="block" for="body">Raw body (byte for byte)</label>
+    <textarea id="body" spellcheck="false" placeholder='{"id":"evt_123", ...}'></textarea>
+    <p><label for="secret">Signing secret: </label><input type="text" id="secret" autocomplete="off" spellcheck="false" placeholder="whsec_..." size="34">
+    <label for="provider">Provider: </label><select id="provider"><option value="">Detect from headers</option><option value="stripe">Stripe</option><option value="github">GitHub</option><option value="shopify">Shopify</option><option value="slack">Slack</option><option value="standard">Standard Webhooks (Svix)</option></select></p>
+    <p>
+      <button type="button" id="check">Verify signature</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (mismatch)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Fill in the three boxes and click Verify signature.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="findings"></div>
+    <details><summary>Show the correct verification code for this provider (Node.js)</summary><pre class="cmd"><code id="snippet"></code></pre></details>
+  </section>
+
+  <section class="card">
+    <h2>Replay it locally from the command line</h2>
+    <p>Same engine, zero dependencies, nothing leaves your machine. It can also <strong>sign</strong> a payload so you can test your own endpoint:</p>
+    <pre class="cmd"><code>node cli.mjs --body body.json --headers headers.txt --secret whsec_...   # exit 0 if it verifies
+node cli.mjs --sign stripe --body body.json --secret whsec_...         # print headers for curl -H
+node cli.mjs --provider github --snippet                                # reference verifier</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="webhook.mjs" rel="noopener">webhook.mjs</a> from the repo. Node 18+. The secret can also come from <code>WEBHOOK_SECRET</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my Stripe webhook signature verification fail?</h3>
+    <p>The usual cause is that the body being hashed is not the exact bytes Stripe sent. Frameworks that parse JSON first and then re-serialise it change whitespace and key order, which changes the HMAC. Verify against the raw request body. The second most common cause is the wrong whsec_ secret: each endpoint has its own, and stripe listen prints a different one than the dashboard.</p>
+    <h3>What exactly is signed for each provider?</h3>
+    <p>Stripe signs the timestamp, a dot, then the raw body, using HMAC-SHA256 with the secret and hex output. GitHub signs the raw body (sha256= prefix, hex). Shopify signs the raw body and base64-encodes the result. Slack signs v0:timestamp:body (hex, v0= prefix). Standard Webhooks (Svix, Clerk, Resend and others) sign id.timestamp.body, base64-encode the result, and use the base64-decoded part of the whsec_ secret as the key.</p>
+    <h3>Does this tool upload my webhook secret or payload?</h3>
+    <p>No. Everything is computed in this page with the browser's Web Crypto API. Nothing is sent anywhere and the page makes no network calls. Even so, prefer a test-mode or already-rotated secret when debugging, and rotate any live secret you paste into a shared screen or ticket.</p>
+    <h3>Why does a valid signature still get rejected by my server?</h3>
+    <p>Stripe, Slack and Standard Webhooks libraries also reject requests whose timestamp is more than about five minutes from your server clock. A correct signature on an old request fails that check, which is the replay protection working. Check server time (NTP) if live requests fail this way.</p>
+    <h3>Is this a security audit?</h3>
+    <p>No. It checks one request against one secret and suggests likely causes. It does not review your endpoint's other defences and is not security advice. No warranty.</p>
+    <p>More: <a href="how-to-verify-webhook-signatures.html">how to verify webhook signatures correctly (and why raw body matters)</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a debugging aid, not a security audit or security advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The headers, body and secret you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>verify_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../jwt-verification-misuse-check/">JWT Verification Misuse Check</a> and <a href="../email-auth-check/">Email Auth Check</a>.</p>
+    <p class="support">Free and open source. If this saved you an afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { verify, sign, snippet, LABELS } from "./webhook.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    // Synthetic: signed over the pretty-printed body, "received" as the compact re-serialisation,
+    // which is the classic Express body-parser mistake.
+    const EXAMPLE = {
+      body: '{"action":"opened","number":7,"repository":{"name":"demo"}}',
+      secret: "example-secret-not-real",
+    };
+
+    async function run() {
+      const r = await verify({ provider: $("#provider").value || null, headers: $("#headers").value, body: $("#body").value, secret: $("#secret").value });
+      $("#verdict").className = "verdict" + (r.ok ? "" : " risk");
+      $("#verdict").textContent = r.provider ? `${LABELS[r.provider]}: ${r.ok ? "signature verified" : "signature does not verify"}` : "Provider not recognised";
+      $("#findings").innerHTML = r.findings.map((f) => `<div class="finding ${f.severity}"><span class="pill ${f.severity}">${f.severity}</span> ${escapeHtml(f.message)}</div>`).join("");
+      $("#snippet").textContent = r.provider ? snippet(r.provider) : "";
+      $("#report-card").hidden = false;
+      $("#status").textContent = "";
+      record("verify_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      return r;
+    }
+
+    $("#check").addEventListener("click", run);
+    $("#load-example").addEventListener("click", async () => {
+      // Compute the real signature over a pretty-printed body, then present the compact body.
+      const pretty = JSON.stringify(JSON.parse(EXAMPLE.body), null, 2);
+      const h = await sign("github", { body: pretty, secret: EXAMPLE.secret });
+      $("#headers").value = "Content-Type: application/json\nX-Hub-Signature-256: " + h["X-Hub-Signature-256"];
+      $("#body").value = EXAMPLE.body;
+      $("#secret").value = EXAMPLE.secret;
+      $("#provider").value = "";
+      await run();
+      record("example_loaded");
+      $("#status").textContent = "Worked example: the signature was made over the pretty-printed JSON, but the body below is the compact re-serialisation your framework hands you after parsing.";
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const id of ["headers", "body", "secret"]) $("#" + id).value = "";
+      $("#report-card").hidden = true;
+      $("#status").textContent = "Fill in the three boxes and click Verify signature.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

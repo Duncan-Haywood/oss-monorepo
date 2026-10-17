@@ -39,7 +39,7 @@ permissions:
 jobs:
   resolve-pr:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # A single shell step with no checkout or network call -- normally a few
     # seconds. See hetzner-gitops-ci.yml's timeout-minutes addition for why an
     # unbounded job is worth capping on a metered-minutes account.
@@ -61,7 +61,7 @@ jobs:
     needs: resolve-pr
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Skips in a few seconds when the App secrets are absent; configured, it
     # is a checkout, a pip install, and one review.py call against the GitHub
     # API -- normally well under a minute. See hetzner-gitops-ci.yml's
@@ -84,6 +84,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -92,7 +93,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         run: pip install -r portfolio/router/requirements.txt
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: token
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_GH_APP_ID }}
@@ -107,7 +108,7 @@ jobs:
     needs: resolve-pr
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Same shape as review-gh above; see its comment.
     timeout-minutes: 10
     steps:
@@ -126,6 +127,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -134,7 +136,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         run: pip install -r portfolio/router/requirements.txt
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: token
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_KILO_APP_ID }}
@@ -149,7 +151,7 @@ jobs:
     needs: resolve-pr
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Same shape as review-gh above; see its comment.
     timeout-minutes: 10
     steps:
@@ -168,6 +170,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -176,7 +179,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         run: pip install -r portfolio/router/requirements.txt
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: token
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_CURSOR_APP_ID }}
@@ -191,7 +194,7 @@ jobs:
     needs: resolve-pr
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Same shape as review-gh above; see its comment.
     timeout-minutes: 10
     steps:
@@ -210,6 +213,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
         uses: actions/setup-python@v5
@@ -218,7 +222,7 @@ jobs:
       - if: steps.app.outputs.configured == 'true'
         run: pip install -r portfolio/router/requirements.txt
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: token
         with:
           app-id: ${{ secrets.AGENT_REVIEWER_CLAUDE_APP_ID }}

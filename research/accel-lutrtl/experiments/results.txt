@@ -1,0 +1,9 @@
+layer 64 inputs x N outputs, 4-bit activations, int8 shared weights; GE = assumed gate equivalents
+N | K | bit-exact | cycles mac/table | datapath GE mac/table (ratio) | flops mac/table | stored bits mac/table | ROM-logic GE mac/table | break-even GE per stored bit
+8 | 16 | True | 512/1544 | 1934/4614 (2.38x) | 91/445 | 4096/2176 | 1507/896 | 1.40
+16 | 16 | True | 1024/2064 | 1942/5838 (3.01x) | 91/606 | 8192/4224 | 2665/1602 | 0.98
+32 | 16 | True | 2048/3104 | 1950/8280 (4.25x) | 91/927 | 16384/8320 | 4635/2910 | 0.78
+64 | 16 | True | 4096/5184 | 1957/13156 (6.72x) | 91/1568 | 32768/16512 | 8737/5431 | 0.69
+128 | 16 | True | 8192/9344 | 1965/22877 (11.64x) | 91/2849 | 65536/32896 | 15278/9230 | 0.64
+32 | 8 | True | 2048/2592 | 1950/7546 (3.87x) | 91/831 | 16384/6208 | 4878/2246 | 0.55
+32 | 4 | True | 2048/2336 | 1950/7171 (3.68x) | 91/783 | 16384/4128 | 2684/1598 | 0.43

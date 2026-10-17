@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?</title>
+  <meta name="description" content="Free calculator for coin-op route operators. Enter each location's weekly take, commission, visits and miles; it shows profit per route hour, the weekly take you need, and the highest commission you can pay and still earn your target. Private, in your browser.">
+  <meta property="og:title" content="Amusement Route Location Calculator — is each arcade, pool table or claw machine location worth the drive?">
+  <meta property="og:description" content="Free calculator for coin-op route operators. Enter each location's weekly take, commission, visits and miles; it shows profit per route hour, the weekly take you need, and the highest commission you can pay and still earn your target. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Amusement Route Location Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for coin-op route operators: profit per route hour for each location, the weekly take each machine needs, and the highest commission you can pay and still earn your target. Runs in your browser; nothing is uploaded.","featureList":"arcade route profit calculator, pool table route commission, claw machine route profit, amusement route location commission, coin-op route break-even"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much commission should I pay a location for arcade or pool table machines?","acceptedAnswer":{"@type":"Answer","text":"As much as still leaves you your target hourly after prizes, card fees, repairs, licences, machine wear and driving. That ceiling differs by location because it depends on the take, the visits and the miles. This calculator solves for it location by location."}},{"@type":"Question","name":"How do I know if a route location is worth keeping?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per route hour with the hourly you want to take home. Profit here is the take less commission, prizes, card fees, repairs, licences, machine wear and driving; hours are the visits times the minutes each one takes, driving included. A location below your target is either a commission to renegotiate or a stop to drop."}},{"@type":"Question","name":"What weekly take does a machine need to be worth placing?","acceptedAnswer":{"@type":"Answer","text":"The calculator shows the break-even weekly take per machine for each location: the take at which the location earns exactly your target hourly at its current commission, visits and miles. Compare it with what the machines really collect."}},{"@type":"Question","name":"Does driving time count against a route location?","acceptedAnswer":{"@type":"Answer","text":"Yes. A distant stop with a small take can lose money in fuel and spend hours on the road. Enter the round-trip miles and the minutes per visit including the drive, and the tool charges both."}},{"@type":"Question","name":"Is my route data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this business or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Licensing, location agreements and tax depend on where you operate; check with an accountant or your state or local licensing office."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AMUSEMENT ROUTE LOCATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is each location on your arcade, pool table or claw machine route worth the drive?</h1>
+    <p>Type each location's take, commission, visits and miles. The tool takes out <strong>commission, prizes, card fees, repairs, licences, machine wear and driving</strong>, shows what each stop earns per route hour, the <strong>weekly take it needs</strong>, and the <strong>highest commission you can pay</strong> and still earn your target.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-commission-to-pay-a-location-for-arcade-machines.html">how much commission to pay a location for arcade machines</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. You and your machines</h2>
+    <div class="row3">
+      <div><label for="th">Hourly you want to take home ($)</label><input type="number" id="th" min="0" step="1" max="500" value="35"></div>
+      <div><label for="cm">Vehicle cost per mile ($: fuel, tyres, wear)</label><input type="number" id="cm" min="0" step="0.01" max="5" value="0.6"></div>
+      <div><label for="pz">Prizes and product (% of takings)</label><input type="number" id="pz" min="0" step="1" max="90" value="8"></div>
+      <div><label for="cs">Share of takings paid by card (%)</label><input type="number" id="cs" min="0" step="1" max="100" value="40"></div>
+      <div><label for="cf">Card fee (%)</label><input type="number" id="cf" min="0" step="0.1" max="15" value="3.5"></div>
+      <div><label for="rp">Repairs and parts per machine per month ($)</label><input type="number" id="rp" min="0" step="1" max="2000" value="18"></div>
+      <div><label for="lc">Licence per machine per year ($)</label><input type="number" id="lc" min="0" step="5" max="20000" value="120"></div>
+      <div><label for="mp">Machine price ($, average)</label><input type="number" id="mp" min="0" step="100" max="100000" value="3500"></div>
+      <div><label for="ly">Years a machine lasts</label><input type="number" id="ly" min="1" step="1" max="30" value="7"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Your locations</h2>
+    <p class="note">Up to twelve. Weekly take is per machine. Minutes per visit include the drive both ways.</p>
+    <div class="scroll"><table id="svc"><thead><tr><th>Location</th><th>Machines</th><th>Take / machine / week ($)</th><th>Commission (%)</th><th>Visits / month</th><th>Round-trip miles</th><th>Minutes / visit</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-svc">Add a location</button>
+    <button type="button" id="solve">Check my route</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check my route.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Location</th><th class="num">Gross / month</th><th class="num">Commission</th><th class="num">Other costs</th><th class="num">Profit / month</th><th class="num">Profit / hour</th><th class="num">Take needed</th><th class="num">Highest commission</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Gross:</strong> weekly take per machine times machines times 52 over 12. <strong>Commission</strong> is a percentage of that gross. <strong>Prizes</strong> are a percentage of takings. <strong>Card fees</strong> are the card share of takings times the fee. <strong>Repairs, licence and machine wear</strong> (price over life) are charged per machine; <strong>driving</strong> is visits times round-trip miles times your cost per mile.</p>
+    <p><strong>Hours</strong> are visits per month times minutes per visit. <strong>Profit</strong> is before paying yourself or your tax; profit per hour is compared with your target. <strong>Take needed</strong> and <strong>highest commission</strong> are exact: the test suite recomputes the location at each and checks it earns your target to the cent.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much commission should I pay a location for arcade or pool table machines?</h3>
+    <p>As much as still leaves you your target hourly after prizes, card fees, repairs, licences, machine wear and driving. That ceiling differs by location because it depends on the take, the visits and the miles. This calculator solves for it location by location.</p>
+    <h3>How do I know if a route location is worth keeping?</h3>
+    <p>Compare profit per route hour with the hourly you want to take home. Profit here is the take less commission, prizes, card fees, repairs, licences, machine wear and driving; hours are the visits times the minutes each one takes, driving included. A location below your target is either a commission to renegotiate or a stop to drop.</p>
+    <h3>What weekly take does a machine need to be worth placing?</h3>
+    <p>The calculator shows the break-even weekly take per machine for each location: the take at which the location earns exactly your target hourly at its current commission, visits and miles. Compare it with what the machines really collect.</p>
+    <h3>Does driving time count against a route location?</h3>
+    <p>Yes. A distant stop with a small take can lose money in fuel and spend hours on the road. Enter the round-trip miles and the minutes per visit including the drive, and the tool charges both.</p>
+    <h3>Is my route data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this business or tax advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Licensing, location agreements and tax depend on where you operate; check with an accountant or your state or local licensing office.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not business, tax or financial advice. <strong>Use at your own risk.</strong> Check location agreements, licensing and tax with your accountant or local licensing office.</p>
+    <p><strong>Independent.</strong> Not affiliated with any machine maker, route software, location chain or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../vending-machine-route-margin/">vending machine route margin calculator</a> the <a href="../dumpster-rental-margin-calculator/">dumpster rental margin calculator</a> and, for a venue that owns its games, the <a href="../arcade-game-payback-calculator/">arcade game payback calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, cents, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_LOCATIONS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let R = null;
+    function locRow(s) { return '<tr><td><input type="text" class="sn" value="' + esc(s.name) + '" aria-label="Location name"></td><td><input type="number" class="sc" min="1" max="100" step="1" value="' + esc(s.machines) + '" aria-label="Machines"></td><td><input type="number" class="sp" min="1" step="1" value="' + esc(s.weeklyTake) + '" aria-label="Weekly take per machine"></td><td><input type="number" class="sk" min="0" max="90" step="1" value="' + esc(s.commissionPct) + '" aria-label="Commission percent"></td><td><input type="number" class="sv" min="1" step="0.5" value="' + esc(s.visitsPerMonth) + '" aria-label="Visits per month"></td><td><input type="number" class="sl" min="0" step="1" value="' + esc(s.miles) + '" aria-label="Round-trip miles"></td><td><input type="number" class="sm" min="5" step="5" value="' + esc(s.minutes) + '" aria-label="Minutes per visit"></td><td><button type="button" class="secondary rm" aria-label="Remove location">×</button></td></tr>'; }
+    function setLocs(list) { $("#svc tbody").innerHTML = list.map(locRow).join(""); }
+    const IDS = { targetHourly: "th", costPerMile: "cm", prizePct: "pz", cardSharePct: "cs", cardFeePct: "cf", repairPerMachine: "rp", licensePerMachineYear: "lc", machinePrice: "mp", lifeYears: "ly" };
+    function read() {
+      const o = {};
+      for (const [k, id] of Object.entries(IDS)) o[k] = Number($("#" + id).value);
+      o.locations = [...document.querySelectorAll("#svc tbody tr")].map((r) => ({ name: r.querySelector(".sn").value.trim(), machines: Number(r.querySelector(".sc").value), weeklyTake: Number(r.querySelector(".sp").value), commissionPct: Number(r.querySelector(".sk").value), visitsPerMonth: Number(r.querySelector(".sv").value), miles: Number(r.querySelector(".sl").value), minutes: Number(r.querySelector(".sm").value) }));
+      return o;
+    }
+    function fill(s) { for (const [k, id] of Object.entries(IDS)) $("#" + id).value = s[k]; setLocs(s.locations); }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const w = R.rows[R.worstIndex - 1];
+      $("#big").innerHTML = [[money(R.totals.profit), "a month profit before your own pay"], [R.rows.filter((x) => x.meets).length + " of " + R.rows.length, "locations meet your target hourly"], [money(R.totals.perHour), "route profit per hour worked"], [esc(w.name), "lowest profit per hour: " + money(w.perHour)]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      $("#out tbody").innerHTML = R.rows.map((x) => "<tr><td>" + esc(x.name) + '</td><td class="num">' + money(x.gross) + '</td><td class="num">' + money(x.commission) + '</td><td class="num">' + money(x.prizes + x.cardFees + x.repairs + x.licence + x.wear + x.driving) + '</td><td class="num">' + money(x.profit) + '</td><td class="num">' + money(x.perHour) + '</td><td class="num">' + (x.breakEvenTake == null ? "n/a" : cents(x.breakEvenTake)) + '</td><td class="num">' + (x.maxCommissionPct < 0 ? "none" : x.maxCommissionPct.toFixed(1) + "%") + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setLocs(sampleInput().locations);
+    $("#add-svc").addEventListener("click", () => { if (document.querySelectorAll("#svc tbody tr").length >= MAX_LOCATIONS) { status.textContent = "Up to " + MAX_LOCATIONS + " locations."; return; } $("#svc tbody").insertAdjacentHTML("beforeend", locRow({ name: "", machines: 1, weeklyTake: "", commissionPct: 50, visitsPerMonth: 4, miles: 10, minutes: 45 })); });
+    $("#svc").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a small route, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("amusement-route.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("amusement-route.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

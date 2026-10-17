@@ -1,0 +1,60 @@
+name: fair-workweek-schedule-checker
+description: >-
+  Free browser tool for restaurant, retail and hospitality managers: paste the
+  posted schedule and the changes made after it, pick Seattle, Chicago or your
+  own city's numbers, and see late postings, short-notice add/move and
+  cancellation premium pay, and clopening rest violations. CSV and text export.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session asked for something deeper than a
+# calculator. duplicate_check.py: closest row was late-invoice-collections-kit
+# 0.11; nothing near the 0.45 line. The scheduling ventures in the tree
+# (shift-roster-builder, shift-cover-optimizer, volunteer-shift-scheduler) build
+# schedules; none checks one against a predictive-scheduling ordinance.
+#
+# Why this niche: predictive scheduling laws now cover large retail and food
+# employers in Seattle, Chicago, New York City, Philadelphia, San Francisco, Los
+# Angeles, Oregon and others. The premium pay is triggered by changes managers
+# make by text message, and nothing on the schedule shows what it costs. Scheduling
+# suites sell this as a paid compliance module; a manager of a few locations has a
+# spreadsheet. Paste-in checking with an auditable premium per change is the gap.
+#
+# First visitor: people searching "predictive scheduling pay calculator", "fair
+# workweek premium pay", "clopening pay Seattle", "schedule change premium
+# Chicago". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed schedules and user-editable
+# numbers. No payments, no accounts, nothing stored or uploaded. Not legal advice;
+# presets are summaries the user must verify, and the page says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid multi-city rules pack or payroll-export add-on.
+
+hypotheses:
+  - claim: >-
+      Managers at multi-location restaurants and retailers will paste a week of
+      schedule changes into a private checker to see the premium pay owed, and
+      return each pay period.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a premium or rest result that disagrees with the ordinance text for the preset they chose, and the preset is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fair-workweek-schedule-checker/
+  analytics: null

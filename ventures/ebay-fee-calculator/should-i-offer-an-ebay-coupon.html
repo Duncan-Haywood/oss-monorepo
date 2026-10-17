@@ -31,7 +31,7 @@
         "name": "Should I offer an eBay coupon?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A seller coupon is a public code on a listing that still shows Buy It Now. Only the redeem share pays the cut; everyone else still pays the listed price. Dropping the list writes the cheaper price into search and sold comps. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 15% coupon, 40% redeem, 40% listed sell-through, 55% coupon sell-through, 50% dropped-list sell-through) staying listed expects $7.34, the coupon expects $9.06, and dropping the list expects $6.83. The coupon keeps $1.72 more after sell-through. On leftover — if they would have bought anyway — listed leaves $18.34 and the coupon mix leaves $16.47, $1.87 less. The coupon has to convert about 44.6% of the time, or the dropped list about 66.3%, before those paths match. That is arithmetic on your inputs, not advice to publish a coupon."
+          "text": "A seller coupon is a public code on a listing that still shows Buy It Now. Only the redeem share pays the cut; everyone else still pays the listed price. Dropping the list writes the cheaper price into search and sold comps. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 15% coupon, 40% redeem, 40% listed sell-through, 55% coupon sell-through, 50% dropped-list sell-through) staying listed expects $7.24, the coupon expects $8.93, and dropping the list expects $6.72. The coupon keeps $1.69 more after sell-through. On leftover — if they would have bought anyway — listed leaves $18.11 and the coupon mix leaves $16.24, $1.87 less. The coupon has to convert about 44.6% of the time, or the dropped list about 66.5%, before those paths match. That is arithmetic on your inputs, not advice to publish a coupon."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does staying listed beat an eBay coupon?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the redeem mix eats more leftover than the badge lift returns. On the same $40 listing, matching the 40% listed sell-through already loses on a 15% coupon ($6.59 vs $7.34). A 25% code that everyone redeems expects $5.80 against $7.34 listed even at a 55% badge lift."
+          "text": "When the redeem mix eats more leftover than the badge lift returns. On the same $40 listing, matching the 40% listed sell-through already loses on a 15% coupon ($6.50 vs $7.24). A 25% code that everyone redeems expects $5.68 against $7.24 listed even at a 55% badge lift."
         }
       },
       {
@@ -117,8 +117,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -179,26 +179,26 @@
       the cheaper price can leave less than staying listed.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack,
+      On the defaults — $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack,
       $5 return label, 10% returns, 15% coupon, 40% redeem, 40%
       listed sell-through, 55% coupon sell-through, 50%
       dropped-list sell-through, forty listings — staying listed
-      expects $7.34, the coupon expects $9.06, and dropping the
-      list expects $6.83. The coupon keeps $1.72 more on this
-      decision and +$68.84 across forty listings. The coupon has
+      expects $7.24, the coupon expects $8.93, and dropping the
+      list expects $6.72. The coupon keeps $1.69 more on this
+      decision and +$67.60 across forty listings. The coupon has
       to convert about 44.6% of the time, or the dropped list
-      about 66.3%, before those paths match. If they would have
-      bought anyway, leftover shrinks $1.87 ($18.34 vs $16.47).
-      Dropping the list shrinks leftover $4.68 ($13.66).
+      about 66.5%, before those paths match. If they would have
+      bought anyway, leftover shrinks $1.87 ($18.11 vs $16.24).
+      Dropping the list shrinks leftover $4.67 ($13.44).
     </p>
     <p>
       Matching conversion already loses. Keep the same listing
       and hold coupon sell-through at 40%. Listed still expects
-      $7.34; the 15% coupon expects $6.59 — $0.75 less. A 25%
-      code that everyone redeems expects $5.80 even at a 55%
+      $7.24; the 15% coupon expects $6.50 — $0.75 less. A 25%
+      code that everyone redeems expects $5.68 even at a 55%
       badge lift. An 80% dropped-list sell-through flips the
-      cheaper BIN ahead ($10.93 vs $9.06). The conversion you
+      cheaper BIN ahead ($10.76 vs $8.93). The conversion you
       thought you bought did not cover the leftover you gave
       away.
     </p>
@@ -221,9 +221,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I offer an eBay coupon?</h3>
-  <p>A seller coupon is a public code on a listing that still shows Buy It Now. Only the redeem share pays the cut; everyone else still pays the listed price. Dropping the list writes the cheaper price into search and sold comps. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 15% coupon, 40% redeem, 40% listed sell-through, 55% coupon sell-through, 50% dropped-list sell-through) staying listed expects $7.34, the coupon expects $9.06, and dropping the list expects $6.83. The coupon keeps $1.72 more after sell-through. On leftover — if they would have bought anyway — listed leaves $18.34 and the coupon mix leaves $16.47, $1.87 less. The coupon has to convert about 44.6% of the time, or the dropped list about 66.3%, before those paths match. That is arithmetic on your inputs, not advice to publish a coupon.</p>
+  <p>A seller coupon is a public code on a listing that still shows Buy It Now. Only the redeem share pays the cut; everyone else still pays the listed price. Dropping the list writes the cheaper price into search and sold comps. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 15% coupon, 40% redeem, 40% listed sell-through, 55% coupon sell-through, 50% dropped-list sell-through) staying listed expects $7.24, the coupon expects $8.93, and dropping the list expects $6.72. The coupon keeps $1.69 more after sell-through. On leftover — if they would have bought anyway — listed leaves $18.11 and the coupon mix leaves $16.24, $1.87 less. The coupon has to convert about 44.6% of the time, or the dropped list about 66.5%, before those paths match. That is arithmetic on your inputs, not advice to publish a coupon.</p>
   <h3>When does staying listed beat an eBay coupon?</h3>
-  <p>When the redeem mix eats more leftover than the badge lift returns. On the same $40 listing, matching the 40% listed sell-through already loses on a 15% coupon ($6.59 vs $7.34). A 25% code that everyone redeems expects $5.80 against $7.34 listed even at a 55% badge lift.</p>
+  <p>When the redeem mix eats more leftover than the badge lift returns. On the same $40 listing, matching the 40% listed sell-through already loses on a 15% coupon ($6.50 vs $7.24). A 25% code that everyone redeems expects $5.68 against $7.24 listed even at a 55% badge lift.</p>
   <h3>Is an eBay coupon the same as an offer to watchers or a quantity discount?</h3>
   <p>No. A seller-initiated offer is a private sent price to watchers, one accept rate. A quantity discount cuts N units into one box. Promoted Offsite is a campaign billed even if they bounce. A coupon keeps the listing at Buy It Now and only the redeem share pays less.</p>
 

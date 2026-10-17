@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU AI Act Risk Checker — Is My AI System High-Risk?</title>
+  <meta name="description" content="Free EU AI Act risk checker: tick what your AI system does and your role to see whether it is prohibited, high-risk, or only has transparency duties under Regulation (EU) 2024/1689, with the Articles, your duties and the dates. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU AI Act risk checker: is your AI system high-risk? Free, private">
+  <meta property="og:description" content="Role and use case in; risk tier, the Article it rests on, your duties and the dates out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU AI Act Risk Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the EU AI Act apply to my company?","acceptedAnswer":{"@type":"Answer","text":"It applies to providers that place AI systems or general-purpose AI models on the EU market, to deployers established or located in the EU, and to providers and deployers elsewhere whose system's output is used in the EU (Article 2). Military, pure research and purely personal use are excluded. The page asks about each."}},{"@type":"Question","name":"What are the risk levels in the AI Act?","acceptedAnswer":{"@type":"Answer","text":"Prohibited practices (Article 5), high-risk systems (Article 6 and Annex III, or products under Annex I), systems with transparency duties (Article 50), and everything else, which has no mandatory duties beyond AI literacy. General-purpose AI models have their own duties in Articles 51 to 55."}},{"@type":"Question","name":"Is an AI hiring or CV screening tool high-risk?","acceptedAnswer":{"@type":"Answer","text":"Yes under Annex III point 4(a): AI used for recruitment, such as targeting job ads, filtering or ranking applications and evaluating candidates, is on the high-risk list. The exception in Article 6(3) does not apply if the system profiles people."}},{"@type":"Question","name":"What does the AI Act require of a chatbot?","acceptedAnswer":{"@type":"Answer","text":"Under Article 50(1), providers must design systems that interact with people so that they are told they are dealing with AI, unless that is obvious. Providers of systems that generate synthetic audio, image, video or text must mark the output as machine-readable (Article 50(2))."}},{"@type":"Question","name":"What are the fines?","acceptedAnswer":{"@type":"Answer","text":"Up to EUR 35 million or 7% of worldwide annual turnover for prohibited practices, EUR 15 million or 3% for most other breaches, and EUR 7.5 million or 1% for supplying incorrect information. Whichever is higher applies, except for SMEs and start-ups, where it is whichever is lower (Article 99)."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+      fieldset { border: 1px solid #dad6c8; border-radius: 10px; margin: 14px 0; padding: 8px 14px 12px; }
+    legend { font-weight: 700; padding: 0 6px; color: #14283b; }
+    fieldset h4 { margin: 12px 0 2px; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    label.chk { display: block; font-weight: 400; margin: 6px 0; line-height: 1.4; }
+    label.chk input { width: auto; margin-right: 6px; }
+    .art { font-size: .78rem; color: #54503f; white-space: nowrap; }
+    .tier-prohibited { color: #9a1b1b; } .tier-high { color: #9a3412; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EU AI ACT RISK CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your AI system prohibited, high-risk, or only a transparency case under the EU AI Act?</h1>
+    <p>Choose your role and tick what the system does. You get a <strong>risk tier</strong>, the <strong>Article it rests on</strong>, <strong>your duties</strong> as provider, deployer, importer or distributor, and the <strong>dates</strong>.</p>
+    <p class="note">A first read of Regulation (EU) 2024/1689. It reads only what you tick, and the boundaries of Annex III are still being clarified. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose a role</option><option value="provider">Provider: I develop an AI system or model, or have one developed, and put it on the market under my name</option><option value="deployer">Deployer: I use someone else's AI system in a professional setting</option><option value="both">Both: I build an AI system and use it myself</option><option value="importer">Importer: I bring a non-EU provider's AI system onto the EU market</option><option value="distributor">Distributor: I make an AI system available in the EU without changing it</option></select></div>
+      <div><label for="eu">EU connection</label><select id="eu"><option value="market">The system is placed on the EU market or put into service in the EU</option><option value="output">I am outside the EU but the system's output is used in the EU</option><option value="none">Neither: no EU market and no output used in the EU</option></select></div>
+      <div><label for="gpai">Do you provide a general-purpose AI model?</label><select id="gpai"><option value="none">No, I do not provide a general-purpose AI model</option><option value="model">Yes, a general-purpose AI model (broad capability, many downstream uses)</option><option value="systemic">Yes, and its training compute is at or above 10^25 floating point operations</option></select></div>
+    </div>
+    <fieldset id="f-exclusions"><legend>Exclusions (Article 2)</legend>
+        <label class="chk"><input type="checkbox" name="exclusions" value="military"> Used exclusively for military, defence or national security purposes <span class="art">Art 2(3)</span></label>
+        <label class="chk"><input type="checkbox" name="exclusions" value="research"> Developed and used solely for scientific research and development <span class="art">Art 2(6)</span></label>
+        <label class="chk"><input type="checkbox" name="exclusions" value="prerelease"> Still in research, testing or development and not yet placed on the market or put into service (testing in real-world conditions is not covered by this) <span class="art">Art 2(8)</span></label>
+        <label class="chk"><input type="checkbox" name="exclusions" value="personal"> Used by a natural person for purely personal, non-professional purposes <span class="art">Art 2(10)</span></label>
+    </fieldset>
+    <fieldset id="f-prohibited"><legend>Prohibited practices (Article 5)</legend>
+        <label class="chk"><input type="checkbox" name="prohibited" value="manipulate"> Subliminal, purposefully manipulative or deceptive techniques that materially distort behaviour and cause significant harm <span class="art">Art 5(1)(a)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="vulnerable"> Exploiting vulnerabilities of age, disability or social or economic situation to distort behaviour and cause significant harm <span class="art">Art 5(1)(b)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="socialscore"> Social scoring of people that leads to unjustified or disproportionate detrimental treatment <span class="art">Art 5(1)(c)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="crimepredict"> Predicting that a person will commit a crime based only on profiling or personality traits <span class="art">Art 5(1)(d)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="facescrape"> Building face recognition databases by untargeted scraping of images from the internet or CCTV <span class="art">Art 5(1)(e)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="emotionwork"> Inferring emotions of people at work or in education (other than for medical or safety reasons) <span class="art">Art 5(1)(f)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="biocat"> Biometric categorisation that infers race, political opinions, trade union membership, religion, sex life or sexual orientation <span class="art">Art 5(1)(g)</span></label>
+        <label class="chk"><input type="checkbox" name="prohibited" value="rbi"> Real-time remote biometric identification in public spaces for law enforcement (narrow exceptions only) <span class="art">Art 5(1)(h)</span></label>
+    </fieldset>
+    <fieldset id="f-annex3"><legend>High-risk uses (Annex III)</legend>
+        <h4>Biometrics</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="bioid"> Remote biometric identification of people (not one-to-one verification) <span class="art">Annex III 1(a)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="biocat2"> Biometric categorisation by sensitive or protected attributes <span class="art">Annex III 1(b)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="bioemotion"> Emotion recognition <span class="art">Annex III 1(c)</span></label>
+        <h4>Critical infrastructure</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="infra"> Safety component in the management of critical digital infrastructure, road traffic, or water, gas, heating or electricity supply <span class="art">Annex III 2</span></label>
+        <h4>Education</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="eduaccess"> Deciding admission, access or placement in education or training <span class="art">Annex III 3(a)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="eduevaluate"> Evaluating learning outcomes, including when the result steers the learning process <span class="art">Annex III 3(b)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="edulevel"> Assessing the appropriate level of education a person will receive <span class="art">Annex III 3(c)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="educheat"> Monitoring or detecting prohibited behaviour of students during tests <span class="art">Annex III 3(d)</span></label>
+        <h4>Employment</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="emprecruit"> Recruitment: targeting job ads, filtering or ranking applications, evaluating candidates <span class="art">Annex III 4(a)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="empmanage"> Decisions on promotion, termination, task allocation, or monitoring and evaluating workers' performance or behaviour <span class="art">Annex III 4(b)</span></label>
+        <h4>Essential services</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="svcbenefit"> Assessing eligibility for public benefits or services, or granting, reducing or revoking them <span class="art">Annex III 5(a)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="svccredit"> Evaluating creditworthiness or credit score of people (other than fraud detection) <span class="art">Annex III 5(b)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="svcinsurance"> Risk assessment and pricing for life and health insurance <span class="art">Annex III 5(c)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="svcemergency"> Evaluating or dispatching emergency calls and emergency first response, or triaging patients <span class="art">Annex III 5(d)</span></label>
+        <h4>Law enforcement</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="law"> Used by or for law enforcement: risk of becoming a victim, polygraphs, evidence reliability, reoffending risk, profiling in investigations <span class="art">Annex III 6</span></label>
+        <h4>Migration and border control</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="migration"> Used by or for authorities on migration, asylum or border control: risk assessment, application examination, detecting or identifying people <span class="art">Annex III 7</span></label>
+        <h4>Justice and democracy</h4>
+        <label class="chk"><input type="checkbox" name="annex3" value="justice"> Assisting a judicial authority in researching and interpreting facts and law, or in alternative dispute resolution <span class="art">Annex III 8(a)</span></label>
+        <label class="chk"><input type="checkbox" name="annex3" value="elections"> Intended to influence the outcome of an election or referendum or how people vote (not campaign back-office tools) <span class="art">Annex III 8(b)</span></label>
+        <label class="chk"><input type="checkbox" id="profiling"> The system profiles natural people (automated processing of personal data to evaluate their work, economic situation, health, preferences, behaviour, location or movements)</label>
+        <label class="chk"><input type="checkbox" id="narrow"> I assess it falls under the Article 6(3) exception: it only does a narrow procedural task, improves the result of a completed human activity, detects decision patterns without replacing human assessment, or does a preparatory task</label>
+    </fieldset>
+    <fieldset id="f-annex1"><legend>Regulated products (Annex I)</legend>
+        <label class="chk"><input type="checkbox" id="annex1"> The AI is a safety component of a product, or is itself a product, covered by EU harmonisation law in Annex I (machinery, toys, medical devices, vehicles, lifts and similar) that needs third-party conformity assessment</label>
+    </fieldset>
+    <fieldset id="f-transparency"><legend>Transparency triggers (Article 50)</legend>
+        <label class="chk"><input type="checkbox" name="transparency" value="chatbot"> Interacts directly with people (chatbot, voice agent), where it is not obvious they are talking to AI <span class="art">Art 50(1)</span></label>
+        <label class="chk"><input type="checkbox" name="transparency" value="generative"> Generates synthetic audio, image, video or text content <span class="art">Art 50(2)</span></label>
+        <label class="chk"><input type="checkbox" name="transparency" value="emotionnotice"> Emotion recognition or biometric categorisation of people exposed to it <span class="art">Art 50(3)</span></label>
+        <label class="chk"><input type="checkbox" name="transparency" value="deepfake"> Produces deepfake image, audio or video content <span class="art">Art 50(4)</span></label>
+        <label class="chk"><input type="checkbox" name="transparency" value="publictext"> Publishes AI-generated text to inform the public on matters of public interest <span class="art">Art 50(4)</span></label>
+    </fieldset>
+    <label class="chk"><input type="checkbox" id="openSource"> Released under a free and open-source licence</label>
+    <p>
+      <button type="button" id="calc">Check risk tier</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose your role and tick what applies, then click Check risk tier.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Your duties</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Article</th><th scope="col">As</th><th scope="col">Duty</th></tr></thead><tbody id="duty-rows"></tbody></table></div>
+    <h3>Dates</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Applies from</th><th scope="col">What</th></tr></thead><tbody id="date-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download duties (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Order of decision:</strong> outside the EU or excluded, then prohibited (Article 5), then high-risk (Article 6, Annex III or Annex I), then transparency (Article 50), then minimal risk. General-purpose model duties (Articles 51 to 55) are a separate track for model providers.</li>
+      <li><strong>Always high-risk:</strong> an Annex III system that profiles natural people cannot use the Article 6(3) exception.</li>
+      <li><strong>Not decided:</strong> whether your system really matches an Annex III heading as written, which sector rules apply alongside, national authorities' guidance, partner and supplier allocation of duties by contract, and whether the high-risk dates have been postponed. The dates shown are those in Article 113 as adopted; a postponement has been proposed, so confirm the current dates.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the EU AI Act apply to my company?</h3>
+    <p>It applies to providers that place AI systems or general-purpose AI models on the EU market, to deployers established or located in the EU, and to providers and deployers elsewhere whose system's output is used in the EU (Article 2). Military, pure research and purely personal use are excluded. The page asks about each.</p>
+    <h3>What are the risk levels in the AI Act?</h3>
+    <p>Prohibited practices (Article 5), high-risk systems (Article 6 and Annex III, or products under Annex I), systems with transparency duties (Article 50), and everything else, which has no mandatory duties beyond AI literacy. General-purpose AI models have their own duties in Articles 51 to 55.</p>
+    <h3>Is an AI hiring or CV screening tool high-risk?</h3>
+    <p>Yes under Annex III point 4(a): AI used for recruitment, such as targeting job ads, filtering or ranking applications and evaluating candidates, is on the high-risk list. The exception in Article 6(3) does not apply if the system profiles people.</p>
+    <h3>What does the AI Act require of a chatbot?</h3>
+    <p>Under Article 50(1), providers must design systems that interact with people so that they are told they are dealing with AI, unless that is obvious. Providers of systems that generate synthetic audio, image, video or text must mark the output as machine-readable (Article 50(2)).</p>
+    <h3>What are the fines?</h3>
+    <p>Up to EUR 35 million or 7% of worldwide annual turnover for prohibited practices, EUR 15 million or 3% for most other breaches, and EUR 7.5 million or 1% for supplying incorrect information. Whichever is higher applies, except for SMEs and start-ups, where it is whichever is lower (Article 99).</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p>Also see the <a href="../eu-dsa-obligations-checker/">EU DSA obligations checker</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with counsel or your national authority before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../nis2-scope-checker/">NIS2 scope checker</a>, the <a href="../cra-evidence-desk/">Cyber Resilience Act evidence desk</a> the <a href="../eu-pay-gap-report-calculator/">EU pay gap report calculator</a>, the <a href="../eu-platform-work-directive-checker/">EU Platform Work Directive checker</a> and the <a href="../eu-product-liability-directive-checker/">EU Product Liability Directive checker</a>.</p>
+    <p>Also for EU employers: the <a href="../eu-whistleblower-channel-checker/">EU Whistleblower Directive channel checker</a> and the <a href="../eu-dora-readiness-checker/">EU DORA readiness checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, dutiesCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const SELECTS = ["role", "eu", "gpai"], FLAGS = ["profiling", "narrow", "annex1", "openSource"], GROUPS = ["exclusions", "prohibited", "annex3", "transparency"];
+    const IDLE = "Choose your role and tick what applies, then click Check risk tier.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    function read() {
+      const o = {};
+      for (const id of SELECTS) o[id] = $("#" + id).value;
+      for (const id of FLAGS) o[id] = $("#" + id).checked ? "1" : "";
+      for (const g of GROUPS) o[g] = [...document.querySelectorAll('input[name="' + g + '"]:checked')].map((c) => c.value);
+      return o;
+    }
+    function write(o) {
+      for (const id of SELECTS) $("#" + id).value = o[id] || (id === "eu" ? "market" : id === "gpai" ? "none" : "");
+      for (const id of FLAGS) $("#" + id).checked = Boolean(o[id]);
+      for (const g of GROUPS) for (const c of document.querySelectorAll('input[name="' + g + '"]')) c.checked = (o[g] || []).includes(c.value);
+    }
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const due = $("#due");
+      due.textContent = r.tierLabel + (r.via ? " (" + r.via + ")" : "");
+      due.className = "due tier-" + r.tier;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => '<div class="finding"><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</div>").join("");
+      $("#duty-rows").innerHTML = r.duties.length ? r.duties.map((d) => "<tr><td>" + esc(d.article) + "</td><td>" + esc(d.who) + "</td><td>" + esc(d.text) + "</td></tr>").join("") : '<tr><td colspan="3">No mandatory duties on these answers.</td></tr>';
+      $("#date-rows").innerHTML = r.dates.length ? r.dates.map((d) => "<tr><td>" + esc(d.date) + "</td><td>" + esc(d.what) + "</td></tr>").join("") : '<tr><td colspan="2">No dates apply.</td></tr>';
+      report.hidden = false;
+      status.textContent = "Done. Confirm the boundaries and current dates with counsel before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      write(SAMPLE);
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a provider of a CV-screening tool that also writes summaries. Illustrative, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { write({}); report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("eu-ai-act-risk.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("eu-ai-act-duties.csv", dutiesCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

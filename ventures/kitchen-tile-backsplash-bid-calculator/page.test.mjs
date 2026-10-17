@@ -385,3 +385,8 @@ test('index links one hop to the countertop-bid-calculator sibling', () => {
   );
   assert.match(html, /countertop bid calculator/i);
 });
+
+test('index links one hop to the tile-layout-planner sibling', () => {
+  assert.match(html, /href="\.\.\/tile-layout-planner\/"/, 'index must link ../tile-layout-planner/ so crawlers reach the layout planner in one hop');
+  assert.match(html, /tile layout planner/i);
+});

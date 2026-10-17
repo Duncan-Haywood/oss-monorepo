@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Event Seating Chart Optimizer — wedding and party table assignment</title>
+  <meta name="description" content="Free seating chart optimizer for weddings, banquets and events. Paste your guest list, say who sits together and who must be kept apart, and it assigns every guest to a table with the most wishes met. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Event Seating Chart Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Keep families together, keep feuds apart, pin the head table. Get a balanced table-by-table plan and a CSV for place cards.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Event Seating Chart Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a guest list, say who must or should sit together, who to keep apart and who is pinned to a table, and the optimizer assigns every guest to a table with the most wishes met within capacity. Shows each table, every wish it could not meet, and a comparison with seating in list order. Runs entirely in your browser; nothing is uploaded.", "featureList": "Wedding seating chart, event seating planner, table assignment, keep families together, keep guests apart, pinned tables, balanced tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a wedding seating chart?", "acceptedAnswer": {"@type": "Answer", "text": "List every guest, mark who comes together as a party, add the pairs who must or should sit together and the pairs who should be kept apart, then fix anyone who has to be at a particular table, such as the couple or a parent. The optimizer then assigns everyone to tables so the most wishes are met within each table's capacity. You can rerun it for a different arrangement and edit by hand afterwards."}}, {"@type": "Question", "name": "How does the seating optimizer decide who sits where?", "acceptedAnswer": {"@type": "Answer", "text": "Every pair of guests gets a score: parties and wanted pairs add points, avoided pairs subtract points, and a never-together pair subtracts a very large number. It searches for the assignment with the highest total, using simulated annealing followed by a hill-climbing polish, within table capacity and pinned tables. On small events its answer is checked against trying every possible arrangement."}}, {"@type": "Question", "name": "What do + ++ ! !! and @ mean?", "acceptedAnswer": {"@type": "Answer", "text": "Write one rule per line. A + B means they should sit together. A ++ B means they really should. A ! B means keep them apart if you can. A !! B means never at the same table. A @ 3 pins a guest to table 3."}}, {"@type": "Question", "name": "Can I keep families together?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Put the same party name after a bar on each family member's line, such as Maya Okafor | Okafor family, and the optimizer treats every pair in that party as a wish to sit together. If a party is larger than a table it says so and shows which tables it was split across."}}, {"@type": "Question", "name": "What if there are more guests than seats?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tells you how many seats you are short and does not produce a plan. Raise the seats per table or the number of tables. Leave the number of tables blank and it uses the fewest that fit."}}, {"@type": "Question", "name": "Does it spread guests evenly across tables?", "acceptedAnswer": {"@type": "Answer", "text": "By default yes: each table is filled to about the same level so you do not end up with one packed table and one nearly empty. Untick the option to let tables fill up to their full capacity instead."}}, {"@type": "Question", "name": "What if a guest drops out after I have sent the seating plan?", "acceptedAnswer": {"@type": "Answer", "text": "Edit the guest list, paste the CSV you downloaded last time into the re-seat box and click Re-seat. Guests who are still coming stay at their table unless moving them is worth it, so only a few people move and the rest of your place cards stay valid."}}, {"@type": "Question", "name": "Is the guest list uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser from what you type, nothing is sent to a server, there are no accounts, and the list is not saved when you close the page. Download the plan as a CSV to keep it."}}, {"@type": "Question", "name": "Is the plan guaranteed to be the best possible?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a search, so on a large event there may be a slightly better arrangement, and it only knows the wishes you typed. It is a starting point to review with your family or planner, not a substitute for judgement about people. Check the table-by-table list before printing place cards."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #231f2e; background: #f6f3f7; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #5a2d82; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3a2457; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3a2457; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #50455f; }
+    .card { background: #fff; border: 1px solid #ddd5e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3a245712; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f6580; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5a2d82; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe4f1; color: #3a2457; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f4eff8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #3a2457; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #c9b8dc; border-radius: 12px; padding: 10px 12px; background: #fbf9fd; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #3a2457; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd5e6; padding-top: 16px; }
+    .ghost { color: #50455f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EVENT SEATING CHART OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who sits where? Let the search sort your seating chart.</h1>
+    <p>Paste your <strong>guest list</strong>, add who should sit <strong>together</strong>, who to keep <strong>apart</strong> and who is <strong>pinned</strong> to a table. The optimizer assigns every guest to a table with <strong>the most wishes met</strong>, within capacity, and shows you any it could not.</p>
+    <p class="note">A planning aid for you and your family or planner. New to this? Read <a href="./how-to-make-a-wedding-seating-chart.html">how to make a wedding seating chart, with a worked example</a>. Divorced parents or a feud? See <a href="./how-to-seat-divorced-parents-at-a-wedding.html">how to seat divorced parents</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Guests and wishes</h2>
+    <div class="two">
+      <div>
+        <label for="guests">Guests, one per line <span class="ghost" style="font-weight:400">(optional party, group, meal: Name | Family | Bride side | vegetarian)</span></label>
+        <textarea id="guests" spellcheck="false" placeholder="Maya Okafor | Okafor family&#10;Daniel Okafor | Okafor family&#10;Priya Nair"></textarea>
+      </div>
+      <div>
+        <label for="rules">Wishes, one per line</label>
+        <textarea id="rules" spellcheck="false" placeholder="Priya Nair + Tom Whitfield&#10;Uncle Ray ! Aunt Linda&#10;Maya Okafor @ 1"></textarea>
+        <p class="note"><code>A + B</code> sit together · <code>A ++ B</code> really together · <code>A ! B</code> keep apart · <code>A !! B</code> never at one table · <code>A @ 3</code> pin to table 3</p>
+      </div>
+    </div>
+    <h2 style="margin-top:18px">2. Tables</h2>
+    <div class="row3">
+      <div><label for="seats">Seats per table</label><input id="seats" inputmode="numeric" value="8"></div>
+      <div><label for="tcount">Number of tables (blank = fewest that fit)</label><input id="tcount" inputmode="numeric"></div>
+    </div>
+    <label for="balance" class="check"><input type="checkbox" id="balance" checked aria-label="Fill tables evenly"> Fill tables evenly (untick to fill each table to its full capacity)</label>
+    <label for="mix">Groups (the third column): <select id="mix"><option value="off">Ignore groups</option><option value="spread">Spread each group across tables (mingle)</option><option value="cluster">Seat each group together</option></select></label>
+    <button type="button" id="analyze">Seat my guests</button>
+    <button type="button" class="secondary" id="another">Try another arrangement</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your guests and wishes, then click Seat my guests.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Seating plan</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <div class="tables" id="tables"></div>
+    <h3>Wishes it could not meet</h3>
+    <ul id="broken"></ul>
+    <div id="groupmix" hidden><h3>Groups by table</h3><ul id="groupmix-list"></ul></div>
+    <div id="meals" hidden><h3>Meals by table</h3><ul id="meals-list"></ul></div>
+    <button type="button" id="download">Download the plan (CSV)</button>
+    <button type="button" class="secondary" id="signs">Print table signs</button>
+    <button type="button" class="secondary" id="caterer" hidden>Print meal counts for the caterer</button>
+    <button type="button" class="secondary" id="board">Print find-your-table list</button>
+    <div id="moves"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. Someone dropped out or RSVP'd late?</h2>
+    <p>Edit the guest and wish boxes above, paste the CSV you downloaded last time, and re-seat. Guests who are still coming stay at their table unless moving them is worth it, so you do not have to redo place cards or tell forty people they moved.</p>
+    <label for="prevplan">Previous plan (the CSV you downloaded)</label>
+    <textarea id="prevplan" spellcheck="false" placeholder="Table,Guest,Party&#10;1,Maya Okafor,Okafor family"></textarea>
+    <label for="stick">How much to avoid moving people</label>
+    <select id="stick"><option value="low">A little: move people for a clearly better plan</option><option value="medium" selected>Medium: only for a clearly better plan</option><option value="high">A lot: move people only to fix a broken rule</option></select>
+    <button type="button" id="reseat">Re-seat with fewest moves</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Scoring:</strong> every pair of guests that shares a table adds to a score. Members of the same party add 6, a <code>+</code> adds 3, a <code>++</code> adds 12, a <code>!</code> takes away 6 and a <code>!!</code> takes away 200. The plan with the highest total wins, so a feud is separated even if it splits a friendship.</p>
+    <p><strong>Search:</strong> simulated annealing moves and swaps guests between tables, accepting some worse moves early so it does not get stuck, restarted six times; a hill-climbing pass then applies any move or swap that still helps. Table capacity and pinned tables are never broken. The same list gives the same plan until you ask for another arrangement. On small events the answer is checked against trying every possible arrangement.</p>
+    <p><strong>Not modelled:</strong> seat order within a table, couples at a head table sitting in a row, wheelchair access or room layout, grouping guests by dietary need (a fourth column only tallies meals for the caterer), which tables are near the stage or the door, children's tables as a rule, and how much one person dislikes another beyond the four strengths. Unverified against a real event: tested against exhaustive search on hundreds of small random lists and on a 200-guest list.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I make a wedding seating chart?</h3>
+    <p>List every guest, mark who comes together as a party, add the pairs who must or should sit together and the pairs who should be kept apart, then fix anyone who has to be at a particular table, such as the couple or a parent. The optimizer then assigns everyone to tables so the most wishes are met within each table's capacity. You can rerun it for a different arrangement and edit by hand afterwards.</p>
+    <h3>How does the seating optimizer decide who sits where?</h3>
+    <p>Every pair of guests gets a score: parties and wanted pairs add points, avoided pairs subtract points, and a never-together pair subtracts a very large number. It searches for the assignment with the highest total, using simulated annealing followed by a hill-climbing polish, within table capacity and pinned tables. On small events its answer is checked against trying every possible arrangement.</p>
+    <h3>What do + ++ ! !! and @ mean?</h3>
+    <p>Write one rule per line. A + B means they should sit together. A ++ B means they really should. A ! B means keep them apart if you can. A !! B means never at the same table. A @ 3 pins a guest to table 3.</p>
+    <h3>Can I keep families together?</h3>
+    <p>Yes. Put the same party name after a bar on each family member's line, such as Maya Okafor | Okafor family, and the optimizer treats every pair in that party as a wish to sit together. If a party is larger than a table it says so and shows which tables it was split across.</p>
+    <h3>What if there are more guests than seats?</h3>
+    <p>The tool tells you how many seats you are short and does not produce a plan. Raise the seats per table or the number of tables. Leave the number of tables blank and it uses the fewest that fit.</p>
+    <h3>Does it spread guests evenly across tables?</h3>
+    <p>By default yes: each table is filled to about the same level so you do not end up with one packed table and one nearly empty. Untick the option to let tables fill up to their full capacity instead.</p>
+    <h3>What if a guest drops out after I have sent the seating plan?</h3>
+    <p>Edit the guest list, paste the CSV you downloaded last time into the re-seat box and click Re-seat. Guests who are still coming stay at their table unless moving them is worth it, so only a few people move and the rest of your place cards stay valid.</p>
+    <h3>Is the guest list uploaded or stored?</h3>
+    <p>No. Everything runs in your browser from what you type, nothing is sent to a server, there are no accounts, and the list is not saved when you close the page. Download the plan as a CSV to keep it.</p>
+    <h3>Is the plan guaranteed to be the best possible?</h3>
+    <p>No. It is a search, so on a large event there may be a slightly better arrangement, and it only knows the wishes you typed. It is a starting point to review with your family or planner, not a substitute for judgement about people. Check the table-by-table list before printing place cards.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or event-planning advice, is not a guarantee that any guest will be content with their seat, and does not replace your own judgement or your planner's. Results come from the wishes you type; real people and venues differ. You are responsible for reviewing and verifying its output before you print place cards.</p>
+    <p><strong>Independent.</strong> Not affiliated with any venue, caterer, planner or software company, and none is named or ranked here. The example guests are invented, and no price is stated or implied.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>signs_printed</code>, <code>board_printed</code>, <code>caterer_printed</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>, the <a href="../container-load-planner/">container load planner</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../secret-santa-draw/">Secret Santa draw</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, sampleSpec, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let seed = 1, last = null;
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function read() {
+      const g = parseGuests($("#guests").value);
+      const r = parseRules($("#rules").value, g.guests);
+      const tc = $("#tcount").value.trim();
+      const spec = { guests: g.guests, rules: r.rules, seatsPerTable: Number($("#seats").value), tableCount: tc === "" ? "" : Number(tc), balance: $("#balance").checked, mix: $("#mix").value, seed };
+      return { spec, errors: [...g.errors, ...r.errors] };
+    }
+
+    function run() {
+      const { spec, errors } = read();
+      const all = [...errors, ...validateSpec(spec)];
+      if (all.length) {
+        status.textContent = all[0];
+        $("#report").hidden = false;
+        $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+        for (const id of ["#big", "#tables", "#broken"]) $(id).innerHTML = "";
+        $("#verdict").textContent = "";
+        last = null;
+        return false;
+      }
+      const res = optimize(spec);
+      const problems = verifyPlan(spec, res);
+      last = { spec, res };
+      $("#report").hidden = false;
+      $("#notices").innerHTML = problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "";
+      const T = resolveTableCount(spec);
+      $("#big").innerHTML = [
+        [`${res.rulesMet} of ${res.rulesTotal}`, "wishes met"],
+        [`${res.rulesMetBaseline} of ${res.rulesTotal}`, "met seating in list order"],
+        [String(spec.guests.length), `guests at ${T} table${T === 1 ? "" : "s"}`],
+        [`${res.capacity}`, "seats used per table, at most"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#verdict").textContent = res.rulesTotal === 0
+        ? "No pair wishes were entered, so only parties and pins shaped this plan."
+        : res.broken.length === 0 ? "Every wish is met." : `${res.broken.length} wish${res.broken.length === 1 ? " is" : "es are"} not met; they are listed below.`;
+      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+      const lines = res.broken.map((b) => `${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)} (${b.kind === "want" || b.kind === "must" ? "not together" : "at the same table"})`);
+      for (const p of res.partySplits) lines.push(`Party "${esc(p.party)}" (${p.size}) is split across tables ${p.tables.join(", ")}`);
+      $("#groupmix").hidden = res.groupMix.length === 0;
+      $("#groupmix-list").innerHTML = res.groupMix.map((m) => `<li>${esc(m.group)} (${m.perTable.reduce((a, b) => a + b, 0)}): ${m.perTable.map((c, i) => `table ${i + 1}: ${c}`).join(", ")}</li>`).join("");
+      $("#meals").hidden = $("#caterer").hidden = res.meals.length === 0;
+      $("#meals-list").innerHTML = res.meals.map((m) => `<li>${esc(m.meal)} (${m.total}): ${m.perTable.map((c, i) => c ? `table ${i + 1}: ${c}` : "").filter(Boolean).join(", ")}</li>`).join("");
+      $("#broken").innerHTML = lines.length ? lines.map((l) => `<li>${l}</li>`).join("") : "<li>None.</li>";
+      status.textContent = "Done. Review the tables, then download the plan.";
+      return true;
+    }
+
+    const later = (fn) => setTimeout(fn, 0);
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#reseat").addEventListener("click", () => later(() => {
+      const prev = parsePlanCsv($("#prevplan").value);
+      if (prev.errors.length) { status.textContent = prev.errors[0]; return; }
+      const { spec, errors } = read();
+      const all = [...errors, ...validateSpec(spec)];
+      if (all.length) { run(); return; }
+      const res = reseat(spec, prev.prev, $("#stick").value);
+      const problems = verifyPlan(spec, res);
+      last = { spec, res };
+      $("#report").hidden = false;
+      $("#notices").innerHTML = problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "";
+      const T = resolveTableCount(spec);
+      $("#big").innerHTML = [
+        [`${res.kept} of ${res.retained}`, "returning guests kept their table"],
+        [`${res.rulesMet} of ${res.rulesTotal}`, "wishes met"],
+        [String(res.added.length), "new guests seated"],
+        [String(res.dropped.length), `removed since last plan`],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#verdict").textContent = res.broken.length === 0 ? "Every wish is met." : `${res.broken.length} wish${res.broken.length === 1 ? " is" : "es are"} not met; they are listed below.`;
+      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+      $("#broken").innerHTML = res.broken.length ? res.broken.map((b) => `<li>${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)}</li>`).join("") : "<li>None.</li>";
+      $("#moves").innerHTML = `<h3>Who moved</h3><ul>${res.moved.length ? res.moved.map((m) => `<li>${esc(m.name)}: table ${m.from} to table ${m.to}</li>`).join("") : "<li>Nobody moved.</li>"}</ul>` + (res.added.length ? `<h3>New guests</h3><p>${res.added.map(esc).join(", ")}</p>` : "");
+      status.textContent = `Re-seated: ${res.moved.length} guest${res.moved.length === 1 ? "" : "s"} moved.`;
+      record("reseat_run");
+    }));
+    $("#another").addEventListener("click", () => later(() => { seed += 1; if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      $("#guests").value = SAMPLE_GUESTS; $("#rules").value = SAMPLE_RULES;
+      $("#seats").value = "8"; $("#tcount").value = "3"; $("#balance").checked = true; seed = 1;
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: invented guests, not a real event."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      $("#guests").value = ""; $("#rules").value = ""; $("#tcount").value = ""; last = null; $("#report").hidden = true;
+      status.textContent = "Cleared.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([planCsv(last.spec, last.res)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "seating-plan.csv"; a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#signs").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([tableSignsHtml(last.spec, last.res)], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      if (!window.open(url, "_blank")) { const a = document.createElement("a"); a.href = url; a.download = "table-signs.html"; a.click(); }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      record("signs_printed");
+    });
+    $("#caterer").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([catererSheetHtml(last.spec, last.res)], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      if (!window.open(url, "_blank")) { const a = document.createElement("a"); a.href = url; a.download = "meal-counts.html"; a.click(); }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      record("caterer_printed");
+    });
+    $("#board").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([escortBoardHtml(last.spec, last.res)], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      if (!window.open(url, "_blank")) { const a = document.createElement("a"); a.href = url; a.download = "find-your-table.html"; a.click(); }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      record("board_printed");
+    });
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true;
+    });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

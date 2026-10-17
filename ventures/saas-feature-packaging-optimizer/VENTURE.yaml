@@ -1,0 +1,52 @@
+name: saas-feature-packaging-optimizer
+description: >-
+  Free browser tool for SaaS founders and product managers: paste a willingness-to-pay survey (the most each person would pay per
+  month for each feature) and get which features belong in which plan (Good-Better-Best) and the plan prices that earn the most
+  profit. Models customers choosing the plan with the most surplus, shows who lands on each plan, what each feature is worth in
+  each plan, the gain over current packaging, price fragility, a flat-plan baseline, and exports CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py on "SaaS pricing page feature packaging which features go in
+# which tier" and "conjoint analysis feature preference part-worth from survey": closest were usage-based-pricing-simulator 0.26
+# (metered pricing) and quick-pick-survey 0.21. saas-tier-price-optimizer (same day) prices plans whose contents are already
+# fixed; this decides the contents, which is the other half of the same decision. Dropped before this one because the tree has
+# them: failed-payment dunning (stripe-failed-payment-recovery-analyzer), sales commission plans, break-even ROAS, SAFE dilution.
+#
+# Why this niche: packaging (what goes in Pro versus Team) is decided by gut and competitor pages, and is the main lever on
+# expansion revenue. Conjoint and feature-value survey tools are sold as consulting or $1k+/yr products; a free tool that turns a
+# pasted survey into a placement and a price ladder is the cheap, specific version.
+#
+# First visitor: people searching "SaaS pricing tiers which features", "good better best packaging", "feature value survey
+# analysis", "how to package SaaS features into plans"; r/SaaS, indie hackers, product managers. Volume not measured.
+#
+# Liability boundary: arithmetic on a pasted survey; not pricing or financial advice (page says so); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid hosted survey and a real
+# conjoint design (accounts, owner decision).
+
+hypotheses:
+  - claim: >-
+      SaaS founders will paste a per-feature willingness-to-pay survey into a free tool to decide plan packaging, and will come
+      back when they re-survey or launch a feature.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a suggested packaging that earns less on their own survey than a placement they tried by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/saas-feature-packaging-optimizer/
+  analytics: null

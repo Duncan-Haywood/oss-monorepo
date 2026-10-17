@@ -237,3 +237,23 @@ test('index links one hop to the 3d-print-price-calculator sibling', () => {
     'index must link ../3d-print-price-calculator/ so the sibling pair stays closed in both directions',
   );
 });
+
+// A grower selling at the same markets: the bed planner decides what to grow,
+// this decides whether a given market is worth the table. Closed in both
+// directions so a crawler on either page reaches the other in one hop.
+test('index links one hop to the market-garden-bed-planner sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/market-garden-bed-planner\/"/,
+    'index must link ../market-garden-bed-planner/ so the sibling pair stays closed in both directions',
+  );
+});
+
+// Per-cup concession stands at the same fairs; closed in both directions.
+test('index links one hop to the shaved-ice-stand-profit-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/shaved-ice-stand-profit-calculator\/"/,
+    'index must link ../shaved-ice-stand-profit-calculator/ so the sibling pair stays closed in both directions',
+  );
+});

@@ -1,0 +1,46 @@
+name: auth-mau-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices hosted authentication providers (Clerk, Auth0, AWS Cognito, Firebase / Identity Platform, Supabase Auth, WorkOS AuthKit) per monthly active user from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the MAU ranges where the cheapest provider changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of supabase-bill-estimator and neon-bill-estimator.
+# No existing venture compares auth providers (ls ventures | grep -i auth shows
+# only email-auth-check, a DNS check). duplicate_check scored the niche below the bar.
+#
+# Where the first real visitor would come from: search phrases "clerk vs auth0
+# pricing", "auth0 pricing at 50000 users", "cognito vs clerk cost", "firebase
+# auth pricing calculator", "cheapest auth provider for startups"; r/webdev,
+# r/SaaS and Hacker News "Auth0 bill shock" threads. The reader is a founder or
+# lead dev choosing or leaving an auth vendor. Vendor pages are rate cards per
+# vendor; none shows all of them at one MAU with growth and the crossover, which
+# is the wedge. A hosted pricing-change monitor is the natural paid path later.
+hypotheses:
+  - claim: A founder choosing or leaving an auth vendor will search for a price comparison at their user count, enter their MAU and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so growth that pushes auth spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auth-mau-pricing-calculator/
+  analytics: null

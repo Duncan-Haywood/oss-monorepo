@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firebase Rules Checker vs. Requesting the URL By Hand</title>
+<meta name="description" content="Pasting a Realtime Database URL into a browser or curl-ing the Firestore REST API by hand catches an obvious open root. It misses the shallow=true flag that avoids pulling real data, the blocked-vs-empty distinction, and checking more than one path at a time -- what a scripted, repeatable check catches instead.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/firebase-rules-check/vs-requesting-the-url-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does checking a Firebase project by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Appending .json to a Realtime Database URL in a browser, or requesting the Firestore REST documents endpoint with curl, is a real, fast way to confirm the single obvious case -- a root or collection that returns data with no login at all. Anyone who knows the URL shape can do this in one request." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a by-hand request easily misses. (1) A plain .json request on an open Realtime Database pulls every field value under that path, not just key names -- proving the exposure this way means already doing the thing you were checking for; the shallow=true flag most people don't know to add avoids that. (2) A response of null or an empty object looks identical whether the path is genuinely empty or the rule is correctly blocking it, unless you also read the HTTP status code -- easy to skip when eyeballing a browser tab. (3) The Firestore REST endpoint's shape (documents/(default)/documents/<collection>) and its pagination field are not obvious from the console UI, so a first attempt at a manual request often gets the URL wrong before it gets an answer at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A by-hand request is a point-in-time, manual look at one path or collection you remembered to try. Adding a new Firestore collection, or a rules change that is correct everywhere except the newest path, can reopen this exposure at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching the regression the day it ships rather than the next time someone happens to paste a URL into a browser." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the Firebase Security Rules Exposure Checker</a></p>
+<h1>Firebase Rules Checker vs. requesting the URL by hand</h1>
+<p>
+  Pasting a Realtime Database URL into a browser tab, or reaching for curl against the Firestore
+  REST API, is a real and fast way to confirm the single obvious case: a root or collection that
+  returns data with no login at all. Most developers who suspect a problem reach for this first,
+  and it genuinely works for that case. This page is not affiliated with Google or Firebase — it
+  names the Realtime Database and Firestore REST APIs only as the manual method anyone with the
+  project ID could already try, not a product being compared against.
+</p>
+
+<table>
+  <thead><tr><th>Check</th><th>By hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious open root</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>Confirming exposure without pulling real data</td><td>A plain <code>.json</code> request returns real data — you'd read it to prove the point</td><td>Uses <code>shallow=true</code>: key names only</td></tr>
+    <tr><td>Blocked path vs. genuinely empty one</td><td>Both look empty unless you read the HTTP status</td><td>Reported separately</td></tr>
+    <tr><td>Firestore's REST URL shape and document cap</td><td>Easy to get wrong or pull too much</td><td>One document per collection, correctly formed</td></tr>
+    <tr><td>Several paths/collections at once</td><td>One request at a time</td><td>All named paths in one report</td></tr>
+    <tr><td>Repeatable in CI</td><td>Manual, point-in-time</td><td>Real exit code</td></tr>
+  </tbody>
+</table>
+
+<h2>When to still just check the URL</h2>
+<p>
+  If you already suspect a specific path is wide open and just want to confirm it once, requesting
+  the URL directly is fine — it's free and you already have the project ID. The gap this tool
+  closes is doing that safely and completely: a shallow, values-free read of the Realtime Database,
+  a capped read of every Firestore collection you name, a clear blocked-vs-unconfirmed distinction,
+  and an exit code the same check can gate a deploy on next time.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does checking a Firebase project by hand actually show you?</h3>
+<p>Appending <code>.json</code> to a Realtime Database URL in a browser, or requesting the Firestore REST documents endpoint with curl, is a real, fast way to confirm the single obvious case -- a root or collection that returns data with no login at all. Anyone who knows the URL shape can do this in one request.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a by-hand request easily misses. (1) A plain .json request on an open Realtime Database pulls every field value under that path, not just key names -- proving the exposure this way means already doing the thing you were checking for; the shallow=true flag most people don't know to add avoids that. (2) A response of null or an empty object looks identical whether the path is genuinely empty or the rule is correctly blocking it, unless you also read the HTTP status code -- easy to skip when eyeballing a browser tab. (3) The Firestore REST endpoint's shape (documents<wbr>/(default)<wbr>/documents<wbr>/&lt;collection&gt;) and its pagination field are not obvious from the console UI, so a first attempt at a manual request often gets the URL wrong before it gets an answer at all.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A by-hand request is a point-in-time, manual look at one path or collection you remembered to try. Adding a new Firestore collection, or a rules change that is correct everywhere except the newest path, can reopen this exposure at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching the regression the day it ships rather than the next time someone happens to paste a URL into a browser.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any project you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+</body>
+</html>

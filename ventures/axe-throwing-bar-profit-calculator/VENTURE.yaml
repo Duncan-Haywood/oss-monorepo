@@ -1,0 +1,54 @@
+name: axe-throwing-bar-profit-calculator
+description: >-
+  Free browser tool for people planning or running an axe throwing bar or similar
+  venue: enter thrower capacity, sessions, fill, ticket price, private events, league players, food and drinks,
+  coaches and bar staff, rent, insurance, the build cost and any loan and see monthly profit, margin, months
+  to pay back the build, break-even fill, the lowest ticket for a target margin and for a payback
+  target, a sensitivity check at 10% and 20% fewer visits, and a two-scenario comparison. Copy,
+  CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.28,
+# golf-simulator-bay-profit-calculator, which prices a different venue; no axe throwing venture
+# existed). Why this niche: an axe throwing bar costs roughly $150k-$500k to build in a leased
+# retail space, and its owners price the ticket by copying the bar down the road. The money
+# question is fill: how many of the thrower slots must sell, at what ticket, before rent, coaches
+# and bar staff, insurance and the loan are covered, and how much of the margin rests on weekend
+# private events. Franchise pro formas answer it only after a sales call.
+# This is the lead magnet for a later paid multi-attraction planner (payment rails stay off).
+#
+# First visitor: prospective and new axe throwing bar owners searching how much an
+# axe throwing bar makes. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, lending or financial
+# advice; says so. Names no bar chain, franchise or equipment maker or liquor brand. No data fetched, no
+# accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Prospective axe throwing bar owners will enter their capacity, ticket price and costs into a
+      no-signup tool and use the break-even fill and payback numbers to decide on a lease or
+      the size of the build.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest ticket that does not reproduce the tool's own target margin when typed back in as the ticket price.
+  - A user reports a lowest payback ticket that does not reproduce their payback target when typed back in as the ticket price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/axe-throwing-bar-profit-calculator/
+  analytics: null

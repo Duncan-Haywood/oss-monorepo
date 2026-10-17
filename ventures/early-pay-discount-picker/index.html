@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Early Pay Discount Picker: Which Invoices Should I Pay Early? — Free</title>
+  <meta name="description" content="Free tool for small businesses with several 2/10 net 30 style supplier discounts and not enough cash to take them all: get the exact set of invoices to pay early after your cost of cash, compared with highest-rate-first and other rules. Nothing uploaded.">
+  <meta property="og:title" content="Early pay discount picker">
+  <meta property="og:description" content="Several early-payment discounts, limited cash. Which invoices to pay early, checked exactly, from your own numbers. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 10h18M7 16h12M7 22h7' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Early Pay Discount Picker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Choose which supplier invoices to pay early to capture 2/10 net 30 style discounts when cash is limited: the exact best set after your cost of cash, compared with highest-rate-first and other rules, the value of extra cash, and sensitivity to your cost of cash. Runs in your browser.","featureList":"Exact invoice selection under a cash limit, annualised discount rate, net benefit after cost of cash, comparison with rules of thumb, value of extra cash, cost-of-cash sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a 2/10 net 30 discount worth taking?","acceptedAnswer":{"@type":"Answer","text":"Almost always, if you have the cash: 2 percent for paying 20 days early is about a 37 percent annual return, far above what cash earns in a bank and above most credit lines. The harder question is which discounts to take when you cannot take them all."}},{"@type":"Question","name":"How do I choose which invoices to pay early?","acceptedAnswer":{"@type":"Answer","text":"Each invoice has a benefit: the discount you keep less the interest on the cash that leaves your account earlier. You want the set with the biggest total benefit that fits in the cash you can spare. Ranking by annual rate is a good rule but can strand cash or skip a better combination. This tool tries every combination of up to 14 invoices."}},{"@type":"Question","name":"What is my cost of cash?","acceptedAnswer":{"@type":"Answer","text":"The rate you pay to borrow, such as a line of credit, or the rate you would earn on the money otherwise. If you would have to draw on a line to pay early, use the line's rate."}},{"@type":"Question","name":"What does the tool say about extra cash?","acceptedAnswer":{"@type":"Answer","text":"It re-solves with 25, 50 and 100 percent more cash and reports how much more net benefit each would add, so you can compare that with what bridging the cash would cost."}},{"@type":"Question","name":"Is this accounting or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type, with simple interest and one cash limit for every payment. Check each supplier's actual terms and your own cash-flow timing."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">EARLY PAY DISCOUNT PICKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Several suppliers offer 2/10 net 30. I cannot pay them all early. Which do I pay?</h1>
+    <p>Enter the cash you can spare and each invoice's amount, discount and deadlines. The tool finds the set of invoices that nets the most after the cost of the cash, shows each one's annual rate, compares the exact answer with the rules of thumb, says what extra cash would be worth, and tests the answer against a lower and a higher cost of cash.</p>
+    <p class="note">Arithmetic on figures you type. Simple interest, one cash limit for everything paid early, each chosen invoice paid on the last day of its discount window. The example figures are placeholders, not any supplier's terms.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your cash</h2>
+      <div class="grid">
+        <div><label for="cash">Cash you can spend on early payments ($)</label><input id="cash" type="number" step="any" value="0"><p class="note">The most you are willing to pay out early in total.</p></div>
+        <div><label for="costOfCash">Your cost of cash (% a year)</label><input id="costOfCash" type="number" step="any" value="8"><p class="note">Your line-of-credit rate, or what the cash would otherwise earn.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Invoice 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Supplier</label><input id="t0_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t0_amount">Invoice amount ($)</label><input id="t0_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t0_discountPct">Early-payment discount (%)</label><input id="t0_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t0_discountDays">Last day to take the discount (days from now)</label><input id="t0_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t0_dueDays">Due day without discount (days from now)</label><input id="t0_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Invoice 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Supplier</label><input id="t1_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t1_amount">Invoice amount ($)</label><input id="t1_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t1_discountPct">Early-payment discount (%)</label><input id="t1_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t1_discountDays">Last day to take the discount (days from now)</label><input id="t1_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t1_dueDays">Due day without discount (days from now)</label><input id="t1_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Invoice 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Supplier</label><input id="t2_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t2_amount">Invoice amount ($)</label><input id="t2_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t2_discountPct">Early-payment discount (%)</label><input id="t2_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t2_discountDays">Last day to take the discount (days from now)</label><input id="t2_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t2_dueDays">Due day without discount (days from now)</label><input id="t2_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Invoice 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Supplier</label><input id="t3_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t3_amount">Invoice amount ($)</label><input id="t3_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t3_discountPct">Early-payment discount (%)</label><input id="t3_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t3_discountDays">Last day to take the discount (days from now)</label><input id="t3_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t3_dueDays">Due day without discount (days from now)</label><input id="t3_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Invoice 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Supplier</label><input id="t4_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t4_amount">Invoice amount ($)</label><input id="t4_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t4_discountPct">Early-payment discount (%)</label><input id="t4_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t4_discountDays">Last day to take the discount (days from now)</label><input id="t4_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t4_dueDays">Due day without discount (days from now)</label><input id="t4_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Invoice 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Supplier</label><input id="t5_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t5_amount">Invoice amount ($)</label><input id="t5_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t5_discountPct">Early-payment discount (%)</label><input id="t5_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t5_discountDays">Last day to take the discount (days from now)</label><input id="t5_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t5_dueDays">Due day without discount (days from now)</label><input id="t5_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t6">
+      <h2 id="h-t6">Invoice 7</h2>
+      <div class="grid">
+        <div><label for="t6_name">Supplier</label><input id="t6_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t6_amount">Invoice amount ($)</label><input id="t6_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t6_discountPct">Early-payment discount (%)</label><input id="t6_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t6_discountDays">Last day to take the discount (days from now)</label><input id="t6_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t6_dueDays">Due day without discount (days from now)</label><input id="t6_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t7">
+      <h2 id="h-t7">Invoice 8</h2>
+      <div class="grid">
+        <div><label for="t7_name">Supplier</label><input id="t7_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t7_amount">Invoice amount ($)</label><input id="t7_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t7_discountPct">Early-payment discount (%)</label><input id="t7_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t7_discountDays">Last day to take the discount (days from now)</label><input id="t7_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t7_dueDays">Due day without discount (days from now)</label><input id="t7_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t8">
+      <h2 id="h-t8">Invoice 9</h2>
+      <div class="grid">
+        <div><label for="t8_name">Supplier</label><input id="t8_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t8_amount">Invoice amount ($)</label><input id="t8_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t8_discountPct">Early-payment discount (%)</label><input id="t8_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t8_discountDays">Last day to take the discount (days from now)</label><input id="t8_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t8_dueDays">Due day without discount (days from now)</label><input id="t8_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t9">
+      <h2 id="h-t9">Invoice 10</h2>
+      <div class="grid">
+        <div><label for="t9_name">Supplier</label><input id="t9_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t9_amount">Invoice amount ($)</label><input id="t9_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t9_discountPct">Early-payment discount (%)</label><input id="t9_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t9_discountDays">Last day to take the discount (days from now)</label><input id="t9_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t9_dueDays">Due day without discount (days from now)</label><input id="t9_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t10">
+      <h2 id="h-t10">Invoice 11</h2>
+      <div class="grid">
+        <div><label for="t10_name">Supplier</label><input id="t10_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t10_amount">Invoice amount ($)</label><input id="t10_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t10_discountPct">Early-payment discount (%)</label><input id="t10_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t10_discountDays">Last day to take the discount (days from now)</label><input id="t10_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t10_dueDays">Due day without discount (days from now)</label><input id="t10_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t11">
+      <h2 id="h-t11">Invoice 12</h2>
+      <div class="grid">
+        <div><label for="t11_name">Supplier</label><input id="t11_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t11_amount">Invoice amount ($)</label><input id="t11_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t11_discountPct">Early-payment discount (%)</label><input id="t11_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t11_discountDays">Last day to take the discount (days from now)</label><input id="t11_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t11_dueDays">Due day without discount (days from now)</label><input id="t11_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t12">
+      <h2 id="h-t12">Invoice 13</h2>
+      <div class="grid">
+        <div><label for="t12_name">Supplier</label><input id="t12_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t12_amount">Invoice amount ($)</label><input id="t12_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t12_discountPct">Early-payment discount (%)</label><input id="t12_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t12_discountDays">Last day to take the discount (days from now)</label><input id="t12_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t12_dueDays">Due day without discount (days from now)</label><input id="t12_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t13">
+      <h2 id="h-t13">Invoice 14</h2>
+      <div class="grid">
+        <div><label for="t13_name">Supplier</label><input id="t13_name" type="text" value=""><p class="note">Who it is from, for example Lumber yard.</p></div>
+        <div><label for="t13_amount">Invoice amount ($)</label><input id="t13_amount" type="number" step="any" value="0"><p class="note">The full amount due if you pay on the due day.</p></div>
+        <div><label for="t13_discountPct">Early-payment discount (%)</label><input id="t13_discountPct" type="number" step="any" value="0"><p class="note">The 2 in 2/10 net 30.</p></div>
+        <div><label for="t13_discountDays">Last day to take the discount (days from now)</label><input id="t13_discountDays" type="number" step="any" value=""><p class="note">The 10 in 2/10 net 30, counted from today.</p></div>
+        <div><label for="t13_dueDays">Due day without discount (days from now)</label><input id="t13_dueDays" type="number" step="any" value=""><p class="note">The 30 in 2/10 net 30, counted from today.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Pick the invoices to pay early</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">An invoice needs an amount, a discount, a discount deadline and a due day. Leave an invoice blank to leave it out. Up to 14 invoices.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions business owners ask</h2>
+      <h3>Is a 2/10 net 30 discount worth taking?</h3>
+      <p>Almost always, if you have the cash: 2 percent for paying 20 days early is about a 37 percent annual return, far above what cash earns in a bank and above most credit lines. The harder question is which discounts to take when you cannot take them all.</p>
+      <h3>How do I choose which invoices to pay early?</h3>
+      <p>Each invoice has a benefit: the discount you keep less the interest on the cash that leaves your account earlier. You want the set with the biggest total benefit that fits in the cash you can spare. Ranking by annual rate is a good rule but can strand cash or skip a better combination. This tool tries every combination of up to 14 invoices.</p>
+      <h3>What is my cost of cash?</h3>
+      <p>The rate you pay to borrow, such as a line of credit, or the rate you would earn on the money otherwise. If you would have to draw on a line to pay early, use the line's rate.</p>
+      <h3>What does the tool say about extra cash?</h3>
+      <p>It re-solves with 25, 50 and 100 percent more cash and reports how much more net benefit each would add, so you can compare that with what bridging the cash would cost.</p>
+      <h3>Is this accounting or financial advice?</h3>
+      <p>No. It is arithmetic on the figures you type, with simple interest and one cash limit for every payment. Check each supplier's actual terms and your own cash-flow timing.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether paying early strains your cash later in the month, the day-by-day timing of your receipts, supplier relationships, whether a supplier will honour a discount taken late, tax treatment, and compounding. Every payment is treated as made at once against a single cash limit.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>, for one invoice at a time, and the <a href="../subcontractor-cashflow-planner/">subcontractor cash-flow planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, MAX_INVOICES, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = MAX_INVOICES, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      if (a.plan.length) {
+        h += `<div class="finding"><h4>Pay these early</h4><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${money(a.used)} of your ${money(a.shared.cash)}, keeps ${money(a.discountKept)} of discounts, and nets ${money(a.benefit)} after your ${pct(a.shared.costOfCash)} cost of cash. ${money(a.cashLeft)} is left over.</p></div>`;
+      } else {
+        h += `<div class="finding"><h4>Pay none of them early</h4><p>At a ${pct(a.shared.costOfCash)} cost of cash, none of these discounts is worth the extra days of cash, or none fits the limit.</p></div>`;
+      }
+      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Net benefit", "Invoices paid", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.benefit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer nets " + money(a.ruleLoss) + " more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
+      if (a.skipped.length) h += `<div class="finding"><h4>Left to the due date</h4>${table(["Invoice", "Annual rate", "Why"], a.skipped.map((s) => [esc(s.name), pct(s.apr), esc(s.reason)]))}</div>`;
+      h += `<div class="finding"><h4>What more cash would buy</h4><p>${a.extraLevels.map((e) => "With " + money(e.add) + " more you would net " + money(e.gain) + " more (" + e.count + " invoices).").join(" ")} Compare that with what the extra cash costs you.</p></div>`;
+      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.rateChecks.map((c) => "If your cost of cash were " + pct(c.rate) + " the best set " + (c.same ? "is the same" : "changes") + " (nets " + money(c.benefit) + ").").join(" ")}</p></div>`;
+      h += `<div class="finding"><h4>The plan</h4>${table(["Invoice", "Pay by day", "Pay now", "Discount kept", "Days early", "Annual rate", "Net benefit"], a.plan.map((p) => [esc(p.name), p.discountDays, money(p.outlay), money(p.discount), p.early, pct(p.apr), money(p.benefit)]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "early-pay-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

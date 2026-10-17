@@ -1,0 +1,62 @@
+name: car-wash-membership-calculator
+description: >-
+  Free browser tool for car wash owners and managers weighing an unlimited wash
+  plan: enter plan price, single-wash price, cost per wash and how often each
+  member segment washes, and see net per member after card fees, the washes a
+  month at which a member stops paying for themselves, the share of members past
+  that point, the retail washes the plan cannibalizes, member lifetime value,
+  tunnel capacity and a price sensitivity table. No customer data; nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session. `ls ventures | grep` found
+# no car wash, wash club or membership-plan venture; mobile-detailing-bid-calculator
+# and pressure-washing-bid-calculator price one-off jobs, and studio-class-slot-
+# optimizer and booth-rent-vs-commission are different businesses. Tattoo, salon,
+# towing and sign shop candidates were either covered or not screened further.
+# screened-out.md rows not hit.
+#
+# Why this niche: tunnel and in-bay car wash owners have been moving to unlimited
+# monthly plans because recurring revenue is attractive, but the plan only earns
+# money while the wash cost of heavy users stays under the plan price and while
+# members were not already paying for single washes. Owners rarely have a neutral
+# way to see the break-even washes, the loss-making segment, or what a $5 price
+# change needs in member count.
+#
+# First visitor: owners and managers searching "car wash membership pricing",
+# "unlimited wash club profit", "how much to charge for unlimited car wash".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices, usage
+# norms or churn rates asserted; no tax advice; says what it does not model. No
+# customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted multi-site plan-mix tracker.
+
+hypotheses:
+  - claim: >-
+      Car wash owners will use a private, no-signup membership calculator when
+      deciding what to charge for an unlimited plan.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/car-wash-membership-calculator/
+  analytics: null

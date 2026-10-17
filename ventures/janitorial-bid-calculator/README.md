@@ -5,6 +5,8 @@ recurring janitorial contract the way the trade actually bids one — each space
 divided by the production rate the crew really hits — and shows the margin
 before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/
+
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
 step, no network calls, no accounts. Not yet deployed to a public URL —
@@ -115,6 +117,11 @@ holds the target margin, the monthly if you bake it in over N months, the
 month-1 profit if you throw it in, and the cash if they cancel early. A
 crawlable explainer lives at
 [`should-i-throw-in-the-initial-clean.html`](should-i-throw-in-the-initial-clean.html).
+
+A flat rate per square foot cannot see a building's own mix of space types —
+see [`vs-a-flat-rate-per-square-foot.html`](vs-a-flat-rate-per-square-foot.html)
+for a worked example of two identically sized buildings priced apart by
+restroom share alone.
 
 A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,

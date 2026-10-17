@@ -1,0 +1,5 @@
+2026-10-03 14:02 deployed v412 to production
+14:09 PagerDuty alert fired: checkout 5xx
+14:12 Dana acknowledged, investigating
+14:51 rolled back v412
+15:05 error rate back to normal, incident closed

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Inheritance Tax Calculator 2025/26: nil-rate band, residence band, taper</title>
+  <meta name="description" content="Free UK Inheritance Tax calculator for deaths from April 2025: £325,000 nil-rate band, £175,000 residence nil-rate band with the £2 million taper, transferred spouse allowances, charity gifts and the 36% rate. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Inheritance Tax calculator: how much IHT on an estate? Free, private">
+  <meta property="og:description" content="Nil-rate band, residence band taper, spouse and charity gifts in one estimate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Inheritance Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much Inheritance Tax will be due on an estate?", "acceptedAnswer": {"@type": "Answer", "text": "Inheritance Tax is 40% of the part of the estate above the tax-free bands. The nil-rate band is £325,000 and the residence nil-rate band adds up to £175,000 when the home is left to children or grandchildren, so up to £500,000 per person is tax-free."}}, {"@type": "Question", "name": "What is the residence nil-rate band and when does it taper?", "acceptedAnswer": {"@type": "Answer", "text": "It is an extra £175,000 allowance when a home passes to direct descendants. It reduces by £1 for every £2 the net estate is above £2 million, and is gone entirely at £2.35 million for a single person."}}, {"@type": "Question", "name": "Can a surviving spouse use the late partner's unused allowances?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Anything not used of the nil-rate band and residence nil-rate band passes to the surviving spouse or civil partner as a percentage, so a couple can pass on up to £1 million tax-free. The executors claim it on form IHT217."}}, {"@type": "Question", "name": "Is anything left to a spouse or charity taxed?", "acceptedAnswer": {"@type": "Answer", "text": "Gifts to a UK-domiciled spouse or civil partner and to registered charities are exempt. Leaving at least 10% of the baseline amount to charity also reduces the rate on the rest of the taxable estate from 40% to 36%."}}, {"@type": "Question", "name": "Does this include gifts made in the last 7 years or pensions?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, in part. Enter gifts made in the 7 years before death and they use up the nil-rate band first. Switch on the April 2027 option to count unused pension pots in the estate. Taper relief on gifts, trusts and business and agricultural relief are not modelled. Take advice if any of those apply."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK INHERITANCE TAX CALCULATOR · ENGLAND, WALES, SCOTLAND AND NI · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much Inheritance Tax will this estate pay?</h1>
+    <p>Enter the estate, any debts, the home, and what is left to a spouse or charity. You get the tax-free bands, the residence nil-rate band after any taper, the rate (40% or 36%), the bill, and what changes it.</p>
+    <p class="note">A first read written from HMRC's published rates (in force for deaths from 6 April 2025) without a live lookup. Rates change; confirm the current text. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="assets">Total estate value (&pound;)</label><input id="assets" type="number" min="0" step="1"></div>
+      <div><label for="debts">Debts and funeral costs (&pound;)</label><input id="debts" type="number" min="0" step="1"></div>
+      <div><label for="home">Value of the home (&pound;)</label><input id="home" type="number" min="0" step="1"></div>
+      <div><label for="homeToDescendants">Home left to children or grandchildren?</label><select id="homeToDescendants"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="spouse">Left to spouse or civil partner (&pound;)</label><input id="spouse" type="number" min="0" step="1"></div>
+      <div><label for="charity">Left to charity (&pound;)</label><input id="charity" type="number" min="0" step="1"></div>
+      <div><label for="gifts">Gifts in the last 7 years (&pound;)</label><input id="gifts" type="number" min="0" step="1"></div>
+      <div><label for="pension">Unused pension pots (&pound;)</label><input id="pension" type="number" min="0" step="1"></div>
+      <div><label for="pensionIn">Death on or after 6 April 2027 (pensions in the estate)?</label><select id="pensionIn"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="unusedNrb">Late spouse's unused nil-rate band (%)</label><input id="unusedNrb" type="number" min="0" max="100" step="1"></div>
+      <div><label for="unusedRnrb">Late spouse's unused residence band (%)</label><input id="unusedRnrb" type="number" min="0" max="100" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the Inheritance Tax</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the Inheritance Tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the estate of one person dying from 6 April 2025: nil-rate band, residence nil-rate band and its taper, transferred allowances, spouse and charity exemptions and the 36% reduced rate.</li>
+      <li><strong>Gives:</strong> the working step by step, the tax due, what a charity gift would change and a checklist for the executors.</li>
+      <li><strong>Not decided:</strong> taper relief on gifts, trusts, business and agricultural relief, non-UK-domiciled spouses, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much Inheritance Tax will be due on an estate?</h3>
+    <p>Inheritance Tax is 40% of the part of the estate above the tax-free bands. The nil-rate band is £325,000 and the residence nil-rate band adds up to £175,000 when the home is left to children or grandchildren, so up to £500,000 per person is tax-free.</p>
+    <h3>What is the residence nil-rate band and when does it taper?</h3>
+    <p>It is an extra £175,000 allowance when a home passes to direct descendants. It reduces by £1 for every £2 the net estate is above £2 million, and is gone entirely at £2.35 million for a single person.</p>
+    <h3>Can a surviving spouse use the late partner's unused allowances?</h3>
+    <p>Yes. Anything not used of the nil-rate band and residence nil-rate band passes to the surviving spouse or civil partner as a percentage, so a couple can pass on up to £1 million tax-free. The executors claim it on form IHT217.</p>
+    <h3>Is anything left to a spouse or charity taxed?</h3>
+    <p>Gifts to a UK-domiciled spouse or civil partner and to registered charities are exempt. Leaving at least 10% of the baseline amount to charity also reduces the rate on the rest of the taxable estate from 40% to 36%.</p>
+    <h3>Does this include gifts made in the last 7 years or pensions?</h3>
+    <p>Yes, in part. Enter gifts made in the 7 years before death and they use up the nil-rate band first. Switch on the April 2027 option to count unused pension pots in the estate. Taper relief on gifts, trusts and business and agricultural relief are not modelled. Take advice if any of those apply.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-stamp-duty-calculator/">UK Stamp Duty calculator</a>, the <a href="../uk-capital-gains-tax-calculator/">UK Capital Gains Tax calculator</a> the <a href="../uk-pension-annual-allowance-calculator/">UK pension annual allowance calculator</a> and the <a href="../uk-marriage-allowance-calculator/">UK Marriage Allowance calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { assets: "assets", debts: "debts", home: "home", homeToDescendants: "homeToDescendants", spouse: "spouse", charity: "charity", unusedNrb: "unusedNrb", unusedRnrb: "unusedRnrb", gifts: "gifts", pension: "pension", pensionIn: "pensionIn" };
+    const IDLE = "Fill in the figures, then click Work out the Inheritance Tax.";
+    const DEFAULTS = { homeToDescendants: "no", pensionIn: "no" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Inheritance Tax: ${gbp(r.tax)} (${r.effective}% of the net estate)`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Estate value", r.assets], ["Debts", -r.debts], ["Net estate", r.net], ["Left to spouse (exempt)", -r.spouse], ["Left to charity (exempt)", -r.charity], ["Nil-rate band", -r.nrb], ["Residence nil-rate band used", -r.rnrb], ["Taxable amount", r.taxable], [`Inheritance Tax at ${Math.round(r.rate * 100)}%`, r.tax]];
+      if (r.ftbTax !== null) rows.push(["Same price as a first-time buyer", r.ftbTax]);
+      $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a £900,000 estate with a £500,000 home left to children.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-inheritance-tax.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

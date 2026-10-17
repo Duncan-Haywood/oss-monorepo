@@ -346,3 +346,9 @@ test('index links one hop to the cash-runway-planner sibling', () => {
   );
   assert.match(siblingHtml, /cash runway planner/i);
 });
+
+// Closes the orphan pair with cash-flow-risk-forecaster: this tool sets the payment date, that one simulates it arriving late.
+test('index links one hop to the cash-flow-risk-forecaster sibling', () => {
+  const html = readIndexForSiblingCheck(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\.\.\/cash-flow-risk-forecaster\/"/, 'index must link ../cash-flow-risk-forecaster/ in one hop');
+});

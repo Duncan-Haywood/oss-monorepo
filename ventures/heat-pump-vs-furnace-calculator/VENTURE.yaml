@@ -1,0 +1,63 @@
+name: heat-pump-vs-furnace-calculator
+description: >-
+  Free browser tool for homeowners replacing a furnace: compares one heat pump
+  against a new gas furnace plus air conditioner on the visitor's own gas use,
+  fuel prices, COP and quotes, and reports heating cost per million BTU, the
+  break-even COP, payback, lifetime difference, NPV and IRR, then re-runs it for
+  cold-climate COP, price moves and no incentives. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.43 (furnace-bid-calculator, which is the contractor side: it prices a
+# furnace job for a contractor to quote; this is the homeowner deciding between
+# fuels). No other heat-pump venture exists.
+# The decision is five figures and is usually made from a contractor's
+# "you'll save on your bills" claim. The tool's edge is the break-even COP and
+# the cold-climate row: whether the heat pump runs cheaper than gas is set by
+# the electricity-to-gas price ratio, which a quote never shows.
+#
+# First visitor: r/heatpumps and r/hvac threads "is a heat pump worth it vs gas",
+# searches "heat pump vs gas furnace cost" and "heat pump payback calculator";
+# volume not measured with an external tool.
+#
+# Privacy is the liability boundary: bills and quotes never leave the browser
+# (tests assert no network calls). No contractor, manufacturer or utility is
+# named. Incentives are a user-entered dollar amount: no incentive rule is stated.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Homeowners holding a heat pump quote will use a no-signup tool that shows
+      the break-even COP for their own gas and electricity prices, not a
+      generic "heat pumps save money" claim.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The break-even COP and the COP 2.0 cold-climate row are what people quote
+      when discussing a heat pump decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/heat-pump-vs-furnace-calculator/
+  analytics: null

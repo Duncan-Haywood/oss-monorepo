@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pinned Actions Check vs. reading the workflow YAML by hand</title>
+  <meta name="description" content="A stray @v4 at the top of a short workflow is easy to spot by eye. An abbreviated 7-character SHA that looks pinned but isn't, buried in the fortieth uses: line of a dozen files, is not. This free tool classifies every reference by file and line, in your browser, with nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-reading-the-workflow-yaml-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Pinned Actions Check vs. reading the workflow YAML by hand">
+  <meta property="og:description" content="Reading a workflow file catches an obvious @main or @master. It does not reliably catch an abbreviated commit SHA that looks pinned at a glance but can still collide and is not what GitHub's own hardening guidance recommends, across dozens of uses: lines in several files.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reading a workflow file by hand catch reliably?","acceptedAnswer":{"@type":"Answer","text":"An obvious @v4, @main, or @master sitting in a short, single-job workflow -- a version tag or branch name is easy to recognise as not a commit SHA. Those are the cases a reviewer scanning the file top to bottom notices without much effort, and this tool does not replace that kind of reading."}},{"@type":"Question","name":"Why is an abbreviated SHA the case a manual read misses?","acceptedAnswer":{"@type":"Answer","text":"Because it looks pinned. A reference like some-action@a1b2c3d is not a version tag or branch name, so a quick glance reads it as safe -- but a 7-character abbreviation is not what this tool, or GitHub's own supply-chain hardening guidance, counts as pinned: it can still collide with another commit, and only a full 40-character SHA cannot be silently repointed. Telling a 7-character hex string from a full 40-character one, correctly, on line thirty of a long file, is exactly the kind of check attention is worst at sustaining."}},{"@type":"Question","name":"Does file count matter, or is this only about one confusing line?","acceptedAnswer":{"@type":"Answer","text":"Both. A repository with a dozen workflow files, each with several uses: lines, turns a pinning review into checking every reference in every file for the difference between a full SHA, an abbreviated one, and a tag that happens to look numeric. A tool that classifies every pasted line the same way does not get less careful on file twelve than it was on file one."}},{"@type":"Question","name":"Does a clean scan mean the code at that commit is safe?","acceptedAnswer":{"@type":"Answer","text":"No. This tool answers one narrow question -- is this uses: reference pinned to a fixed commit -- and does not evaluate what that commit contains. It makes no network call and resolves nothing on your behalf; for a mutable finding it prints the exact git ls-remote command so you can look up and judge the current commit yourself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-size: .92em; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Pinned Actions Check</a></p>
+    <h1>Pinned Actions Check vs. reading the workflow YAML by hand</h1>
+    <p class="lede">This page names no company or product &mdash; reading a workflow file before trusting it is a
+      habit most maintainers already have, not a competing tool. The gap is not carelessness: an abbreviated
+      commit SHA looks pinned at a glance, and telling it apart from a full 40-character one is exactly the kind
+      of check a quick read is bad at.</p>
+
+    <section class="card">
+      <h2>What a manual read catches reliably</h2>
+      <p>
+        An obvious <code>@v4</code>, <code>@main</code>, or <code>@master</code> on a short, single-job workflow
+        &mdash; a version tag or a branch name reads as clearly not a commit SHA. Those are the cases a reviewer
+        scanning top to bottom notices without much effort, and this tool does not replace that kind of reading.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>What a manual read struggles with, and why</h2>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where the two diverge on a real repository.</caption>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reading by hand</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>An abbreviated SHA, e.g. <code>@a1b2c3d</code></td><td>Reads as pinned at a glance &mdash; it is clearly not a tag or branch name</td><td>Classified as mutable: only a full 40-character SHA cannot be silently repointed, and this tool applies that rule the same way every time</td></tr>
+          <tr><td>A version tag that looks numeric, e.g. <code>@v4.1.2</code></td><td>Easy to mistake for "specific enough" since it names an exact release</td><td>Classified as mutable &mdash; the tag itself can still be repointed by its owner, unlike a commit SHA</td></tr>
+          <tr><td>A repository with a dozen workflow files, several jobs each</td><td>Checking every <code>uses:</code> line in every file is repetitive and exactly the kind of check attention degrades across</td><td>Scans every pasted file identically; line forty gets the same treatment as line one</td></tr>
+          <tr><td>Local actions (<code>./path</code>) and Docker references</td><td>Easy to flag as unpinned by mistake, since they carry no SHA at all</td><td>Classified separately as <code>local</code> / <code>docker</code>, never counted as a mutable finding</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">None of this is about attention or diligence. A 7-character hex string and a 40-character one are both "not a tag", and only the length tells them apart &mdash; a distinction that is trivial for a regex and easy to skip while scanning by eye.</p>
+      <p><a class="cta" href="./">Run the free pinned-actions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>When to still read the file yourself</h2>
+      <p>
+        This tool answers one narrow question: is a given <code>uses:</code> reference pinned to a commit SHA.
+        It does not tell you whether the code at that commit is itself safe, it makes no network call, and it
+        resolves nothing on your behalf &mdash; for every mutable finding it prints the exact
+        <code>git ls-remote</code> command so you can look up and judge the current commit with your own network
+        access, which is still a job for you.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does reading a workflow file by hand catch reliably?</h3>
+      <p>An obvious @v4, @main, or @master sitting in a short, single-job workflow -- a version tag or branch name is easy to recognise as not a commit SHA. Those are the cases a reviewer scanning the file top to bottom notices without much effort, and this tool does not replace that kind of reading.</p>
+      <h3>Why is an abbreviated SHA the case a manual read misses?</h3>
+      <p>Because it looks pinned. A reference like some-action@a1b2c3d is not a version tag or branch name, so a quick glance reads it as safe -- but a 7-character abbreviation is not what this tool, or GitHub's own supply-chain hardening guidance, counts as pinned: it can still collide with another commit, and only a full 40-character SHA cannot be silently repointed. Telling a 7-character hex string from a full 40-character one, correctly, on line thirty of a long file, is exactly the kind of check attention is worst at sustaining.</p>
+      <h3>Does file count matter, or is this only about one confusing line?</h3>
+      <p>Both. A repository with a dozen workflow files, each with several uses: lines, turns a pinning review into checking every reference in every file for the difference between a full SHA, an abbreviated one, and a tag that happens to look numeric. A tool that classifies every pasted line the same way does not get less careful on file twelve than it was on file one.</p>
+      <h3>Does a clean scan mean the code at that commit is safe?</h3>
+      <p>No. This tool answers one narrow question -- is this uses: reference pinned to a fixed commit -- and does not evaluate what that commit contains. It makes no network call and resolves nothing on your behalf; for a mutable finding it prints the exact git ls-remote command so you can look up and judge the current commit yourself.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no network call of its own -- it is a static page comparing this checker's own behaviour against reading a file by hand, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

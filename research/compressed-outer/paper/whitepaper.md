@@ -1,0 +1,24 @@
+# Compressing DiLoCo reports: exact noise floor, stability limit, and the bits-versus-workers split
+
+*Stylised: one quadratic mode at a time (diagonal Hessian for several), independent Gaussian gradient noise, identical workers, a fresh unbiased compressor per worker per round. Pure Python; every formula is checked against a literal simulation (`tests/`, `experiments/results.txt`).*
+
+## Question
+Communication is the bottleneck of open, low-bandwidth training networks, and DiLoCo-style methods already cut it by running `H` inner steps. The remaining message, one pseudo-gradient per worker per round, is then compressed by sparsifying or quantising it. `noisy-local-sgd` gave the noise floor with exact reports and `partial-participation` with workers missing. What does unbiased compression do to the floor, the largest stable outer step and the convergence speed, and, for a fixed total bandwidth, is it better to have few workers send many bits or many workers send few?
+
+## Model
+A worker's report is `d = s·x + n` (`x` the offset from the optimum, `s = 1−(1−ηa)^H`, `Var n = V_w`). The server steps `x' = x − α · mean of M compressed reports`. Two compressors: (i) *multiplicative*, `E[Q(v)|v] = v`, `Var[Q(v)|v] = ω v²`; keeping each coordinate with probability `r` and rescaling by `1/r` has `ω = 1/r − 1`; (ii) *additive*, subtractive-dither quantisation with step `Δ` (a shared seed supplies the dither `u`; the server subtracts it), error uniform on `±Δ/2` and independent of the value, variance `Δ²/12`.
+
+## Exact results
+1. **Multiplicative compression: `Var x = α V_w (1+ω) / (M s (2 − α s c))`, `c = 1 + ω/M`, stable iff `α s c < 2`.** The compressor noise is proportional to the signal, so it multiplies the contraction, `E(1 − αs·mean)² = 1 − 2αs + α²s²c`, exactly as random participation does. The largest step falls from `2/s` to `2/(sc)` and the fastest per-round contraction is `1 − 1/c` at `αs = 1/c`. With `M=8`, keeping 10% of coordinates gives `c = 2.125`, largest `αs = 0.94` and best contraction 0.53 (22 rounds to 10⁻⁶ instead of 1); adding workers restores it (`M=32`: 0.22; `M=256` at `r=0.02`: 0.16).
+2. **Participation is the same compressor.** A worker that sends `d/p` with probability `p` and nothing otherwise has `ω = 1/p − 1`; the formula reproduces `partial-participation`'s Rule B floor and stability limit exactly (results §2).
+3. **Additive (dithered) compression: `Var x = α (V_w + Δ²/12) / (M s (2 − αs))`.** Quantisation adds variance to each report but leaves the stability limit at `2/s` and the contraction untouched: the price is entirely in the floor.
+4. **Fixed bandwidth, sparsification.** With `M` workers sharing `B` coordinates per round (`r = B/(Md)`), the small-step floor is `≈ α V_w d / (B s · 2)`, the same for every split, but `c = 1 + d/B − 1/M` *rises* with `M`, so the floor rises (0.0417 → 0.0500 from `M = B/d = 4` to `M = 1024` at `αs = 0.8`) and a large outer step (`αs = 1.8`, `B/d = 4`) is stable only for `M < 7.2`. When a split must be chosen, spend the bandwidth on fewer full reports.
+5. **Fixed bandwidth, quantisation.** At `R` bits per coordinate (`M = B/(Rd)` workers) the small-step floor is `∝ R(1 + V_q/V_w)`, with `R` the exact entropy of the dithered index. The textbook high-resolution law `V_q/V_w = (πe/6)4^{−R}` is right to 1% from 3 bits but understates the noise 2.9× at 1 bit (exact 1.030). The floor factor is 8.00 at 8 bits, 4.02 at 4 bits, 3.07 at 3, 2.22 at 2, **1.87 at the optimum `R = 1.3` bits**, and 4.25 at half a bit: about 4× below 8-bit reports and 8.5× below sparsifying 16-bit values at the same bandwidth. Simulation at matched bandwidth (`MR = 4`) agrees within 3.1% (results §7).
+
+Simulation matches every variance to 0.2% at 300k rounds (results §1) and to 3% in the near-critical fixed-bandwidth runs.
+
+## Limitations
+Unbiased compressors only: biased ones (top-k) need error feedback and behave differently, untested here. Independent compression noise across workers and rounds; the report's std is taken as `√V_w` (exact only as `α → 0`, since `s²X` adds a little); bandwidth is entropy-coded rate with no index or header cost (which would favour sparsification less); dithering assumes a shared random seed and an unbounded integer alphabet; more workers than are available (`M ≤ N`) cap the split; Gaussian noise and one mode at a time. Convergence *rate* under compression is derived for the noise-free mean square only.
+
+## Relevance
+For bandwidth-limited open training: give the outer step the head-room `2/(sc)` that compression eats, prefer dithered quantisation to sparsification at low rates, quantise to about 1–2 bits and recruit more workers rather than sending more bits, and note that participation churn and compression are one budget of multiplicative noise. Companion to `noisy-local-sgd`, `partial-participation`, `outer-momentum` and `quantized-reports`.

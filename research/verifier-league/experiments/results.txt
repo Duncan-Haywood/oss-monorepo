@@ -1,0 +1,31 @@
+E1 who binds? league r = [0.55, 0.52, 0.72, 0.3, 0.85, 0.42] q = 0.6
+ expected loss: [0.2425, 0.2464, 0.2544, 0.33, 0.3025, 0.2724]  best = 0  runner-up = 1
+  vs 2 (r=0.72, side above q): midpoint 0.635  rate KL=0.0026
+  vs 1 (r=0.52, side below q): midpoint 0.535  rate KL=0.0086
+  vs 4 (r=0.85, side above q): midpoint 0.700  rate KL=0.0226
+  vs 5 (r=0.42, side below q): midpoint 0.485  rate KL=0.0266
+  vs 3 (r=0.30, side below q): midpoint 0.425  rate KL=0.0617
+ binding competitor: 2
+
+E2 certification delay (alpha=0.05, no correction): oracle prediction vs mixture simulation, 300 runs
+ E1 league   pred  1147.9  mean  1834.9  ratio 1.60  certified 1.00 correct 1.00
+ wide        pred  2073.8  mean  2801.8  ratio 1.35  certified 1.00 correct 1.00
+ two-sided   pred  1147.9  mean  1656.3  ratio 1.44  certified 1.00 correct 0.99
+
+E3 does the union bound bite? best at 0.4 (q=0.5), m near-tied competitors, error = certify/eliminate a wrong verifier; 1000 runs, T=400
+ exact    m=1: P(best wrongly eliminated) uncorrected 0.0150  Bonferroni 0.0150
+ opposite m=1: P(best wrongly eliminated) uncorrected 0.0190  Bonferroni 0.0190
+ opposite m=3: P(best wrongly eliminated) uncorrected 0.0130  Bonferroni 0.0070
+ opposite m=8: P(best wrongly eliminated) uncorrected 0.0140  Bonferroni 0.0020
+ same     m=1: P(best wrongly eliminated) uncorrected 0.0000  Bonferroni 0.0000
+ same     m=3: P(best wrongly eliminated) uncorrected 0.0000  Bonferroni 0.0010
+ same     m=8: P(best wrongly eliminated) uncorrected 0.0000  Bonferroni 0.0000
+
+E4 peeking baseline vs e-process, exact tie (r=.4,.6 at q=.5) plus 4 clear losers, 1000 runs, T=1000
+ declared a 'strict best' (all such declarations are wrong): peeking z-tests 0.588   e-process 0.016
+
+E5 cost of a larger league: certification delay and evaluation cost, best r=.62 (q=.6), one fixed binding rival r=.40, n-2 easier rivals
+ n= 2: binding rate 0.0163 pred(no corr)  183.4 pred(Bonferroni)  183.4  certify mean  240.1  eliminate stop  249.4  eval cost   498.8  no-elimination cost   480.2
+ n= 4: binding rate 0.0163 pred(no corr)  183.4 pred(Bonferroni)  250.6  certify mean  330.5  eliminate stop  310.3  eval cost   647.5  no-elimination cost  1322.2
+ n= 8: binding rate 0.0163 pred(no corr)  183.4 pred(Bonferroni)  302.5  certify mean  416.4  eliminate stop  356.4  eval cost   798.3  no-elimination cost  3330.8
+ n=12: binding rate 0.0163 pred(no corr)  183.4 pred(Bonferroni)  330.2  certify mean  396.8  eliminate stop  418.1  eval cost  1029.8  no-elimination cost  4761.4

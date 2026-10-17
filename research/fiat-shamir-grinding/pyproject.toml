@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fiat-shamir-grinding"
+version = "0.1.0"
+description = "Grinding attacks on hash-derived spot-check challenges: exact avoidance probability, free-retry deterrence rule, beacon comparison, and optimal proof-of-work on the challenge"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

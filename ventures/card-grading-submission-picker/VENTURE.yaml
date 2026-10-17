@@ -1,0 +1,44 @@
+name: card-grading-submission-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for sports and trading-card sellers and collectors (Pokemon, baseball, basketball, MTG): paste cards with your own value raw and at each grade and your own grade chances, plus the grader''s fee tiers, and get which to send to a grader (PSA, BGS, CGC, SGC) and at which tier, which to sell raw, the exact break-even chance of a 10 for each card, the downside, and the exact best subset under a grading budget or cards-per-submission limit (dynamic programming, checked against every subset). Numbers are the ones the user supplies, an estimate and not a price guide or forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a card seller or collector keeps from a batch of cards by sending the right ones to a grader.
+# Checked 2026-10-02: ventures/ has ebay-fee-calculator (fees on a sale), marketplace-fee-compare (which platform),
+# lot-split-calculator (lot vs singles) and ticket-resale-profit-calculator; none weighs grading fee, shipping, the wait and
+# grade odds against selling raw, gives the break-even chance of a 10, or picks the best subset under a grading budget. Not in screened-out.md.
+#
+# First visitor: searches "is it worth grading this card", "PSA grading calculator", "grading break-even", "which cards to
+# grade"; card-selling and collecting forums and groups. Volume not measured with an external tool. Sellers decide on
+# gut feel and a sold-comps tab; nothing multiplies out their own grade odds against the fee tier. A hosted version that
+# reads a collection export is the natural paid upgrade.
+hypotheses:
+  - claim: A card seller or collector will paste a batch, see which cards fail the break-even chance of a 10, and change which cards they send or sell raw.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A seller will return before each submission with a new batch, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No seller reports changing which cards they grade because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/
+  analytics: null

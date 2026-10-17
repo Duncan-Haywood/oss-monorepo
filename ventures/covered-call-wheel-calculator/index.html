@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Covered Call &amp; Wheel Calculator: Rank Strikes by Yield and Risk — Free</title>
+  <meta name="description" content="Free covered call and cash-secured put calculator: paste option quotes and rank strikes by annualized premium yield, chance of assignment, breakeven and payoff at expiry. Nothing uploaded.">
+  <meta property="og:title" content="Covered call and wheel calculator: rank every strike">
+  <meta property="og:description" content="Annualized yield, assignment probability, breakeven and payoff table for the quotes you paste. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M16 6a10 10 0 1 0 10 10' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3Cpath d='M26 6v6h-6' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Covered Call and Wheel Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste option quotes and rank covered-call and cash-secured-put strikes by annualized premium yield, chance of assignment, breakeven and payoff at expiry. Runs in your browser; nothing is uploaded.", "featureList": "Covered call ranking, cash-secured put ranking, annualized premium yield, Black-Scholes assignment probability, breakeven and downside cushion, cost-basis warning, payoff scenarios, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which covered call strike should I sell?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single best strike; it is a trade between premium and the chance of losing the shares. A strike closer to the stock price pays more but is more likely to be exercised. This tool lists every quote you paste, ranks them by annualized premium yield, shows the model chance of being called away, and picks the highest-paying quote that stays under the assignment chance you set."}}, {"@type": "Question", "name": "What does annualized return mean here?", "acceptedAnswer": {"@type": "Answer", "text": "It is the premium divided by the capital tied up, scaled to a year by 365 divided by the days to expiry. A 1.5% premium over 30 days shows as about 18.3% simple annualized. It assumes you could repeat the trade at the same price every cycle, which you usually cannot, so treat it as a way to compare quotes, not a forecast."}}, {"@type": "Question", "name": "How is the chance of being called away calculated?", "acceptedAnswer": {"@type": "Answer", "text": "From a Black-Scholes model: the probability the stock finishes above the strike at expiry, using the implied volatility you type for each quote or the default. Implied volatility is on your broker's chain. The model assumes smooth lognormal prices, so real-world gaps make it an estimate rather than a forecast."}}, {"@type": "Question", "name": "What is the wheel strategy?", "acceptedAnswer": {"@type": "Answer", "text": "Selling cash-secured puts until you are assigned the stock, then selling covered calls on it until it is called away, and repeating. Switch the mode to cash-secured puts to rank put quotes by yield on the cash set aside and by the effective purchase price if you are assigned."}}, {"@type": "Question", "name": "What can go wrong with covered calls?", "acceptedAnswer": {"@type": "Answer", "text": "The stock can fall by more than the premium, which is the main risk; the call only cushions the first part of a drop. The shares can also be called away below your cost basis, locking in a loss, or in a taxable account triggering a taxable sale. Early assignment before a dividend is also possible. The scenario table shows the payoff at expiry next to simply holding the stock."}}, {"@type": "Question", "name": "Is this investment or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic and a probability model on the quotes and figures you type. It does not recommend buying, selling or writing any option or security, does not know your tax situation, and options involve risk, including loss of the whole investment in some strategies. Read your broker's options disclosure and talk to a qualified adviser."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">COVERED CALL &amp; WHEEL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which covered call or cash-secured put pays best for the risk?</h1>
+    <p>Paste the option quotes from your broker's chain and see every strike ranked by annualized premium yield, the model chance of being assigned, the breakeven price and the payoff at expiry against just holding the stock. Pick the highest-paying quote that stays under the assignment chance you are comfortable with, or the best price to sell or buy at your target.</p>
+    <p class="note">Arithmetic and a probability model on numbers you type in. Not tax, legal or financial advice, and not a recommendation to trade any option or security. The example figures are placeholders, not a real quote.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The position</h2>
+      <div class="grid">
+        <div><label for="mode">Strategy</label><select id="mode"><option value="call">Covered calls (I own the shares)</option><option value="put">Cash-secured puts (I want to own the shares)</option></select></div>
+        <div><label for="price">Current stock price ($)</label><input id="price" type="number" step="any" value="0"></div>
+        <div><label for="shares">Shares owned (calls) or contracts to sell (puts)</label><input id="shares" type="number" step="any" value="0"></div>
+        <div><label for="costBasis">Your cost basis per share ($, calls only)</label><input id="costBasis" type="number" step="any" value="0"></div>
+        <div><label for="feePerContract">Commission per contract ($)</label><input id="feePerContract" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The quotes</h2>
+      <p>One line per option: strike, premium per share (the bid is the realistic fill), days to expiry, and optionally its implied volatility in percent. Copy them from your broker's chain.</p>
+      <label for="chainText">Option quotes</label>
+      <textarea id="chainText" rows="9" spellcheck="false"></textarea>
+      <div class="grid">
+        <div><label for="defaultIvPct">Implied volatility when a line has none (%)</label><input id="defaultIvPct" type="number" step="any" value="0"></div>
+        <div><label for="riskFreePct">Risk-free rate (%)</label><input id="riskFreePct" type="number" step="any" value="0"></div>
+        <div><label for="maxAssignPct">Highest chance of assignment I accept (%)</label><input id="maxAssignPct" type="number" step="any" value="0"></div>
+        <div><label for="targetPrice">Price I would be glad to sell at (calls) or buy at (puts), $, 0 to skip</label><input id="targetPrice" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Rank the quotes</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Which covered call strike should I sell?</h3>
+      <p>There is no single best strike; it is a trade between premium and the chance of losing the shares. A strike closer to the stock price pays more but is more likely to be exercised. This tool lists every quote you paste, ranks them by annualized premium yield, shows the model chance of being called away, and picks the highest-paying quote that stays under the assignment chance you set.</p>
+      <h3>What does annualized return mean here?</h3>
+      <p>It is the premium divided by the capital tied up, scaled to a year by 365 divided by the days to expiry. A 1.5% premium over 30 days shows as about 18.3% simple annualized. It assumes you could repeat the trade at the same price every cycle, which you usually cannot, so treat it as a way to compare quotes, not a forecast.</p>
+      <h3>How is the chance of being called away calculated?</h3>
+      <p>From a Black-Scholes model: the probability the stock finishes above the strike at expiry, using the implied volatility you type for each quote or the default. Implied volatility is on your broker&#x27;s chain. The model assumes smooth lognormal prices, so real-world gaps make it an estimate rather than a forecast.</p>
+      <h3>What is the wheel strategy?</h3>
+      <p>Selling cash-secured puts until you are assigned the stock, then selling covered calls on it until it is called away, and repeating. Switch the mode to cash-secured puts to rank put quotes by yield on the cash set aside and by the effective purchase price if you are assigned.</p>
+      <h3>What can go wrong with covered calls?</h3>
+      <p>The stock can fall by more than the premium, which is the main risk; the call only cushions the first part of a drop. The shares can also be called away below your cost basis, locking in a loss, or in a taxable account triggering a taxable sale. Early assignment before a dividend is also possible. The scenario table shows the payoff at expiry next to simply holding the stock.</p>
+      <h3>Is this investment or tax advice?</h3>
+      <p>No. It is arithmetic and a probability model on the quotes and figures you type. It does not recommend buying, selling or writing any option or security, does not know your tax situation, and options involve risk, including loss of the whole investment in some strategies. Read your broker&#x27;s options disclosure and talk to a qualified adviser.</p>
+      
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether to trade at all. The model ignores dividends, early exercise, volatility changes, bid-ask spreads beyond the premium you type, margin and portfolio effects, taxes (a call that is exercised may realize a taxable gain, and a qualified covered call can affect holding periods), and what the stock does next. Options can lose money, and short puts can lose most of the strike price. One underlying at a time.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../tax-lot-sale-optimizer/">tax lot sale optimizer</a> for choosing which shares to sell, the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a>, and the <a href="../wash-sale-checker/">wash sale checker</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not recommend buying or selling any security or option. Results are arithmetic and a model on figures you type; options involve risk. Verify with your broker's quotes and a qualified professional before you trade.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const TEXT = new Set(["mode", "chainText"]);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = TEXT.has(k) ? $(k).value : (Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]); return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function describe(r, call) {
+      return `${money(r.strike)} strike, ${r.days} days, ${money(r.premium)} premium: ${pct(r.keepAnnual)} a year if it expires worthless (${money(r.income)} total), ${pct(r.probAssigned, 0)} model chance of ${call ? "being called away" : "assignment"}, breakeven ${money(r.breakeven)}.`;
+    }
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const call = a.mode === "call";
+      if (a.picks.income) h += `<div class="finding"><h4>Income pick (highest yield within your assignment limit)</h4><p>${esc(describe(a.picks.income, call))}</p></div>`;
+      if (a.opts.targetPrice > 0) h += `<div class="finding"><h4>${call ? "Pick if you would be glad to sell at your target" : "Pick if you would be glad to buy at your target"}</h4><p>${a.picks.target ? esc(describe(a.picks.target, call) + (call ? " If called, that is " + pct(a.picks.target.assignedAnnual) + " a year including the stock gain." : " Effective purchase price if assigned: " + money(a.picks.target.breakeven) + ".")) : "No quote qualifies: " + (call ? "no strike is at or above your sell price." : "no put has an effective cost at or below your buy price.")}</p></div>`;
+      h += `<div class="finding"><h4>Every quote, best yield first</h4>${table(["Strike", "Days", "Premium", call ? "Above price" : "Below price", "Yield / yr", call ? "If called / yr" : "Collateral", "Chance " + (call ? "called" : "assigned"), "Breakeven"], a.rows.map((r) => [money(r.strike), r.days, money(r.premium), pct(r.otmPct), pct(r.keepAnnual), call ? pct(r.assignedAnnual) : money(r.capital), pct(r.probAssigned, 0), money(r.breakeven)]))}<p><button type="button" class="secondary" id="csv">Download ranking (CSV)</button></p></div>`;
+      if (a.scenario) h += `<div class="finding"><h4>Payoff at expiry for the income pick</h4><p>Compared with ${call ? "just holding the shares" : "buying the shares today"}:</p>${table(["Stock moves", "Price", call ? "With the call" : "With the put", call ? "Just holding" : "Buying now"], a.scenario.map((s) => [(s.move > 0 ? "+" : "") + Math.round(s.move * 100) + "%", money(s.end), money(s.strategy), money(s.plain)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "option-ranking.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

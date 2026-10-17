@@ -1,0 +1,31 @@
+name: camt053-statement-check
+description: >-
+  Free browser tool that checks an ISO 20022 camt.053 XML bank statement before it goes into QuickBooks, Xero,
+  Sage, DATEV, Exact, Moneybird or a spreadsheet, and says why an import fails or does not reconcile: opening
+  balance plus booked entries that do not equal the closing balance (and by how much), a statement that does
+  not continue from the previous one, batch entries whose lines do not add up, declared counts and totals that
+  do not match, missing booking dates, repeats and XML that is not well formed. It gives a line number for
+  each and converts the entries to CSV. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Nearest existing ventures: mt940-statement-check (the
+# older SWIFT text format; it names camt.053 and sends the visitor away), sepa-pain002-status-reader (payment
+# status reports, not statements) and bai2-statement-reader (US). None reads camt.053, the XML statement that
+# replaces MT940 across SEPA and SWIFT banks (SWIFT's MT-to-ISO 20022 coexistence for cash reporting ended
+# November 2025), so a growing share of the statement files business customers get are this format. Paid
+# camt-to-CSV/QBO converters exist and charge per file or per month; this one is free, local and adds the
+# balance and continuity checks that find the missing day.
+# First visitor: a bookkeeper or small-business owner with a bank's camt.053 .xml download that will not import
+# or does not reconcile; search phrases like "camt.053 to csv", "camt.053 import error", "camt.053 balance does
+# not match", "camt053 file format". Volume not measured with an external tool.
+#
+# Deterministic and local: no bank login, no aggregator, no upload, so no credential or data-protection
+# exposure and no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper and accounting audiences, paired with
+# the other bank-file checks; a paid version, if usage appears, is a batch converter over a folder of
+# statements with account mapping and QBO/OFX output behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-product clause,
+# trademarks used nominatively, no promise any importer will accept the file.

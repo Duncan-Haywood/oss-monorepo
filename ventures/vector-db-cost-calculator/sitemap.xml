@@ -3,4 +3,6 @@
   <url><loc>./</loc></url>
   <url><loc>./what-is-vector-index-overhead.html</loc></url>
   <url><loc>./vs-pinecone.html</loc></url>
+  <url><loc>./vs-qdrant.html</loc></url>
+  <url><loc>./vs-doing-the-math-yourself.html</loc></url>
 </urlset>

@@ -1,0 +1,37 @@
+name: uk-tax-code-checker
+description: >-
+  Free browser tool for UK employees: decode a PAYE tax code (1257L, BR, 0T, K, S, C, M1/W1 emergency), compare payslip tax to the code and to the standard code to estimate an overpayment, and work out what the code should be. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found no tax-code tool in ventures/ (nearest: uk-take-home-pay-calculator, uk-scottish-income-tax-calculator, which assume the standard code).
+#
+# First visitor: UK employee searching "what does tax code 1257L mean", "tax code BR", "emergency tax refund", "why is my tax code wrong". Perennial high-volume HMRC-adjacent queries, spiking each April and when people start new jobs; volume not measured. Existing results are mostly GOV.UK and a few calculators that only decode.
+#
+# Path to revenue (payment rails stay off): lead magnet into the other 27 UK tax and pay tools; GitHub Sponsors. Not built: P45/P60 upload, personal tax account reading, behind an env-var switch.
+#
+# Liability: rates and code rules written from memory without network access; every result names GOV.UK and the HMRC online account as the source to verify, carries no-warranty and not-advice clauses, and says what it does not decide. Ethical risk is telling someone they are overtaxed when a benefit or second job explains the code; mitigated by wording ("may", "if your code is wrong") and the "Not decided" list.
+hypotheses:
+  - claim: >-
+      UK employees on a puzzling or emergency tax code will use a free private checker that decodes it and estimates the overpayment, and download the result to send to payroll or HMRC.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a code rule or band differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-tax-code-checker/
+  analytics: null

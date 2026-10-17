@@ -1,0 +1,55 @@
+name: fixed-bid-overrun-forecaster
+description: >-
+  Free browser tool and CLI for agencies, dev shops, contractors and consultants billing a fixed fee: enter price, cost budget,
+  percent complete and cost to date and see the projected final cost, margin, CPI and SPI, the point at which the job stops
+  paying, and how much extra revenue holds the planned margin. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search for "earned value", "estimate at completion", "cost to complete" and
+# "overrun" found no venture or candidate; nearest are contractor-wip-schedule (accounting over/under-billing for sureties) and
+# project-estimate-calibrator (calibrates future estimates), neither forecasts a live job's final margin. Not in screened-out.md.
+#
+# Why this niche: fixed-fee work is where small firms lose money quietly. Budget burn is visible in the timesheet long before the
+# invoice, yet most owners compute "hours left" by feel. Earned value is the standard fix but lives in PM suites (MS Project,
+# Procore, Smartsheet, Float) priced and shaped for large programmes; a five-field form removes the barrier.
+#
+# First visitor: owner-operators and project leads searching "fixed price project over budget", "earned value calculator",
+# "estimate at completion calculator", "am I going to lose money on this project". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user enters, with the formulas shown. Not accounting, legal or contract advice;
+# the page says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted tracker that pulls
+# actuals from time-tracking and accounting tools and alerts when CPI crosses a threshold, which needs accounts, integrations and
+# payments and so an owner decision; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Owners of small fixed-fee firms will enter five numbers into a no-signup forecaster rather than build an earned-value sheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The moment a user sees spend reach the contract price at a percent-complete before 100 is what makes them re-run it at each status date.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted status history) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that physical percent complete is too hard to estimate, at which point a milestone-weighted input is needed.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fixed-bid-overrun-forecaster/
+  analytics: null

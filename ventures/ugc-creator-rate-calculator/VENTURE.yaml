@@ -1,0 +1,42 @@
+name: ugc-creator-rate-calculator
+description: >-
+  Free browser tool for UGC creators: price videos as content plus rights. Enter experience, deliverable, brand category, paid-ad usage term, whitelisting, exclusivity, raw footage and rush to get a quote range, a walk-away floor, each add-on as a line, and a message to send the brand. Nothing is uploaded. Not legal or financial advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. brand-deal-rate-calculator prices posts to the creator's own audience by followers and engagement;
+# this prices content the BRAND runs (usage rights, whitelisting, exclusivity), a different pricing model. Not in screened-out.md.
+#
+# First visitor: a creator who just got a "we'd love 3 videos, budget $150 each, we'll also run them as ads" DM. Search phrases "UGC rates", "how much to charge for UGC",
+# "UGC usage rights pricing", "whitelisting rate". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into influencer-media-kit-generator and brand-deal-rate-calculator; GitHub Sponsors. Paid version, not built:
+# a per-brand deal tracker with licence end-date reminders, behind an env-var switch.
+#
+# Liability: multipliers are rule-of-thumb, written from memory without network access; the page says so and names what to verify. Output is a negotiating start,
+# not advice of record; no contract text is generated beyond a plain quote message.
+
+hypotheses:
+  - claim: >-
+      UGC creators who get a brand offer with ad-usage terms will use a free calculator to add usage, whitelisting and exclusivity fees they would otherwise leave out.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A creator reports that the usage-rights multipliers are far outside current market rates.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ugc-creator-rate-calculator/
+  analytics: null

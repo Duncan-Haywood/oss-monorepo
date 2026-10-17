@@ -1,0 +1,17 @@
+Budget 3000 objective calls per run, 10 seeds, 8 layers (hi/lo alternating, hi on top), thickness bounds 20-250 nm
+Objective = mean dE76 (15/30/45 deg vs normal) + 5*max(0, 40-C*) + max(0, |hue-target|-30); lower is better
+
+== target: quarter-wave stack designed at 620 nm (hue 92, C* 69.7, shift 12.4, mass 2.03 g/m2)
+                  method  median J  best J  worst J  median C* median shift feasible median mass g/m2
+  quarter-wave (1 point)     12.44   12.44    12.44       69.7         12.4      yes             2.03
+                  random      4.38    3.68     6.15       44.2          4.4    10/10             3.75
+    nelder-mead restarts      1.42    0.40     3.70       40.4          1.4    10/10             3.59
+  differential evolution      3.32    2.16     5.22       47.4          3.3    10/10             3.68
+
+== target: quarter-wave stack designed at 450 nm (hue 213, C* 53.1, shift 25.9, mass 1.47 g/m2)
+                  method  median J  best J  worst J  median C* median shift feasible median mass g/m2
+  quarter-wave (1 point)     25.87   25.87    25.87       53.1         25.9      yes             1.47
+                  random      9.34    4.06    12.44       42.3          9.3    10/10             3.26
+    nelder-mead restarts      5.59    2.77     6.96       40.0          5.6     9/10             3.64
+  differential evolution      7.10    6.19    10.00       44.3          7.1     9/10             3.41
+

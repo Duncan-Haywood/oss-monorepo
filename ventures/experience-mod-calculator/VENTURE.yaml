@@ -1,0 +1,43 @@
+name: experience-mod-calculator
+description: >-
+  Free browser calculator for contractors and small employers: enter the values from a workers' comp experience rating worksheet and the
+  claim list, get the estimated experience mod, the premium impact, what each claim costs per year and over three years, and what one more
+  claim would do. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Nearest existing venture is workers-comp-premium-calculator, which takes the mod as an input;
+# this one computes it from claims, the part a contractor cannot reproduce. Also adjacent: osha-trir-dart-calculator, surety-bond-capacity-calculator.
+#
+# First visitor: contractors and small employers searching "experience mod calculator", "x-mod calculator", "how much does a workers comp claim cost
+# my mod". Bids and prequalification for commercial work often require a mod under 1.00. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over values the user types; no rate or W/B table ships; nothing stored; not insurance, legal or tax advice;
+# says the bureau's worksheet is the mod of record and names the independent-bureau states it does not model; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet into the contractor and insurance cluster, plus donations.
+
+hypotheses:
+  - claim: >-
+      Contractors will type their rating worksheet and claims into a no-signup calculator to see what each claim costs in mod points and dollars,
+      because carriers and brokers show one opaque mod and not the cost of the next claim.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/experience-mod-calculator/
+  analytics: null

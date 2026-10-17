@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Business Insurance Policy Reader</title>
+  <meta name="description" content="Free business insurance policy reader: paste a general liability, professional liability or BOP policy and get the limits, deductible, claims-made trigger and renewal dates (downloadable .ics), whether the limits meet a client's contract requirement, and the exclusions to ask your broker about. Private, runs in your browser.">
+  <meta property="og:title" content="Check your business insurance policy for gaps and client-contract limits. Free, private">
+  <meta property="og:description" content="Paste the policy. Get limits, deductible, renewal dates, a pass or fail against your client's required limits, and what to ask your broker, each with the sentence it came from. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Business Insurance Policy Reader", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between claims-made and occurrence insurance?", "acceptedAnswer": {"@type": "Answer", "text": "An occurrence policy covers incidents that happen during the policy period, even if the claim arrives years later. A claims-made policy covers only claims made while it is in force, so letting it lapse can leave earlier work uncovered unless you buy extended reporting (tail) coverage."}}, {"@type": "Question", "name": "What is a retroactive date on a claims-made policy?", "acceptedAnswer": {"@type": "Answer", "text": "The earliest date work can have been done and still be covered. Work before it is excluded even if the claim arrives this year, so keep it unchanged when you renew or switch carriers."}}, {"@type": "Question", "name": "Do defense costs reduce my policy limit?", "acceptedAnswer": {"@type": "Answer", "text": "On some policies they do. If defense costs are inside the limit, legal fees are paid out of the same amount that would pay a settlement, leaving less than the headline limit. Many policies pay defense in addition to the limit."}}, {"@type": "Question", "name": "How do I know if my limits meet a client contract?", "acceptedAnswer": {"@type": "Answer", "text": "Contracts often ask for $1,000,000 per occurrence and $2,000,000 aggregate, sometimes with umbrella coverage. Enter your contract's required limits on this page and it compares them with the limits it reads from your policy."}}, {"@type": "Question", "name": "What does a professional services exclusion mean?", "acceptedAnswer": {"@type": "Answer", "text": "A general liability policy with this exclusion does not pay claims that your advice, design or professional work was wrong. Consultants, designers, agencies and software firms usually need separate professional liability (E&O) coverage."}}, {"@type": "Question", "name": "Does this replace an insurance broker?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads wording with fixed rules, shows the sentence each value came from, and lists questions buyers commonly ask a broker. It does not say what a claim would pay."}}, {"@type": "Question", "name": "Is my policy uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #14506b; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #12303d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #12303d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #12303d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #14506b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #12303d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #12303d; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #12303d; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #12303d; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BUSINESS INSURANCE POLICY READER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find out if your business insurance meets your client's contract, and what it quietly excludes.</h1>
+    <p>Paste the policy or declarations page. The page pulls out the <strong>policy period, per-occurrence and aggregate limits, deductible, premium and claims-made trigger</strong>, checks them against <strong>the limits your client contract requires</strong>, builds a <strong>renewal calendar you can add to your phone</strong>, and flags what buyers ask a broker about: <strong>defense costs inside the limit, professional services and subcontractor exclusions, contractual liability, actual cash value, coinsurance, long waiting periods</strong>. Each value shows the sentence it came from so you can check it.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. It reads wording with fixed rules; it is not a broker or lawyer and does not decide what a claim would pay.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>1. The policy</h2>
+    <label for="file">Choose a text file</label>
+    <input type="file" id="file" accept=".txt,.md,text/plain">
+    <label for="paste">…or paste the policy text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Paste the declarations page and policy wording here (copy from the PDF)"></textarea>
+    <h2 style="margin-top:20px">2. Optional details</h2>
+    <p class="note">Enter your contract's required limits to check them. Override a value only if the page read it wrong.</p>
+    <div class="grid">
+      <div><label for="reqocc">Contract requires, each occurrence, dollars</label><input id="reqocc" inputmode="decimal" placeholder="e.g. 1000000"></div>
+      <div><label for="reqagg">Contract requires, aggregate, dollars</label><input id="reqagg" inputmode="decimal" placeholder="e.g. 2000000"></div>
+      <div><label for="premium">Premium, dollars</label><input id="premium" inputmode="decimal" placeholder="read from the policy"></div>
+      <div><label for="expiration">Expiration date (YYYY-MM-DD)</label><input id="expiration" placeholder="read from the policy"></div>
+      <div><label for="today">Today's date (YYYY-MM-DD)</label><input id="today" placeholder="to show your next deadlines"></div>
+      <div><label for="insured">Insured name</label><input id="insured"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Read the policy</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste the policy, then click Read the policy.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="verdict"></p>
+    <h3>Key terms (check each against the policy)</h3>
+    <div class="scroll"><table id="terms"><thead><tr><th>Term</th><th>Value</th><th>Where it came from</th></tr></thead><tbody></tbody></table></div>
+    <h3>Your contract's required limits</h3>
+    <div class="scroll"><table id="req"><thead><tr><th>Limit</th><th class="n">Required</th><th class="n">Policy</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+    <h3>Key dates</h3>
+    <div class="scroll"><table id="cal"><thead><tr><th>Date</th><th>What happens</th></tr></thead><tbody></tbody></table></div>
+    <h3>Coverage questions for your broker</h3>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-ics">Add dates to calendar (.ics)</button> <button type="button" class="secondary" id="dl-csv">Download questions (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it reads, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Extracted:</strong> policy period, claims-made or occurrence trigger, retroactive date, per-occurrence and aggregate limits, deductible or retention, premium, cancellation notice, extended reporting window, business income waiting period, coinsurance.</li>
+      <li><strong>Flagged:</strong> limits below your contract's requirement, defense costs inside the limit, professional services, cyber, contractual liability, subcontractor, pollution, employee and mold exclusions, actual cash value, coinsurance, long waiting periods, short cancellation notice, missing additional-insured wording, large deductibles.</li>
+      <li><strong>Not decided:</strong> whether a particular claim would be paid, whether a limit is enough for your risk, or which policy to buy. Endorsements, forms and schedules you do not paste are not seen.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the difference between claims-made and occurrence insurance?</h3>
+    <p>An occurrence policy covers incidents that happen during the policy period, even if the claim arrives years later. A claims-made policy covers only claims made while it is in force, so letting it lapse can leave earlier work uncovered unless you buy extended reporting (tail) coverage.</p>
+    <h3>What is a retroactive date on a claims-made policy?</h3>
+    <p>The earliest date work can have been done and still be covered. Work before it is excluded even if the claim arrives this year, so keep it unchanged when you renew or switch carriers.</p>
+    <h3>Do defense costs reduce my policy limit?</h3>
+    <p>On some policies they do. If defense costs are inside the limit, legal fees are paid out of the same amount that would pay a settlement, leaving less than the headline limit. Many policies pay defense in addition to the limit.</p>
+    <h3>How do I know if my limits meet a client contract?</h3>
+    <p>Contracts often ask for $1,000,000 per occurrence and $2,000,000 aggregate, sometimes with umbrella coverage. Enter your contract's required limits on this page and it compares them with the limits it reads from your policy.</p>
+    <h3>What does a professional services exclusion mean?</h3>
+    <p>A general liability policy with this exclusion does not pay claims that your advice, design or professional work was wrong. Consultants, designers, agencies and software firms usually need separate professional liability (E&O) coverage.</p>
+    <h3>Does this replace an insurance broker?</h3>
+    <p>No. It reads wording with fixed rules, shows the sentence each value came from, and lists questions buyers commonly ask a broker. It does not say what a claim would pay.</p>
+    <h3>Is my policy uploaded anywhere?</h3>
+    <p>No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, real estate, insurance, or financial advice, and it does not replace a licensed broker or an attorney. Extracted values can be wrong or missing; check every one against the policy. A clean result means these rules found nothing, not that you are covered.</p>
+    <p><strong>Policy data.</strong> A policy can name limits, premiums and parties that are commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>policy_read</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>ics_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../coi-expiry-gap-checker/">COI expiry gap checker</a> for the certificates your subcontractors send you, the <a href="../vendor-contract-clause-reader/">vendor contract clause reader</a>, the <a href="../commercial-lease-abstract-reader/">commercial lease abstract reader</a>, and, for bail bond agencies, the <a href="../bail-bond-agency-exposure-calculator/">bail bond agency exposure calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summaryText, calendarIcs, findingsCsv, samplePolicy, SAMPLE_SETTINGS, VERDICT_TEXT, dollars, iso } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const settings = () => ({ requiredOccurrence: $("#reqocc").value, requiredAggregate: $("#reqagg").value, premium: $("#premium").value, expiration: $("#expiration").value.trim(), today: $("#today").value.trim(), insured: $("#insured").value.trim() });
+
+    function termRows(t, src) {
+      const d = (v) => (v ? iso(v) : null), m = (v) => (v != null ? dollars(v) : null);
+      const rows = [
+        ["Policy period", t.effective || t.expiration ? (d(t.effective) || "?") + " to " + (d(t.expiration) || "?") : null, src.expiration || src.effective],
+        ["Coverage trigger", t.trigger || null, src.trigger], ["Retroactive date", t.retroDate ? (t.retroDate instanceof Date ? iso(t.retroDate) : t.retroDate) : null, src.retroDate],
+        ["Each occurrence / claim", m(t.perOccurrence), src.perOccurrence], ["Aggregate", m(t.aggregate), src.aggregate],
+        ["Deductible / retention", m(t.deductible), src.deductible], ["Premium", m(t.premium), src.premium],
+        ["Cancellation notice", t.cancelNoticeDays ? t.cancelNoticeDays + " days" : null, src.cancelNoticeDays],
+        ["Extended reporting window", t.erpDays ? t.erpDays + " days after expiry" : null, src.erpDays],
+        ["Business income waiting period", t.waitingHours ? t.waitingHours + " hours" : null, src.waitingHours],
+        ["Coinsurance", t.coinsurancePct ? t.coinsurancePct + "%" : null, src.coinsurancePct],
+      ];
+      return rows.map(([k, v, s]) => `<tr><td>${esc(k)}</td><td>${v ? esc(v) : "<em>not found</em>"}</td><td class="note">${s ? esc(s) : ""}</td></tr>`).join("");
+    }
+
+    function run(text) {
+      const s = settings();
+      const r = analyze(text, s);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = { r, s };
+      $("#verdict").textContent = VERDICT_TEXT[r.verdict];
+      $("#terms tbody").innerHTML = termRows(r.terms, r.sources);
+      $("#cal tbody").innerHTML = r.calendar.map((c) => `<tr><td>${iso(c.date)}</td><td>${c.critical ? "<strong>" : ""}${esc(c.label)}${c.critical ? "</strong>" : ""}</td></tr>`).join("") || '<tr><td colspan="2"><em>No dates found.</em></td></tr>';
+      $("#req tbody").innerHTML = r.requirement.map((q) => `<tr><td>${esc(q.label)}</td><td class="n">${dollars(q.required)}</td><td class="n">${q.actual != null ? dollars(q.actual) : "not found"}</td><td>${q.ok === null ? "Unknown" : q.ok ? "Meets" : "<strong>Below</strong>"}</td></tr>`).join("") || '<tr><td colspan="4"><em>Enter the limits your contract requires to compare them.</em></td></tr>';
+      $("#report-findings").innerHTML = r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask your broker:</em> ${esc(g.ask)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} question(s) to raise.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste the policy text first."; return; }
+      if (run(text)) record("policy_read");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = samplePolicy(); $("#file").value = "";
+      for (const [id, k] of [["reqocc", "requiredOccurrence"], ["reqagg", "requiredAggregate"], ["premium", "premium"], ["expiration", "expiration"], ["today", "today"], ["insured", "insured"]]) $("#" + id).value = SAMPLE_SETTINGS[k];
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a made-up contractor liability policy that falls short of a client's required limits.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste the policy, then click Read the policy."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("policy-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
+    $("#dl-ics").addEventListener("click", () => { if (last) { record("ics_downloaded"); download("policy-dates.ics", calendarIcs(last.r, last.s.insured || "Insurance policy"), "text/calendar"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("policy-questions.csv", findingsCsv(last.r), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+
+</body>
+</html>

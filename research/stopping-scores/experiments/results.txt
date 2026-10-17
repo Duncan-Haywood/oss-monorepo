@@ -1,0 +1,51 @@
+setup: check accuracy a=0.7, LLR per check 0.8473, cost c=0.01 per check, prior 1/2
+
+E1 threshold rule: closed form vs simulation (a=0.7)
+ k=1  P(correct) sim 0.7005 exact 0.7000   E[checks] sim 1.000 exact 1.000
+ k=2  P(correct) sim 0.8449 exact 0.8448   E[checks] sim 3.461 exact 3.448
+ k=4  P(correct) sim 0.9679 exact 0.9674   E[checks] sim 9.385 exact 9.347
+ k=6  P(correct) sim 0.9938 exact 0.9938   E[checks] sim 14.769 exact 14.815
+
+E2 optimal stopping (dynamic programming over all policies) is the symmetric threshold; kappa = score scale
+  score   kappa   k*   delivered error 1-p_k   E[checks]   verifier utility   DP V(0)
+  Brier  0.1     0    0.50000                   0.00    +0.0750            +0.0750
+  Brier  0.3     1    0.30000                   1.00    +0.2270            +0.2270
+  Brier  1       4    0.03263                   9.35    +0.8750            +0.8750
+  Brier  3       5    0.01425                  12.14    +2.8364            +2.8364
+  Brier  10      7    0.00265                  17.41    +9.7995            +9.7995
+  Brier  100     10   0.00021                  24.99    +99.7292            +99.7292
+  log    0.1     0    0.50000                   0.00    -0.0693            -0.0693
+  log    0.3     4    0.03263                   9.35    -0.1366            -0.1366
+  log    1       6    0.00616                  14.82    -0.1856            -0.1856
+  log    3       8    0.00114                  19.95    -0.2261            -0.2261
+  log    10      9    0.00049                  22.48    -0.2668            -0.2668
+  log    100     12   0.00004                  30.00    -0.3429            -0.3429
+
+E3 participation: smallest kappa at which the verifier checks at all = c/(G(a)-G(1/2))
+  a=0.55  Brier     4.000  (=4c/(2a-1)^2     4.000)   log     1.997
+  a=0.6   Brier     1.000  (=4c/(2a-1)^2     1.000)   log     0.497
+  a=0.7   Brier     0.250  (=4c/(2a-1)^2     0.250)   log     0.122
+  a=0.9   Brier     0.062  (=4c/(2a-1)^2     0.062)   log     0.027
+
+E4 sequential vs commit-to-n (a=0.7): utility, and checks used at equal delivered accuracy
+  score  kappa  seq: k* util E[checks] err     fixed: n* util err      seq util gain   fixed n needed for seq's error
+  Brier 1     4   +0.8750   9.35 0.03263    8   +0.8356 0.12604   +0.0394         19 (vs 9.35)
+  Brier 10    7   +9.7995  17.41 0.00265    28  +9.6187 0.01426   +0.1808         45 (vs 17.41)
+  Brier 100   10  +99.7292  24.99 0.00021    51  +99.3816 0.00136   +0.3476         71 (vs 24.99)
+  log   1     6   -0.1856  14.82 0.00616    18  -0.2779 0.04028   +0.0922         37 (vs 14.82)
+  log   10    9   -0.2668  22.48 0.00049    41  -0.5138 0.00357   +0.2470         63 (vs 22.48)
+  log   100   12  -0.3429  30.00 0.00004    65  -0.7588 0.00036   +0.4160         91 (vs 30.00)
+
+E5 Brier: large-kappa asymptote k* ~ ln(kappa (2a-1)^2 / ((1-a) c)) / lam  (a=0.7, c=1e-3)
+  kappa=1e+01    k*=10  prediction  10.13   log-score k*=12
+  kappa=1e+02    k*=12  prediction  12.85   log-score k*=15
+  kappa=1e+03    k*=15  prediction  15.56   log-score k*=18
+  kappa=1e+04    k*=18  prediction  18.28   log-score k*=21
+  kappa=1e+06    k*=23  prediction  23.72   log-score k*=27
+  kappa=1e+09    k*=31  prediction  31.87   log-score k*=35
+
+E6 what does the principal buy?  score scale kappa needed for delivered error <= eps (a=0.7, c=0.01)
+  eps=0.1    Brier kappa>=     0.466   log kappa>=     0.174
+  eps=0.03   Brier kappa>=     1.596   log kappa>=     0.405
+  eps=0.01   Brier kappa>=     3.369   log kappa>=     0.717
+  eps=0.001  Brier kappa>=    38.929   log kappa>=     5.441

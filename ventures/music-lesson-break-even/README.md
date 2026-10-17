@@ -2,6 +2,8 @@
 
 Independent music teachers can use this free browser calculator to find a sustainable lesson price after cancellations, preparation, travel, and monthly teaching costs. After using it, you can state the lesson price that reaches your annual pay target, which used to take a spreadsheet and guesswork.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/
+
 Serve this directory with `python3 -m http.server` before opening the page (ES module imports are blocked from `file://`). Run `node --test` for the pricing tests. The default example models 20 weekly lessons, 10% cancellations, 48 teaching weeks, 10 minutes of preparation, and $200 monthly costs. That week reaches a $40,000 target at $49.07 per paid lesson; two more weekly lessons keep $5,184 more after costs and drop the required price to $44.61. Travel time does not change cash — it only changes the effective hourly rate. Submitted assumptions are saved locally so a teacher can revisit a recurring pricing decision; use **Reset saved inputs** to remove them.
 
 ## Opportunity and differentiation
@@ -9,6 +11,8 @@ Serve this directory with `python3 -m http.server` before opening the page (ES m
 The target user is a solo piano, guitar, voice, or instrument teacher who prices recurring lessons but loses time to cancellations and unpaid preparation. Generic hourly-rate calculators ignore the teaching workflow; studio-management platforms are broader, paid, and often require accounts. This tool is a focused, transparent alternative that answers “how much should I charge for music lessons?” without uploading student information.
 
 Organic acquisition comes from searches about private music lesson pricing, piano lesson rates, teacher hourly pay, cancellation assumptions, and studio costs. A future hosted version could offer saved rate scenarios or an optional user-supplied AI scope reviewer, but the deterministic workflow remains free and needs no API key.
+
+See [vs-mymusicstaff.html](vs-mymusicstaff.html) for how this free, private calculator differs from My Music Staff's paid studio-management platform, or [vs-picking-a-rate-off-the-going-local-price.html](vs-picking-a-rate-off-the-going-local-price.html) for what copying a nearby teacher's posted rate misses about your own cancellations, travel time, and income target.
 
 ## Privacy, usage, and cost
 

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email Authentication Checker vs. checking DNS records by hand with dig</title>
+<meta name="description" content="dig txt yourdomain.com shows your top-level SPF record in one look. It reliably misses SPF's recursive lookup count across nested include: chains, which DKIM selector name your provider actually uses, and whether DMARC is enforced strictly enough for BIMI to display -- each needs several DNS queries cross-referenced together, which is what this free checker automates in one run.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-dns-records-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Email Authentication Checker vs. checking DNS records by hand with dig">
+<meta property="og:description" content="One dig txt call shows your top-level SPF record. It cannot by itself total a recursive SPF include chain against the 10-lookup limit, tell you which DKIM selector your provider uses, or say whether DMARC is strict enough for BIMI to display -- each needs several DNS queries compared together, which is what this checker automates.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/email-auth-check/vs-checking-dns-records-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just run dig txt myself?","acceptedAnswer":{"@type":"Answer","text":"Yes, for the most obvious case: dig txt yourdomain.com will show your top-level SPF record, and dig txt _dmarc.yourdomain.com will show your DMARC policy. For that specific, most-obvious read, one command each is enough. The problem is the other three checks this tool does are not visible in any single dig response -- they only show up when you compare several DNS queries against each other, which is where running dig by hand stops being enough evidence."}},{"@type":"Question","name":"How do I know which DKIM selector to check?","acceptedAnswer":{"@type":"Answer","text":"You don't, from DNS alone -- the selector is chosen by whichever provider sends your mail, and there is no single fixed name to dig for. By hand, that means guessing a selector, running dig txt selector._domainkey.yourdomain.com, getting NXDOMAIN, and trying another -- and NXDOMAIN on a guess you invented yourself proves nothing about whether DKIM is actually configured, only that you guessed a name nobody published a key at."}},{"@type":"Question","name":"Why doesn't a clean top-level SPF record mean SPF actually passes?","acceptedAnswer":{"@type":"Answer","text":"Because RFC 7208 counts the whole recursive chain, not just your own record. A record with three include: mechanisms looks short in a single dig txt call, but each of those includes can itself contain further include:/redirect= mechanisms, and the 10-DNS-lookup budget is spent across the entire chain. Confirming you're under the limit means recursively dig-ing every nested include and keeping a running total by hand -- skip one level and you can be well over 10 while a single top-level read looks fine."}},{"@type":"Question","name":"Can I tell from DNS alone whether BIMI will actually display?","acceptedAnswer":{"@type":"Answer","text":"Not from the BIMI record by itself. A dig txt default._bimi.yourdomain.com can return a perfectly valid-looking record while BIMI stays invisible in Gmail or Yahoo, because both require DMARC enforcement to be strict enough first -- p=quarantine or p=reject at pct=100. Answering \"will this display\" means reading the BIMI record and the DMARC record separately and cross-checking one against the other, not reading either alone."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual method every developer and admin already has -- running dig (or nslookup, or a browser-based DNS lookup tool) and reading the TXT records by eye. It names no competing product or company. The checker's own browser page and CLI query Cloudflare's public DNS-over-HTTPS resolver directly, never through this site."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0a5c3e;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:32ch;letter-spacing:-.03em;color:#17324a}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#17324a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Email Authentication Checker</a></p>
+<header>
+<h1>Email Authentication Checker vs. checking DNS records by hand with dig</h1>
+<p class="lede">Every developer and admin already has this move: run <code>dig txt</code> against a domain and read the record back. For a single top-level SPF or DMARC record, that is enough. This checker exists for the three things one dig call cannot show: the true recursive cost of an SPF include chain, which of many possible DKIM selector names your provider actually uses, and whether DMARC enforcement is strict enough for BIMI to display.</p>
+</header>
+<section>
+<h2>Where one dig call stops being enough</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What you're trying to answer</th><th scope="col"><code>dig</code> by hand</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>What does my top-level SPF or DMARC record say?</td><td>Works well. <code>dig txt yourdomain.com</code> and <code>dig txt _dmarc.yourdomain.com</code> show exactly this in one call each.</td><td>Reads the same records, in the same run as the checks below.</td></tr>
+<tr><td>Is my SPF record actually under RFC 7208's 10-DNS-lookup limit?</td><td>Invisible to a single dig call -- each <code>include:</code>/<code>redirect=</code> mechanism can itself contain more of the same, and the limit counts the whole chain. Confirming it means recursively dig-ing every nested include and keeping a running total by hand.</td><td>Follows every <code>include:</code>/<code>redirect=</code> mechanism recursively and sums the total against the 10-lookup budget automatically.</td></tr>
+<tr><td>Which DKIM selector does my provider actually use?</td><td>Not discoverable from DNS alone -- there is no fixed selector name, so you guess one, run <code>dig txt &lt;selector&gt;._domainkey.yourdomain.com</code>, and an <code>NXDOMAIN</code> only proves you guessed wrong, not that DKIM is missing.</td><td>Checks nine common selector names used by major providers in one run and flags a revoked (empty <code>p=</code>) key if it finds one.</td></tr>
+<tr><td>Will BIMI actually display in Gmail or Yahoo?</td><td>Not answerable from the BIMI record alone -- it can look perfectly valid while staying invisible, because display also requires DMARC enforcement at <code>p=quarantine</code>/<code>reject</code> with <code>pct=100</code>. Answering this means reading two separate records and cross-checking them by hand.</td><td>Reads the BIMI record and the DMARC policy together and reports whether enforcement is actually strong enough for BIMI to be honored.</td></tr>
+<tr><td>Re-checking all of the above after a DNS or provider change.</td><td>Several separate dig calls, recomputed and cross-referenced by hand, every time.</td><td>One command, or one page load -- and the identical logic is a zero-dependency CLI you can gate CI on.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A single well-aimed <code>dig txt</code> call is still the fastest way to read a record you
+  already know the name of, and this checker's own lookups are not doing anything <code>dig</code>
+  couldn't -- they are the same kind of DNS queries, just walked recursively through every SPF
+  include, tried against nine DKIM selector names, and cross-checked between BIMI and DMARC,
+  instead of leaving that walking and cross-checking to be done, and remembered, by hand.
+</p>
+<p class="fine">This tool needs no account: the browser page queries Cloudflare's public DNS-over-HTTPS resolver directly from your own browser, and the CLI does the same from your own machine. Neither ever sends the domain you check, or the records read, through this site.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just run dig txt myself?</h3>
+<p>Yes, for the most obvious case: dig txt yourdomain.com will show your top-level SPF record, and dig txt _dmarc.yourdomain.com will show your DMARC policy. For that specific, most-obvious read, one command each is enough. The problem is the other three checks this tool does are not visible in any single dig response -- they only show up when you compare several DNS queries against each other, which is where running dig by hand stops being enough evidence.</p>
+<h3>How do I know which DKIM selector to check?</h3>
+<p>You don't, from DNS alone -- the selector is chosen by whichever provider sends your mail, and there is no single fixed name to dig for. By hand, that means guessing a selector, running dig txt selector._domainkey.yourdomain.com, getting NXDOMAIN, and trying another -- and NXDOMAIN on a guess you invented yourself proves nothing about whether DKIM is actually configured, only that you guessed a name nobody published a key at.</p>
+<h3>Why doesn't a clean top-level SPF record mean SPF actually passes?</h3>
+<p>Because RFC 7208 counts the whole recursive chain, not just your own record. A record with three include: mechanisms looks short in a single dig txt call, but each of those includes can itself contain further include:/redirect= mechanisms, and the 10-DNS-lookup budget is spent across the entire chain. Confirming you're under the limit means recursively dig-ing every nested include and keeping a running total by hand -- skip one level and you can be well over 10 while a single top-level read looks fine.</p>
+<h3>Can I tell from DNS alone whether BIMI will actually display?</h3>
+<p>Not from the BIMI record by itself. A dig txt default._bimi.yourdomain.com can return a perfectly valid-looking record while BIMI stays invisible in Gmail or Yahoo, because both require DMARC enforcement to be strict enough first -- p=quarantine or p=reject at pct=100. Answering "will this display" means reading the BIMI record and the DMARC record separately and cross-checking one against the other, not reading either alone.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual method every developer and admin already has -- running dig (or nslookup, or a browser-based DNS lookup tool) and reading the TXT records by eye. It names no competing product or company. The checker's own browser page and CLI query Cloudflare's public DNS-over-HTTPS resolver directly, never through this site.</p>
+<p class="note">
+  Already comparing this checker to a broader network-diagnostic dashboard? See
+  <a href="./vs-mxtoolbox.html">this checker vs. MXToolbox</a>. For the mechanics of the
+  recursive SPF count itself, see <a href="how-to-fix-spf-too-many-dns-lookups.html">how to fix
+  an SPF PermError from too many DNS lookups</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not email deliverability, security, or DNS configuration advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser or on your own machine. Nothing you check is ever uploaded, and this page makes no live comparison against anything and no network request of any kind -- it is a static page describing a manual method. The checker's own browser page and CLI query Cloudflare's public DNS resolver directly, never through this site. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

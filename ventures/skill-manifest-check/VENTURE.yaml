@@ -1,0 +1,169 @@
+name: skill-manifest-check
+description: Free browser tool that checks one or more pasted SKILL.md files (the frontmatter-plus-Markdown format Claude Code and similar agent systems use for an agent "Skill") for structural authoring mistakes -- missing or malformed YAML frontmatter (name, description), a description too vague or too generic to trigger reliably, overlapping trigger vocabulary between two or more pasted skills, and a rough instruction-body token estimate against a documented context-budget caution. Runs entirely client-side; nothing uploaded, no account, no network call, no AI/LLM call of its own.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# Task brief supplied the niche pre-validated: multiple independent
+# developers were reported in Jan 2026 building ad-hoc "skill linters"
+# because every existing checker wanted a repo upload before it would say a
+# frontmatter field was missing -- the gap is a free, client-side,
+# no-upload version. No further pipeline candidate list was produced, per
+# portfolio/pipeline/README.md's "screening is done" instruction.
+#
+# duplicate_check.py (run this session, both before starting and re-run
+# after reading the portfolio) against "AI agent skill manifest linter:
+# checks a SKILL.md file's YAML frontmatter (name, description) for missing
+# required fields, a trigger description too vague or too broad to fire
+# reliably, overlapping trigger conditions with sibling skills in the same
+# bundle, and instruction body size against a context-budget guideline":
+#
+#   score  source                    label
+#    0.14  venture                   wordpress-plugin-review-check
+#    0.13  venture                   docker-cache-order-check
+#    0.11  venture                   caption-quality-check
+#    0.11  venture                   agent-instructions-drift-check
+#    0.10  venture                   obsidian-plugin-review-check
+#    0.10  venture                   merchant-feed-check
+#    0.10  venture                   ios-privacy-manifest-check
+#    0.09  venture                   pwa-installability-check
+#    0.09  venture                   sitemap-lastmod-freshness-check
+#    0.09  venture                   sql-migration-lock-check
+#
+# Nothing scored >= 0.45 (the review bar). Read the top few anyway per the
+# tool's own instruction, since this is word overlap rather than a semantic
+# check:
+#  - ios-privacy-manifest-check (0.10) checks an iOS app's
+#    PrivacyInfo.xcprivacy manifest against Apple's required-reason API
+#    categories -- a different platform, a different manifest format, and a
+#    compliance-declaration check rather than a trigger-reliability check.
+#    Shares the word "manifest" and nothing else in scope.
+#  - agent-instructions-drift-check (0.11) lints AGENTS.md/CLAUDE.md-style
+#    repo instruction files for stale file references -- a different
+#    object entirely (a project's own agent-instructions doc, not a
+#    SKILL.md capability manifest) and a different failure mode (drift
+#    against the repo tree, not trigger vagueness or frontmatter validity).
+#  - wordpress-plugin-review-check, docker-cache-order-check,
+#    caption-quality-check, obsidian-plugin-review-check, merchant-feed-check,
+#    pwa-installability-check, sitemap-lastmod-freshness-check,
+#    sql-migration-lock-check: all share only the generic "check a pasted
+#    manifest/config for missing fields" shape with an entirely different
+#    subject (a WordPress plugin header, a Dockerfile layer order, video
+#    captions, an Obsidian plugin manifest, a Shopify/Google merchant feed,
+#    a web app manifest, a sitemap's lastmod freshness, a SQL migration's
+#    lock behavior). None reads a SKILL.md, none checks frontmatter
+#    trigger-description vagueness, and none checks cross-file overlap
+#    between sibling manifests.
+#
+# Also checked `git log --oneline -20 origin/main` and open PRs
+# (mcp__github__search_pull_requests, `is:pr is:open skill manifest
+# frontmatter`) for "skill"/"manifest"/"frontmatter": zero PR hits, and the
+# only venture-directory hit for "skill" was ios-privacy-manifest-check
+# above (a different platform and manifest format). No open PR or recent
+# merge builds this niche.
+#
+# LIABILITY CONTAINMENT: every check is a deterministic pattern match
+# against text the user pastes -- no network call of any kind, no call to
+# an LLM to judge the skill, and no claim that a skill actually will or
+# will not trigger inside a real agent session. The UI/README/footer all
+# say plainly that a finding is "worth a look, not a verdict" and a clean
+# result is "not a guarantee the skill will trigger correctly". This
+# mirrors mcp-config-risk-check's and hidden-unicode-check's own liability
+# framing (both graduated earlier this session on the same reasoning): the
+# tool never claims to know the one thing it cannot see (whether the skill
+# actually fires in a real agent runtime), only that a structural pattern
+# was or was not observed in the pasted text.
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying vendor fact (there is no vendor fact in scope at all -- no
+# pricing, no API behavior, no third-party service data). It classifies
+# patterns in exactly the text the user supplies, the same discipline every
+# structural-checker venture in this portfolio uses.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only to
+# help a skill author catch a frontmatter or description mistake before
+# publishing, with no adverse incentive on our side (no affiliate link, no
+# referral fee, donations-only same as the rest of the portfolio). It does
+# not scan, fingerprint, or contact any third-party system, registry, or
+# agent runtime -- it only reads text pasted directly into the page.
+#
+# JUDGMENT CALLS flagged for review:
+#  - The frontmatter parser implements a deliberately minimal YAML subset
+#    (flat key/value pairs, quoted scalars, ">"/"|" block scalars, a bare
+#    indented continuation folded the same way YAML folds a plain
+#    multi-line scalar, and simple "- item" lists) rather than a full YAML
+#    grammar -- no nested mappings, flow collections, anchors, or
+#    multi-document files. A frontmatter block using one of those
+#    unsupported shapes is reported as an "unexpected indentation" or
+#    "could not parse" error rather than silently misread, and this
+#    limitation is stated in the README's "What it is not" framing.
+#  - The description-vagueness heuristics (word-count floor, a fixed list
+#    of trigger-cue regexes, and a distinctive-vocabulary floor after
+#    removing a fixed filler-word list) are pattern-matching against known
+#    failure shapes, not a semantic read of the sentence. A description
+#    that reads well to a human can still trip a heuristic (an unusual but
+#    clear phrasing with no listed cue), and one that clears every
+#    heuristic can still fail to trigger in a real agent session. Stated
+#    plainly in the UI, README, and FAQ rather than presented as
+#    authoritative.
+#  - The overlap check (Jaccard similarity of distinctive-word sets between
+#    two descriptions, threshold 0.3, each side needing at least 3
+#    distinctive words to carry a signal) is a structural vocabulary-overlap
+#    signal, not a claim that two skills actually conflict in a real agent's
+#    dispatch. Two skills can share vocabulary and remain cleanly
+#    distinguishable in practice, and two skills with no shared vocabulary
+#    can still both plausibly match the same request; the UI and README say
+#    so.
+#  - The body-size caution (~4 characters/token estimate, caution at 1500
+#    estimated tokens, a stronger caution at 4000) is a documented reference
+#    point chosen for this tool, not a number published by any vendor as an
+#    enforced limit -- stated as such in the README and never raised above
+#    "low"/"medium" severity, since a long body can be entirely justified by
+#    the skill's job.
+hypotheses:
+  - claim: A skill author who has written or is about to publish a SKILL.md wants the common authoring mistakes (missing frontmatter fields, a vague description, overlap with a sibling skill, an oversized body) flagged before publishing, and currently discovers them only after the skill ships and is observed not to trigger.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Flagging a description as lacking a "trigger cue" (an explicit "use when..." / example phrasing / quoted sample request) correlates with skills that in practice fail to trigger reliably, more than word count alone would predict.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all checks are client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a SKILL.md and get at least one finding within 90 days.
+  - A finding's stated category (missing-field / malformed-name / description-too-short / description-no-trigger-cue / description-too-generic / oversized-body / overlapping-trigger) is wrong for a real SKILL.md a user pastes, and cannot be fixed by tightening a pattern or threshold.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: developer communities actively building and
+  sharing agent Skills as the format has matured through late 2025/early
+  2026 -- r/ClaudeAI, r/LocalLLaMA agent-tooling threads, Anthropic's own
+  developer community/Discord (#skills or equivalent channel), Hacker News
+  "Show HN" threads about Claude Code Skills, and the GitHub topic/search
+  surface for repositories publishing a SKILL.md. Organic search for
+  "SKILL.md linter", "claude skill checker", "agent skill manifest
+  validator", and "skill description not triggering" -- current search
+  terms given the reported pattern of developers independently building
+  ad-hoc linters for this exact gap in January 2026. The mcp-config-risk-check
+  and hidden-unicode-check footer cross-links are themselves a channel: a
+  visitor arriving at either for an agent-tooling structural check is a
+  plausible visitor for this one too, and vice versa.

@@ -1,0 +1,57 @@
+name: business-insurance-policy-reader
+description: >-
+  Free browser tool for small-business owners and contractors: paste a general liability, professional liability or BOP policy and get
+  the limits, deductible, premium and claims-made or occurrence trigger (each with the sentence it came from), a pass or fail against the
+  limits a client contract requires, a renewal calendar with the tail-coverage deadline that downloads as .ics, and the questions to put
+  to a broker (defense costs inside the limit, professional services, subcontractor, contractual liability and cyber exclusions, actual
+  cash value, coinsurance, waiting periods). Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first scheduled session. duplicate_check.py: closest venture 0.30 (coi-expiry-gap-checker, which
+# tracks certificates a contractor COLLECTS from subs; nothing reads the policy the owner BUYS). Sibling of vendor-contract-clause-reader
+# and commercial-lease-abstract-reader (same method, different document).
+#
+# Why this niche: every contractor, consultant and shop owner is asked by clients for "$1M per occurrence / $2M aggregate, additional
+# insured, primary and non-contributory" and gets a 40-page policy back from a broker. Policy-review products (Cover Genius, Corgi,
+# Insureon) sell policies; the owner who already has one has no neutral way to check it against the contract in front of them. A bid lost
+# or a claim denied over a defense-inside-limits or professional-services exclusion is the cost of not checking.
+#
+# First visitor: an owner searching "does my general liability meet contract requirements", "claims-made vs occurrence", "defense costs
+# inside limits", "professional services exclusion general liability". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; later a COI-requirement tracker and broker-question pack behind an env-var
+# switch, and a bring-your-own-key extraction mode for unusual forms (PRODUCT_PLAYBOOK.md section 3). Neither is built.
+#
+# Liability: reads the user's own text with fixed visible rules; shows the source sentence for every value; never says a policy covers or
+# does not cover a loss; carries the no-warranty and not-insurance-advice clauses; lists claim outcomes, adequacy of limits and which
+# policy to buy as not decided.
+#
+# Unverified: no broker or policyholder has run a real policy through it yet. Rules are regular expressions over normalized text, so
+# endorsements, schedules or unusual form wording can be missed. First wrong-extraction report is priority.
+
+hypotheses:
+  - claim: >-
+      A small-business owner handed a client contract with minimum insurance limits will paste their policy into a no-upload page to see
+      whether it meets them and what it excludes, because a failed certificate can cost the job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted policy structure) engage with the tool by 2027-03-15.
+  - A broker or policyholder reports a plain policy whose limits or dates the page mis-reads, at which point the extraction rules need revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/business-insurance-policy-reader/
+  analytics: null

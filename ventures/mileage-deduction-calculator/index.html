@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mileage Deduction Calculator — 2026, Free</title>
+  <meta name="description" content="Free 2026 business mileage deduction calculator for the self-employed: prices your miles at the IRS's split-year rates (72.5 cents through June 30, 76 cents from July 1) and compares standard mileage against actual vehicle expenses. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Mileage Deduction Calculator — free, 2026">
+  <meta property="og:description" content="Standard mileage (72.5c then 76c) versus actual vehicle expenses for a self-employed filer, with parking and tolls. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mileage Deduction Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares the 2026 IRS standard mileage rate (72.5 cents through June 30, 76 cents from July 1) against actual vehicle expenses for a self-employed filer, with parking and tolls. Entirely client-side; nothing is uploaded.","featureList":"split-year 2026 mileage rates, actual-expense business-use share, method comparison, parking and tolls"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 IRS standard mileage rate for business?","acceptedAnswer":{"@type":"Answer","text":"72.5 cents per mile for miles driven January 1 through June 30, 2026, and 76 cents per mile for miles driven July 1 through December 31, 2026. The IRS raised the rate mid-year (Announcement 2026-11) because of higher fuel prices, so you must split your miles into the two periods."}},{"@type":"Question","name":"Can I deduct parking and tolls as well as the standard mileage rate?","acceptedAnswer":{"@type":"Answer","text":"Yes. Business parking fees and tolls are deductible in addition to the standard mileage rate. They are not built into the rate."}},{"@type":"Question","name":"Can I switch between standard mileage and actual expenses?","acceptedAnswer":{"@type":"Answer","text":"Not freely. The standard rate has to be chosen in the first year the car is used for business. It cannot be used if you already claimed MACRS depreciation or a Section 179 election on the vehicle, for a leased car unless it applies for the whole lease, or when you operate five or more vehicles at once."}},{"@type":"Question","name":"How does the actual-expense method work?","acceptedAnswer":{"@type":"Answer","text":"You total the year's vehicle running costs (fuel, insurance, repairs, registration, lease payments or depreciation) and deduct the business-use share, which is business miles divided by total miles driven in the year."}},{"@type":"Question","name":"Is commuting deductible?","acceptedAnswer":{"@type":"Answer","text":"No. Driving between home and a regular workplace is a personal commute. Trips from your principal place of business to a client, job site or supplier generally count, but confirm with IRS guidance or a tax professional."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 IRS figures to the numbers you enter for a self-employed filer. It does not replace IRS Publication 463 or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MILEAGE DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Standard mileage or actual expenses: which deduction is bigger in 2026?</h1>
+    <p>The IRS business rate changed mid-year: <strong>72.5 cents</strong> a mile
+    through June 30 and <strong>76 cents</strong> from July 1. Enter your miles for
+    each half and, optionally, your vehicle's running costs to see which method
+    deducts more.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Business miles</h2>
+    <div class="grid">
+      <div>
+        <label for="miles-h1">Business miles, Jan 1 – Jun 30, 2026</label>
+        <input type="number" id="miles-h1" min="0" step="any" placeholder="e.g. 6000">
+      </div>
+      <div>
+        <label for="miles-h2">Business miles, Jul 1 – Dec 31, 2026</label>
+        <input type="number" id="miles-h2" min="0" step="any" placeholder="e.g. 6500">
+      </div>
+      <div>
+        <label for="parking-tolls">Business parking and tolls ($)</label>
+        <input type="number" id="parking-tolls" min="0" step="any" placeholder="e.g. 240">
+      </div>
+    </div>
+    <p class="note">Parking and tolls are deductible on top of either method.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Actual expenses (optional, for the comparison)</h2>
+    <div class="grid">
+      <div>
+        <label for="total-miles">Total miles driven in 2026, all uses</label>
+        <input type="number" id="total-miles" min="0" step="any" placeholder="e.g. 15000">
+      </div>
+      <div>
+        <label for="vehicle-expenses">Total vehicle costs for the year ($)</label>
+        <input type="number" id="vehicle-expenses" min="0" step="any" placeholder="e.g. 8000">
+      </div>
+    </div>
+    <p class="note">Fuel, insurance, repairs, registration, and lease payments or depreciation. The tool deducts the business-use share: business miles divided by total miles.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your business miles, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Self-employed filers only.</strong> This is a Schedule C business deduction. A W-2 employee cannot deduct unreimbursed vehicle costs, and an employer reimbursement is a different calculation.</li>
+      <li><strong>Depreciation and Section 179 are not modelled.</strong> If you use actual expenses, enter any depreciation or lease cost inside your vehicle-cost total. The depreciation portion built into the standard rate, which lowers the car's tax basis, is not computed here.</li>
+      <li><strong>Medical, moving and charity rates are out of scope.</strong> Those use different rates (charity is a fixed 14 cents).</li>
+      <li><strong>Point-in-time 2026 figures.</strong> The IRS resets these rates each year and changed them mid-year in 2026. Confirm the current figures before relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 IRS standard mileage rate for business?</h3>
+    <p>72.5 cents per mile for miles driven January 1 through June 30, 2026, and 76 cents per mile for miles driven July 1 through December 31, 2026. The IRS raised the rate mid-year (Announcement 2026-11) because of higher fuel prices, so you must split your miles into the two periods.</p>
+    <h3>Can I deduct parking and tolls as well as the standard mileage rate?</h3>
+    <p>Yes. Business parking fees and tolls are deductible in addition to the standard mileage rate. They are not built into the rate.</p>
+    <h3>Can I switch between standard mileage and actual expenses?</h3>
+    <p>Not freely. The standard rate has to be chosen in the first year the car is used for business. It cannot be used if you already claimed MACRS depreciation or a Section 179 election on the vehicle, for a leased car unless it applies for the whole lease, or when you operate five or more vehicles at once.</p>
+    <h3>How does the actual-expense method work?</h3>
+    <p>You total the year's vehicle running costs (fuel, insurance, repairs, registration, lease payments or depreciation) and deduct the business-use share, which is business miles divided by total miles driven in the year.</p>
+    <h3>Is commuting deductible?</h3>
+    <p>No. Driving between home and a regular workplace is a personal commute. Trips from your principal place of business to a client, job site or supplier generally count, but confirm with IRS guidance or a tax professional.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS figures to the numbers you enter for a self-employed filer. It does not replace IRS Publication 463 or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for keeping the records the IRS requires. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deduction_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Paying yourself and planning the year? The <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> shows when the tax on that deduction is due.</p>
+    <p>Paid a flat fee per game as a referee or umpire? The <a href="../sports-official-game-fee-calculator/">referee and umpire pay calculator</a> turns the fee and the drive into pay per hour and season take-home.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { mileageDeductionOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      milesH1: $("#miles-h1"), milesH2: $("#miles-h2"), parking: $("#parking-tolls"),
+      totalMiles: $("#total-miles"), expenses: $("#vehicle-expenses"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const r = mileageDeductionOutcome({
+        milesH1: els.milesH1.value, milesH2: els.milesH2.value, parkingTolls: els.parking.value,
+        totalMiles: els.totalMiles.value, vehicleExpenses: els.expenses.value,
+      });
+      els.stats.innerHTML = r.haveActualInputs
+        ? `Larger 2026 deduction: <strong>${r.better === "standard" ? "standard mileage" : "actual expenses"}</strong>, by ${money(Math.abs(r.difference))}.`
+        : `2026 standard-mileage deduction: <strong>${money(r.standard.total)}</strong>.`;
+      const rows = [
+        `<tr><th scope="row">Business miles (Jan–Jun at 72.5¢ + Jul–Dec at 76¢)</th><td>${money(r.standard.mileage)}</td></tr>`,
+        `<tr><th scope="row">Parking and tolls</th><td>${money(r.standard.parkingTolls)}</td></tr>`,
+        `<tr><th scope="row"><strong>Standard-mileage deduction</strong></th><td><strong>${money(r.standard.total)}</strong></td></tr>`,
+      ];
+      if (r.haveActualInputs) {
+        rows.push(
+          `<tr><th scope="row">Business-use share (business ÷ total miles)</th><td>${(r.actual.businessShare * 100).toFixed(1)}%</td></tr>`,
+          `<tr><th scope="row"><strong>Actual-expense deduction</strong></th><td><strong>${money(r.actual.total)}</strong></td></tr>`);
+      }
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, r.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("deduction_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+    $("#load-example").addEventListener("click", () => {
+      els.milesH1.value = "6000"; els.milesH2.value = "6500"; els.parking.value = "240";
+      els.totalMiles.value = "15000"; els.expenses.value = "8000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: 6,000 + 6,500 business miles, $240 parking and tolls, 15,000 total miles and $8,000 of vehicle costs.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const e of [els.milesH1, els.milesH2, els.parking, els.totalMiles, els.expenses]) e.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter your business miles, then click Calculate.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

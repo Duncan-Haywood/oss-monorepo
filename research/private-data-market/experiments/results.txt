@@ -1,0 +1,41 @@
+E1 expected payment = information: Monte Carlo of realised score gains (1,000,000 runs) vs (1/2)ln(1+tau/a)
+ a=  0.5 sig2=1.0 u=0.0001: sim 0.54899 +- 0.00082  exact 0.54927
+ a=  2.0 sig2=1.0 u=0.5000: sim 0.14372 +- 0.00050  exact 0.14384
+ a=  2.0 sig2=0.2 u=3.0000: sim 0.07182 +- 0.00037  exact 0.07259
+ a= 10.0 sig2=1.0 u=1.0000: sim 0.02406 +- 0.00022  exact 0.02440
+ telescoping over 4 agents: max pathwise |sum of gains - final+initial score| = 1.8e-15, mean total 0.3095 vs exact 0.3076
+
+E2 closed-form best noise vs log-grid search
+ a= 0.50 sig2=1.00 kappa=0.30: closed    1.1616 grid    1.1601  payoff 0.198393 (grid 0.198393)
+ a= 1.00 sig2=0.20 kappa=0.90: closed   12.7692 grid   12.7865  payoff 0.001898 (grid 0.001898)
+ a= 0.10 sig2=2.00 kappa=5.00: closed   15.5440 grid   15.5597  payoff 0.064703 (grid 0.064703)
+ a= 3.00 sig2=0.50 kappa=0.30: closed   12.3048 grid   12.3098  payoff 0.000659 (grid 0.000659)
+ a= 0.05 sig2=0.10 kappa=0.20: closed    0.2773 grid    0.2773  payoff 1.633948 (grid 1.633948)
+
+E3 the cliff: best payoff over a wide noise grid as kappa*a crosses 1 (sig2=1)
+ kappa*a=0.50: closed-form noise 3.34; best grid payoff 2.471e-02
+ kappa*a=0.90: closed-form noise 22.6; best grid payoff 4.791e-04
+ kappa*a=0.99: closed-form noise 239; best grid payoff 4.223e-06
+ kappa*a=1.00: closed-form noise stay out; best grid payoff -2.400e-19
+ kappa*a=1.01: closed-form noise stay out; best grid payoff -1.980e-12
+ kappa*a=1.50: closed-form noise stay out; best grid payoff -6.667e-11
+
+E4 sequential market, identical agents (sig2=1, a0=0.2): precision approaches the cap 1/kappa geometrically
+ kappa=0.1: cap 10.00, final a 9.9996, agents to 50/90/99% of cap [11, 42, 89], ratio 0.952, total pay 1.9560 = 0.5 ln(a/a0), first/10th/50th noise 0.43/2.25/28.9; no-privacy precision 200.2
+ kappa=0.5: cap  2.00, final a 2.0000, agents to 50/90/99% of cap [3, 10, 20], ratio 0.800, total pay 1.1513 = 0.5 ln(a/a0), first/10th/50th noise 1.29/23.42/190598.4; no-privacy precision 200.2
+ kappa=1.0: cap  1.00, final a 1.0000, agents to 50/90/99% of cap [None, None, None], ratio 0.667, total pay 0.8047 = 0.5 ln(a/a0), first/10th/50th noise 2.38/164.70/1841435836.0; no-privacy precision 200.2
+
+E5 welfare: sequential market vs planner with a common noise level (a0=0.2, sig2=1)
+ n=  2 kappa=0.1: market 0.8159  planner 0.8239  loss  1.0%  first-agent noise 0.43 vs planner 0.61
+ n=  2 kappa=0.5: market 0.4714  planner 0.4832  loss  2.5%  first-agent noise 1.29 vs planner 1.96
+ n=  5 kappa=0.1: market 1.0090  planner 1.0518  loss  4.1%  first-agent noise 0.43 vs planner 1.06
+ n=  5 kappa=0.5: market 0.5299  planner 0.5840  loss  9.3%  first-agent noise 1.29 vs planner 3.79
+ n= 20 kappa=0.1: market 1.1481  planner 1.2966  loss 11.5%  first-agent noise 0.43 vs planner 2.81
+ n= 20 kappa=0.5: market 0.5413  planner 0.6646  loss 18.6%  first-agent noise 1.29 vs planner 12.25
+ n=100 kappa=0.1: market 1.1637  planner 1.4222  loss 18.2%  first-agent noise 0.43 vs planner 11.20
+ n=100 kappa=0.5: market 0.5413  planner 0.6934  loss 21.9%  first-agent noise 1.29 vs planner 56.69
+
+E6 order effects with heterogeneous data (n_i samples: sig2=1/n_i, kappa=4/n_i^2, a0=0.05)
+ small first: final a 34.152, participants 6, total pay 3.263
+ large first: final a 27.974, participants 2, total pay 3.164
+ random orders (200): mean 30.557, min 27.974, max 34.038; no-privacy precision 63.0

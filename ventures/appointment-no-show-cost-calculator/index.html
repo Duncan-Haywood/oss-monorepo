@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Appointment No-Show Cost Calculator — Free</title>
+  <meta name="description" content="Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels, cost after refills, best overbooking level from an exact binomial model, break-even no-show fee and reminder price. Nothing uploaded.">
+  <meta property="og:title" content="What do no-shows cost your practice? Free calculator">
+  <meta property="og:description" content="Annual cost of no-shows and late cancels, best overbooking level, break-even fee and reminder price. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M9 5h2v3h10V5h2v3h2v19H7V8h2zm0 8v12h14V13zm3 3 3 3 5-6 1.4 1.4-6.4 7.6-4.4-4.4z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Appointment No-Show Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimate what no-shows and late cancellations cost a small appointment practice each year, net of refilled slots and collected fees, find the best overbooking level from an exact binomial model of arrivals, and see the break-even no-show fee and reminder price. Runs in your browser; nothing is uploaded.","featureList":"Annual revenue lost to no-shows, cost net of refills, best overbooking level, break-even no-show fee, break-even reminder price, sensitivity grid"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much do no-shows cost a small practice?","acceptedAnswer":{"@type":"Answer","text":"Multiply your scheduled slots per year by your no-show and late-cancel rates and by the revenue of a visit, then take off the slots you manage to refill and any fees you actually collect. The calculator shows each step so you can see which one moves the total most."}},{"@type":"Question","name":"How many extra patients should I book per day?","acceptedAnswer":{"@type":"Answer","text":"The calculator treats every booked patient as arriving or not, with the probability that matches your no-show and late-cancel rates, and finds the number of extra bookings with the best expected value after the cost you assign to a patient who has to wait or be rescheduled. It also shows how likely an over-full day is at each level."}},{"@type":"Question","name":"What no-show fee breaks even?","acceptedAnswer":{"@type":"Answer","text":"It is the fee per no-show or late cancel at which the fees you collect equal what the empty slots cost after refills, given how often a charged fee is actually paid. Below it a fee reduces the loss; at it the fees cover the loss in full."}},{"@type":"Question","name":"Are text reminders worth paying for?","acceptedAnswer":{"@type":"Answer","text":"Enter what a reminder costs per scheduled visit and how much of your no-show rate you expect it to remove. The calculator shows the yearly saving, the cost and the highest price per visit at which reminders still pay for themselves."}},{"@type":"Question","name":"Is this billing, legal or clinical advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not say whether a fee or deposit is allowed where you practise or under your payer contracts, and it makes no clinical judgement about any patient. Its defaults are placeholders."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">APPOINTMENT NO-SHOW COST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do no-shows and late cancels cost your practice?</h1>
+    <p>Enter your schedule, your typical visit revenue and your no-show and late-cancel rates. It shows the yearly cost before and after refills and fees, the number of extra bookings per day that works best, the no-show fee that breaks even, and the most a reminder service can cost and still pay.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your schedule</h2>
+      <div class="grid">
+        <div><label for="slotsPerDay">Appointment slots per day</label><input id="slotsPerDay" type="number" step="any" value="0"></div>
+        <div><label for="daysPerWeek">Days open per week</label><input id="daysPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="weeksPerYear">Weeks open per year</label><input id="weeksPerYear" type="number" step="any" value="0"></div>
+        <div><label for="revenuePerVisit">Average revenue per visit ($)</label><input id="revenuePerVisit" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Empty slots and refills</h2>
+      <div class="grid">
+        <div><label for="noShowPct">No-show rate (% of slots), without reminders</label><input id="noShowPct" type="number" step="any" value="0"></div>
+        <div><label for="lateCancelPct">Late-cancel rate (% of slots)</label><input id="lateCancelPct" type="number" step="any" value="0"></div>
+        <div><label for="refillNoShowPct">Share of no-show slots you refill (%)</label><input id="refillNoShowPct" type="number" step="any" value="0"></div>
+        <div><label for="refillLateCancelPct">Share of late-cancel slots you refill (%)</label><input id="refillLateCancelPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Fees and reminders</h2>
+      <div class="grid">
+        <div><label for="feeAmount">No-show fee or forfeited deposit ($, 0 if none)</label><input id="feeAmount" type="number" step="any" value="0"></div>
+        <div><label for="feeCollectPct">Share of charged fees you actually collect (%)</label><input id="feeCollectPct" type="number" step="any" value="0"></div>
+        <div><label for="reminderCostPerVisit">Reminder cost per scheduled visit ($)</label><input id="reminderCostPerVisit" type="number" step="any" value="0"></div>
+        <div><label for="reminderCutPct">How much reminders cut the no-show rate (%)</label><input id="reminderCutPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Overbooking</h2>
+      <div class="grid">
+        <div><label for="overbookSlots">Extra patients you book per day now</label><input id="overbookSlots" type="number" step="any" value="0"></div>
+        <div><label for="overflowCost">Cost of each patient who arrives to a full day ($)</label><input id="overflowCost" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out the cost</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much do no-shows cost a small practice?</h3>
+      <p>Multiply your scheduled slots per year by your no-show and late-cancel rates and by the revenue of a visit, then take off the slots you manage to refill and any fees you actually collect. The calculator shows each step so you can see which one moves the total most.</p>
+      <h3>How many extra patients should I book per day?</h3>
+      <p>The calculator treats every booked patient as arriving or not, with the probability that matches your no-show and late-cancel rates, and finds the number of extra bookings with the best expected value after the cost you assign to a patient who has to wait or be rescheduled. It also shows how likely an over-full day is at each level.</p>
+      <h3>What no-show fee breaks even?</h3>
+      <p>It is the fee per no-show or late cancel at which the fees you collect equal what the empty slots cost after refills, given how often a charged fee is actually paid. Below it a fee reduces the loss; at it the fees cover the loss in full.</p>
+      <h3>Are text reminders worth paying for?</h3>
+      <p>Enter what a reminder costs per scheduled visit and how much of your no-show rate you expect it to remove. The calculator shows the yearly saving, the cost and the highest price per visit at which reminders still pay for themselves.</p>
+      <h3>Is this billing, legal or clinical advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not say whether a fee or deposit is allowed where you practise or under your payer contracts, and it makes no clinical judgement about any patient. Its defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you may charge a no-show fee or hold a deposit, how it must be disclosed, what your payer contracts or professional board allow, how to treat patients who miss for medical reasons, and which patients to double-book. The overbooking model assumes each booking arrives independently with the same probability and ignores refills on the day, so real days that cluster (weather, flu season) will be worse than it shows. The defaults are placeholders, not a benchmark and not a measurement: use your own schedule history.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> (reads your booking export), the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> (daily history and clustering), the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>, the <a href="../no-show-fee-calculator/">no-show fee calculator</a> the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> the <a href="../optical-dispensary-margin-calculator/">optical dispensary margin calculator</a> and the <a href="../veterinary-wellness-plan-pricing-calculator/">veterinary wellness plan pricing calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, clinical, legal, tax, billing, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any consumer, payer, professional-board or disclosure rule that applies to a fee, deposit or overbooking policy. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no patient information is asked for or needed. Anonymous feature events (<code>cost_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, annual, breakevenFee, reminderEffect, breakevenReminderPrice, bestOverbooking, sensitivity } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const int = (x) => Math.round(x).toLocaleString("en-US");
+    const pct1 = (x) => (x * 100).toFixed(1) + "%";
+    function run() {
+      const o = opts();
+      if (!(o.slotsPerDay > 0) || !(o.daysPerWeek > 0) || !(o.weeksPerYear > 0) || !(o.revenuePerVisit > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter slots per day, days, weeks and a revenue per visit above zero.</div>'; $("out").hidden = false; return; }
+      const a = annual(o);
+      let h = "";
+      h += `<div class="finding"><h4>What empty slots cost in a year</h4><p class="stats"><strong>${money(a.grossNoShow)}</strong> of revenue lost to no-shows (${int(a.noShows)} visits) and <strong>${money(a.grossLateCancel)}</strong> to late cancels (${int(a.lateCancels)} visits), out of ${int(a.slots)} scheduled slots. After the slots you refill (${money(a.refilledRevenue)} earned back) the cost is <strong>${money(a.costAfterRefills)}</strong>${a.feesCollected > 0 ? `, and after the ${money(a.feesCollected)} in fees you collect it is <strong>${money(a.netCost)}</strong>` : ""}.</p></div>`;
+      const bf = breakevenFee(o);
+      h += `<div class="finding"><h4>Break-even no-show fee</h4><p>${bf === null ? "There is no break-even fee: either nothing is lost after refills or no charged fee would be collected." : `Charging <strong>${money2(bf)}</strong> per no-show or late cancel would recover the whole ${money(a.costAfterRefills)} cost after refills, at your ${o.feeCollectPct}% collection rate. You entered ${money2(o.feeAmount)}, which recovers ${money(a.feesCollected)}. This is a number to think with, not a fee to charge: whether a fee or deposit is permitted is for you and your advisor.`}</p></div>`;
+      const r = reminderEffect(o), bp = breakevenReminderPrice(o);
+      h += `<div class="finding"><h4>Reminders</h4><p>If reminders cut your no-show rate by ${o.reminderCutPct}%, about <strong>${int(r.avoidedNoShows)}</strong> fewer no-shows a year is worth <strong>${money(r.benefit)}</strong> against a programme cost of ${money(r.programCost)}: <strong>${r.net >= 0 ? money(r.net) + " ahead" : money(-r.net) + " behind"}</strong>. Break-even price: <strong>${bp === null ? "n/a" : money2(bp)}</strong> per scheduled visit (you entered ${money2(o.reminderCostPerVisit)}).</p></div>`;
+      const b = bestOverbooking(o);
+      h += `<div class="finding"><h4>Best overbooking level</h4><p>Booking <strong>${b.best.extra}</strong> extra ${b.best.extra === 1 ? "patient" : "patients"} per day on top of ${int(o.slotsPerDay)} slots has the best expected value, <strong>${money(b.annualGainVsNone)}</strong> a year more than none. On such a day the chance more patients arrive than you have slots is ${pct1(b.best.probOverflow)}, with ${b.best.expectedOverflow.toFixed(2)} patients expected to wait and ${b.best.expectedLostSlots.toFixed(2)} empty slots left. You book ${int(o.overbookSlots)} extra now: the best level is ${money(b.annualGainVsCurrent)} a year ${b.annualGainVsCurrent >= 0 ? "better" : "worse"}.</p>${table(["Extra booked", "Expected seen", "Expected waiting", "Empty slots", "Chance of overflow", "Value per day"], b.rows.map((x) => [x.extra, x.expectedSeen.toFixed(2), x.expectedOverflow.toFixed(2), x.expectedLostSlots.toFixed(2), pct1(x.probOverflow), money(x.dailyValue)]))}<p class="note">Exact binomial arrivals with a ${pct1(b.best.showProb)} chance each booked patient comes. Value per day is revenue from patients seen less your cost per overflow patient; refills on the day are ignored.</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>If the no-show rate or the fee changes: yearly cost after refills and fees</h4>${table(["No-show rate \\ Fee", ...g[0].cells.map((c) => money2(c.fee))], g.map((row) => [row.noShowPct.toFixed(1) + "%", ...row.cells.map((c) => money(c.netCost))]))}<p class="note">Negative means the fees you collect would exceed the cost of the empty slots.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("cost_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

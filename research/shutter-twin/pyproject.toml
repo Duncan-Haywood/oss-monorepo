@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shutter-twin"
+version = "0.1.0"
+description = "Global-shutter twin of a rolling-shutter camera: a moving rectangle is sheared and stretched exactly (n_y, m_y closed forms), a twin-trained orientation estimator is biased by the target speed, and the same frame identifies pose and velocity"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

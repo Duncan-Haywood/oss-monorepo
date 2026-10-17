@@ -1,0 +1,25 @@
+E1 expected calibration error of the information-free hedger (mean of 20 runs)
+  K   T      ECE adaptive   ECE iid(0.7)   worst-case bound
+ 10  250    0.0663         0.0979         0.376
+ 10  1000   0.0248         0.0578         0.271
+ 10  4000   0.0104         0.0400         0.218
+ 20  250    0.0940         0.1096         0.404
+ 20  1000   0.0316         0.0567         0.259
+ 20  4000   0.0119         0.0350         0.187
+
+E2 skill: Brier score of hedger vs informed verifier vs base-rate forecaster, K=10, T=2000
+  outcome sequence     hedger Brier   informed Brier   base-rate Brier   hedger ECE
+  adaptive adversary   0.2542         0.0000           0.2499            0.0159
+  iid Bernoulli(0.7)   0.2187         0.2100           0.2101            0.0518
+
+E3 a calibration slashing test 'slash if ECE > eps' at T=2000, K=10: share of runs that PASS
+  eps    hedger (adaptive outcomes)   constant-0.5 forecaster
+ 0.05   1.00                         0.00
+ 0.1    1.00                         0.00
+ 0.2    1.00                         0.00
+
+E4 rounds for the worst-case bound to fall below eps (K=50) and the power of a Brier-gap test against the hedger
+ eps=0.2: T >= 3085
+ eps=0.15: T >= 8259
+ eps=0.1: T >= 62413
+ Brier gap to an informed benchmark at T=500: min 0.261, mean 0.262 (a gap test with margin 0.1 detects 100/100)

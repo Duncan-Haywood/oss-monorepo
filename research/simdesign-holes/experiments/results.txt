@@ -1,0 +1,113 @@
+1. Net-section stress concentration Kt_net from FE (W = 30 mm, steel properties; linear model, so material-independent)
+   d/W    n_hole=48  96    192   384   |  fit(*)  |  Kirsch limit 3
+   0.05   2.731  2.789  2.823  2.840   |  2.852
+   0.10   2.611  2.666  2.698  2.715   |  2.721
+   0.20   2.408  2.459  2.490  2.505   |  2.506
+   0.40   2.137  1.970  2.217  2.232   |  2.233
+   0.60   1.992  2.054  2.090  2.108   |  2.106
+   0.80   1.830  1.944  2.004  2.032   |  2.053
+   (*) polynomial fit as recalled from the literature for a hole in a finite-width strip; coefficients NOT re-checked against the source
+
+2. Lightest plate for a required hole d; load 1000 N, length 100 mm, width at most 60 mm. Utilisation = FE peak stress / working stress (>1 fails)
+   FDM (plastic)
+     d    model         W      t     mass(g)  binding         util(FE)
+      4  net section   45.67  1.20     6.78  stress           2.73
+      4  Kt = 3        59.56  2.70    19.90  stress           0.93
+      4  FE            59.57  2.50    18.43  stress           1.00
+      6  net section   47.67  1.20     7.05  stress           2.64
+      6  Kt = 3        59.57  2.80    20.59  stress           0.90
+      6  FE            59.96  2.50    18.50  stress           1.00
+      8  net section   49.67  1.20     7.32  stress           2.56
+      8  Kt = 3        59.72  2.90    21.30  stress           0.87
+      8  FE            58.28  2.60    18.63  stress           1.00
+     10  net section   51.67  1.20     7.57  stress           2.50
+     10  Kt = 3        60.00  3.00    22.03  stress           0.85
+     10  FE            59.00  2.60    18.77  stress           1.00
+     12  net section   53.67  1.20     7.82  stress           2.45
+     12  Kt = 3        58.88  3.20    22.91  stress           0.83
+     12  FE            59.87  2.60    18.94  stress           1.00
+     16  net section   57.67  1.20     8.28  stress           2.36
+     16  Kt = 3        58.86  3.50    24.67  stress           0.79
+     16  FE            58.27  2.80    19.53  stress           1.00
+   CNC routing (aluminium plate)
+     d    model         W      t     mass(g)  binding         util(FE)
+      4  net section   infeasible: hole 4 mm below process minimum 6.35 mm
+      4  Kt = 3        infeasible: hole 4 mm below process minimum 6.35 mm
+      4  FE            infeasible: hole 4 mm below process minimum 6.35 mm
+      6  net section   infeasible: hole 6 mm below process minimum 6.35 mm
+      6  Kt = 3        infeasible: hole 6 mm below process minimum 6.35 mm
+      6  FE            infeasible: hole 6 mm below process minimum 6.35 mm
+      8  net section   24.00  3.00    19.03  centre-to-edge   0.48
+      8  Kt = 3        24.00  3.00    19.03  centre-to-edge   0.48
+      8  FE            24.00  3.00    19.03  centre-to-edge   0.48
+     10  net section   30.00  3.00    23.66  centre-to-edge   0.38
+     10  Kt = 3        30.00  3.00    23.66  centre-to-edge   0.38
+     10  FE            30.00  3.00    23.66  centre-to-edge   0.38
+     12  net section   36.00  3.00    28.24  centre-to-edge   0.32
+     12  Kt = 3        36.00  3.00    28.24  centre-to-edge   0.32
+     12  FE            36.00  3.00    28.24  centre-to-edge   0.32
+     16  net section   48.00  3.00    37.25  centre-to-edge   0.24
+     16  Kt = 3        48.00  3.00    37.25  centre-to-edge   0.24
+     16  FE            48.00  3.00    37.25  centre-to-edge   0.24
+   laser cutting (steel sheet)
+     d    model         W      t     mass(g)  binding         util(FE)
+      4  net section   12.00  1.50    13.98  centre-to-edge   1.91
+      4  Kt = 3        24.00  1.50    28.11  stress           0.85
+      4  FE            20.68  1.50    24.20  stress           1.00
+      6  net section   18.00  1.50    20.86  centre-to-edge   1.27
+      6  Kt = 3        26.00  1.50    30.28  stress           0.81
+      6  FE            21.77  1.50    25.30  stress           1.00
+      8  net section   24.00  1.50    27.67  centre-to-edge   0.95
+      8  Kt = 3        28.00  1.50    32.38  stress           0.78
+      8  FE            24.00  1.50    27.67  centre-to-edge   0.95
+     10  net section   30.00  1.50    34.40  centre-to-edge   0.76
+     10  Kt = 3        30.00  1.50    34.40  stress           0.76
+     10  FE            30.00  1.50    34.40  centre-to-edge   0.76
+     12  net section   36.00  1.50    41.06  centre-to-edge   0.64
+     12  Kt = 3        36.00  1.50    41.06  centre-to-edge   0.64
+     12  FE            36.00  1.50    41.06  centre-to-edge   0.64
+     16  net section   48.00  1.50    54.15  centre-to-edge   0.48
+     16  Kt = 3        48.00  1.50    54.15  centre-to-edge   0.48
+     16  FE            48.00  1.50    54.15  centre-to-edge   0.48
+   casting (cast aluminium)
+     d    model         W      t     mass(g)  binding         util(FE)
+      4  net section   infeasible: hole 4 mm below process minimum 6.0 mm
+      4  Kt = 3        infeasible: hole 4 mm below process minimum 6.0 mm
+      4  FE            infeasible: hole 4 mm below process minimum 6.0 mm
+      6  net section   24.00  3.00    19.07  centre-to-edge   0.89
+      6  Kt = 3        26.00  3.00    20.68  stress           0.81
+      6  FE            24.00  3.00    19.07  centre-to-edge   0.89
+      8  net section   32.00  3.00    25.32  centre-to-edge   0.67
+      8  Kt = 3        32.00  3.00    25.32  centre-to-edge   0.67
+      8  FE            32.00  3.00    25.32  centre-to-edge   0.67
+     10  net section   40.00  3.00    31.53  centre-to-edge   0.53
+     10  Kt = 3        40.00  3.00    31.53  centre-to-edge   0.53
+     10  FE            40.00  3.00    31.53  centre-to-edge   0.53
+     12  net section   48.00  3.00    37.68  centre-to-edge   0.45
+     12  Kt = 3        48.00  3.00    37.68  centre-to-edge   0.45
+     12  FE            48.00  3.00    37.68  centre-to-edge   0.45
+     16  net section   infeasible: no thickness fits
+     16  Kt = 3        infeasible: no thickness fits
+     16  FE            infeasible: no thickness fits
+
+3. Mass price of hole rules (FE stress model): mass with process rules / mass with only the shared guards (same material)
+   FDM            d= 6   18.50 /  18.50 = 1.000   binding: stress
+   FDM            d= 8   18.63 /  18.63 = 1.000   binding: stress
+   FDM            d=10   18.77 /  18.77 = 1.000   binding: stress
+   FDM            d=12   18.94 /  18.94 = 1.000   binding: stress
+   FDM            d=16   19.53 /  19.53 = 1.000   binding: stress
+   CNC routing    d= 6  infeasible (hole 6 mm below process minimum 6.35 mm)
+   CNC routing    d= 8   19.03 /   8.76 = 2.173   binding: centre-to-edge
+   CNC routing    d=10   23.66 /   9.13 = 2.593   binding: centre-to-edge
+   CNC routing    d=12   28.24 /   9.53 = 2.965   binding: centre-to-edge
+   CNC routing    d=16   37.25 /  10.36 = 3.594   binding: centre-to-edge
+   laser cutting  d= 6   25.30 /  24.55 = 1.031   binding: stress
+   laser cutting  d= 8   27.67 /  25.47 = 1.086   binding: centre-to-edge
+   laser cutting  d=10   34.40 /  26.53 = 1.296   binding: centre-to-edge
+   laser cutting  d=12   41.06 /  27.70 = 1.482   binding: centre-to-edge
+   laser cutting  d=16   54.15 /  30.13 = 1.797   binding: centre-to-edge
+   casting        d= 6   19.07 /  16.06 = 1.187   binding: centre-to-edge
+   casting        d= 8   25.32 /  16.20 = 1.563   binding: centre-to-edge
+   casting        d=10   31.53 /  16.37 = 1.925   binding: centre-to-edge
+   casting        d=12   37.68 /  16.58 = 2.273   binding: centre-to-edge
+   casting        d=16  infeasible (no thickness fits)

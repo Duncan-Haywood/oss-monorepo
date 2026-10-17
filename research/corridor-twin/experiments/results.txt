@@ -1,0 +1,32 @@
+Corridor twin: 2D lidar (360 rays, range noise sigma=0.02 m), point-to-line scan matching, pose=(x,y,theta)
+corridor width 2 m; door-frame stubs 0.3 m deep on both walls at the given spacing; 'room' = 20 m square (the well-featured twin)
+
+== 1. Information and accuracy at the true pose: exact sandwich covariance vs Monte Carlo ICP (200 scans, start 0.05 m off along track) ==
+  scene          lam_min   lam_max    cond      sd_x exact   sd_x MC    sd_y exact  sd_y MC    sd_th exact  sd_th MC   x-sd vs room
+  room           178.9     9914       55.4      0.00135     0.00129    0.001355    0.001310   0.0001642    0.0001741  1.0x
+  corridor none  information matrix exactly singular (x column is zero); MC sd_x = 0.00e+00, mean x error = 0.0500 (= the start error: the scan returns the initial guess); sd_y 0.000768 sd_th 0.0000413
+  corridor 20 m  6         5116       853       0.00814     0.00725    0.000775    0.000780   0.0000519    0.0000494  6.0x
+  corridor 10 m  10        3000       300       0.00631     0.00619    0.000784    0.000791   0.0000883    0.0000905  4.7x
+  corridor 5 m   25.98     1935       74.5      0.00389     0.00425    0.000820    0.000795   0.0001352    0.0001349  2.9x
+  corridor 2 m   76.15     560.9      7.37      0.00220     0.00242    0.000951    0.000995   0.0004490    0.0003572  1.6x
+
+== 2. Basin of convergence: corridor with stubs every 10 m, ICP started `off` m behind the true x (100 scans) ==
+  off    mean x err   sd x err    fraction |x err| > 0.05 m
+  0      0.0018       0.0067      0.00
+  0.05   0.0020       0.0069      0.00
+  0.1    0.0020       0.0069      0.00
+  0.2    0.0020       0.0069      0.00
+  0.3    0.1306       0.1489      0.43
+  0.5    0.4993       0.0137      1.00
+  1      1.0006       0.0080      1.00
+
+== 3. Kalman filter on x fed by scan-matching x; 60 m corridor, stubs every 5 m except a featureless span 15-45 m (no stub within 10 m of x in 20-40, the 'blind' span); lidar range 10 m, 180 rays ==
+  twin measurement sd (10 m room, same sensor) = 0.00192 m, used at every step; 'real' filter uses the exact sandwich sd and skips an unobservable scan
+  runs per row = 40, 100 steps of 0.5 m; NEES = mean of err^2/P over the steps in each zone (consistent filter: about 1)
+  odo sd   filter   NEES x<20   NEES 20-40 (blind)      NEES x>40   RMSE at blind exit (x=40)   RMSE at end   mean claimed sd in blind span (m)
+  0.01     odo      1.05        1.21                       1.31        0.0892                    0.1165        0.0702
+  0.01     twin     22.91       431.54                     77.66       0.0606                    0.0054        0.0019
+  0.01     real     1.17        0.75                       2.23        0.0578                    0.0048        0.0448
+  0.02     odo      1.05        1.21                       1.31        0.1785                    0.2330        0.1404
+  0.02     twin     23.51       1535.44                    388.05      0.1173                    0.0056        0.0019
+  0.02     real     1.14        0.75                       8.27        0.1153                    0.0053        0.0873

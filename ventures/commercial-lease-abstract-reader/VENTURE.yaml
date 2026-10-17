@@ -1,0 +1,57 @@
+name: commercial-lease-abstract-reader
+description: >-
+  Free browser tool for small-business tenants, brokers and property managers: paste a commercial lease and get the key terms
+  (dates, base rent, escalation, deposit, renewal option and notice deadline, holdover, late charge), each shown with the
+  sentence it came from, a dated calendar of rent step-ups and the renewal-notice deadline that downloads as .ics, the
+  year-by-year rent schedule with free rent applied, and the clauses to negotiate (personal guaranty, uncapped NNN
+  pass-throughs, 200% holdover, landlord relocation, assignment consent at sole discretion, acceleration). Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a new-venture-first scheduled session. duplicate_check.py: closest venture 0.20
+# (commercial-lease-effective-rent-calculator, which compares offers the user already typed in; nothing reads lease text).
+#
+# Why this niche: lease abstracting is a paid back-office service (abstractors charge per lease; Visual Lease, LeaseQuery and
+# Occupier sell enterprise portfolios) and the small tenant or one-off landlord with a single 40-page lease has no tool at all.
+# Missing a renewal-option notice date forfeits the option and lets the landlord reprice, so the deadline calendar is the hook.
+#
+# First visitor: a small-business owner searching "commercial lease abstract template", "how to read a commercial lease",
+# "lease renewal option notice deadline", "NNN lease red flags", or a broker's junior staffer building an abstract. Volume not
+# measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; the paid version is multi-lease portfolio tracking with reminders and
+# redline-ready counter-wording behind an env-var switch; not built. A bring-your-own-key model extraction mode for
+# scanned or unusually worded leases fits the API-key switch in PRODUCT_PLAYBOOK.md section 3; not built.
+#
+# Liability: reads the user's own text with fixed visible rules; shows the source sentence for every extracted value; never says a
+# lease is safe or fair; carries the no-warranty and not-legal-advice clauses; lists enforceability, fairness and the decision
+# to sign as not decided.
+#
+# Unverified: no tenant, broker or attorney has run a real lease through it yet. Rules are regular expressions over normalized
+# text, so unusual wording can be missed and a benign clause flagged. First wrong-extraction report is priority.
+
+hypotheses:
+  - claim: >-
+      A small tenant handed a commercial lease will paste it into a no-upload page to get the renewal deadline and the clauses to
+      push back on, because one missed notice date or personal guaranty costs more than the tenant's lawyer's hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted lease structure) engage with the tool by 2027-03-15.
+  - A tenant, broker or attorney reports a plain lease whose dates or rent the page mis-reads, at which point the extraction rules need revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/commercial-lease-abstract-reader/
+  analytics: null

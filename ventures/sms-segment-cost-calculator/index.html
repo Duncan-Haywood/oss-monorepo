@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SMS Segment Cost Calculator — Count Segments, Find the Character That Costs You</title>
+  <meta name="description" content="Paste a text message to see whether it is GSM-7 or UCS-2, how many segments it bills as, what it costs per month at your volume, and which curly quote or emoji to swap to cut the bill. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Why does this text bill as 3 segments?">
+  <meta property="og:description" content="Paste a message, see its segments and monthly cost, and the one character that is inflating it. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SMS Segment Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a text message to see its encoding (GSM-7 or UCS-2), segment count and monthly cost at your volume, and which characters to swap to cut the bill."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my message uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The message is counted in your own browser and never sent. There is no account and no server call."}}, {"@type": "Question", "name": "Why did one apostrophe triple my SMS cost?", "acceptedAnswer": {"@type": "Answer", "text": "A text is billed per segment. Plain GSM-7 text fits 160 characters in one segment (153 each once split). A single character outside that set, such as a curly apostrophe, a long dash or an emoji, forces the whole message into UCS-2, which fits only 70 characters (67 each once split)."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate US long-code list prices as best known in 2025 and every one is editable. Carrier surcharges and 10DLC fees vary by provider and traffic type, so check your provider's pricing page before relying on a number."}}, {"@type": "Question", "name": "Does it work for Twilio, Telnyx, Plivo and others?", "acceptedAnswer": {"@type": "Answer", "text": "The segment counting follows the GSM 03.38 and UCS-2 rules that all of them bill by, so the counts apply across providers. Enter your own per-segment price to match your provider."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SMS SEGMENT COST CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Why does this text bill as 3 segments?</h1>
+    <p>Paste a message. See its <strong>encoding, segment count and monthly cost</strong> at your volume, and the <strong>exact characters</strong> (curly quotes, long dashes, emoji) that push it from 1 segment to 3.</p>
+    <p class="note">Nothing is uploaded. Counted in this browser using the GSM 03.38 and UCS-2 rules; prices are approximate and editable.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your message and volume</h2>
+    <label for="msg">Message text</label>
+    <textarea id="msg" spellcheck="false" placeholder="Hi Sam, your appointment is tomorrow at 3pm. Reply C to confirm."></textarea>
+    <div class="grid">
+      <div><label for="vol">Messages sent per month</label><input type="number" id="vol" min="0" value="10000"></div>
+      <div><label for="nums">Phone numbers</label><input type="number" id="nums" min="0" value="1"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Count and price</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Result</h2>
+    <p id="summary"></p>
+    <table><tbody id="stats"></tbody></table>
+    <h3>Cut the bill</h3>
+    <table id="opt-table" hidden><thead><tr><th>Change</th><th>New segments</th><th>Saves per month</th></tr></thead><tbody id="opt-rows"></tbody></table>
+    <label for="fixed" id="fixed-label" hidden>Message with look-alike characters swapped</label>
+    <textarea id="fixed" readonly hidden></textarea>
+    <p class="note" id="estimate"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prices (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <div class="grid">
+      <div><label for="p-perSegment">Price per segment (USD)</label><input type="number" step="0.0001" min="0" id="p-perSegment"></div>
+      <div><label for="p-carrierSurcharge">Carrier surcharge per segment (USD)</label><input type="number" step="0.0001" min="0" id="p-carrierSurcharge"></div>
+      <div><label for="p-numberMonthly">Number rental per month (USD)</label><input type="number" step="0.01" min="0" id="p-numberMonthly"></div>
+      <div><label for="p-campaignMonthly">10DLC campaign fee per month (USD)</label><input type="number" step="0.01" min="0" id="p-campaignMonthly"></div>
+    </div>
+    <p class="note">Check your provider's pricing page (Twilio, Telnyx, Plivo and others bill by the same segment rules).</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is my message uploaded anywhere?</h3>
+    <p>No. The message is counted in your own browser and never sent. There is no account and no server call.</p>
+    <h3>Why did one apostrophe triple my SMS cost?</h3>
+    <p>A text is billed per segment. Plain GSM-7 text fits 160 characters in one segment (153 each once split). A single character outside that set, such as a curly apostrophe, a long dash or an emoji, forces the whole message into UCS-2, which fits only 70 characters (67 each once split).</p>
+    <h3>Where do the prices come from?</h3>
+    <p>They are approximate US long-code list prices as best known in 2025 and every one is editable. Carrier surcharges and 10DLC fees vary by provider and traffic type, so check your provider's pricing page before relying on a number.</p>
+    <h3>Does it work for Twilio, Telnyx, Plivo and others?</h3>
+    <p>The segment counting follows the GSM 03.38 and UCS-2 rules that all of them bill by, so the counts apply across providers. Enter your own per-segment price to match your provider.</p>
+    <p class="note">More: <a href="why-does-my-text-bill-as-multiple-segments.html">why does my text bill as multiple segments</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or telecom-compliance advice. It applies published encoding rules and list prices that may be out of date, and it is not a guarantee of what any provider will charge; messaging rules such as consent and opt-out (TCPA, 10DLC) are your responsibility. You are responsible for verifying its output. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Twilio and other names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../vercel-bill-estimator/">Vercel Bill Estimator</a> and <a href="../supabase-bill-estimator/">Supabase Bill Estimator</a> rank the levers on a developer-platform invoice.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { savingsOptions, DEFAULT_PRICES, PRICES_AS_OF, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const show = (ch) => "U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0") + " " + ch;
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+    for (const [k, v] of Object.entries(DEFAULT_PRICES)) $("#p-" + k).value = v;
+    const EXAMPLE = "Your table is ready \u2013 we\u2019ll hold it for 10 minutes. Reply STOP to opt out. Thanks for choosing us, see you very soon at the restaurant!";
+
+    function render() {
+      const text = $("#msg").value;
+      if (!text) { $("#status").innerHTML = '<span class="error">Paste a message first (or load the worked example).</span>'; return; }
+      $("#status").textContent = "";
+      const prices = {};
+      for (const k of Object.keys(DEFAULT_PRICES)) prices[k] = Number($("#p-" + k).value) || 0;
+      const volume = { messagesPerMonth: Number($("#vol").value) || 0, numbers: Number($("#nums").value) || 0, campaigns: 1 };
+      const r = savingsOptions(text, volume, prices);
+      const n = r.now;
+      $("#summary").innerHTML = `<span class="${n.encoding === "UCS-2" ? "changed" : "ok"}">${n.encoding}: ${n.segments} segment${n.segments === 1 ? "" : "s"}, about ${fmt(r.base.total)} per month at ${volume.messagesPerMonth.toLocaleString("en-US")} messages.</span>`;
+      const rows = [
+        ["Encoding", n.encoding],
+        ["Length", `${n.characters} characters = ${n.units} ${n.encoding === "GSM-7" ? "septets" : "UTF-16 units"}`],
+        ["Segments", `${n.segments} (${n.perSegment} per segment${n.segments > 1 ? ", split" : ""})`],
+        ["Room left in last segment", String(n.remaining)],
+        ["Characters forcing UCS-2", n.offenders.length ? n.offenders.map(show).join(", ") : "none"],
+        ["Billed segments per month", r.base.segments.toLocaleString("en-US")],
+      ];
+      $("#stats").innerHTML = rows.map(([a, b]) => `<tr><th>${a}</th><td>${escapeHtml(b)}</td></tr>`).join("");
+      $("#opt-table").hidden = r.options.length === 0;
+      $("#opt-rows").innerHTML = r.options.map((o) => `<tr><td>${escapeHtml(o.title)}${o.detail ? ` <span class="note">(${escapeHtml(o.detail)})</span>` : ""}</td><td>${o.segments}</td><td>${fmt(o.saving)}</td></tr>`).join("");
+      const gsm = r.options.find((o) => o.text);
+      $("#fixed").hidden = $("#fixed-label").hidden = !gsm;
+      if (gsm) $("#fixed").value = gsm.text;
+      $("#estimate").textContent = PRICES_AS_OF + ". Your text, your volume and editable prices; not a measurement of any invoice.";
+      $("#report-card").hidden = false;
+      record("count_run");
+    }
+    $("#calc").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => { $("#msg").value = EXAMPLE; render(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => { $("#msg").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true; });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "radar-detection-twin"
+version = "0.1.0"
+description = "CA-CFAR and OS-CFAR detection probability and detector ranking when the threshold is set in a Gaussian-clutter radar twin and deployed in gamma-textured clutter: exact laws, SNR shortfall, and ranking reversals"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

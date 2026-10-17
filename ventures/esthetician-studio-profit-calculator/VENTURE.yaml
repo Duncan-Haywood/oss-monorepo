@@ -1,0 +1,46 @@
+name: esthetician-studio-profit-calculator
+description: >-
+  Free browser calculator for independent esthetician studio owners: enter facial, waxing and peel prices, chair minutes, supplies, no-show rate, rent, equipment and retail
+  attach, and see profit per treatment and per chair hour, the price each service needs for a target margin, break-even treatments per week, what no-shows cost, and what the same chair
+  nets worked by the owner, employing an esthetician on commission, or rented by the week. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models an esthetician studio or esthetician chair (checked ventures/ by name: `ls ventures | grep -i esthetic` is empty).
+# Facials, waxing and peels share one chair's hours, a share of customers never show, and the owner's recurring decision is whether to work it yourself, employ an esthetician
+# on commission or rent the chair out by the week. Not in screened-out.md. Sits beside nail-tech-booth-rent-calculator (the booth-rent side) rather than duplicating it:
+# esthetics appointments run 30-90 minutes and a tight day books back to back, so one no-show leaves a paid hour empty; this one prices the treatments and compares the three ways to run a chair.
+#
+# First visitor: independent esthetician studio owners searching "esthetician studio profit per chair", "booth rent vs commission esthetician" and "how much to charge for a facial or wax appointment".
+# Timing: year-round, with peaks before back-to-school, holidays and summer. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; tips are ignored;
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent esthetician studio owners will type a typical week's bookings, chair minutes and rent into a no-signup calculator to set facial, waxing and peel prices and to
+      decide between esthetics, employing an esthetician on commission and renting the chair, because most set prices by copying the studio down the road and never cost the chair hour
+      or the no-shows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/esthetician-studio-profit-calculator/
+  analytics: null

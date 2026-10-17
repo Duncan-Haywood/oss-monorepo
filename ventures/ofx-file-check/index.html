@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OFX / QFX File Checker — Fix a Bank Export Before QuickBooks Import</title>
+  <meta name="description" content="Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="OFX File Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why a bank export will not import, with line numbers, and download a repaired copy with a diff of what changed. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "OFX File Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an OFX or QFX bank or credit-card export (Web Connect file) for the problems that make QuickBooks, Quicken, YNAB and Xero reject it: header lines, unclosed tags, required transaction fields, date and amount formats, duplicate FITIDs, statement period, account fields, unescaped characters and over-long names, and writes it back with the provable fixes applied. Runs entirely in your browser; the file is never uploaded.", "featureList": "OFX validator, QFX fixer, duplicate FITID fixer, Web Connect file checker"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my QFX or OFX file fail to import into QuickBooks?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a header missing one of its nine lines, a missing or duplicate FITID (the transaction ID QuickBooks uses to avoid importing a transaction twice), a date that is not YYYYMMDD, an unescaped & in a payee name, and tags left unclosed because the download was cut off. This tool reports each with its line number."}}, {"@type": "Question", "name": "What does an invalid date error on an OFX import mean?", "acceptedAnswer": {"@type": "Answer", "text": "OFX dates must be YYYYMMDD, optionally followed by HHMMSS, milliseconds and a bracketed time-zone offset. A date written 2024-03-04 or 03/04/2024 is rejected. The tool rewrites the unambiguous ISO form and only reports slash dates, because day-first and month-first cannot be told apart."}}, {"@type": "Question", "name": "What is a duplicate FITID and how is it fixed?", "acceptedAnswer": {"@type": "Answer", "text": "FITID is the bank's unique ID for each transaction. Two transactions with the same FITID in one account look like the same transaction, so QuickBooks and Quicken drop or reject the second. The fix appends -2, -3 and so on so every ID is unique. Check that the two transactions really are different before importing."}}, {"@type": "Question", "name": "What is the difference between OFX 1.x (SGML) and 2.x (XML)?", "acceptedAnswer": {"@type": "Answer", "text": "OFX 1.x files start with plain header lines (OFXHEADER:100 and so on) and leave value tags unclosed. OFX 2.x files are XML, start with an xml declaration and an OFX header line, and close every tag. The tool detects which one you have and checks it by that format's rules."}}, {"@type": "Question", "name": "Is my bank file uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the file in your browser and a test in the code asserts there are no network calls. A bank export holds account numbers and transactions, so that matters."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether your bank signed or authorised the file, that balances and transactions are true, investment statements, or the extra rules any one app applies at import (QuickBooks, for example, may also require a supported bank ID)."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OFX FILE CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why won't this QFX / OFX file import?</h1>
+    <p>Drop a <strong>.qfx or .ofx bank or credit-card export</strong> and get every problem <strong>with its line number</strong> before QuickBooks, Quicken, YNAB or Xero rejects it: <strong>header errors</strong>, <strong>unclosed tags</strong>, <strong>duplicate FITIDs</strong>, <strong>invalid dates and amounts</strong>, <strong>unescaped ampersands</strong> and <strong>statement dates that do not match the transactions</strong>. Then download a copy with every provable fix applied, and see a plain diff of what changed.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. This checks the file against the OFX format, not against any one app. Independent of every accounting product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your bank file</h2>
+    <p class="note">A .qfx / .ofx (Web Connect) download from a bank or card issuer, OFX 1.x (SGML) or 2.x (XML).</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".ofx,.qfx,.qbo,text/plain,application/x-ofx">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="OFXHEADER:100&#10;DATA:OFXSGML&#10;VERSION:102&#10;...&#10;&lt;OFX&gt;&#10;..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="stats" id="report-summary"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Fixed file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="diff-out">What changed (- before, + after)</label>
+      <textarea id="diff-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-fixed">Download fixed file</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Format and header:</strong> OFX 1.x (SGML) or 2.x (XML) detected; OFXHEADER, DATA, VERSION, SECURITY, ENCODING, CHARSET, COMPRESSION, OLDFILEUID and NEWFILEUID present with valid values (or the &lt;?OFX?&gt; line for 2.x); byte order mark; blank line before &lt;OFX&gt;.</li>
+      <li><strong>Structure:</strong> every container tag closed in order, every value tag closed in 2.x.</li>
+      <li><strong>Transactions:</strong> TRNTYPE, DTPOSTED, TRNAMT and FITID present; DTPOSTED in YYYYMMDD[HHMMSS[.XXX][offset]] and a real date; TRNAMT numeric with a period; sign against type; duplicate FITIDs per account; FITID, NAME and MEMO lengths.</li>
+      <li><strong>Statement:</strong> BANKID, ACCTID and ACCTTYPE (or ACCTID for a card) present and valid; DTSTART and DTEND present, in order, and covering every DTPOSTED; LEDGERBAL and AVAILBAL numeric and dated. A count and sum of the transactions is shown for you to compare with the bank.</li>
+      <li><strong>Characters:</strong> unescaped &amp; and &lt;; non-ASCII text against ENCODING and CHARSET.</li>
+      <li><strong>Fixed automatically:</strong> byte order mark removed, missing header lines added, bare &amp; escaped, ISO dates (2024-03-04) rewritten as 20240304, duplicate FITIDs made unique with a suffix, missing closing tags added.</li>
+      <li><strong>Never guessed:</strong> slash dates and comma amounts, balances, which duplicate transaction is the real one, how to shorten a long NAME, how to transliterate non-ASCII text.</li>
+      <li><strong>Not checked:</strong> whether your bank issued or signed the file, that amounts and balances are true, investment statements, and any extra rule a given app applies at import. Read from memory of the OFX 1.0.2 and 2.x specifications; confirm against the current standard.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my QFX or OFX file fail to import into QuickBooks?</h3>
+    <p>The usual causes are a header missing one of its nine lines, a missing or duplicate FITID (the transaction ID QuickBooks uses to avoid importing a transaction twice), a date that is not YYYYMMDD, an unescaped & in a payee name, and tags left unclosed because the download was cut off. This tool reports each with its line number.</p>
+    <h3>What does an invalid date error on an OFX import mean?</h3>
+    <p>OFX dates must be YYYYMMDD, optionally followed by HHMMSS, milliseconds and a bracketed time-zone offset. A date written 2024-03-04 or 03/04/2024 is rejected. The tool rewrites the unambiguous ISO form and only reports slash dates, because day-first and month-first cannot be told apart.</p>
+    <h3>What is a duplicate FITID and how is it fixed?</h3>
+    <p>FITID is the bank's unique ID for each transaction. Two transactions with the same FITID in one account look like the same transaction, so QuickBooks and Quicken drop or reject the second. The fix appends -2, -3 and so on so every ID is unique. Check that the two transactions really are different before importing.</p>
+    <h3>What is the difference between OFX 1.x (SGML) and 2.x (XML)?</h3>
+    <p>OFX 1.x files start with plain header lines (OFXHEADER:100 and so on) and leave value tags unclosed. OFX 2.x files are XML, start with an xml declaration and an OFX header line, and close every tag. The tool detects which one you have and checks it by that format's rules.</p>
+    <h3>Is my bank file uploaded anywhere?</h3>
+    <p>No. The page reads the file in your browser and a test in the code asserts there are no network calls. A bank export holds account numbers and transactions, so that matters.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether your bank signed or authorised the file, that balances and transactions are true, investment statements, or the extra rules any one app applies at import (QuickBooks, for example, may also require a supported bank ID).</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace any accounting or banking application's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking that repaired transactions, dates and amounts look right against your bank statement, and a clean result is not a promise that an app will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Intuit, QuickBooks, Quicken, YNAB, Xero or any other company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../camt053-to-ofx-converter/">camt.053 and MT940 to OFX converter</a> makes an OFX or QBO file from a European bank statement, the <a href="../qif-file-check/">QIF file check</a> checks a QIF file for wrong date order, missing record terminators and unbalanced splits, the <a href="../mt940-statement-check/">MT940 statement check</a> reads SWIFT MT940 statements and converts them to CSV, the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> builds a QBO file from a CSV, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> checks customer, vendor and item imports, the <a href="../bai2-statement-reader/">BAI2 statement reader</a> opens the US bank-reporting format, and the <a href="../ics-calendar-check/">ICS calendar check</a> does the same file pre-flight for calendars.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, diffLines, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const options = () => ({});
+
+    function run(text) {
+      const o = options();
+      const r = validate(text, o);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"} · ${s.fixable} problem${s.fixable === 1 ? "" : "s"} fixable automatically`;
+      $("#report-summary").textContent = `${s.format === "xml" ? "OFX 2.x (XML)" : s.format === "sgml" ? "OFX 1.x (SGML)" : "Not OFX"}${s.version ? ", version " + s.version : ""} · ${s.accounts} account${s.accounts === 1 ? "" : "s"} · ${s.transactions} transactions, ${s.first ? s.first + " to " + s.last : "no dates"} · money in ${s.credits}, money out ${s.debits}, net ${s.total}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#fixed-out").value = fix.text;
+      $("#diff-out").value = fix.changes.length ? diffLines(text, fix.text).slice(0, 400).join("\n") : "No changes.";
+      $("#fix-note").textContent = fix.changes.length ? `${fix.changes.length} change${fix.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left exactly as it was and named above.` : "No provable fixes: the file is written as it was.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} transaction(s).` : `No errors in ${s.transactions} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: one made-up checking account, three transactions."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a header missing two lines, an ISO date, an unescaped &, a duplicate FITID, a comma amount, a transaction with no FITID and a file cut off before the closing OFX tag."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("statement-fixed.ofx", fixedText, "application/x-ofx"); } });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("ofx-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

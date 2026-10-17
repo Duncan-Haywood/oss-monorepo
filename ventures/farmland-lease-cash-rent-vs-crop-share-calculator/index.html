@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farmland Lease Calculator: Cash Rent vs Crop Share — Free</title>
+  <meta name="description" content="Free farmland lease calculator: compare cash rent, crop share and flexible cash leases for the landlord and the operator at your own yield, price and costs, with the break-even yield and who carries the risk. Nothing uploaded.">
+  <meta property="og:title" content="Cash rent or crop share? Free farmland lease calculator">
+  <meta property="og:description" content="Landlord and operator results per acre under cash, share and flex leases, break-even yield and a yield-by-price risk grid. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M16 26V10M16 14c-4 0-6-3-6-6 4 0 6 3 6 6zM16 18c4 0 6-3 6-6-4 0-6 3-6 6z' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Farmland Lease Calculator: Cash Rent vs Crop Share", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare cash rent, crop share and flexible cash farmland leases for the landlord and the operator at your own yield, price and costs, with the break-even yield and a yield-by-price risk grid. Runs in your browser; nothing is uploaded.", "featureList": "Cash rent vs crop share, flexible cash lease, break-even yield, negotiation range, yield and price sensitivity, landlord and operator profit per acre and per field"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is cash rent or a crop share better for the landlord?", "acceptedAnswer": {"@type": "Answer", "text": "Neither always wins. Cash rent is a fixed amount whatever the crop does. A crop share pays more in a good year and less in a bad one, and the landlord also pays a share of inputs. The tool finds the yield above which the share pays the landlord more than the cash rent, at the price and costs you enter."}}, {"@type": "Question", "name": "Why would an operator prefer a crop share?", "acceptedAnswer": {"@type": "Answer", "text": "A share shifts part of the yield and price risk to the landlord and cuts the cash the operator needs up front, because the landlord pays a share of seed, fertilizer and chemicals. The operator gives up upside in a good year. The grid shows the operator's worst and best result under each lease."}}, {"@type": "Question", "name": "What is a flexible cash lease?", "acceptedAnswer": {"@type": "Answer", "text": "A base rent plus a bonus when revenue rises above a threshold, often based on yield times a price. It sits between cash rent and a crop share. The tool takes the base, the bonus percentage and the revenue threshold you negotiate."}}, {"@type": "Question", "name": "What do the negotiation numbers mean?", "acceptedAnswer": {"@type": "Answer", "text": "The first is the highest cash rent the operator can pay and still keep the profit you set per acre at the expected yield. The second is the cash a landlord would need to receive to match the crop share at the same yield. If the first is lower, no cash rent satisfies both sides at these numbers."}}, {"@type": "Question", "name": "Is this legal, tax or farm-management advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not know your county rents, your insurance, government payments, tax treatment or state lease law. Use extension-office rent surveys for local figures and talk to an attorney before signing a lease."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FARMLAND LEASE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Cash rent or crop share: which lease pays more, and for whom?</h1>
+    <p>Enter the yield, price and costs you expect and the terms on the table. It shows what the landlord and the operator each end up with under a cash rent, a crop share and a flexible cash lease, the yield where the share starts to beat the cash rent, the range of cash rents both sides could accept, and a grid of good and bad years.</p>
+    <p class="note">Planning arithmetic on numbers you type in.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The field and the crop</h2>
+      <div class="grid">
+        <div><label for="acres">Acres in the lease</label><input id="acres" type="number" step="any" value="0"></div>
+        <div><label for="yieldPerAcre">Expected yield per acre (bushels)</label><input id="yieldPerAcre" type="number" step="any" value="0"></div>
+        <div><label for="price">Expected price per bushel ($)</label><input id="price" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Costs per acre</h2>
+      <div class="grid">
+        <div><label for="sharedInputs">Seed, fertilizer, chemicals, drying and hauling ($/acre)</label><input id="sharedInputs" type="number" step="any" value="0"></div>
+        <div><label for="operatorOnly">Machinery, labor, fuel, insurance and interest the operator always pays ($/acre)</label><input id="operatorOnly" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Lease terms</h2>
+      <div class="grid">
+        <div><label for="cashRent">Cash rent ($/acre)</label><input id="cashRent" type="number" step="any" value="0"></div>
+        <div><label for="cropSharePct">Landlord's crop share (%)</label><input id="cropSharePct" type="number" step="any" value="0"></div>
+        <div><label for="landlordInputPct">Landlord's share of the seed, fertilizer and chemical costs under the crop share (%)</label><input id="landlordInputPct" type="number" step="any" value="0"></div>
+        <div><label for="flexBase">Flex lease base rent ($/acre)</label><input id="flexBase" type="number" step="any" value="0"></div>
+        <div><label for="flexBonusPct">Flex bonus on revenue above the threshold (%)</label><input id="flexBonusPct" type="number" step="any" value="0"></div>
+        <div><label for="flexThreshold">Flex revenue threshold ($/acre)</label><input id="flexThreshold" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. What the operator needs</h2>
+      <div class="grid">
+        <div><label for="targetOperatorProfit">Profit the operator must keep ($/acre)</label><input id="targetOperatorProfit" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the leases</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is cash rent or a crop share better for the landlord?</h3>
+      <p>Neither always wins. Cash rent is a fixed amount whatever the crop does. A crop share pays more in a good year and less in a bad one, and the landlord also pays a share of inputs. The tool finds the yield above which the share pays the landlord more than the cash rent, at the price and costs you enter.</p>
+      <h3>Why would an operator prefer a crop share?</h3>
+      <p>A share shifts part of the yield and price risk to the landlord and cuts the cash the operator needs up front, because the landlord pays a share of seed, fertilizer and chemicals. The operator gives up upside in a good year. The grid shows the operator's worst and best result under each lease.</p>
+      <h3>What is a flexible cash lease?</h3>
+      <p>A base rent plus a bonus when revenue rises above a threshold, often based on yield times a price. It sits between cash rent and a crop share. The tool takes the base, the bonus percentage and the revenue threshold you negotiate.</p>
+      <h3>What do the negotiation numbers mean?</h3>
+      <p>The first is the highest cash rent the operator can pay and still keep the profit you set per acre at the expected yield. The second is the cash a landlord would need to receive to match the crop share at the same yield. If the first is lower, no cash rent satisfies both sides at these numbers.</p>
+      <h3>Is this legal, tax or farm-management advice?</h3>
+      <p>No. It is arithmetic on numbers you type in. It does not know your county rents, your insurance, government payments, tax treatment or state lease law. Use extension-office rent surveys for local figures and talk to an attorney before signing a lease.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Government payments, crop insurance indemnities, property tax and other owner costs, depreciation, landlord-owned improvements, tax treatment of each lease type, lease length and renewal terms, state lease and termination law, and who pays for drying, hauling or storage unless you put it in the costs. The defaults are placeholders, not any county's or year's figures: replace each with your own records and local rent surveys.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../custom-farm-rate-calculator/">custom farm rate calculator</a>, the <a href="../u-pick-farm-profit-planner/">U-pick farm profit planner</a>, the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> the <a href="../crop-insurance-coverage-calculator/">crop insurance coverage calculator</a> and the <a href="../vineyard-grape-vs-wine-calculator/">vineyard grape vs wine calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or your attorney, accountant or extension office. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any lease, tax or legal obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const NAME = { cash: "Cash rent", share: "Crop share", flex: "Flex lease" };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.yieldPerAcre > 0 && o.price > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter an expected yield and price above zero.</div>'; $("out").hidden = false; return; }
+      const a = analyze(o), at = a.at;
+      let h = "";
+      h += `<div class="finding"><h4>At ${o.yieldPerAcre} bushels at $${o.price.toFixed(2)}, revenue is ${money(at.revenue)} an acre against ${money(at.allCosts)} of costs</h4><p class="stats">Before rent that leaves <strong>${money(at.revenue - at.allCosts)}</strong> an acre to split.</p></div>`;
+      h += `<div class="finding"><h4>Per acre and for the whole ${a.acres} acres</h4>${table(["Lease", "Landlord, per acre", "Operator, per acre", "Landlord, field", "Operator, field"], ["cash", "share", "flex"].map((k) => [NAME[k], money(at[k].landlord), money(at[k].operator), money(a.field[k].landlord), money(a.field[k].operator)]))}<p class="note">Landlord figures are net of the landlord's share of inputs under the crop share. Property tax and other owner costs are not included.</p></div>`;
+      if (a.breakevenYield !== null) h += `<div class="finding"><h4>A crop share pays the landlord more than the cash rent above ${a.breakevenYield.toFixed(1)} bushels an acre</h4><p>At $${o.price.toFixed(2)} a bushel. Your expected yield is ${o.yieldPerAcre}, so the share is expected to pay the landlord ${at.share.landlord >= at.cash.landlord ? "more" : "less"} than the cash rent. The operator’s result moves the opposite way.</p></div>`;
+      const r = a.range;
+      h += `<div class="finding"><h4>${r.overlaps ? "A cash rent between " + money(r.landlordFloor) + " and " + money(r.operatorCeiling) + " an acre works for both sides" : "No cash rent works for both sides at these numbers"}</h4><p>The operator can pay up to <strong>${money(r.operatorCeiling)}</strong> and still keep ${money(o.targetOperatorProfit)} an acre. A landlord matching the crop share needs <strong>${money(r.landlordFloor)}</strong>. ${r.overlaps ? "That gap is what the negotiation is about." : "The operator is " + money(-r.gap) + " an acre short of the landlord's share equivalent, so the share, a lower profit target or different costs would have to move."}</p></div>`;
+      const rk = a.risk;
+      h += `<div class="finding"><h4>Who carries the risk</h4>${table(["Lease", "Landlord worst", "Landlord best", "Operator worst", "Operator best"], ["cash", "share", "flex"].map((k) => [NAME[k], money(rk[k].landlordWorst), money(rk[k].landlordBest), money(rk[k].operatorWorst), money(rk[k].operatorBest)]))}<p class="note">Range across the yield and price grid below, per acre. A wider range is more risk carried.</p></div>`;
+      h += `<div class="finding"><h4>Yield and price grid, per acre</h4>${table(["Yield (bu)", "Price", "Landlord: cash / share / flex", "Operator: cash / share / flex", "Better for landlord", "Better for operator"], a.grid.map((c) => [c.yield.toFixed(0), "$" + c.price.toFixed(2), [c.cash, c.share, c.flex].map((x) => money(x.landlord)).join(" / "), [c.cash, c.share, c.flex].map((x) => money(x.operator)).join(" / "), NAME[c.bestLandlord], NAME[c.bestOperator]]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

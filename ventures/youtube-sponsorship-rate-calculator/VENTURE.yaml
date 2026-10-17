@@ -1,0 +1,55 @@
+name: youtube-sponsorship-rate-calculator
+description: Free browser calculator that turns a YouTube channel's median views, niche and deal format (integration, dedicated video, short mention) into a sponsorship price range, with separate add-ons for paid-usage / whitelisting rights and category exclusivity -- entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened against the creator-economy siblings already on main
+# (podcast-, newsletter-sponsorship-rate-calculator, brand-deal-rate-
+# calculator, ugc-creator-rate-calculator, youtube-revenue-rpm-analyzer):
+# none prices a YouTube sponsorship from views, and none prices the
+# usage-rights / whitelisting and exclusivity terms that move a real deal.
+# duplicate_check.py scored no YouTube-sponsorship venture above 0.56 (the
+# podcast and newsletter siblings, on shared "sponsorship rate calculator"
+# words only).
+#
+# Gate scoring (portfolio/pipeline/README.md, both need >= 5):
+#   liability_containment: 8 -- output is a price *range* from general market
+#     benchmarks, framed as a negotiation starting point, never a quote or
+#     valuation. Being wrong costs a creator a miscalibrated ask, not a
+#     filing, a contract obligation or a third party's money.
+#   ethical_robustness: 8 -- deterministic arithmetic, no dark patterns, no
+#     server-side data, nothing scraped about a third party, and it does not
+#     get worse for users as traffic grows.
+#
+# Distribution: r/NewTubers, r/youtubers, creator Discords; search phrases
+# "youtube sponsorship rates", "how much to charge for a youtube sponsorship",
+# "youtube integration cpm", "whitelisting rate". Incumbents (marketplaces,
+# agencies, media-kit sites) take a cut or require a listing.
+hypotheses:
+  - claim: A creator who lands here from a "how much to charge for a YouTube sponsorship" search or a r/NewTubers thread will get a price range they did not have and use it to set or defend an ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Pricing paid-usage and exclusivity as separate lines, not buried in one flat fee, is the part creators come back for, because it is the term sponsors push back on least when it is itemised.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/youtube-sponsorship-rate-calculator/
+  analytics: null

@@ -1,0 +1,37 @@
+name: uk-emi-share-option-tax-calculator
+description: >-
+  Free browser tool for UK startup employees with EMI share options: enter option terms and a sale price to see income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, the cash you keep, the cost of missing the two-year holding period and a comparison with an unapproved option. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found no EMI option tool (closest 0.12, unrelated). The portfolio has a generic UK CGT calculator, which cannot model the grant-date holding period, the exercise discount or the unapproved comparison.
+#
+# First visitor: a UK startup employee or founder searching "EMI options tax calculator", "EMI BADR 14%", "how much tax on my EMI options at exit", prompted by an acquisition or a funding round. Evergreen with spikes around the April 2026 BADR rise to 18%; volume not measured. Rivals are accountancy-firm explainers and lead-capture calculators.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: exit-scenario planner across multiple grants and tax years behind an env-var switch.
+#
+# Liability: 2025/26 and 2026/27 CGT and BADR rates and income tax bands were written from memory without network access and are flagged for GOV.UK verification on the page. EMI eligibility, Scottish rates, NIC, disqualifying events and cross-year exercises are refused and named. The page states it is not tax advice.
+hypotheses:
+  - claim: >-
+      UK startup employees will use a free calculator to size the tax on EMI options before an exit or before deciding when to exercise.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-emi-share-option-tax-calculator/
+  analytics: null

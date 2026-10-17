@@ -130,3 +130,17 @@ test('index links one hop to the oidc-trust-policy-check sibling', () => {
     'index must link ../oidc-trust-policy-check/ so crawlers reach the trust-policy checker in one hop',
   );
 });
+
+// Inbound hop for actions-timeout-check, which would otherwise be a crawlable
+// orphan (`platform/pages/siblings.mjs` fails on one).
+test('index links one hop to the actions-timeout-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/actions-timeout-check\/"/,
+    'index must link ../actions-timeout-check/ so crawlers reach the timeout checker in one hop',
+  );
+});
+
+test("links to Workflow Audit, its sibling", async () => {
+  assert.match(await readFile(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/workflow-audit\/"/);
+});

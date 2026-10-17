@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subcontractor Cash Flow Planner vs. Treating Materials as Cash Out on Day One</title>
+  <meta name="description" content="The usual back-of-envelope cash plan books materials as an immediate outflow. Most subs actually buy on a supply-house account with net terms -- and whether that due date falls before or after the client pays decides whether the same $2,500 materials line changes nothing or erases the whole funding gap. This free calculator prices both.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://example.invalid/subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Subcontractor Cash Flow Planner vs. treating materials as cash out on day one">
+  <meta property="og:description" content="Budgeting materials as cash out on day one is the safe assumption -- and often the wrong one. The same $2,500 materials line produces a $1,900 gap or a $0 gap depending only on which side of the client's payment day your supplier's due date falls.">
+  <meta property="og:url" content="https://example.invalid/subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does assuming materials are cash out on day one overstate the funding gap?","acceptedAnswer":{"@type":"Answer","text":"Because most subs do not pay a supply house on the spot -- they buy on an account with net terms, commonly net 30 or net 45. If that due date falls after the client's expected payment, the client's money covers the materials before the supplier ever collects, and the materials line needs no bridging at all. Treating the purchase as day-zero cash out, as a back-of-envelope plan usually does, prices a gap that may not exist."}},{"@type":"Question","name":"Why doesn't every supplier account close the gap the same way?","acceptedAnswer":{"@type":"Answer","text":"Because it is a race between two dates, not a feature of having terms at all. On this calculator's own default scenario the client is expected to pay on day 44. A net-30 supplier account is due on day 30 -- still before the client pays -- so the requirement is completely unchanged at $6,900 and the $1,900 gap stands. A net-45 account is due on day 45, one day after the client's payment lands, so the materials never need bridging and the gap closes to $0. Same $2,500 materials line, same supplier relationship in spirit, opposite answer, decided by a single day."}},{"@type":"Question","name":"Is a supplier account always better than paying cash for materials?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily -- this page is not a recommendation to use supplier credit, only a correction to a sizing assumption. A supply-house account may carry its own fees, credit limits, or relationship terms this calculator does not model. What it does show is that the naive day-zero assumption is not a conservative simplification, it is a specific and sometimes large overstatement, and the size of the overstatement depends on one date you would not otherwise think to check."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17221f; --muted:#60706b; --paper:#f5f1e8; --card:#fffdf8; --accent:#b54c2d; --line:#d9d1c1; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+    main { max-width:860px; margin:auto; padding:44px 20px 60px; } header { max-width:760px; margin-bottom:24px; }
+    h1 { font:700 clamp(1.7rem,5vw,2.9rem)/1.05 Georgia,serif; letter-spacing:-.03em; margin:0 0 16px; } h2 { font:700 1.45rem Georgia,serif; }
+    .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.78rem; }
+    .lede { color:var(--muted); font-size:1.1rem; max-width:680px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 8px 24px #51412712; margin:0 0 18px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; margin:8px 0 0; }
+    caption { caption-side:bottom; color:var(--muted); font-size:.82rem; text-align:left; padding-top:8px; }
+    th, td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:left; vertical-align:top; }
+    .cta { display:inline-block; margin:8px 0 4px; padding:10px 14px; border-radius:8px; background:var(--ink); color:#fdfbf6; text-decoration:none; font-weight:650; }
+    .fine { color:var(--muted); font-size:.88rem; } footer { margin-top:24px; color:var(--muted); font-size:.86rem; } a { color:inherit; }
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow"><a href="./">&larr; Subcontractor Cash Flow Planner</a></p>
+  <header>
+    <h1>Subcontractor Cash Flow Planner vs. treating materials as cash out on day one</h1>
+    <p class="lede">
+      The safe-sounding way to budget a job is to book the materials cost as
+      cash out the moment you order &mdash; it feels conservative. Most subs
+      do not actually pay a supply house on the spot; they buy on an
+      account with net terms. Whether that due date lands before or after
+      the client pays decides whether the materials line needs bridging at
+      all, and a plan that assumes day-zero cash out cannot tell you which.
+    </p>
+  </header>
+  <section class="card">
+    <h2>Same materials line, two different real answers</h2>
+    <p>On this calculator's own default scenario &mdash; a $10,000 invoice,
+    $2,500 in materials, $700/week burn, net-30 client terms, 10% retention,
+    a 14-day late-payment buffer, and $5,000 starting cash &mdash; the
+    client is expected to pay on day 44.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">How the $2,500 materials purchase is financed</th><th scope="col">Cash needed before payment</th><th scope="col">Funding gap</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Booked as cash out on day one</strong> (the back-of-envelope assumption)</td><td>$6,900</td><td>$1,900</td></tr>
+        <tr><td>Supply-house account, net 30 (due day 30, before the client pays)</td><td>$6,900 &mdash; unchanged</td><td>$1,900 &mdash; unchanged</td></tr>
+        <tr><td>Supply-house account, net 45 (due day 45, one day after the client pays)</td><td>$4,400</td><td><strong>$0</strong></td></tr>
+      </tbody>
+      <caption>Figures from this calculator's own <code>planCashflow()</code>, not hand-typed.</caption>
+    </table>
+    </div>
+    <p>
+      The net-30 account changes nothing, because its due date still falls
+      before the client's expected payment &mdash; you are still funding the
+      materials out of pocket, just for a shorter window than a true
+      day-zero purchase. The net-45 account is due one day <em>after</em>
+      the client pays, so the client's own money covers the materials
+      purchase and the entire funding gap disappears. Same $2,500 line,
+      same kind of supplier relationship, opposite answer &mdash; decided by
+      a single day on one invoice due date most back-of-envelope plans never
+      look up.
+    </p>
+    <a class="cta" href="./#supplierTerms">Enter your own supplier terms</a>
+  </section>
+  <section class="card">
+    <h2>Why the naive assumption is not "conservative"</h2>
+    <p>
+      Treating a materials purchase as immediate cash out reads as the safe,
+      pessimistic choice &mdash; if anything, you would expect it to
+      overstate the gap rather than get it wrong in a way that matters. But
+      "overstate by how much" is exactly the part a day-zero assumption
+      cannot answer, and on this scenario the overstatement is the entire
+      gap: $1,900 that a supplier account already due after the client pays
+      would never actually need funding. A cash plan that books materials on
+      day zero cannot distinguish a real $1,900 shortfall from a $0 one that
+      only looks like $1,900 because the supplier's own terms were never
+      priced in.
+    </p>
+    <p>
+      This is not a claim that supplier credit is free or that you should
+      take it &mdash; a supply-house account may carry fees, limits, or
+      terms this calculator does not model, and the <a href="how-much-cash-do-i-need-for-net-30-payment-terms.html">payment-terms side of the
+      gap</a> still needs sizing on its own. It is a claim about sizing:
+      whichever way you finance materials, the one date that decides whether
+      it matters is the supplier's due date against the client's expected
+      payment day, and a day-zero assumption throws that date away before
+      you ever get to compare it.
+    </p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does assuming materials are cash out on day one overstate the funding gap?</h3>
+    <p>Because most subs do not pay a supply house on the spot -- they buy on an account with net terms, commonly net 30 or net 45. If that due date falls after the client's expected payment, the client's money covers the materials before the supplier ever collects, and the materials line needs no bridging at all. Treating the purchase as day-zero cash out, as a back-of-envelope plan usually does, prices a gap that may not exist.</p>
+    <h3>Why doesn't every supplier account close the gap the same way?</h3>
+    <p>Because it is a race between two dates, not a feature of having terms at all. On this calculator's own default scenario the client is expected to pay on day 44. A net-30 supplier account is due on day 30 -- still before the client pays -- so the requirement is completely unchanged at $6,900 and the $1,900 gap stands. A net-45 account is due on day 45, one day after the client's payment lands, so the materials never need bridging and the gap closes to $0. Same $2,500 materials line, same supplier relationship in spirit, opposite answer, decided by a single day.</p>
+    <h3>Is a supplier account always better than paying cash for materials?</h3>
+    <p>Not necessarily -- this page is not a recommendation to use supplier credit, only a correction to a sizing assumption. A supply-house account may carry its own fees, credit limits, or relationship terms this calculator does not model. What it does show is that the naive day-zero assumption is not a conservative simplification, it is a specific and sometimes large overstatement, and the size of the overstatement depends on one date you would not otherwise think to check.</p>
+    <p class="note">Open <a href="./">the calculator</a> and set your own materials cost, supplier terms, and expected payment day &mdash; nothing you enter is uploaded.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your data is never uploaded. Optional usage counters record only feature names in local storage, never your inputs, output, or identity, with an opt-out on the calculator page.</p>
+    <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+  </footer>
+</main></body></html>

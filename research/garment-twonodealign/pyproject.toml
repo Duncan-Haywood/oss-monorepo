@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodealign"
+version = "0.1.0"
+description = "Ablation attributing the gap between garment-thermal two-node and pythermalcomfort Gagge two-node"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

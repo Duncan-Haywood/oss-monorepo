@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code Subagent Check — find subagents that never get delegated to</title>
+  <meta name="description" content="Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn't kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Claude Code Subagent Check">
+  <meta property="og:description" content="A subagent with a vague description never gets picked for delegation, and it fails silently -- no error, just an orchestrator that never reaches for it. This free tool checks a pasted subagent definition for that and four other structural mistakes, in your browser, with nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Claude Code Subagent Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that checks a pasted Claude Code subagent definition file (.claude/agents/*.md) for structural mistakes: a name that isn't kebab-case or doesn't match the filename, a missing or vague description that won't reliably trigger delegation, a tools list entry that is empty, duplicated, or unrecognized, an unrecognized model alias, and a missing or near-empty system-prompt body.","featureList":"Frontmatter parsing and validation; kebab-case name check with filename match; description vagueness check tuned for orchestrator delegation (length, trigger cue, distinctive vocabulary); tools list validation (empty/duplicate/unrecognized entries, MCP tool name shape); model alias validation; system-prompt body length check; copyable findings summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this tool check in a subagent definition file?","acceptedAnswer":{"@type":"Answer","text":"The YAML frontmatter (name, description, tools, model) and the Markdown system-prompt body that follows it. Name: present, kebab-case, and matching the filename you give. Description: present and not too vague to trigger reliable delegation (length, a concrete trigger cue, distinctive vocabulary). Tools: no empty or duplicated entries, and each name checked against a documented list of built-ins as a caution. Model: checked against documented aliases and the shape of a full model id, also as a caution. Body: not missing or near-empty."}},{"@type":"Question","name":"Does this tool contact a network or Anthropic's servers?","acceptedAnswer":{"@type":"Answer","text":"No. Every check is a deterministic, structural check against the text you paste, entirely in your browser. It never uploads anything and never calls an LLM."}},{"@type":"Question","name":"Does a clean result mean the orchestrator will delegate to my subagent correctly?","acceptedAnswer":{"@type":"Answer","text":"No. This tool checks the shape of the file, not Claude Code's actual delegation decisions at runtime. A description can pass every heuristic here and still not get picked for a given request, and a description that trips a caution can still work fine in practice -- every finding is worth a look, not a verdict."}},{"@type":"Question","name":"Why is an unrecognized tool or model name only a caution, never an error?","acceptedAnswer":{"@type":"Answer","text":"Because MCP tool names and custom tool names are open-ended, and Anthropic can add a new built-in tool or model alias at any time. This tool checks against a documented, dated reference list -- a name outside it is worth a second look for a typo, not proof of a mistake."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}h3{font-size:1rem}
+    p{color:var(--muted)}.lede{max-width:700px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    textarea{display:block;width:100%;min-height:220px;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);margin-top:4px;resize:vertical}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    input[type=text]{display:block;width:100%;padding:9px 10px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900;font-size:.9rem;border-radius:6px;margin:14px 0}
+    .small{font-size:.86rem}
+    .toggle{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}
+    .toggle input{width:auto;margin:0}
+    .summary{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 14px}
+    .summary[hidden]{display:none}
+    .stat{background:#f8f9fc;border:1px solid var(--line);border-radius:9px;padding:8px 14px;text-align:center;min-width:90px}
+    .stat strong{display:block;font-size:1.4rem}
+    .stat.high strong{color:#a3211a}.stat.medium strong{color:#8a5a00}.stat.low strong{color:#3a6b3f}
+    ul.findings{list-style:none;margin:0;padding:0}
+    ul.findings li{border-left:4px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0;background:#f8f9fc}
+    ul.findings li.high{border-left-color:#a3211a;background:#fdf1f0}
+    ul.findings li.medium{border-left-color:#c98a00;background:#fdf7e8}
+    ul.findings li.low{border-left-color:#3a6b3f;background:#f1f8f2}
+    .findings code{background:#eef2fa;padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
+    .findings .src{font-size:.8rem;color:var(--muted);display:block;margin-bottom:2px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:.86rem}
+    footer p{margin:.6rem 0}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <p class="small"><a href="https://github.com/sponsors/Duncan-Haywood">Free tools</a></p>
+  <h1>Claude Code Subagent Check</h1>
+  <p class="lede">Paste a <code>.claude/agents/*.md</code> subagent definition and get every structural mistake flagged in seconds — a name that isn't kebab-case, a description too vague for the orchestrator to delegate to it reliably, a <code>tools</code> entry that's empty, duplicated, or unrecognized, a <code>model</code> alias this tool doesn't know, and a missing or near-empty system prompt.</p>
+  <p class="notice"><strong>Structural checks, not a delegation test.</strong> This tool never runs your subagent and never calls an LLM — it only looks at the text you paste and flags known failure shapes in it. It does not know whether Claude Code's orchestrator will actually delegate to this subagent on a given request; it only tells you the file is well-formed enough to have a fair shot.</p>
+
+  <section class="panel">
+    <h2>1. Paste your subagent definition</h2>
+    <p class="small">The full contents of the <code>.md</code> file, frontmatter and system prompt together. Nothing here is uploaded — everything runs in this page.</p>
+    <label for="filenameInput">Filename (optional — used only to check it matches the "name" field)
+      <input id="filenameInput" type="text" placeholder="code-reviewer.md" autocomplete="off">
+    </label>
+    <label for="agentInput">Subagent definition
+      <textarea id="agentInput" spellcheck="false" placeholder="---&#10;name: code-reviewer&#10;description: ...&#10;tools: Read, Grep&#10;model: sonnet&#10;---&#10;You are a meticulous code reviewer..."></textarea>
+    </label>
+    <div class="row">
+      <button id="checkBtn" type="button">Check</button>
+      <button id="loadExample" type="button" class="secondary">Load a broken example</button>
+      <button id="clearAll" type="button" class="secondary">Clear all</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <div id="summaryOut" class="summary" hidden>
+      <div class="stat high"><strong id="highCount">0</strong><span class="small">high-severity</span></div>
+      <div class="stat medium"><strong id="mediumCount">0</strong><span class="small">medium-severity</span></div>
+      <div class="stat low"><strong id="lowCount">0</strong><span class="small">caution</span></div>
+    </div>
+    <p id="statusOut" class="small" role="status" aria-live="polite">Paste a subagent definition above, or load the example, then press Check.</p>
+    <ul id="findingsList" class="findings"></ul>
+    <button id="copySummary" type="button" hidden>Copy findings summary</button>
+    <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous check events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that a check ran or a summary was copied. Nothing you paste — no subagent name, description, tools, or prompt text — is ever recorded, uploaded, or sent to an analytics service. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What does this tool check in a subagent definition file?</h3>
+  <p>The YAML frontmatter (name, description, tools, model) and the Markdown system-prompt body that follows it. Name: present, kebab-case, and matching the filename you give. Description: present and not too vague to trigger reliable delegation (length, a concrete trigger cue, distinctive vocabulary). Tools: no empty or duplicated entries, and each name checked against a documented list of built-ins as a caution. Model: checked against documented aliases and the shape of a full model id, also as a caution. Body: not missing or near-empty.</p>
+  <h3>Does this tool contact a network or Anthropic's servers?</h3>
+  <p>No. Every check is a deterministic, structural check against the text you paste, entirely in your browser. It never uploads anything and never calls an LLM.</p>
+  <h3>Does a clean result mean the orchestrator will delegate to my subagent correctly?</h3>
+  <p>No. This tool checks the shape of the file, not Claude Code's actual delegation decisions at runtime. A description can pass every heuristic here and still not get picked for a given request, and a description that trips a caution can still work fine in practice -- every finding is worth a look, not a verdict.</p>
+  <h3>Why is an unrecognized tool or model name only a caution, never an error?</h3>
+  <p>Because MCP tool names and custom tool names are open-ended, and Anthropic can add a new built-in tool or model alias at any time. This tool checks against a documented, dated reference list -- a name outside it is worth a second look for a typo, not proof of a mistake.</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee of how Claude Code will delegate to or run this subagent, and it does not replace testing the subagent in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking any finding against Claude Code's current documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The subagent text you paste, and every finding this tool produces, never leaves your device — there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Checking Claude Code's own settings.json instead? See <a href="../claude-code-settings-check/">Claude Code Settings Check</a>. Checking an agent Skill's SKILL.md instead? See <a href="../skill-manifest-check/">Skill Manifest Check</a>. Auditing an MCP server's launch config instead? See <a href="../mcp-config-risk-check/">MCP Config Risk Check</a>. Checking a pasted file for hidden or invisible Unicode instead? See <a href="../hidden-unicode-check/">Hidden Unicode Check</a>. Checking a hook's command text for dangerous shapes instead? See <a href="../claude-code-hooks-security-check/">Claude Code Hooks Security Check</a>.</p>
+    <p>See <a href="./vs-reading-the-subagent-file-by-eye.html">this checker vs. reading the subagent file by eye</a>.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { lintAgent, summaryText } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  const EXAMPLE = [
+    "---",
+    "name: CodeReviewer",
+    "description: Reviews code.",
+    "tools: Read, Grep,",
+    "model: gpt-4",
+    "---",
+    "Be helpful.",
+  ].join("\n");
+
+  $("loadExample").addEventListener("click", () => {
+    $("filenameInput").value = "code-reviewer.md";
+    $("agentInput").value = EXAMPLE;
+    runCheck();
+  });
+
+  $("clearAll").addEventListener("click", () => {
+    $("filenameInput").value = "";
+    $("agentInput").value = "";
+    $("findingsList").innerHTML = "";
+    $("summaryOut").hidden = true;
+    $("copySummary").hidden = true;
+    $("statusOut").hidden = false;
+    $("statusOut").textContent = "Paste a subagent definition above, or load the example, then press Check.";
+    lastResult = null;
+  });
+
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (e) => setUsageEnabled(e.target.checked));
+
+  let lastResult = null;
+
+  function severityLabel(sev) {
+    return sev === "high" ? "High" : sev === "medium" ? "Medium" : "Caution";
+  }
+
+  function renderFindings(result) {
+    const list = $("findingsList");
+    list.innerHTML = "";
+    for (const f of result.findings) {
+      const li = document.createElement("li");
+      li.className = f.severity;
+      const src = document.createElement("span");
+      src.className = "src";
+      src.textContent = f.source;
+      const body = document.createElement("span");
+      body.innerHTML = `<strong>${severityLabel(f.severity)}</strong> (${f.category}): ${escapeHtml(f.detail)}`;
+      li.append(src, body);
+      list.appendChild(li);
+    }
+    $("highCount").textContent = String(result.counts.high);
+    $("mediumCount").textContent = String(result.counts.medium);
+    $("lowCount").textContent = String(result.counts.low);
+    $("summaryOut").hidden = false;
+    $("copySummary").hidden = false;
+    $("statusOut").hidden = result.findings.length > 0;
+    if (result.findings.length === 0) {
+      $("statusOut").hidden = false;
+      $("statusOut").textContent = "No structural issues found. This checks the file's shape only -- see \"Does a clean result mean the orchestrator will delegate to my subagent correctly?\" below.";
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function runCheck() {
+    const text = $("agentInput").value;
+    if (text.trim() === "") {
+      $("findingsList").innerHTML = "";
+      $("summaryOut").hidden = true;
+      $("copySummary").hidden = true;
+      $("statusOut").hidden = false;
+      $("statusOut").textContent = "Paste a subagent definition above, or load the example, then press Check.";
+      lastResult = null;
+      return;
+    }
+    lastResult = lintAgent(text, $("filenameInput").value);
+    renderFindings(lastResult);
+    countUsage("check_run");
+  }
+
+  $("checkBtn").addEventListener("click", runCheck);
+
+  $("copySummary").addEventListener("click", async () => {
+    if (!lastResult) return;
+    const text = summaryText(lastResult);
+    try {
+      await navigator.clipboard.writeText(text);
+      $("copyStatus").textContent = "Copied.";
+      countUsage("summary_copied");
+    } catch {
+      $("copyStatus").textContent = "Could not copy automatically -- select the findings and copy manually.";
+    }
+    setTimeout(() => { $("copyStatus").textContent = ""; }, 4000);
+  });
+</script>
+</body>
+</html>

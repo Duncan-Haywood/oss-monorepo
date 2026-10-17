@@ -4,6 +4,8 @@ A free tool that checks a page's `<link rel="alternate" hreflang="..."
 href="...">` tags for the well-documented international-SEO
 misconfigurations Google's own hreflang documentation names directly:
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/
+
 - **Missing reciprocal confirmation** — page A links to page B with
   hreflang, but page B does not link back to page A. Google's documentation
   says hreflang annotations must be reciprocal or they may be disregarded.
@@ -91,7 +93,9 @@ a new one. Nothing about either is proxied through this site.
 **A different job from a generic crawler.** If you need to check hreflang
 across an entire site at scale, that is a sitemap-crawling tool's job, not
 this one — see [`vs-merkle-hreflang-tool.html`](vs-merkle-hreflang-tool.html)
-for how this compares to an established single-URL hosted checker.
+for how this compares to an established single-URL hosted checker, and
+[`vs-checking-hreflang-tags-by-hand.html`](vs-checking-hreflang-tags-by-hand.html)
+for what a manual eyeball check structurally cannot catch.
 
 ## Privacy
 

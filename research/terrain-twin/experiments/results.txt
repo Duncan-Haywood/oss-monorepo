@@ -1,0 +1,51 @@
+Friction per patch ~ Gamma(shape k, mean m); k=4 means CV=1/sqrt(k)=0.50. Certification level delta=0.001. Distances in units of d0=W0/m (twin-mean stopping distance).
+
+== 1. Certified distance from a twin with n independent cells across it, and the real P(D > certified) when j patches span it ==
+n (twin cells)  certified/d0 | real exceedance at j = 1, 3, 10, 30, 100
+10              1.720        | 0.206  0.0524  0.001  3.05e-08  1.57e-23
+100             1.173        | 0.444  0.33  0.176  0.0474  0.001
+1000            1.051        | 0.528  0.471  0.399  0.307  0.168
+10000           1.016        | 0.554  0.517  0.482  0.445  0.385
+
+== 2. Distance the real terrain needs for delta=0.001, vs what an n=1000 twin certifies ==
+twin (n=1000) certifies 1.051 d0
+j patches   required/d0   required/twin-certified
+1           9.334         8.88
+2           4.059         3.86
+3           2.969         2.83
+5           2.233         2.13
+10          1.720         1.64
+30          1.349         1.28
+100         1.173         1.12
+1000        1.051         1.00
+
+== 3. Sensitivity to friction spread (n=1000 twin, delta=0.001): certified/d0, then delivered exceedance at j=1, 3, 10 ==
+k=2   CV=0.71 certified/d0=1.073  exceedance: 0.556  0.487  0.407
+k=4   CV=0.50 certified/d0=1.051  exceedance: 0.528  0.471  0.399
+k=10  CV=0.32 certified/d0=1.032  exceedance: 0.503  0.457  0.391
+k=25  CV=0.20 certified/d0=1.020  exceedance: 0.488  0.448  0.387
+
+== 4. The mean is nearly right, the tail is not: braking simulation, random start phase, E[D]/d0 and P(D > 1.2 d0), 20000 runs, k=4 ==
+L/d0    E[D]/d0   P(D>1.2 d0)   (single-patch limit: E[D]/d0 = k/(k-1) = 1.333)
+0.01    1.002     0.0001
+0.03    1.004     0.0128
+0.1     1.011     0.1139
+0.3     1.036     0.2551
+1       1.116     0.3713
+3       1.214     0.4083
+100     1.322     0.4309
+
+== 5. Check: closed form vs braking simulation, aligned start, s=j*L, 200000 runs ==
+j    s/d0   closed form   simulation
+1    2      0.1429        0.1434
+4    1.4    0.1173        0.1168
+10   1.2    0.1433        0.1428
+
+== 6. Repair: rebuild the twin with the measured correlation length. True j=4; twin assumes j_est patches across the distance (delta=0.001) ==
+j_est   certified/d0   real exceedance at true j=4
+1       9.334          5.32e-11
+2       4.059          4.08e-06
+4       2.498          0.001
+8       1.848          0.0161
+16      1.520          0.0694
+1000    1.051          0.455

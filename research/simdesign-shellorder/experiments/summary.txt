@@ -1,0 +1,5 @@
+levels (FE critical load, N): 10021.55, 9686.54, 9629.96
+differences coarse->mid, mid->fine: 335.01, 56.58
+observed order p = log2(d1/d2) = 2.57
+Richardson limit = 9618.46 N; ratio to closed form 1.1368
+fine-level error vs limit = 0.12 %

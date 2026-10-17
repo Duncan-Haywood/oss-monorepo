@@ -1,0 +1,13 @@
+name,basis,qty,unit
+Herb roast chicken entree,guest,1,5.40
+Seasonal vegetable side,guest,1,1.35
+Salad and dressing,guest,1,1.10
+Rolls and butter,guest,1,0.45
+Dessert bar,guest,1,1.80
+Disposable plates and cutlery,guest,1,0.55
+Lead cook,staff-hour,8,26
+Servers (3 x 6 hours),staff-hour,18,18
+Setup and breakdown helper,staff-hour,5,16
+Van fuel and mileage,flat,1,64
+Chafing dishes and sternos,flat,1,45
+Linen rental,flat,1,120

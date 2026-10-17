@@ -1,0 +1,28 @@
+assumed inputs: a=1.0 per machine-hour; W=50.0 h per copy (selfrep-growth); horizon T=600 h; fleet starts at 1; failure 0, k=1/W=0.0200/h; cash never binds
+objective J = revenue + s x (machines at T); Euler step 1 h; s is an assumed resale value per machine; s* = a/k = 50.0 is the never-switch threshold when the market is unsaturated
+DP: 400 log-spaced fleet points, 21 control levels; percentages are of the DP policy's simulated J
+
+== market capacity c = inf
+s=   0.0 (0.00 s*): DP J=    2685743.1 (table     2835148.4, N_T=   53451.6, u<0.5 from t=550, 1 h interior) | bang-bang ts= 549 100.00% | DP policy for s=0 100.00%
+s=  12.5 (0.25 s*): DP J=    3440063.1 (table     3634944.4, N_T=   68464.1, u<0.5 from t=562, 1 h interior) | bang-bang ts= 562 100.00% | DP policy for s=0  97.49%
+s=  25.0 (0.50 s*): DP J=    4406246.3 (table     4652795.0, N_T=   87692.9, u<0.5 from t=575, 1 h interior) | bang-bang ts= 574 100.00% | DP policy for s=0  91.28%
+s=  50.0 (1.00 s*): DP J=    7228914.1 (table     7420438.6, N_T=  143157.3, u<0.5 from t=599, 1 h interior) | bang-bang ts= 600 100.00% | DP policy for s=0  74.12%
+
+== market capacity c = 100000
+s=   0.0 (0.00 s*): DP J=    2153656.5 (table     2214366.0, N_T=   42715.3, u<0.5 from t=538, 21 h interior) | bang-bang ts= 537  99.40% | DP policy for s=0 100.00%
+s=  12.5 (0.25 s*): DP J=    2787757.6 (table     2876073.2, N_T=   61172.9, u<0.5 from t=557, 30 h interior) | bang-bang ts= 554  98.82% | DP policy for s=0  96.41%
+s=  25.0 (0.50 s*): DP J=    3822604.2 (table     3960798.8, N_T=  113084.7, u<0.5 from t=592, 35 h interior) | bang-bang ts= 581  96.19% | DP policy for s=0  84.28%
+s=  50.0 (1.00 s*): DP J=    7217354.1 (table     7035551.0, N_T=  142799.0, u<0.5 from t=600, 10 h interior) | bang-bang ts= 600 100.16% | DP policy for s=0  59.43%
+
+== market capacity c = 10000
+s=   0.0 (0.00 s*): DP J=     930880.4 (table      933196.7, N_T=   18301.1, u<0.5 from t=492, 90 h interior) | bang-bang ts= 485  95.50% | DP policy for s=0 100.00%
+s=  12.5 (0.25 s*): DP J=    1924609.2 (table     1911801.7, N_T=  127293.3, u<0.5 from t=600, 72 h interior) | bang-bang ts= 600  93.90% | DP policy for s=0  60.25%
+s=  25.0 (0.50 s*): DP J=    3625081.4 (table     3442518.0, N_T=  138566.4, u<0.5 from t=600, 44 h interior) | bang-bang ts= 600  99.71% | DP policy for s=0  38.30%
+s=  50.0 (1.00 s*): DP J=    7208647.1 (table     6623288.5, N_T=  143219.5, u<0.5 from t=600, 11 h interior) | bang-bang ts= 600 100.28% | DP policy for s=0  25.61%
+
+== market capacity c = 1000
+s=   0.0 (0.00 s*): DP J=     201596.4 (table      201249.8, N_T=    3936.7, u<0.5 from t=398, 194 h interior) | bang-bang ts= 393  93.35% | DP policy for s=0 100.00%
+s=  12.5 (0.25 s*): DP J=    1808625.9 (table     1647581.5, N_T=  142629.4, u<0.5 from t=600, 15 h interior) | bang-bang ts= 600  99.92% | DP policy for s=0  13.87%
+s=  25.0 (0.50 s*): DP J=    3592325.3 (table     3246605.8, N_T=  143611.3, u<0.5 from t=600, 1 h interior) | bang-bang ts= 600 100.62% | DP policy for s=0   8.35%
+s=  50.0 (1.00 s*): DP J=    7182451.6 (table     6451521.4, N_T=  143628.4, u<0.5 from t=600, 1 h interior) | bang-bang ts= 600 100.65% | DP policy for s=0   5.55%
+

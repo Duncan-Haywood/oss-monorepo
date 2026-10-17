@@ -1,0 +1,38 @@
+name: uk-bonus-tax-calculator
+description: >-
+  Free browser tool for UK employees: enter salary and bonus to see what you keep for 2026/27 after income tax, National Insurance, student loan and the High Income Child Benefit Charge, the effective rate on your last pound (the 60% personal allowance trap), and what paying 0 to 100% of the bonus into a pension by salary sacrifice would change. England and Scotland. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK bonus tool existed in ventures/ (bonus-take-home-gross-up-calculator is the US supplemental-wage rule; uk-take-home-pay, uk-100k-tax-trap and uk-salary-sacrifice each touch it but none answers "what do I keep of this bonus").
+#
+# First visitor: an employee told a bonus is coming, searching "bonus tax calculator UK", "how much tax on a bonus", "bonus pension salary sacrifice", "bonus over 100k tax". Large evergreen query family with a seasonal spike at bonus time (Q1 and year end); volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a total-reward / offer comparison sheet for people weighing job offers with different bonus structures, behind an env-var switch.
+#
+# Liability: rates checked against GOV.UK and gov.scot in the building session; student loan thresholds are 2025/26. Every result names its sources to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide.
+# Ethical risk is encouraging aggressive pension sacrifice; mitigated by stating it needs employer agreement, affects mortgage affordability and statutory pay, and by pointing to the annual allowance check.
+hypotheses:
+  - claim: >-
+      UK employees expecting a bonus, especially those near GBP 100,000 or with Child Benefit, will use a free calculator to see what they keep and whether a pension contribution keeps more.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, threshold or rule differs from GOV.UK or HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-bonus-tax-calculator/
+  analytics: null

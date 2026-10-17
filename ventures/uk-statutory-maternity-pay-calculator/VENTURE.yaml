@@ -1,0 +1,37 @@
+name: uk-statutory-maternity-pay-calculator
+description: >-
+  Free browser tool for UK small employers and bookkeepers: enter the due date, average weekly earnings and employment start to check Statutory Maternity Pay eligibility, the qualifying week, the 39-week pay schedule and Statutory Paternity Pay. Nothing is uploaded. Not legal or payroll advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check found no UK SMP/SPP tool in ventures/ (siblings: uk-statutory-sick-pay-calculator, uk-redundancy-pay-calculator).
+#
+# First visitor: UK small-business owner or bookkeeper searching "SMP calculator 2026", "statutory maternity pay rate 2026/27", "SMP qualifying week". Evergreen, April uprating spike; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: AWE builder from payslips, adoption and shared parental pay, payroll export, behind an env-var switch.
+#
+# Liability: rates written from memory without network access (2025/26 standard GBP 187.18, LEL 125; 2026/27 standard GBP 194.32, LEL 129); every result names GOV.UK as the source to verify and carries no-warranty and not-payroll-advice clauses, and says what it does not decide (AWE calculation, Maternity Allowance, contractual schemes). Ethical risk is underpaying an employee; mitigated by the verify line.
+hypotheses:
+  - claim: >-
+      UK small employers and bookkeepers unsure what SMP they owe, or whether the employee qualifies, will use a free private calculator and download the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-statutory-maternity-pay-calculator/
+  analytics: null

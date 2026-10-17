@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Detailing Service Menu Picker: Which Services Should I Sell? — Free</title>
+  <meta name="description" content="Free tool for auto detailers and mobile detailing shops with limited bay hours: get the exact most profitable set of services to sell after product cost, booking and card fees, consumables and labour. Nothing uploaded.">
+  <meta property="og:title" content="Auto detailing service menu picker">
+  <meta property="og:description" content="Limited bay hours, many services. Which services to sell, checked exactly, from your own numbers. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 10h18M7 16h12M7 22h7' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Auto Detailing Service Menu Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Choose which detailing services to sell when bay hours are limited: the exact most profitable set after product cost, fees, consumables and labour, compared with simple rules, break-even jobs, the value of more bay hours and sensitivity to job volume. Runs in your browser.", "featureList": "Exact service selection under a bay-hours limit, profit per job and per bay hour, break-even jobs, comparison with rules of thumb, value of extra hours, job-volume sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I sell every service I can do?", "acceptedAnswer": {"@type": "Answer", "text": "You can, but a day-long ceramic coating and a 45-minute wash and wax do not earn the same per bay hour. Past the hours you can actually work, every extra service pushes out a better one. This tool finds the set of services that earns the most inside the bay hours you really have."}}, {"@type": "Question", "name": "How is a service's profit worked out here?", "acceptedAnswer": {"@type": "Answer", "text": "Per job: price less product cost, less booking-app and card fees, less consumables, less the labour to do it. Multiply by jobs a month, then subtract the service's own monthly cost. Services that lose money are never picked."}}, {"@type": "Question", "name": "Why not just rank services by profit?", "acceptedAnswer": {"@type": "Answer", "text": "Profit per bay hour, biggest profit and best margin each miss some combinations. When the hours are tight, a service that looks best can crowd out two others that earn more together. The tool tries every set of up to 14 services and shows how far each rule falls short."}}, {"@type": "Question", "name": "What are break-even jobs?", "acceptedAnswer": {"@type": "Answer", "text": "The weekly jobs at which a service covers its own monthly cost after products, fees, consumables and labour. Below it, the service loses money no matter how busy the bay feels."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. It does not model services taking bookings from each other, reviews, add-on upsells, weather, cure times that block a bay or ramp-up time."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">AUTO DETAILING SERVICE MENU PICKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>I can sell more detailing services than I have bay hours for. Which do I keep?</h1>
+    <p>Enter the bay hours a week you have for paid work and each service's jobs, price, product cost, booking and card fees, consumables, bay time and own monthly cost. The tool finds the set of services that earns the most inside those hours, shows each one's profit per job, per bay hour and break-even jobs, compares the exact answer with the rules of thumb, says what more bay hours would be worth, and tests the answer against jobs 30% lower and higher.</p>
+    <p class="note">Arithmetic on figures you type. Services do not take bookings from each other here, and labour is charged at the hourly rate you enter. The example figures are placeholders, not any real shop's numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your bay</h2>
+      <div class="grid">
+        <div><label for="kitchenHours">Bay hours a week for paid work</label><input id="kitchenHours" type="number" step="any" value="0"><p class="note">Hours a bay or van is actually working on a vehicle that you can staff, not opening hours.</p></div>
+        <div><label for="labourRate">Detailer labour cost ($ an hour)</label><input id="labourRate" type="number" step="any" value="18"><p class="note">Wages plus payroll costs for the people doing the work. Use your own hourly value if you do the work yourself.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Service 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Service name</label><input id="t0_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t0_orders">Jobs a week</label><input id="t0_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t0_aov">Average price per job ($)</label><input id="t0_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t0_foodPct">Product cost (% of price)</label><input id="t0_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t0_platformPct">Booking and card fees (% of price)</label><input id="t0_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t0_consumables">Consumables per job ($)</label><input id="t0_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t0_prepMin">Bay minutes per job</label><input id="t0_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t0_fixed">Service's own cost a month ($)</label><input id="t0_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Service 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Service name</label><input id="t1_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t1_orders">Jobs a week</label><input id="t1_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t1_aov">Average price per job ($)</label><input id="t1_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t1_foodPct">Product cost (% of price)</label><input id="t1_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t1_platformPct">Booking and card fees (% of price)</label><input id="t1_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t1_consumables">Consumables per job ($)</label><input id="t1_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t1_prepMin">Bay minutes per job</label><input id="t1_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t1_fixed">Service's own cost a month ($)</label><input id="t1_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Service 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Service name</label><input id="t2_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t2_orders">Jobs a week</label><input id="t2_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t2_aov">Average price per job ($)</label><input id="t2_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t2_foodPct">Product cost (% of price)</label><input id="t2_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t2_platformPct">Booking and card fees (% of price)</label><input id="t2_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t2_consumables">Consumables per job ($)</label><input id="t2_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t2_prepMin">Bay minutes per job</label><input id="t2_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t2_fixed">Service's own cost a month ($)</label><input id="t2_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Service 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Service name</label><input id="t3_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t3_orders">Jobs a week</label><input id="t3_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t3_aov">Average price per job ($)</label><input id="t3_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t3_foodPct">Product cost (% of price)</label><input id="t3_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t3_platformPct">Booking and card fees (% of price)</label><input id="t3_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t3_consumables">Consumables per job ($)</label><input id="t3_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t3_prepMin">Bay minutes per job</label><input id="t3_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t3_fixed">Service's own cost a month ($)</label><input id="t3_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Service 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Service name</label><input id="t4_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t4_orders">Jobs a week</label><input id="t4_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t4_aov">Average price per job ($)</label><input id="t4_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t4_foodPct">Product cost (% of price)</label><input id="t4_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t4_platformPct">Booking and card fees (% of price)</label><input id="t4_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t4_consumables">Consumables per job ($)</label><input id="t4_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t4_prepMin">Bay minutes per job</label><input id="t4_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t4_fixed">Service's own cost a month ($)</label><input id="t4_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Service 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Service name</label><input id="t5_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t5_orders">Jobs a week</label><input id="t5_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t5_aov">Average price per job ($)</label><input id="t5_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t5_foodPct">Product cost (% of price)</label><input id="t5_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t5_platformPct">Booking and card fees (% of price)</label><input id="t5_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t5_consumables">Consumables per job ($)</label><input id="t5_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t5_prepMin">Bay minutes per job</label><input id="t5_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t5_fixed">Service's own cost a month ($)</label><input id="t5_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t6">
+      <h2 id="h-t6">Service 7</h2>
+      <div class="grid">
+        <div><label for="t6_name">Service name</label><input id="t6_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t6_orders">Jobs a week</label><input id="t6_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t6_aov">Average price per job ($)</label><input id="t6_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t6_foodPct">Product cost (% of price)</label><input id="t6_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t6_platformPct">Booking and card fees (% of price)</label><input id="t6_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t6_consumables">Consumables per job ($)</label><input id="t6_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t6_prepMin">Bay minutes per job</label><input id="t6_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t6_fixed">Service's own cost a month ($)</label><input id="t6_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t7">
+      <h2 id="h-t7">Service 8</h2>
+      <div class="grid">
+        <div><label for="t7_name">Service name</label><input id="t7_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t7_orders">Jobs a week</label><input id="t7_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t7_aov">Average price per job ($)</label><input id="t7_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t7_foodPct">Product cost (% of price)</label><input id="t7_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t7_platformPct">Booking and card fees (% of price)</label><input id="t7_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t7_consumables">Consumables per job ($)</label><input id="t7_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t7_prepMin">Bay minutes per job</label><input id="t7_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t7_fixed">Service's own cost a month ($)</label><input id="t7_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t8">
+      <h2 id="h-t8">Service 9</h2>
+      <div class="grid">
+        <div><label for="t8_name">Service name</label><input id="t8_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t8_orders">Jobs a week</label><input id="t8_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t8_aov">Average price per job ($)</label><input id="t8_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t8_foodPct">Product cost (% of price)</label><input id="t8_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t8_platformPct">Booking and card fees (% of price)</label><input id="t8_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t8_consumables">Consumables per job ($)</label><input id="t8_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t8_prepMin">Bay minutes per job</label><input id="t8_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t8_fixed">Service's own cost a month ($)</label><input id="t8_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t9">
+      <h2 id="h-t9">Service 10</h2>
+      <div class="grid">
+        <div><label for="t9_name">Service name</label><input id="t9_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t9_orders">Jobs a week</label><input id="t9_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t9_aov">Average price per job ($)</label><input id="t9_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t9_foodPct">Product cost (% of price)</label><input id="t9_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t9_platformPct">Booking and card fees (% of price)</label><input id="t9_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t9_consumables">Consumables per job ($)</label><input id="t9_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t9_prepMin">Bay minutes per job</label><input id="t9_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t9_fixed">Service's own cost a month ($)</label><input id="t9_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t10">
+      <h2 id="h-t10">Service 11</h2>
+      <div class="grid">
+        <div><label for="t10_name">Service name</label><input id="t10_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t10_orders">Jobs a week</label><input id="t10_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t10_aov">Average price per job ($)</label><input id="t10_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t10_foodPct">Product cost (% of price)</label><input id="t10_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t10_platformPct">Booking and card fees (% of price)</label><input id="t10_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t10_consumables">Consumables per job ($)</label><input id="t10_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t10_prepMin">Bay minutes per job</label><input id="t10_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t10_fixed">Service's own cost a month ($)</label><input id="t10_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t11">
+      <h2 id="h-t11">Service 12</h2>
+      <div class="grid">
+        <div><label for="t11_name">Service name</label><input id="t11_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t11_orders">Jobs a week</label><input id="t11_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t11_aov">Average price per job ($)</label><input id="t11_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t11_foodPct">Product cost (% of price)</label><input id="t11_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t11_platformPct">Booking and card fees (% of price)</label><input id="t11_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t11_consumables">Consumables per job ($)</label><input id="t11_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t11_prepMin">Bay minutes per job</label><input id="t11_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t11_fixed">Service's own cost a month ($)</label><input id="t11_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t12">
+      <h2 id="h-t12">Service 13</h2>
+      <div class="grid">
+        <div><label for="t12_name">Service name</label><input id="t12_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t12_orders">Jobs a week</label><input id="t12_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t12_aov">Average price per job ($)</label><input id="t12_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t12_foodPct">Product cost (% of price)</label><input id="t12_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t12_platformPct">Booking and card fees (% of price)</label><input id="t12_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t12_consumables">Consumables per job ($)</label><input id="t12_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t12_prepMin">Bay minutes per job</label><input id="t12_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t12_fixed">Service's own cost a month ($)</label><input id="t12_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t13">
+      <h2 id="h-t13">Service 14</h2>
+      <div class="grid">
+        <div><label for="t13_name">Service name</label><input id="t13_name" type="text" value=""><p class="note">Your service, for example Interior deep clean.</p></div>
+        <div><label for="t13_orders">Jobs a week</label><input id="t13_orders" type="number" step="any" value="0"><p class="note">Jobs you expect to sell for this service in a typical week.</p></div>
+        <div><label for="t13_aov">Average price per job ($)</label><input id="t13_aov" type="number" step="any" value="0"><p class="note">What the customer pays, before tax and tip.</p></div>
+        <div><label for="t13_foodPct">Product cost (% of price)</label><input id="t13_foodPct" type="number" step="any" value=""><p class="note">Chemicals, polish, coatings and pads as a share of the price.</p></div>
+        <div><label for="t13_platformPct">Booking and card fees (% of price)</label><input id="t13_platformPct" type="number" step="any" value=""><p class="note">Booking-app commission, card processing and discounts you fund.</p></div>
+        <div><label for="t13_consumables">Consumables per job ($)</label><input id="t13_consumables" type="number" step="any" value=""><p class="note">Towels, tape, gloves and applicators used up per job. Blank means none.</p></div>
+        <div><label for="t13_prepMin">Bay minutes per job</label><input id="t13_prepMin" type="number" step="any" value=""><p class="note">Minutes the bay is tied up for one job, including prep and cleanup.</p></div>
+        <div><label for="t13_fixed">Service's own cost a month ($)</label><input id="t13_fixed" type="number" step="any" value=""><p class="note">Special tools, certification, ads or software that exist only for this service. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Pick the services to sell</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">A service needs jobs a week, a price, a product cost, fees and bay minutes. Leave a service blank to leave it out. Up to 14 services.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions auto detailers ask</h2>
+      <h3>Can I sell every service I can do?</h3>
+      <p>You can, but a day-long ceramic coating and a 45-minute wash and wax do not earn the same per bay hour. Past the hours you can actually work, every extra service pushes out a better one. This tool finds the set of services that earns the most inside the bay hours you really have.</p>
+      <h3>How is a service's profit worked out here?</h3>
+      <p>Per job: price less product cost, less booking-app and card fees, less consumables, less the labour to do it. Multiply by jobs a month, then subtract the service's own monthly cost. Services that lose money are never picked.</p>
+      <h3>Why not just rank services by profit?</h3>
+      <p>Profit per bay hour, biggest profit and best margin each miss some combinations. When the hours are tight, a service that looks best can crowd out two others that earn more together. The tool tries every set of up to 14 services and shows how far each rule falls short.</p>
+      <h3>What are break-even jobs?</h3>
+      <p>The weekly jobs at which a service covers its own monthly cost after products, fees, consumables and labour. Below it, the service loses money no matter how busy the bay feels.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on the figures you type. It does not model services taking bookings from each other, reviews, add-on upsells, weather, cure times that block a bay or ramp-up time.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether services cannibalise each other, add-on upsells, reviews and repeat customers, cure or dwell time that blocks a bay, travel time for mobile work, certification or insurance requirements, equipment bottlenecks beyond total hours, tax, and seasonality. Every service is treated as independent and every hour as interchangeable.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../auto-repair-effective-labor-rate/">auto repair effective labor rate</a> tool and the <a href="../service-hourly-yield-analyzer/">service hourly yield analyzer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, MAX_BRANDS, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = MAX_BRANDS, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const be = (b) => (Number.isFinite(b.breakEvenOrders) ? one(b.breakEvenOrders) : "never");
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      if (a.plan.length) {
+        h += `<div class="finding"><h4>Sell these services</h4><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${one(a.hoursUsed)} of your ${one(a.shared.kitchenHours)} bay hours a week and earns ${money(a.profit)} a month after products, fees, consumables, labour and each service's own cost, on ${money(a.revenue)} of bookings. ${one(a.hoursLeft)} hours are left over.</p></div>`;
+      } else {
+        h += `<div class="finding"><h4>Sell none of them</h4><p>At these numbers no service earns money inside your bay hours.</p></div>`;
+      }
+      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Monthly profit", "Services sold", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.profit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer earns " + money(a.ruleLoss) + " a month more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
+      if (a.skipped.length) h += `<div class="finding"><h4>Dropped</h4>${table(["Service", "Monthly profit alone", "Why"], a.skipped.map((s) => [esc(s.name), money(s.profit), esc(s.reason)]))}</div>`;
+      h += `<div class="finding"><h4>What more bay hours would buy</h4><p>${a.extraLevels.map((e) => "With " + one(e.add) + " more hours a week you would earn " + money(e.gain) + " more a month (" + e.count + " services).").join(" ")} Compare that with what the extra labour and equipment cost.</p></div>`;
+      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.volumeChecks.map((c) => "If every service's jobs were " + Math.round((c.scale - 1) * 100) + "% " + (c.scale < 1 ? "lower" : "higher") + " the best set " + (c.same ? "is the same" : "changes") + " (earns " + money(c.profit) + " a month).").join(" ")}</p></div>`;
+      h += `<div class="finding"><h4>The plan</h4>${table(["Service", "Jobs a week", "Profit per job", "Bay hours", "Monthly profit", "Per bay hour", "Break-even jobs"], a.plan.map((p) => [esc(p.name), p.orders, money(p.perOrder), one(p.hoursPerWeek), money(p.profit), money(p.perHour), be(p)]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "auto-detailing-service-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

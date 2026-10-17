@@ -1,0 +1,107 @@
+name: excess-business-loss-calculator
+description: >-
+  Free browser calculator for the IRC 461(l) excess business loss
+  limitation, made permanent by OBBBA -- computes how much of a
+  pass-through owner's net trade-or-business loss is deductible this year
+  against the 2025 ($313,000 single/HOH/MFS, $626,000 MFJ) or 2026
+  ($256,000/$512,000, a counterintuitive DECREASE from 2025 caused by a
+  rebased inflation index) threshold, and how much becomes a net operating
+  loss carryforward instead. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work,
+# following two other OBBBA calculators shipped earlier the same session).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.25 or below for the final description above -- well
+# under the 0.45 review bar. The closest match
+# (bonus-depreciation-calculator, 0.25) shares only the "OBBBA/NOL/
+# deduction" vocabulary; it models an equipment-purchase expensing
+# election, not a net-loss limitation.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against
+# Moss Adams' "Avoid Tax Surprises Related to Excess Business Loss
+# Limitations Post-OBBBA", Baker Tilly's 2025 year-end planning guide,
+# Hiltzik CPA's "Excess Business Loss Limitation 2026: Threshold Falls to
+# $256,000", Keiter's "Excess Business Loss | OBBBA", MBE CPAs' 2026
+# guide, and a cross-check search against Tax Notes' threshold reference
+# table, cross-checked against each other: IRC Section 461(l), which
+# limits how much of a noncorporate taxpayer's net business loss can
+# offset other income in the current year, was scheduled to expire after
+# 2028; OBBBA made it PERMANENT starting with the 2025 tax year. The
+# threshold is $313,000 single/head-of-household/married-filing-separately
+# and $626,000 married-filing-jointly (exactly double) for 2025. For 2026,
+# OBBBA also rebased how the threshold is indexed -- resetting it closer
+# to its original 2017 TCJA base instead of continuing to compound from
+# it -- producing a COUNTERINTUITIVE result: the 2026 threshold
+# ($256,000/$512,000) is LOWER than 2025's, the opposite direction from
+# almost every other OBBBA-affected figure in this portfolio. The excess
+# above the threshold is not lost; it is added to the taxpayer's net
+# operating loss carryforward, subject to the existing 80%-of-taxable-
+# income limitation in future years.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes an EBL explainer for 2025/2026, but none found
+# combine an interactive side-by-side 2025-vs-2026 comparison with the
+# rebasing direction flagged as its own explicit finding -- most either
+# cover one year or state the new figure without contrasting it against
+# the (higher) prior year. No signup, no upsell, nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Pass-through business owners (LLC/S-corp/partnership) with a large
+      current-year loss, and the accountants/CPAs advising them, will
+      search plain-language phrases ("excess business loss calculator
+      2026", "461(l) threshold calculator", "excess business loss
+      limitation 2026") and some will prefer a free, private, no-signup
+      calculator over reading a CPA-firm blog post and comparing two
+      years' thresholds by hand, especially during Q4 year-end tax
+      planning when a large loss is foreseeable.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published EBL explainer articles,
+      specifically framed around the 2026 threshold DECREASE (found during
+      WebSearch research 2026-09-25) as a "surprise" or "trap" for
+      taxpayers, is evidence of real, current search and professional
+      interest in exactly this counterintuitive detail -- a genuine
+      differentiation opportunity, not a duplicate entrant into an
+      already-served niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A taxpayer or preparer working this out by hand for 2026 is likely
+      to assume the threshold rose from 2025 (as almost every other
+      inflation-indexed figure does) rather than checking the actual,
+      lower 2026 number, overstating how much loss is deductible this
+      year -- a calculator that states the reversal explicitly prevents
+      that specific, plausible mistake.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering the
+    first returns filed under the permanent, rebased 2026 threshold), by
+    which point most pass-through owners who planned their 2026 losses
+    around this decision should already have filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/excess-business-loss-calculator/
+  analytics: null

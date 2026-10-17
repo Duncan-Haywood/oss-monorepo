@@ -16,11 +16,31 @@ test('docs page links back to the tool', async () => {
   assert.match(page, /href="\.\/"/);
 });
 
-test('both pages carry the no-warranty clause', async () => {
-  for (const file of ['index.html', 'why-npm-audit-does-not-catch-a-malicious-install-script.html']) {
+test('all pages carry the no-warranty clause', async () => {
+  for (const file of [
+    'index.html',
+    'why-npm-audit-does-not-catch-a-malicious-install-script.html',
+    'vs-socket.html',
+    'vs-diffing-package-lock-by-hand.html',
+  ]) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), 'utf8');
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
+});
+
+test('index links to the vs-diffing-package-lock-by-hand comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="vs-diffing-package-lock-by-hand\.html"/);
+});
+
+test('vs-diffing-package-lock-by-hand page links back to the tool', async () => {
+  const page = await readFile(new URL('./vs-diffing-package-lock-by-hand.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/);
+});
+
+test('sitemap lists the vs-diffing-package-lock-by-hand page', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-diffing-package-lock-by-hand\.html/);
 });
 
 test('index carries the sponsor link', async () => {
@@ -54,5 +74,16 @@ test('index links one hop to the vscode-extension-drift-check sibling', async ()
     page,
     /href="\.\.\/vscode-extension-drift-check\/"/,
     'index must link ../vscode-extension-drift-check/ so crawlers reach that tool in one hop',
+  );
+});
+
+// Reciprocal of npm-provenance-check's own sibling-link test: keeps that
+// venture from shipping as a crawlable orphan with no inbound link.
+test('index links one hop to the npm-provenance-check sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/npm-provenance-check\/"/,
+    'index must link ../npm-provenance-check/ so crawlers reach that tool in one hop',
   );
 });

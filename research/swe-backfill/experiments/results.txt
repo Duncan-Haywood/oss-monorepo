@@ -1,0 +1,58 @@
+commits touching research/<slug>/: 517   projects: 396   span: 2026-09-28 to 2026-10-15
+projects since removed: 1
+
+projects created per UTC day
+  2026-09-28    1
+  2026-09-29   89
+  2026-09-30  129
+  2026-10-01   20
+  2026-10-13   93
+  2026-10-14   61
+  2026-10-15    3
+
+per track (slug prefix): projects, commits, test files added
+  other       239   272   255
+  robofab      32    51    65
+  garment      30    52    30
+  simdesign    29    53    33
+  selfrep      25    35    28
+  chip         20    48    22
+  ambient      18    30    18
+  accel         2     4     2
+  eda           1     1     1
+
+follow-up families (>=3 slugs sharing a stem): 18; 196 of 396 projects = 49% sit in one
+  *-twin                       108
+  *-elicitation                10
+  garment-twon                 10
+  chip-syst                    8
+  simdesign-gaug               8
+  *-markets                    5
+  *-scoring                    5
+  *-scores                     5
+  robofab-cell                 5
+  garment-stac                 5
+  *-routing                    4
+  chip-ppa                     4
+
+later commits within 14 days of creation (obs. = creation at least 14 days before the end of the history)
+  never touched again, all projects: 302/396 = 76% (95% Wilson 72% to 80%)
+  with a correction-worded later commit, observed window only: 6/234 = 3% (95% Wilson 1% to 5%)
+  same, all projects incl. partly observed: 8/396 = 2% (95% Wilson 1% to 4%)
+  fully observed projects: 234
+  correction-worded later commit, family members: 4/196 = 2% (95% Wilson 1% to 5%)
+  correction-worded later commit, all other projects: 4/200 = 2% (95% Wilson 1% to 5%)
+  mean later commits in 14 days: family members 0.28, others 0.41
+
+minutes between consecutive project creations: median 4; 275 of 395 gaps are 10 minutes or less
+neighbouring family members created within 3 hours of each other: 152 pairs
+
+run-log snapshot (swe-ledger) lists 184 slugs; in git: 396; both: 179
+  in git, never listed in the run log: 217
+  in the run log, not in git history: 5
+  unlisted by track: {'other': 217}
+
+by era (log dense from 2026-10-13): created before: 239, of which in the log 22; created on or after: 157, of which in the log 157 (100%)
+  created on/after, not in the log: []
+  tracked-prefix projects created before the cut: 0
+  untracked projects created on/after the cut: 0

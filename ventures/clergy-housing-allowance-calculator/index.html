@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Clergy Housing Allowance Calculator — Minister Section 107 Exclusion</title>
+  <meta name="description" content="Free minister housing allowance calculator: find your section 107 exclusion (the least of designated, actual cost and fair rental value), income tax saved, self-employment tax, and a board resolution template. Runs in your browser.">
+  <meta property="og:title" content="Clergy Housing Allowance Calculator — free, private">
+  <meta property="og:description" content="How much of your pay is tax-free as a housing allowance, and what to ask your church to designate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Clergy Housing Allowance Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free minister housing allowance calculator: the section 107 exclusion, income tax saved, self-employment tax, a suggested designation and a board resolution template."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is the minister's housing allowance calculated?", "acceptedAnswer": {"@type": "Answer", "text": "The income-tax exclusion is the smallest of three numbers: the amount the church designated in advance, the housing costs you actually paid, and the fair rental value of the home furnished and with utilities. Anything designated above that smallest number is taxable wages."}}, {"@type": "Question", "name": "Does the housing allowance reduce self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "No. The allowance is excluded from income tax only. A minister who is treated as self-employed pays Social Security and Medicare tax on salary plus the housing exclusion, so a bigger designation does not lower that bill."}}, {"@type": "Question", "name": "When must the church designate the housing allowance?", "acceptedAnswer": {"@type": "Answer", "text": "In advance, by an official action of the church such as a board resolution or minutes. It cannot be set retroactively, but it can be changed going forward if costs change. Use the resolution template below as a starting point and have your adviser review it."}}, {"@type": "Question", "name": "Can I get a housing allowance if the church gives me a parsonage?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, in a different form. The fair rental value of a church-owned parsonage is excluded from income tax, and the church can also designate an allowance for the utilities you pay yourself."}}, {"@type": "Question", "name": "What housing costs count?", "acceptedAnswer": {"@type": "Answer", "text": "Rent or mortgage payments, property taxes, homeowners or renters insurance, utilities, repairs and maintenance, and furnishings and appliances. Food and household help do not count. Check the IRS guidance for ministers or ask your tax adviser about anything unusual."}}, {"@type": "Question", "name": "Can I still deduct mortgage interest and property tax?", "acceptedAnswer": {"@type": "Answer", "text": "Generally yes. A minister may deduct mortgage interest and real estate taxes even when the housing allowance paid for them. Confirm with your adviser."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. Rules differ by situation, and a tax professional who works with clergy should confirm your numbers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CLERGY HOUSING ALLOWANCE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>How much of your pay can be a tax-free housing allowance?</h1>
+    <p>Enter your salary, what your church designated and your housing costs. You get <strong>the exclusion (the least of designated, actual cost and fair rental value), the income tax it saves, the self-employment tax it does not</strong>, a suggested designation for next year, and a resolution your board can adopt. Designating too little leaves tax-free money on the table; designating too much is taxable.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your housing and pay</h2>
+    <div class="grid">
+      <div><label for="mode">Your housing</label><select id="mode"><option value="own">I own my home</option><option value="rent">I rent</option><option value="parsonage">Church-owned parsonage</option></select></div>
+      <div><label for="wages">Cash salary for the year, not counting the allowance ($)</label><input type="number" id="wages" min="0" step="any" value="48000"></div>
+      <div><label for="designated">Housing allowance designated by the church ($ a year; utilities only for a parsonage)</label><input type="number" id="designated" min="0" step="any" value="24000"></div>
+      <div><label for="fairRental">Fair rental value, furnished, with utilities ($ a month; the parsonage's value if you live in one)</label><input type="number" id="fairRental" min="0" step="any" value="2400"></div>
+      <div><label for="bizExpenses">Unreimbursed ministry expenses ($ a year, for the SE tax estimate)</label><input type="number" id="bizExpenses" min="0" step="any" value="2500"></div>
+      <div><label for="cushion">Cushion on next year's suggestion (%)</label><input type="number" id="cushion" min="0" step="any" value="5"></div>
+      <div><label for="fedRate">Federal income tax bracket (%)</label><input type="number" id="fedRate" min="0" step="any" value="12"></div>
+      <div><label for="stateRate">State income tax rate (%, optional)</label><input type="number" id="stateRate" min="0" step="any" value="4"></div>
+      <div><label for="wageBase">Social Security wage base ($, check the current year)</label><input type="number" id="wageBase" min="0" step="any" value="184500"></div>
+    </div>
+    <p class="note">One housing cost per line: <code>label, amount, month or year</code>. Count rent or mortgage payments, property tax, insurance, utilities, repairs and furnishings. Do not count food or household help. For a parsonage, list only the utilities you pay.</p>
+    <label for="expenses">Housing costs</label>
+    <textarea id="expenses" rows="5" spellcheck="false">Mortgage payment (principal and interest), 1650, month</textarea>
+    <p>
+      <button type="button" id="analyze">Calculate my allowance</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Calculate my allowance.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="scroll"><table><thead><tr><th scope="col">Measure</th><th scope="col">Per year</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="advice"></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button> <button type="button" class="secondary" id="make-resolution">Make a board resolution</button></p>
+    <div id="resolution-box" hidden>
+      <label for="church">Church name</label><input type="text" id="church" placeholder="Name of church">
+      <label for="minister">Minister's name</label><input type="text" id="minister" placeholder="Name of minister">
+      <label for="year">Year</label><input type="text" id="year" placeholder="2027">
+      <label for="resolution">Resolution text (copy into your minutes)</label>
+      <textarea id="resolution" rows="12" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Own or rent: the income-tax exclusion is the <strong>smallest of</strong> the amount designated in advance, the housing costs you actually paid, and the fair rental value of the home furnished with utilities.</li>
+      <li>Parsonage: the fair rental value of the church-owned home is excluded, plus designated utilities up to what you paid.</li>
+      <li>Income tax saved is the exclusion times your federal and state rate.</li>
+      <li>Self-employment tax: 92.35% of salary plus the exclusion, minus unreimbursed ministry expenses, then 12.4% up to the wage base and 2.9% on all of it. Additional Medicare tax is not included.</li>
+      <li><strong>Not modelled:</strong> exemption from SE tax by Form 4361, the half-of-SE-tax deduction, retirement plans, state rules that differ from federal, the Additional Medicare tax, and any year-specific limits. Wage base default is a planning figure; check the current year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is the minister's housing allowance calculated?</h3>
+    <p>The income-tax exclusion is the smallest of three numbers: the amount the church designated in advance, the housing costs you actually paid, and the fair rental value of the home furnished and with utilities. Anything designated above that smallest number is taxable wages.</p>
+    <h3>Does the housing allowance reduce self-employment tax?</h3>
+    <p>No. The allowance is excluded from income tax only. A minister who is treated as self-employed pays Social Security and Medicare tax on salary plus the housing exclusion, so a bigger designation does not lower that bill.</p>
+    <h3>When must the church designate the housing allowance?</h3>
+    <p>In advance, by an official action of the church such as a board resolution or minutes. It cannot be set retroactively, but it can be changed going forward if costs change. Use the resolution template below as a starting point and have your adviser review it.</p>
+    <h3>Can I get a housing allowance if the church gives me a parsonage?</h3>
+    <p>Yes, in a different form. The fair rental value of a church-owned parsonage is excluded from income tax, and the church can also designate an allowance for the utilities you pay yourself.</p>
+    <h3>What housing costs count?</h3>
+    <p>Rent or mortgage payments, property taxes, homeowners or renters insurance, utilities, repairs and maintenance, and furnishings and appliances. Food and household help do not count. Check the IRS guidance for ministers or ask your tax adviser about anything unusual.</p>
+    <h3>Can I still deduct mortgage interest and property tax?</h3>
+    <p>Generally yes. A minister may deduct mortgage interest and real estate taxes even when the housing allowance paid for them. Confirm with your adviser.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It is a planning estimate from numbers you enter. Rules differ by situation, and a tax professional who works with clergy should confirm your numbers.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace the IRS guidance for ministers, your church's counsel or a tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and the resolution is a template only.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>allowance_calculated</code>, <code>example_loaded</code>, <code>resolution_made</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, <a href="../home-office-deduction-calculator/">home office deduction</a>, <a href="../mileage-deduction-calculator/">mileage deduction</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, resolution, usd } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["mode", "wages", "designated", "fairRental", "bizExpenses", "cushion", "fedRate", "stateRate", "wageBase", "expenses"];
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const rows = [["Designated by the church", r.designated], ["Housing costs you pay", r.expenses], ["Fair rental value", r.frv], ["Excluded from income tax", r.excluded], ["Taxable excess of the designation", r.taxableExcess], ["Income tax saved", r.incomeTaxSaved], ["Self-employment tax (estimate)", r.seWith], ["Suggested designation next year", r.recommended]];
+      $("#rows").innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${usd(v)}</td></tr>`).join("");
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = `Excluded from income tax: ${usd(r.excluded)}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fillResolution() {
+      if (!last) return;
+      $("#resolution").value = resolution(last, { church: $("#church").value.trim(), minister: $("#minister").value.trim(), year: $("#year").value.trim() });
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("allowance_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#make-resolution").addEventListener("click", () => { fillResolution(); $("#resolution-box").hidden = false; record("resolution_made"); });
+    for (const id of ["church", "minister", "year"]) $("#" + id).addEventListener("input", fillResolution);
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "housing-allowance.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

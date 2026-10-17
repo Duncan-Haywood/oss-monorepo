@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Market Garden Bed Planner — which crops earn the most per bed</title>
+  <meta name="description" content="Market garden bed planner for small vegetable and flower farms. Enter your crops, beds, season and labor and get the crop mix that earns the most, what one more bed-foot, labor hour or buyer is worth, and a simulated range. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Market Garden Bed Planner — free, private, in your browser">
+  <meta property="og:description" content="Pick the crop mix that earns the most from a limited number of beds, labor hours and buyers, ranked per bed-foot-day. Your numbers never leave your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Market Garden Bed Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your crops (yield per bed-foot, price, days in bed, cost, labor, what you can sell) and your total bed-feet, season and labor hours. Finds the plan that earns the most, with the value of one more bed-foot, labor hour or buyer, a comparison with sorting by profit per bed-foot, and a simulated range. Runs entirely in your browser; nothing is uploaded.", "featureList": "crop mix optimizer, profit per bed-foot-day, bed space and labor limits, market demand caps, shadow prices, simulated profit range, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I decide which crops to grow in a market garden?", "acceptedAnswer": {"@type": "Answer", "text": "Rank crops by profit per bed-foot per day, not per bed-foot. A crop that earns 8 dollars a bed-foot in 20 days beats one that earns 9 in 50, because the bed is free for another planting sooner. Then limit each crop to what you can actually sell, and watch labor, which often runs out before beds do. This tool does all of that at once and shows the plan."}}, {"@type": "Question", "name": "What is profit per bed-foot-day?", "acceptedAnswer": {"@type": "Answer", "text": "It is a crop's profit per bed-foot (yield times price, minus seed, transplants, packaging and other costs) divided by the days it holds the bed. It puts a 30-day radish and a 120-day tomato on the same scale, so you can see which one pays more for the space and time it uses."}}, {"@type": "Question", "name": "What do the shadow prices mean?", "acceptedAnswer": {"@type": "Answer", "text": "They are what one more unit of a limit is worth to your total profit: one more bed-foot over the season, one more labor hour, or 100 more units of a crop you can sell. They tell you whether to build beds, hire help or find buyers next. They hold for small changes; the tool also re-solves with 10 percent more land or labor to show a bigger step."}}, {"@type": "Question", "name": "Why not just sort my crops by profit per bed-foot?", "acceptedAnswer": {"@type": "Answer", "text": "Because that ignores how long each crop occupies the bed, how many hours it takes and how much of it you can sell. The tool shows what a plan sorted that way would earn under the same limits and how often the optimized plan beats it across the simulated seasons. When the two agree it says so."}}, {"@type": "Question", "name": "How is the range of outcomes worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The tool runs 400 seeded seasons in your browser. In each, every crop's yield and price are shifted by a random amount whose size you set, with half of each shift shared across crops (a wet year hurts all of them). Sales stop at the amount you said you can sell. It then reports the middle 80 percent of profit for the plan. It is a spread from your own assumptions, not a forecast."}}, {"@type": "Question", "name": "What does it not know?", "acceptedAnswer": {"@type": "Answer", "text": "Planting windows and succession timing (it plans capacity, not a calendar), crop rotation and disease, weather, crop failures, price swings within a season, labor skill, equipment and the minimum price a buyer will pay. Yields and prices are your own estimates, so the plan is only as good as they are."}}, {"@type": "Question", "name": "Is my farm data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your crops, prices and costs are read and computed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your numbers. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f6f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f6b34; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2d4a2b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2d4a2b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46564a; }
+    .card { background: #fff; border: 1px solid #d9e0d4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2d4a2b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b8a68; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b34; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e5eee1; color: #2d4a2b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46564a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eadf; color: #2d4a2b; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f1f6ee; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #2d4a2b; }
+    footer { margin-top: 28px; border-top: 1px solid #d9e0d4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6b8a68; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #2f6b34; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <main>
+  <header>
+    <p class="note">MARKET GARDEN BED PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which crops should fill your beds?</h1>
+    <p>Enter <strong>one row per crop</strong> and your total bed-feet, season length and labor hours. The tool finds the <strong>crop mix that earns the most</strong> once beds, labor and the amount you can sell all run out, ranks crops by <strong>profit per bed-foot per day</strong>, and prices <strong>one more bed-foot, labor hour or buyer</strong>, so you know what to build, hire or sell next.</p>
+    <p class="note">Your numbers never leave this browser tab. A planning estimate from figures you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your farm</h2>
+    <div class="row3">
+      <div><label for="bedfeet">Total bed-feet</label><input id="bedfeet" inputmode="decimal" value="4000"></div>
+      <div><label for="season">Season length (days)</label><input id="season" inputmode="decimal" value="200"></div>
+      <div><label for="labor">Labor hours available (blank = no limit)</label><input id="labor" inputmode="decimal" placeholder="e.g. 800"></div>
+      <div><label for="ysd">Yield swing between seasons (%)</label><input id="ysd" inputmode="decimal" value="15"></div>
+      <div><label for="psd">Price swing between seasons (%)</label><input id="psd" inputmode="decimal" value="15"></div>
+    </div>
+    <h2 style="margin-top:18px">Your crops</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows: crop, yield per bed-foot, price per unit, days in bed, cost per bed-foot, labor hours per 100 bed-feet, max units you can sell this season, minimum bed-feet</label>
+    <textarea id="rows" spellcheck="false" placeholder="crop,yield,price,days,cost,labor per 100 bf,max units,min bed-feet&#10;Kale (bunch),1.3,3,70,0.2,5,2000,&#10;Tomato (lb),3.5,3.5,120,0.9,9,6000,"></textarea>
+    <p class="note">Yield is units per bed-foot per planting, summed over successions: a bed-foot planted twice counts as two bed-feet planted, each using its own days. Only the first four columns are required; blank cost, labor, cap and minimum mean none. "Days in bed" runs from transplant or seeding to the last harvest.</p>
+    <button type="button" id="plan">Find the best plan</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your crops, then click Find the best plan.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="insight"></div>
+    <h3>The plan</h3>
+    <div class="scroll" tabindex="0" role="region" aria-label="The plan table"><table id="plan-table"><thead><tr><th>Crop</th><th class="n">Bed-feet</th><th class="n">Units to sell</th><th class="n">Profit</th><th class="n">Per bed-foot-day</th><th class="n">Labor hrs</th><th>Why</th></tr></thead><tbody></tbody></table></div>
+    <h3>Crops left out</h3>
+    <p class="note" id="left-note"></p>
+    <div class="scroll" tabindex="0" role="region" aria-label="Crops left out table"><table id="left-table"><thead><tr><th>Crop</th><th class="n">Per bed-foot-day</th><th class="n">Price rise per unit that would bring it in</th></tr></thead><tbody></tbody></table></div>
+    <h3>Against sorting by profit per bed-foot</h3>
+    <div id="vs-note" class="note"></div>
+    <h3>Range of outcomes</h3>
+    <div id="range-note" class="note"></div>
+    <button type="button" id="download">Download the plan (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>The plan:</strong> a linear program. Choose bed-feet planted for each crop to maximise total profit (yield × price − cost, per bed-foot) subject to three kinds of limit: bed-foot-days (total bed-feet × season days, each crop using its own days in bed), labor hours (if you give a number), and a cap on what you can sell for each crop (units ÷ yield = most bed-feet worth planting). Committed minimums are planted first. It is solved exactly with a simplex method, so the answer is the true optimum for your inputs, and the dual prices come from the same solution: the value of one more bed-foot-day, labor hour or unit of demand. The plan is cross-checked in this tool's test suite against an independent enumeration of every corner of the feasible region.</p>
+    <p><strong>Against sorting:</strong> the comparison plan fills crops in order of profit per bed-foot under the same limits, which is what a spreadsheet sorted on that column does. The range runs 400 seeded seasons in which each crop's yield and price shift by the swing you set (half of each shift shared across crops), with sales capped at your stated demand; it reports the middle 80% of profit for the plan and how often it beats the sorted plan.</p>
+    <p><strong>Not modelled:</strong> planting windows and succession timing (it plans capacity, not a calendar), crop rotation, disease and weather, losses and culls, price changes through the season, labor skill, equipment, and what a buyer will pay for the last unit. Your yields, prices and costs are your estimates. Unverified: tested against hand-solved examples and exhaustive enumeration, not on a working farm. The plan helps you compare choices; it does not tell you what will sell, and you remain responsible for food-safety, licensing and tax rules that apply to you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I decide which crops to grow in a market garden?</h3>
+    <p>Rank crops by profit per bed-foot per day, not per bed-foot. A crop that earns 8 dollars a bed-foot in 20 days beats one that earns 9 in 50, because the bed is free for another planting sooner. Then limit each crop to what you can actually sell, and watch labor, which often runs out before beds do. This tool does all of that at once and shows the plan.</p>
+    <h3>What is profit per bed-foot-day?</h3>
+    <p>It is a crop's profit per bed-foot (yield times price, minus seed, transplants, packaging and other costs) divided by the days it holds the bed. It puts a 30-day radish and a 120-day tomato on the same scale, so you can see which one pays more for the space and time it uses.</p>
+    <h3>What do the shadow prices mean?</h3>
+    <p>They are what one more unit of a limit is worth to your total profit: one more bed-foot over the season, one more labor hour, or 100 more units of a crop you can sell. They tell you whether to build beds, hire help or find buyers next. They hold for small changes; the tool also re-solves with 10 percent more land or labor to show a bigger step.</p>
+    <h3>Why not just sort my crops by profit per bed-foot?</h3>
+    <p>Because that ignores how long each crop occupies the bed, how many hours it takes and how much of it you can sell. The tool shows what a plan sorted that way would earn under the same limits and how often the optimized plan beats it across the simulated seasons. When the two agree it says so.</p>
+    <h3>How is the range of outcomes worked out?</h3>
+    <p>The tool runs 400 seeded seasons in your browser. In each, every crop's yield and price are shifted by a random amount whose size you set, with half of each shift shared across crops (a wet year hurts all of them). Sales stop at the amount you said you can sell. It then reports the middle 80 percent of profit for the plan. It is a spread from your own assumptions, not a forecast.</p>
+    <h3>What does it not know?</h3>
+    <p>Planting windows and succession timing (it plans capacity, not a calendar), crop rotation and disease, weather, crop failures, price swings within a season, labor skill, equipment and the minimum price a buyer will pay. Yields and prices are your own estimates, so the plan is only as good as they are.</p>
+    <h3>Is my farm data uploaded anywhere?</h3>
+    <p>No. Your crops, prices and costs are read and computed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your numbers. It works offline once the page has loaded.</p>
+  </section>
+
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are planning estimates from the figures you supply; they do not guarantee prices, yields or profit. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any farm-management, seed or market-garden software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your crop data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>plan_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../craft-fair-booth-calculator/">craft fair booth calculator</a>, the <a href="../seasonal-buy-quantity-optimizer/">seasonal buy quantity optimizer</a> and the <a href="../csa-share-pricing-calculator/">CSA share pricing calculator</a>; the <a href="../greenhouse-bench-planner/">greenhouse bench planner</a> schedules transplant sowing against bench space, and the <a href="../vegetable-garden-planting-calendar/">vegetable garden planting calendar</a> dates each sowing from your frost dates.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCrops, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    const field = (sel) => { const v = $(sel).value.trim().replace(/,/g, ""); return v === "" ? null : Number(v); };
+
+    function run() {
+      const parsed = parseCrops($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const ysd = field("#ysd"), psd = field("#psd");
+      const r = analyze(parsed.crops, {
+        totalBedFeet: field("#bedfeet"), seasonDays: field("#season"), laborHours: field("#labor"),
+        yieldSd: ysd === null || Number.isNaN(ysd) ? 0.15 : ysd / 100, priceSd: psd === null || Number.isNaN(psd) ? 0.15 : psd / 100,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.profit), `Planned profit before your own labor, from ${r.planted} crops (${num(r.bedFeetUsed)} bed-feet planted in all, counting each succession, on ${num(r.farm.totalBedFeet)} bed-feet)`],
+        [money(r.range.p50), `Median season (80% range ${money(r.range.p10)} to ${money(r.range.p90)})`],
+        [r.gain > 1 ? "+" + money(r.gain) : "same", "Versus a plan sorted by profit per bed-foot, under the same limits"],
+        [r.binding === "none" ? "—" : r.binding, "What runs out first"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      const extras = [];
+      if (r.more.land10 !== null && r.more.land10 > 0.5) extras.push(`Re-solving with 10% more bed-feet adds ${money(r.more.land10)}.`);
+      if (r.more.labor10 !== null && r.more.labor10 > 0.5) extras.push(`Re-solving with 10% more labor hours adds ${money(r.more.labor10)}.`);
+      $("#insight").innerHTML = `<div class="warn"><span class="pill info">${esc(r.binding)}</span>${esc(r.insight + " " + extras.join(" "))}</div>`;
+      const inPlan = r.rows.filter((x) => x.bedFeet > 0).sort((a, b) => b.profit - a.profit);
+      $("#plan-table tbody").innerHTML = inPlan.map((x) => {
+        const why = x.atCap ? `at your sales cap; 100 more units would add ${money(x.capValuePer100Units)}` : "fills the beds that are left";
+        return `<tr><td>${esc(x.crop)}</td><td class="n">${num(x.bedFeet)}</td><td class="n">${num(x.units)}</td><td class="n">${money(x.profit)}</td><td class="n">${x.marginPerBfDay.toFixed(2)}</td><td class="n">${num(x.laborHours)}</td><td class="note">${esc(why)}</td></tr>`;
+      }).join("") || `<tr><td colspan="7" class="note">No crop earns a positive margin with these figures.</td></tr>`;
+      const out = r.rows.filter((x) => x.bedFeet === 0).sort((a, b) => b.marginPerBfDay - a.marginPerBfDay);
+      $("#left-note").textContent = out.length ? "These did not make the plan at your prices. The last column is how much higher the price would have to be before the optimizer would plant it." : "Every crop is in the plan.";
+      $("#left-table tbody").innerHTML = out.map((x) => `<tr><td>${esc(x.crop)}</td><td class="n">${x.marginPerBfDay.toFixed(2)}</td><td class="n">${x.marginPerBf <= 0 ? "loses money per bed-foot; " : ""}+$${x.entryPriceRise.toFixed(2)}</td></tr>`).join("") || `<tr><td colspan="3" class="note">None.</td></tr>`;
+      $("#vs-note").textContent = r.gain > 1
+        ? `Sorting by profit per bed-foot would earn ${money(r.naiveProfit)}; the optimized plan earns ${money(r.profit)}. Across the simulated seasons the optimized plan did at least as well as the sorted one in ${pct(r.beatsNaive, 0)} of them.`
+        : `Sorting by profit per bed-foot gives the same plan here (${money(r.naiveProfit)}).`;
+      $("#range-note").textContent = `In ${r.farm.draws} simulated seasons (yield swing ${pct(r.farm.yieldSd, 0)}, price swing ${pct(r.farm.priceSd, 0)}, half of it shared across crops, sales capped at your stated demand) the plan earned between ${money(r.range.p10)} and ${money(r.range.p90)} in the middle 80%, and lost money in ${pct(r.lossRisk, 0)}. This is the spread your own assumptions imply, not a forecast.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the plan.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#plan").addEventListener("click", () => { if (run()) record("plan_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#bedfeet").value = "4000"; $("#season").value = "240"; $("#labor").value = "800";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 14 invented crops on an invented farm, not real figures."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Find the best plan.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste your crops, then click Find the best plan."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "bed-plan.csv";
+      a.click();
+      record("plan_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

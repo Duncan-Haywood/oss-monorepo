@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP Config Risk Check — audit an mcp.json for risky server settings</title>
+  <meta name="description" content="Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="MCP Config Risk Check">
+  <meta property="og:description" content="Paste an MCP server config and get every risky pattern flagged -- broad filesystem/shell access, hardcoded secrets, missing version pins, duplicate tool names. Nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MCP Config Risk Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that checks a pasted Model Context Protocol (MCP) server config for structural risk patterns: broad filesystem or shell access, secrets hardcoded instead of referenced from the environment, missing version pins on the launched package or image, and duplicate tool names shadowed across servers.","featureList":"Broad filesystem/shell access detection; hardcoded-secret detection by token shape and key name; npx/uvx/pipx/docker version-pin check; duplicate tool name detection across servers; copyable findings summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What config formats does this tool accept?","acceptedAnswer":{"@type":"Answer","text":"The Claude Desktop / Claude Code shape ({\"mcpServers\": {...}}), the VS Code shape ({\"servers\": {...}}), a bare object of server name to config with no wrapper key, and a plain array of server entries. If an entry also carries a \"tools\" list (as a captured manifest export would), the duplicate-tool-name check runs against it too."}},{"@type":"Question","name":"Does this tool contact my MCP servers, a registry, or a vulnerability database?","acceptedAnswer":{"@type":"Answer","text":"No. It never makes a network request of its own. It only looks at the text you paste, entirely in your browser, and flags structural patterns in it — it does not verify a package's actual published version, scan its code, or know whether a server is currently compromised."}},{"@type":"Question","name":"Is a flagged finding proof that a server is unsafe?","acceptedAnswer":{"@type":"Answer","text":"No. Every finding is a structural pattern worth a human look, not a verdict. A shell-launching server or an unpinned package can be entirely intentional and fine for your setup; a config with zero findings is not a guarantee of safety either — it only means none of this tool's mechanical checks fired."}},{"@type":"Question","name":"How is this different from a tool that diffs two MCP manifests over time?","acceptedAnswer":{"@type":"Answer","text":"This tool looks at a single, current config — the file your client reads to launch each server — and flags risk patterns in it right now. MCP Supply-Chain Watch instead compares two captured tool manifests to show what changed between them (a tool added, removed, or given a description with model-directed instruction language). Both are useful and answer different questions: this one asks \"is today's launch config risky?\"; that one asks \"what changed since I last approved this server?\""}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}
+    p{color:var(--muted)}.lede{max-width:700px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    textarea{display:block;width:100%;min-height:220px;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);margin-top:4px;resize:vertical}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+    .summary[hidden]{display:none}
+    .stat{border:1px solid var(--line);border-radius:10px;padding:12px;background:#f8f9fc}
+    .stat strong{display:block;font-size:1.5rem;color:var(--ink)}
+    .stat.high strong{color:#a3211a}.stat.medium strong{color:#8a6100}
+    ul.findings{list-style:none;margin:0;padding:0}
+    ul.findings li{border-left:4px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0;background:#f8f9fc}
+    ul.findings li.high{border-left-color:#a3211a;background:#fdf1f0}
+    ul.findings li.medium{border-left-color:#c98a00;background:#fdf7e8}
+    ul.findings .cat{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-bottom:3px}
+    ul.findings .server{font-weight:700;color:var(--ink)}
+    .small{font-size:.85rem}.notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}
+    @media(max-width:700px){.summary{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>MCP Config Risk Check</h1>
+  <p class="lede">Paste an <code>mcp.json</code>, <code>claude_desktop_config.json</code>, or any MCP server config and get every risky pattern flagged in seconds -- broad filesystem/shell access, secrets hardcoded instead of referenced from the environment, missing version pins, and duplicate tool names across servers.</p>
+  <p class="notice"><strong>Mechanical checks, not a security audit.</strong> This tool never contacts a server, a registry, or a vulnerability database -- it only looks at the text you paste and flags structural patterns in it. A finding is something worth a human look, not a verdict, and a clean result is not a safety guarantee.</p>
+
+  <section class="panel">
+    <h2>1. Paste your config</h2>
+    <p class="small">Accepts the Claude Desktop / Claude Code <code>{"mcpServers": {...}}</code> shape, VS Code's <code>{"servers": {...}}</code> shape, a bare name-to-config object, or an array of server entries. Nothing here is uploaded -- everything runs in this page.</p>
+    <textarea id="configInput" spellcheck="false" aria-label="MCP server config JSON"></textarea>
+    <div class="row">
+      <button id="loadExample" type="button" class="secondary">Load an example config</button>
+      <button id="clearInput" type="button" class="secondary">Clear</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <div id="summaryOut" class="summary" hidden>
+      <div class="stat"><strong id="serverCount">0</strong><span class="small">server(s) parsed</span></div>
+      <div class="stat high"><strong id="highCount">0</strong><span class="small">high-severity</span></div>
+      <div class="stat medium"><strong id="mediumCount">0</strong><span class="small">medium-severity</span></div>
+    </div>
+    <p id="statusOut" class="small" role="status" aria-live="polite">Paste a config above, or load the example, to see findings.</p>
+    <ul class="findings" id="findingsList"></ul>
+    <button id="copySummary" type="button">Copy findings summary</button>
+    <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous audit events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that an audit ran or a summary was copied. Nothing you paste -- no config contents, server names, or findings -- is ever recorded, uploaded, or sent to an analytics service. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What config formats does this tool accept?</h3>
+  <p>The Claude Desktop / Claude Code shape (<code>{"mcpServers": {...}}</code>), the VS Code shape (<code>{"servers": {...}}</code>), a bare object of server name to config with no wrapper key, and a plain array of server entries. If an entry also carries a <code>"tools"</code> list (as a captured manifest export would), the duplicate-tool-name check runs against it too.</p>
+  <h3>Does this tool contact my MCP servers, a registry, or a vulnerability database?</h3>
+  <p>No. It never makes a network request of its own. It only looks at the text you paste, entirely in your browser, and flags structural patterns in it &mdash; it does not verify a package's actual published version, scan its code, or know whether a server is currently compromised.</p>
+  <h3>Is a flagged finding proof that a server is unsafe?</h3>
+  <p>No. Every finding is a structural pattern worth a human look, not a verdict. A shell-launching server or an unpinned package can be entirely intentional and fine for your setup; a config with zero findings is not a guarantee of safety either &mdash; it only means none of this tool's mechanical checks fired.</p>
+  <h3>How is this different from a tool that diffs two MCP manifests over time?</h3>
+  <p>This tool looks at a single, current config &mdash; the file your client reads to launch each server &mdash; and flags risk patterns in it right now. <a href="../mcp-supply-chain-watch/">MCP Supply-Chain Watch</a> instead compares two captured tool manifests to show what changed between them (a tool added, removed, or given a description with model-directed instruction language). Both are useful and answer different questions: this one asks "is today's launch config risky?"; that one asks "what changed since I last approved this server?"</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own config and each server's source before trusting it. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The config you paste, and every finding this tool produces, never leaves your device -- there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Tracking drift between two connected-server snapshots over time instead? See <a href="../mcp-supply-chain-watch/">MCP Supply-Chain Watch</a>. Sizing an LLM API bill instead of auditing a config? See the <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a>. Checking a pasted file for hidden or invisible Unicode instead of a launch config's structure? See <a href="../hidden-unicode-check/">Hidden Unicode Check</a>. Linting a SKILL.md agent-skill manifest instead of a server launch config? See <a href="../skill-manifest-check/">Skill Manifest Check</a>. Checking Claude Code's own settings.json hooks and permissions instead of an MCP server's launch config? See <a href="../claude-code-settings-check/">Claude Code Settings Check</a>. Checking a Claude Code subagent definition's tools/model fields instead of a server launch config? See <a href="../claude-code-subagent-check/">Claude Code Subagent Check</a>. Checking a Claude Code hook's command text for dangerous shapes instead of a server launch config? See <a href="../claude-code-hooks-security-check/">Claude Code Hooks Security Check</a>.</p>
+    <p>Read <a href="./why-a-clean-scan-isnt-a-safety-guarantee.html">why a clean scan isn't a safety guarantee</a> for what these checks can and can't see, see <a href="./vs-reading-the-config-by-hand.html">this checker vs. reading the config by hand</a>, or see <a href="./vs-mcp-scan.html">this checker vs. MCP-Scan</a> if you're weighing a live connected-server audit instead of a static config check.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { parseConfig, auditConfig, summaryText } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  const EXAMPLE_CONFIG = {
+    mcpServers: {
+      "github": {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-github@1.0.3"],
+        env: { GITHUB_TOKEN: "${GITHUB_TOKEN}" },
+      },
+      "shell-runner": {
+        command: "bash",
+        args: ["-c", "$CMD"],
+      },
+      "inventory": {
+        command: "npx",
+        args: ["-y", "inventory-mcp"],
+        env: { API_KEY: "sk-example00000000000000" },
+      },
+      "files": {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-filesystem", "/"],
+      },
+    },
+  };
+
+  let lastResult = null;
+  let usageTimer;
+
+  function categoryLabel(category) {
+    return {
+      "broad-access": "Broad filesystem/shell access",
+      "hardcoded-secret": "Hardcoded secret",
+      "unpinned-version": "No version pin",
+      "duplicate-tool-name": "Duplicate tool name",
+    }[category] || category;
+  }
+
+  function renderFindings(result) {
+    const list = $("findingsList");
+    list.innerHTML = "";
+    for (const f of result.findings) {
+      const li = document.createElement("li");
+      li.className = f.severity;
+      li.innerHTML = `<span class="cat">${categoryLabel(f.category)} · ${f.severity}</span><br><span class="server">${f.serverName}</span> — ${f.detail}`;
+      list.appendChild(li);
+    }
+    $("serverCount").textContent = String(result.servers.length);
+    $("highCount").textContent = String(result.counts.high);
+    $("mediumCount").textContent = String(result.counts.medium);
+    $("summaryOut").hidden = false;
+  }
+
+  function audit(track = false) {
+    const text = $("configInput").value.trim();
+    lastResult = null;
+    if (!text) {
+      $("statusOut").textContent = "Paste a config above, or load the example, to see findings.";
+      $("findingsList").innerHTML = "";
+      $("summaryOut").hidden = true;
+      return;
+    }
+    try {
+      const servers = parseConfig(text);
+      const result = auditConfig(servers);
+      lastResult = result;
+      renderFindings(result);
+      $("statusOut").textContent = result.findings.length === 0
+        ? `${result.servers.length} server(s) parsed. No structural risk patterns observed -- not a safety guarantee, only that none of this tool's checks fired.`
+        : `${result.servers.length} server(s) parsed, ${result.findings.length} finding(s) below.`;
+      clearTimeout(usageTimer);
+      if (track) usageTimer = setTimeout(() => countUsage("audit_run"), 800);
+    } catch (error) {
+      $("statusOut").textContent = error.message;
+      $("findingsList").innerHTML = "";
+      $("summaryOut").hidden = true;
+    }
+  }
+
+  $("configInput").addEventListener("input", () => audit(true));
+  $("loadExample").addEventListener("click", () => {
+    $("configInput").value = JSON.stringify(EXAMPLE_CONFIG, null, 2);
+    audit(true);
+  });
+  $("clearInput").addEventListener("click", () => {
+    $("configInput").value = "";
+    audit(false);
+  });
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (event) => setUsageEnabled(event.target.checked));
+  audit();
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
+
+  $("copySummary").addEventListener("click", async () => {
+    try {
+      if (!lastResult) throw new Error("Paste and audit a config first.");
+      const text = summaryText(lastResult);
+      await copyText(text);
+      $("copyStatus").textContent = "Copied";
+      countUsage("summary_copied");
+    } catch (error) {
+      $("copyStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
+</script>
+</body>
+</html>

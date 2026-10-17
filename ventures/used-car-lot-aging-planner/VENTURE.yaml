@@ -1,0 +1,46 @@
+name: used-car-lot-aging-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent used-car dealers with 1-60 floorplan-financed units: paste the inventory (days on lot, total cost, floored amount, expected retail and wholesale values and how fast each falls, expected days to retail, daily holding cost) and get each unit''s true carrying cost to date and per day (floorplan interest after curtailments, the cost of the dealer''s own cash in the unit, holding costs), the exact best day to wholesale it (backward induction over age, verified against evaluating every wholesale day), which units to wholesale now ranked by earnings per $1,000 of floorplan line per day, and the expected dollars a wait-until-it-sells policy leaves behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what an independent used-car dealer keeps from the units already on the
+# lot and frees floorplan line to buy units that turn. Checked 2026-10-02: ventures/ has auction-car-flip-calculator
+# (max bid on one auction car to flip), clearance-markdown-planner and consignment-markdown-planner (retail stock
+# markdowns, no floorplan, no wholesale exit) and fleet-repair-or-replace-planner (fleet vehicles a business keeps);
+# none prices floorplan carry with curtailments or picks a wholesale day for each unit on a dealer's lot. Not in
+# screened-out.md.
+#
+# First visitor: searches "when to wholesale a used car", "used car aging policy", "floorplan curtailment cost",
+# "90 day used car inventory"; independent dealer forums and groups. Volume not measured with an external tool. DMS
+# and inventory tools show days on lot and price-to-market but do not say which unit to wholesale or what waiting
+# costs; a hosted version that reads a DMS inventory export each morning is the natural paid upgrade.
+hypotheses:
+  - claim: An independent dealer will paste the lot, see what wait-until-it-sells leaves behind, and wholesale at least one aged unit sooner than they would have.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A dealer will return weekly with the updated inventory, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No dealer reports wholesaling or repricing a unit because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/
+  analytics: null

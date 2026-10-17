@@ -1,0 +1,63 @@
+name: pay-application-generator
+description: >-
+  Free browser tool for subcontractors and small general contractors: paste a schedule of values (scheduled value,
+  previous billing, this period, stored materials), set retainage on work and stored materials with an optional
+  reduction at a completion point, and get the contract sum, change orders, retainage, previous certificates, current
+  payment due and balance to finish, a line-by-line table, a text summary and a CSV. Flags lines billed over their
+  value, work on lines with no value, a negative payment due and front-loaded billing. Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: contractor-wip-schedule 0.16 (reports
+# over/under billing on the contractor's own books), mechanics-lien-deadline-calculator (lien dates, not billing).
+# No venture builds the monthly pay application itself.
+# Search phrases: "aia g702 g703 template excel", "pay application template", "progress billing calculator",
+# "retainage calculator", "schedule of values template", "g702 g703 generator free".
+# Volume not measured with an external tool; the incumbents are paid construction suites (Procore, Textura, GCPay,
+# Handle) that sell to general contractors, and a lot of subcontractors still rebuild the form in Excel every month.
+#
+# Who: subcontractors and small GCs billing monthly on jobs from $50k to a few million, who today re-key an Excel
+# template and fix the totals by hand. The paying buyer, if there is one, is a small contractor who wants saved
+# schedules, an owner-ready PDF and lien-waiver bundling, or an accounting firm serving contractors.
+#
+# What makes it more than a template: retainage by line with separate stored-material and reduction rules, change
+# orders split from the original sum, previous certificates reconciled, and findings that catch the over-billed line
+# before the owner's reviewer does.
+#
+# Path to revenue (payment rails stay off): lead magnet for the contractor audience, feeding contractor-wip-schedule
+# and the lien tools. A paid version, if usage appears, is saved jobs across periods, carry-forward of previous
+# columns, an owner-ready PDF and lien-waiver generation behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own figures, with the contract's terms entered by the user; carries the
+# no-warranty and not-advice clauses, does not reproduce or imitate the AIA form, says it is not affiliated, and lists
+# state retainage limits, prompt-payment and lien rules as not decided.
+#
+# Unverified: no contractor has run a real application through it yet; rounding is per line, and an owner's system
+# may round differently by a cent or two.
+
+hypotheses:
+  - claim: >-
+      A subcontractor who rebuilds a progress-billing spreadsheet every month will paste their schedule of values into
+      a no-upload page, because retainage by line, stored materials and change orders are where their manual totals
+      go wrong, and the output is a summary they can copy into the owner's form.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted schedule structure) engage with the tool by 2027-03-15.
+  - A contractor reports a retainage or stored-material calculation that differs from their owner's certified figure by more than rounding.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pay-application-generator/
+  analytics: null

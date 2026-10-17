@@ -1,0 +1,60 @@
+name: waterfront-rental-season-planner
+description: >-
+  Free browser tool for kayak, paddleboard and boat rental operators: fleet, rental length,
+  prices, weekday and weekend demand, staff and season costs in; season profit, how many
+  weather days the season can lose, rentals the fleet turns away, what one more kayak or
+  boat earns and pays back in, and the best price along a demand curve you set out.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py on "kayak
+# paddleboard pontoon boat rental season weather days turn-aways fleet size": closest row
+# rental-fleet-size-optimizer 0.22, below the 0.45 line. That tool sizes one generic fleet
+# with an Erlang loss model; this one is a whole seasonal P&L for a waterfront livery: two
+# fleets, weekday and weekend demand, weather-lost days against fixed dock costs, and the
+# value of one more unit.
+#
+# Why this niche: kayak, SUP and pontoon liveries are seasonal, weather-exposed, pay a dock
+# and staff before the first customer, and decide fleet size and price by feel. Owners ask
+# "how many rainy days can I take", "is another pontoon worth $24k" and "should weekends
+# cost more" in operator groups and marina forums. Booking software reports bookings, not
+# the rentals it turned away.
+#
+# First visitor: independent livery owners in operator groups and r/kayaking business
+# threads; volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers plus a demand sensitivity the user
+# chooses and the page says is an assumption; no insurance, licensing, safety-equipment,
+# waiver, employment or tax advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that reads a booking-platform export and fits demand from real bookings (not built).
+
+hypotheses:
+  - claim: >-
+      Independent waterfront rental operators will use a private season planner that turns
+      fleet, prices, weekday and weekend demand and weather into profit, a lost-days
+      break-even and the value of one more boat, because booking software reports bookings
+      but not the rentals it turned away or what a wet season does to fixed costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An operator reports that the capacity, turn-away or weather break-even arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/waterfront-rental-season-planner/
+  analytics: null

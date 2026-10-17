@@ -1,0 +1,48 @@
+garment-nestcost: stylised lined coat (my own shapes), one ply, one size, grain kept (180-degree turns only), 2 cm raster.
+   net piece area: shell 1.970 m^2 (10 pieces), lining 1.455 m^2 (5 pieces). garment-teardown assumed 2.9 and 2.2 m^2 for its trench coat.
+   annealing: 150 decodes, best of 5 seeds. efficiency = NET piece area / (fabric width x marker length), the quantity garment-teardown calls marker_efficiency.
+
+A. Marker length and efficiency
+   part     W  allowance | marker length (best; all seeds)   | efficiency
+   shell   110   0.0 cm  |  228.0 cm (238, 232, 240, 228, 238) | 0.786
+   shell   110   1.5 cm  |  250.0 cm (256, 256, 266, 250, 254) | 0.717
+   shell   140   0.0 cm  |  172.0 cm (174, 172, 174, 172, 174) | 0.818
+   shell   140   1.5 cm  |  208.0 cm (208, 214, 214, 218, 216) | 0.677
+   shell   150   0.0 cm  |  170.0 cm (172, 172, 172, 172, 170) | 0.773
+   shell   150   1.5 cm  |  180.0 cm (180, 194, 182, 182, 182) | 0.730
+   lining  110   0.0 cm  |  190.0 cm (190, 190, 190, 190, 190) | 0.696
+   lining  110   1.5 cm  |  196.0 cm (196, 200, 204, 198, 198) | 0.675
+   lining  140   0.0 cm  |  158.0 cm (158, 158, 158, 158, 158) | 0.658
+   lining  140   1.5 cm  |  166.0 cm (166, 170, 170, 166, 170) | 0.626
+   lining  150   0.0 cm  |  152.0 cm (156, 154, 152, 154, 156) | 0.638
+   lining  150   1.5 cm  |  164.0 cm (164, 168, 164, 164, 164) | 0.592
+
+B. Cost of the teardown trench coat with the measured efficiencies (mid-wage scenario; all other inputs are garment-teardown's assumptions)
+   garment-teardown as published: eff 0.80 both, FOB $204, model retail $989
+   scenario: our measured net areas (shell, lining) and efficiencies, seam allowance 1.5 cm
+   W     eff shell  eff lining | fabric $   lining $ |  FOB $  | model retail $ | FOB vs teardown
+    110   0.717     0.675     |   79.3    13.3  |  168.3  |      815      | -17.7%
+    140   0.677     0.626     |   84.0    14.4  |  175.4  |      849      | -14.2%
+    150   0.730     0.592     |   77.9    15.2  |  168.8  |      817      | -17.4%
+
+   scenario: garment-teardown's own areas (2.9 m^2 shell, 2.2 m^2 lining) with the measured efficiencies transplanted
+    110   0.717     0.675     |  116.7    20.1  |  223.6  |     1082      | +9.4%
+    140   0.677     0.626     |  123.6    21.7  |  234.1  |     1133      | +14.5%
+    150   0.730     0.592     |  114.6    23.0  |  224.5  |     1086      | +9.8%
+
+C. Replica ($7/m^2 shell, $3/m^2 lining, $8 trims, 60% of sewing minutes; mid-wage) with measured areas and efficiencies
+   garment-teardown replica as published (eff 0.80, areas 2.9/2.2): $56
+   W=110 allowance 0.0 cm: shell eff 0.786, lining eff 0.696: cloth $ 24.5, total $ 46.4
+   W=110 allowance 1.5 cm: shell eff 0.717, lining eff 0.675: cloth $ 26.5, total $ 48.3
+   W=140 allowance 0.0 cm: shell eff 0.818, lining eff 0.658: cloth $ 24.2, total $ 46.0
+   W=140 allowance 1.5 cm: shell eff 0.677, lining eff 0.626: cloth $ 28.2, total $ 50.0
+   W=150 allowance 0.0 cm: shell eff 0.773, lining eff 0.638: cloth $ 25.4, total $ 47.2
+   W=150 allowance 1.5 cm: shell eff 0.730, lining eff 0.592: cloth $ 27.1, total $ 48.9
+
+D. Shell cloth consumed at each fabric width (1.5 cm allowance)
+   W=110: 2.750 m^2 of shell cloth (110 cm x 250 cm)
+   W=140: 2.912 m^2 of shell cloth (140 cm x 208 cm)
+   W=150: 2.700 m^2 of shell cloth (150 cm x 180 cm)
+   spread (max-min)/min = 7.9%
+
+runtime 94 s

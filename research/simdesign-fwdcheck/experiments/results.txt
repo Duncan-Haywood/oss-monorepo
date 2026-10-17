@@ -1,0 +1,7 @@
+Forward load 100 N (downward on the end of the horizontal arm), steel E = 200 GPa, nu = 0.3.
+Limits: peak von Mises <= 100 MPa, end deflection <= 4 mm, forward buckling factor >= 3 (critical load / 100 N), wall >= 1.2 mm.
+b_mm w_mm mass_g fwd_factor nominal_MPa peak_coarse_MPa peak_fine_MPa defl_coarse_mm defl_fine_mm seconds
+1.5 22.5 36.4 5.608 57.3 36.7 54.7 0.142 0.143 114
+2.0 11.84 27.5 5.153 162.8 95.7 144.9 0.944 0.949 104
+2.5 6.81 20.5 4.917 402.3 222.8 337.0 4.451 4.466 101
+3.0 4.31 15.8 4.666 845.9 452.7 676.0 15.457 15.503 99

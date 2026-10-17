@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Medical Bill Error Checker — Find Duplicate Charges and Unbundled Codes in an Itemized Bill</title>
+  <meta name="description" content="Free tool for patients: paste or drop your itemized medical bill and see possible duplicate charges, codes billed twice in a day, unbundled lab panels, two visit levels on one date and lines that do not add up, with a draft request to send the billing office. Runs in your browser, the bill is never uploaded.">
+  <meta property="og:title" content="Medical Bill Error Checker — free, private, in your browser">
+  <meta property="og:description" content="Check an itemized medical bill for duplicate lines, unbundled codes and arithmetic that does not add up, and draft a billing review request. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Medical Bill Error Checker","applicationCategory":"HealthApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads an itemized medical bill CSV and flags possible duplicate charges, codes billed more than once a day, unbundled panel components, two visit levels on one date and lines that do not add up, then drafts a billing-review request. Runs entirely in your browser; the bill is never uploaded.","featureList":"Duplicate charge check, unbundling check, same-day visit level check, line arithmetic check, billing review letter, CSV download"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I check a hospital or doctor bill for errors?","acceptedAnswer":{"@type":"Answer","text":"Ask the provider for the itemized bill, meaning a statement listing each line with its CPT or HCPCS code, quantity and charge, then paste or drop it here. The tool looks for identical repeated lines, codes normally billed once a day that appear twice, tests billed separately when a panel already includes them, two levels of the same visit on one date, and lines whose charge, insurance payment and adjustment do not add up to what you owe."}},{"@type":"Question","name":"Does this prove my bill is wrong?","acceptedAnswer":{"@type":"Answer","text":"No. Every result is a question to put to the billing office, not a finding of error. Repeated lines and same-day codes are sometimes legitimate, for example a repeated test or a modifier that documents a separate service. The amount shown is the most that is in question, not a refund you are owed."}},{"@type":"Question","name":"What is unbundling on a medical bill?","acceptedAnswer":{"@type":"Answer","text":"Unbundling is billing the parts of a test or service separately when a single code already includes them, such as a glucose and a BUN alongside a comprehensive metabolic panel. This tool checks a short list of well-known panels and reports any component billed the same day. A distinct-service modifier such as 59 can make separate billing legitimate, so those lines are shown for information without a dollar amount."}},{"@type":"Question","name":"What is an itemized bill and how do I get one?","acceptedAnswer":{"@type":"Answer","text":"An itemized bill lists every charge with its date, procedure or revenue code, description, quantity and amount. A summary statement with one total does not. Call the billing office or patient portal and ask for a fully itemized statement with codes; hospitals generally provide it on request."}},{"@type":"Question","name":"What do I send the billing office?","acceptedAnswer":{"@type":"Answer","text":"The tool drafts a plain request for a billing review that lists each flagged line, asks for an itemized statement with codes and modifiers, and asks that the account be held rather than sent to collections while it is reviewed. Edit it, and compare the corrected bill with your insurer's explanation of benefits before paying."}},{"@type":"Question","name":"Which columns and file formats does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, semicolon, tab or pipe separated text with a header row. It looks for a charge column (Charge, Amount, Billed Amount), a code column (CPT, HCPCS, Procedure Code) and a description, and uses date of service, quantity, insurance paid, adjustment and patient responsibility when present. Hospital and clinic portals differ, and no real export was available when this was written, so column names are matched by alias and unverified; a file that is not read says why."}},{"@type":"Question","name":"Is my bill uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors. Bills contain health information, which is why nothing is sent to a server."}}]}</script>
+  <style>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .few { color: #6a7580; font-style: italic; }
+    .bar { display: inline-block; height: 8px; background: #c4553a; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MEDICAL BILL ERROR CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your medical bill charge you twice for the same thing?</h1>
+    <p>Drop in your <strong>itemized bill</strong> and see the lines worth questioning: <strong>identical repeated charges</strong>, <strong>codes normally billed once a day</strong> that appear twice, <strong>tests billed separately</strong> when a panel already includes them, <strong>two levels of the same visit</strong> on one date, and <strong>lines whose math does not add up</strong>. Then copy a <strong>draft billing-review request</strong> to send the provider.</p>
+    <p class="note">The bill is read in this browser tab and never leaves your device. Results are questions to ask the billing office, not findings that a charge is wrong. Not medical, legal or insurance advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your itemized bill</h2>
+    <p class="note">Ask the provider for a <strong>fully itemized statement with codes</strong>. Needs a <strong>charge</strong> column and a <strong>code</strong> or <strong>description</strong> column; date of service, quantity, insurance paid, adjustment and patient responsibility are used when present. <strong>Column names are matched by alias and are unverified against real hospital or clinic exports</strong>: if a file is not read, the page says which rows were skipped and why.</p>
+    <label for="file">Bill CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the bill text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date of Service,CPT,Description,Qty,Charge"></textarea>
+    <div class="grid">
+      <div><label for="patient">Your name (for the letter, optional)</label><input type="text" id="patient" autocomplete="off"></div>
+      <div><label for="provider">Provider or hospital (for the letter, optional)</label><input type="text" id="provider" autocomplete="off"></div>
+      <div><label for="account">Account number (for the letter, optional)</label><input type="text" id="account" autocomplete="off"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Check the bill</button>
+      <button type="button" class="secondary" id="load-example">Load sample bill</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the bill file or paste it, then click Check the bill.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <p class="note" id="skipped"></p>
+    <label for="letter">Draft request to the billing office</label>
+    <textarea id="letter" spellcheck="false" style="min-height:260px"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Duplicate lines:</strong> two or more lines with the same date, code, modifier, description, quantity and charge. The repeats are the amount in question.</li>
+      <li><strong>Once-a-day codes:</strong> office and emergency visit levels, venipuncture (36415), ECG (93000, 93005, 93010) and the common lab panels are normally billed once per date of service. More than one unit or line is a question.</li>
+      <li><strong>Unbundling:</strong> a short built-in list of panels and the components they already contain: comprehensive metabolic panel (80053), basic metabolic panel (80048), lipid panel (80061), CBC with differential (85025) and ECG with interpretation (93000). A distinct-service modifier (59, X-modifiers, 91) turns the finding into information with no dollars.</li>
+      <li><strong>Same-day visit levels:</strong> two levels of emergency visit, of established-patient or new-patient office visit, or of chest X-ray views on one date.</li>
+      <li><strong>Arithmetic:</strong> where the bill has insurance-paid or adjustment columns and a patient-responsibility column, charge less paid less adjustment must equal what you owe, to the cent.</li>
+      <li><strong>Amount in question</strong> adds the lines a finding points at, never more than the bill total. It is the most that could be affected, not a refund you are owed.</li>
+      <li><strong>Not checked:</strong> whether a service was medically necessary or performed, whether a price is fair, the full national coding edit tables (only the short list above), modifiers other than those named, facility-versus-professional billing, network status and balance-billing protections, and anything not in the file.</li>
+      <li><strong>Unverified:</strong> column names are matched by alias and no real hospital, clinic or patient-portal export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I check a hospital or doctor bill for errors?</h3>
+    <p>Ask the provider for the itemized bill, meaning a statement listing each line with its CPT or HCPCS code, quantity and charge, then paste or drop it here. The tool looks for identical repeated lines, codes normally billed once a day that appear twice, tests billed separately when a panel already includes them, two levels of the same visit on one date, and lines whose charge, insurance payment and adjustment do not add up to what you owe.</p>
+    <h3>Does this prove my bill is wrong?</h3>
+    <p>No. Every result is a question to put to the billing office, not a finding of error. Repeated lines and same-day codes are sometimes legitimate, for example a repeated test or a modifier that documents a separate service. The amount shown is the most that is in question, not a refund you are owed.</p>
+    <h3>What is unbundling on a medical bill?</h3>
+    <p>Unbundling is billing the parts of a test or service separately when a single code already includes them, such as a glucose and a BUN alongside a comprehensive metabolic panel. This tool checks a short list of well-known panels and reports any component billed the same day. A distinct-service modifier such as 59 can make separate billing legitimate, so those lines are shown for information without a dollar amount.</p>
+    <h3>What is an itemized bill and how do I get one?</h3>
+    <p>An itemized bill lists every charge with its date, procedure or revenue code, description, quantity and amount. A summary statement with one total does not. Call the billing office or patient portal and ask for a fully itemized statement with codes; hospitals generally provide it on request.</p>
+    <h3>What do I send the billing office?</h3>
+    <p>The tool drafts a plain request for a billing review that lists each flagged line, asks for an itemized statement with codes and modifiers, and asks that the account be held rather than sent to collections while it is reviewed. Edit it, and compare the corrected bill with your insurer's explanation of benefits before paying.</p>
+    <h3>Which columns and file formats does it read?</h3>
+    <p>Comma, semicolon, tab or pipe separated text with a header row. It looks for a charge column (Charge, Amount, Billed Amount), a code column (CPT, HCPCS, Procedure Code) and a description, and uses date of service, quantity, insurance paid, adjustment and patient responsibility when present. Hospital and clinic portals differ, and no real export was available when this was written, so column names are matched by alias and unverified; a file that is not read says why.</p>
+    <h3>Is my bill uploaded anywhere?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors. Bills contain health information, which is why nothing is sent to a server.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, legal, tax, or financial advice, and it does not replace your provider, your insurer or a qualified professional. Results are estimates that depend entirely on the files you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, before disputing a charge, and before withholding any payment. A flagged line is a question, not a finding that a bill is wrong.</p>
+    <p><strong>Independent.</strong> Not affiliated with any hospital, clinic, insurer, billing company or the American Medical Association. CPT is a registered trademark of the American Medical Association; code numbers appear here only to identify lines on your own bill.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your bill, which contains health information, is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Insurance denied a claim instead? The <a href="../insurance-denial-appeal-builder/">insurance denial appeal builder</a> reads the denial, works out the appeal deadline and drafts the letter.</p>
+    <p>Spending from an HSA? The <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a> works out how much you can put in this year.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, normalizeBill, analyze, reportCsv, requestLetter, sampleCsv, money, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    let last = null;
+
+    function letter() {
+      if (!last) return;
+      $("#letter").value = requestLetter(last, { patient: $("#patient").value.trim(), provider: $("#provider").value.trim(), account: $("#account").value.trim(), date: new Date().toISOString().slice(0, 10) });
+    }
+
+    function run(text) {
+      const n = normalizeBill(parseCsv(text, detectDelimiter(text)));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const a = analyze(n.records);
+      last = a;
+      const s = a.summary;
+      const asks = a.findings.filter((f) => f.severity !== "info").length;
+      $("#big").innerHTML = [[String(asks), "item(s) worth asking about"], [usd(s.questioned), "most that is in question"], [usd(s.total), "total billed"], [s.patientOwed === null ? "–" : usd(s.patientOwed), "patient responsibility on the bill"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `${s.lines} line item(s) read, ${s.coded} with a code. Checked: ${a.rulesChecked.join(", ")}. ${s.arithChecked} line(s) had the columns needed for the arithmetic check. Amounts in question are the most that could be affected, not a refund owed.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note">Lines: ${f.lines.join(", ")}</p></div>`).join("") : `<p class="note">None of the checks fired. That does not mean the bill is right: the checks cover a short list of common patterns only.</p>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") + ".");
+      notes.push("Columns read: " + Object.entries(n.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      letter();
+      report.hidden = false;
+      status.textContent = `Read ${n.records.length} line item(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    for (const id of ["#patient", "#provider", "#account"]) $(id).addEventListener("input", letter);
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the bill file or paste it first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const text = sampleCsv();
+      $("#paste").value = text; $("#file").value = "";
+      if (run(text)) { record("example_loaded"); status.textContent = "Sample data: an invented bill, not a real patient."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#letter", "#patient", "#provider", "#account"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the bill file or paste it, then click Check the bill."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#letter");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Letter copied."; }
+      catch { box.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "bill-review-findings.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

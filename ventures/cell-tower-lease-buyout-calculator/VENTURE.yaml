@@ -1,0 +1,54 @@
+name: cell-tower-lease-buyout-calculator
+description: >-
+  Free browser tool for landowners with a cell tower, rooftop or ground lease: type the rent,
+  escalator, expected added carriers and a lump-sum buyout offer, and see what that rent is worth
+  at your own discount rate, the return the buyer earns at the offered price, how much rests on
+  carriers not yet signed, and an after-tax comparison. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "cell tower lease buyout
+# lump sum offer present value landowner" scored 0.23 against the nearest venture (nua-employer-stock-calculator);
+# no venture values a site-lease income stream against a buyout offer.
+#
+# Why this niche: tower, rooftop and billboard landowners are routinely cold-called and mailed offers
+# to buy their rent for a lump sum, usually at a multiple the buyer does not explain, and the decision
+# is worth six figures to a person with no finance team. Searches like "cell tower lease buyout
+# calculator" and "is my cell tower lease buyout offer fair" have intent from people holding a
+# real offer.
+#
+# First visitor: a landowner or small business owner with an offer letter in hand, or an adviser
+# helping one. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not legal, tax or financial advice; embeds no
+# market pricing data and names no buyer; says to read the lease for assignment and ROFR clauses; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable offer
+# summary, billboard and solar-lease variants, and a multi-offer comparison (not built).
+
+hypotheses:
+  - claim: >-
+      Landowners holding a tower-lease buyout offer will type their lease terms into a private page to
+      see the offer against the present value of their rent and the return the buyer earns, because
+      the alternative is trusting the buyer's multiple.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A landowner or adviser reports that a worked present value or implied return disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cell-tower-lease-buyout-calculator/
+  analytics: null

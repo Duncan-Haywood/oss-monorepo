@@ -1,0 +1,20 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# F-16-4 MLP, WB=4; cells = Yosys generic-gate cells incl. flip-flops; cells*cycles/vec = cells * cycles_per_batch / R
+# array RTL simulated on 32 vectors and compared with the NumPy reference; MAC-lane cycles from the chip-accel formula (not simulated)
+F  design        cycles/batch  cells  depth  cells*cycles/vec  rtl==numpy
+16 systolic 1x4       102     2403    43         245106  True
+16 systolic 1x8        74     3713    40         274762  True
+16 systolic 1x16       66     6183    39         408078  True
+16 systolic 2x8        77     6962    40         268037  True
+16 mac-lane P=4       87     2277    40         198099  -
+16 mac-lane P=8       53     3560    38         188680  -
+16 mac-lane P=16      36     6043    38         217548  -
+F=16: best array / best MAC engine (cells*cycles/vec) = 1.30
+32 systolic 1x4       166     3455    49         573530  True
+32 systolic 1x8       106     4501    49         477106  True
+32 systolic 1x16       82     7195    48         589990  True
+32 systolic 2x8       109     8410    50         458345  True
+32 mac-lane P=4      151     3394    45         512494  -
+32 mac-lane P=8       85     4377    43         372045  -
+32 mac-lane P=16      52     6941    43         360932  -
+F=32: best array / best MAC engine (cells*cycles/vec) = 1.27

@@ -1,0 +1,46 @@
+name: process-server-day-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent process servers and one-vehicle serving agencies: paste the day''s assigned serves (fee, costs, minutes on site, the window in which the person or office can be reached, and where each address is) and get the exact most profitable set and order of attempts (dynamic programming over serve sets with non-dominated time/profit labels, verified against every ordering of every subset), the drive and idle time it implies, the exact fee at which each declined serve would earn a place, and the dollars first-assigned and biggest-fee-first routing leave behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what an independent process server keeps from a day's assignments.
+# Checked 2026-10-02: ventures/ has process-server-fee-calculator (net profit of one job and client fee-schedule
+# comparison), route-stop-optimizer (orders stops, no fees or windows) and mobile-signing-agent-day-picker (notary
+# signings); none chooses which assigned serves to attempt, and in what order, under reachable-window constraints
+# with drive cost between addresses, or prices what a declined serve would need to pay. Not in screened-out.md.
+#
+# First visitor: searches "process server route planning", "how many serves can I do in a day", "process server
+# profit per day"; NAPPS and process-serving forum and Facebook groups. Volume not measured with an external tool.
+# Serving-agency dispatch software assigns work but does not tell an independent which serve to refuse or what a far
+# or skip-traced one needs to pay; a hosted version reading a day's assignments from an agency export is the natural
+# paid upgrade. The tool orders attempts only: service rules, court deadlines and safety are outside it.
+hypotheses:
+  - claim: An independent process server will paste a day's assigned serves, see how much first-assigned routing leaves behind, and change which serves they accept or what they quote for far or skip-traced ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A process server will return each morning with new serves, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No process server reports changing a serve they accept or a fee they quote because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/process-server-day-picker/
+  analytics: null

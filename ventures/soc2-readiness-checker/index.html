@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SOC 2 Readiness Checker — Free Gap Score and Timeline</title>
+  <meta name="description" content="Free SOC 2 readiness checker: answer the controls auditors test, get a readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="SOC 2 Readiness Checker — free, private, no signup">
+  <meta property="og:description" content="Score your SOC 2 readiness and get a ranked gap list and timeline. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SOC 2 Readiness Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Answer 33 to 38 control questions and get a SOC 2 readiness score, the gaps ranked by value per day of effort, and a rough timeline to a Type I date and a Type II report. Runs in your browser; nothing is uploaded.", "featureList": "SOC 2 readiness score, control gap ranking, remediation timeline, Type II observation window, evidence list, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is SOC 2 readiness?", "acceptedAnswer": {"@type": "Answer", "text": "A readiness assessment compares the controls you run today with the ones an auditor will test for a SOC 2 report: policies, access reviews, change review, logging, backups, incident response and vendor management. The gaps are what you fix before the audit window starts."}}, {"@type": "Question", "name": "How does this tool score readiness?", "acceptedAnswer": {"@type": "Answer", "text": "Each control has a weight from 1 to 3 for how hard auditors tend to lean on it. Yes counts 1, partial counts one half, no counts 0, and not applicable is left out. Readiness is the weighted share of controls done."}}, {"@type": "Question", "name": "How long does SOC 2 take?", "acceptedAnswer": {"@type": "Answer", "text": "Two things set the length. First the time to close your gaps, which this tool estimates from your weekly capacity. Then, for a Type II report, an observation window of typically 3 to 12 months in which the controls must operate and leave evidence. Type I looks at one date and has no window."}}, {"@type": "Question", "name": "What is the difference between SOC 2 Type I and Type II?", "acceptedAnswer": {"@type": "Answer", "text": "Type I says the controls were designed properly on one date. Type II says they also operated over a period. Many buyers ask for Type II, so the window is the longer part."}}, {"@type": "Question", "name": "Is my answer data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your answers are used in this browser tab and nothing is sent anywhere. There is no account."}}, {"@type": "Question", "name": "Does this replace a compliance platform or an auditor?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning aid built on a fixed list of common controls and rough effort figures. Only a licensed CPA firm can issue a SOC 2 report, and your auditor decides what they test."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b5c4d; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0a3d34; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0a3d34; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0a3d3410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b5c4d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #0a3d34; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #0a3d34; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  
+    .ctl { display: grid; grid-template-columns: 1fr 150px; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #e3ebe8; }
+    .ctl[hidden] { display: none; }
+    .ctl:last-child { border-bottom: 0; }
+    .ctl label { margin: 0; font-weight: 500; }
+    .ctl .ev { display: block; font-size: .8rem; color: #4c5a68; font-weight: 400; margin-top: 2px; }
+    @media (max-width: 620px) { .ctl { grid-template-columns: 1fr; } }
+    h3.area { margin: 22px 0 2px; color: #0a3d34; }
+    .bar { background: #e3ebe8; border-radius: 6px; height: 10px; min-width: 90px; }
+    .bar > i { display: block; height: 10px; border-radius: 6px; background: #0b5c4d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOC 2 READINESS CHECKER · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>How far are you from a SOC 2 report, and what do you fix first?</h1>
+    <p>Answer one line per control, the ones auditors actually test. You get a <strong>readiness score</strong>, your <strong>gaps ranked by value per day of effort</strong>, the evidence to collect for each, and a rough timeline to a <strong>Type I date and a Type II report</strong>.</p>
+    <p class="note">Answers stay in this browser tab. No account, no upload, no sales call.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your setup</h2>
+    <div class="grid">
+      <div><label for="start">Remediation start date</label><input type="date" id="start"></div>
+      <div><label for="dpw">Person-days per week you can spend on it</label><input type="number" id="dpw" min="0.5" max="40" step="0.5" value="3"></div>
+      <div><label for="scale">Effort multiplier</label><input type="number" id="scale" min="0.25" max="4" step="0.25" value="1"></div>
+      <div><label for="win">Type II observation window</label><select id="win"><option value="3">3 months</option><option value="6" selected>6 months</option><option value="9">9 months</option><option value="12">12 months</option></select></div>
+    </div>
+    <p class="note">Extra trust criteria in scope (Security is always in):</p>
+    <div class="checkbox-row"><input type="checkbox" id="sc-availability"><label for="sc-availability">Availability</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="sc-confidentiality"><label for="sc-confidentiality">Confidentiality</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="sc-privacy"><label for="sc-privacy">Privacy</label></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Where do you stand on each control?</h2>
+    <p class="note">Yes = running and you could show evidence today. Partial = started or done unevenly. No = not done. N/A = does not apply (an auditor will ask why).</p>
+    <div id="controls"></div>
+    <p>
+      <button type="button" id="analyze">Score my readiness</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Reset</button>
+    </p>
+    <p class="note" id="form-status">Answer the controls or load the example, then click Score my readiness.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>By area</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Area</th><th class="n" scope="col">Readiness</th><th scope="col"></th><th class="n" scope="col">Gaps</th></tr></thead><tbody id="areas"></tbody></table></div>
+    <h3>Your roadmap, in the order to do it</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">#</th><th scope="col">Control</th><th class="n" scope="col">Weight</th><th class="n" scope="col">Days left</th><th class="n" scope="col">Done by</th><th scope="col">Evidence to collect</th></tr></thead><tbody id="roadmap"></tbody></table></div>
+    <p class="note" id="warnings"></p>
+    <p><button type="button" class="secondary" id="download">Download roadmap as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Readiness</strong> = weighted share of in-scope controls done. Yes counts 1, partial counts 0.5, no counts 0; not applicable is left out.</li>
+      <li><strong>Weight</strong> (1 to 3) is how hard auditors tend to lean on a control. A weight-3 control that is not started is listed as a likely blocker.</li>
+      <li><strong>Order</strong> is weight times the missing share, divided by the days left, so cheap high-value fixes come first. Days are planning defaults for a small SaaS team; use the multiplier to match yours.</li>
+      <li><strong>Timeline</strong> adds the days left, divides by your weekly capacity, then adds the observation window for a Type II report.</li>
+      <li><strong>Not modelled:</strong> Processing Integrity, your auditor's own tests, the cost of tooling or the audit, and anything specific to your product or contracts. It is not a compliance platform and cannot issue or predict a report.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is SOC 2 readiness?</h3>
+    <p>A readiness assessment compares the controls you run today with the ones an auditor will test for a SOC 2 report: policies, access reviews, change review, logging, backups, incident response and vendor management. The gaps are what you fix before the audit window starts.</p>
+    <h3>How does this tool score readiness?</h3>
+    <p>Each control has a weight from 1 to 3 for how hard auditors tend to lean on it. Yes counts 1, partial counts one half, no counts 0, and not applicable is left out. Readiness is the weighted share of controls done.</p>
+    <h3>How long does SOC 2 take?</h3>
+    <p>Two things set the length. First the time to close your gaps, which this tool estimates from your weekly capacity. Then, for a Type II report, an observation window of typically 3 to 12 months in which the controls must operate and leave evidence. Type I looks at one date and has no window.</p>
+    <h3>What is the difference between SOC 2 Type I and Type II?</h3>
+    <p>Type I says the controls were designed properly on one date. Type II says they also operated over a period. Many buyers ask for Type II, so the window is the longer part.</p>
+    <h3>Is my answer data uploaded?</h3>
+    <p>No. Your answers are used in this browser tab and nothing is sent anywhere. There is no account.</p>
+    <h3>Does this replace a compliance platform or an auditor?</h3>
+    <p>No. It is a planning aid built on a fixed list of common controls and rough effort figures. Only a licensed CPA firm can issue a SOC 2 report, and your auditor decides what they test.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as a licensed CPA auditor or compliance counsel. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any audit, contract or security decision you make.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>readiness_scored</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../actions-permissions-check/">GitHub Actions permissions check</a> and <a href="../sbom-diff-check/">SBOM diff check</a>. Once a customer sends a security questionnaire, the <a href="../security-questionnaire-matcher/">security questionnaire answer matcher</a> reuses your past answers.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CONTROLS, AREAS, assess, sampleAnswers, toCsv, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id, d) => { const v = Number($(id).value); return Number.isFinite(v) && v > 0 ? v : d; };
+    let last = null;
+    $("#start").value = new Date().toISOString().slice(0, 10);
+
+    const SCOPE_LABEL = { availability: "Availability", confidentiality: "Confidentiality", privacy: "Privacy" };
+    function renderControls() {
+      let html = "", area = "";
+      for (const c of CONTROLS) {
+        if (c.area !== area) { area = c.area; html += `<h3 class="area">${esc(AREAS[area])}</h3>`; }
+        const tag = c.scope === "security" ? "" : ` <em>(${SCOPE_LABEL[c.scope]})</em>`;
+        html += `<div class="ctl" data-scope="${c.scope}"><label for="q-${c.id}">${esc(c.title)}${tag}<span class="ev">Evidence: ${esc(c.evidence)}</span></label><select id="q-${c.id}"><option value="no">No</option><option value="partial">Partial</option><option value="yes">Yes</option><option value="na">N/A</option></select></div>`;
+      }
+      $("#controls").innerHTML = html;
+      syncScopes();
+    }
+    function scopes() { return ["availability", "confidentiality", "privacy"].filter((s) => $("#sc-" + s).checked); }
+    function syncScopes() {
+      const on = new Set(["security", ...scopes()]);
+      document.querySelectorAll(".ctl").forEach((el) => { el.hidden = !on.has(el.dataset.scope); });
+    }
+    function answers() { return Object.fromEntries(CONTROLS.map((c) => [c.id, $("#q-" + c.id).value])); }
+
+    function run() {
+      const r = assess(answers(), { scopes: scopes(), daysPerWeek: num("#dpw", 3), effortScale: num("#scale", 1), start: $("#start").value, windowMonths: Number($("#win").value) });
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a, i) => `<div class="finding"><span class="pill ${i === 1 && r.blockers.length ? "high" : "info"}">${i === 0 ? "readiness " + pct(r.readiness) : i === 1 && r.blockers.length ? "likely blockers" : "note"}</span>${esc(a)}</div>`).join("");
+      $("#areas").innerHTML = r.areas.map((a) => `<tr><th scope="row">${esc(a.name)}</th><td class="n">${pct(a.readiness)}</td><td><div class="bar"><i style="width:${a.readiness}%"></i></div></td><td class="n">${a.gaps}</td></tr>`).join("");
+      $("#roadmap").innerHTML = r.gaps.map((g, i) => `<tr><td>${i + 1}</td><th scope="row">${esc(g.title)}</th><td class="n">${g.w}</td><td class="n">${(Math.round(g.remaining * 10) / 10)}</td><td class="n">${g.finishDate}</td><td>${esc(g.evidence)}</td></tr>`).join("") || `<tr><td colspan="6">No gaps. Collect evidence for each control and choose an auditor.</td></tr>`;
+      $("#warnings").textContent = r.unanswered.length ? `${r.unanswered.length} controls had no answer.` : "";
+      report.hidden = false;
+      status.textContent = `Scored ${r.summary.controls} controls: ${r.summary.done} done, ${r.summary.partial} partial, ${r.summary.missing} missing.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    renderControls();
+    for (const s of ["availability", "confidentiality", "privacy"]) $("#sc-" + s).addEventListener("change", syncScopes);
+    $("#analyze").addEventListener("click", () => { run(); record("readiness_scored"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleAnswers();
+      for (const c of CONTROLS) $("#q-" + c.id).value = s[c.id];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a small SaaS team part-way there, synthetic answers.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const c of CONTROLS) $("#q-" + c.id).value = "no"; report.hidden = true; last = null; status.textContent = "Answer the controls or load the example, then click Score my readiness."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "soc2-roadmap.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

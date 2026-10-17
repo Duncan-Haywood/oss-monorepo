@@ -1,0 +1,52 @@
+name: requirements-pin-check
+description: 'Free tool that audits a Python requirements.txt for unpinned and range versions, missing hashes, extra index URLs (dependency confusion), plain-http sources and unpinned git/URL dependencies -- in the browser (paste the file) or as a zero-dependency Node CLI that can fail CI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest matches were
+# docker-cache-order-check (0.47) and pypi-provenance-check (0.47), which share
+# the Python/container vocabulary but check layer order and publisher
+# attestations, not whether a requirements file is reproducible.
+# dependency-confusion-check covers the --extra-index-url risk for one input
+# shape; this one reads the whole file. The paid category this undercuts is
+# software composition platforms (Snyk, Socket, Dependabot alerts); the free
+# alternatives (pip-audit, pip-compile) need an installed toolchain, not a
+# pasteable page. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high. It reads a file the user already holds and sends nothing off the
+# device. The risk is being read as a security audit, so the page and guide
+# say it is a line scan and not security advice.
+#
+# First visitor channel: search for "requirements.txt pin versions",
+# "pip install require-hashes", "pip extra-index-url dependency confusion",
+# and r/Python and r/devops threads where the answer is "use pip-tools".
+hypotheses:
+  - claim: 'A Python developer hardening a Docker build or answering a customer security questionnaire will paste a requirements.txt and find unpinned or unhashed lines they had not noticed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add requirements-check.mjs --fail-on medium to CI so a loose requirement cannot be committed silently.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using requirements-check.mjs or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/requirements-pin-check/
+  analytics: null

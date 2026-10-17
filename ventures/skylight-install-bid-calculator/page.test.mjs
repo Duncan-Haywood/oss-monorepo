@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-skylight.html', import.meta.url), 'utf8');
+const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-skylight.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -93,6 +94,21 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /tubular/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the owner-supply article answers the search phrase and stays crawlable', () => {
+  assert.match(supplySeo, /Should I install a customer-supplied skylight/i);
+  assert.match(supplySeo, /FAQPage/);
+  assert.match(supplySeo, /\$350/);
+  assert.match(supplySeo, /wrong.{0,10}(size|unit)/i);
+  assert.match(supplySeo, /index\.html/);
+  assert.match(supplySeo, /No warranty/);
+  assert.match(supplySeo, /no SLA/i);
+  assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the landing page links the customer-supplied skylight question', () => {
+  assert.match(html, /should-i-install-a-customer-supplied-skylight\.html/);
 });
 
 // The saved-and-shared bid is only trustworthy if it carries every field the

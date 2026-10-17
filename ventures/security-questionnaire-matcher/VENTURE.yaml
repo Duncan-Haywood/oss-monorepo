@@ -1,0 +1,42 @@
+name: security-questionnaire-matcher
+description: >-
+  Free browser tool and zero-dependency Node CLI for SaaS vendors: paste a customer's security questionnaire and your saved answer library, get each question matched to your closest past answer (TF-IDF with security synonym folding), risky matches flagged (changed hours, negations), and unanswered questions grouped by topic. CSV and Markdown export. Nothing is uploaded. Not security or compliance advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15 in a new-venture-first session; a search of ventures/ found soc2-readiness-checker (are you ready for an audit) and vpat-acr-generator but nothing that answers an incoming vendor security questionnaire from past answers.
+#
+# First visitor: a SaaS founder, security lead or sales engineer at a small vendor selling to larger buyers, searching "security questionnaire template", "answer vendor security questionnaire faster", "SIG lite answers". Incumbents (Vanta, Drata, Conveyor, Loopio, Responsive) price per seat or per year inside broader platforms. Volume not measured.
+#
+# Path to revenue (payment rails stay off): free here as a lead magnet and open source (MIT); the business shape is a hosted team library with owners, review dates and XLSX/portal import, plus an optional draft-answer pass on the user's own API key. Not built here: accounts, XLSX import, LLM pass.
+#
+# Liability: output is a heuristic suggestion and says so on screen; every exported row is marked Review. The main harm is a stale or out-of-scope answer sent to a customer, mitigated by flagging changed figures and negations, showing the source question, and telling the reader to verify. Input never leaves the device; the library is stored locally only on an explicit click. No claim of affiliation with any framework body or vendor.
+hypotheses:
+  - claim: >-
+      Small SaaS vendors answering a few customer security questionnaires a quarter will paste them next to a CSV of past answers and start from the matches instead of retyping.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams that try the free matcher will want a shared library with owners and review dates enough to pay a low flat price for a hosted version.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Two independent reports that strong matches returned a wrong answer on a real questionnaire, with no cheap fix.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/security-questionnaire-matcher/
+  analytics: null

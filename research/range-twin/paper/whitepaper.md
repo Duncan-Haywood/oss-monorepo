@@ -1,0 +1,20 @@
+# A twin with unlimited sensor range says the robot converges in 49 steps from 1000R; the real one needs 4021
+
+*Stylised: scalar integrator plant, symmetric hard range limit, noiseless, three PI gain settings, a simulated "real" system, no lidar or radar data; pure Python, every number is from `experiments/results.txt` (deterministic, under 2 s). Negative and out-of-model results are marked.*
+
+## Question
+Lidar, radar and depth cameras have a maximum range `R`; beyond it the reading saturates or drops out. A twin whose sensor reads `y = x` exactly at any distance predicts a geometric approach. If the real sensor reads `clip(x, −R, R)`, how wrong is the twin's time-to-converge, what happens to an integrator, and what gain does a twin fit from logs of a given extent?
+
+## Model
+Integrator plant. P loop `x+ = x − k·y`; PI loop `z += y`, `x += −(kp·y + ki·z)` (the loop of `backlash-twin`). Beyond `R` the P loop is speed-capped at `kR`. Both loops are piecewise linear and positively homogeneous, so every normalised quantity depends on `x0/R` only.
+
+## Results
+1. **Exact step-count law.** For `0<k<1`, `x0>R`, the real P loop takes `j1 = ⌈(x0−R)/(kR)⌉` capped steps, reaches `x1 = x0 − j1kR ≤ R`, then `⌈ln(tol/x1)/ln(1−k)⌉` geometric steps. It matches simulation in all 108 (k, x0, tol) cases tested (one exact rounding tie at tol = 0.5 was moved to 0.45 rather than special-cased). For `k=0.25`, tol `10⁻³R`: twin/real steps are 22/22 at `x0=0.5R`, 27/29 at 2R, 30/41 at 5R, 38/221 at 50R, 49/4021 at 1000R (ratio 82×); the slope is `1/k` steps per `R` of start distance (4.00 measured), so the twin's error is linear in `x0/R`, not logarithmic.
+2. **Windup, and a twin that is not always optimistic.** For PI gains `(kp,ki)` = (0.5,0.1), (0.3,0.05), (0.5,0.2) (twin radius 0.707/0.837/0.707) the twin's overshoot is `c·x0` (0.211R at `x0=R`, 211R at 1000R for the first). The real loop overshoots *less* than the twin at `x0 = 2R, 5R` (0.403 vs 0.423, 0.864 vs 1.057), *more* from ≈10R on (11.5R vs 6.3R at 30R; 870R vs 211R at 1000R: 4.1×), and settles far later (36 vs 22 steps at 10R; 2006 vs 37 at 1000R). The integrator accumulates `R` per step for `≈x0/(kR)` steps while the state is still far, then unwinds through zero. The twin's overshoot is therefore neither a bound nor a lower bound. Conditional integration (freeze `z` while `|x|>R`) holds the overshoot at its within-range value for the first gain pair (0.211R for every `x0`); for the other two it is 0.167–0.326R, vs 883R and 920R unfixed at 1000R, but settling time is not repaired (2015 vs 2006 steps), since the approach is still speed-capped.
+3. **Exact scale invariance.** Overshoot/R is 6.300000000 and settling 55 steps for `R` = 0.01, 1, 100 (`x0=20R`).
+4. **What a twin fits from logs.** From logs with `x` uniform on `[−L,L]`, least squares on the step gives a gain factor `1.5q − 0.5q³`, `q=R/L` (Monte Carlo agrees to 3·10⁻⁴: 0.6875 vs 0.6877 at `L=2R`). Logs within range (`L≤R`) fit the gain exactly, so the twin passes validation and cannot reveal `R`; validation to `L=2R` still leaves the fitted gain 31% low. For `x0=50R` the gain fitted at `L=R` predicts 38 steps (real 221); at `L=3R`, 85; at `L=10R`, 285. The prediction is right only near `L≈7R`, by accident: it averages a saturated and an unsaturated regime and is pessimistic past that.
+
+## Limitations and next steps
+Noiseless scalar loop with a hard symmetric clip; real sensors drop out (return 0 or ∞) rather than saturate, which is a different failure (see `beam-twin`, `dropout-twin`). The 1/k slope and windup are for an integrator plant with no actuator limit; adding one (`saturation-twin`, `slew-twin`) would interact. Next: dropout-at-range instead of clipping, and a range-aware twin that models `R` and is validated against this law.
+
+**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>), the Autonomous Systems IRT and RECUV; no specific paper is reproduced and nothing here is affiliated with or endorsed by them. Anti-windup is classical (Åström & Rundqvist 1989).

@@ -1,0 +1,86 @@
+name: proposal-maker
+description: >-
+  Free client proposal generator that runs in the browser with no account or
+  watermark: project summary, problem and goals, scope with included and
+  excluded lists per deliverable, phases with computed dates, fixed,
+  good-better-best, hourly-with-cap or monthly retainer pricing, deposit and
+  payment milestones, assumptions, generic change-order and other template
+  clauses (not legal advice), validity date, acceptance block with signature
+  lines, print or save as PDF, draft/sent/accepted/declined tracking, duplicate,
+  JSON backup and a handoff of accepted pricing to Estimate Maker. Data stays on
+  the device. An optional zero-dependency signing server (Docker, Fly.io, Render)
+  gives clients a private link to accept or decline with a typed-name signature,
+  a SHA-256 certificate, and email or webhook notices.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session as the front of the
+# freelancer loop (proposal-maker -> estimate-maker -> time-tracker ->
+# invoice-maker -> expense-tracker, with freelance-dashboard over the top). The
+# portfolio had the quote (estimate-maker) and a contract checker for the
+# document a client sends you, but nothing that produces the document a
+# freelancer or small agency sends to win a project: scope, timeline, options and
+# terms on one printable page.
+#
+# Paid market is real: Bonsai, PandaDoc, Proposify and HoneyBook charge roughly
+# $15-60 a month per seat, mostly for templates, online signing and a client
+# portal. The free end is a Word or Google Docs template with arithmetic done by
+# hand. The wedge is the same as the rest of the loop (private, no signup, no
+# watermark) plus the parts a template cannot do: dates computed from phases,
+# deposit and milestones that always add up, and four pricing models.
+#
+# First visitor: freelancers, consultants and small agencies searching "free
+# proposal template", "project proposal generator" and "freelance proposal
+# maker", and r/freelance, r/webdev and r/consulting threads asking for one.
+# Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: no e-signature in the page itself (printed
+# signature lines; the optional self-hosted signing server, sign.mjs and
+# server.mjs, adds typed-name acceptance with a hashed certificate), no online payment, one tax rate, single browser storage
+# (backup prompt). The clause text is generic template wording filled in from the
+# numbers the user types; it is not legal advice and the page says to have a
+# lawyer review any contract.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet into the other
+# freelancer tools; donations via GitHub Sponsors. If repeat use appears, the
+# natural next steps are shareable accept-links via the Hetzner product box and
+# reusable proposal templates by trade.
+
+hypotheses:
+  - claim: >-
+      Freelancers who currently rebuild a proposal in Word for each lead will
+      finish one in about 15 minutes here, because scope, dates and the payment
+      schedule are computed rather than retyped.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Per-deliverable excluded lists and a good-better-best option raise the share
+      of proposals that get accepted without a scope argument.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users who win a proposal carry it into Estimate Maker with the handoff button
+      rather than retyping the price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total or payment schedule, or lost proposals to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/proposal-maker/
+  analytics: null

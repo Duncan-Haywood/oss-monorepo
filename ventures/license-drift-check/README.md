@@ -4,6 +4,8 @@ A free tool that diffs two point-in-time snapshots of a dependency tree's
 declared licenses — and tells you exactly which packages' **license**
 changed since the last one. Not their version. Their license.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/license-drift-check/
+
 **What it is not:** a legal opinion, a compliance certifier, or a
 substitute for reading the actual license text. It answers one narrow
 question — did this package's declared license string change between these

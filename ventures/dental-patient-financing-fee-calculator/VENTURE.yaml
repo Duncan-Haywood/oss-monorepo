@@ -1,0 +1,49 @@
+name: dental-patient-financing-fee-calculator
+description: >-
+  Free browser tool for dental and orthodontic practices: compare third-party patient financing, an in-house payment plan and
+  pay-in-full by what the practice keeps per case and by case acceptance, with the break-even acceptance and merchant fee. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nothing scored above 0.23 for the dental patient-financing niche;
+# dental-ppo-writeoff-calculator and private-practice-payer-mix-calculator are neighbours (insurer discounts, not patient payment
+# method). Rejected the same day as duplicates: ADU payback, janitorial bid, court reporter, self-storage unit mix, dog boarding.
+#
+# Why this niche: practices selling $4k-$20k treatment (ortho, implants, full-arch) choose between a financing company that takes
+# a 5-12% merchant fee, carrying their own plan, or cash-only. Vendors pitch higher case acceptance; the decision is whether that
+# lift beats the fee, which is a break-even calculation nobody gives the practice owner.
+#
+# First visitor: searches "CareCredit merchant fee worth it", "in-house dental payment plan vs financing", "patient financing
+# merchant fee break-even"; dental practice owners, office managers and dental-practice-management forums. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder example values labelled as such; no patient data; "Not decided"
+# section names lending disclosure rules and tax; no-advice footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a practice-finance consulting or
+# plan-billing tool -- needs an owner decision on payment handling.
+
+hypotheses:
+  - claim: >-
+      Dental practice owners and managers will enter their case fee, merchant fee and plan terms into a free tool to find the case acceptance financing needs to pay for itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from the model in README.md for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dental-patient-financing-fee-calculator/
+  analytics: null

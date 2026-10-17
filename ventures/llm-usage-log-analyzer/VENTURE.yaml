@@ -1,0 +1,76 @@
+name: llm-usage-log-analyzer
+description: >-
+  Free browser tool that reads an LLM API usage log the developer already has (JSONL, JSON array or CSV; Anthropic-style and OpenAI-style usage objects) and shows where the spend went -- by model, by feature label and by day -- with the real prompt-cache hit rate, a 30-day run rate, the concentration of spend in the most expensive requests, and three what-ifs (higher cache-read share, a batch tier, moving a share of one model's traffic to another). Bring-your-own-rates: no vendor price is fetched or asserted. Runs entirely client-side; the log never leaves the browser.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-30)
+#
+# duplicate_check.py against "CLI that reads LLM API usage logs (OpenAI Anthropic
+# JSONL) and reports cost by model, prompt caching savings and cheaper model
+# switch": top hit llm-api-pricing-calculator at 0.22, then
+# ai-coding-plan-cost-calculator 0.12. Nothing near the 0.45 review bar. Read the
+# top hit: llm-api-pricing-calculator prices a *hypothetical* monthly workload the
+# visitor types in; this starts from the *actual* per-request log and answers
+# "where did last month's bill go", which is the question a team asks after the
+# invoice surprises them. It is the companion, not a copy, and links to it.
+#
+# ARCHETYPE: not another <trade>-bid-calculator. Input is a machine-generated
+# log, output is a diagnosis, and the buyer is a developer or small team with a
+# metered bill that is already growing -- a market that pays for tooling. Paid
+# incumbents (LLM observability/gateway products) require routing production
+# traffic through their proxy or SDK; this needs a paste, which is the wedge for
+# the person who wants an answer today without an account or a security review.
+#
+# LIABILITY CONTAINMENT: arithmetic over the user's own tokens and the user's own
+# typed rates. No vendor price asserted (a stale default is the only real failure
+# mode, so there are none). Savings are labelled upper bounds under stated
+# assumptions, not forecasts; the provider's invoice stays the record. No PII is
+# collected -- the log is parsed in the browser and never transmitted. No
+# advice-of-record, no payment code, no account.
+#
+# ETHICAL ROBUSTNESS: gets better for the visitor as it scales; it exists only to
+# help them pay less. No affiliate link, no referral, no vendor favoured -- rate
+# fields are symmetric and user-entered. Donations only.
+#
+# JUDGMENT CALLS: (1) no default rates, so the first run needs a minute of typing;
+# accepted, because a preloaded wrong price is worse. (2) Token accounting follows
+# each API's own semantics (Anthropic input excludes cache buckets, OpenAI input
+# includes cached tokens) rather than one normalised guess.
+hypotheses:
+  - claim: A developer whose LLM API bill has grown past the point of shrugging will paste a log they already have into a private in-browser tool before they will route production traffic through an observability vendor, and the cache-hit-rate finding is the first thing that changes what they do.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Teams that log per-request usage but never divide it by feature will find one label carrying a disproportionate share of spend, and that finding is what they copy into a ticket or Slack thread.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors run an analysis on a pasted log within 90 days.
+  - Users cannot reproduce a hand-computed cost for a small log they supply, using their own rates.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: Hacker News "Show HN" for a zero-signup,
+  nothing-uploaded tool aimed at the recurring "my Claude/OpenAI bill doubled"
+  thread; r/LocalLLaMA, r/ClaudeAI and r/OpenAI posts asking why cost per task
+  rose; and organic search for "llm usage log cost analysis", "prompt cache hit
+  rate calculator", "openai usage cost by model", "anthropic cache_read_input_tokens
+  cost". It cross-links llm-api-pricing-calculator, which already sits on the
+  same search family.

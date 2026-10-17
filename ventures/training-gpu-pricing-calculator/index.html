@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GPU Training Pricing Calculator — H100, A100, L40S, RTX 4090 on RunPod, Lambda, AWS, Vast.ai and more</title>
+  <meta name="description" content="Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the 12-month spend, and how many hours a month it takes before buying the card beats renting. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?">
+  <meta property="og:description" content="Type your GPU, busy hours and utilisation, get every GPU cloud priced side by side plus the rent-versus-buy breakeven. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "GPU Training Pricing Calculator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge for GPU-hours of an H100, A100, L40S or RTX 4090, account for idle time, project 12 months of growth and find the busy hours where buying the card beats renting. Browser tool or zero-dependency Node CLI with a --budget CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my cloud account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses only the GPU, GPU-hours, utilisation and storage you type and rate cards you can edit. It cannot see your instances, quotas or invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate on-demand list prices per GPU-hour as best known in 2025, shown with an as-of line, and every number is editable. GPU rental prices move quickly and vary by region and availability, so check each pricing page before deciding."}}, {"@type": "Question", "name": "What is not included?", "acceptedAnswer": {"@type": "Answer", "text": "Spot or reserved discounts, committed-use contracts, egress, multi-GPU instance shapes that force you to rent more GPUs than you use, regions, support plans and queue or cold-start time. Interruptible capacity is modelled only as a percentage of re-run hours. Use this to compare the hourly lines, not to forecast the whole invoice."}}, {"@type": "Question", "name": "When does buying a GPU beat renting one?", "acceptedAnswer": {"@type": "Answer", "text": "When your busy hours a month pass the breakeven shown: depreciation of the card and host over your horizon, divided by what each busy hour saves against the cheapest rental after electricity. Below it, renting is cheaper; above it, owning is. It ignores your time, noise, cooling, failures and resale uncertainty."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GPU CLOUD PRICING CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?</h1>
+    <p>Pick a <strong>GPU</strong>, enter the <strong>busy GPU-hours per month</strong> and how much of the rented time the GPU is really busy. Get <strong>RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal</strong> priced side by side, the 12-month spend, and the <strong>hours a month above which owning the card wins</strong> — before you leave an H100 idling on a bill.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your cloud account or your invoice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your workload</h2>
+    <div class="grid">
+      <div><label for="gpu">GPU</label><select id="gpu"></select></div>
+      <div><label for="count">Number of GPUs</label><input type="number" id="count" min="1" value="1"></div>
+      <div><label for="hours">Busy GPU-hours per month (per GPU)</label><input type="number" id="hours" min="0" value="0"></div>
+      <div><label for="util">Utilisation of rented time <span class="note">(%) — instances bill while up</span></label><input type="number" id="util" min="1" max="100" value="100"></div>
+      <div><label for="storage">Persistent storage (GB)</label><input type="number" id="storage" min="0" value="0"></div>
+      <div><label for="growth">Growth in busy hours per month <span class="note">(%)</span></label><input type="number" id="growth" min="0" step="any" value="0"></div>
+      <div><label for="budget">Monthly budget in USD (optional)</label><input type="number" id="budget" min="0" placeholder="e.g. 800"></div>
+      <div><label for="provider">Budget applies to</label><select id="provider"><option value="">the cheapest provider</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Comparison</h2>
+    <p id="summary"></p>
+    <table><thead><tr><th>Provider</th><th>USD per GPU-hour</th><th>Per month</th><th>Per year</th><th>12-month spend with growth</th></tr></thead><tbody id="rows"></tbody></table>
+    <p class="note" id="unavailable"></p>
+    <h3>Rent or buy?</h3>
+    <p id="own"></p>
+    <p class="note">Owning = card plus host overhead, depreciated after resale value over your horizon, plus electricity at busy hours. It ignores your time, cooling, noise, failures and idle power.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Rate cards (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <table><thead><tr><th>Provider</th><th id="rate-head">USD per GPU-hour</th><th>Storage per GB-month</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <h3>Owning the card</h3>
+    <div class="row">
+      <div><label for="own-price">Card price (USD)</label><input type="number" id="own-price" min="0" step="any"></div>
+      <div><label for="own-kwh">Electricity (USD per kWh)</label><input type="number" id="own-kwh" min="0" step="any" value="0.15"></div>
+      <div><label for="own-months">Horizon (months)</label><input type="number" id="own-months" min="1" value="36"></div>
+      <div><label for="own-resid">Resale value at the end (%)</label><input type="number" id="own-resid" min="0" max="100" value="30"></div>
+      <div><label for="own-host">Host overhead (% of card price)</label><input type="number" id="own-host" min="0" value="20"></div>
+    </div>
+    <p class="note">Press Compare after changing a value. A blank rate means the provider does not offer that GPU. Interruption overhead and per-second billing stay at their defaults here; use the CLI <code>--prices</code> file to edit them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a budget gate in CI?</h2>
+    <pre class="cmd">node cli.mjs compare --gpu h100 --hours 200 --utilization 60 --growth 5
+node cli.mjs compare --gpu a100 --gpus 4 --hours 300 --provider aws --budget 2000   # exit 1 over budget
+node cli.mjs compare --gpu rtx4090 --hours 120 --prices prices.json --json
+node cli.mjs providers</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="should-i-rent-or-buy-a-gpu.html">should I rent or buy a GPU?</a></p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my cloud account?</h3>
+    <p>No. It uses only the GPU, GPU-hours, utilisation and storage you type and rate cards you can edit. It cannot see your instances, quotas or invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>They are approximate on-demand list prices per GPU-hour as best known in 2025, shown with an as-of line, and every number is editable. GPU rental prices move quickly and vary by region and availability, so check each pricing page before deciding.</p>
+    <h3>What is not included?</h3>
+    <p>Spot or reserved discounts, committed-use contracts, egress, multi-GPU instance shapes that force you to rent more GPUs than you use, regions, support plans and queue or cold-start time. Interruptible capacity is modelled only as a percentage of re-run hours. Use this to compare the hourly lines, not to forecast the whole invoice.</p>
+    <h3>When does buying a GPU beat renting one?</h3>
+    <p>When your busy hours a month pass the breakeven shown: depreciation of the card and host over your horizon, divided by what each busy hour saves against the cheapest rental after electricity. Below it, renting is cheaper; above it, owning is. It ignores your time, noise, cooling, failures and resale uncertainty.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies GPU-hours by list prices that may be out of date and ignores spot and reserved pricing, egress, regions, instance shapes and contracts; it is not a quote and not a guarantee of what any vendor will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a>, <a href="../ai-coding-plan-cost-calculator/">AI Coding Plan Cost Calculator</a>, <a href="../vector-db-cost-calculator/">Vector DB Cost Calculator</a>, <a href="../cloud-egress-calculator/">Cloud Egress Calculator</a>, <a href="../object-storage-pricing-calculator/">Object Storage Pricing Calculator</a>, <a href="../cdn-bandwidth-pricing-calculator/">CDN Bandwidth Pricing Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULT_PROVIDERS, DEFAULT_OWN, GPUS, PRICES_AS_OF, compare, ownCost, breakevenHours, project, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const providers = JSON.parse(JSON.stringify(DEFAULT_PROVIDERS));
+    const gpus = JSON.parse(JSON.stringify(GPUS));
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+    $("#gpu").innerHTML = Object.entries(gpus).map(([k, g]) => `<option value="${k}">${escapeHtml(g.label)}</option>`).join("");
+    $("#gpu").value = "h100";
+    $("#provider").innerHTML += Object.entries(providers).map(([k, p]) => `<option value="${k}">${escapeHtml(p.label)}</option>`).join("");
+
+    function drawRates() {
+      const g = $("#gpu").value;
+      $("#rate-head").textContent = `USD per GPU-hour (${gpus[g].label})`;
+      $("#own-price").value = gpus[g].ownUsd;
+      $("#prices-rows").innerHTML = Object.entries(providers).map(([k, p]) => `<tr><td><a href="${escapeHtml(p.url)}" rel="noopener">${escapeHtml(p.label)}</a></td><td><input type="number" min="0" step="any" aria-label="${escapeHtml(p.label)} rate" data-k="${k}" data-f="rate" value="${p.rates[g] ?? ""}"></td><td><input type="number" min="0" step="any" aria-label="${escapeHtml(p.label)} storage" data-k="${k}" data-f="storagePerGbMonth" value="${p.storagePerGbMonth}"></td></tr>`).join("");
+    }
+    drawRates();
+    let drawn = $("#gpu").value;
+    $("#gpu").addEventListener("change", () => { readRates(drawn); drawn = $("#gpu").value; drawRates(); });
+
+    function readRates(g) {
+      for (const el of document.querySelectorAll("[data-f]")) {
+        const p = providers[el.dataset.k];
+        if (el.dataset.f === "rate") p.rates[g] = el.value === "" ? null : Math.max(0, Number(el.value) || 0);
+        else p[el.dataset.f] = Math.max(0, Number(el.value) || 0);
+      }
+      gpus[g].ownUsd = Math.max(0, Number($("#own-price").value) || 0);
+    }
+
+    function render() {
+      const g = $("#gpu").value;
+      readRates(g);
+      const hours = Math.max(0, Number($("#hours").value) || 0);
+      if (!hours) { $("#status").innerHTML = `<span class="error">Enter your busy GPU-hours per month first (or load the worked example).</span>`; return; }
+      $("#status").textContent = "";
+      const input = { count: Math.max(1, Number($("#count").value) || 1), busyHours: hours, utilizationPct: Number($("#util").value) || 100, storageGb: Math.max(0, Number($("#storage").value) || 0) };
+      const own = { kwhUsd: Number($("#own-kwh").value) || 0, months: Math.max(1, Number($("#own-months").value) || DEFAULT_OWN.months), residualPct: Math.min(100, Math.max(0, Number($("#own-resid").value) || 0)), hostOverheadPct: Math.max(0, Number($("#own-host").value) || 0) };
+      const growth = Math.max(0, Number($("#growth").value) || 0);
+      const { rows, unavailable } = compare(g, input, providers);
+      if (!rows.length) { $("#status").innerHTML = `<span class="error">No provider has a rate for that GPU. Enter at least one rate below.</span>`; return; }
+      const proj = project(g, input, growth, 12, providers, own);
+      const total = Object.fromEntries(proj.totals.map((t) => [t.key, t.total]));
+      const b = $("#budget").value === "" ? null : Math.max(0, Number($("#budget").value) || 0);
+      const s = summarize(rows, { budget: b, provider: $("#provider").value || null });
+      $("#summary").innerHTML = `<span class="${s.overBudget ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#rows").innerHTML = rows.map((r) => `<tr><td>${escapeHtml(r.label)}</td><td>$${r.rate}</td><td>${fmt(r.monthly)}</td><td>${fmt(r.annual)}</td><td>${fmt(total[r.key])}</td></tr>`).join("");
+      $("#unavailable").textContent = unavailable.length ? "Not offered for this GPU: " + unavailable.map((u) => u.label).join(", ") + "." : "";
+      const oc = ownCost(g, input, own, gpus);
+      const be = breakevenHours(g, rows[0].rate, input, own, gpus);
+      $("#own").innerHTML = `Owning ${input.count} × ${escapeHtml(gpus[g].label)} costs about <strong>${fmt(oc.monthly)}</strong> a month at these hours (${fmt(oc.depreciation)} depreciation + ${fmt(oc.power)} power; 12-month total ${fmt(total.own)}). ` + (be == null ? "It does not beat the cheapest rental at any hours a month." : `It beats the cheapest rental (${escapeHtml(rows[0].label)}) above about <strong>${be}</strong> busy GPU-hours a month.`);
+      $("#estimate").textContent = `${PRICES_AS_OF}. Busy hours grow from ${hours} to ${proj.endBusyHours} a month over 12 months. Your numbers and editable prices; not a quote.`;
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { gpu: "h100", hours: 200, util: 60, growth: 5 };
+    $("#load-example").addEventListener("click", () => {
+      readRates($("#gpu").value);
+      $("#gpu").value = EXAMPLE.gpu; drawn = EXAMPLE.gpu; drawRates();
+      $("#hours").value = EXAMPLE.hours;
+      $("#util").value = EXAMPLE.util;
+      $("#growth").value = EXAMPLE.growth;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#hours").value = 0; $("#util").value = 100; $("#growth").value = 0; $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

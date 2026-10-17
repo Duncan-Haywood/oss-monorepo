@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retreat &amp; Workshop Profit Calculator — Free</title>
+  <meta name="description" content="Free calculator for retreat, workshop and group-trip organizers: break-even guests, profit by turnout, the cost of a venue guaranteed minimum and of early-bird seats, and the price that hits your profit target. Nothing uploaded.">
+  <meta property="og:title" content="Retreat and workshop profit calculator">
+  <meta property="og:description" content="How many guests you need, what to charge, and what an empty bed costs you. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M5 22 12 12l5 6 3-4 7 8z' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Retreat & Workshop Profit Calculator — Pricing, Break-Even and Venue Guarantee","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Profit, break-even guests, venue guarantee cost and the price for a profit target for a retreat, workshop or group trip. Runs in your browser.","featureList":"Break-even guests, early-bird cost, venue guaranteed minimum, price for profit target, fill and price sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people do I need to break even on a retreat?","acceptedAnswer":{"@type":"Answer","text":"Add every fixed cost (venue, instructors, marketing, insurance, your travel), then find the smallest turnout where ticket revenue minus card fees and the per-person lodging and meals covers it. Free staff spots and any venue guaranteed minimum raise the bill, so the tool includes both. The result panel shows the exact number and the profit at each fill level."}},{"@type":"Question","name":"What is a venue guaranteed minimum and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"Many venues bill for a minimum number of people (or room nights) whether or not they show up. If you guarantee 16 and 8 paying guests and 2 staff come, you still pay for 6 empty places. The result shows that cost separately so you can negotiate the guarantee down or a later cutoff before signing."}},{"@type":"Question","name":"How much should an early-bird price cost me?","acceptedAnswer":{"@type":"Answer","text":"Every early-bird seat gives up the difference between the regular and early price. The tool prints that exact amount for your turnout, so you can compare it with what the early sales do for your cash flow and your confidence in the date. Set early-bird seats to 0 to see the plain regular-price picture."}},{"@type":"Question","name":"What price do I need to charge to make a profit target?","acceptedAnswer":{"@type":"Answer","text":"The tool solves for the regular price that gives the profit you typed at the turnout you expect, after card fees, lodging and meals, and fixed costs. It also re-runs profit at prices 20% under to 20% over, so you can see how much of a price change a few extra guests would have to cover."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">RETREAT &amp; WORKSHOP PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your retreat make money, and how many guests do you need?</h1>
+    <p>You book a venue and instructors months ahead, sell early-bird and regular seats, and keep what turnout, card fees and a guaranteed minimum leave. Type your costs, prices and expected guests. The tool shows profit, the break-even number of paying guests, what empty guaranteed beds cost, what your early-bird tier gives up, the regular price that hits a profit target, and profit from 40% to 100% full.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not any real event, and your own costs will differ.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Capacity and turnout</h2>
+      <div class="grid">
+        <div><label for="capacity">Capacity (beds or seats)</label><input id="capacity" type="text" value=""></div>
+        <div><label for="nights">Nights</label><input id="nights" type="text" value=""><p class="note">1 for a day workshop.</p></div>
+        <div><label for="comps">Free staff or teacher spots</label><input id="comps" type="text" value=""><p class="note">They use a bed but pay nothing.</p></div>
+        <div><label for="expected">Paying guests you expect</label><input id="expected" type="text" value=""><p class="note">Be honest: the table below shows fuller and emptier.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Prices</h2>
+      <div class="grid">
+        <div><label for="early">Early-bird price ($)</label><input id="early" type="text" value=""></div>
+        <div><label for="earlySeats">Early-bird seats</label><input id="earlySeats" type="text" value=""><p class="note">Sold first at the early price.</p></div>
+        <div><label for="price">Regular price ($)</label><input id="price" type="text" value=""></div>
+        <div><label for="processing">Card and platform fees (%)</label><input id="processing" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">Fixed costs</h2>
+      <div class="grid">
+        <div><label for="venue">Venue or space ($)</label><input id="venue" type="text" value=""></div>
+        <div><label for="instructors">Instructors and speakers ($)</label><input id="instructors" type="text" value=""></div>
+        <div><label for="marketing">Marketing ($)</label><input id="marketing" type="text" value=""></div>
+        <div><label for="insurance">Insurance ($)</label><input id="insurance" type="text" value=""></div>
+        <div><label for="travel">Your travel and site visit ($)</label><input id="travel" type="text" value=""></div>
+        <div><label for="misc">Everything else, fixed ($)</label><input id="misc" type="text" value=""><p class="note">Gifts, printing, photographer.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">Per person and the venue contract</h2>
+      <div class="grid">
+        <div><label for="perNight">Lodging and meals per person per night ($)</label><input id="perNight" type="text" value=""></div>
+        <div><label for="guarantee">Venue guaranteed minimum people</label><input id="guarantee" type="text" value=""><p class="note">0 if none. Count free spots too.</p></div>
+        <div><label for="target">Profit you want ($)</label><input id="target" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Work out the profit</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How many people do I need to break even on a retreat?</h3>
+      <p>Add every fixed cost (venue, instructors, marketing, insurance, your travel), then find the smallest turnout where ticket revenue minus card fees and the per-person lodging and meals covers it. Free staff spots and any venue guaranteed minimum raise the bill, so the tool includes both. The result panel shows the exact number and the profit at each fill level.</p>
+      <h3>What is a venue guaranteed minimum and why does it matter?</h3>
+      <p>Many venues bill for a minimum number of people (or room nights) whether or not they show up. If you guarantee 16 and 8 paying guests and 2 staff come, you still pay for 6 empty places. The result shows that cost separately so you can negotiate the guarantee down or a later cutoff before signing.</p>
+      <h3>How much should an early-bird price cost me?</h3>
+      <p>Every early-bird seat gives up the difference between the regular and early price. The tool prints that exact amount for your turnout, so you can compare it with what the early sales do for your cash flow and your confidence in the date. Set early-bird seats to 0 to see the plain regular-price picture.</p>
+      <h3>What price do I need to charge to make a profit target?</h3>
+      <p>The tool solves for the regular price that gives the profit you typed at the turnout you expect, after card fees, lodging and meals, and fixed costs. It also re-runs profit at prices 20% under to 20% over, so you can see how much of a price change a few extra guests would have to cover.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Sales tax or VAT on tickets, income tax, whether your insurance or venue contract covers cancellations and injuries, refund and cancellation terms, how many guests will actually book, whether a price is right for your market, and foreign-exchange or deposit timing. Check your contracts and local rules, and ask an accountant or lawyer before you commit to a venue.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a>, the <a href="../tutor-package-pricing-calculator/">tutor package pricing calculator</a> and the <a href="../course-launch-revenue-calculator/">course launch revenue calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { EXAMPLE, KEYS, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const r = analyze(readAll());
+      let h = "";
+      for (const w of r.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!r.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = r;
+      const b = r.base;
+      h += '<div class="finding"><h4>' + (b.profit >= 0 ? "Profit" : "Loss") + " with " + r.n + " paying guests: " + money(b.profit) + "</h4><p>" + (r.margin == null ? "" : pct(r.margin) + " of ticket revenue. ") + (r.be == null ? "No turnout up to capacity breaks even on these costs." : "You break even at " + r.be + " paying guests (" + pct(r.be / Math.max(1, r.v.capacity - r.v.comps)) + " of the seats for sale).") + "</p></div>";
+      h += '<div class="finding"><h4>Where the money goes</h4>' + table(["", "Amount"], [
+        ["Ticket revenue", money(b.gross)], ["Card and platform fees", "-" + money(b.fees)],
+        ["Lodging and meals (" + b.billed + " people billed)", "-" + money(b.variable)], ["Fixed costs", "-" + money(b.fixed)], ["Profit", money(b.profit)],
+      ]) + "</div>";
+      if (b.empty > 0) h += '<div class="finding"><h4>Venue guarantee: ' + money(r.guaranteeCost) + " for " + b.empty + " empty places</h4><p>You guaranteed " + r.v.guarantee + " people and " + (r.n + r.v.comps) + " are coming. Negotiate the minimum down or a later cutoff.</p></div>";
+      if (r.v.earlySeats > 0) h += '<div class="finding"><h4>Early-bird tier gives up ' + money(r.earlyCost) + "</h4><p>That is what the same turnout would add at the regular price instead of the early price on the first " + Math.min(r.n, r.v.earlySeats) + " seats.</p></div>";
+      h += '<div class="finding"><h4>Price for your profit target</h4><p>' + (r.goalPrice == null ? "No regular price reaches " + money(r.v.target) + " with " + r.n + " guests; the early-bird seats and costs already exceed it." : "To make " + money(r.v.target) + " with " + r.n + " guests, charge " + money(r.goalPrice) + " for regular seats (you typed " + money(r.v.price) + ").") + "</p></div>";
+      h += '<div class="finding"><h4>If turnout is different</h4>' + table(["Fill", "Paying guests", "Profit"], r.fills.map((f) => [pct(f.fill), f.guests, money(f.profit)])) + "</div>";
+      h += '<div class="finding"><h4>If the regular price is different (at ' + r.n + " guests)</h4>" + table(["Price change", "Regular price", "Profit"], r.prices.map((p) => [(p.step > 0 ? "+" : "") + Math.round(p.step * 100) + "%", money(p.price), money(p.profit)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download profit by turnout (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "retreat-profit-by-turnout.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

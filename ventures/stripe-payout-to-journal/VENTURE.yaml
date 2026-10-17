@@ -1,0 +1,65 @@
+name: stripe-payout-to-journal
+description: >-
+  Free browser tool that turns a Stripe payout reconciliation report (or balance-transactions export) into
+  balanced accounting journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It proves each
+  payout's rows add up to the payout (from the payout row, or a deposit typed in from the bank), books gross
+  sales, Stripe fees, refunds, disputes and adjustments separately instead of the net deposit, splits a
+  payout that straddles a month end into one journal per month, and balances each to a Stripe clearing
+  account. Rows no rule recognises are journalled to an uncategorised account rather than dropped. The report
+  is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. The commercial analogue is A2X (payout-to-journal sync
+# for Stripe, Shopify, Amazon and others, sold per month to merchants and their bookkeepers) plus Stripe's
+# own accounting integrations; this is the no-account, no-upload, one-payout-at-a-time version. Sibling of
+# amazon-settlement-to-journal, same engine, different report. The portfolio had Stripe churn and failed-
+# payment analysers, but nothing that produces the journal an accountant actually posts.
+# Search phrases: "Stripe payout to Xero", "Stripe payout reconciliation to QuickBooks", "Stripe payout journal
+# entry", "reconcile Stripe payout", "Stripe fees accounting entry", "Stripe clearing account".
+# Volume not measured with an external tool.
+#
+# Who: SaaS founders, course creators and online shops that keep their own books, and the bookkeepers who
+# serve several of them, who today book the net deposit as income (wrong: fees, refunds and disputes are
+# hidden, and a payout across a month end lands in the wrong month) or pay a monthly sync fee.
+#
+# Path to revenue (payment rails stay off): lead magnet for the founder and bookkeeper audience. If usage
+# appears, the paid version is what a browser page cannot do: batch many payouts, remember the account
+# mapping per client, pull reports on a schedule (behind an env-var switch) and add PayPal, Shopify payouts
+# and Gumroad. Not built.
+#
+# Liability: it writes a journal from the user's own report, shows the check it ran, states what it does not
+# check (tax split, revenue recognition), and carries the no-warranty, independent-of-Stripe and financial-
+# data clauses.
+#
+# Unverified: the column names and reporting_category values of the payout reconciliation report and the
+# balance-transactions export, and the Xero, QuickBooks Online and IIF import layouts, are from memory of
+# public help documents; nothing ran against a real Stripe export or a live import. The first report this
+# misreads, or a journal an importer refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A Stripe merchant or their bookkeeper will paste a payout report into a no-upload page to get a
+      month-split journal, because the alternatives are booking the net deposit (hiding fees, refunds and
+      disputes) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payout this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/stripe-payout-to-journal/
+  analytics: null

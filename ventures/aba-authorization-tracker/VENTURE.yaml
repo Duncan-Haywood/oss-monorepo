@@ -1,0 +1,69 @@
+name: aba-authorization-tracker
+description: >-
+  Free browser tool for ABA therapy practices: paste an authorization list (client, CPT code, units approved, start,
+  end, units used, optional units per week and rate per unit) and it projects each authorization to its end date,
+  flags the ones that will run out of units early, flags the ones that will expire with units unused and prices those
+  at your rate, and gives a reauthorization submit-by date from your own lead time. Sorted most urgent first, with a
+  CSV report. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: era-835-underpayment-finder and
+# medical-bill-error-checker score under 0.2 (they check what was paid; this watches what was approved and not yet
+# delivered). Every other stranded "new venture" branch in the 2026-10-06 sweep duplicated a venture already on main.
+# Search phrases: "ABA authorization tracker", "ABA units tracking spreadsheet", "ABA authorization expiring",
+# "ABA reauthorization due date", "97153 units remaining".
+# Volume not measured with an external tool.
+#
+# Who: owners, billing leads and BCBA clinical directors of small ABA practices (typically 5-60 clients) who track
+# authorizations in a spreadsheet or in a practice-management system that does not project burn rate. Paying buyer, if
+# any: the practice owner, because unused authorized units are revenue that cannot be recovered after expiry and a
+# run-out mid-period is a gap in care.
+#
+# What makes it more than a spreadsheet: it projects each authorization forward on the scheduled or observed pace,
+# names the date units run out, prices what would expire unused, and works backwards from the end date to a
+# reauthorization submit-by date -- for the whole list at once, sorted by urgency.
+#
+# Path to revenue (payment rails stay off): lead magnet for ABA practice owners. A paid version, if usage appears, is
+# a practice-management export import (CentralReach, Theralytics, Passage Health, Raintree CSV layouts), a weekly
+# email digest and a scheduled-versus-delivered session variance view behind an env-var switch; none of it built.
+#
+# Liability: it does arithmetic on the user's own numbers. It does not know any payer's rules, says nothing about
+# medical necessity or billability, and carries the no-warranty and not-advice clauses. The page tells users to use
+# initials or internal IDs, says it is not a HIPAA compliance tool and sends nothing anywhere.
+#
+# Unverified: no real practice-management export has been tested; column names are guesses at common ones. The first
+# report of an export it cannot read is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An ABA practice owner or biller will paste a list of current authorizations into a no-upload page to see which
+      run out early or expire unused, because their practice-management system lists authorizations but does not
+      project burn rate or price the unused units.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "ABA authorization tracker" and "ABA units spreadsheet" prefer a tool that gives a run-out date
+      and a dollar figure over a blank template.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-03-15.
+  - Users report that real practice-management exports cannot be read and the column mapping cannot be fixed cheaply.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aba-authorization-tracker/
+  analytics: null

@@ -1,0 +1,31 @@
+{
+  "slug": "vehicle-wrap-bid-calculator",
+  "name": "Vehicle wrap",
+  "group": "Vehicles & mobile",
+  "summary": "Vehicle wraps priced from surface area with vinyl waste, laminate, install rate, complexity and design fee.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 35,
+  "burdenRate": 0,
+  "overheadRate": 12,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Print and install full wrap with laminate",
+      "unit": "sq ft",
+      "qty": 250,
+      "hoursPerUnit": 0.1042,
+      "materialPerUnit": 4.2,
+      "source": "DEFAULTS (calc.mjs) / index.html: 250 sq ft; hours = 1.25 complexity / 12 sq ft per hour; material = ($2.75 vinyl + $0.75 laminate) x 1.20 waste"
+    },
+    {
+      "label": "Design / proof",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 150,
+      "source": "designFee $150 (DEFAULTS, index.html)"
+    }
+  ],
+  "specialistModels": "Shows what ignoring vinyl waste costs per job, adds a rush surcharge and old-wrap removal hours, and checks actual vinyl and hours used against the quote; it has no payroll burden (burdenRate 0)."
+}

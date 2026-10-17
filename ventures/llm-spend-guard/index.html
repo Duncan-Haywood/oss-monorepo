@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LLM Spend Guard — Hard Budget Caps and Runaway-Loop Breakers for OpenAI and Claude API Calls</title>
+  <meta name="description" content="Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library. Replay your own usage log here to see what a policy would have stopped.">
+  <meta property="og:title" content="Would a spend cap have stopped your runaway LLM bill?">
+  <meta property="og:description" content="Hard dollar budgets, per-run step caps and loop breakers for LLM API calls. Replay your usage log through a policy in your browser; nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "LLM Spend Guard", "applicationCategory": "DeveloperApplication", "operatingSystem": "Node.js 18+ (proxy and library); any modern browser (simulator)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "license": "https://opensource.org/licenses/MIT", "description": "Self-hosted proxy and zero-dependency library that enforces hard dollar budgets per user, feature, API key and agent run on OpenAI and Anthropic API calls, reserves each call's worst-case cost before it is sent, and trips circuit breakers on runaway loops, with a browser simulator that replays a usage log through a policy."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I put a hard limit on my OpenAI or Anthropic API spend?", "acceptedAnswer": {"@type": "Answer", "text": "Set the provider's own organisation or project limit as the backstop, then put a guard in front of your calls that refuses a request before it is sent when it would cross a budget. LLM Spend Guard does that as a local proxy (change the SDK base URL) or as a library call around your SDK call, with budgets per user, feature, key and agent run."}}, {"@type": "Question", "name": "How does it stop concurrent calls overshooting a budget?", "acceptedAnswer": {"@type": "Answer", "text": "Each call holds its worst-case cost (a high estimate of its input plus its full output cap) against every budget before it is sent, like a card hold. Concurrent calls cannot all fit into the same remaining dollar. When the response reports real usage, the actual cost replaces the hold."}}, {"@type": "Question", "name": "What is a runaway loop breaker?", "acceptedAnswer": {"@type": "Answer", "text": "An agent that keeps retrying the same tool call, or a bug that calls the model in a tight loop, can spend a month's budget in minutes. A breaker watches a rolling window and opens when one run sends the same request too many times, or calls or spend per minute pass a limit; while open it refuses calls for a cooldown, and the proxy answers HTTP 429 with Retry-After."}}, {"@type": "Question", "name": "Is my usage log uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The simulator on this page replays the log you paste in your own browser and never sends it anywhere. The proxy runs on your machine or your server, and only talks to the provider you point it at."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    textarea { width: 100%; min-height: 240px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .85rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .big { font-size: 1.35rem; font-weight: 700; color: #17324a; margin: 4px 0 10px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 10px 0 16px; }
+    .stat { background: #f7f9fb; border-radius: 10px; padding: 12px; }
+    .stat b { display: block; font-size: 1.3rem; color: #17324a; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LLM SPEND GUARD · OPEN SOURCE · SELF-HOSTED</p>
+    <h1>Would a spend cap have stopped your runaway LLM bill?</h1>
+    <p>An agent stuck retrying one tool call, a loop with no exit, a prompt that asks for the full output limit: each can spend a month of OpenAI or Anthropic budget in an afternoon. <strong>LLM Spend Guard</strong> sits in front of your calls and refuses one <em>before it is sent</em> when it would cross a <strong>hard dollar budget</strong> per user, feature, API key or agent run, or when a <strong>loop breaker</strong> sees the same request again and again.</p>
+    <p>Replay your own usage log through a policy below to see what it would have refused. Then run the same policy as a local proxy (one base-URL change) or as a library call around your SDK.</p>
+    <p class="note">The simulator runs in this browser. Your log and policy never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Replay a usage log through a policy</h2>
+    <div class="grid">
+      <div>
+        <label for="policy-input">Policy (JSON)</label>
+        <textarea id="policy-input" spellcheck="false"></textarea>
+      </div>
+      <div>
+        <label for="log-input">Usage log: JSONL, a JSON array or CSV, one row per request</label>
+        <textarea id="log-input" spellcheck="false" placeholder='{"created_at":"2026-10-14T09:00:00Z","model":"claude-sonnet-4-5","user":"u1","run_id":"r1","usage":{"input_tokens":1800,"output_tokens":350}}'></textarea>
+      </div>
+    </div>
+    <p class="note">Rows need a <code>model</code> and token counts in Anthropic (<code>input_tokens</code>, <code>output_tokens</code>, <code>cache_read_input_tokens</code>) or OpenAI (<code>prompt_tokens</code>, <code>completion_tokens</code>) form, nested under <code>usage</code> or flat. Optional: <code>created_at</code>, <code>user</code>, <code>feature</code>, <code>run_id</code>/<code>trace_id</code>, and <code>prompt_hash</code> (without it a replay cannot see repeats). Prices come from the policy: put in your provider's current rates.</p>
+    <button type="button" id="replay">Replay</button>
+    <button type="button" class="secondary" id="load-example">Load the synthetic runaway-loop example</button>
+    <button type="button" class="secondary" id="clear">Clear log</button>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>2. What the policy would have done</h2>
+    <p class="big" id="headline"></p>
+    <div class="stats" id="stats"></div>
+    <p id="first-block"></p>
+    <h3>Breaker trips and budget alerts</h3>
+    <div class="tablewrap"><table><thead><tr><th>When</th><th>Event</th><th>Detail</th></tr></thead><tbody id="events"></tbody></table></div>
+    <h3>First refused calls</h3>
+    <div class="tablewrap"><table><thead><tr><th>Row</th><th>When</th><th>Cost refused</th><th>Why</th></tr></thead><tbody id="refusals"></tbody></table></div>
+    <p class="note">Arithmetic on your log and the prices in your policy: not a forecast and not your invoice.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Enforce it: proxy or library</h2>
+    <p><strong>Proxy</strong> (Node 18+, no dependencies). Change the SDK's base URL and every call passes the guard:</p>
+<pre class="cmd">node cli.mjs init guard-policy.json        # then put in your models and current prices
+node cli.mjs check-policy guard-policy.json  # summary + gaps (no global cap? no breakers?)
+node cli.mjs proxy guard-policy.json --port 8787
+
+ANTHROPIC_BASE_URL=http://127.0.0.1:8787/anthropic
+OPENAI_BASE_URL=http://127.0.0.1:8787/openai/v1
+# optional headers per request: x-guard-user, x-guard-feature, x-guard-run</pre>
+    <p>A refused call gets the provider's own error shape: <strong>HTTP 402</strong> when a budget is spent (SDKs do not retry it) and <strong>429 with Retry-After</strong> while a breaker is open. Streams are passed through byte for byte and settled from the usage they report.</p>
+    <p><strong>Library</strong>, around any SDK call:</p>
+<pre class="cmd">import { createGuard } from './guard.mjs';
+const guard = createGuard(policy, { onEvent: (e) => e.type === 'alert' &amp;&amp; notify(e) });
+
+const text = await guard.guarded(
+  { model, maxOutputTokens: 1024, input: messages, scope: { user: userId, run: runId } },
+  async (d) => {
+    const r = await client.messages.create({ model, max_tokens: d.maxOutputTokens, messages });
+    return { result: r, usage: { input: r.usage.input_tokens, output: r.usage.output_tokens } };
+  });</pre>
+    <p>Read <a href="how-to-set-a-hard-spend-limit-on-openai-and-anthropic-api-calls.html">how to set a hard spend limit on OpenAI and Anthropic API calls</a> for what each control catches and where provider-side limits still matter.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>How do I put a hard limit on my OpenAI or Anthropic API spend?</h3>
+    <p>Set the provider's own organisation or project limit as the backstop, then put a guard in front of your calls that refuses a request before it is sent when it would cross a budget. LLM Spend Guard does that as a local proxy (change the SDK base URL) or as a library call around your SDK call, with budgets per user, feature, key and agent run.</p>
+    <h3>How does it stop concurrent calls overshooting a budget?</h3>
+    <p>Each call holds its worst-case cost (a high estimate of its input plus its full output cap) against every budget before it is sent, like a card hold. Concurrent calls cannot all fit into the same remaining dollar. When the response reports real usage, the actual cost replaces the hold.</p>
+    <h3>What is a runaway loop breaker?</h3>
+    <p>An agent that keeps retrying the same tool call, or a bug that calls the model in a tight loop, can spend a month's budget in minutes. A breaker watches a rolling window and opens when one run sends the same request too many times, or calls or spend per minute pass a limit; while open it refuses calls for a cooldown, and the proxy answers HTTP 429 with Retry-After.</p>
+    <h3>Is my usage log uploaded?</h3>
+    <p>No. The simulator on this page replays the log you paste in your own browser and never sends it anywhere. The proxy runs on your machine or your server, and only talks to the provider you point it at.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice, and it is not a billing system: it estimates cost from the prices you configure and the usage providers report, and its figures can differ from your invoice. Keep your provider's own spend limits switched on as well. <strong>You are responsible for reviewing and verifying its configuration and output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything on this page runs in your browser. The log and policy you paste are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>replay_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../llm-call-cost-scan/">LLM Call Cost Scan</a> finds uncapped and in-loop calls in source before they run, <a href="../llm-usage-log-analyzer/">LLM Usage Log Analyzer</a> breaks a log down by model and feature, <a href="../llm-api-pricing-calculator/">LLM API Pricing Calculator</a> prices a workload you have not run yet, and <a href="../liability-audit/">Liability Audit</a> scans a whole repository for LLM endpoints with no spend control, leaked keys and the legal exposures next to them.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { normalisePolicy } from "./guard.mjs";
+    import { EXAMPLE_POLICY, exampleRunawayLog, parseLog, simulate } from "./simulate.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const usd = (x) => {
+      const format = (x) => `$${Number(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(x));
+      return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    $("#policy-input").value = JSON.stringify(EXAMPLE_POLICY, null, 2);
+
+    function replay() {
+      const status = $("#status");
+      status.textContent = "";
+      status.className = "";
+      let policy, rows;
+      try {
+        policy = JSON.parse($("#policy-input").value);
+        normalisePolicy(policy);
+      } catch (e) {
+        status.textContent = `Policy: ${e.message}`;
+        status.className = "error";
+        return;
+      }
+      try {
+        rows = parseLog($("#log-input").value);
+      } catch (e) {
+        status.textContent = `Log: ${e.message}`;
+        status.className = "error";
+        return;
+      }
+      if (!rows.length) {
+        status.textContent = "Paste a usage log first, or load the example.";
+        status.className = "error";
+        return;
+      }
+      const r = simulate(policy, rows);
+      const t = r.totals;
+      $("#headline").textContent = t.blocked
+        ? `This policy would have refused ${t.blocked} of ${t.rows} calls: ${usd(t.blockedUsd)} of ${usd(t.actualUsd)} not spent.`
+        : `This policy would have allowed all ${t.rows} calls (${usd(t.actualUsd)}).`;
+      $("#stats").innerHTML = [
+        ["Logged spend", usd(t.actualUsd)], ["Allowed", `${t.allowed} · ${usd(t.allowedUsd)}`],
+        ["Refused", `${t.blocked} · ${usd(t.blockedUsd)}`], ["Unpriced rows", t.unpriced],
+      ].map(([k, v]) => `<div class="stat">${esc(k)}<b>${esc(v)}</b></div>`).join("");
+      $("#first-block").textContent = r.firstBlock ? `First refusal: row ${r.firstBlock.row} at ${r.firstBlock.at}: ${r.firstBlock.reasons[0].message}` : "";
+      $("#events").innerHTML = r.events.slice(0, 50).map((e) => `<tr><td>${esc(e.at)}</td><td>${e.type === "trip" ? "breaker opened" : "budget alert"}</td><td>${esc(e.type === "trip"
+        ? `${e.breaker} (${e.scope}=${e.scopeValue}): ${e.reason}; refuses for ${e.cooldownSec}s`
+        : `${e.budget} (${e.scope}=${e.scopeValue}) reached ${Math.round(e.threshold * 100)}% of ${usd(e.limitUsd)}`)}</td></tr>`).join("") || `<tr><td colspan="3">None.</td></tr>`;
+      $("#refusals").innerHTML = r.refusals.slice(0, 50).map((x) => `<tr><td>${x.row}</td><td>${esc(x.at)}</td><td>${usd(x.costUsd)}</td><td>${esc(x.message)}</td></tr>`).join("") || `<tr><td colspan="4">None.</td></tr>`;
+      if (t.unpriced) {
+        status.textContent = `${t.unpriced} rows use a model with no price in this policy; with requireKnownPrice on they are refused. Add the model's price to see real figures.`;
+      }
+      $("#report").hidden = false;
+      record("replay_run");
+      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#replay").addEventListener("click", replay);
+    $("#load-example").addEventListener("click", () => {
+      $("#policy-input").value = JSON.stringify(EXAMPLE_POLICY, null, 2);
+      $("#log-input").value = exampleRunawayLog().map((r) => JSON.stringify(r)).join("\n");
+      record("example_loaded");
+      replay();
+      $("#status").textContent = "Loaded a made-up log: 40 ordinary chat calls, then one agent run re-sending the same tool call every 2 seconds. Prices are example placeholders.";
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#log-input").value = "";
+      $("#report").hidden = true;
+      $("#status").textContent = "";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

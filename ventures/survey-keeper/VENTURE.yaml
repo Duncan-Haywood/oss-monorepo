@@ -1,0 +1,51 @@
+name: survey-keeper
+description: >-
+  Self-hosted surveys and Net Promoter Score (Typeform / SurveyMonkey /
+  Delighted alternative): NPS, rating, choice and free-text questions from a
+  plain-text definition, a 95% range on every NPS, the words detractors use
+  more than promoters, results by source, CSV export and an alert on every
+  detractor. Zero-dependency server, embeddable, one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-17. Paid market proven: Typeform, SurveyMonkey, Delighted,
+# Survicate, Refiner and Hotjar Surveys charge $25-300 a month, and the cheap
+# tiers cap responses or hide NPS trend and export. Open-source options
+# (LimeSurvey, Formbricks) are full platforms: a database, a build, many
+# settings. The gap is a one-process NPS and survey server that also says
+# *why* the score is what it is (detractor-heavy words) and pings you on every
+# detractor so the loop gets closed. Pairs with help-keeper, feedback-board and
+# support-desk. duplicate_check: grep of ventures/ on 2026-10-17 found no
+# survey or NPS server (form-inbox collects website forms, not scored surveys).
+#
+# First visitor: r/selfhosted, r/SaaS, Indie Hackers: "self hosted NPS survey",
+# "typeform alternative open source", "delighted alternative".
+# Path to revenue (payments stay off): free MIT lead magnet; done-for-you setup
+# and sponsors; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS owners will deploy their own NPS survey when it shows a
+      confidence range and the words detractors use, because a bare score from
+      30 answers invites the wrong conclusion and gives no next step.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of the page being reachable from the published site.
+  - A report of script injection through a survey title, question or answer, a response stored from a closed survey, or an admin action accepted without the key.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/survey-keeper/
+  analytics: null

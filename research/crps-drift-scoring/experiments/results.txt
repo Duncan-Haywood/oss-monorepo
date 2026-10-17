@@ -1,0 +1,47 @@
+E1  scale misreport (d=0, sigma=1): excess CRPS vs excess log score, r = s/sigma
+r       crps      log       log/crps
+0.01      0.2281   4994.895  21898.50
+0.05      0.2065    196.504    951.68
+0.1       0.1813     47.197    260.39
+0.25      0.1172      6.114     52.16
+0.5       0.0458      0.807     17.63
+0.8       0.0062      0.058      9.30
+1.25      0.0078      0.043      5.52
+2         0.0916      0.318      3.47
+4         0.4688      0.918      1.96
+10        1.8126      1.808      1.00
+100      22.8093      4.105      0.18
+overconfidence ceiling for CRPS = 0.2337 (log score unbounded)
+
+E2  mean error d/sigma at s=sigma=1: linear (CRPS) vs quadratic (log)
+d      crps      log
+0.1      0.0028     0.005
+0.5      0.0698     0.125
+1        0.2709     0.500
+2        0.9721     2.000
+4        2.8736     8.000
+8        6.8716    32.000
+16      14.8716   128.000
+
+E3  plug-in Gaussian fit from n samples (MLE): n x excess, 4000 seeds; theory CRPS 5/(8 sqrt(pi)) = 0.3526 , log 1
+n     n*crps   n*log
+5      0.4051   3.9843
+10     0.3680   1.7161
+20     0.3581   1.2911
+50     0.3544   1.0998
+100    0.3618   1.0687
+200    0.3444   1.0127
+
+E4  heavy-tailed truth (Student t, report N(0,1) against a t-distributed truth):
+sample std of the per-round loss over N rounds (median of 7 seeds). Finite variance needs nu>2 (CRPS) or nu>4 (log).
+nu   score  N=1e3   1e4     1e5
+6.0  crps    0.63    0.63    0.63
+6.0  log     1.50    1.65    1.67
+3.0  crps    1.09    1.15    1.16
+3.0  log     5.30    8.82   11.00
+2.5  crps    1.36    1.55    1.63
+2.5  log    12.77   19.28   31.11
+
+E5  outcome-measurement noise: overconfident report m=0, s=0.2 (sigma=1), realised y=3, perturb y by eps=1e-3
+crps change = 1.00e-03  (bound eps = 0.001 )
+log  change = 7.50e-02  (slope (y-m)/s^2 = 75.0 )

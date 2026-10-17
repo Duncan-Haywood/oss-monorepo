@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shoe Repair Shop Profit Calculator — Heel Price, Break-Even, Bench Hours</title>
+  <meta name="description" content="Free shoe repair shop calculator: enter heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.">
+  <meta property="og:title" content="Shoe Repair Shop Profit Calculator — free, private">
+  <meta property="og:description" content="Find out which jobs make money for the time on the bench, what a prepaid repair package really costs you, and how many jobs cover the machines and the rent.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shoe Repair Shop Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free shoe repair shop calculator: turn heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent into profit per job, profit per bench hour, break-even volume and a season result."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a shoe repair shop charge for a resole?", "acceptedAnswer": {"@type": "Answer", "text": "Add the bench minutes at your cobbler's loaded hourly cost to the heel lifts, glue, soles and polish the job uses, then divide by one minus the margin you want. A resole takes about 45 minutes at the machine, so a price that looks fair next to the shop down the road can still lose money if your cobbler is slow or the machine sits idle. Type your own minutes and costs and read the price off."}}, {"@type": "Question", "name": "Is a prepaid repair package worth selling?", "acceptedAnswer": {"@type": "Answer", "text": "A plan is cash up front for work you do later, so price it against the number of visits a customer will really use. The result shows what each visit earns and the number of visits at which the plan starts losing money. Count honestly: a customer who brings the shoe in every other week costs far more than the one who forgets."}}, {"@type": "Question", "name": "How many jobs does a shoe repair shop need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Fixed costs for the season (the machines and forms spread over the seasons you will keep them, rent and utilities for the months you are open, and anything else) divided by what each job contributes after labor and materials. The calculator prints the break-even count at your mix and a table of the season at 50 to 150 percent of the volume you expect."}}, {"@type": "Question", "name": "Why does the bench-hour figure matter?", "acceptedAnswer": {"@type": "Answer", "text": "A shop has a fixed number of bench hours in a busy season. A service that earns more for each hour on the bench is the one to push when the bench is full, and the one to raise first when it is not. The result ranks your services by that figure."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Your own pay as owner, retail sales of shoes, supplies and accessories, rental fleets, sales tax, card fees, shop insurance, a second cobbler's hiring cost and your income tax. It is a planning aid, not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHOE REPAIR SHOP PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Which jobs make your shoe repair shop money, and how many does the season have to sell?</h1>
+    <p>Enter your heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent. You get <strong>profit per job and per bench hour, the price each job needs for your target margin, what a prepaid repair package really earns, the break-even volume, and how the season moves with demand against the bench hours you actually have</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What you sell</h2>
+    <div class="grid">
+      <div><label for="waxQty">Heels, taps and simple repairs sold</label><input type="number" id="waxQty" min="0" step="1" value="1800"></div>
+      <div><label for="waxPrice">Heel or tap price ($)</label><input type="number" id="waxPrice" min="0" step="any" value="20"></div>
+      <div><label for="waxMin">Heel or tap bench minutes</label><input type="number" id="waxMin" min="0" step="any" value="12"></div>
+      <div><label for="waxMat">Heel or tap supplies ($ each)</label><input type="number" id="waxMat" min="0" step="any" value="2"></div>
+      <div><label for="stdQty">Resoles and standard repairs sold</label><input type="number" id="stdQty" min="0" step="1" value="1100"></div>
+      <div><label for="stdPrice">Resole or standard repair price ($)</label><input type="number" id="stdPrice" min="0" step="any" value="55"></div>
+      <div><label for="stdMin">Resole or standard repair bench minutes</label><input type="number" id="stdMin" min="0" step="any" value="30"></div>
+      <div><label for="stdMat">Resole or standard repair supplies ($)</label><input type="number" id="stdMat" min="0" step="any" value="4"></div>
+      <div><label for="fullQty">Full shoe or boot restorations sold</label><input type="number" id="fullQty" min="0" step="1" value="160"></div>
+      <div><label for="fullPrice">Full rework price ($)</label><input type="number" id="fullPrice" min="0" step="any" value="140"></div>
+      <div><label for="fullMin">Full rework bench minutes</label><input type="number" id="fullMin" min="0" step="any" value="90"></div>
+      <div><label for="fullMat">Full rework supplies ($)</label><input type="number" id="fullMat" min="0" step="any" value="12"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Labor and the bench</h2>
+    <div class="grid">
+      <div><label for="techRate">Cobbler pay ($ per hour)</label><input type="number" id="techRate" min="0" step="any" value="20"></div>
+      <div><label for="burdenPct">Payroll tax and extras (%)</label><input type="number" id="burdenPct" min="0" step="any" value="12"></div>
+      <div><label for="benchHrsPerWeek">Bench hours available per week</label><input type="number" id="benchHrsPerWeek" min="0" step="any" value="35"></div>
+      <div><label for="seasonMonths">Season length (months)</label><input type="number" id="seasonMonths" min="0" step="any" value="12"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Machines, rent and fixed costs</h2>
+    <div class="grid">
+      <div><label for="machineCost">Machines, dress forms and pressing equipment ($)</label><input type="number" id="machineCost" min="0" step="any" value="5000"></div>
+      <div><label for="machineSeasons">Seasons you will use them</label><input type="number" id="machineSeasons" min="0" step="1" value="10"></div>
+      <div><label for="rentPerMonth">Rent and utilities ($ per month)</label><input type="number" id="rentPerMonth" min="0" step="any" value="1800"></div>
+      <div><label for="otherFixed">Other fixed cost this season ($)</label><input type="number" id="otherFixed" min="0" step="any" value="2500"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Prepaid packages and margin</h2>
+    <div class="grid">
+      <div><label for="passHolders">Prepaid-package customers</label><input type="number" id="passHolders" min="0" step="1" value="30"></div>
+      <div><label for="passPrice">Package price ($)</label><input type="number" id="passPrice" min="0" step="any" value="90"></div>
+      <div><label for="passWaxVisits">Visits per package customer</label><input type="number" id="passWaxVisits" min="0" step="any" value="5"></div>
+      <div><label for="targetMarginPct">Target margin on each job (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="40"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the season</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the season.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each service</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Service</th><th scope="col">Price</th><th scope="col">Cost</th><th scope="col">Profit</th><th scope="col">Margin</th><th scope="col">Per bench hour</th><th scope="col">Price for target</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>The season at different volumes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Jobs</th><th scope="col">Revenue</th><th scope="col">Profit</th><th scope="col">Bench hours</th><th scope="col">Bench used</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Each job costs its bench minutes at the cobbler's pay plus payroll extras, plus its supplies. Profit is price less that cost.</li>
+      <li>Profit per bench hour is price less supplies, divided by the hours on the bench, before the cobbler's pay, so it compares jobs on the one thing a busy season runs out of.</li>
+      <li>Fixed cost is the machines and forms spread over the seasons you will keep them, rent for the months you are open, and the other fixed cost you type. The season result is every service's profit, plus the package line, less fixed cost.</li>
+      <li>A repair package is revenue once, against the visits its customers use. Its break-even is the plan price divided by what one visit costs you.</li>
+      <li><strong>Not modelled:</strong> your own pay as owner, retail and rentals, sales tax, card fees, insurance, hiring a second cobbler, and income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a shoe repair shop charge for a resole?</h3>
+    <p>Add the bench minutes at your cobbler's loaded hourly cost to the heel lifts, glue, soles and polish the job uses, then divide by one minus the margin you want. A resole takes about 45 minutes at the machine, so a price that looks fair next to the shop down the road can still lose money if your cobbler is slow or the machine sits idle. Type your own minutes and costs and read the price off.</p>
+    <h3>Is a prepaid repair package worth selling?</h3>
+    <p>A plan is cash up front for work you do later, so price it against the number of visits a customer will really use. The result shows what each visit earns and the number of visits at which the plan starts losing money. Count honestly: a customer who brings the shoe in every other week costs far more than the one who forgets.</p>
+    <h3>How many jobs does a shoe repair shop need to break even?</h3>
+    <p>Fixed costs for the season (the machines and forms spread over the seasons you will keep them, rent and utilities for the months you are open, and anything else) divided by what each job contributes after labor and materials. The calculator prints the break-even count at your mix and a table of the season at 50 to 150 percent of the volume you expect.</p>
+    <h3>Why does the bench-hour figure matter?</h3>
+    <p>A shop has a fixed number of bench hours in a busy season. A service that earns more for each hour on the bench is the one to push when the bench is full, and the one to raise first when it is not. The result ranks your services by that figure.</p>
+    <h3>What does this leave out?</h3>
+    <p>Your own pay as owner, retail sales of shoes, supplies and accessories, rental fleets, sales tax, card fees, shop insurance, a second cobbler's hiring cost and your income tax. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These machines are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>season_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../phone-repair-shop-profit-calculator/">phone repair shop profit</a>, <a href="../laundromat-machine-payback-calculator/">laundromat machine payback</a>, <a href="../dog-grooming-profit-calculator/">dog grooming profit</a>, <a href="../nail-tech-booth-rent-calculator/">nail tech booth rent</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["waxQty", "waxPrice", "waxMin", "waxMat", "stdQty", "stdPrice", "stdMin", "stdMat", "fullQty", "fullPrice", "fullMin", "fullMat", "techRate", "burdenPct", "benchHrsPerWeek", "seasonMonths", "machineCost", "machineSeasons", "rentPerMonth", "otherFixed", "passHolders", "passPrice", "passWaxVisits", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.price)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perBenchHour)}</td><td>${usd(l.targetPrice)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.jobs}</td><td>${usd(x.revenue)}</td><td>${usd(x.profit)}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Season profit ${usd(r.season.profit)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("season_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "repairs-season.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

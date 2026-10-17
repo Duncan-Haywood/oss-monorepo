@@ -1,0 +1,49 @@
+name: rds-instance-rightsizer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a CSV of CloudWatch numbers per RDS or Aurora instance (CPU avg and p95, minimum freeable memory, connections p95) and/or aws rds describe-db-instances JSON and reports over- and under-provisioned instances, the next-smaller or larger class in the same family (embedded approximate us-east-1 price table, editable), a memory-headroom and connection-limit check, Graviton migration savings for x86 classes, Multi-AZ doubling, estimated monthly savings and ready-to-paste aws rds modify-db-instance commands; usable as a CI check (--fail-on warn). A recommendation from metrics, not a bill: sample over a representative period; prices approximate.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of lambda-memory-rightsizer, k8s-requests-rightsizer and
+# ebs-volume-cost-advisor (same engine/CLI/page shape, RDS and Aurora instance
+# classes). Nothing else in the catalogue sizes database instances.
+#
+# Where the first real visitor would come from: the search phrases "rds instance
+# too large", "right size rds instance", "rds cpu utilization low downsize",
+# "aws rds graviton savings", "rds multi-az cost"; r/aws, r/devops and FinOps
+# threads about a database line that is the biggest item on the AWS bill. The
+# reader is an engineer or FinOps owner with RDS spend in the thousands per month.
+# Adjacent tools (AWS Compute Optimizer, Trusted Advisor, vendor cost platforms)
+# need account access or a paid plan; this works on pasted CloudWatch numbers with
+# no access -- the wedge. A hosted monitor that watches CloudWatch and opens a PR
+# against the Terraform instance class is the natural paid upgrade.
+hypotheses:
+  - claim: An engineer with an oversized RDS fleet will search for how to right-size an instance, paste CloudWatch numbers, and find the instances worth resizing first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --fail-on warn so an exported fleet snapshot with wasteful or pressured instances is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rds-instance-rightsizer/
+  analytics: null

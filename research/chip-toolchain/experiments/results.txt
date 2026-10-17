@@ -1,0 +1,34 @@
+Tool versions
+  yosys: Yosys 0.33 (git sha1 2584903a060)
+  iverilog: Icarus Verilog version 12.0 (stable) ()
+  verilator: Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
+
+Synthesis to a generic gate library (synth; abc -g AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX)
+design               params   cells  depth  flops
+adder_ripple         W=4         17      7      0
+adder_ripple         W=8         37     15      0
+adder_ripple         W=16        77     31      0
+adder_ripple         W=32       157     63      0
+adder_op             W=4         17      7      0
+adder_op             W=8         38     15      0
+adder_op             W=16        82     31      0
+adder_op             W=32       170     63      0
+mult_op              W=4         63     12      0
+mult_op              W=8        332     30      0
+fifo                 W=8,AW=2    90      6     40
+fifo                 W=8,AW=3   173      8     75
+
+Equivalence (Yosys miter + SAT)
+  adder_ripple == adder_op, W=4: True
+  adder_ripple == adder_op, W=8: True
+  adder_ripple == adder_op, W=12: True
+  adder_ripple == adder_bug (negative control), W=8: False
+
+Verilator lint
+  adder_ripple: not clean: UNOPTFLAT
+  adder_op: clean
+  mult_op: clean
+  fifo: clean
+
+Simulation (Icarus Verilog)
+  tb_adder: 256 vectors, 0 mismatches against Python a+b

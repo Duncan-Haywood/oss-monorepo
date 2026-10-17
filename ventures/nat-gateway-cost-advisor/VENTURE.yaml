@@ -1,0 +1,53 @@
+name: nat-gateway-cost-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads GB per month per NAT gateway and destination (S3, DynamoDB, ECR, CloudWatch Logs, STS, SSM, internet ...) and prices the NAT gateway (hourly + public IPv4 + $0.045/GB), then each AWS-bound destination as a free S3/DynamoDB gateway endpoint or an interface endpoint (hourly fee per AZ and endpoint, counting the multi-endpoint services ECR, SSM and ECS), names the net monthly saving, prints the create-vpc-endpoint commands, and flags idle gateways; usable as a CI check. Traffic is supplied by the user and prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of ebs-volume-cost-advisor, dynamodb-capacity-mode-advisor and
+# lambda-memory-rightsizer in the cloud-cost-from-pasted-numbers family.
+# Checked 2026-10-02: ventures/ has cloud-egress-calculator (data transfer OUT
+# to the internet) and nothing that prices NAT gateway processing or VPC
+# endpoints. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "nat gateway
+# cost", "nat gateway data processing charges", "s3 gateway endpoint reduce nat
+# cost", "vpc endpoint vs nat gateway", "NatGateway-Bytes cost explorer"; r/aws,
+# Stack Overflow and re:Post threads about a surprise NAT line on the bill. The
+# reader is a platform engineer or FinOps owner with a four- to six-figure NAT
+# line. Adjacent tools (AWS pricing calculator, Cost Explorer, vendor FinOps
+# suites such as Vantage or CloudZero) show the spend but not "this S3 traffic
+# should be a free gateway endpoint, here is the command", and need an AWS
+# account or contract; this works on pasted rows with no access. A hosted
+# multi-account monitor that reads Flow Logs and opens Terraform PRs adding the
+# endpoints is the natural paid upgrade.
+hypotheses:
+  - claim: An engineer with a NAT gateway line on the bill will search for why it is so high, paste GB per destination, and leave with an S3 or DynamoDB gateway endpoint command and a monthly saving.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to a scheduled job against a Flow Logs summary with --fail-on warn so new S3 traffic through a NAT gateway or an idle gateway is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nat-gateway-cost-advisor/
+  analytics: null

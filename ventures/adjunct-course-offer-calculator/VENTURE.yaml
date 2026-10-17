@@ -1,0 +1,53 @@
+name: adjunct-course-offer-calculator
+description: >-
+  Free browser tool for adjunct and part-time instructors: enter each course offer's pay, weeks, class and prep hours,
+  enrolment, grading, unpaid office hours and training, commute and cancellation risk to see what it really pays per hour,
+  rank up to three offers, and find the pay that reaches a target rate and the largest class worth accepting. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were tutor-package-pricing-calculator 0.34 and
+# tutor-effective-hourly-rate-calculator 0.26 (private tutors, a different job); screened-out.md has no adjunct or
+# higher-ed row. Nothing in ventures/ compares per-course teaching contracts.
+#
+# Why this niche: roughly three quarters of US college teaching posts are contingent, paid per course, with grading that
+# scales with enrolment and unpaid office hours, training and commuting. Adjuncts routinely hold two or three offers across
+# campuses and decide with one number (the per-course pay). Several of them also freelance, so they are people who do read
+# a pay calculator.
+#
+# First visitor: people searching "adjunct pay per hour calculator", "is adjunct teaching worth it" and "adjunct vs
+# full time pay"; r/Professors, r/AdjunctProfessors and adjunct Facebook groups, where "what does this course really pay
+# me per hour" is a recurring thread. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on typed figures; not pay, tax, employment or career advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end for a paid
+# contract-comparison or career-coaching referral, and for per-seat union/association tooling.
+
+hypotheses:
+  - claim: >-
+      Adjunct instructors weighing two or more per-course offers will use a private calculator that turns pay, grading
+      load, unpaid hours, the drive and cancellation risk into an hourly figure, and will quote it when negotiating
+      enrolment caps or pay.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/adjunct-course-offer-calculator/
+  analytics: null

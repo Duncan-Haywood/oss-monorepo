@@ -42,6 +42,10 @@ test("links to the docs page and vice versa", () => {
   assert.match(docsHtml, /href="\.\/index\.html"/);
 });
 
+test("links to the sibling single-config auditor", () => {
+  assert.match(html, /href="\.\.\/mcp-config-risk-check\/"/);
+});
+
 test("the entry page ships a real, question-shaped FAQ that build.mjs will turn into FAQPage schema", () => {
   // No FAQPage block is authored in index.html itself: build.mjs's own
   // faqEntries() derives it from this visible "Common questions" section at

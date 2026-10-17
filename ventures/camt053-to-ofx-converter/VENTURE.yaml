@@ -1,0 +1,69 @@
+name: camt053-to-ofx-converter
+description: >-
+  Free browser tool that converts an ISO 20022 camt.053 (XML) or SWIFT MT940 bank statement into the
+  import files accounting software accepts: OFX/QBO for QuickBooks and Quicken, QIF, and Xero's statement
+  CSV. It checks the statement first (opening balance plus booked entries must equal the closing balance,
+  naming the amount it is off by), writes a stable transaction ID per entry so re-importing the same
+  statement does not double-post, and writes one file per statement and account. The file is read locally and
+  never uploaded; account numbers are masked in the output unless you choose otherwise.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Sibling eu-bank-statement-reader reads and checks
+# camt.053/MT940 and exports a generic CSV; this is the conversion half people actually search for.
+# Search phrases: "camt.053 to QBO", "camt.053 to OFX", "MT940 to QuickBooks", "MT940 to OFX converter",
+# "camt.053 to Xero", "convert bank statement to QBO". Volume not measured with an external tool.
+#
+# Who: bookkeepers and small firms with euro-area or UK banks whose business portal only exports
+# camt.053 or MT940 while QuickBooks Online/Desktop, Quicken and Xero want OFX/QBO, QIF or a CSV. Existing
+# answers are paid per-statement converters and converters that need the bank file uploaded to a server.
+#
+# What makes it more than a re-labelled CSV: the OFX is built the way importers need it (FITID that is
+# stable across re-runs and unique for identical same-day payments, 32-character NAME, ASCII-safe text with
+# accents folded, closing balance as LEDGERBAL), the statement is balance-checked first, and each account
+# and currency gets its own file because importers take one account per file.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeping audiences. A paid version, if
+# usage appears, is batch conversion of many files, bank-specific profiles, DATEV and CAMT-to-ledger
+# mappings behind an env-var switch; not built.
+#
+# Liability: it writes files from the user's own statement, shows the checks it ran, states what it does not
+# check, and carries the no-warranty, independent-of-SWIFT-banks-and-software-vendors and financial-data
+# clauses.
+#
+# Unverified: the OFX/QIF/Xero layouts and each importer's tolerance are from memory of public import
+# help; nothing ran against a live QuickBooks, Quicken or Xero import. The camt paths and MT940 rules are
+# those of eu-bank-statement-reader and equally unverified. The first report of an import that is refused
+# is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper whose bank exports only camt.053 or MT940 will convert it to OFX/QBO or a Xero CSV on a
+      no-upload page, because the alternatives are paid converters or sending bank data to a stranger.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Stable transaction IDs, so that importing the same statement twice does not double-post, are what makes
+      a converted file safe enough to be used again for next month's statement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a converted file that QuickBooks, Quicken or Xero refuses, or a real bank file this tool misreads, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/camt053-to-ofx-converter/
+  analytics: null

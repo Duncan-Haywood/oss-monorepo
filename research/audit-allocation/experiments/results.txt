@@ -1,0 +1,31 @@
+== E1  cost of full deterrence: heterogeneous gains vs uniform audit vs Jensen bound (n=20, S=1) ==
+  spread   sum t_j   n*max t   n*t(mean g)
+  0.0      10.000    10.000    10.000
+  0.5      10.533    12.988    10.789
+  1.0      10.228    17.575    12.498
+  1.5       9.432    18.096    13.145
+
+== E2  optimal vs greedy vs uniform loss as budget grows (n=10 lognormal g, h; S=1; 200 instances, mean loss / total harm) ==
+  B/full   optimal   greedy   uniform
+  0.10     0.6994    0.6997   0.9496
+  0.25     0.4157    0.4212   0.8531
+  0.50     0.1866    0.1888   0.6467
+  0.75     0.0635    0.0654   0.4360
+  0.90     0.0191    0.0199   0.3291
+  1.00     0.0000    0.0000   0.2577
+
+== E3  greedy quality: worst harm-prevented ratio greedy/optimal over random instances (n<=9) ==
+  instances 3000, worst ratio 0.6910, share with ratio<0.99: 0.0910
+  4-job instance: optimal loss 6.0826, greedy loss 6.0826 (density-only greedy: 6.7058)
+
+== E4  stake substitutes for audits: least stake so that budget B deters everything (n=20, g lognormal, seed 4) ==
+  B   S*(B)   identical-g closed form g(n/B-1) at g=mean
+  1    31.117    33.112
+  2    13.955    15.685
+  4     5.657     6.971
+  8     1.838     2.614
+
+== E5  loss formula vs Monte Carlo with a best-responding cheater (100k rounds) ==
+  p=[0.1, 0.1, 0.1, 0.1]  formula 4.5000  MC 4.4986
+  p=[0.3, 0.5, 0.0, 0.2]  formula 1.2000  MC 1.2024
+  p=[0.34, 0.5, 0.3, 0.2]  formula 0.3500  MC 0.3501

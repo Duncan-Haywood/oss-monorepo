@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invoice Maker — Free Invoice Generator, No Signup, Works Offline</title>
+  <meta name="description" content="Free invoice generator: itemised lines, tax, discount, deposits, due dates and late-fee terms, print to PDF, overdue tracking and receivables aging. No account, no watermark, works offline, data stays on your device.">
+  <meta property="og:title" content="Invoice Maker — free invoice generator, no signup">
+  <meta property="og:description" content="Create, print and track invoices in your browser. No account, no watermark, no invoice limit.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Invoice Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free invoice generator that runs in your browser: itemised lines, tax, discount, deposit, due dates, late-fee terms, printable PDF, overdue tracking and receivables aging. No account, no watermark; data stays on your device.", "featureList": "Itemised invoices, tax and discount, deposits and part payments, payment terms and late-fee clause, print to PDF, invoice numbering, overdue tracking, receivables aging, CSV and JSON export, works offline"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this invoice generator really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no watermark, no invoice limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free."}}, {"@type": "Question", "name": "Where are my invoices stored?", "acceptedAnswer": {"@type": "Answer", "text": "In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}}, {"@type": "Question", "name": "How do I get a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Press Print / Save as PDF and choose Save as PDF as the destination. Only the invoice is printed, not the editor."}}, {"@type": "Question", "name": "What should an invoice include so it gets paid?", "acceptedAnswer": {"@type": "Answer", "text": "A unique invoice number, your business name and contact details, the client's name, the issue date and due date, itemised services with quantities and rates, any tax, the total due and exactly how to pay you. The built-in check lists what is missing."}}, {"@type": "Question", "name": "Can it add sales tax, discounts and late fees?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Apply one tax rate to taxable lines, mark individual lines non-taxable, add a percentage or flat discount (applied before tax), a deposit already paid, and a late-fee clause printed in the terms. It does not decide which tax rate or late-fee cap applies to you."}}, {"@type": "Question", "name": "Does it track who has not paid?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Mark an invoice as sent and it turns overdue after its due date. The receivables panel ages unpaid balances (current, 1-30, 31-60, 61-90 and 90+ days) and totals them by client."}}, {"@type": "Question", "name": "Is this legal, tax or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It formats the numbers you enter. Tax rates, e-invoicing mandates, late-fee limits and record-keeping rules depend on your location and business."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f2; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d6b4f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14503a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14503a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a52; }
+    .card { background: #fff; border: 1px solid #d8e0db; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14503a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfb6; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 70px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b4f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eee8; color: #14503a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6ece8; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a52; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eef6f1; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #14503a; }
+    .kpi span { font-size: .8rem; color: #4a5a52; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.draft { background: #e6ece8; color: #3a4a42; }
+    .pill.sent, .pill.partial { background: #dcecf7; color: #1d4e75; }
+    .pill.paid { background: #d8f0e2; color: #14503a; }
+    .pill.overdue { background: #fde8e8; color: #9a3412; }
+    .pill.void { background: #eee; color: #666; }
+    .issues li { color: #7c4a10; }
+    .lines input { padding: 6px 7px; }
+    .lines .num { width: 90px; text-align: right; }
+    .sr { position: absolute; left: -9999px; }
+    footer { margin-top: 28px; border-top: 1px solid #d8e0db; padding-top: 16px; }
+    /* The printable invoice */
+    #preview { background: #fff; color: #111; padding: 28px; border: 1px solid #d8e0db; border-radius: 6px; }
+    #preview h2 { font-size: 1.8rem; letter-spacing: .06em; margin: 0; color: #111; }
+    #preview .top { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    #preview .meta td { border: 0; padding: 2px 0 2px 14px; }
+    #preview .tot { margin-left: auto; width: 280px; }
+    #preview .tot td { border: 0; padding: 3px 0; }
+    #preview .tot tr.due td { border-top: 2px solid #111; font-weight: 700; font-size: 1.1rem; padding-top: 8px; }
+    #preview .pre { white-space: pre-line; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    @media print { .noprint { display: none !important; } body { background: #fff; padding: 0; max-width: none; } .card { box-shadow: none; border: 0; padding: 0; margin: 0; } #preview { border: 0; padding: 0; } }
+  </style>
+</head>
+<body>
+  <header class="noprint">
+    <p class="note">INVOICE MAKER · FREE · NO ACCOUNT · WORKS OFFLINE · DATA STAYS ON YOUR DEVICE</p>
+    <h1>Send a professional invoice in two minutes, then see who still owes you.</h1>
+    <p>Itemised lines, tax, discount, deposits, due dates and a late-fee clause. <strong>Print or save as PDF</strong> with no watermark. Mark invoices sent and the tool tracks which are <strong>overdue</strong> and ages your unpaid balances. No signup, no invoice limit, nothing uploaded.</p>
+    <p class="note">Invoices are stored in this browser only. Download a backup now and then: clearing browser data clears them.</p>
+  </header>
+
+  <section class="card noprint" id="dash" aria-live="polite">
+    <h2>Receivables</h2>
+    <div class="kpis" id="kpis"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Invoice</th><th scope="col">Client</th><th scope="col">Due</th><th scope="col">Status</th><th class="n" scope="col">Total</th><th class="n" scope="col">Balance</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="list"></tbody></table></div>
+    <p class="note" id="empty" hidden>No invoices yet. Fill in the form below and press Save invoice, or load the example.</p>
+    <div id="aging"></div>
+  </section>
+
+  <section class="card noprint">
+    <h2 id="form-title">New invoice</h2>
+    <h3>From</h3>
+    <div class="grid">
+      <div><label for="f-name">Your business name</label><input id="f-name" autocomplete="organization"></div>
+      <div><label for="f-email">Email or phone</label><input id="f-email"></div>
+      <div><label for="f-addr">Address</label><textarea id="f-addr"></textarea></div>
+      <div><label for="f-taxid">Tax / VAT / EIN (optional)</label><input id="f-taxid"></div>
+    </div>
+    <h3>Bill to</h3>
+    <div class="grid">
+      <div><label for="c-name">Client name</label><input id="c-name" list="clients" autocomplete="off"><datalist id="clients"></datalist></div>
+      <div><label for="c-email">Client email (optional)</label><input id="c-email"></div>
+      <div><label for="c-addr">Client address</label><textarea id="c-addr"></textarea></div>
+    </div>
+    <h3>Invoice</h3>
+    <div class="grid">
+      <div><label for="i-number">Invoice number</label><input id="i-number"></div>
+      <div><label for="i-issued">Issue date</label><input id="i-issued" type="date"></div>
+      <div><label for="i-terms">Payment terms</label><select id="i-terms"><option value="due_on_receipt">Due on receipt</option><option value="net7">Net 7</option><option value="net15">Net 15</option><option value="net30" selected>Net 30</option><option value="net45">Net 45</option><option value="net60">Net 60</option><option value="custom">Custom days</option></select></div>
+      <div><label for="i-custom">Custom days</label><input id="i-custom" inputmode="numeric" placeholder="e.g. 10"></div>
+      <div><label for="i-due">Due date</label><input id="i-due" type="date"></div>
+      <div><label for="i-currency">Currency</label><select id="i-currency"><option>USD</option><option>CAD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>MXN</option><option>INR</option></select></div>
+    </div>
+    <h3>Line items</h3>
+    <div class="scroll"><table class="lines"><thead><tr><th scope="col">Description</th><th class="n" scope="col">Qty / hours</th><th class="n" scope="col">Rate</th><th scope="col">Taxable</th><th class="n" scope="col">Amount</th><th scope="col"><span class="sr">Remove</span></th></tr></thead><tbody id="lines"></tbody></table></div>
+    <p><button type="button" class="secondary" id="add-line">Add line</button></p>
+    <div class="grid">
+      <div><label for="i-tax">Tax rate, %</label><input id="i-tax" inputmode="decimal" placeholder="0"></div>
+      <div><label for="i-dtype">Discount</label><select id="i-dtype"><option value="none">None</option><option value="percent">Percent of subtotal</option><option value="amount">Flat amount</option></select></div>
+      <div><label for="i-dval">Discount value</label><input id="i-dval" inputmode="decimal"></div>
+      <div><label for="i-ship">Shipping / extra charge</label><input id="i-ship" inputmode="decimal"></div>
+      <div><label for="i-paid">Deposit or amount already paid</label><input id="i-paid" inputmode="decimal"></div>
+    </div>
+    <div class="grid">
+      <div><label for="i-pay">How to pay you</label><textarea id="i-pay" placeholder="Bank transfer details, Zelle email, check payee, payment link"></textarea></div>
+      <div><label for="i-notes">Notes (optional)</label><textarea id="i-notes" placeholder="Thank you for your business"></textarea></div>
+      <div><label for="i-latepct">Late fee, % per month (optional)</label><input id="i-latepct" inputmode="decimal" placeholder="e.g. 1.5"></div>
+      <div><label for="i-lateflat">Late fee, flat (optional)</label><input id="i-lateflat" inputmode="decimal" placeholder="e.g. 25"></div>
+    </div>
+    <ul class="issues" id="issues" aria-live="polite"></ul>
+    <p>
+      <button type="button" id="save">Save invoice</button>
+      <button type="button" class="secondary" id="print">Print / Save as PDF</button>
+      <button type="button" class="secondary" id="new">New invoice</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card printable" aria-label="Invoice preview">
+    <div id="preview"></div>
+  </section>
+
+  <section class="card noprint">
+    <h2>Export, back up, restore</h2>
+    <p>
+      <button type="button" id="export-csv">Export all invoices as CSV</button>
+      <p class="note" id="storage-guard" aria-live="polite"></p>
+      <button type="button" class="secondary" id="export-json">Download backup</button>
+      <button type="button" class="secondary" id="import-btn">Restore from backup</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="danger" id="clear-all">Delete everything on this device</button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore">
+    </p>
+    <p class="note" id="io-status"></p>
+  </section>
+
+  <section class="card noprint">
+    <h2>What it does and does not do</h2>
+    <ul>
+      <li><strong>Maths in whole cents.</strong> Line amounts, a discount applied before tax, a tax rate on the taxable lines, shipping and a deposit; the balance due is what is printed.</li>
+      <li><strong>Overdue tracking.</strong> An invoice marked sent turns overdue the day after its due date; unpaid balances are aged from the due date.</li>
+      <li><strong>Not modelled:</strong> multiple tax rates on one invoice, VAT reverse-charge wording, e-invoicing formats (see the <a href="../einvoice-preflight/">e-invoice preflight check</a>), recurring invoices, online card payment, and any rule about which late fee is legal where you work.</li>
+    </ul>
+  </section>
+
+  <section class="card noprint">
+    <h2>Common questions</h2>
+    <h3>Is this invoice generator really free?</h3>
+    <p>Yes. There is no watermark, no invoice limit, no account and no trial. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Where are my invoices stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes them, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
+    <h3>How do I get a PDF?</h3>
+    <p>Press Print / Save as PDF and choose Save as PDF as the destination. Only the invoice is printed, not the editor.</p>
+    <h3>What should an invoice include so it gets paid?</h3>
+    <p>A unique invoice number, your business name and contact details, the client's name, the issue date and due date, itemised services with quantities and rates, any tax, the total due and exactly how to pay you. The built-in check lists what is missing.</p>
+    <h3>Can it add sales tax, discounts and late fees?</h3>
+    <p>Yes. Apply one tax rate to taxable lines, mark individual lines non-taxable, add a percentage or flat discount (applied before tax), a deposit already paid, and a late-fee clause printed in the terms. It does not decide which tax rate or late-fee cap applies to you.</p>
+    <h3>Does it track who has not paid?</h3>
+    <p>Yes. Mark an invoice as sent and it turns overdue after its due date. The receivables panel ages unpaid balances (current, 1-30, 31-60, 61-90 and 90+ days) and totals them by client.</p>
+    <h3>Is this legal, tax or accounting advice?</h3>
+    <p>No. It formats the numbers you enter. Tax rates, e-invoicing mandates, late-fee limits and record-keeping rules depend on your location and business.</p>
+  </section>
+
+  <footer class="noprint">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It formats the numbers you enter; tax rates, e-invoicing mandates, late-fee limits and record-keeping rules depend on where you work, so confirm them with the relevant authority or a professional.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your invoices are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>invoice_saved</code>, <code>invoice_printed</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Need to win the job first? Write the <a href="../proposal-maker/">proposal</a>, then quote it with <a href="../estimate-maker/">Estimate Maker</a>, then turn the won estimate into an invoice here. Billing by the hour? Track it in <a href="../time-tracker/">Time Tracker</a> and send the unbilled hours here. Keep the costs in <a href="../expense-tracker/">Expense Tracker</a>, then see what you owe in the <a href="../freelancer-tax-pack/">Freelancer Tax Pack</a>. See everything at once on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Chasing a late payer? See the <a href="../late-invoice-collections-kit/">late invoice collections kit</a> and the <a href="../invoice-aging-late-payer-analyzer/">invoice aging late payer analyzer</a>. Choosing your terms? Try the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { TERMS, toCents, computeTotals, formatMoney, dueDate, status, nextNumber, duplicateNumbers, receivables, invoicesToCsv, termsSentence, validate, lateFee, daysBetween, parseHandoff } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "invoice-maker-data";
+    const today = () => new Date().toISOString().slice(0, 10);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let data = load();
+    let editingId = null;
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && Array.isArray(d.invoices)) return { invoices: d.invoices, profile: d.profile || {} };
+      } catch { /* storage is optional */ }
+      return { invoices: [], profile: {} };
+    }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+
+    function lineRow(l = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input class="l-desc" aria-label="Line description" value="${esc(l.desc)}"></td>
+        <td><input class="l-qty num" inputmode="decimal" aria-label="Quantity or hours" value="${esc(l.qty ?? 1)}"></td>
+        <td><input class="l-rate num" inputmode="decimal" aria-label="Rate" value="${esc(l.rate ?? "")}"></td>
+        <td><input class="l-tax" type="checkbox" aria-label="Taxable" ${l.taxable === false ? "" : "checked"} style="width:auto"></td>
+        <td class="n l-amt">–</td>
+        <td><button type="button" class="secondary small l-del" aria-label="Remove line">×</button></td>`;
+      tr.querySelector(".l-del").onclick = () => { tr.remove(); refresh(); };
+      $("#lines").append(tr);
+    }
+
+    function read() {
+      const lines = [...document.querySelectorAll("#lines tr")].map((tr) => ({
+        desc: tr.querySelector(".l-desc").value, qty: tr.querySelector(".l-qty").value, rate: tr.querySelector(".l-rate").value, taxable: tr.querySelector(".l-tax").checked,
+      }));
+      const prior = data.invoices.find((i) => i.id === editingId) || {};
+      return {
+        id: editingId || "i" + Date.now().toString(36), sent: !!prior.sent, void: !!prior.void,
+        fromName: $("#f-name").value.trim(), fromEmail: $("#f-email").value.trim(), fromAddr: $("#f-addr").value.trim(), fromTaxId: $("#f-taxid").value.trim(),
+        clientName: $("#c-name").value.trim(), clientEmail: $("#c-email").value.trim(), clientAddr: $("#c-addr").value.trim(),
+        number: $("#i-number").value.trim(), issued: $("#i-issued").value, terms: $("#i-terms").value, customDays: $("#i-custom").value, due: $("#i-due").value, currency: $("#i-currency").value,
+        lines, taxRate: $("#i-tax").value, discountType: $("#i-dtype").value, discountValue: $("#i-dval").value, shipping: $("#i-ship").value, paid: $("#i-paid").value,
+        payInstructions: $("#i-pay").value.trim(), notes: $("#i-notes").value.trim(), lateMonthlyPct: $("#i-latepct").value, lateFlat: $("#i-lateflat").value,
+      };
+    }
+
+    function fill(inv) {
+      editingId = inv.id || null;
+      const set = (id, v) => { $(id).value = v ?? ""; };
+      set("#f-name", inv.fromName); set("#f-email", inv.fromEmail); set("#f-addr", inv.fromAddr); set("#f-taxid", inv.fromTaxId);
+      set("#c-name", inv.clientName); set("#c-email", inv.clientEmail); set("#c-addr", inv.clientAddr);
+      set("#i-number", inv.number); set("#i-issued", inv.issued); set("#i-terms", inv.terms || "net30"); set("#i-custom", inv.customDays); set("#i-due", inv.due); set("#i-currency", inv.currency || "USD");
+      set("#i-tax", inv.taxRate); set("#i-dtype", inv.discountType || "none"); set("#i-dval", inv.discountValue); set("#i-ship", inv.shipping); set("#i-paid", inv.paid);
+      set("#i-pay", inv.payInstructions); set("#i-notes", inv.notes); set("#i-latepct", inv.lateMonthlyPct); set("#i-lateflat", inv.lateFlat);
+      $("#lines").innerHTML = "";
+      (inv.lines && inv.lines.length ? inv.lines : [{}]).forEach(lineRow);
+      $("#form-title").textContent = editingId ? `Edit invoice ${inv.number || ""}` : "New invoice";
+      refresh();
+    }
+
+    function blank() {
+      const p = data.profile;
+      const issued = today();
+      return { fromName: p.fromName, fromEmail: p.fromEmail, fromAddr: p.fromAddr, fromTaxId: p.fromTaxId, payInstructions: p.payInstructions, terms: p.terms || "net30", currency: p.currency || "USD",
+        taxRate: p.taxRate, lateMonthlyPct: p.lateMonthlyPct, lateFlat: p.lateFlat, notes: p.notes,
+        number: nextNumber(data.invoices), issued, due: dueDate(issued, p.terms || "net30", ""), lines: [{ qty: 1, taxable: true }] };
+    }
+
+    function refresh(fromTerms) {
+      const inv = read();
+      const issuedOk = inv.issued;
+      if (issuedOk && fromTerms !== "due") { const d = dueDate(inv.issued, inv.terms, inv.customDays); if (d) $("#i-due").value = inv.due = d; }
+      const t = computeTotals(inv);
+      document.querySelectorAll("#lines tr").forEach((tr, i) => { tr.querySelector(".l-amt").textContent = formatMoney(t.lines[i]?.amount || 0, inv.currency); });
+      const issues = validate(inv);
+      const dups = duplicateNumbers([...data.invoices.filter((i) => i.id !== inv.id), inv]);
+      if (dups.includes(inv.number)) issues.unshift(`Invoice number ${inv.number} is already used: a duplicate number gets the invoice rejected or paid twice.`);
+      $("#issues").innerHTML = issues.map((m) => `<li>${esc(m)}</li>`).join("");
+      renderPreview(inv, t);
+    }
+
+    function renderPreview(inv, t) {
+      const m = (c) => esc(formatMoney(c, inv.currency));
+      const rows = t.lines.filter((l) => String(l.desc || "").trim() || l.amount).map((l) => `<tr><td>${esc(l.desc)}</td><td class="n">${esc(l.qty)}</td><td class="n">${m(toCents(l.rate))}</td><td class="n">${m(l.amount)}</td></tr>`).join("");
+      const disc = inv.discountType === "percent" ? ` (${esc(inv.discountValue)}%)` : "";
+      const late = { flat: inv.lateFlat, monthlyPct: inv.lateMonthlyPct };
+      $("#preview").innerHTML = `<div class="top"><div><h2>INVOICE</h2><p class="pre"><strong>${esc(inv.fromName)}</strong>\n${esc(inv.fromAddr)}\n${esc(inv.fromEmail)}${inv.fromTaxId ? "\nTax ID: " + esc(inv.fromTaxId) : ""}</p></div>
+        <table class="meta"><tr><td>Invoice no.</td><td><strong>${esc(inv.number)}</strong></td></tr><tr><td>Issued</td><td>${esc(inv.issued)}</td></tr><tr><td>Due</td><td>${esc(inv.due)}</td></tr></table></div>
+        <p class="pre"><strong>Bill to</strong>\n${esc(inv.clientName)}\n${esc(inv.clientAddr)}\n${esc(inv.clientEmail)}</p>
+        <table><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Rate</th><th class="n">Amount</th></tr></thead><tbody>${rows}</tbody></table>
+        <table class="tot"><tr><td>Subtotal</td><td class="n">${m(t.subtotal)}</td></tr>
+        ${t.discount ? `<tr><td>Discount${disc}</td><td class="n">−${m(t.discount)}</td></tr>` : ""}
+        ${Number(inv.taxRate) ? `<tr><td>Tax (${esc(inv.taxRate)}%)</td><td class="n">${m(t.tax)}</td></tr>` : ""}
+        ${t.shipping ? `<tr><td>Shipping / other</td><td class="n">${m(t.shipping)}</td></tr>` : ""}
+        <tr><td>Total</td><td class="n">${m(t.total)}</td></tr>
+        ${t.paid ? `<tr><td>Paid</td><td class="n">−${m(t.paid)}</td></tr>` : ""}
+        <tr class="due"><td>Balance due</td><td class="n">${m(t.balance)}</td></tr></table>
+        ${inv.payInstructions ? `<p class="pre"><strong>How to pay</strong>\n${esc(inv.payInstructions)}</p>` : ""}
+        <p>${esc(termsSentence(inv, late))}</p>
+        ${inv.notes ? `<p class="pre">${esc(inv.notes)}</p>` : ""}`;
+    }
+
+    function renderDash() {
+      const t0 = today();
+      const r = receivables(data.invoices, t0);
+      const money = (c) => formatMoney(c, "USD");
+      const od = data.invoices.filter((i) => status(i, t0) === "overdue").length;
+      $("#kpis").innerHTML = `<div class="kpi"><b>${money(r.outstanding)}</b><span>Outstanding</span></div><div class="kpi"><b>${od}</b><span>Overdue invoices</span></div><div class="kpi"><b>${money(r.paidYtd)}</b><span>Paid this year</span></div>`;
+      $("#empty").hidden = data.invoices.length > 0;
+      const rows = [...data.invoices].sort((a, b) => (b.issued || "").localeCompare(a.issued || "") || b.number.localeCompare(a.number));
+      $("#list").innerHTML = rows.map((i) => {
+        const t = computeTotals(i), st = status(i, t0);
+        const late = st === "overdue" ? ` (${daysBetween(i.due, t0)}d late)` : "";
+        return `<tr data-id="${esc(i.id)}"><td>${esc(i.number)}</td><td>${esc(i.clientName)}</td><td>${esc(i.due)}</td><td><span class="pill ${st}">${st}</span>${late}</td><td class="n">${esc(formatMoney(t.total, i.currency))}</td><td class="n">${esc(formatMoney(t.balance, i.currency))}</td>
+          <td><button class="secondary small" data-a="edit">Edit</button>${!i.sent && !i.void ? '<button class="secondary small" data-a="sent">Mark sent</button>' : ""}${i.sent && t.balance > 0 && !i.void ? '<button class="secondary small" data-a="paid">Mark paid</button>' : ""}${st === "overdue" ? `<a class="secondary small" href="../late-invoice-collections-kit/?invoice=${encodeURIComponent(i.id)}" style="display:inline-block;padding:5px 9px;border:1px solid currentColor;border-radius:6px;text-decoration:none">Chase</a>` : ""}<button class="secondary small" data-a="dup">Copy</button><button class="danger small" data-a="del">Delete</button></td></tr>`;
+      }).join("");
+      const b = r.buckets;
+      $("#aging").innerHTML = r.outstanding ? `<h3>Aging of unpaid balances</h3><div class="scroll"><table><thead><tr><th>Current</th><th>1–30 days late</th><th>31–60</th><th>61–90</th><th>90+</th></tr></thead><tbody><tr>${[b.current, b.d1_30, b.d31_60, b.d61_90, b.d90plus].map((c) => `<td class="n">${money(c)}</td>`).join("")}</tr></tbody></table></div>` : "";
+    }
+
+    $("#list").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-a]"); if (!btn) return;
+      const id = btn.closest("tr").dataset.id; const inv = data.invoices.find((i) => i.id === id); if (!inv) return;
+      const a = btn.dataset.a;
+      if (a === "edit") { fill(inv); window.scrollTo({ top: $("#form-title").offsetTop - 20, behavior: "smooth" }); return; }
+      if (a === "sent") inv.sent = true;
+      if (a === "paid") inv.paid = (computeTotals(inv).total / 100).toFixed(2);
+      if (a === "del") { if (!confirm(`Delete invoice ${inv.number}?`)) return; data.invoices = data.invoices.filter((i) => i.id !== id); if (editingId === id) fill(blank()); }
+      if (a === "dup") { const c = { ...inv, id: "i" + Date.now().toString(36), number: nextNumber(data.invoices), sent: false, paid: "", issued: today() }; c.due = dueDate(c.issued, c.terms, c.customDays); data.invoices.push(c); fill(c); }
+      persist(); renderDash(); if (editingId === id) fill(inv);
+    });
+
+    function save() {
+      const inv = read();
+      if (!inv.number) { $("#status").textContent = "Add an invoice number first."; return; }
+      const prior = data.invoices.findIndex((i) => i.id === inv.id);
+      if (prior >= 0) data.invoices[prior] = inv; else data.invoices.push(inv);
+      editingId = inv.id;
+      data.profile = { fromName: inv.fromName, fromEmail: inv.fromEmail, fromAddr: inv.fromAddr, fromTaxId: inv.fromTaxId, payInstructions: inv.payInstructions, terms: inv.terms, currency: inv.currency, taxRate: inv.taxRate, lateMonthlyPct: inv.lateMonthlyPct, lateFlat: inv.lateFlat, notes: inv.notes };
+      persist(); renderDash(); renderClients();
+      $("#status").textContent = `Saved ${inv.number}. Use Mark sent in the list once you send it, so it is tracked for payment.`;
+      $("#form-title").textContent = `Edit invoice ${inv.number}`;
+      record("invoice_saved");
+    }
+
+    function renderClients() { $("#clients").innerHTML = [...new Set(data.invoices.map((i) => i.clientName).filter(Boolean))].map((n) => `<option value="${esc(n)}">`).join(""); }
+    $("#c-name").addEventListener("change", () => {
+      const prev = [...data.invoices].reverse().find((i) => i.clientName === $("#c-name").value);
+      if (prev) { if (!$("#c-email").value) $("#c-email").value = prev.clientEmail || ""; if (!$("#c-addr").value) $("#c-addr").value = prev.clientAddr || ""; refresh(); }
+    });
+
+    const download = (name, text, type) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    $("#save").onclick = save;
+    $("#print").onclick = () => { record("invoice_printed"); window.print(); };
+    $("#new").onclick = () => { fill(blank()); $("#status").textContent = ""; };
+    $("#add-line").onclick = () => { lineRow({ qty: 1 }); refresh(); };
+    $("#export-csv").onclick = () => { download("invoices.csv", invoicesToCsv(data.invoices, today()), "text/csv"); record("csv_exported"); };
+    $("#export-json").onclick = () => download(`invoice-maker-backup-${today()}.json`, JSON.stringify(data, null, 2), "application/json");
+    $("#import-btn").onclick = () => $("#import-file").click();
+    $("#import-file").onchange = async (e) => {
+      try {
+        const d = JSON.parse(await e.target.files[0].text());
+        if (!d || !Array.isArray(d.invoices)) throw new Error("not a backup");
+        const ids = new Set(data.invoices.map((i) => i.id));
+        let added = 0; for (const i of d.invoices) if (i && i.id && !ids.has(i.id)) { data.invoices.push(i); added++; }
+        if (!data.profile.fromName && d.profile) data.profile = d.profile;
+        persist(); renderDash(); renderClients(); $("#io-status").textContent = `Restored ${added} invoice(s); ${d.invoices.length - added} already present.`;
+      } catch { $("#io-status").textContent = "That file is not an Invoice Maker backup."; }
+      e.target.value = "";
+    };
+    $("#load-example").onclick = () => {
+      const t = today();
+      const addDaysIso = (iso, d) => new Date(Date.parse(iso) + d * 86400000).toISOString().slice(0, 10);
+      const mk = (n, c, days, sent, paid, lines) => ({ id: "ex" + n, number: "INV-" + String(n).padStart(4, "0"), clientName: c, issued: addDaysIso(t, -days), terms: "net30", due: addDaysIso(t, -days + 30), currency: "USD", sent, paid, taxRate: "8", discountType: "none", lines, fromName: "Example Studio (sample data)", payInstructions: "Zelle: pay@example.com" });
+            data.invoices.push(mk(9001, "Acme Corp (example)", 75, true, "", [{ desc: "Brand design", qty: 20, rate: "95", taxable: true }]), mk(9002, "Globex (example)", 20, true, "", [{ desc: "Monthly retainer", qty: 1, rate: "2400", taxable: false }]), mk(9003, "Initech (example)", 5, false, "", [{ desc: "Consulting hours", qty: 6, rate: "150", taxable: true }]));
+      persist(); renderDash(); renderClients(); record("example_loaded"); $("#io-status").textContent = "Example invoices loaded (prefix INV-9xxx). Delete them before you start for real.";
+    };
+    $("#clear-all").onclick = () => { if (confirm("Delete every invoice stored on this device?")) { data = { invoices: [], profile: {} }; persist(); fill(blank()); renderDash(); renderClients(); } };
+
+    for (const el of document.querySelectorAll("#form-title ~ * input, #form-title ~ * select, #form-title ~ * textarea")) {
+      el.addEventListener("input", (e) => refresh(e.target.id === "i-due" ? "due" : undefined));
+    }
+    $("#lines").addEventListener("input", () => refresh());
+    $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+    if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    renderDash(); renderClients(); fill(blank());
+    const ho = parseHandoff(location.hash, "invoice", ["fromName", "clientName", "currency", "terms", "customDays", "notes", "lines"]);
+    if (ho) {
+      const b = blank();
+      fill({ ...b, ...ho, fromName: b.fromName || ho.fromName, terms: "custom", due: dueDate(b.issued, "custom", ho.customDays), lines: ho.lines.map((l) => ({ ...l, taxable: false })) });
+      record("handoff_received");
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  </script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

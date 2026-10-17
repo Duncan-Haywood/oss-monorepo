@@ -4,6 +4,11 @@ An AI-mentored, project-first engineering education platform. The goal:
 help motivated learners become world-class engineers by building real
 products, not by sitting through lectures and exams.
 
+**Live:** free electronics calculators for learners (resistor color code,
+Ohm's law, LED resistor, RC filter and time constant, voltage divider, 555
+timer) at https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/
+— no signup, and nothing you type leaves the browser.
+
 See [PROJECT_BRIEF.md](PROJECT_BRIEF.md) for the founding vision and
 philosophy — the seed document every future contributor (human or AI)
 should build toward.

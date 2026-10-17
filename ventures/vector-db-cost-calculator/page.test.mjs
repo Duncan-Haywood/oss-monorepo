@@ -77,7 +77,7 @@ test("the SoftwareApplication JSON-LD is valid", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./", "./vs-pinecone.html", "./what-is-vector-index-overhead.html"].sort());
+  assert.deepEqual(locs.sort(), ["./", "./vs-pinecone.html", "./vs-qdrant.html", "./vs-doing-the-math-yourself.html", "./what-is-vector-index-overhead.html"].sort());
 });
 
 test("robots.txt allows crawling", () => {

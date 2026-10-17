@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ACA Subsidy Cliff Calculator — 2026, Free</title>
+  <meta name="description" content="Free 2026 ACA subsidy cliff calculator: enter household size, MAGI and your benchmark premium to see your premium tax credit, how far you are from the 400% of poverty cliff, and how much a dollar over it costs. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="ACA Subsidy Cliff Calculator — free, 2026">
+  <meta property="og:description" content="See your 2026 premium tax credit and how close your income is to the 400% of poverty cliff. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"ACA Subsidy Cliff Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the 2026 ACA premium tax credit from household size, MAGI and the benchmark premium, shows how far you are from the 400% of poverty cliff and what a dollar over it costs, and tabulates credit at nearby incomes. Entirely client-side; nothing is uploaded.","featureList":"2026 applicable percentage table, 400% FPL cliff distance, credit lost at the cliff, deduction room needed to get under, scenario table"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ACA subsidy cliff in 2026?","acceptedAnswer":{"@type":"Answer","text":"The enhanced premium tax credits that removed the income limit expired after 2025. For 2026 coverage, a household whose modified adjusted gross income (MAGI) is above 400% of the federal poverty line gets no premium tax credit at all. For one person that line is $62,600 (based on the 2025 poverty guideline of $15,650); one dollar over it loses the whole credit."}},{"@type":"Question","name":"How is the 2026 premium tax credit calculated?","acceptedAnswer":{"@type":"Answer","text":"The credit is the benchmark plan's premium (the second-lowest-cost silver plan for your household and county) minus your expected contribution. The expected contribution is your MAGI times an applicable percentage that rises from 2.10% of income below 133% of the poverty line to 9.96% between 300% and 400%, per IRS Rev. Proc. 2025-25."}},{"@type":"Question","name":"What counts as MAGI for the marketplace?","acceptedAnswer":{"@type":"Answer","text":"Adjusted gross income plus any tax-exempt interest, non-taxable Social Security benefits and excluded foreign income. For a self-employed person, deductions that reduce AGI, such as contributions to an HSA, a solo 401(k) or SEP-IRA, and half of self-employment tax, lower MAGI. This tool takes the MAGI you enter and does not compute it."}},{"@type":"Question","name":"Do I have to repay advance credits if my income is higher than estimated?","acceptedAnswer":{"@type":"Answer","text":"Yes. For tax year 2026 and later there is no cap on repaying excess advance premium tax credit. If final MAGI is above 400% of the poverty line, all advance credits received for the year are owed back when you file Form 8962."}},{"@type":"Question","name":"Is this tax or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 figures to the numbers you enter. It does not know your county's benchmark premium, your state's rules, Medicaid or employer-coverage eligibility, or your final tax return. Confirm on HealthCare.gov or your state marketplace and with a tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ACA SUBSIDY CLIFF CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How close is your income to the 2026 ACA subsidy cliff?</h1>
+    <p>With the enhanced credits gone, a household over <strong>400% of the
+    federal poverty line</strong> gets <strong>no</strong> premium tax credit &mdash;
+    <strong>$62,600</strong> of MAGI for one person, $84,600 for two. Enter your
+    household size, expected MAGI and the benchmark plan's monthly premium to see
+    your credit, the room you have left, and what one dollar over the line costs.
+    Self-employed? Deductions like an HSA or solo 401(k) lower MAGI, and this shows
+    how much you need.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Household and income</h2>
+    <div class="grid">
+      <div>
+        <label for="household">Household size (tax household)</label>
+        <input type="number" id="household" min="1" max="10" step="1" value="1">
+      </div>
+      <div>
+        <label for="region">Where you live</label>
+        <select id="region">
+          <option value="contiguous" selected>48 states + DC</option>
+          <option value="alaska">Alaska</option>
+          <option value="hawaii">Hawaii</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">Expected 2026 MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1" placeholder="e.g. 58000">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Premiums</h2>
+    <div class="grid">
+      <div>
+        <label for="benchmark">Benchmark (second-lowest silver) premium, $/month for the household</label>
+        <input type="number" id="benchmark" min="0" step="1" placeholder="e.g. 620">
+      </div>
+      <div>
+        <label for="plan">Optional: premium of the plan you would buy, $/month</label>
+        <input type="number" id="plan" min="0" step="1" placeholder="e.g. 540">
+      </div>
+      <div>
+        <label for="deductions">Optional: deductions you could still make ($)</label>
+        <input type="number" id="deductions" min="0" step="1" placeholder="HSA, solo 401(k), SEP">
+      </div>
+    </div>
+    <p class="note">Find the benchmark premium in the window-shopping tool on HealthCare.gov or your state marketplace; the tool cannot look it up for you.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter household size, MAGI and the benchmark premium, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>Credit at nearby incomes</h3>
+    <table>
+      <thead><tr><th>MAGI</th><th>% of poverty line</th><th>Annual credit</th></tr></thead>
+      <tbody id="scenario-table"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not your final credit.</strong> The real credit is set on Form 8962 from final MAGI and the actual benchmark premium.</li>
+      <li><strong>Benchmark premium is yours to supply.</strong> It depends on county, ages and year.</li>
+      <li><strong>No Medicaid, CHIP, employer-coverage or immigration-status rules.</strong> Any of these can change what you are eligible for.</li>
+      <li><strong>Household size and MAGI are taken as typed.</strong> Who counts in your tax household, and what counts as income, has edge cases.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> Poverty guidelines and the percentage table are re-indexed every year, and Congress can change the credit again.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the ACA subsidy cliff in 2026?</h3>
+    <p>The enhanced premium tax credits that removed the income limit expired after 2025. For 2026 coverage, a household whose modified adjusted gross income (MAGI) is above 400% of the federal poverty line gets no premium tax credit at all. For one person that line is $62,600 (based on the 2025 poverty guideline of $15,650); one dollar over it loses the whole credit.</p>
+    <h3>How is the 2026 premium tax credit calculated?</h3>
+    <p>The credit is the benchmark plan's premium (the second-lowest-cost silver plan for your household and county) minus your expected contribution. The expected contribution is your MAGI times an applicable percentage that rises from 2.10% of income below 133% of the poverty line to 9.96% between 300% and 400%, per IRS Rev. Proc. 2025-25.</p>
+    <h3>What counts as MAGI for the marketplace?</h3>
+    <p>Adjusted gross income plus any tax-exempt interest, non-taxable Social Security benefits and excluded foreign income. For a self-employed person, deductions that reduce AGI, such as contributions to an HSA, a solo 401(k) or SEP-IRA, and half of self-employment tax, lower MAGI. This tool takes the MAGI you enter and does not compute it.</p>
+    <h3>Do I have to repay advance credits if my income is higher than estimated?</h3>
+    <p>Yes. For tax year 2026 and later there is no cap on repaying excess advance premium tax credit. If final MAGI is above 400% of the poverty line, all advance credits received for the year are owed back when you file Form 8962.</p>
+    <h3>Is this tax or insurance advice?</h3>
+    <p>No. This tool applies published 2026 figures to the numbers you enter. It does not know your county's benchmark premium, your state's rules, Medicaid or employer-coverage eligibility, or your final tax return. Confirm on HealthCare.gov or your state marketplace and with a tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional or your marketplace's own estimate. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for keeping your marketplace income estimate accurate. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record &mdash; nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>credit_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Lowering MAGI with an HSA? The <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a> shows how much you can put in for 2026. Self-employed with a solo 401(k)? Try the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a>.</p>
+    <p>Paying for childcare? The <a href="../dependent-care-fsa-vs-credit-calculator/">dependent care FSA vs child care credit calculator</a> finds the best split between the two.</p>
+    <p>Just lost job coverage? The <a href="../cobra-vs-marketplace-calculator/">COBRA vs marketplace calculator</a> compares keeping your old plan against a marketplace plan, with the deadlines.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, scenarioTable, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      household: $("#household"), region: $("#region"), magi: $("#magi"), benchmark: $("#benchmark"),
+      plan: $("#plan"), deductions: $("#deductions"), status: $("#form-status"), report: $("#report"),
+      stats: $("#report-stats"), resultTable: $("#result-table"), findings: $("#report-findings"), scenarios: $("#scenario-table"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      if (!(Number(els.magi.value) >= 0) || els.magi.value === "" || !(Number(els.benchmark.value) > 0)) {
+        els.status.textContent = "Enter your expected MAGI and the benchmark premium first.";
+        return;
+      }
+      const input = {
+        magi: Number(els.magi.value), householdSize: Number(els.household.value) || 1, region: els.region.value,
+        benchmarkMonthly: Number(els.benchmark.value), planMonthly: els.plan.value === "" ? null : Number(els.plan.value),
+        deductionsAvailable: Number(els.deductions.value) || 0,
+      };
+      const r = analyze(input);
+      els.stats.innerHTML = r.aboveCliff
+        ? `Over the cliff: estimated credit <strong>$0</strong> (would be about ${money(r.atCliff)} a year at ${money(r.cliff)}).`
+        : `Estimated 2026 credit: <strong>${money(r.credit)}</strong> a year (${money(r.advanceMonthly)} a month).`;
+      const rows = [
+        `<tr><th scope="row">Poverty line for your household</th><td>${money(r.fpl)}</td></tr>`,
+        `<tr><th scope="row">Your MAGI as % of poverty line</th><td>${r.fplPercent.toFixed(0)}%</td></tr>`,
+        `<tr><th scope="row">Expected contribution to benchmark plan</th><td>${r.aboveCliff ? "n/a" : money(r.expected) + " (" + (r.pct * 100).toFixed(2) + "% of MAGI)"}</td></tr>`,
+        `<tr><th scope="row">400% cliff</th><td>${money(r.cliff)}</td></tr>`,
+        `<tr><th scope="row">Credit lost by crossing the cliff</th><td>${money(r.atCliff)} a year</td></tr>`,
+      ];
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, r.findings);
+      els.scenarios.innerHTML = scenarioTable(input).map((s) =>
+        `<tr><td>${money(s.income)}</td><td>${s.fplPercent.toFixed(0)}%</td><td>${s.aboveCliff ? "$0 (over cliff)" : money(s.credit)}</td></tr>`).join("");
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("credit_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.household.value = "1";
+      els.region.value = "contiguous";
+      els.magi.value = "68000";
+      els.benchmark.value = "620";
+      els.plan.value = "540";
+      els.deductions.value = "8000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: one person, $68,000 MAGI, $620 benchmark premium. That is $5,400 over the $62,600 cliff, so the credit is $0, and $8,000 of available deductions would be enough to get under it.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.household.value = "1"; els.region.value = "contiguous"; els.magi.value = "";
+      els.benchmark.value = ""; els.plan.value = ""; els.deductions.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter household size, MAGI and the benchmark premium, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

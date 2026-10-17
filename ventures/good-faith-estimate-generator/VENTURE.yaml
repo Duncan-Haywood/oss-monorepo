@@ -1,0 +1,64 @@
+name: good-faith-estimate-generator
+description: >-
+  Free browser tool for small medical, dental and therapy practices that treat
+  self-pay and uninsured patients: list services with codes, diagnoses and charges and
+  get a printable No Surprises Act Good Faith Estimate, per-provider subtotals, the
+  delivery deadline, a list of what is missing, a bill-versus-estimate check against the
+  $400 dispute line, and a review of past estimates showing which codes are under-quoted.
+  No patient data leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were nsa-idr-offer-calculator
+# (0.21, the provider-side IDR dispute, a different document and a different moment) and
+# estimate-maker (0.16, contractor quotes). No Good Faith Estimate venture exists;
+# screened-out rows not hit.
+#
+# Why this niche: since 2022 a provider must give every self-pay or uninsured patient a
+# written estimate on a short clock, and cash-pay practices (direct primary care, mental
+# health, med spas, dental, imaging, urgent care) now do it on every booking. Many do it
+# in a word processor or an EHR template. The pain is real and recurring: a missed
+# deadline or a missing element is a compliance failure, and a bill $400 over the estimate
+# hands the patient a formal dispute. Paid products exist inside practice-management
+# suites and RCM vendors; a private free page for a solo practice is the gap.
+#
+# First visitor: practice managers and solo clinicians searching "good faith estimate
+# template", "good faith estimate deadline business days", "good faith estimate $400
+# dispute", and direct-primary-care and cash-pay therapy groups. Volume not measured with
+# an external tool.
+#
+# Liability boundary: arithmetic and document assembly on user-typed figures. It carries
+# no fee schedule, no code set, no legal ruling; the deadline reading is stated as an
+# assumption and the required notice is flagged for comparison with CMS's own template.
+# No patient data leaves the browser and nothing is saved. Not legal advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead
+# magnet for a hosted estimate log with reminders and per-code drift from the practice's
+# own billing history.
+
+hypotheses:
+  - claim: >-
+      Cash-pay practices will use a private, no-signup page to produce the estimate and
+      check its deadline, instead of keeping a hand-edited template.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a deadline or total disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/good-faith-estimate-generator/
+  analytics: null

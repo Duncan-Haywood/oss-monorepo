@@ -28,11 +28,15 @@ on:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/portfolio-pages.yml"
   pull_request:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      - "research/_homepage/**"
+      - "research/README.md"
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 
@@ -57,7 +61,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
     # Builds and checks the whole 500+-page site artifact -- measured at 173s
@@ -66,6 +70,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -115,7 +121,7 @@ jobs:
     concurrency:
       group: github-pages-deploy
       cancel-in-progress: false
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       pages: write
       id-token: write

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chargeback Ratio Monitor — Free Dispute Rate Check from a Stripe CSV</title>
+  <meta name="description" content="Free chargeback ratio monitor: drop in your Stripe payments CSV and see your dispute rate by month, headroom to your warning lines, the trend, and what is driving disputes. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Chargeback Ratio Monitor — free, private, CSV in your browser">
+  <meta property="og:description" content="Monthly dispute ratio, headroom and trend from a Stripe export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Chargeback Ratio Monitor", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe payments CSV export into a monthly dispute-ratio report: status against your own warning lines, headroom, a trend projection, disputes by reason, card brand and repeat customers, and the cost. Runs in your browser; the file is never uploaded.", "featureList": "Monthly dispute ratio, headroom to each line, trend projection, reason breakdown with what to check, card brand split, repeat disputers, dispute cost"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a chargeback or dispute ratio, and how do I work mine out?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the number of disputes opened in a month by the number of settled card charges in that month. Export your payments from the Stripe Dashboard (Payments, Export) with the dispute columns included and drop the CSV here: the tool does the division for every month and shows which months are above the lines you set. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What ratio is too high?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number. Card networks and payment providers each run monitoring programs with their own thresholds, minimum dispute counts and counting rules, and they change them. This tool starts with three editable lines (0.75%, 0.90% and 1.50%) that you should replace with the figures your provider or acquirer actually quotes you. The lines are yours; the tool only does the arithmetic against them."}}, {"@type": "Question", "name": "How many more disputes can I take this month?", "acceptedAnswer": {"@type": "Answer", "text": "The headroom table shows, for the latest month in your file, how many additional disputes would still keep you under each line given the charges so far, or, if you are already over, how many more settled charges you would need to bring the same disputes back under it."}}, {"@type": "Question", "name": "Why does the ratio look so jumpy in a small month?", "acceptedAnswer": {"@type": "Answer", "text": "With 100 charges a month, one dispute is a full percentage point. Programs usually also set a minimum number of disputes before any ratio counts, so read a small month together with the trend line and not on its own."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Disputes you won or lost (it counts every dispute as opened), fraud reports a network records outside the dispute itself unless your file flags them, other processors’ charges, and the exact way your provider or acquirer counts. Treat the output as an early-warning estimate from the file you provide."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your payment provider’s own reports or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHARGEBACK RATIO MONITOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your dispute rate about to get you flagged?</h1>
+    <p>Drop in the payments CSV you exported from Stripe and get your <strong>dispute ratio for every month</strong>, how many more disputes you can take before each warning line, whether the trend is heading the wrong way, and <strong>what is causing the disputes</strong>, without connecting a monitoring service to your account or sending anyone your customer list.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Customer IDs and emails in it are not sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your payments export</h2>
+    <p class="note">Stripe Dashboard → Payments → Export, with the Disputed Amount, Dispute Date, Dispute Reason and Card Brand columns selected. Needs a date, an amount, a status and a dispute column. Other processors’ exports work if the headers are similar.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="id,Created (UTC),Amount,Currency,Status,Customer ID,Card Brand,Disputed Amount,Dispute Date (UTC),Dispute Reason"></textarea>
+    <div class="grid">
+      <div><label for="warn">Watch line (% of charges)</label><input type="number" id="warn" min="0.01" max="100" step="0.01" value="0.75"></div>
+      <div><label for="elevated">Elevated line (%)</label><input type="number" id="elevated" min="0.01" max="100" step="0.01" value="0.90"></div>
+      <div><label for="excessive">Excessive line (%)</label><input type="number" id="excessive" min="0.01" max="100" step="0.01" value="1.50"></div>
+      <div><label for="fee">Fee per dispute</label><input type="number" id="fee" min="0" step="0.5" value="15"></div>
+      <div><label for="win">Disputes you win back (%)</label><input type="number" id="win" min="0" max="100" value="0"></div>
+    </div>
+    <p class="note">The three lines are starting points, not any provider’s rules. Replace them with the figures your payment provider or acquirer quotes you; those change over time.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Ratio</th><th scope="col">Status</th><th class="n" scope="col">Disputed amount</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <p class="note">Disputes are counted in the month they were opened, charges in the month they were made. A month with disputes and no charges shows no ratio.</p>
+    <h3>Headroom in the latest month with charges</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">At</th><th class="n" scope="col">Disputes you can still take</th><th class="n" scope="col">Charges needed to get under it</th></tr></thead><tbody id="room"></tbody></table></div>
+    <h3>If the trend simply continues</h3>
+    <p class="stats" id="projection"></p>
+    <h3>By dispute reason</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Reason</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Share</th><th class="n" scope="col">Disputed amount</th><th scope="col">Check first</th></tr></thead><tbody id="by-reason"></tbody></table></div>
+    <h3>By card brand</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Brand</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Ratio</th></tr></thead><tbody id="by-brand"></tbody></table></div>
+    <h3>Customers who disputed more than once</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Customer</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Disputed amount</th></tr></thead><tbody id="repeat"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the monthly table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Ratio</strong> = disputes opened in a month ÷ settled charges made in that month. Failed, pending and cancelled attempts are not charges. Refunded charges are.</li>
+      <li><strong>Status</strong> compares the ratio with the three lines you set. Each line is flagged at the line itself, not above it.</li>
+      <li><strong>Headroom</strong> is how many more disputes keep the latest month under a line. When you are already over, it gives the number of settled charges that would bring the same disputes back under.</li>
+      <li><strong>Reconciles.</strong> The disputes in the month, reason and brand tables each add up to the same total, and so do the charges.</li>
+      <li><strong>The trend</strong> is a straight line through the last three or four months of your own ratio. It is arithmetic, not a forecast.</li>
+      <li><strong>Cost</strong> is the per-dispute fee times the number of disputes, plus the disputed amounts you do not win back, using the fee and win rate you enter.</li>
+      <li><strong>Not modelled:</strong> disputes you won or lost, network fraud reports unless your file flags them, other processors, and the exact counting rules and minimum counts of any monitoring program.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a chargeback or dispute ratio, and how do I work mine out?</h3>
+    <p>Divide the number of disputes opened in a month by the number of settled card charges in that month. Export your payments from the Stripe Dashboard (Payments, Export) with the dispute columns included and drop the CSV here: the tool does the division for every month and shows which months are above the lines you set. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What ratio is too high?</h3>
+    <p>There is no single number. Card networks and payment providers each run monitoring programs with their own thresholds, minimum dispute counts and counting rules, and they change them. This tool starts with three editable lines (0.75%, 0.90% and 1.50%) that you should replace with the figures your provider or acquirer actually quotes you. The lines are yours; the tool only does the arithmetic against them.</p>
+    <h3>How many more disputes can I take this month?</h3>
+    <p>The headroom table shows, for the latest month in your file, how many additional disputes would still keep you under each line given the charges so far, or, if you are already over, how many more settled charges you would need to bring the same disputes back under it.</p>
+    <h3>Why does the ratio look so jumpy in a small month?</h3>
+    <p>With 100 charges a month, one dispute is a full percentage point. Programs usually also set a minimum number of disputes before any ratio counts, so read a small month together with the trend line and not on its own.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Disputes you won or lost (it counts every dispute as opened), fraud reports a network records outside the dispute itself unless your file flags them, other processors’ charges, and the exact way your provider or acquirer counts. Treat the output as an early-warning estimate from the file you provide.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your payment provider’s own reports or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running an online business? See the <a href="../chargeback-evidence-packet/">chargeback evidence packet</a>, the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe failed payment recovery analyzer</a> and the <a href="../card-processing-fee-audit/">card processing fee audit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id, d) => { const v = Number($(id).value); return Number.isFinite(v) && $(id).value !== "" ? v : d; };
+    let lastMonths = [];
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.events, {
+        warn: num("#warn", 0.75) / 100, elevated: num("#elevated", 0.9) / 100, excessive: num("#excessive", 1.5) / 100,
+        fee: Math.max(0, num("#fee", 15)), winRate: Math.min(100, Math.max(0, num("#win", 0))) / 100,
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      lastMonths = r.byMonth;
+      $("#report-stats").innerHTML = `${s.txns} settled charges and ${s.disputes} disputes from ${s.from} to ${s.to}: <strong>${pct(s.ratio)}</strong> overall. Disputes cost about <strong>${cur}${money(r.cost.total)}</strong> (${cur}${money(r.cost.fees)} in fees plus ${cur}${money(r.cost.exposure)} of disputed amounts not won back).`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-month").innerHTML = r.byMonth.map((b) => `<tr><th scope="row">${b.key}</th><td class="n">${b.txns}</td><td class="n">${b.disputes}</td><td class="n">${pct(b.ratio)}</td><td>${b.status === "none" ? "–" : b.status}</td><td class="n">${money(b.disputedAmount)}</td></tr>`).join("");
+      $("#room").innerHTML = r.room.map((x) => `<tr><th scope="row">${x.name}</th><td class="n">${pct(x.threshold)}</td><td class="n">${x.headroom >= 0 ? x.headroom : "over the line"}</td><td class="n">${x.headroom >= 0 ? "–" : `${x.txnsNeeded} (${x.extraTxns} more)`}</td></tr>`).join("");
+      const p = r.projection;
+      $("#projection").textContent = p
+        ? `Moving ${p.slope >= 0 ? "up" : "down"} by ${(Math.abs(p.slope) * 100).toFixed(2)} points a month over the last ${p.basis} months, the next three months would read ${p.next3.map(pct).join(", ")}. `
+          + (p.monthsToExcessive === 0 ? "You are already above the excessive line." : p.monthsToExcessive === null ? "At that pace you do not reach the excessive line." : `At that pace you reach the excessive line in about ${p.monthsToExcessive} month(s).`)
+        : "Needs at least three months with charges to draw a trend.";
+      $("#by-reason").innerHTML = r.byReason.length ? r.byReason.map((b) => `<tr><th scope="row">${esc(b.key.replace(/_/g, " "))}</th><td class="n">${b.disputes}</td><td class="n">${pct(b.share)}</td><td class="n">${money(b.amount)}</td><td>${esc(b.action)}</td></tr>`).join("") : '<tr><td colspan="5">No disputes in the file.</td></tr>';
+      $("#by-brand").innerHTML = r.byBrand.map((b) => `<tr><th scope="row">${esc(b.key)}</th><td class="n">${b.txns}</td><td class="n">${b.disputes}</td><td class="n">${pct(b.ratio)}</td></tr>`).join("");
+      $("#repeat").innerHTML = r.repeat.length ? r.repeat.map((c) => `<tr><th scope="row">${esc(c.key)}</th><td class="n">${c.disputes}</td><td class="n">${money(c.amount)}</td></tr>`).join("") : '<tr><td colspan="3">None.</td></tr>';
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.ignored) notes.push(`${n.ignored} failed, pending or cancelled row(s) were not counted as charges.`);
+      if (n.otherCurrency) notes.push(`${n.otherCurrency} row(s) in a currency other than ${n.currency || "the main one"} were left out.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.events.length} settled charges.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for an online shop with about 1,000 charges a month. Not real customers."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastMonths = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      const rows = ["month,charges,disputes,ratio,status,disputed_amount"].concat(lastMonths.map((b) => [b.key, b.txns, b.disputes, b.ratio === null ? "" : (b.ratio * 100).toFixed(3) + "%", b.status, b.disputedAmount].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "dispute-ratio-by-month.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

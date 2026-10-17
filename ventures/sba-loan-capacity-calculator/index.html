@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SBA Loan Capacity Calculator — How Much Can You Borrow? DSCR Sizer, Free</title>
+  <meta name="description" content="Free SBA loan capacity calculator. Enter cash flow, existing debt, rate, term and fees; see the largest loan a 1.25x DSCR supports, your coverage on the loan you want, and what a soft year does. Nothing uploaded.">
+  <meta property="og:title" content="How much SBA loan can your business carry? Free DSCR loan sizer">
+  <meta property="og:description" content="Cash flow in; the biggest loan a lender's coverage floor allows out, with term, rate and downturn sensitivity. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22h18M9 22V14m7 8V9m7 13v-6' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SBA Loan Capacity Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the largest small-business loan a debt-service-coverage floor supports, and test a loan you want against it. Runs in your browser; nothing is uploaded.","featureList":"Maximum loan from cash flow, DSCR and global DSCR, term and rate sensitivity, cash-flow stress, equity injection"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much SBA loan can I qualify for?","acceptedAnswer":{"@type":"Answer","text":"Lenders work backwards from cash flow. Cash available for debt service, divided by the minimum coverage ratio (commonly 1.25x), minus the payments you already make, is the most new yearly payment the business can carry. The calculator turns that payment into a loan amount at your rate and term."}},{"@type":"Question","name":"What is DSCR and what do SBA lenders want?","acceptedAnswer":{"@type":"Answer","text":"Debt service coverage ratio is yearly cash flow divided by yearly loan payments. Many SBA lenders look for about 1.25x, and some also look at a global ratio that counts your household income and personal debts. Each lender sets its own floor, so type in the one you were quoted."}},{"@type":"Question","name":"Does the SBA guaranty fee change how much I can borrow?","acceptedAnswer":{"@type":"Answer","text":"The fee comes out of, or is added to, the loan, so it lowers the cash you actually receive rather than the payment you can afford. The calculator shows net proceeds after the fee you enter. Fee schedules change by year and loan size; check your lender's current one."}},{"@type":"Question","name":"Is this a loan offer or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It is not a lender's decision, a credit offer, or advice, and it cannot see credit score, collateral, industry, time in business or any SBA eligibility rule."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1e3a8a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1e3a8a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #c9d8ef; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1e3a8a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db7e0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dbe7fb; color: #1e3a8a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e0e8f6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e0e8f6; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dbe7fb; color: #1e3a8a; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #c9d8ef; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+      </style>
+</head>
+<body>
+  <header>
+    <p class="note">SBA LOAN CAPACITY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How big a loan can your cash flow carry?</h1>
+    <p>Lenders size a loan backwards from cash flow. Enter your numbers and see the largest loan a coverage floor such as 1.25x supports, how the loan you want measures up (business and global DSCR), the cash you must bring, how much cash flow could fall before you miss the floor, and how term, rate and a soft year change the answer.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions. Not a lender decision.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-cf">
+      <h2 id="h-cf">1. Business cash flow</h2>
+      <div class="grid">
+        <div><label for="netIncome">Net income from your tax return or P&amp;L ($/yr)</label><input id="netIncome" type="number" step="any" value="120000"></div>
+        <div><label for="interestExpense">Interest expense ($/yr)</label><input id="interestExpense" type="number" step="any" value="8000"></div>
+        <div><label for="depreciation">Depreciation and amortisation ($/yr)</label><input id="depreciation" type="number" step="any" value="22000"></div>
+        <div><label for="otherAddBacks">One-off or non-cash add-backs ($/yr)</label><input id="otherAddBacks" type="number" step="any" value="6000"></div>
+        <div><label for="ownerCompAdjustment">Owner pay adjustment to a market wage ($/yr, negative lowers cash flow)</label><input id="ownerCompAdjustment" type="number" step="any" value="-60000"></div>
+        <div><label for="maintenanceCapex">Maintenance capital spending ($/yr)</label><input id="maintenanceCapex" type="number" step="any" value="10000"></div>
+        <div><label for="existingDebtService">Existing business loan payments ($/yr)</label><input id="existingDebtService" type="number" step="any" value="18000"></div>
+      </div>
+      <p class="note">Cash flow available = net income + interest + depreciation + add-backs + owner pay adjustment − maintenance capex. Use the owner pay adjustment when you pay yourself less (or more) than a manager would cost.</p>
+    </section>
+    <section class="card" aria-labelledby="h-hh">
+      <h2 id="h-hh">2. Your household (for global coverage)</h2>
+      <div class="grid">
+        <div><label for="otherHouseholdIncome">Other household income ($/yr)</label><input id="otherHouseholdIncome" type="number" step="any" value="45000"></div>
+        <div><label for="livingExpenses">Household living expenses ($/yr)</label><input id="livingExpenses" type="number" step="any" value="54000"></div>
+        <div><label for="personalDebtService">Personal debt payments: mortgage, cars, cards ($/yr)</label><input id="personalDebtService" type="number" step="any" value="14000"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-loan">
+      <h2 id="h-loan">3. The loan</h2>
+      <div class="grid">
+        <div><label for="requiredDscr">Lender's minimum coverage (x)</label><input id="requiredDscr" type="number" step="any" value="1.25"></div>
+        <div><label for="ratePct">Interest rate (%)</label><input id="ratePct" type="number" step="any" value="10.5"></div>
+        <div><label for="termYears">Term (years)</label><input id="termYears" type="number" step="any" value="10"></div>
+        <div><label for="feePct">Upfront guaranty and packaging fees (% of loan)</label><input id="feePct" type="number" step="any" value="3.5"></div>
+        <div><label for="requestedLoan">Loan you want ($)</label><input id="requestedLoan" type="number" step="any" value="450000"></div>
+        <div><label for="projectCost">Total project cost ($)</label><input id="projectCost" type="number" step="any" value="500000"></div>
+        <div><label for="equityPct">Required owner equity injection (%)</label><input id="equityPct" type="number" step="any" value="10"></div>
+      </div>
+      <button type="button" id="run">Size my loan</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much SBA loan can I qualify for?</h3>
+      <p>Lenders work backwards from cash flow. Cash available for debt service, divided by the minimum coverage ratio (commonly 1.25x), minus the payments you already make, is the most new yearly payment the business can carry. The calculator turns that payment into a loan amount at your rate and term.</p>
+      <h3>What is DSCR and what do SBA lenders want?</h3>
+      <p>Debt service coverage ratio is yearly cash flow divided by yearly loan payments. Many SBA lenders look for about 1.25x, and some also look at a global ratio that counts your household income and personal debts. Each lender sets its own floor, so type in the one you were quoted.</p>
+      <h3>Does the SBA guaranty fee change how much I can borrow?</h3>
+      <p>The fee comes out of, or is added to, the loan, so it lowers the cash you actually receive rather than the payment you can afford. The calculator shows net proceeds after the fee you enter. Fee schedules change by year and loan size; check your lender's current one.</p>
+      <h3>Is this a loan offer or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It is not a lender's decision, a credit offer, or advice, and it cannot see credit score, collateral, industry, time in business or any SBA eligibility rule.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you are eligible for any SBA program, credit score, collateral, personal guarantees, industry and time in business, the lender's own cash-flow adjustments, current SBA fee schedules and rate caps, variable rates, balloons or interest-only periods, tax, and whether a lender will approve you. The defaults are placeholders, not a quote.</p>
+    </section>
+    <section class="card">
+      <p>Buying a franchise? The <a href="../franchise-unit-economics-calculator/">franchise unit economics calculator</a> shows payback, break-even sales and the cash cushion for one unit. Comparing offers you already hold? See the <a href="../business-loan-offer-comparator/">business loan offer comparator</a>. Buying a business? See the <a href="../small-business-acquisition-calculator/">small business acquisition calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or a lender. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any eligibility, disclosure or repayment obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>loan_sized</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a bad application, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { assess, maxLoan, termGrid, rateGrid, cashFlowStress, cashFlowNeeded, DEFAULTS, num, money, ratio } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } if (!(o.requiredDscr > 0)) o.requiredDscr = DEFAULTS.requiredDscr; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const pill = (ok, yes, no) => `<span class="pill ${ok ? "info" : "high"}">${ok ? yes : no}</span>`;
+    function run() {
+      const o = opts();
+      const m = maxLoan(o);
+      const a = assess(o);
+      let h = `<div class="finding"><h4>Largest loan your cash flow supports</h4><p class="stats">${money(m.loan)} at ${o.ratePct}% over ${o.termYears} years · you would receive ${money(m.netProceeds)} after a ${o.feePct}% fee · payment ${money(m.payment)}/month</p><p class="note">Cash flow available for debt service is ${money(m.cfads)} a year. At a ${o.requiredDscr}x floor with ${money(o.existingDebtService)} of existing payments, that leaves ${money(Math.max(0, m.roomYear))} a year for new debt.${m.loan === 0 ? " <strong>There is no room for new debt at this floor.</strong>" : ""}</p></div>`;
+      h += `<div class="finding"><h4>The loan you want: ${money(o.requestedLoan)}</h4><p>${pill(a.passes, "Clears the floor", "Below the floor")} Business coverage <strong>${ratio(a.businessDscr)}</strong> against a ${o.requiredDscr}x floor. ${pill(a.globalPasses, "Household covered", "Household short")} Global coverage <strong>${ratio(a.globalDscr)}</strong> (needs about 1.00x). Payment ${money(a.monthly)}/month, ${money(a.yearly)}/year, ${money(a.totalInterest)} of interest over the term.</p><p>${a.cushionPct >= 0 ? "Cash flow could fall <strong>" + a.cushionPct.toFixed(1) + "%</strong> before you drop under the floor." : "Cash flow would need to rise by about " + money(cashFlowNeeded(o) - a.cfads) + " a year to reach the floor."}</p><p>Fee ${money(a.fee)}, so you receive ${money(a.netProceeds)}. Against a ${money(o.projectCost)} project you bring about <strong>${money(a.cashIn)}</strong> (at least the ${o.equityPct}% injection, ${money(a.equity)}).</p></div>`;
+      const tbl = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((x, i) => `<th class="${i ? "n" : ""}">${x}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${i ? "n" : ""}">${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      h += `<div class="finding"><h4>Term sensitivity</h4>${tbl(["Term", "Largest loan", "Net proceeds", "Payment / month"], termGrid(o).map((r) => [r.termYears + " yrs", money(r.loan), money(r.netProceeds), money(r.payment)]))}<p class="note">Longer terms lower the payment, so the same cash flow supports more principal. Real-estate loans often run longer than equipment or working-capital loans.</p></div>`;
+      h += `<div class="finding"><h4>Rate sensitivity</h4>${tbl(["Rate", "Largest loan", "Net proceeds"], rateGrid(o).map((r) => [r.ratePct.toFixed(2) + "%", money(r.loan), money(r.netProceeds)]))}</div>`;
+      h += `<div class="finding"><h4>If cash flow falls</h4>${tbl(["Cash flow down", "Largest loan", "Net proceeds"], cashFlowStress(o).map((r) => [r.cut + "%", money(r.loan), money(r.netProceeds)]))}<p class="note">Lenders look at recent history; a weaker year in the tax return can shrink what they will approve.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("loan_sized");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

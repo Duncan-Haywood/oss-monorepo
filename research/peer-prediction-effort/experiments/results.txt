@@ -1,0 +1,44 @@
+E1. output agreement vs DG, q=0.8 both workers: payoff of truthful/truthful, best uninformative profile, pure equilibria
+  p=0.5 oa: truthful=0.6800 always-majority=1.0000 | truthful is eq: True | best-paying eq value=1.0000
+  p=0.5 dg: truthful=0.1800 always-majority=0.0000 | truthful is eq: True | best-paying eq value=0.1800
+  p=0.3 oa: truthful=0.6800 always-majority=1.0000 | truthful is eq: True | best-paying eq value=1.0000
+  p=0.3 dg: truthful=0.1512 always-majority=0.0000 | truthful is eq: True | best-paying eq value=0.1512
+  p=0.1 oa: truthful=0.6800 always-majority=1.0000 | truthful is eq: False | best-paying eq value=1.0000
+  p=0.1 dg: truthful=0.0648 always-majority=-0.0000 | truthful is eq: True | best-paying eq value=0.0648
+E2. DG 3-task estimator: Monte Carlo (200k) vs exact, truthful pair
+  qi=0.85 qj=0.75 p=0.3: exact=0.1470 closed=2p(1-p)gigj=0.1470 MC=0.1458
+  qi=0.9 qj=0.9 p=0.5: exact=0.3200 closed=2p(1-p)gigj=0.3200 MC=0.3179
+  qi=0.7 qj=0.95 p=0.1: exact=0.0648 closed=2p(1-p)gigj=0.0648 MC=0.0641
+E3. continuous effort (c=0.1, kappa=0.9, p=0.5), r=0: zero-effort stability; alpha0 = c/(2p(1-p)kappa^2)
+  alpha0 = 0.2469
+  alpha=0.5*alpha0: e=0.000(stable)
+  alpha=0.9*alpha0: e=0.000(stable)
+  alpha=1.1*alpha0: e=0.000(unstable), e=0.064(stable)
+  alpha=1.5*alpha0: e=0.000(unstable), e=0.272(stable)
+  alpha=3.0*alpha0: e=0.000(unstable), e=0.748(stable)
+E4. same but skewed prior p=0.1: threshold rises by 1/(4p(1-p))
+  p=0.5: alpha0 = 0.247  (x1.00 vs p=0.5)
+  p=0.3: alpha0 = 0.294  (x1.19 vs p=0.5)
+  p=0.1: alpha0 = 0.686  (x2.78 vs p=0.5)
+  p=0.02: alpha0 = 3.149  (x12.76 vs p=0.5)
+E5. continuous effort, alpha=0.7*alpha0 (below threshold), effect of gold-check rate r on the (unique) equilibrium effort
+  r=0.0: e=0.000(stable)
+  r=0.02: e=0.042(stable)
+  r=0.05: e=0.086(stable)
+  r=0.1: e=0.139(stable)
+  r=0.2: e=0.212(stable)
+  r=0.4: e=0.310(stable)
+E6. binary effort (A=1, c=0.3, gH=0.8): equilibria vs gold-check rate; r* = c/(A gH)
+  r* = 0.3750
+  r=0.0: ['LL', 'HH']
+  r=0.2: ['LL', 'HH']
+  r=0.35: ['LL', 'HH']
+  r=0.3749: ['LL', 'HH']
+  r=0.3751: ['HH']
+  r=0.5: ['HH']
+  r=0.9: ['HH']
+E7. cost-optimal design (gH=0.8): scale u=A gH, gold rate r=c/u, total cost = pay + G r. Grid search vs closed form
+  c=0.05 G=0.5: closed u*=0.1768 r*=0.2828 cost=0.2928 | grid u=0.1768 cost=0.2928
+  c=0.05 G=2.0: closed u*=0.3536 r*=0.1414 cost=0.5757 | grid u=0.3535 cost=0.5757
+  c=0.2 G=1.0: closed u*=0.5000 r*=0.4000 cost=0.8400 | grid u=0.5000 cost=0.8400
+  c=0.2 G=5.0: closed u*=1.1180 r*=0.1789 cost=1.8289 | grid u=1.1180 cost=1.8289

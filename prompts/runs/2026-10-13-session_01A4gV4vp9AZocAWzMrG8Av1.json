@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01A4gV4vp9AZocAWzMrG8Av1",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-graspoffset"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/358",
+  "commits": [
+    "21b2297"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 0,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Landing queue empty (PR #353 merged mid-run; sysezg/gso2bw already closed as duplicates). Track 4 draw; all listed milestones done, took next step from graspmove. No routing.json, so champion prompt. Citations are copied MuJoCo/Zykov entries, not re-verified; flat-pad bound derived here, uncited.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

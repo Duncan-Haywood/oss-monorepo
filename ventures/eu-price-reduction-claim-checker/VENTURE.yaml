@@ -1,0 +1,43 @@
+name: eu-price-reduction-claim-checker
+description: >-
+  Free browser tool for EU webshops: paste a price history and a planned sale to see the prior price the 30-day lowest price rule (Omnibus, Article 6a) allows next to a reduction, the true percentage off, and whether a crossed-out price or advertised discount holds up. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no price-reduction or Omnibus tool in ventures/ and not in screened-out.md. The eu-* checkers cover other regulations.
+#
+# First visitor: Shopify/WooCommerce/Etsy shop owner running a Black Friday or end-of-season sale who has heard "you must show the lowest price of the last 30 days" and has a
+# price log in a spreadsheet. Search phrases "Omnibus directive 30 day lowest price", "preisermässigung 30 Tage niedrigster Preis", "crossed out price legal EU", "Black Friday
+# fake discount rules". Demand peaks before Black Friday and January/July sales. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet for the shop-owner audience of etsy-profit-calculator and eu-vat-oss-calculator; GitHub Sponsors. Paid version, not built:
+# a connector that reads price history from a Shopify/WooCommerce CSV export and flags every product in a sale, behind an env-var switch.
+#
+# Liability: first read of an EU directive with national variation (new goods, perishables, progressive reductions); rejects bad input, names a verify source on every result,
+# says plainly that a price log is evidence not a legal conclusion, carries no-warranty and not-legal-advice clauses. Rules were written from memory without network access
+# and must be verified; ethical risk is false comfort from an "ok" reading, mitigated by the verify line.
+
+hypotheses:
+  - claim: >-
+      EU shop owners planning a sale will use a free checker to confirm what "was" price and percentage they may advertise before publishing it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a prior price or window differs from the cited law on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-price-reduction-claim-checker/
+  analytics: null

@@ -95,7 +95,7 @@ mvn test                           # Surefire writes target/surefire-reports/*.x
     <pre class="cmd"><code>python3 check.py run1.xml run2.xml run3.xml   # exits 1 if any test is flaky
 python3 check.py --glob "reports/*.xml"        # or glob a directory of reports
 python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/flaky-test-finder/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
   </section>
 
   <section class="card">
@@ -108,14 +108,15 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
     <p>Anything that emits JUnit XML: pytest (--junitxml), Jest via jest-junit, Go via go-junit-report, PHPUnit, RSpec via RSpecJUnitFormatter, and Maven/Gradle Surefire/Failsafe. Surefire's own <code>&lt;flakyFailure&gt;</code>/<code>&lt;flakyError&gt;</code> elements are also read directly. Even a single Surefire report with retries enabled can surface flakiness this way.</p>
     <h3>Is my test output uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
-    <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>, or how this compares to <a href="vs-buildpulse.html">BuildPulse</a>, a paid, connected, always-on alternative.</p>
+    <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>, how this compares to <a href="vs-buildpulse.html">BuildPulse</a>, a paid, connected, always-on alternative, or <a href="vs-eyeballing-two-ci-logs-by-hand.html">why eyeballing two CI logs gets this wrong</a> once a suite reruns only its failures.</p>
     <p>Related: if every check fails in a few seconds with an empty body, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
+    <p>Related: once the suite is stable, split it across CI shards by measured duration with the <a href="../ci-test-shard-balancer/">CI test shard balancer</a> — it reads the same JUnit XML and prints the files for each shard.</p>
     <p>Related: if tests are stable but line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you — it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/flaky-test-finder/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>run_added</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>

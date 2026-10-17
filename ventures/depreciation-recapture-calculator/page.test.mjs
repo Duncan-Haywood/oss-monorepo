@@ -80,6 +80,20 @@ test("index links one hop to the quarterly-estimated-tax-calendar sibling", () =
   );
 });
 
+// Reciprocal half of the link added to bonus-depreciation-calculator the same
+// session -- the other end of the same depreciation lifecycle (buying new
+// equipment vs. selling depreciated property), needed so the new venture's
+// own inbound link is satisfied on its first commit (its committed
+// sibling-orphan budget is 0).
+test("index links one hop to the bonus-depreciation-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/bonus-depreciation-calculator\/"/,
+    'index must link ../bonus-depreciation-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 test("clicking calculate records sale_analyzed, not a different event name", () => {
   const html = page("index.html");
   assert.match(html, /record\("sale_analyzed"\)/);

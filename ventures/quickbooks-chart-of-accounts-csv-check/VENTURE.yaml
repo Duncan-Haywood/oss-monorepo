@@ -1,0 +1,40 @@
+name: quickbooks-chart-of-accounts-csv-check
+description: >-
+  Free browser tool that checks a QuickBooks Online chart of accounts import CSV before it is
+  uploaded: unknown account types with a likely match, blank detail types, duplicate account names
+  and numbers, Parent:Child sub-accounts listed before their parent, balances on Income and Expense
+  accounts, balances without an as-of date, mixed-order dates and Excel damage, each with its line
+  number, plus a safe-fixes pass that never edits a name, number, type or date. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, as the chart-of-accounts half of a QuickBooks list checker whose
+# customer, vendor and item half merged first as quickbooks-import-csv-check (#6330); this venture was split out rather than duplicate it. ventures/ holds a CSV pre-flight checker for
+# Shopify, WooCommerce, BigCommerce, Square, Xero invoices, IRS IRIS and 1099 vendor files, a
+# bank-CSV-to-QBO converter and an email list checker; none reads the lists a bookkeeper loads into
+# QuickBooks Online when onboarding a client or migrating from another package. QuickBooks Online
+# is the dominant small-business ledger in the US, and getting customers, vendors, items and a chart
+# of accounts in by spreadsheet is the first job of every new file. The import screen reports
+# "N rows were not imported" with a downloadable error list, after the fact, and many faults are
+# not errors at all: a stripped ZIP zero, a lost tax ID digit, a balance dated the import day.
+#
+# First visitor: bookkeepers and small-business owners searching the literal symptoms ("QuickBooks
+# import customers some rows not imported", "QuickBooks import CSV duplicate display name",
+# "QuickBooks import chart of accounts error", "QuickBooks import vendors tax ID leading zero"),
+# Intuit Community threads, r/Bookkeeping, r/QuickBooks. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it knows four QuickBooks list models (unique display names
+# across customers and vendors, Parent:Child accounts, typed items, balances needing as-of dates),
+# separates a real date error from an ambiguous day/month order, and the repair step is narrow and
+# lists every change. Headings are advisory, as QuickBooks maps columns by hand.
+#
+# Privacy is the liability boundary: customer and vendor lists and tax IDs are personal data, so the
+# file never leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper and accountant audience,
+# cross-linked to the Xero, bank CSV and 1099 checkers. A paid version, if usage appears, is a
+# multi-client batch check with saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# not tax or accounting advice, independent-of-Intuit clause, trademark used nominatively.

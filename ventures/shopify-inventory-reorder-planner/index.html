@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inventory Reorder Planner — What to Reorder, When, and What's Dead Stock</title>
+  <meta name="description" content="Free reorder planner for Shopify and other small online stores: load an orders export and a stock export and see each SKU's reorder point, how many to order, revenue at risk from stock-outs and cash tied up in overstock. Runs in your browser, files are never uploaded.">
+  <meta property="og:title" content="Inventory Reorder Planner — free, private, CSV in your browser">
+  <meta property="og:description" content="Which SKUs to reorder now, how many, and which stock is dead cash. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Inventory Reorder Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an orders export and a stock export into a per-SKU reorder point, order quantity, days of cover, revenue at risk from stock-outs and cash tied up in overstock and dead stock. Runs entirely in your browser; the files are never uploaded.", "featureList": "Reorder point with safety stock, order quantity and cost, days of cover and stock-out date, revenue at risk, overstock and dead-stock cash, ABC ranking, purchase-order CSV"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know when to reorder a Shopify product?", "acceptedAnswer": {"@type": "Answer", "text": "Compare the units you have on hand plus anything on order with a reorder point: daily sales velocity times your supplier lead time, plus a safety buffer. When stock falls to that point, the reorder is already late by the time the goods land. Drop your orders export and a stock export here and the tool computes that point for every SKU. Nothing is uploaded."}}, {"@type": "Question", "name": "What is a reorder point and how is it calculated here?", "acceptedAnswer": {"@type": "Answer", "text": "Reorder point = daily velocity \u00d7 lead time in days + safety stock. Velocity blends the last 28 days (60%) with the whole file (40%) once there are eight weeks of orders, and uses the whole-file average before that. Safety stock is the z-score for your chosen service level \u00d7 the SKU's own week-to-week variation, scaled to the lead time."}}, {"@type": "Question", "name": "Which files does it need?", "acceptedAnswer": {"@type": "Answer", "text": "A sales file with a date, a SKU (or product name) and a quantity, such as Shopify's Orders export, whose line-item rows are read and whose cancelled or refunded orders are dropped. A stock file is optional but needed for reorder points and order quantities: a SKU and an on-hand or available column, plus incoming and cost per item if you have them. Column names are matched by alias."}}, {"@type": "Question", "name": "Can I use this if I don't use Shopify?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Any sheet with a date, a SKU and a quantity for sales, and a SKU and units on hand for stock, works. Column names are matched by alias, and rows that cannot be read are listed with a line number and reason."}}, {"@type": "Question", "name": "What is dead stock and overstock here?", "acceptedAnswer": {"@type": "Answer", "text": "Dead stock is a SKU with units on hand and no sales in the last 90 days of your file. Overstock is a selling SKU with more than 120 days of cover. Both are shown as cash at cost when you supply a cost column, and only the units beyond 120 days of cover count as excess for an overstocked SKU. Both thresholds are settings you can change."}}, {"@type": "Question", "name": "Is this a demand forecast or inventory advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the files you supply and the lead time and service level you type. Seasonality, promotions, stock-outs that suppressed past sales, supplier minimums and case packs are not modelled, and it is independent of Shopify and every other product named here. You decide what to order."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">INVENTORY REORDER PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you reorder this week, and what is just cash on a shelf?</h1>
+    <p>Load your <strong>orders export</strong> and a <strong>stock export</strong> and get, for every SKU, its <strong>reorder point</strong>, <strong>how many to order</strong>, <strong>days of cover</strong>, the <strong>sales at risk</strong> if it runs out before a reorder lands, and the <strong>cash tied up in overstock and dead stock</strong>. Download the order list as a CSV.</p>
+    <p class="note">The files are read in this browser tab and never leave your device. Independent of Shopify and every other e-commerce or inventory product: not affiliated with or endorsed by any of them. Results use a lead time and service level you type, which are assumptions.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your sales</h2>
+    <p class="note">Needs a <strong>date</strong>, a <strong>SKU</strong> (or product name) and a <strong>quantity</strong>: Shopify's Orders export (<em>Created at</em>, <em>Lineitem sku</em>, <em>Lineitem quantity</em>, <em>Lineitem price</em>) works as it is. Cancelled and refunded orders are dropped and negative quantities net against the SKU. Two to three months of orders give steadier numbers.</p>
+    <label for="file">Choose the orders CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Name,Created at,Lineitem name,Lineitem sku,Lineitem quantity,Lineitem price"></textarea>
+    <h2 style="margin-top:22px">2. Your stock (needed for reorder points)</h2>
+    <p class="note">A <strong>SKU</strong> and an <strong>On hand</strong> (or <strong>Available</strong>) column. Used when present: <strong>Incoming</strong> / <strong>On order</strong> and <strong>Cost per item</strong>. Shopify's inventory export works as it is.</p>
+    <label for="stockfile">Choose the stock CSV</label>
+    <input type="file" id="stockfile" accept=".csv,.tsv,.txt,text/csv">
+    <label for="stockpaste">…or paste the file text</label>
+    <textarea id="stockpaste" spellcheck="false" placeholder="SKU,Title,On hand,Incoming,Cost per item"></textarea>
+    <h2 style="margin-top:22px">3. Your supply chain</h2>
+    <div class="grid">
+      <div><label for="lead">Supplier lead time (days)</label><input type="number" id="lead" value="21" min="1" max="365" step="1"></div>
+      <div><label for="cycle">Days of cover each order should add</label><input type="number" id="cycle" value="30" min="0" max="365" step="1"></div>
+      <div><label for="service">Service level</label><select id="service"><option value="0.9">90% (accept more stock-outs)</option><option value="0.95" selected>95%</option><option value="0.98">98%</option><option value="0.99">99% (hold more buffer)</option></select></div>
+      <div><label for="over">Overstock above (days of cover)</label><input type="number" id="over" value="120" min="14" max="1000" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Plan my reorders</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the files or paste the text, then click Plan my reorders.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By SKU (most urgent first)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">SKU</th><th scope="col">Status</th><th class="n" scope="col">Class</th><th class="n" scope="col">Sold / day</th><th class="n" scope="col">On hand</th><th class="n" scope="col">Days of cover</th><th class="n" scope="col">Reorder point</th><th class="n" scope="col">Order qty</th><th class="n" scope="col">Order cost</th><th class="n" scope="col">Sales at risk</th><th class="n" scope="col">Excess cash</th></tr></thead><tbody id="by-sku"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download order list as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Velocity</strong> is units sold per day. With eight or more weeks of orders it is 60% the last 28 days and 40% the whole file, so a SKU that has taken off is not planned at its old pace; with less it is the whole-file average.</li>
+      <li><strong>Reorder point</strong> = velocity × lead time + safety stock. Safety stock = the z-score for your service level × the SKU's weekly standard deviation converted to days × the square root of the lead time. A SKU is flagged when on hand plus incoming is at or below it.</li>
+      <li><strong>Order quantity</strong> brings on hand plus incoming up to velocity × (lead time + cover days) + safety stock. <strong>Reconciles.</strong> The order quantities add up to the total shown and the order list CSV contains exactly the SKUs with a quantity.</li>
+      <li><strong>Sales at risk</strong> is velocity × average price × the days a SKU would be out before a new order could arrive (a full lead time if it is already at zero). It is an upper bound, not a forecast.</li>
+      <li><strong>Overstock</strong> is more than your chosen days of cover; only the units beyond that many days count as excess. <strong>Dead</strong> means stock on hand and no sales in the last 90 days of the file. Cash is at cost, and needs a cost column.</li>
+      <li><strong>Not modelled:</strong> seasonality and promotions, sales lost while a SKU was already out of stock, supplier minimums and case packs, variants sold under a different SKU, bundles, warehouse transfers, shelf life, and anything not in the files. Prices are the average on the order lines, before discounts.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know when to reorder a Shopify product?</h3>
+    <p>Compare the units you have on hand plus anything on order with a reorder point: daily sales velocity times your supplier lead time, plus a safety buffer. When stock falls to that point, the reorder is already late by the time the goods land. Drop your orders export and a stock export here and the tool computes that point for every SKU. Nothing is uploaded.</p>
+    <h3>What is a reorder point and how is it calculated here?</h3>
+    <p>Reorder point = daily velocity × lead time in days + safety stock. Velocity blends the last 28 days (60%) with the whole file (40%) once there are eight weeks of orders, and uses the whole-file average before that. Safety stock is the z-score for your chosen service level × the SKU's own week-to-week variation, scaled to the lead time.</p>
+    <h3>Which files does it need?</h3>
+    <p>A sales file with a date, a SKU (or product name) and a quantity, such as Shopify's Orders export, whose line-item rows are read and whose cancelled or refunded orders are dropped. A stock file is optional but needed for reorder points and order quantities: a SKU and an on-hand or available column, plus incoming and cost per item if you have them. Column names are matched by alias.</p>
+    <h3>Can I use this if I don't use Shopify?</h3>
+    <p>Yes. Any sheet with a date, a SKU and a quantity for sales, and a SKU and units on hand for stock, works. Column names are matched by alias, and rows that cannot be read are listed with a line number and reason.</p>
+    <h3>What is dead stock and overstock here?</h3>
+    <p>Dead stock is a SKU with units on hand and no sales in the last 90 days of your file. Overstock is a selling SKU with more than 120 days of cover. Both are shown as cash at cost when you supply a cost column, and only the units beyond 120 days of cover count as excess for an overstocked SKU. Both thresholds are settings you can change.</p>
+    <h3>Is this a demand forecast or inventory advice?</h3>
+    <p>No. It is arithmetic on the files you supply and the lead time and service level you type. Seasonality, promotions, stock-outs that suppressed past sales, supplier minimums and case packs are not modelled, and it is independent of Shopify and every other product named here. You decide what to order.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the lead time and service level you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any purchasing decision. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any e-commerce product.</strong> Shopify and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Stuck with stock that will not sell at full price? The <a href="../clearance-markdown-planner/">clearance markdown planner</a> schedules the cuts week by week.</p>
+    <p>Where does the margin go? See the <a href="../shopify-payout-profit-analyzer/">Shopify payout profit analyzer</a> and the <a href="../shopify-discount-leakage-analyzer/">Shopify discount leakage analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeSales, normalizeStock, analyze, summaryText, poCsv, sampleSales, SAMPLE_STOCK, money, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const dash = (v, f) => (v === null || v === undefined ? "–" : f(v));
+    const LABEL = { "stocked-out": "Out of stock", reorder: "Reorder now", overstock: "Overstock", dead: "Dead stock", slow: "Slow", ok: "OK", "no-stock-data": "No stock data", "no-sales": "No sales" };
+    let last = null;
+
+    function run(salesText, stockText) {
+      const sd = detectDelimiter(salesText);
+      const n = normalizeSales(parseCsv(salesText, sd), { decimalComma: sd === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      let st = { items: [], skipped: [] };
+      if (stockText.trim()) {
+        const td = detectDelimiter(stockText);
+        st = normalizeStock(parseCsv(stockText, td), { decimalComma: td === ";" });
+        if (st.error) { status.textContent = st.error; report.hidden = true; return false; }
+      }
+      const num = (id, d) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : d; };
+      const r = analyze(n.items, st.items, { leadDays: num("#lead", 21), cycleDays: num("#cycle", 30), serviceLevel: parseFloat($("#service").value), overstockDays: num("#over", 120) });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.skus} SKU(s), ${dateStr(s.from)} to ${dateStr(s.to)} (${s.windowDays} days), ${money(s.units)} units.` + (s.hasStock ? ` <strong>${s.stockedOut + s.reorder} to reorder now, ${s.poUnits.toLocaleString("en-US")} units${s.poCost ? ` (about $${money(s.poCost)})` : ""}; $${money(s.excessCash)} tied up in overstock and dead stock.</strong>` : "");
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out.</p>`;
+      $("#by-sku").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.sku)}${x.name && x.name !== x.sku ? `<br><span class="note">${esc(x.name)}</span>` : ""}</th><td>${LABEL[x.status]}</td><td class="n">${x.abc}</td><td class="n">${x.velocity.toFixed(2)}</td><td class="n">${dash(x.onHand, (v) => v)}</td><td class="n">${x.cover === null ? "–" : Number.isFinite(x.cover) ? Math.round(x.cover) : "∞"}</td><td class="n">${x.reorderPoint}</td><td class="n">${x.orderQty || "–"}</td><td class="n">${dash(x.orderCost, (v) => v ? money(v) : "–")}</td><td class="n">${x.atRisk ? money(x.atRisk) : "–"}</td><td class="n">${x.excessCash ? money(x.excessCash) : "–"}</td></tr>`).join("");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} sales row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (st.skipped.length) notes.push(`${st.skipped.length} stock row(s) were skipped: ` + st.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; "));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} order lines and ${st.items.length} stock rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    const readFile = async (id, box) => { const f = $(id).files[0]; return f ? decodeBuffer(await f.arrayBuffer()) : $(box).value; };
+
+    $("#analyze").addEventListener("click", async () => {
+      const sales = await readFile("#file", "#paste");
+      if (!sales.trim()) { status.textContent = "Choose the orders file or paste the text first."; return; }
+      if (run(sales, await readFile("#stockfile", "#stockpaste"))) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleSales();
+      $("#stockpaste").value = SAMPLE_STOCK;
+      $("#file").value = ""; $("#stockfile").value = "";
+      if (run($("#paste").value, $("#stockpaste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic orders and stock for six invented SKUs of an invented tea shop. Not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#stockpaste", "#summary"]) $(id).value = ""; $("#file").value = ""; $("#stockfile").value = ""; report.hidden = true; last = null; status.textContent = "Choose the files or paste the text, then click Plan my reorders."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([poCsv(last)], { type: "text/csv" }));
+      a.download = "reorder-list.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

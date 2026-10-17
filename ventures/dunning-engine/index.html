@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dunning Engine — Free Self-Hosted Stripe Failed Payment Recovery</title>
+  <meta name="description" content="Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source server in your own account. Free, MIT, no per-recovery fee.">
+  <meta property="og:title" content="Dunning Engine — failed payment recovery for Stripe, self-hosted">
+  <meta property="og:description" content="Different plans for expired cards, empty accounts and lost cards. Your Stripe key, your email domain, your server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dunning Engine", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source Stripe failed-payment recovery. Classifies each decline code, retries only where a retry can work, sends neutral dunning emails with a fresh customer-portal link, and runs on your own server with your own Stripe key."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Stripe Smart Retries?", "acceptedAnswer": {"@type": "Answer", "text": "Smart Retries is good and free to try, and for many businesses it is enough. Dunning Engine is for teams that want the retry schedule and the email wording under their own control, want expired or lost cards to skip pointless retries entirely, or do not want a per-recovery fee from a third-party recovery service. You must turn Stripe's own automatic retries off so the two do not both charge the customer."}}, {"@type": "Question", "name": "Which declines should never be retried?", "acceptedAnswer": {"@type": "Answer", "text": "Hard declines such as lost_card, stolen_card, pickup_card and restricted_card, and unusable cards such as expired_card or incorrect_number. Retrying them only adds failed attempts. The right move is to ask the customer for a different payment method."}}, {"@type": "Question", "name": "Is it safe to try?", "acceptedAnswer": {"@type": "Answer", "text": "It starts in dry-run mode: it records failures and logs every email and retry it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first."}}, {"@type": "Question", "name": "Where can I see how much I already lose?", "acceptedAnswer": {"@type": "Answer", "text": "Export your failed payments and run them through the Stripe Failed Payment Recovery Analyzer. If your webhook endpoint rejects Stripe's signature, the Webhook Signature Debugger shows why."}}, {"@type": "Question", "name": "Where does my Stripe key live?", "acceptedAnswer": {"@type": "Answer", "text": "In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f5f4fa; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #4338ca; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2e2a74; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e2a74; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4a63; }
+    .card { background: #fff; border: 1px solid #dcdbec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 18px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b4b3d1; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4338ca; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e8e7f3; vertical-align: top; }
+    pre { background: #f1f0f9; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #e4e2fb; font-size: .8rem; font-weight: 700; }
+    .big { font-size: 1.5rem; font-weight: 800; color: #2e2a74; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Stop losing subscribers to failed payments you could have recovered</h1>
+  <p>Cards fail for very different reasons: an expired card needs the customer, an empty account needs <em>time</em>, a lost card needs a new card and a gentle tone. Treating them the same wastes retries and annoys customers. Pick a Stripe decline code to see the recovery plan Dunning Engine would run, then <a href="server.mjs">run the open-source server</a> with your own Stripe key. No account with us, no per-recovery fee.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">Preview a recovery plan</h2>
+    <div class="grid">
+      <div><label for="code">Stripe decline code</label><select id="code"></select></div>
+      <div><label for="when">Payment failed at (UTC)</label><input id="when" type="datetime-local"></div>
+      <div><label for="grace">Days before giving up</label><input id="grace" type="number" min="3" max="60" value="14"></div>
+      <div><label for="payday">Time funds retries to payday</label><select id="payday"><option value="1">Yes (1st, 2nd, 15th, 16th, Fridays)</option><option value="0">No</option></select></div>
+    </div>
+    <p>Class: <span class="tag" id="cls"></span> <span id="why" class="note"></span></p>
+    <table aria-live="polite"><thead><tr><th scope="col">When (UTC)</th><th scope="col">What happens</th></tr></thead><tbody id="rows"></tbody></table>
+    <label for="tpl">Email preview</label>
+    <select id="tpl"></select>
+    <pre id="mail"></pre>
+  </section>
+
+  <section class="card" aria-labelledby="roi">
+    <h2 id="roi">What is recovery worth to you?</h2>
+    <p class="note">Your numbers only: this page does not know your recovery rate and does not promise any uplift.</p>
+    <div class="grid">
+      <div><label for="n">Failed payments per month</label><input id="n" type="number" min="0" value="40"></div>
+      <div><label for="amt">Average subscription price</label><input id="amt" type="number" min="0" value="49"></div>
+      <div><label for="r0">Share recovered today (%)</label><input id="r0" type="number" min="0" max="100" value="45"></div>
+      <div><label for="r1">Share you hope to recover (%)</label><input id="r1" type="number" min="0" max="100" value="55"></div>
+    </div>
+    <p>Extra revenue kept per month: <span class="big" id="gain">-</span> <span class="note" id="gain12"></span></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/dunning-engine
+STRIPE_SECRET_KEY=rk_live_... STRIPE_WEBHOOK_SECRET=whsec_... \
+ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
+PUBLIC_URL=https://dunning.example.com RESEND_API_KEY=re_... \
+MAIL_FROM="Billing &lt;billing@example.com&gt;" COMPANY_NAME=Acme \
+node server.mjs          # DRY_RUN=true until you set DRY_RUN=false</pre>
+    <p class="note">Point a Stripe webhook at <code>/webhook/stripe</code> for <code>invoice.payment_failed</code>, <code>invoice.paid</code>, <code>invoice.voided</code>, <code>invoice.marked_uncollectible</code>, <code>customer.subscription.deleted</code> and <code>payment_method.attached</code>. Turn off Stripe's automatic retries so only one system charges. Worried a deploy will drop a webhook? Put <a href="../webhook-relay/">webhook-relay</a> in front of it. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Stripe Smart Retries?</h3>
+    <p>Smart Retries is good and free to try, and for many businesses it is enough. Dunning Engine is for teams that want the retry schedule and the email wording under their own control, want expired or lost cards to skip pointless retries entirely, or do not want a per-recovery fee from a third-party recovery service. You must turn Stripe's own automatic retries off so the two do not both charge the customer.</p>
+    <h3>Which declines should never be retried?</h3>
+    <p>Hard declines such as lost_card, stolen_card, pickup_card and restricted_card, and unusable cards such as expired_card or incorrect_number. Retrying them only adds failed attempts. The right move is to ask the customer for a different payment method.</p>
+    <h3>Is it safe to try?</h3>
+    <p>It starts in dry-run mode: it records failures and logs every email and retry it would perform, but contacts neither Stripe nor your customers until you set DRY_RUN=false. Try it with a Stripe test-mode key first.</p>
+    <h3>Where can I see how much I already lose?</h3>
+    <p>Export your failed payments and run them through the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>. If your webhook endpoint rejects Stripe's signature, the <a href="../webhook-signature-debugger/">Webhook Signature Debugger</a> shows why.</p>
+    <h3>Where does my Stripe key live?</h3>
+    <p>In the environment of the server you deploy in your own account. The author runs nothing in between and never sees your key or your customers.</p>
+  </section>
+
+  <footer>
+    <p>Starting a subscription from a free trial? <a href="../trial-converter/">Trial Converter</a> emails trials with and without a card on file and can extend a card-less trial once, from the same Stripe account.</p>
+    <p>Selling services on a quote? <a href="../sign-keeper/">Sign Keeper</a> gets the quote signed first, so the invoice you chase later has an agreement behind it.</p>
+    <p>Customers who cancel on purpose instead? <a href="../cancel-flow/">Cancel Flow</a> asks why and offers a pause or discount that fits the reason. To see what both do to your numbers, <a href="../mrr-pulse/">MRR Pulse</a> shows MRR, churn and net revenue retention from a read-only Stripe key. Selling software? <a href="../license-keeper/">License Keeper</a> issues and revokes license keys from the same Stripe account.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. They charge your customers and email them on your behalf: you are the operator, responsible for your own Stripe account, your terms with customers and the email and consumer-protection rules where they live. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { DECLINE_CODES, classifyDecline, planRecovery, formatMoney } from "./dunning.mjs";
+    import { renderEmail } from "./templates.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const WHY = {
+      hard: "The issuer says do not retry. We only ask for a different card.",
+      update: "The card itself is unusable. Retrying is futile until it is replaced.",
+      funds: "Money may arrive later. Retries are spread out and can follow payday.",
+      auth: "The bank wants the customer to confirm. Only they can do that.",
+      soft: "Temporary or unspecified. Spaced retries, plus a heads-up to the customer.",
+    };
+    const WHAT = { retry: "Retry the payment", expire: "Give up: alert you (and cancel only if you enabled it)" };
+    $("code").innerHTML = DECLINE_CODES.map((c) => `<option>${c}</option>`).join("");
+    $("code").value = "insufficient_funds";
+    const now = new Date(); now.setUTCSeconds(0, 0);
+    $("when").value = now.toISOString().slice(0, 16);
+    const fmt = (ms) => new Date(ms).toISOString().slice(0, 16).replace("T", " ");
+    let steps = [];
+    function plan() {
+      const t0 = Date.parse($("when").value + "Z");
+      if (!Number.isFinite(t0)) return;
+      const grace = Math.min(60, Math.max(3, Number($("grace").value) || 14));
+      const p = planRecovery({ declineCode: $("code").value, t0, policy: { graceDays: grace, emailDays: [0, 3, 7, 11].filter((d) => d <= grace), paydayAware: $("payday").value === "1" } });
+      steps = p.steps;
+      $("cls").textContent = p.class; $("why").textContent = WHY[p.class];
+      $("rows").innerHTML = p.steps.map((s) => `<tr><td>${fmt(s.at)}</td><td>${s.kind === "email" ? "Email: " + s.template : WHAT[s.kind]}</td></tr>`).join("");
+      const emails = p.steps.filter((s) => s.kind === "email").map((s) => s.template);
+      const keep = $("tpl").value;
+      $("tpl").innerHTML = emails.map((t) => `<option>${t}</option>`).join("");
+      if (emails.includes(keep)) $("tpl").value = keep;
+      mail();
+      record("plan");
+    }
+    function mail() {
+      if (!$("tpl").value) return;
+      const m = renderEmail($("tpl").value, { name: "Sam", amount: formatMoney(Number($("amt").value || 49) * 100, "usd"), company: "Acme", address: "Your address", update_url: "https://dunning.example.com/update/…", deadline: fmt(Date.parse($("when").value + "Z") + 86400000 * (Number($("grace").value) || 14)).slice(0, 10) });
+      $("mail").textContent = `Subject: ${m.subject}\n\n${m.text}`;
+    }
+    function roi() {
+      const n = Number($("n").value) || 0, a = Number($("amt").value) || 0;
+      const d = Math.max(0, Math.min(100, Number($("r1").value) || 0)) - Math.max(0, Math.min(100, Number($("r0").value) || 0));
+      const gain = (n * a * d) / 100;
+      $("gain").textContent = formatMoney(Math.round(gain * 100), "usd");
+      $("gain12").textContent = `(${formatMoney(Math.round(gain * 1200), "usd")} over a year if the subscribers stay, before their later renewals)`;
+    }
+    for (const id of ["code", "when", "grace", "payday"]) $(id).addEventListener("input", plan);
+    $("tpl").addEventListener("input", mail);
+    for (const id of ["n", "amt", "r0", "r1"]) $(id).addEventListener("input", () => { roi(); mail(); });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    plan(); roi();
+  </script>
+</body>
+</html>

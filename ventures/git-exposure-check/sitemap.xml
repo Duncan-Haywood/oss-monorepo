@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/git-exposure-check/</loc></url>
+<url><loc>https://example.invalid/git-exposure-check/vs-checking-the-url-by-hand.html</loc></url>
+<url><loc>https://example.invalid/git-exposure-check/how-to-fix-an-exposed-git-directory.html</loc></url>
+<url><loc>https://example.invalid/git-exposure-check/how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html</loc></url>
 </urlset>

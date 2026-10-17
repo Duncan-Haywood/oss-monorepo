@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vending Machine Planogram Optimizer: Coils per Product — Free</title>
+  <meta name="description" content="Free vending machine planogram tool: enter your coils, each product's price, cost, weekly sales and units per coil, and get the coil split that earns the most, plus the best restocking gap. Nothing uploaded.">
+  <meta property="og:title" content="Vending machine planogram optimizer">
+  <meta property="og:description" content="How many coils should each snack get? The exact best split for your vending machine, and how often to restock. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vending Machine Planogram Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find how many coils each product should get in a vending machine to earn the most per week, and how often to restock. Runs in your browser.","featureList":"Exact best coil split, sell-out probability, perishable waste, substitution when sold out, restock interval scan, value of one more coil, CSV"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many coils should each vending machine product get?","acceptedAnswer":{"@type":"Answer","text":"Give coils where an extra coil earns the most. Each product's profit rises with its coils but with diminishing returns: the first coil catches most of the demand, later ones only cover busy weeks. The tool computes the exact best split of your coils from each product's price, cost, weekly sales and units per coil, so a fast mover gets more coils and a slow, high-margin item gets just enough."}},{"@type":"Question","name":"Why do vending machines sell out of the best sellers first?","acceptedAnswer":{"@type":"Answer","text":"Coils are usually split evenly by habit, but demand is not. A product selling 70 a week on 4 coils of 10 sells out in four days, while a product selling 6 a week sits for months. Moving coils from the slow item to the fast one turns missed sales into profit with no extra visits."}},{"@type":"Question","name":"How often should I restock a vending machine?","acceptedAnswer":{"@type":"Answer","text":"Enter what a restocking visit costs you (drive time, fuel, labour). The tool re-optimises the coils for restock gaps from 2 to 14 days and shows weekly profit after visit costs for each, so you can see whether visiting less often loses more in sell-outs than it saves in trips."}},{"@type":"Question","name":"What about customers who switch when their pick is sold out?","acceptedAnswer":{"@type":"Answer","text":"Set the substitution share, the portion of a sold-out product's unmet demand that buys something else in stock. The recommended layout is re-measured against your current one on thousands of identical simulated restock intervals with that switching included, and the gain is shown with its standard error."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. It runs in your browser; nothing you type leaves your device."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">VENDING MACHINE PLANOGRAM OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many coils should each product get in my vending machine?</h1>
+    <p>Enter the machine's coils, how often you restock, and each product's price, cost, weekly sales and units per coil. The tool finds the exact split of coils that earns the most, shows which products sell out between visits, what a restocking trip is worth, and the best gap between visits.</p>
+    <p class="note">Arithmetic and simulation on figures you type. Not machine-compatibility, food-safety or licensing advice. The example machine, products and prices are placeholders, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-g">
+      <h2 id="h-g">Your machine and route</h2>
+      <div class="grid">
+        <div><label for="coils">Coils (slots) in the machine</label><input id="coils" type="text" value=""><p class="note">Count every slot you can fill with product, such as 36.</p></div>
+        <div><label for="visitDays">Days between restocking visits</label><input id="visitDays" type="text" value=""><p class="note">How often you really refill this machine.</p></div>
+        <div><label for="visitCost">Cost of one restocking visit ($)</label><input id="visitCost" type="text" value=""><p class="note">Fuel, vehicle wear and your time or a driver's. Used to find the best gap between visits.</p></div>
+        <div><label for="substitutionPct">Switch to something else when sold out (%)</label><input id="substitutionPct" type="text" value=""><p class="note">Of the customers who find their pick empty, the share who buy another item. 0 is cautious; 30 is typical for snacks.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Products (up to 12)</h2>
+      <p class="note">"Sells a week" is units sold in a normal week when it never runs out (if it often sells out, use a bit more than you see). "Units per coil" is how many fit in one coil. Perishable items that are not sold by the next visit are thrown out. "Min coils" keeps a product in the machine (a staple, a contract item); "Max coils" caps it. Put today's layout in "Coils now" to see the gain; leave it blank to compare with an even split.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Product</th><th>Price ($)</th><th>Unit cost ($)</th><th>Sells a week</th><th>Units per coil</th><th>Perishable?</th><th>Min coils</th><th>Max coils</th><th>Coils now</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="p0_name" type="text" aria-label="Product 1 product" value=""></td><td><input id="p0_price" type="text" aria-label="Product 1 price" value=""></td><td><input id="p0_cost" type="text" aria-label="Product 1 unit cost" value=""></td><td><input id="p0_weekly" type="text" aria-label="Product 1 sells a week" value=""></td><td><input id="p0_perCoil" type="text" aria-label="Product 1 units per coil" value=""></td><td><input id="p0_perishable" type="text" aria-label="Product 1 perishable?" value=""></td><td><input id="p0_minCoils" type="text" aria-label="Product 1 min coils" value=""></td><td><input id="p0_maxCoils" type="text" aria-label="Product 1 max coils" value=""></td><td><input id="p0_now" type="text" aria-label="Product 1 coils now" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="p1_name" type="text" aria-label="Product 2 product" value=""></td><td><input id="p1_price" type="text" aria-label="Product 2 price" value=""></td><td><input id="p1_cost" type="text" aria-label="Product 2 unit cost" value=""></td><td><input id="p1_weekly" type="text" aria-label="Product 2 sells a week" value=""></td><td><input id="p1_perCoil" type="text" aria-label="Product 2 units per coil" value=""></td><td><input id="p1_perishable" type="text" aria-label="Product 2 perishable?" value=""></td><td><input id="p1_minCoils" type="text" aria-label="Product 2 min coils" value=""></td><td><input id="p1_maxCoils" type="text" aria-label="Product 2 max coils" value=""></td><td><input id="p1_now" type="text" aria-label="Product 2 coils now" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="p2_name" type="text" aria-label="Product 3 product" value=""></td><td><input id="p2_price" type="text" aria-label="Product 3 price" value=""></td><td><input id="p2_cost" type="text" aria-label="Product 3 unit cost" value=""></td><td><input id="p2_weekly" type="text" aria-label="Product 3 sells a week" value=""></td><td><input id="p2_perCoil" type="text" aria-label="Product 3 units per coil" value=""></td><td><input id="p2_perishable" type="text" aria-label="Product 3 perishable?" value=""></td><td><input id="p2_minCoils" type="text" aria-label="Product 3 min coils" value=""></td><td><input id="p2_maxCoils" type="text" aria-label="Product 3 max coils" value=""></td><td><input id="p2_now" type="text" aria-label="Product 3 coils now" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="p3_name" type="text" aria-label="Product 4 product" value=""></td><td><input id="p3_price" type="text" aria-label="Product 4 price" value=""></td><td><input id="p3_cost" type="text" aria-label="Product 4 unit cost" value=""></td><td><input id="p3_weekly" type="text" aria-label="Product 4 sells a week" value=""></td><td><input id="p3_perCoil" type="text" aria-label="Product 4 units per coil" value=""></td><td><input id="p3_perishable" type="text" aria-label="Product 4 perishable?" value=""></td><td><input id="p3_minCoils" type="text" aria-label="Product 4 min coils" value=""></td><td><input id="p3_maxCoils" type="text" aria-label="Product 4 max coils" value=""></td><td><input id="p3_now" type="text" aria-label="Product 4 coils now" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="p4_name" type="text" aria-label="Product 5 product" value=""></td><td><input id="p4_price" type="text" aria-label="Product 5 price" value=""></td><td><input id="p4_cost" type="text" aria-label="Product 5 unit cost" value=""></td><td><input id="p4_weekly" type="text" aria-label="Product 5 sells a week" value=""></td><td><input id="p4_perCoil" type="text" aria-label="Product 5 units per coil" value=""></td><td><input id="p4_perishable" type="text" aria-label="Product 5 perishable?" value=""></td><td><input id="p4_minCoils" type="text" aria-label="Product 5 min coils" value=""></td><td><input id="p4_maxCoils" type="text" aria-label="Product 5 max coils" value=""></td><td><input id="p4_now" type="text" aria-label="Product 5 coils now" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="p5_name" type="text" aria-label="Product 6 product" value=""></td><td><input id="p5_price" type="text" aria-label="Product 6 price" value=""></td><td><input id="p5_cost" type="text" aria-label="Product 6 unit cost" value=""></td><td><input id="p5_weekly" type="text" aria-label="Product 6 sells a week" value=""></td><td><input id="p5_perCoil" type="text" aria-label="Product 6 units per coil" value=""></td><td><input id="p5_perishable" type="text" aria-label="Product 6 perishable?" value=""></td><td><input id="p5_minCoils" type="text" aria-label="Product 6 min coils" value=""></td><td><input id="p5_maxCoils" type="text" aria-label="Product 6 max coils" value=""></td><td><input id="p5_now" type="text" aria-label="Product 6 coils now" value=""></td></tr>
+<tr><th scope="row">7</th><td><input id="p6_name" type="text" aria-label="Product 7 product" value=""></td><td><input id="p6_price" type="text" aria-label="Product 7 price" value=""></td><td><input id="p6_cost" type="text" aria-label="Product 7 unit cost" value=""></td><td><input id="p6_weekly" type="text" aria-label="Product 7 sells a week" value=""></td><td><input id="p6_perCoil" type="text" aria-label="Product 7 units per coil" value=""></td><td><input id="p6_perishable" type="text" aria-label="Product 7 perishable?" value=""></td><td><input id="p6_minCoils" type="text" aria-label="Product 7 min coils" value=""></td><td><input id="p6_maxCoils" type="text" aria-label="Product 7 max coils" value=""></td><td><input id="p6_now" type="text" aria-label="Product 7 coils now" value=""></td></tr>
+<tr><th scope="row">8</th><td><input id="p7_name" type="text" aria-label="Product 8 product" value=""></td><td><input id="p7_price" type="text" aria-label="Product 8 price" value=""></td><td><input id="p7_cost" type="text" aria-label="Product 8 unit cost" value=""></td><td><input id="p7_weekly" type="text" aria-label="Product 8 sells a week" value=""></td><td><input id="p7_perCoil" type="text" aria-label="Product 8 units per coil" value=""></td><td><input id="p7_perishable" type="text" aria-label="Product 8 perishable?" value=""></td><td><input id="p7_minCoils" type="text" aria-label="Product 8 min coils" value=""></td><td><input id="p7_maxCoils" type="text" aria-label="Product 8 max coils" value=""></td><td><input id="p7_now" type="text" aria-label="Product 8 coils now" value=""></td></tr>
+<tr><th scope="row">9</th><td><input id="p8_name" type="text" aria-label="Product 9 product" value=""></td><td><input id="p8_price" type="text" aria-label="Product 9 price" value=""></td><td><input id="p8_cost" type="text" aria-label="Product 9 unit cost" value=""></td><td><input id="p8_weekly" type="text" aria-label="Product 9 sells a week" value=""></td><td><input id="p8_perCoil" type="text" aria-label="Product 9 units per coil" value=""></td><td><input id="p8_perishable" type="text" aria-label="Product 9 perishable?" value=""></td><td><input id="p8_minCoils" type="text" aria-label="Product 9 min coils" value=""></td><td><input id="p8_maxCoils" type="text" aria-label="Product 9 max coils" value=""></td><td><input id="p8_now" type="text" aria-label="Product 9 coils now" value=""></td></tr>
+<tr><th scope="row">10</th><td><input id="p9_name" type="text" aria-label="Product 10 product" value=""></td><td><input id="p9_price" type="text" aria-label="Product 10 price" value=""></td><td><input id="p9_cost" type="text" aria-label="Product 10 unit cost" value=""></td><td><input id="p9_weekly" type="text" aria-label="Product 10 sells a week" value=""></td><td><input id="p9_perCoil" type="text" aria-label="Product 10 units per coil" value=""></td><td><input id="p9_perishable" type="text" aria-label="Product 10 perishable?" value=""></td><td><input id="p9_minCoils" type="text" aria-label="Product 10 min coils" value=""></td><td><input id="p9_maxCoils" type="text" aria-label="Product 10 max coils" value=""></td><td><input id="p9_now" type="text" aria-label="Product 10 coils now" value=""></td></tr>
+<tr><th scope="row">11</th><td><input id="p10_name" type="text" aria-label="Product 11 product" value=""></td><td><input id="p10_price" type="text" aria-label="Product 11 price" value=""></td><td><input id="p10_cost" type="text" aria-label="Product 11 unit cost" value=""></td><td><input id="p10_weekly" type="text" aria-label="Product 11 sells a week" value=""></td><td><input id="p10_perCoil" type="text" aria-label="Product 11 units per coil" value=""></td><td><input id="p10_perishable" type="text" aria-label="Product 11 perishable?" value=""></td><td><input id="p10_minCoils" type="text" aria-label="Product 11 min coils" value=""></td><td><input id="p10_maxCoils" type="text" aria-label="Product 11 max coils" value=""></td><td><input id="p10_now" type="text" aria-label="Product 11 coils now" value=""></td></tr>
+<tr><th scope="row">12</th><td><input id="p11_name" type="text" aria-label="Product 12 product" value=""></td><td><input id="p11_price" type="text" aria-label="Product 12 price" value=""></td><td><input id="p11_cost" type="text" aria-label="Product 12 unit cost" value=""></td><td><input id="p11_weekly" type="text" aria-label="Product 12 sells a week" value=""></td><td><input id="p11_perCoil" type="text" aria-label="Product 12 units per coil" value=""></td><td><input id="p11_perishable" type="text" aria-label="Product 12 perishable?" value=""></td><td><input id="p11_minCoils" type="text" aria-label="Product 12 min coils" value=""></td><td><input id="p11_maxCoils" type="text" aria-label="Product 12 max coils" value=""></td><td><input id="p11_now" type="text" aria-label="Product 12 coils now" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best coil split</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">The same figures always give the same answer.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions vending operators ask</h2>
+      <h3>How many coils should each vending machine product get?</h3>
+      <p>Give coils where an extra coil earns the most. Each product's profit rises with its coils but with diminishing returns: the first coil catches most of the demand, later ones only cover busy weeks. The tool computes the exact best split of your coils from each product's price, cost, weekly sales and units per coil, so a fast mover gets more coils and a slow, high-margin item gets just enough.</p>
+      <h3>Why do vending machines sell out of the best sellers first?</h3>
+      <p>Coils are usually split evenly by habit, but demand is not. A product selling 70 a week on 4 coils of 10 sells out in four days, while a product selling 6 a week sits for months. Moving coils from the slow item to the fast one turns missed sales into profit with no extra visits.</p>
+      <h3>How often should I restock a vending machine?</h3>
+      <p>Enter what a restocking visit costs you (drive time, fuel, labour). The tool re-optimises the coils for restock gaps from 2 to 14 days and shows weekly profit after visit costs for each, so you can see whether visiting less often loses more in sell-outs than it saves in trips.</p>
+      <h3>What about customers who switch when their pick is sold out?</h3>
+      <p>Set the substitution share, the portion of a sold-out product's unmet demand that buys something else in stock. The recommended layout is re-measured against your current one on thousands of identical simulated restock intervals with that switching included, and the gain is shown with its standard error.</p>
+      <h3>Is my data uploaded?</h3>
+      <p>No. It runs in your browser; nothing you type leaves your device.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which products fit which coil sizes or spiral types, shelf-life rules, health and food-safety requirements, location agreements and commissions, card-reader fees, price changes, and seasonal or day-of-week swings. Weekly sales are treated as an average with random (Poisson) variation, independent between products; a product that is hidden or badly placed sells less than its number says. The optimiser ignores sell-out substitution (so it can only understate), and the gain over today is then measured with substitution included. Prices and costs are placeholders, not any business's.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../vending-machine-route-margin/">vending machine route margin calculator</a>, the <a href="../service-van-stock-optimizer/">service van stock optimizer</a> and the <a href="../small-batch-run-size-optimizer/">small batch run size optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are simulation and arithmetic on figures you type; verify with a qualified professional before relying on them, and check any product choice against your machine's specification and your local food-safety and licensing rules. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in this browser's local storage, can be switched off below, and honour Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, PRODUCT_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_PRODUCTS, MAX_PRODUCTS, money, money2, one, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const SKEYS = Object.keys(SHARED_DEFAULTS), PKEYS = Object.keys(PRODUCT_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < MAX_PRODUCTS; i++) for (const k of PKEYS) $("p" + i + "_" + k).value = (EXAMPLE_PRODUCTS[i] || PRODUCT_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const rows = []; for (let i = 0; i < MAX_PRODUCTS; i++) { const p = {}; for (const k of PKEYS) p[k] = $("p" + i + "_" + k).value; rows.push(p); }
+      return { shared, rows };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i > 0 ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i > 0 ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const input = readAll();
+      const a = analyze(input.rows, input.shared);
+      let h = "";
+      for (const w of (a.warnings || [])) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const base = a.haveNow ? "your layout today" : "an even split of the coils";
+      const verdict = a.deltaWeekly > 0 && a.significant ? "earns about " + money(a.deltaWeekly) + " more a week" : a.deltaWeekly < 0 && a.significant ? "earns less than the comparison (" + base + ")" : "is not clearly different (" + base + ")";
+      h += `<div class="finding"><h4>The recommended split ${verdict}</h4><p>Against ${base}: ${money(a.cur.weeklyNet)} a week after visit costs now, ${money(a.rec.weeklyNet)} with the recommended split (difference ${money(a.deltaWeekly)} ± ${money(a.deltaSe)}, one standard error, over ${a.nSim} identical simulated restock intervals). That is about ${money(a.monthly)} a month. Sales lost to empty coils fall from ${one(a.cur.missedPerWeek)} to ${one(a.rec.missedPerWeek)} units a week.</p></div>`;
+      h += table(["Product", "Coils now", "Recommended", "Units loaded", "Sold a week", "Sold out before next visit", "Profit a week"], a.rows.map((r) => [esc(r.name) + (r.perishable ? " (perishable)" : ""), r.now, r.coils, r.unitsPerVisit, one(r.soldPerWeek), r.sellOutPct === null ? "-" : Math.round(r.sellOutPct) + "%", money2(r.weeklyProfit)]));
+      h += `<div class="finding"><h4>What one coil is worth</h4><p>One more coil in the machine would add about ${money2(a.extraCoil)} a week; losing one would cost about ${money2(a.fewerCoil)} a week. ${a.extraCoil < 1 ? "The machine has more coils than the products can use well, so the next dollar is better spent on a better product or location." : ""}</p></div>`;
+      h += `<div class="finding"><h4>How often to restock</h4>${table(["Days between visits", "Profit before visits", "Visits a week", "Profit after visit costs"], a.intervals.map((r) => [r.days + (r.current ? " (yours)" : "") + (r.days === a.bestInterval.days ? " (best)" : ""), money(r.gross), one(r.visits), money(r.net)]))}<p class="note">Each row re-optimises the coils for that gap, using the visit cost you entered.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download the plan (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "vending-planogram.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

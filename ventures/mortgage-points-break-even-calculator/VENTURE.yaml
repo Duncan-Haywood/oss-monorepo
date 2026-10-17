@@ -1,0 +1,54 @@
+name: mortgage-points-break-even-calculator
+description: >-
+  Free browser tool for anyone choosing between a mortgage rate with discount points and one without:
+  type the two rates, the cost of the points, the loan and how long you expect to keep it, and see the
+  break-even month, the return the points earn, how far ahead or behind you are when you sell or
+  refinance, and the chance you finish ahead. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "mortgage points buy down
+# breakeven" scored 0.16 at best (home-office-deduction-calculator, like-kind-exchange-1031-calculator;
+# lexical noise). No venture compares two loan offers by break-even, cash opportunity cost and the chance
+# the loan ends early.
+#
+# Why this niche: every home buyer and refinancer is offered points on a Loan Estimate, the decision is
+# worth thousands of dollars and is made in days, and the lender's own break-even ignores both the return
+# on the cash and the high odds that most loans end in under ten years. "Mortgage points break even
+# calculator" and "are mortgage points worth it" are high-volume, evergreen, rate-cycle sensitive searches.
+#
+# First visitor: a buyer or refinancer in r/FirstTimeHomeBuyer, r/personalfinance or a Bogleheads thread
+# holding a Loan Estimate with a points option. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; not lending, tax or financial advice; embeds no
+# rates, lender names or market data; says to check the Loan Estimate; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable one-page
+# comparison to show a spouse or loan officer, a lender-credit mode and a refinance-vs-stay comparison
+# (not built).
+
+hypotheses:
+  - claim: >-
+      Buyers holding a Loan Estimate with a points option will type both offers into a private page to see
+      the break-even and the chance of finishing ahead, because the lender shows only the simple break-even.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user or adviser reports that a worked break-even or return on points disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-points-break-even-calculator/
+  analytics: null

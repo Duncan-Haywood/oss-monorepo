@@ -1,0 +1,51 @@
+name: webhook-signature-debugger
+description: 'Free tool that verifies a webhook signature (Stripe, GitHub, Shopify, Slack, Standard Webhooks/Svix) from pasted headers, raw body and secret, and when it fails finds why -- re-serialised JSON, trailing newline, CRLF, whitespace in the secret, wrong whsec_ form -- in the browser (Web Crypto) or as a zero-dependency Node CLI that can also sign payloads for local replay; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency developer checks. duplicate_check.py's closest matches were
+# jwt-verification-misuse-check (0.21), which audits JWT code, and
+# email-auth-check (SPF/DKIM/DMARC DNS records); neither verifies an HMAC
+# webhook signature against a request. Not in screened-out.md. The paid
+# category it substitutes for is hosted webhook inspectors (Hookdeck,
+# webhook.site Pro) used mainly to debug signatures; the free alternatives are
+# provider CLIs that only cover their own provider.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Everything runs on the visitor's device; the risk is a user pasting a live
+# secret, which the page warns against (use a test or rotated secret) and which
+# never leaves the tab. Framed as a debugging aid, not security advice.
+#
+# First visitor channel: search for "stripe webhook signature verification
+# failed", "x-hub-signature-256 mismatch", "shopify hmac validation failed",
+# and the provider-docs/StackOverflow threads where the accepted answer is
+# always "use the raw body".
+hypotheses:
+  - claim: 'A developer whose webhook verification fails in production will paste one captured request and find that a re-serialised body or wrong-environment secret is the cause, faster than reading provider docs.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'Developers will use the CLI --sign mode to replay signed test requests at a local endpoint instead of relying on a hosted inspector.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs or webhook.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/webhook-signature-debugger/
+  analytics: null

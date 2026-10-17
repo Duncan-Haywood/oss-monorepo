@@ -1,0 +1,4 @@
+{
+  "url": "",
+  "note": "The origin of the deployed platform/counter process (https only). Empty = no beacon on the published site. Committed rather than an env var so every publisher (the workflow and any session running publish-branch.sh) builds the same thing."
+}

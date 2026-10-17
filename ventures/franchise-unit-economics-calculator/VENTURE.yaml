@@ -1,0 +1,57 @@
+name: franchise-unit-economics-calculator
+description: >-
+  Free browser tool for people weighing a franchise purchase: franchise fee, build-out, loan,
+  sales ramp, costs and royalties in; month-by-month cash, payback, cash-on-cash and IRR,
+  break-even sales, a cash-cushion check, loan cover, a sensitivity grid and the sales lift the
+  brand must deliver to beat going independent out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "franchise unit
+# economics royalty payback" scored 0.31 against the nearest venture (agent-brokerage-split-
+# calculator, a different fee split); sba-loan-capacity-calculator covers the lender's side of
+# the same loan.
+#
+# Why this niche: a franchise purchase is a $100k-$1M+ decision made on a franchisor's sales
+# pitch. Franchisor and broker calculators are sales tools; generic ROI calculators ignore the
+# ramp-up, the royalty taken off gross sales in losing months, the minimum royalty and the
+# cash cushion, which is where under-funded openings fail. The honest answers are payback,
+# break-even sales, the month cash runs out, and the sales lift at which the brand beats
+# opening the same business independently.
+#
+# First visitor: first-time buyers searching "franchise ROI calculator" / "is franchise X worth
+# it", and franchise-resale and r/franchising readers. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no review of a franchise agreement or
+# disclosure document, no sales prediction, no tax, financing or legal advice; defaults are
+# placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted version that
+# imports FDD Item 7 / Item 19 figures per brand and prints a lender-ready pro forma (not built).
+
+hypotheses:
+  - claim: >-
+      Prospective franchise buyers will use a private unit-economics tool that shows the cash
+      cushion needed and the sales lift the brand must deliver, because franchisor and broker
+      calculators assume the purchase is a good one and ignore the ramp-up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A franchise buyer or lender reports that the cash arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/franchise-unit-economics-calculator/
+  analytics: null

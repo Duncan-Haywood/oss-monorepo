@@ -1,0 +1,32 @@
+name: shopify-inventory-csv-check
+description: >-
+  Free browser tool that checks a Shopify inventory import CSV before it is uploaded: a missing or
+  misspelled On hand (new) column, quantities that are text, fractions, negative or carry a thousands
+  comma, tenfold jumps from the current figure, two rows for the same variant and location, handles
+  retyped so they match no product, locations spelled two ways, and SKUs Excel turned into scientific
+  notation, each with its line number, plus a safe-fixes pass that cleans formatting only and never
+  changes a quantity's value. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Shopify merchants who run stock by spreadsheet
+# (bulk recounts, a supplier delivery, a move between locations) export inventory, edit it and import
+# it back. The portfolio checks Shopify product and customer imports and plans reorders; nothing reads
+# the inventory file. Its costly faults are quiet ones: a renamed quantity column the importer ignores
+# (nothing updates, no error), a blank cell that means "no change", a duplicate variant-and-location
+# row where one count silently wins, and an extra zero that sets stock ten times too high.
+#
+# First visitor: store owners and ops staff searching literal symptoms ("Shopify inventory import
+# not updating", "Shopify inventory CSV on hand new", "Shopify bulk update inventory CSV error").
+# Volume not measured with an external tool.
+#
+# Privacy: product and stock data stays in the browser (a test asserts no network calls).
+# Rules are read from memory of Shopify's public CSV help, shown on the page with an explicit
+# not-checked list (handles that exist, locations that exist, movement since the export).
+#
+# Path to revenue (payment rails stay off): lead magnet for the Shopify merchant and agency
+# audience, cross-linked to the product, customer, reorder and fee tools. A paid version, if usage
+# appears, is saved rules and bulk checks across client stores behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Shopify clause, trademark used nominatively.

@@ -1,0 +1,35 @@
+48 contexts x 3 urgency classes (mix [0.5, 0.35, 0.15])
+
+1. Best mode by urgency (share of contexts)
+  low     {'none': 0.12, 'speech': 0.0, 'glance': 0.58, 'chime_glance': 0.29}
+  normal  {'none': 0.06, 'speech': 0.12, 'glance': 0.19, 'chime_glance': 0.62}
+  high    {'none': 0.04, 'speech': 0.33, 'glance': 0.0, 'chime_glance': 0.62}
+
+2. Value of adding chime_glance (mean utility per message, urgency mix)
+  best of 3 modes 0.3505; best of 4 modes 0.4166; gain 0.0661
+  gain for low    : 0.0153
+  gain for normal : 0.0921
+  gain for high   : 0.1747
+
+3. Monte Carlo check (|closed form - simulation|, 200000 draws)
+  worst abs difference over 36 cases: 0.0017
+
+4. Sensitivity of the 4-mode choice (share of (context, urgency) cells whose best mode changes)
+  chime_cost      x0.5: 0.11   x2: 0.16
+  chime_mask      x0.5: 0.10   x2: 0.22
+  react_rate      x0.5: 0.08   x2: 0.08
+  look_rate       x0.5: 0.10   x2: 0.22
+  c_speech_per_s  x0.5: 0.07   x2: 0.08
+
+5. Twin gap: regret (utility per message) of choosing modes with an assumed value
+  react_rate assumed 0.5: true 0.1: 0.0184, true 0.2: 0.0052, true 1.0: 0.0038, true 2.0: 0.0099
+  look_rate assumed 0.1: true 0.02: 0.0163, true 0.05: 0.0062, true 0.2: 0.0079, true 0.4: 0.0160
+  chime_mask assumed 0.5: true 0.0: 0.0114, true 1.0: 0.0125
+
+6. Utilities of each mode for high urgency vs react_rate (words 6, noise 0.5, others talking, eyes free)
+  react_rate  0.0: best=glance, none=0.000, speech=0.760, glance=0.822, chime_glance=0.742
+  react_rate 0.02: best=chime_glance, none=0.000, speech=0.760, glance=0.822, chime_glance=0.835
+  react_rate 0.05: best=chime_glance, none=0.000, speech=0.760, glance=0.822, chime_glance=0.956
+  react_rate  0.1: best=chime_glance, none=0.000, speech=0.760, glance=0.822, chime_glance=1.114
+  react_rate  0.2: best=chime_glance, none=0.000, speech=0.760, glance=0.822, chime_glance=1.318
+  react_rate  0.5: best=chime_glance, none=0.000, speech=0.760, glance=0.822, chime_glance=1.525

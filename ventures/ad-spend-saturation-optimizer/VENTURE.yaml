@@ -1,0 +1,64 @@
+name: ad-spend-saturation-optimizer
+description: >-
+  Free browser tool for online sellers and marketers running several ad
+  channels: upload weekly or daily spend and revenue per channel and get a
+  fitted diminishing-returns curve for each, the marginal return on the next
+  dollar, the split of the same budget that earns most, where extra spend stops
+  paying at your margin, and a back-test on your own recent weeks. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "ad spend saturation curve marginal ROAS budget reallocation across channels
+# from daily spend and revenue CSV": top match 0.16 (meta-ads-fatigue-analyzer,
+# which reads creative fatigue inside one platform export), nothing near it.
+# A reorder-point planner was the first idea; shopify-inventory-reorder-planner
+# already covers that buyer, so it was not repeated. Adjacent ventures are
+# amazon-ppc-search-term-analyzer (keyword waste in one platform) and
+# home-service-lead-roi-analyzer (lead-source ROI as an average); none fits a
+# response curve across channels or reallocates a budget. Paid alternatives are
+# marketing-mix-modelling suites and agencies that ask for the ad accounts; the
+# differentiators are that the data stays on the device and the tool tests
+# itself so the owner can see how far to trust it.
+#
+# First visitor: searches "marginal ROAS", "diminishing returns ad spend",
+# "how to split ad budget between channels", "marketing mix model spreadsheet";
+# r/PPC, r/ecommerce, r/FulfillmentByAmazon and DTC newsletters. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: spend and revenue files never leave the
+# browser (tests assert no network calls). No platform is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be scheduled refreshes or a hosted API; not built.
+# Liability: statistical fit of supplied data, not advice; the page lists what
+# is not modelled and warns when the back-test misses. Unverified: tested on
+# simulated data with known curves only, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Owners and marketers of multi-channel ad accounts will use a private,
+      no-signup response-curve tool with a visible back-test, and will return
+      when they export new weeks of data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the fitted curves or the recommended split disagree with a standard reference implementation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/
+  analytics: null

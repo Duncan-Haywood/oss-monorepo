@@ -1,0 +1,22 @@
+== 1. Formulations, half-MBB 90x30, vf 0.5, p 3, filter radius 3 elements
+(model-c: compliance of the field the optimiser sees; discr-c: threshold at the same volume and re-analyse; Ms/Mv: minimum length scale of solid/void in pixels, 98% opening rule)
+formulation              model-c  discr-c  gap       grey  chk   Ms  Mv   iter
+sensitivity filter        211.46    190.34   -10.0%   26.0%   0.0%   3   3    96 
+density filter            223.90    191.03   -14.7%   34.3%   0.0%   3   3   200 
+density + Heaviside       192.10    191.95    -0.1%    0.6%   0.0%   3   3   210 final beta 64
+(section 1: 21 s)
+
+== 2. Mesh refinement, filter radius fixed at 3.33% of the beam length (rmin = nx/30 elements)
+mesh    formulation              model-c  discr-c  gap       grey  chk   Ms  Mv   iter   Ms/nx
+ 60x20  sensitivity filter        209.31    190.24    -9.1%   24.2%   0.0%   1   1    54   0.017
+ 60x20  density + Heaviside       189.64    189.57    -0.0%    0.2%   0.0%   1   1   210   0.017
+120x40  sensitivity filter        212.96    190.74   -10.4%   26.9%   0.0%   3   5    96   0.025
+120x40  density + Heaviside       192.89    191.92    -0.5%    1.4%   0.0%   3   3   210   0.025
+180x60  sensitivity filter        214.28    191.38   -10.7%   26.4%   0.0%   7   7   100   0.039
+180x60  density + Heaviside       194.74    193.87    -0.4%    1.2%   0.0%   5   7   210   0.028
+
+== 3. Beta continuation vs a large beta from the start (90x30, same 210 iterations)
+formulation              model-c  discr-c  gap       grey  chk   Ms  Mv   iter
+continuation 1..64        192.10    191.95    -0.1%    0.6%   0.0%   3   3   210 
+beta 16 from start        223.87    220.12    -1.7%    4.8%   0.0%   1   1   210 
+beta 64 from start        344.82    343.77    -0.3%    0.8%   0.0%   5   3   210 

@@ -1,0 +1,1326 @@
+period: 2026-10
+entries:
+  - venture: donor-retention-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built donor-retention-analyzer: a browser-local tool for small
+        nonprofits. Paste or upload a gift history (donor, date, amount) and pick the
+        fiscal year start; it computes retention by fiscal year (donors who gave in
+        two consecutive full years) with a 300-resample seeded bootstrap 80% range,
+        first-year versus repeat retention, net dollar retention, new and won-back
+        donors, concentration of the top ten donors, and LYBUNT and SYBUNT lists
+        ranked by expected dollars: a pooled empirical chance of giving within the
+        next 365 days by status and giving-years band (counted at past dates from
+        the organisation's own gifts, shrunk toward the overall rate), times the
+        median of the donor's last three gifts. A hold-out refits on older dates and
+        calls the model unstable when it misses the latest year's donor count by
+        more than 25%. Refuses under 30 donors, 60 gifts or two full fiscal years;
+        leaves unfinished and mid-year-start years out of every rate. New niche:
+        duplicate_check.py best match 0.12 (stripe-churn-cohort-analyzer, a
+        subscription tool); nothing in the catalogue serves charities. First visitor
+        expected from "how to calculate donor retention rate" and "LYBUNT report"
+        searches. Donor data never leaves the browser. Unverified on a real
+        organisation: tests use hand-counted retention and dollar retention, a fiscal
+        year starting in July, simulated memoryless donors with a known 50% chance
+        recovered by the model, a behaviour shift the hold-out must flag, and
+        no-network assertions. Registered score row, launch date, category rule and CI
+        workflow.
+    mrr_end: 0
+  - venture: private-practice-payer-mix-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built private-practice-payer-mix-calculator: a browser-local
+        tool for therapists and counselors in private practice. Paste one row per
+        payer (allowed amount, sessions a month, share of claims paid, days to
+        payment, billing minutes); it computes net per session and per clinical hour
+        for every insurance panel and the cash fee after denials, billing-service
+        fee and admin time, receivables owed, the break-even refill share for
+        dropping a panel (an empty slot earns nothing), annual results at 25 to 100
+        percent refill, and the contract rate that would match cash. Rows are payers,
+        never clients, so no PHI is taken. New niche: nothing in the catalogue serves
+        mental-health practices (nearest dental-ppo-writeoff-calculator). First
+        visitor expected from "insurance vs private pay therapist" searches. Unverified
+        on a real practice: tests use hand-calculated nets, an exact rate solve and
+        no-network assertions. Registered score row, launch date, category rule and CI
+        workflow; refreshed the front-door mirror and tree counts.
+    mrr_end: 0
+  - venture: market-garden-bed-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built market-garden-bed-planner: a browser-local crop-mix
+        planner for market gardens and small diversified farms. Enter one row per
+        crop (yield per bed-foot, price, days in bed, cost, labor, what can be
+        sold, a committed minimum) plus total bed-feet, season days and labor hours.
+        It solves the plan that earns the most as an exact bounded-simplex linear
+        program over bed-foot-days, labor hours and per-crop demand caps, and reads
+        the dual prices off the same solution: what one more bed-foot, labor hour
+        or 100 units of demand is worth, and the price rise that would bring each
+        left-out crop in. It also prices a plan sorted by profit per bed-foot under
+        the same limits (the folk method), re-solves with 10% more land or labor,
+        and runs 400 seeded seasons with a shared-shock yield and price swing for a
+        profit range. New niche after the e-commerce reorder, menu, agency, rent and
+        podcast niches all hit existing ventures (0.42 to 0.85); duplicate_check.py
+        best match here 0.21. First visitor expected from "which vegetables make the
+        most money per bed foot" and "market garden crop profitability" searches and
+        grower forums. Farm data never leaves the browser. Unverified on a working
+        farm: tests include a hand-solved two-crop plan, strong duality, 200 random
+        instances matched against exhaustive vertex enumeration, an optimizer-never-
+        worse-than-sorted property over 100 random farms, and no-network assertions;
+        a browser run loaded the example with no console errors and no axe violations.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: planning arithmetic on supplied figures, not advice, no warranty,
+      independence from vendors stated, limits stated. Farm data never leaves the
+      browser. Ethics: helps a small grower decide what to plant; nothing is sold,
+      no data is collected and no referral is made.
+  - venture: cottage-food-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cottage-food-pricing-calculator: a browser-local tool
+        for home bakers and cottage-food makers. Paste one row per product
+        (ingredients per batch, units, minutes, packaging, current price); it
+        computes the full cost per sellable unit including the maker's time,
+        overhead and unsold goods, the price to charge online, at a farmers market
+        (booth fee spread over units sold) and wholesale, with margin as a share of
+        price and the card fee paid out of it, a store shelf price, and what the
+        maker earns per hour at the current price. New niche: nothing in the
+        catalogue prices homemade food. First visitor expected from "how to price
+        baked goods" searches. Unverified on a real kitchen: tests use
+        hand-calculated costs and prices and no-network assertions. Registered
+        score row, launch date, category rule and CI workflow; refreshed the
+        front-door mirror and tree counts.
+    mrr_end: 0
+  - venture: freelance-retainer-vs-hourly-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-retainer-vs-hourly-calculator: a browser-local tool that replays a proposed
+        monthly retainer against a freelancer's own time log. Per client (at least six
+        months, zero-filled gaps) it reports mean, median and 80th-percentile monthly
+        hours with 300-resample seeded bootstrap ranges, the effective hourly rate at the
+        median, 80th-percentile and worst month, break-even hours, the share of months
+        where hourly would have paid more, the retainer that hits a target rate at a
+        chosen coverage percentile, and a hold-out that calls the history unstable when
+        average hours move more than 25%. duplicate_check.py best match 0.41
+        (freelance-writer-rate-calculator); freelance-retainer-calculator prices from
+        income-goal assumptions, not a log. First visitor expected from r/freelance,
+        r/consulting and "retainer vs hourly pricing" searches. Unverified on real logs:
+        tests use hand-counted months, a simulated uniform-hours client with a known
+        80th percentile, a shift the hold-out must flag, and no-network assertions.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
+  - venture: payroll-tax-deposit-penalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built payroll-tax-deposit-penalty-calculator: a browser-local
+        tool for small employers. Paste payday liabilities and deposits; it sets the
+        schedule from the lookback total ($50,000 line), dates every deposit (the
+        15th for monthly, Wednesday or Friday for semiweekly with the third-banking-day
+        holiday rule, the $100,000 next-day rule and the monthly-to-semiweekly switch,
+        a federal banking calendar computed from rules rather than a table), prices
+        late deposits at the 2%, 5% and 10% tiers, and shows the penalty three ways:
+        the IRS newest-liability-first default, oldest first, and the cheapest legal
+        designation of the user's own deposits, solved as a min-cost transportation
+        problem. Omits interest and the 15% post-notice tier and says so. New niche:
+        duplicate_check.py best match 0.20 (rd-tax-credit-calculator, an unrelated
+        credit); no Form 941 deposit tool exists in the catalogue. First visitor
+        expected from "monthly or semiweekly depositor", "failure to deposit penalty
+        calculator" and "941 deposit due dates" searches. Unverified by a tax
+        professional: tests pin hand-counted holidays and due dates, tier boundaries,
+        a worked designation example (default 1,040 vs designated 740), an optimality
+        property check and no-network assertions. Registered score row, launch date,
+        category rule and CI workflow.
+    mrr_end: 0
+  - venture: home-care-agency-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built home-care-agency-margin-calculator: a browser-local tool for non-medical
+        home care agencies. Paste one row per payer (bill rate, billed hours a month,
+        caregiver wage, share paid, days to payment, visit length, unpaid travel); it
+        loads each wage with payroll tax, workers' comp, overtime and unbilled drive
+        time, and computes cost, margin and margin percent per billed hour, the bill
+        rate that reaches a target margin, the monthly cost of a one-dollar wage raise,
+        receivables, and the break-even refill share for dropping a payer (an unfilled
+        hour earns and costs nothing). Rows are payers, never clients or caregivers, so
+        no PHI is taken. New niche: nothing in the catalogue serves home care (nearest
+        employee-cost-calculator, staffing-markup-calculator). First visitor expected
+        from "home care agency profit margin" searches. Unverified on a real agency:
+        tests use hand-calculated costs, exact rate solves and no-network assertions.
+        Registered score row, launch date, category rule and CI workflow. A first draft
+        of a towing venture was discarded after finding tow-motor-club-call-calculator
+        already covers it (slug greps missed the short stem).
+    mrr_end: 0
+  - venture: family-child-care-time-space-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built family-child-care-time-space-calculator: a browser-local
+        time-space percentage tool for home day care providers. Enter the rooms
+        used (exclusive-use rooms count at full area, others scaled by hours),
+        weekly care and prep hours, weeks open, days available and annual home
+        expenses. It reports the time share over 24 x days available, the
+        business-use share, each expense split into business and personal, a
+        simplified-method comparison with the rate and cap as inputs, and what one
+        more weekly hour is worth. New niche: childcare-tuition-calculator prices a
+        classroom and home-office-deduction-calculator is generic; neither does the
+        day-care hours-over-8,760 rule. First visitor expected from "time space
+        percentage calculator daycare" searches in provider communities. No child
+        or family data; nothing leaves the browser. Unverified on a filed return:
+        tests use hand-calculated shares, exclusive and regular rooms, cap and
+        validation cases and no-network assertions. Registered score row, launch
+        date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      tax-year constants are inputs, limits stated. No child data. Ethics: helps a
+      small provider compute a figure their preparer will check.
+  - venture: adu-payback-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built adu-payback-calculator: a browser-local payback and
+        return calculator for an accessory dwelling unit. Enter build cost lines
+        with contingency, financing share, rate and term, rent with vacancy,
+        management, owner-use months and growth, operating costs, hold period,
+        value uplift and discount rate. It projects year-by-year cash flow and
+        reports yield on cost, simple payback, equity IRR and NPV, the rent for
+        NPV zero and for year-1 cash zero, and rent and build-cost sensitivity
+        tables, with CSV export. New niche: duplicate_check.py top score 0.17, no
+        venture covers ADUs. First visitor expected from "is an ADU worth it" and
+        "ADU cost vs rental income" searches and r/ADU threads. Unverified on a
+        real project: tests use hand-calculated amortisation, IRR/NPV and
+        break-even cases and no-network assertions. Registered score row, launch
+        date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not investment or construction
+      advice, no warranty, no market data asserted, limits stated. Ethics: helps a
+      homeowner see the numbers before a large spend.
+  - venture: dog-grooming-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dog-grooming-profit-calculator: a browser-local tool for
+        dog groomers. Enter services with price, minutes, supplies and dogs per
+        week plus overhead; it reports profit per hour by service after card fees
+        and overhead, the price that hits an hourly target, own shop versus booth
+        rent versus commission on the same weekly mix, and the share of dogs a
+        price raise can lose before it costs money. New niche: no grooming venture
+        existed (duplicate_check.py closest 0.32, unrelated). First visitor expected
+        from "how much to charge for dog grooming" and "booth rent vs commission dog
+        groomer" searches and groomer communities. No client or pet data; nothing
+        leaves the browser. Unverified on a real shop's books: tests use
+        hand-calculated per-service, weekly, model and break-even cases. Registered
+        score row, launch date, category rule and CI workflow. Also published the
+        stale gh-pages snapshot at session start (pages_state: current).
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      limits stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: massage-therapist-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built massage-therapist-profit-calculator: a browser-local
+        tool for massage therapists. Enter session types with price, minutes,
+        supplies and sessions per week plus overhead and a no-show rate; it reports
+        profit per hour by session after card fees, no-shows and overhead, the price
+        that hits an hourly target (repriced for no-shows), own practice versus room
+        rent versus employee split on the same weekly mix, and the share of clients
+        a price raise can lose before it costs money. New niche: no massage venture
+        existed (duplicate_check.py closest 0.27, unrelated). First visitor expected
+        from "how much to charge for a massage" and "room rent vs commission
+        massage" searches and therapist communities. No client or health data;
+        nothing leaves the browser. Unverified on a real practice's books: tests use
+        hand-calculated per-session, no-show, weekly, model and break-even cases.
+        Registered score row, launch date, category rule and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty,
+      limits stated. No client or health data. Ethics: helps a small operator price
+      honestly.
+  - venture: dj-gig-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dj-gig-profit-calculator: a browser-local tool for
+        mobile and wedding DJs. Enter packages with price, event hours, gig costs
+        and gigs per month plus overhead; it reports profit per hour worked with
+        setup, travel and planning counted, the price that hits an hourly target,
+        direct clients versus a lead marketplace versus an agency subcontract on the
+        same mix, and the share of gigs a price raise can lose before it costs
+        money. New niche: no DJ venture existed (duplicate_check.py closest 0.38,
+        adjacent event trades). First visitor expected from "how much to charge as a
+        wedding DJ" searches and DJ communities. No client data; nothing leaves the
+        browser. Unverified on a real DJ's books: tests use hand-calculated cases.
+        Registered score row, launch date, category rule, rate decision and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: wedding-photographer-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built wedding-photographer-profit-calculator: a browser-local
+        tool for wedding and event photographers. Enter packages with price, coverage
+        hours, job costs and jobs per month plus overhead; it counts travel, client
+        time and culling and editing hours on every job and reports profit per hour
+        worked beside the headline rate per coverage hour, the price that hits an
+        hourly target, own clients versus a lead marketplace versus shooting for a
+        studio, and the share of jobs a price raise can lose before it costs money.
+        Niche check: duplicate_check.py closest 0.41 (photo-addon-pricing-calculator,
+        one add-on rather than whole packages). First visitor expected from "how much
+        to charge for wedding photography" searches. No client data; nothing leaves
+        the browser. Unverified on a real photographer's books: tests use
+        hand-calculated cases. Registered score row, launch date, category rule, rate
+        decision and CI workflow.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not tax advice, no warranty, limits
+      stated. No client data. Ethics: helps a small operator price honestly.
+  - venture: shipping-box-size-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built shipping-box-size-optimizer: a browser-local tool for
+        online sellers who pack their own orders. Enter products with packed size,
+        weight and orders per month plus the cartons on offer; it solves which 1 to
+        10 box sizes to stock (p-median: exact enumeration when small, multi-start
+        Teitz-Bart swap search otherwise) counting dimensional weight, box cost and
+        void fill, and reports the saving of each extra size, the box per product,
+        and today's boxes against the best set, with optional custom-size
+        candidates and a pasted rate card. New niche: duplicate_check.py closest
+        parcel-dim-weight-calculator 0.17 (single carton, now cross-linked). First
+        visitor expected from "what size shipping boxes should I stock" searches and
+        seller forums. No customer data; nothing leaves the browser. Unverified on a
+        real shop's invoices: tests use hand-calculated costs and check the local
+        search against exhaustive enumeration. Registered score row, launch date,
+        category rule, CI workflow and a guide page whose worked example is
+        recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and optimization on supplied figures, no carrier rates or
+      box prices asserted, surcharges not priced and said so, no warranty. No
+      customer data. Ethics: helps a small seller cut shipping waste.
+  - venture: container-load-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built container-load-planner: a browser-local 3D load planner
+        for small exporters, Amazon/FBA and DTC sellers shipping cartons or pallets.
+        Enter cargo lines (size, weight, quantity, rotation, highest layer, weight
+        allowed on top), pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box
+        truck, pallet or custom size; an extreme-point packer with seeded restarts
+        reports units packed and left over, volume and weight use, containers for the
+        whole load (greedy, tail merged), to-scale top and side views, a loading list
+        and a loose-versus-pallets comparison across every standard size, metric or
+        imperial. New niche: duplicate_check.py closest amazon-fba-calculator 0.20
+        (fees, not loading); shipping-box-size-optimizer is its cross-linked
+        neighbour. First visitor expected from "how many pallets fit in a 40ft
+        container" searches. No cargo data leaves the browser. Unverified on a real
+        loading: tests use hand-computed fits and random loads checked by an
+        independent verifier for overlap, bounds, payload, rotation, support and
+        stacking. Registered score row, launch date, category rule, CI workflow and a
+        guide page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and a packing heuristic on supplied figures, a planning
+      aid and not a load-securing, axle-weight or legal certificate, no freight rates
+      asserted, nominal container sizes labelled and editable, no warranty. No cargo
+      data. Ethics: helps a small shipper avoid over-booking space.
+  - venture: production-mix-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built production-mix-optimizer: a browser-local tool for
+        bakeries, workshops and small makers. Enter products (price, unit cost,
+        minimum, maximum, batch size) and limited resources (oven, machine, labour
+        hours, optional overtime); a two-phase simplex with branch and bound on whole
+        batches finds the most profitable weekly mix, then reports the shadow price of
+        each bottleneck and how far it holds, each product's resource cost and net per
+        unit, and the plan against two rule-of-thumb plans, with a CSV. New niche
+        after a first idea (container-load-planner) was merged by another session
+        minutes earlier (#6146); duplicate_check.py closest cnc-machining-quote-calculator
+        0.38 (generic word overlap, quotes one job). First visitor expected from "product
+        mix optimization" and "is overtime worth it" searches. No customer data; nothing
+        leaves the browser. Unverified on a real business: tests use hand-solved problems,
+        brute-force comparison, a cycling-prone degenerate LP, duality checks and a guide
+        worked example the suite recomputes. Registered score row, launch date, category
+        rule, CI workflow and publish-surface row.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, no prices, costs or capacities
+      asserted, no warranty. No customer data. Ethics: helps a small maker use scarce
+      hours well.
+  - venture: crypto-cost-basis-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built crypto-cost-basis-calculator: a browser-local lot matcher
+        for people who bought or earned crypto at several prices. Paste or open a CSV
+        of buys, sales and income (exchange-style headers recognised); it matches each
+        sale to purchase lots under FIFO, LIFO, HIFO, LOFO or a tax-aware greedy rule,
+        splits sales into short-term and long-term rows by holding period, optionally
+        matches wallet by wallet, compares all five methods on the chosen year with an
+        estimated tax, lists coins and basis still held, and exports Form 8949 style
+        rows. New niche: duplicate_check.py closest like-kind-exchange-1031-calculator
+        0.18. First visitor expected from "crypto FIFO vs HIFO" and "Form 8949 crypto
+        csv" searches and r/CryptoTax threads in filing season. No customer data;
+        nothing leaves the browser. Unverified on a real return: tests use hand-computed
+        FIFO/LIFO/HIFO figures plus quantity and basis conservation checks across all
+        methods on seeded random books. Registered score row, launch date, category
+        rule, CI workflow and a guide page whose worked example is recomputed by the
+        suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, no prices fetched, no claim about
+      which lot method a filer may use, omissions stated, no warranty. No customer
+      data. Ethics: helps people compute their own gains privately.
+  - venture: rental-fleet-size-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rental-fleet-size-optimizer: a browser-local tool for
+        businesses that rent out identical units (tents, kayaks, scaffold, camera
+        gear, tool kits). Enter seasons of demand, rental lengths, price, cost per
+        rental and the yearly cost of owning a unit; it computes the yearly profit of
+        every fleet size two ways, the Erlang loss formula per season and a seeded
+        day-by-day simulation (Poisson or negative-binomial requests, common random
+        numbers across fleet sizes), and recommends how many units to own with turn-away
+        rates, a bad year (10th percentile), the days the marginal unit adds against
+        the days it needs to pay for itself, an optional turn-away cap and its cost, a
+        comparison with today's fleet, and how the answer moves with demand. New niche:
+        duplicate_check.py closest equipment-rental-break-even 0.18 (one machine's
+        break-even, not how many to own). First visitor expected from "how many units
+        should my rental business own" searches. No customer data; nothing leaves the
+        browser. Unverified on a real business's books: tests check Erlang B against
+        its closed form, the simulation against the exact day-batch formula for
+        one-day rentals, and the guide's worked example is recomputed by the suite.
+        Registered score row, launch date, category rule, CI workflow and a guide page.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and simulation on supplied figures, not tax, financial or
+      business advice, no demand, price or asset cost asserted, no warranty, limits
+      stated. No customer data. Ethics: helps a small rental owner avoid buying units
+      that never pay for themselves.
+  - venture: tile-layout-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tile-layout-planner: a browser-local tile layout planner
+        for installers and DIY. Enter a room, cut-outs and a tile (straight, running
+        bond or diagonal); exact polygon clipping lays out the real tiles, a search
+        over grid offsets and tile direction finds the layout with the fewest cuts
+        thinner than the user's limit then the fewest tiles, a greedy guillotine plan
+        reuses offcuts, and the page shows a to-scale plan, cut list, tiles and boxes
+        to order and a corner / centred / best comparison, metric or imperial. New
+        niche: duplicate_check.py closest flooring-bid-calculator 0.35 (prices a job,
+        no layout). First visitor expected from "how many tiles do I need" searches.
+        No room data leaves the browser. Unverified on a real floor: tests use
+        hand-computed layouts and random rooms whose pieces must add up to the floor
+        (exactly, with no grout). Registered score row, launch date, category rule, CI
+        workflow and a guide page whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and geometry on supplied figures, a planning aid and not
+      installation instructions or a material guarantee, no tile price asserted, no
+      warranty. No customer data. Ethics: helps a homeowner or installer avoid
+      over-buying and bad cuts.
+  - venture: event-seating-chart-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built event-seating-chart-optimizer: a browser-local seating chart
+        optimizer for weddings, banquets and events. Paste a guest list (optional family
+        or party per guest), write wishes as text (+ together, ++ really together, !
+        apart, !! never, @ pin to a table); simulated annealing with a softened
+        never-together penalty plus a hill-climbing polish assigns every guest to a table
+        within capacity, with tables filled evenly by default. Shows each table, every
+        unmet wish and split family, a comparison with seating in list order, and a CSV
+        for place cards. New niche: duplicate_check.py closest bounce-house-rental-
+        calculator 0.14 (no seating). First visitor expected from "wedding seating
+        chart" and "seating chart generator" searches. No guest list leaves the browser
+        and none is stored. Verified: the optimizer equals exhaustive search on 400
+        random small lists (60 in the committed suite), a 200-guest list runs in
+        seconds, and an independent verifyPlan check recomputes capacity, pins and
+        score. Unverified: no real event, and not proven optimal on large lists.
+        Registered score row, launch date, category rule, CI workflow and a guide page
+        whose worked example is recomputed by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and search on user-typed names and wishes, not
+      event-planning advice, no guarantee of anyone's comfort, no prices asserted, no
+      warranty. No guest data stored or sent. Ethics: helps a host seat guests kindly.
+  - venture: cheap-meal-plan-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built cheap-meal-plan-optimizer: a browser-local minimum-cost diet
+        solver. Enter foods with a price and nutrition per serving, set calorie, protein,
+        fat, carb and fibre bounds and serving caps; a two-phase simplex plus branch and
+        bound (whole, half or quarter servings) finds the lowest-cost daily plan, the
+        weekly cost, the extra cost of each target by re-solving, a shopper's
+        rule-of-thumb comparison, and how cost rises with the protein minimum, with a
+        CSV. Starter foods carry approximate generic nutrition and EXAMPLE prices; a hard
+        floor refuses plans under 1,200 kcal. New niche after a first attempt, a league
+        schedule generator, turned out to have been built in parallel by another session
+        (#6154) and was dropped without shipping: duplicate_check.py closest
+        production-mix-optimizer 0.18. First visitor expected from "cheapest high
+        protein meal plan" and "budget meal plan" searches. No food list leaves the
+        browser. Verified: integer plans equal exhaustive search on 60 random small menus
+        and an independent verifyPlan rechecks bounds, caps, steps and cost. Unverified:
+        no real shopping basket, and nutrition values are approximate. Registered score
+        row, launch date, CI workflow and a guide page whose worked example is recomputed
+        by the suite.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed numbers, not medical or dietary advice,
+      1,200 kcal floor, stated unsuitable for children, pregnancy, eating disorders and
+      medical conditions, example prices labelled, no warranty, nothing stored. Ethics:
+      helps people on a budget see what their protein target costs.
+  - venture: nsa-idr-offer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nsa-idr-offer-calculator: a browser-local tool for
+        out-of-network providers and billing teams disputing payments under the No
+        Surprises Act. Enter billed charge, QPA and amount paid per claim plus the
+        current IDR fees and a win-chance curve; it searches offers between the QPA
+        and the billed charge for the best expected net, reports the break-even win
+        chance, a file-or-skip call per claim, fee batching, how the total moves when
+        the win-chance assumption shifts, and open-negotiation and IDR-initiation
+        dates. New niche: duplicate_check.py closest 0.20, unrelated. First visitor
+        expected from "No Surprises Act IDR offer", "is IDR worth the fees" and
+        billing-team forums. No patient data; nothing leaves the browser. Unverified
+        on real IDR outcomes: tests use hand-calculated expected-net, break-even and
+        offer-optimum cases. Registered score row, launch date, category rule and CI.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on supplied figures, not legal or billing advice, no
+      fee or QPA source, no warranty, limits stated. No patient data. Ethics: helps
+      small providers decide where a dispute is worth its fee.
+  - venture: booking-request-chooser
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built booking-request-chooser: a browser-local tool and
+        zero-dependency CLI for vacation-rental, cabin, campsite and B&B hosts.
+        Paste confirmed bookings and pending requests (check-in, check-out, price)
+        and set turnover cost, the value of a sellable leftover night and the
+        minimum stay; it finds the exact set of requests to accept for the highest
+        calendar income (dynamic programming over the gaps between confirmed
+        bookings, a gap shorter than the minimum stay is dead), says why each other
+        request is declined, suggests one- or two-night counter-offers, compares
+        with arrival-order and highest-price-first acceptance and states whether the
+        plan survives a different empty-night value. New niche: duplicate_check.py
+        closest str-nightly-rate-optimizer at 0.37 (what to charge, not which
+        request to accept). First visitor expected from "orphan nights", "minimum
+        stay gap" and "which booking to accept" searches and host forums. Nothing
+        leaves the browser. Tests check the optimiser against brute force over every
+        subset on 300 random calendars. Unverified with a real host's calendar.
+        Registered score row, launch date, category rule and CI workflow; inbound link
+        from str-nightly-rate-optimizer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small hosts earn more from their own calendar.
+  - venture: freelance-project-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelance-project-picker: a browser-local tool and
+        zero-dependency CLI for freelancers, consultants and small studios. Paste
+        weekly billable hours (with per-week overrides for holidays and existing
+        clients) and the project offers on the table (fee, hours, deadline week); it
+        finds the exact set to accept for the highest total fee (dynamic programming
+        over deadlines against cumulative capacity), says why each other offer loses,
+        gives the fee at which each declined project would earn its place (the
+        counter-offer number), applies an optional scope-creep buffer, and compares
+        with highest-fee-first, best-hourly-rate-first and listed order. New niche:
+        the freelance siblings price a rate or a retainer; none chooses between
+        competing offers under a weekly-hours budget. First visitor expected from
+        "which freelance project to take" and "too many client requests" searches.
+        Nothing leaves the browser. Tests check the optimiser against brute force
+        over every subset on 300 random instances. Unverified with a real
+        freelancer's pipeline. Registered score row, launch date, category rule and
+        CI workflow; inbound link from freelance-rate-increase-calculator.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps freelancers earn more from their own hours.
+  - venture: market-event-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built market-event-picker: a browser-local tool and
+        zero-dependency CLI for food trucks, market and craft vendors, pop-up
+        shops and bands. Paste the markets, fairs and festivals on offer (date,
+        hours, expected sales, flat and percentage booth fee, travel) and set cost
+        of goods, crew rate, setup and teardown hours and a weekly limit; it finds
+        the exact set of events that nets the most (exhaustive search with pruning
+        over each cluster of overlapping events), says why each other event is
+        skipped and what swapping it in would cost, shows break-even sales for
+        each event kept, re-checks the plan at bad-weather sales, names the fee cut
+        that would flip a skipped event, and compares with taking events in the
+        order listed or biggest sales first. New niche: the closest existing tools
+        (food-truck-event-margin-calculator, craft-fair-booth-calculator) price one
+        event, none chooses between overlapping events across a season. First
+        visitor expected from "is this festival worth the booth fee" and "which
+        craft fairs to do" searches and vendor forums. Nothing leaves the browser.
+        Tests check the optimiser against brute force over every subset on 300
+        random seasons. Unverified with a real vendor's event list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small vendors earn more from their own season.
+  - venture: lot-split-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built lot-split-calculator: a browser-local tool and
+        zero-dependency CLI for resellers, estate liquidators, storage-unit buyers and
+        pallet flippers. Paste the lines of a bulk lot (quantity, expected price,
+        sell-through, shipping, minutes each) and a whole-lot offer; it says whether
+        listing item by item beats the offer after marketplace fees, shipping and the
+        value of the reseller's own hours, which lines to list and which to sell on in
+        bulk, a stress test at lower sell-through, profit against what was paid, and
+        the hourly rate at which the offer starts to win. New niche: the closest
+        existing tools price what to bid for a lot (liquidation-pallet-bid-calculator)
+        or the consignor's view (estate-sale-net-proceeds-calculator); none decides
+        line by line between listing and bulk. First visitor expected from "sell lot
+        whole or piece by piece" searches and reseller forums. Nothing leaves the
+        browser. Tests check the optimiser against every list-or-bulk combination on
+        300 random lots. Unverified with a real reseller's lot.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small resellers earn more from lots they already own.
+  - venture: trade-show-roi-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built trade-show-roi-calculator: a browser-local tool and
+        zero-dependency CLI for small B2B exhibitors (manufacturers, software
+        firms, local-service companies). Paste the trade shows on the table (booth
+        fee, travel and lodging, staff days, swag, expected leads) and set the
+        funnel (lead to qualified, qualified to deal, deal value, margin, optional
+        lifetime multiplier); it gives cost per lead, cost per qualified lead,
+        expected deals, gross profit, ROI and the break-even leads, close rate and
+        deals for every show, then finds the exact set of shows that nets the most
+        under a yearly budget and an optional per-quarter cap (branch-and-bound),
+        says why each other show is skipped and what swapping it in would cost,
+        names the lead count that would flip each losing show, re-checks the plan
+        with leads cut, and compares with going to every show and buying the
+        cheapest first. New niche: the closest existing tools (market-event-picker,
+        craft-fair-booth-calculator, revenue-target-lead-planner) cover vendor
+        markets, retail booths and ad funnels; none costs a B2B show booth through
+        a lead funnel or chooses shows under a budget. First visitor expected from
+        "is a trade show booth worth it" and "trade show ROI calculator" searches.
+        Nothing leaves the browser. Tests check the optimiser against brute force
+        over every subset on 300 random years. Unverified with a real exhibitor's
+        show list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small exhibitors earn more from their own show budget.
+  - venture: support-staffing-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built support-staffing-planner: a browser-local tool and
+        zero-dependency CLI for small support desks, answering services, clinic
+        front desks and sales lines. Paste contacts per half hour (and handle
+        time) for a typical week and set a service target (for example 80% answered
+        in 20 seconds), shrinkage, an occupancy cap, allowed shift lengths and an
+        hourly cost; it gives the agents each interval needs by the Erlang C
+        formula, the exact cheapest set of shifts that covers every interval
+        (min-cost flow), what each service target costs, what a shorter handle
+        time, fewer contacts or different shrinkage would save, and a comparison
+        with flat peak staffing, full-length shifts only and the occupancy-only
+        rule that misses the target at low volumes. New niche: the closest existing
+        tools (shift-cover-optimizer, shift-roster-builder) take a headcount per
+        hour or named staff; none turns contact volume and handle time into the
+        requirement with queueing maths or prices the service target. First visitor
+        expected from "erlang c calculator" and "how many call center agents do I
+        need" searches. Nothing leaves the browser. Tests check Erlang C against the
+        textbook sum and the shift cover against brute force over every combination
+        on 60 random small days. Unverified with a real team's volumes.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty; the user remains responsible for working-time and break rules.
+      Ethics: helps small teams staff to a service target without overstaffing.
+  - venture: csa-share-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built csa-share-pricing-calculator: a browser-local tool and
+        zero-dependency CLI for small vegetable farms and market gardens that sell
+        CSA shares. Paste the items in the weekly box (quantity, retail value,
+        cost, labour minutes, weeks in season) and set the season, share count,
+        price, fees, packing and delivery costs, fixed costs and your hourly pay; it
+        gives the retail value a member receives and the value ratio, season profit
+        before and after paying yourself, the closed-form price that pays a target
+        wage, shares needed to break even, items that cost more to grow than they
+        are worth, and a price sweep under a stated elasticity. New niche: the
+        closest existing tools (market-garden-bed-planner, market-event-picker,
+        custom-farm-rate-calculator) plan crops, market choice and contract rates;
+        none prices a CSA share. First visitor expected from "how to price a CSA
+        share" searches. Nothing leaves the browser. Unverified with a real farm's
+        box list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+  - venture: consignment-markdown-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built consignment-markdown-planner: a browser-local tool and
+        zero-dependency CLI for consignment, resale, thrift and vintage shops. Paste
+        the items on the floor (price, weekly sell chance at full price, shop share
+        of the sale, shelf cost per week) and it finds the exact best markdown
+        schedule for each over the discount levels the shop allows (dynamic
+        programming, tested against every non-decreasing schedule), flags items not
+        worth taking in with the price and shop share at which they would pay,
+        compares with a fixed 30/60-day rule and never marking down, and re-checks
+        at a slow-season sell rate. New niche: clearance-markdown-planner covers
+        retail clearance without a consignor split or shelf-slot cost; none plans
+        per-item markdowns under consignment terms or screens at intake. First
+        visitor expected from "consignment shop markdown schedule" searches.
+        Nothing leaves the browser. Unverified with a real shop's sell-through data.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small resale shops earn more from stock they already hold.
+  - venture: embroidery-shop-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built embroidery-shop-quote-calculator: a browser-local tool and
+        zero-dependency CLI for home and micro embroidery shops running 1-6 head machines.
+        Enter a job (quantity, garment cost, stitch count, colors, digitizing fee) and the
+        shop (heads, stitches per minute, real efficiency, hooping and setup minutes,
+        thread and backing cost, labor rate, machine overhead, target margin, minimum
+        charge, rush surcharge); it gives the per-piece price that hits the margin
+        (integer cents, rounded up), clock time, true cost, profit and effective hourly
+        rate, a quantity-break table with the quantities where the minimum charge or setup
+        dominates, a stitch-count sensitivity, a check of whether a flat price-per-1000-
+        stitches rule loses money at low quantities and from what quantity it covers cost,
+        and a take / counter / pass verdict at the owner's lowest acceptable hourly rate
+        (with the price that reaches it). New niche: apparel-decoration-price-calculator
+        prices a decorated piece across screen print, embroidery and DTF tiers and
+        3d-print-price-calculator prices machine time, but neither models a multi-head
+        embroidery machine's clock time, a per-stitch rule's break-even quantity or an
+        hourly-floor verdict. First visitor expected from "embroidery pricing calculator"
+        and "how much to charge for embroidery" searches. Nothing leaves the browser.
+        Tests replay the clock time hoop by hoop and search for the smallest whole-cent
+        price that reaches the margin on 300 random jobs. Unverified with a real shop's
+        numbers.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small embroidery shops stop underpricing short runs.
+  - venture: dog-grooming-day-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built dog-grooming-day-planner: a browser-local tool and
+        zero-dependency CLI for independent dog groomers, salons and mobile vans.
+        A quote card prices one groom so it nets the groomer's target per table
+        hour (groom minutes plus turnover, plus supplies). Pasting the day's
+        requests (dog, size, minutes, price, supplies) gives net per table hour for
+        each, then the exact set of dogs that earns the most under the day's table
+        minutes, an optional dog cap and an optional large-dog cap
+        (branch-and-bound), says what taking each skipped dog would cost, prints
+        the price that brings each under-target dog up to the target, and compares
+        with booking in arrival order and highest price first. New niche: the
+        closest existing tools are dog-grooming-profit-calculator (profit per hour by
+        service and the price that hits a target, which this venture's quote card
+        overlaps) and pet-grooming-bid-calculator; neither chooses which grooming
+        requests on a waitlist to book for a day with fixed table minutes and
+        dog caps, which is this venture's reason to exist. duplicate_check.py did
+        not surface the two grooming ventures; a grep of ventures/ did. First visitor expected from "how much to charge for dog
+        grooming" and "dog grooming price calculator" searches and groomer
+        communities. Nothing leaves the browser. Tests check the optimiser against
+        brute force over every subset on 300 random days. Unverified with a real
+        groomer's request list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty. Ethics: helps small groomers earn more from their own table hours.
+  - venture: mobile-tire-van-job-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-tire-van-job-picker: a browser-local tool and
+        zero-dependency CLI for one-van mobile tire and roadside operators. Paste the
+        day's requested jobs (price, materials, minutes on site, time window, location)
+        and it finds the exact most profitable set and order for the van (dynamic
+        programming over job sets with non-dominated time/profit labels, tested against
+        every ordering of every subset), the exact break-even price of each declined
+        job, and what first-come and biggest-ticket-first dispatch leave behind. New
+        niche: tow-motor-club-call-calculator accepts or declines one call at a time and
+        ranks a batch by profit per truck-hour, route-stop-optimizer orders stops
+        without prices; none chooses which jobs to run under time windows with drive
+        cost between them. First visitor expected from "mobile tire service scheduling"
+        searches. Nothing leaves the browser. Unverified with a real operator's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, safety calls and contracts come first. Ethics: helps small mobile service
+      shops earn more from a day's calls.
+  - venture: insurance-denial-appeal-builder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built insurance-denial-appeal-builder: a browser-local tool for
+        patients holding a denied health insurance claim. Pasting the denial letter or
+        EOB text scores adjustment reason codes (CO-50, CO-197, CO-96, CO-18 and others)
+        and phrases to suggest the denial reason with the evidence shown, and picks up
+        the notice date, a stated appeal window, claim number, member ID and urgency.
+        Deadlines come from plan type and receipt date (180 days commercial, 60
+        Medicare Advantage, 120 Original Medicare, Medicaid by the notice), a window
+        stated in the notice overrides, and a passed window adds a good-cause request.
+        Each of eleven reasons has its own first step (call the provider first for
+        billing, authorization and filing problems), things to ask the plan for and
+        documents to enclose; the letter shows placeholders for facts not supplied.
+        Exports the letter and an .ics file with the deadline and two reminders. New
+        niche: duplicate_check.py found no denial or appeal venture; the closest,
+        medical-bill-error-checker, reads an itemised bill, and is cross-linked. First
+        visitor expected from "health insurance denial appeal letter", "CO-50 denial
+        code" and "how to appeal insurance claim denial" searches and r/HealthInsurance.
+        Nothing leaves the browser; 31 tests cover the engine, page wiring and privacy.
+        Unverified against real insurer denial letters or by a benefits adviser.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: dates are reminders from rules of thumb with the notice controlling,
+      no outcome promised, not legal or medical advice, letter states only user-supplied
+      facts, health text never leaves the device. Ethics: helps patients use appeal
+      rights they already have.
+  - venture: str-turnover-crew-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built str-turnover-crew-planner: a browser-local tool and
+        zero-dependency CLI for vacation-rental cleaning companies with one to three
+        crews. Paste the day's turnovers (fee, supplies, clean minutes, checkout,
+        next check-in, location) and it finds the exact most profitable set of cleans,
+        which crew does each and in what order (dynamic programming per crew plus an
+        exact split across crews, tested against every assignment and order), the exact
+        break-even fee of each declined turnover, what a second or third crew adds, and
+        what first-come and biggest-fee-first booking leave behind. New niche:
+        str-cleaning-fee-pricing-calculator and house-cleaning-quote-calculator price one
+        clean; route-stop-optimizer orders stops without fees; none decides which
+        turnovers to take or how many crews a day needs under checkout and check-in
+        windows. First visitor expected from "how many cleaners do I need for STR
+        turnovers" and "airbnb cleaning scheduling" searches. Nothing leaves the
+        browser. Unverified with a real cleaning company's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, guest-ready standards and management contracts come first. Ethics: helps
+      small cleaning companies earn more from their crews' hours.
+  - venture: mobile-signing-agent-day-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mobile-signing-agent-day-picker: a browser-local tool and
+        zero-dependency CLI for mobile notaries and loan signing agents. Paste the day's
+        offered signings (fee, print cost, appointment length, window, location) and it
+        finds the exact most profitable set and order (dynamic programming over signing
+        sets with non-dominated time/profit labels, same engine verified against every
+        ordering of every subset in mobile-tire-van-job-picker), the exact break-even fee
+        of each declined signing, and what first-come and highest-fee-first booking leave
+        behind. New niche: notary-trip-quote prices one trip, process-server-fee-calculator
+        one serve, route-stop-optimizer orders stops without fees; none chooses which
+        offered signings to take under appointment windows. First visitor expected from
+        "loan signing agent schedule" searches. Nothing leaves the browser. Unverified with
+        a real agent's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, borrowers waiting on closings and signing-service agreements come first.
+      Ethics: helps independent notaries earn more from a day's offers.
+  - venture: saas-renewal-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built saas-renewal-planner: a browser-local tool and zero-dependency
+        CLI for founders, finance and IT leads. Paste a list of SaaS subscriptions (renewal
+        date, notice days, auto-renew, seats paid and used, proposed uplift) and it prints the
+        last day to give notice, ranks renewals by urgency and savings (right-sized seats at
+        today's price with no uplift, then an extra ask), and produces an email draft per
+        vendor and an .ics calendar of deadlines. New niche: saas-seat-true-up covers seats
+        for one subscription and subscription-price-impact and
+        saas-annual-plan-discount-calculator are seller-side; none tracks notice windows across
+        vendors. First visitor expected from "SaaS renewal calendar" and "auto-renewal notice
+        period" searches. Nothing leaves the browser. Unverified with a real contract list.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a quote or advice, no warranty,
+      contract notice terms control and dates are time-sensitive. Ethics: helps businesses
+      spend less on software they already pay for.
+  - venture: process-server-day-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built process-server-day-picker: a browser-local tool and
+        zero-dependency CLI for independent process servers. Paste the day's assigned
+        serves (fee, costs, minutes on site, the window the person can be reached,
+        location) and it finds the exact most profitable set and order of attempts
+        (dynamic programming over serve sets, tested against every ordering of every
+        subset), the exact break-even fee of each declined serve, and what first-assigned
+        and biggest-fee-first routing leave behind. New niche: process-server-fee-calculator
+        nets one job and route-stop-optimizer orders stops without fees; none chooses
+        which serves to take under reachable windows. First visitor expected from
+        "process server route planning" searches. Nothing leaves the browser. Unverified
+        with a real server's day.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, orders attempts only, not a forecast or
+      legal advice, no warranty, service rules, court deadlines and safety come first. Ethics:
+      helps independent servers earn more from their hours.
+  - venture: used-car-lot-aging-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built used-car-lot-aging-planner: a browser-local tool and
+        zero-dependency CLI for independent used-car dealers with 1-60 floorplan-financed
+        units. Paste the inventory (days on lot, cost, floored amount, expected retail and
+        wholesale values and their drop per 30 days, expected days to retail, daily holding
+        cost) and it prints each unit's true carrying cost to date and per day (interest
+        after curtailments, own cash, holding), the exact best day to wholesale it
+        (backward induction over age, tested against evaluating every wholesale day),
+        which units to wholesale now ranked by earnings per $1,000 of line per day, and
+        what a wait-until-it-sells policy leaves behind. New niche:
+        auction-car-flip-calculator prices one auction buy, the markdown planners have no
+        floorplan or wholesale exit; none picks a wholesale day per unit on a dealer's lot.
+        First visitor expected from "when to wholesale a used car" searches. Nothing leaves
+        the browser. Unverified with a real dealer's lot.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied numbers, not a forecast or advice, no
+      warranty, the floorplan agreement comes first. Ethics: helps small independent
+      dealers earn more from units already on the lot.
+  - venture: card-grading-submission-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built card-grading-submission-picker: a browser-local tool and
+        zero-dependency CLI for sports and trading-card (Pokemon, baseball, basketball,
+        MTG) sellers and collectors deciding which cards to send to a grader and at which
+        fee tier versus selling raw. Paste cards with the user's own raw value, value at
+        each grade and grade chances plus an editable fee-tier table (labelled example
+        defaults); it returns expected net graded versus raw, the cheapest covering tier,
+        the exact closed-form break-even chance of a 10, downside and worst case, and the
+        exact best subset under a grading budget or cards-per-submission limit (dynamic
+        programming verified against every subset). New niche: ebay-fee-calculator,
+        marketplace-fee-compare and lot-split-calculator price a sale, a platform or a lot;
+        none weighs grading fee, shipping, wait and grade odds against selling raw. First
+        visitor expected from "is it worth grading this card" searches. Nothing leaves the
+        browser, no prices scraped. Unverified with a real seller's batch.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a price
+      guide or forecast, example fee tiers labelled as such, no warranty, not affiliated with
+      any grader. Ethics: helps small card sellers decide where grading money is worth
+      spending; no scraping, no authentication claims.
+  - venture: thrift-haul-buy-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built thrift-haul-buy-picker: a browser-local tool and zero-dependency
+        CLI for eBay, Poshmark, Mercari, Etsy and Marketplace resellers buying at thrift
+        stores, estate sales, auctions and liquidation. Paste the ask, the user's own
+        resale estimate and sell chance per item; it returns expected profit after
+        marketplace fees, shipping, supplies, the user's time and the cost of tied-up
+        cash, the closed-form walk-away price and break-even sell chance per item, the
+        downside, and the exact best set under a cash, item-count or hands-on-hours cap
+        (branch and bound verified against every subset). New niche: the existing fee
+        calculators price a sale and marketplace-fee-compare/where-to-sell-calculator pick
+        a venue; none prices the buy side of a mixed cart. First visitor expected from
+        "how much to pay for thrift items to resell" searches. Nothing leaves the browser,
+        no prices scraped. Unverified with a real reseller's trip.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a price
+      guide or forecast, no warranty, resale legality and authenticity left to the user.
+      Ethics: helps small resellers earn more from sourcing trips; no scraping.
+  - venture: appraisal-assignment-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built appraisal-assignment-picker: a browser-local tool and zero-dependency
+        CLI for independent real estate appraisers, home inspectors and other solo professionals
+        paid per file. Paste the assignments on offer (fee, hours, business day due, direct cost)
+        with daily hours and any hours already booked; it returns the exact set to accept for the
+        highest total net that can still be delivered on time (deadline-pruned search, verified
+        against every subset), the order to work them, the exact fee at which each declined file
+        would earn a place, and what first-come, biggest-fee and best-per-hour acceptance leave
+        behind. New niche: home-inspection-fee-calculator prices one inspection and
+        freelance-project-picker picks projects; none chooses per-file requests under due-date
+        capacity. First visitor expected from "appraisal assignment fee too low / how many
+        appraisals can I do" searches. Nothing leaves the browser. Unverified with a real
+        appraiser's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not valuation or
+      business advice, licensing, competency and independence rules named as coming first, no
+      warranty. Ethics: helps small independent practitioners decide which files are worth their
+      hours; the page says no fee or deadline should influence an opinion of value.
+  - venture: owner-operator-load-chain-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built owner-operator-load-chain-planner: a browser-local tool and
+        zero-dependency CLI for owner-operators, hotshot and box-truck drivers who pick their
+        own loads. Paste a load-board shortlist (pickup, drop, rate, pickup window, delivery
+        deadline) with the user's own costs, start city and hours free; it returns the exact
+        best chain of loads and order (a Pareto-label dynamic programme over load subsets and
+        orders, with deadhead, waits for pickup windows and a simplified drive-then-rest rule
+        priced in, verified against every ordered subset), the exact walk-away rate per load
+        in the plan, the cost of forcing each left-out load, and the gap to two simple rules.
+        New niche: owner-operator-cpm-calculator costs a week and one rate, the broker margin
+        calculator is the broker side, route-stop-optimizer orders unpaid stops; none chooses
+        and sequences paid loads. First visitor expected from "how to string loads together
+        owner operator" and "reduce deadhead miles" searches. Nothing leaves the browser, no
+        load board read, no rates scraped. Unverified with a real driver's week.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not a market
+      rate, route plan or hours-of-service tool, no warranty, load acceptance, safety and
+      driving-time rules left to the driver. Ethics: helps independent drivers earn more from
+      the same week; no scraping, no personal data.
+  - venture: translation-job-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built translation-job-picker: a browser-local tool and zero-dependency CLI
+        for freelance translators, editors and transcribers paid per job. Paste the agency offers
+        on the table (fee, hours, business day due, direct cost) with daily hours and any hours
+        already booked; it returns the exact set to accept for the highest total net that can
+        still be delivered on time, the order to work them, the exact fee at which each declined
+        job would earn a place, and what first-come, biggest-fee and best-per-hour acceptance
+        leave behind. Same verified engine as appraisal-assignment-picker, re-labelled and
+        re-framed for a second per-job-deadline market; translator-project-quote prices one
+        project but nothing chooses between offers. Nothing leaves the browser. Unverified with a
+        real translator's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not business advice,
+      language-pair competence, certification, confidentiality and agency terms named as coming
+      first, no warranty. Ethics: helps small independent practitioners decide which jobs are
+      worth their hours; the user decides and remains responsible.
+  - venture: bookkeeping-client-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bookkeeping-client-fee-calculator: a browser-local tool and
+        zero-dependency CLI for independent bookkeepers and fractional accountants. Enter a
+        prospect's monthly transactions, accounts, payroll runs, AR/AP items, sales-tax
+        filings, books cleanliness, software cost and target hourly rate; it returns the
+        minimum monthly fee, a recommended fee, a one-time cleanup quote, the effective hourly
+        at a competitor's quote and a walk-away price. A roster mode ranks existing clients
+        by effective hourly and sizes the raise each needs to reach the target. New niche:
+        client-profitability-time-analyzer works from tracked time after the fact and the
+        freelance retainer tools price generic freelance work; none prices a bookkeeping
+        retainer from transaction, account, payroll and filing volume. First visitor expected
+        from "how much to charge for bookkeeping services monthly" searches. Nothing leaves the
+        browser, no market rates scraped. Unverified with a real bookkeeper.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied volumes, minutes and rates, stated prominently as
+      not market rates, tax, accounting or legal advice, no warranty, engagement terms and
+      licensing rules left to the user. Ethics: helps small bookkeepers charge for the time
+      clients really take; no scraping.
+  - venture: tax-season-client-picker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tax-season-client-picker: a browser-local tool and zero-dependency CLI
+        for independent tax preparers, enrolled agents and bookkeepers paid per engagement. Paste the
+        late-season client engagements on offer (fee, hours, business day due by the filing or
+        extension deadline, direct cost) with daily hours and any hours already booked; it returns
+        the exact set to accept for the highest total net that can still be finished on time, the
+        order to work them, the exact fee at which each declined client would earn a place, and what
+        first-come, biggest-fee and best-per-hour acceptance leave behind. Same verified engine as
+        translation-job-picker and appraisal-assignment-picker, re-labelled for a third
+        per-job-deadline market; nothing chooses between late-season tax engagements today. Nothing
+        leaves the browser. Unverified with a real preparer's queue.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied estimates, stated prominently as not tax, legal or business
+      advice, preparer competence, due diligence, Circular 230 and engagement terms named as coming first,
+      no warranty, no taxpayer identifiers requested. Ethics: helps small independent practitioners decide
+      which engagements are worth their hours; the preparer decides and remains responsible.
+  - venture: actions-timeout-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built actions-timeout-check: a browser-local checker and zero-dependency
+        CLI (check.py, with a browser port kept in parity by test) that scans GitHub Actions
+        workflow YAML for jobs with no job-level timeout-minutes, or one set to the 360-minute
+        default, and prints each with an upper bound on billed minutes per hung run for its
+        runner and the fix. New gap: no existing actions-* checker reads timeout-minutes
+        (duplicate_check closest match 0.31). First visitor expected from "github actions
+        timeout-minutes default" and "job stuck 6 hours" searches, which today land on docs
+        and forum threads with no checker attached. Nothing leaves the browser, no network
+        calls. Unverified with a real maintainer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only scan, minute figures labelled upper bounds from GitHub's
+      default limit and documented multipliers, not a cost audit or bill prediction, no warranty.
+      Ethics: defensive CI hygiene on the user's own repository; no scraping.
+  - venture: interior-design-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built interior-design-fee-calculator: a browser-local tool and
+        zero-dependency CLI for independent interior designers and small studios. Enter a
+        project's design hours, site visits, procurement items, meetings, expected and stress
+        overrun, target hourly and your rate for each fee model (hourly, flat, percent of
+        project cost, per square foot, product margin, flat plus margin); it returns each
+        model's effective hourly, the overrun it can absorb before falling under target, the
+        fee needed for the target and a walk-away fee. A history mode groups past projects by
+        fee model and ranks them by effective hourly. New niche: no tool in ventures/ compares
+        designer fee structures with scope creep priced in; the freelance retainer tools are
+        generic and client-profitability-time-analyzer works after the fact. First visitor
+        expected from "interior design fee structure" and "flat fee vs hourly interior
+        designer" searches. Nothing leaves the browser, no market rates scraped. Unverified
+        with a real designer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied hours, rates and budgets, stated prominently as
+      not market rates, tax, legal or licensing advice, no warranty, contract terms and local
+      rules left to the user. Ethics: helps small designers charge for the time projects
+      really take; no scraping.
+  - venture: jwt-verification-misuse-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built jwt-verification-misuse-check: a browser-local checker and zero-dependency
+        CLI (check.py, with a browser port kept in parity by test) that line-scans a developer's own
+        JavaScript/TypeScript, Python, Go and Java source for JWT verification misuse -- jwt.decode or
+        ParseUnverified where verify is needed, verify_signature False, alg none, unpinned algorithms,
+        ignored expiry and not-before, hard-coded or weak secrets, request-controlled keys -- and prints
+        each with file:line, the risk and the exact fix. New gap: no existing venture reads application
+        source for token-verification mistakes (duplicate_check closest match 0.13; not in screened-out).
+        First visitor expected from "jwt.decode vs jwt.verify", "jwt alg none" and "pyjwt verify_signature
+        false" searches, which today land on docs and blog posts with no checker attached. Nothing leaves
+        the browser, no network calls. Unverified with a real developer.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: mechanical read-only heuristic line scan of the user's own code, labelled not a security
+      audit, no warranty, a clean scan never described as safe, secret values never echoed. Ethics:
+      defensive hygiene on the user's own source; no probing of anyone else's system, no scraping.
+  - venture: nail-tech-booth-rent-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built nail-tech-booth-rent-calculator: a browser-local tool and
+        zero-dependency CLI for nail techs and other independent beauty professionals choosing
+        between booth or chair rent, a commission split and an hourly job. Enter hours at the
+        salon, clients, ticket, chair minutes, unpaid admin hours, tips, retail, supplies and the
+        rent, split or wage on offer; it returns take-home per hour worked (not per hour booked)
+        with idle chair time, card fees, insurance and a self-employment tax estimate, the
+        break-even clients per week and the client count where booth rent overtakes the others. A
+        history mode audits past weeks from a CSV by arrangement. Differs from the existing
+        booth-rent-vs-commission (two paths on one client book, no employee option, no tax
+        estimate, no weekly audit); a stylist-framed salon-booth-rent-calculator was dropped as
+        too close to it. First visitor expected from "booth rent vs commission nail tech"
+        searches. Nothing leaves the browser, no market rates scraped. Unverified with a real
+        nail tech.
+    mrr_end: 0
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-supplied prices, rents and tax rates, stated prominently as
+      not market rates, tax, legal or financial advice, no warranty, lease and employment terms
+      left to the user, tax figures labelled rough set-asides. Ethics: helps small beauty
+      professionals see what a chair really pays; no scraping.

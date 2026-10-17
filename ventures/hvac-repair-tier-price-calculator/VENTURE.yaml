@@ -1,0 +1,41 @@
+name: hvac-repair-tier-price-calculator
+description: 'Free, zero-network browser calculator for independent HVAC contractors and small shops: enter wages and burden, van, insurance, tools and overhead over your billable hours, then the diagnostic time and three repair options for a call, and get your true cost per billable hour, a diagnostic fee, Good, Better and Best prices with tiered parts and equipment markup and a callback reserve, what an average call earns at your mix of choices and decline rate against quoting one repair price, and a price-book builder with CSV export and a share link. Arithmetic on the numbers the user types, not business, tax or licensing advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: a one-van HVAC shop usually quotes the one repair the technician found, at a price copied from a franchise book or a competitor, and never learns what a Better or a replacement option would have added to the average ticket.
+# Checked 2026-10-03: ventures/ has hvac-maintenance-contract-calculator (annual service plans) but no tool that prices a repair call at Good, Better and Best; not in screened-out.md. duplicate_check.py on "HVAC service call flat-rate price book with equipment tiers, good better best repair tiers and margin" scored 0.17 at most, below the 0.45 duplicate line.
+# Nearest tools: hvac-maintenance-contract-calculator prices recurring tune-up plans; plumber-flat-rate-price-calculator prices one flat-rate job per row from a true hourly cost but has no tiered options, diagnostic credit or customer-mix model; appliance-repair-quote-calculator prices one repair quote.
+#
+# First visitor: searches "HVAC good better best pricing", "HVAC flat rate price book", "how much to charge for an HVAC diagnostic fee", "HVAC service call pricing";
+# r/HVAC, r/hvacadvice, trade forums and Facebook groups for small shops. Volume not measured with an external tool.
+# A hosted price book that syncs to invoicing and a customer-facing options page is the natural paid upgrade.
+hypotheses:
+  - claim: An independent HVAC owner will enter their real billable hours and overhead, see a true hourly cost above the rate they quote, and add a Better or Best option to the quotes they give.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for good-better-best pricing and diagnostic fees at least as often as for an hourly rate.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No HVAC contractor reports changing a price, a diagnostic fee or a price book because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/
+  analytics: null

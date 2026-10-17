@@ -1,0 +1,54 @@
+name: free-shipping-threshold-optimizer
+description: 'Free, zero-network, zero-dependency CLI + browser tool for online sellers: reads past orders (subtotal, optional shipping cost), sweeps every round free-shipping minimum, and prints each one''s profit against your current policy, the checkout drop-off at which it breaks even, and a robust threshold that loses least across a grid of top-up and drop-off assumptions; usable as a CI check. Margin, fee, top-up rate and drop-off are inputs, not measurements.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/optimizer archetype (portfolio/pipeline/README.md). Checked
+# 2026-10-02: duplicate_check.py "free shipping threshold optimizer order value
+# distribution" top hit 0.34 (shipping-box-size-optimizer, a different problem);
+# nothing in ventures/ chooses a free-shipping minimum from order history. Not
+# in screened-out.md. Adjacent: bundle-discount-optimizer (bundles, not
+# shipping), shipping-box-size-optimizer (cartons).
+#
+# Money: a store shipping a few hundred orders a month gives away or recovers
+# thousands of dollars a year through one number on its cart page, and most set
+# it by rule of thumb. The reader is the owner of a small Shopify/WooCommerce/
+# Etsy store; the wedge is that it runs on a pasted orders export with no app
+# install and no store access, and prints the break-even instead of a verdict.
+#
+# Where the first real visitor would come from: the search phrases "free
+# shipping threshold calculator", "what should my free shipping minimum be",
+# "free shipping threshold shopify"; r/shopify, r/ecommerce and r/smallbusiness
+# threads asking exactly that, and the Shopify Community forum. A hosted
+# version reading the Shopify Admin API read-only and re-running monthly is the
+# natural paid upgrade.
+hypotheses:
+  - claim: A small online seller will search for a free-shipping minimum, paste an orders export, and leave with a threshold to test plus the checkout drop-off it needs to pay.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will rerun the CLI on each month's export and use --fail-on warn to be told when the current minimum is leaving money behind.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, store-ops script or newsletter is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/free-shipping-threshold-optimizer/
+  analytics: null

@@ -5,6 +5,8 @@ or job from the concentrate label and supplier price. The calculator includes
 optional mixing labor and waste allowance, so an operator can use the result in
 a purchasing decision or a janitorial bid.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/
+
 Open [`index.html`](index.html) directly or serve this directory statically.
 It is a zero-dependency browser app: no account, network request, or paid API.
 
@@ -30,6 +32,11 @@ the number of whole containers that covers it, the real purchase cost of
 those containers, and how much concentrate is left over for the next job —
 so a bid built from the per-gallon rate does not undercount what actually has
 to be bought.
+
+See [`vs-pricing-off-the-label-price.html`](vs-pricing-off-the-label-price.html)
+for how the ready-to-use cost above compares to reading the concentrate's
+sticker price straight off the label, which is correct about the chemical but
+skips mixing labor and waste.
 
 ## Privacy and usage
 

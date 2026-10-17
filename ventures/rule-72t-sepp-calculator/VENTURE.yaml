@@ -1,0 +1,53 @@
+name: rule-72t-sepp-calculator
+description: >-
+  Free browser tool for people planning to draw on an IRA before 59 1/2:
+  enter age, balance and interest rate and see Rule 72(t) substantially equal
+  periodic payments under the RMD method and fixed amortization, the lock-in,
+  the balance needed for an income target, and the 10% penalty exposure if the
+  schedule is broken. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py run on
+# "rule 72(t) SEPP substantially equal periodic payments early IRA withdrawal
+# calculator"; no existing venture covers early-retirement withdrawals (rmd-
+# calculator handles age 73+ only). Audience is the early-retirement (FIRE)
+# crowd: people with large balances and a real, expensive-to-get-wrong decision.
+#
+# First visitor: r/financialindependence, r/Fire and Bogleheads threads on
+# "72t SEPP", searches "72t calculator", "SEPP calculator", "early retirement
+# withdrawal before 59 1/2"; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on figures the visitor enters, not tax advice; the page
+# says a broken schedule is costly and to confirm with a tax professional, and
+# lists what is not modelled. Unverified: hand calculation and unit tests only;
+# the life expectancy table was entered from memory of Reg. 1.401(a)(9)-9 and
+# must be checked against the IRS text. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Early retirees will use a no-signup 72(t) calculator that shows both
+      methods, the balance needed for their income, and the cost of breaking
+      the schedule, and will return to rerun it as balances and rates change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a payment figure contradicts their own hand calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rule-72t-sepp-calculator/
+  analytics: null

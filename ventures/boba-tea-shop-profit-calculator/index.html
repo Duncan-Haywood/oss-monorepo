@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Boba Tea Shop Profit Calculator — Break-Even and Ramp-Up</title>
+  <meta name="description" content="Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.">
+  <meta property="og:title" content="Boba Tea Shop Profit Calculator — free, private">
+  <meta property="og:description" content="Find the cups a day your shop must sell, and the cash the ramp-up burns, before you sign a lease.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Boba Tea Shop Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free pro forma for bubble tea and specialty drink shops: contribution per cup, monthly profit, break-even cups a day with the loan, the price for a target margin, volume and cost sensitivity, and a sixty-month ramp-up with cash reserve and payback."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does it cost to open a boba tea shop?", "acceptedAnswer": {"@type": "Answer", "text": "Build-out, equipment, deposits and opening inventory commonly run into six figures for a store-front shop, far less for a kiosk or cart. Enter your own total in the startup cost field and your cash in; the rest is treated as a loan and its payment is part of break-even."}}, {"@type": "Question", "name": "How many cups a day does a boba shop need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Divide monthly fixed costs (staff, rent, utilities, your pay, and the loan payment) by what each cup contributes after ingredients, packaging, waste, card fees, delivery commission and any royalty. The report gives the figure both with and without the loan."}}, {"@type": "Question", "name": "How much do delivery apps cost a bubble tea shop?", "acceptedAnswer": {"@type": "Answer", "text": "The commission comes off the sales that go through the app, so a 25% commission on 20% of sales is a 5% cost on everything. The tool charges it only on the delivery share you enter."}}, {"@type": "Question", "name": "What price do I need for a target profit margin?", "acceptedAnswer": {"@type": "Answer", "text": "The report solves for the drink price that reaches your target net margin at your entered volume, after every cost and the loan payment, and says so plainly when no price can reach it."}}, {"@type": "Question", "name": "How much extra cash do I need while sales ramp up?", "acceptedAnswer": {"@type": "Answer", "text": "The ramp table runs sixty months with volume climbing from your month-one level to full. The lowest cumulative cash point, above what you spent at opening, is the working-capital reserve to hold."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BOBA TEA SHOP PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>How many cups a day does your boba shop need?</h1>
+    <p>Enter your price, cup costs, staff, rent and loan. You get <strong>profit per cup, monthly profit, break-even cups a day with the loan, the drink price that reaches your target margin, sensitivity to volume and ingredient costs, and a sixty-month ramp-up with the cash reserve it burns</strong>, before you sign the lease.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up and are not a forecast for any shop or market. A planning aid, not tax, lending or financial advice. Works for bubble tea, tea bars, smoothie and specialty drink shops.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <h3>Menu and price</h3>
+    <div class="grid">
+      <div><label for="price">Average drink price ($)</label><input type="number" id="price" min="0" step="any" value="5.75"></div>
+      <div><label for="toppingAttachPct">Drinks with toppings %</label><input type="number" id="toppingAttachPct" min="0" step="any" value="70"></div>
+      <div><label for="toppingPrice">Topping price ($)</label><input type="number" id="toppingPrice" min="0" step="any" value="0.75"></div>
+    </div>
+    <h3>Cost per cup</h3>
+    <div class="grid">
+      <div><label for="drinkCost">Tea, milk, sweetener, ice ($)</label><input type="number" id="drinkCost" min="0" step="any" value="0.95"></div>
+      <div><label for="toppingCost">Topping cost ($)</label><input type="number" id="toppingCost" min="0" step="any" value="0.22"></div>
+      <div><label for="packagingCost">Cup, lid, straw, sleeve ($)</label><input type="number" id="packagingCost" min="0" step="any" value="0.38"></div>
+      <div><label for="wastePct">Waste and remakes %</label><input type="number" id="wastePct" min="0" step="any" value="6"></div>
+    </div>
+    <h3>Fees on sales</h3>
+    <div class="grid">
+      <div><label for="cardFeePct">Card fee % of all sales</label><input type="number" id="cardFeePct" min="0" step="any" value="2.9"></div>
+      <div><label for="deliverySharePct">Sales through delivery apps %</label><input type="number" id="deliverySharePct" min="0" step="any" value="20"></div>
+      <div><label for="deliveryCommissionPct">Delivery app commission %</label><input type="number" id="deliveryCommissionPct" min="0" step="any" value="25"></div>
+      <div><label for="royaltyPct">Franchise royalty and ad fund %</label><input type="number" id="royaltyPct" min="0" step="any" value="0"></div>
+    </div>
+    <h3>Volume</h3>
+    <div class="grid">
+      <div><label for="cupsPerDay">Cups per open day</label><input type="number" id="cupsPerDay" min="0" step="any" value="270"></div>
+      <div><label for="daysPerMonth">Open days per month</label><input type="number" id="daysPerMonth" min="0" step="any" value="28"></div>
+    </div>
+    <h3>Labour</h3>
+    <div class="grid">
+      <div><label for="staffHoursPerDay">Paid staff hours per open day</label><input type="number" id="staffHoursPerDay" min="0" step="any" value="26"></div>
+      <div><label for="wage">Hourly wage ($)</label><input type="number" id="wage" min="0" step="any" value="16"></div>
+      <div><label for="payrollTaxPct">Payroll taxes and workers' comp %</label><input type="number" id="payrollTaxPct" min="0" step="any" value="10"></div>
+    </div>
+    <h3>Monthly fixed costs</h3>
+    <div class="grid">
+      <div><label for="rent">Rent and CAM ($)</label><input type="number" id="rent" min="0" step="any" value="4200"></div>
+      <div><label for="utilities">Utilities ($)</label><input type="number" id="utilities" min="0" step="any" value="750"></div>
+      <div><label for="otherFixed">Software, insurance, marketing, other ($)</label><input type="number" id="otherFixed" min="0" step="any" value="900"></div>
+      <div><label for="ownerPay">Your own pay ($)</label><input type="number" id="ownerPay" min="0" step="any" value="3000"></div>
+    </div>
+    <h3>Opening and financing</h3>
+    <div class="grid">
+      <div><label for="startupCost">Total startup cost: build-out, equipment, deposits ($)</label><input type="number" id="startupCost" min="0" step="any" value="165000"></div>
+      <div><label for="equity">Your cash in ($)</label><input type="number" id="equity" min="0" step="any" value="55000"></div>
+      <div><label for="loanRatePct">Loan interest rate % a year</label><input type="number" id="loanRatePct" min="0" step="any" value="9"></div>
+      <div><label for="loanTermMonths">Loan term (months)</label><input type="number" id="loanTermMonths" min="0" step="any" value="84"></div>
+    </div>
+    <h3>Ramp-up and target</h3>
+    <div class="grid">
+      <div><label for="rampMonths">Months to reach full volume</label><input type="number" id="rampMonths" min="0" step="any" value="9"></div>
+      <div><label for="startVolumePct">Volume in month 1 as % of full</label><input type="number" id="startVolumePct" min="0" step="any" value="40"></div>
+      <div><label for="targetMarginPct">Net margin you want %</label><input type="number" id="targetMarginPct" min="0" step="any" value="12"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work it out</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Edit the numbers or load the example, then click Work it out.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>If cups a day change</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Change</th><th scope="col">Cups a day</th><th scope="col">Net a month</th></tr></thead><tbody id="sweep"></tbody></table></div>
+    <h3>If ingredient and packaging costs rise</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Cost increase</th><th scope="col">Net a month</th></tr></thead><tbody id="shock"></tbody></table></div>
+    <h3>Ramp-up, first 24 months</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th scope="col">Volume</th><th scope="col">Cash that month</th><th scope="col">Cumulative</th></tr></thead><tbody id="ramp"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download 60-month ramp as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this counts, and what it leaves out</h2>
+    <ul>
+      <li>Revenue per cup = drink price + topping attach rate × topping price. Card, delivery commission and royalty are percentages of that revenue.</li>
+      <li>Ingredients per cup = (drink + attach rate × topping + packaging) × (1 + waste).</li>
+      <li>Fixed costs = paid staff hours × open days × wage × (1 + payroll taxes) + rent + utilities + other + your pay. The loan is the startup cost less your cash in, amortised at the rate and term you enter.</li>
+      <li>Ramp: volume climbs in a straight line from your month-one level to full over the months you enter. Cumulative cash starts at minus your cash in; payback is the first month it is zero or above.</li>
+      <li><strong>Not modelled:</strong> seasonality, a second location, equipment replacement, income and sales tax, lease terms beyond monthly rent, permits, inventory build-up, tips, and any price, yield or market figure. Every number comes from you.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does it cost to open a boba tea shop?</h3>
+    <p>Build-out, equipment, deposits and opening inventory commonly run into six figures for a store-front shop, far less for a kiosk or cart. Enter your own total in the startup cost field and your cash in; the rest is treated as a loan and its payment is part of break-even.</p>
+    <h3>How many cups a day does a boba shop need to break even?</h3>
+    <p>Divide monthly fixed costs (staff, rent, utilities, your pay, and the loan payment) by what each cup contributes after ingredients, packaging, waste, card fees, delivery commission and any royalty. The report gives the figure both with and without the loan.</p>
+    <h3>How much do delivery apps cost a bubble tea shop?</h3>
+    <p>The commission comes off the sales that go through the app, so a 25% commission on 20% of sales is a 5% cost on everything. The tool charges it only on the delivery share you enter.</p>
+    <h3>What price do I need for a target profit margin?</h3>
+    <p>The report solves for the drink price that reaches your target net margin at your entered volume, after every cost and the loan payment, and says so plainly when no price can reach it.</p>
+    <h3>How much extra cash do I need while sales ramp up?</h3>
+    <p>The ramp table runs sixty months with volume climbing from your month-one level to full. The lowest cumulative cash point, above what you spent at opening, is the working-capital reserve to hold.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, lending, or financial advice. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> when signing a lease or a loan.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>event_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../cafe-drink-margin-calculator/">cafe drink margin</a>, <a href="../shaved-ice-stand-profit-calculator/">shaved ice stand</a>, <a href="../coffee-roaster-margin-calculator/">coffee roaster margin</a>, <a href="../mini-golf-course-profit-calculator/">mini-golf pro forma</a>, <a href="../pizzeria-profit-calculator/">pizzeria pro forma</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["price", "toppingAttachPct", "toppingPrice", "drinkCost", "toppingCost", "packagingCost", "wastePct", "cardFeePct", "deliverySharePct", "deliveryCommissionPct", "royaltyPct", "cupsPerDay", "daysPerMonth", "staffHoursPerDay", "wage", "payrollTaxPct", "rent", "utilities", "otherFixed", "ownerPay", "startupCost", "equity", "loanRatePct", "loanTermMonths", "rampMonths", "startVolumePct", "targetMarginPct"];
+    const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(0);
+    let last = null;
+
+    function run() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#sweep").innerHTML = r.sweep.map((s) => `<tr><th scope="row">${s.changePct > 0 ? "+" : ""}${s.changePct}%</th><td>${s.cupsPerDay.toFixed(0)}</td><td>${usd(s.net)}</td></tr>`).join("");
+      $("#shock").innerHTML = r.costShock.map((s) => `<tr><th scope="row">${s.changePct > 0 ? "+" : ""}${s.changePct}%</th><td>${usd(s.net)}</td></tr>`).join("");
+      $("#ramp").innerHTML = r.ramp.slice(0, 24).map((m) => `<tr><th scope="row">${m.month}</th><td>${m.volumePct.toFixed(0)}%</td><td>${usd(m.cash)}</td><td>${usd(m.cumulative)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("event_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "boba-shop-ramp-up.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

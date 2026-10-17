@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose Video Hosting by Minutes Watched</title>
+  <meta name="description" content="Why video-hosting bills are really viewing bills, how Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline differ, and what to check before switching.">
+  <link rel="canonical" href="./how-to-choose-video-hosting-by-minutes-watched.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does the same video cost so differently across hosting platforms?", "acceptedAnswer": {"@type": "Answer", "text": "Cloudflare Stream and api.video bill per minute stored and per minute delivered, Mux adds a large free delivery allowance, and Bunny Stream and a DIY AWS pipeline bill by GB, so their per-minute cost depends on your bitrate. At 20,000 minutes stored and 500,000 watched a month, the cheapest and most expensive list prices in the calculator differ by several multiples, and the gap widens as viewing grows faster than the library."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Video Hosting Pricing Calculator</a></p>
+  <h1>How to choose video hosting by minutes watched</h1>
+  <p>Put your minutes stored, minutes watched per month, monthly uploads and growth rate into the <a href="./">calculator</a> to price Cloudflare Stream, Mux, Bunny Stream, api.video and a DIY AWS pipeline side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why does the same video cost so differently across hosting platforms?</h2>
+  <p>Cloudflare Stream and api.video bill per minute stored and per minute delivered, Mux adds a large free delivery allowance, and Bunny Stream and a DIY AWS pipeline bill by GB, so their per-minute cost depends on your bitrate. At 20,000 minutes stored and 500,000 watched a month, the cheapest and most expensive list prices in the calculator differ by several multiples, and the gap widens as viewing grows faster than the library.</p>
+  <h2>What matters more than the list price?</h2>
+  <p>Your viewing pattern. A course or membership site where each video is watched many times is a delivery-bill business, so low per-minute delivery wins. A UGC or archive product that stores a lot and plays little is a storage-bill business. Features priced outside this calculator, such as signed URLs, DRM, captions, analytics and live streaming, often decide the choice before cost does.</p>
+  <h2>When should I move to a different platform?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: re-encoding or copying the library, swapping the player and signed-URL logic, and re-checking embeds. Run the calculator with your own volumes and growth before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

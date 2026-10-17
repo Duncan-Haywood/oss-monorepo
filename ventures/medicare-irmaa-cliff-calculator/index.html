@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Medicare IRMAA Cliff Calculator — 2026, Free</title>
+  <meta name="description" content="Free 2026 Medicare IRMAA calculator: enter your MAGI from two years ago to see your Part B and Part D tier, the surcharge, how many dollars until the next cliff, how much Roth conversion fits under it, and an SSA-44 appeal checklist. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Medicare IRMAA Cliff Calculator — free, 2026">
+  <meta property="og:description" content="See your IRMAA tier and how close you are to the next cliff. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Medicare IRMAA Cliff Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Finds your 2026 Medicare Part B and Part D IRMAA tier from your MAGI two years ago, shows the surcharge, the dollars to the next cliff, the room for a Roth conversion or gain, and an SSA-44 appeal checklist. Entirely client-side; nothing is uploaded.","featureList":"2026 IRMAA tier table, dollars to next cliff, cost of one dollar over, Roth conversion room, two-year lookback, SSA-44 checklist"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Medicare IRMAA cliff?","acceptedAnswer":{"@type":"Answer","text":"IRMAA is an income-related surcharge added to Medicare Part B and Part D premiums. The tiers are cliffs: one dollar of modified adjusted gross income (MAGI) above a threshold moves you to the next tier for the whole year. For 2026 the first threshold is $109,000 for a single filer and $218,000 for a married couple filing jointly."}},{"@type":"Question","name":"Which year's income sets my 2026 IRMAA?","acceptedAnswer":{"@type":"Answer","text":"Social Security uses your tax return from two years earlier. Your 2026 premium is based on your 2024 MAGI, and income you report in 2026 sets your 2028 premium. That is why a Roth conversion or large capital gain shows up in your premium two years later."}},{"@type":"Question","name":"How much is the IRMAA surcharge in 2026?","acceptedAnswer":{"@type":"Answer","text":"The standard Part B premium is $202.90 a month. The Part B surcharge is $81.20, $202.90, $324.60, $446.30 or $487.00 a month per person depending on the tier, plus a Part D surcharge of $14.50, $37.50, $60.40, $83.30 or $91.00 a month per person if you have a Part D plan."}},{"@type":"Question","name":"What if I am married filing separately?","acceptedAnswer":{"@type":"Answer","text":"If you lived with your spouse at any time during the year, married filing separately has only three bands: no surcharge up to $109,000, the fourth-tier surcharge above $109,000 and below $391,000, and the top tier at $391,000 and above. If you lived apart all year, the single thresholds apply."}},{"@type":"Question","name":"Can I appeal an IRMAA surcharge?","acceptedAnswer":{"@type":"Answer","text":"If your income dropped because of a life-changing event such as marriage, divorce, the death of a spouse, retirement or a work reduction, the loss of income-producing property, loss of pension income or an employer settlement payment, you can ask Social Security to use a more recent year with Form SSA-44. A checklist and draft text are on this page. This is information, not advice."}},{"@type":"Question","name":"Is this tax or medical advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 figures to the numbers you enter. It does not know your actual tax return, what Social Security has on file, or your plan. Confirm at medicare.gov and ssa.gov, and with a tax professional before you plan a Roth conversion or a sale."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MEDICARE IRMAA CLIFF CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where do you sit on the 2026 Medicare IRMAA cliffs?</h1>
+    <p>Medicare adds a surcharge to Part B and Part D when your income is over
+    <strong>$109,000</strong> (single) or <strong>$218,000</strong> (married filing jointly), and every
+    threshold is a cliff: one dollar over moves you a whole tier. Enter your MAGI from
+    <strong>two years ago</strong> to see your tier, the surcharge, the room left, and how much of a
+    Roth conversion or capital gain fits under the line.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status and income</h2>
+    <div class="grid">
+      <div>
+        <label for="filing">Filing status</label>
+        <select id="filing">
+          <option value="single" selected>Single (or head of household, widow(er))</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="mfs">Married filing separately, lived with spouse</option>
+        </select>
+      </div>
+      <div>
+        <label for="people">People on Medicare (joint return)</label>
+        <select id="people">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">MAGI from two years ago (2024) ($)</label>
+        <input type="number" id="magi" min="0" step="1" placeholder="e.g. 120000">
+      </div>
+    </div>
+    <p class="note" id="lookback-note">Your 2026 premium is set from your 2024 tax return. Income you report in 2026 sets your 2028 premium.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Optional: a planned Roth conversion, gain or IRA distribution</h2>
+    <div class="grid">
+      <div>
+        <label for="baseline">Other 2026 MAGI before it ($, blank = same as above)</label>
+        <input type="number" id="baseline" min="0" step="1" placeholder="e.g. 90000">
+      </div>
+      <div>
+        <label for="planned">Planned extra income in 2026 ($)</label>
+        <input type="number" id="planned" min="0" step="1" placeholder="e.g. 25000">
+      </div>
+      <div>
+        <label for="partd">Optional: your Part D plan premium, $/month</label>
+        <input type="number" id="partd" min="0" step="0.01" placeholder="e.g. 40">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="hasPartD" checked><label for="hasPartD">I have (or will have) a Part D drug plan</label></div>
+    <p class="note">The planned amount is measured against the same thresholds, which are indexed each year, so treat a 2028 result as a projection.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your filing status and MAGI, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>All 2026 tiers</h3>
+    <table>
+      <thead><tr><th>Tier</th><th>MAGI</th><th>Part B surcharge</th><th>Part D surcharge</th><th>Part B premium</th></tr></thead>
+      <tbody id="tier-table"></tbody>
+    </table>
+  </section>
+
+  <section class="card" id="appeal">
+    <h2>Appeal checklist: SSA-44 life-changing event</h2>
+    <p>If your income has dropped for one of these reasons, Social Security can use a more recent year instead of the two-year-old one. This is information, not advice.</p>
+    <label for="event">Reason</label>
+    <select id="event"></select>
+    <label for="estimate">Estimated MAGI for the event year ($, optional)</label>
+    <input type="number" id="estimate" min="0" step="1">
+    <ol id="steps"></ol>
+    <label for="draft">Draft text (edit before you use it)</label>
+    <textarea id="draft" rows="10" readonly></textarea>
+    <p><button type="button" class="secondary" id="copy-draft">Copy draft</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not what Social Security has on file.</strong> SSA uses the return it received; an amended return or a newer year can change it.</li>
+      <li><strong>MAGI is taken as typed.</strong> For IRMAA it is adjusted gross income plus tax-exempt interest.</li>
+      <li><strong>Figures are point-in-time.</strong> 2026 figures checked 2026-09-29 from published CMS numbers; verify at medicare.gov and ssa.gov. Thresholds and premiums change every year.</li>
+      <li><strong>No Medicare Advantage premiums, Medigap or the Part D plan itself.</strong> Only Part B and Part D surcharges.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the Medicare IRMAA cliff?</h3>
+    <p>IRMAA is an income-related surcharge added to Medicare Part B and Part D premiums. The tiers are cliffs: one dollar of modified adjusted gross income (MAGI) above a threshold moves you to the next tier for the whole year. For 2026 the first threshold is $109,000 for a single filer and $218,000 for a married couple filing jointly.</p>
+    <h3>Which year's income sets my 2026 IRMAA?</h3>
+    <p>Social Security uses your tax return from two years earlier. Your 2026 premium is based on your 2024 MAGI, and income you report in 2026 sets your 2028 premium. That is why a Roth conversion or large capital gain shows up in your premium two years later.</p>
+    <h3>How much is the IRMAA surcharge in 2026?</h3>
+    <p>The standard Part B premium is $202.90 a month. The Part B surcharge is $81.20, $202.90, $324.60, $446.30 or $487.00 a month per person depending on the tier, plus a Part D surcharge of $14.50, $37.50, $60.40, $83.30 or $91.00 a month per person if you have a Part D plan.</p>
+    <h3>What if I am married filing separately?</h3>
+    <p>If you lived with your spouse at any time during the year, married filing separately has only three bands: no surcharge up to $109,000, the fourth-tier surcharge above $109,000 and below $391,000, and the top tier at $391,000 and above. If you lived apart all year, the single thresholds apply.</p>
+    <h3>Can I appeal an IRMAA surcharge?</h3>
+    <p>If your income dropped because of a life-changing event such as marriage, divorce, the death of a spouse, retirement or a work reduction, the loss of income-producing property, loss of pension income or an employer settlement payment, you can ask Social Security to use a more recent year with Form SSA-44. A checklist and draft text are on this page. This is information, not advice.</p>
+    <h3>Is this tax or medical advice?</h3>
+    <p>No. This tool applies published 2026 figures to the numbers you enter. It does not know your actual tax return, what Social Security has on file, or your plan. Confirm at medicare.gov and ssa.gov, and with a tax professional before you plan a Roth conversion or a sale.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional or Social Security's own determination. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record &mdash; nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>irmaa_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Planning a Roth conversion? The <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket fill calculator</a> shows the tax side. Also on the health-cost cliff: the <a href="../aca-subsidy-cliff-calculator/">ACA subsidy cliff calculator</a>.</p>
+    <p>Helping a parent with long-term care costs? The <a href="../medicaid-lookback-penalty-calculator/">Medicaid look-back penalty calculator</a> works out what gifts in the last five years would cost.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, tiers, money, moneyCents, LIFE_EVENTS, CHECKLIST_STEPS, appealChecklist } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      filing: $("#filing"), people: $("#people"), magi: $("#magi"), baseline: $("#baseline"), planned: $("#planned"),
+      partd: $("#partd"), hasPartD: $("#hasPartD"), status: $("#form-status"), report: $("#report"),
+      stats: $("#report-stats"), resultTable: $("#result-table"), findings: $("#report-findings"), tiers: $("#tier-table"),
+      event: $("#event"), estimate: $("#estimate"), steps: $("#steps"), draft: $("#draft"),
+    };
+    let last = null;
+
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function readInput() {
+      return {
+        filing: els.filing.value, people: Number(els.people.value), lookbackMagi: Number(els.magi.value),
+        baselineMagi: els.baseline.value === "" ? null : Number(els.baseline.value),
+        plannedAmount: Number(els.planned.value) || 0,
+        partDPlanMonthly: els.partd.value === "" ? null : Number(els.partd.value),
+        hasPartD: els.hasPartD.checked,
+      };
+    }
+
+    function renderDraft() {
+      if (!last) return;
+      els.draft.value = appealChecklist(last, els.event.value, els.estimate.value === "" ? null : Number(els.estimate.value));
+    }
+
+    function runCalculate() {
+      if (els.magi.value === "" || !(Number(els.magi.value) >= 0)) {
+        els.status.textContent = "Enter your MAGI from two years ago first.";
+        return;
+      }
+      const input = readInput();
+      const r = analyze(input);
+      last = r;
+      els.stats.innerHTML = r.tierNumber === 0
+        ? `No IRMAA surcharge: you pay the standard Part B premium (${moneyCents(r.partBPremiumEach)} a month).`
+        : `Tier <strong>${r.tierNumber}</strong>: surcharge <strong>${money(r.annualSurcharge)}</strong> a year (${moneyCents(r.monthlySurcharge)} a month).`;
+      const rows = [
+        `<tr><th scope="row">Part B premium, each person</th><td>${moneyCents(r.partBPremiumEach)} a month</td></tr>`,
+        `<tr><th scope="row">Part D surcharge, each person</th><td>${r.hasPartD ? moneyCents(r.tier.partDSurcharge) + " a month" : "n/a (no Part D)"}</td></tr>`,
+        r.partDMonthlyEach === null ? "" : `<tr><th scope="row">Part D plan plus surcharge, each person</th><td>${moneyCents(r.partDMonthlyEach)} a month</td></tr>`,
+        `<tr><th scope="row">Dollars to the next cliff</th><td>${r.next ? money(r.next.roomUp) : "none, top tier"}</td></tr>`,
+        `<tr><th scope="row">Cost of one dollar over the cliff</th><td>${r.next ? money(r.oneDollarCost) + " a year" : "$0"}</td></tr>`,
+        `<tr><th scope="row">Dollars to drop a tier</th><td>${r.prev ? money(r.prev.dollarsToDrop) + " (saves " + money(r.prev.annualSaving) + " a year)" : "already in the lowest tier"}</td></tr>`,
+        r.planned ? `<tr><th scope="row">Planned amount ${money(r.planned.plannedAmount)}: room under its tier</th><td>${r.planned.roomInBaselineTier === null ? "top tier" : money(r.planned.roomInBaselineTier)} &mdash; ${r.planned.fits ? "fits" : "crosses " + r.planned.tiersCrossed + " tier(s), +" + money(r.planned.extraAnnualCost) + " a year"}</td></tr>` : "",
+        `<tr><th scope="row">Lookback</th><td>${esc(r.lookback.text)}</td></tr>`,
+      ];
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, r.findings);
+      els.tiers.innerHTML = tiers(r.filing).map((t) =>
+        `<tr${t.index === r.tierNumber ? ' style="font-weight:700"' : ""}><td>${t.index}</td><td>${money(t.from)} to ${t.to >= 1e12 || t.index === tiers(r.filing).length - 1 ? "no limit" : money(t.to)}</td><td>${moneyCents(t.partBSurcharge)}</td><td>${moneyCents(t.partDSurcharge)}</td><td>${moneyCents(t.partBPremium)}</td></tr>`).join("");
+      els.report.hidden = false;
+      els.status.textContent = "";
+      renderDraft();
+      record("irmaa_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    els.event.innerHTML = LIFE_EVENTS.map((e) => `<option value="${e.id}">${esc(e.label)}</option>`).join("");
+    els.event.value = "work-stopped";
+    els.steps.innerHTML = CHECKLIST_STEPS.map((s) => `<li>${esc(s)}</li>`).join("");
+    els.event.addEventListener("change", renderDraft);
+    els.estimate.addEventListener("input", renderDraft);
+    $("#copy-draft").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(els.draft.value); els.status.textContent = "Draft copied."; }
+      catch { els.draft.select(); els.status.textContent = "Select and copy the draft text."; }
+    });
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filing.value = "single"; els.people.value = "1"; els.magi.value = "120000";
+      els.baseline.value = "90000"; els.planned.value = "25000"; els.partd.value = "40"; els.hasPartD.checked = true;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: single, $120,000 MAGI two years ago. That is $17,000 under the $137,000 cliff, and a $25,000 Roth conversion on top of $90,000 would cross the $109,000 cliff.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.filing.value = "single"; els.people.value = "1"; els.magi.value = ""; els.baseline.value = "";
+      els.planned.value = ""; els.partd.value = ""; els.hasPartD.checked = true;
+      els.report.hidden = true; last = null; els.draft.value = "";
+      els.status.textContent = "Enter your filing status and MAGI, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

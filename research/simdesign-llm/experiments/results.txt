@@ -1,0 +1,30 @@
+# simdesign-llm results (mm, N, MPa, g; material inputs are assumed)
+stress limit 15.0 MPa, tip deflection limit 2.5 mm, load 100.0 N, mesh h 1.5 mm, budget 40 FE evaluations, 20 seeds for baselines
+
+## Best-known reference: differential evolution, 1845 evaluations
+best feasible: x=[24.95, 14.61, 5.29] mass 22.39 g stress 14.98 tip 1.60
+
+## Best feasible mass (g) after n evaluations; median [min, max] over seeds, and number of seeds with any feasible design
+method                                        n=10                      n=20                      n=30                      n=40
+random search            50.04 [30.16,74.60] 20/20 44.68 [30.16,74.60] 20/20 42.27 [28.38,57.13] 20/20 38.96 [28.38,54.55] 20/20
+CMA-ES                  54.13 [27.06,109.60] 19/20 42.37 [27.06,65.77] 20/20 35.75 [27.03,65.77] 20/20 33.28 [24.74,53.24] 20/20
+Bayesian opt (GP-EI)     52.00 [26.81,88.80] 20/20 37.93 [26.31,62.85] 20/20 34.41 [25.70,53.47] 20/20 32.19 [25.70,52.56] 20/20
+session agent (n=1)                          29.71                     23.73                     23.25                     22.99
+
+agent best: x=[25.0, 14.5, 5.42] mass 22.99 g stress 14.85 tip 1.55
+agent feasible proposals: 20/40
+  round 1: 8/10 feasible, best feasible 29.71 g
+  round 2: 6/10 feasible, best feasible 23.73 g
+  round 3: 3/10 feasible, best feasible 23.25 g
+  round 4: 3/10 feasible, best feasible 22.99 g
+
+## Final (n=40) gap to the best-known reference, percent
+random search            median +74.0%   best seed +26.8%
+CMA-ES                   median +48.7%   best seed +10.5%
+Bayesian opt (GP-EI)     median +43.8%   best seed +14.8%
+session agent (n=1)      +2.7%
+
+## Fraction of baseline seeds whose n=40 result beats the agent's
+random search            0/20
+CMA-ES                   0/20
+Bayesian opt (GP-EI)     0/20

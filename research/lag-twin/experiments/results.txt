@@ -1,0 +1,79 @@
+Lag twin: unit mass, first-order actuator tau u' = u_cmd - u, PD control kp = wn^2, kd = 2 zeta wn. Twin: tau = 0.
+eps = wn tau; real loop stable iff eps < 2 zeta (tau* = kd/kp).
+
+== 1. Twin vs real, zeta = 0.7, wn = 1 (tau* = 1.4): x0 = 1 step, RK4 ==
+eps   real decay rate   twin decay rate   real overshoot   twin overshoot   dominant-pole damping
+0     0.70000           0.70000           0.0460           0.0460           0.7000
+0.1   0.75516           0.70000           0.0472           0.0460           0.6958
+0.3   0.78812           0.70000           0.0706           0.0460           0.5722
+0.5   0.44779           0.70000           0.1521           0.0460           0.3328
+0.8   0.18593           0.70000           0.2993           0.0460           0.1558
+1     0.09768           0.70000           0.3896           0.0460           0.0876
+1.2   0.04005           0.70000           0.4717           0.0460           0.0381
+1.3   0.01834           0.70000           0.5098           0.0460           0.0179
+1.4   -0.00000          0.70000           0.5812           0.0460           -0.0000
+1.5   -0.01564          0.70000           12.5883          0.0460           -0.0160
+
+== 2. Routh vs roots, and the boundary frequency ==
+Routh disagrees with root locations in 0 of 168 (zeta, wn, tau/tau*) cases
+zeta  wn    tau*       boundary |Im pole|   (should equal wn)
+0.3   1     0.60000    1.000000000
+0.7   1     1.40000    1.000000000
+0.7   10    0.14000    10.000000000
+2     3     1.33333    3.000000000
+
+== 3. Growth rate just beyond the limit: d Re(s)/d tau = wn^2 / (2 (1 + 4 zeta^2)) ==
+zeta  formula       numeric slope (tau = 1 + 1e-6)     sim rate at tau = 1.05 tau* (fitted from peaks)   root Re(s) there
+0.3   0.367647      0.367647                           0.010676                                          0.010676
+0.7   0.168919      0.168919                           0.011201                                          0.011200
+1     0.100000      0.100000                           0.009467                                          0.009468
+2     0.029412      0.029412                           0.005588                                          0.005588
+
+== 4. Faster is not better in the real loop: tau = 0.05, zeta = 0.7, sweep wn ==
+(twin decay rate = zeta wn, increasing forever; real decay rate from the roots)
+wn     eps    twin rate   real rate   real stable
+1      0.050  0.700       0.7257      True
+2      0.100  1.400       1.5103      True
+4      0.200  2.800       3.2814      True
+6      0.300  4.200       4.7287      True
+8      0.400  5.600       4.8428      True
+10     0.500  7.000       4.4779      True
+12     0.600  8.400       4.0000      True
+14     0.700  9.800       3.4908      True
+16     0.800  11.200      2.9748      True
+18     0.900  12.600      2.4613      True
+20     1.000  14.000      1.9537      True
+24     1.200  16.800      0.9612      True
+28     1.400  19.600      -0.0000     False
+28.5   1.425  19.950      -0.1180     False
+30     1.500  21.000      -0.4693     False
+40     2.000  28.000      -2.7167     False
+fine search for the real-optimal wn (max decay rate), by zeta (tau = 1):
+zeta  eps*=wn*   real rate at eps*   twin rate zeta eps*   eps limit 2 zeta   eps*/(2 zeta)
+0.3   0.2730    0.0450              0.0819                0.6                0.455
+0.5   0.3750    0.1250              0.1875                1                  0.375
+0.7   0.3570    0.2450              0.2499                1.4                0.255
+1     0.5260    0.3333              0.5260                2                  0.263
+1.5   0.9210    0.3331              1.3815                3                  0.307
+2     1.2760    0.3332              2.5520                4                  0.319
+
+== 5. Twin error in the step response (RMS over 0..60 s, zeta = 0.7, wn = 1) ==
+eps = 0.01  rms 0.000393  rms/eps 0.0393
+eps = 0.02  rms 0.000793  rms/eps 0.0397
+eps = 0.05  rms 0.002036  rms/eps 0.0407
+eps = 0.1   rms 0.004250  rms/eps 0.0425
+eps = 0.2   rms 0.009244  rms/eps 0.0462
+eps = 0.5   rms 0.029610  rms/eps 0.0592
+
+== 6. Design rule: to keep tau_max <= m tau*, need wn <= 2 zeta m / tau_max ==
+zeta = 0.7, tau_max = 0.05:  m = tau_max/tau*   wn_max   real decay rate at wn_max
+                             1        28.00    0.0000
+                             0.75     21.00    1.7026
+                             0.5      14.00    3.4908
+                             0.25     7.00     4.8980
+                             0.1      2.80     2.1877
+
+== 7. Exact speed limit: the pole sum is -1/tau, so no (kp, kd) decays faster than 1/(3 tau) ==
+tau = 0.05: bound 1/(3 tau) = 6.66667; best decay rate over 200000 log-uniform (kp, kd) draws = 6.66601
+triple-pole gains wn = 1/(sqrt(27) tau) = 3.8490, zeta = sqrt(3)/2: decay rate 6.666636, poles -6.6666-5.2e-05j, -6.6667-8.8e-316j, -6.6666+5.3e-05j
+twin rate zeta wn at those gains = 3.333; at zeta = 0.7 the twin's promised rate zeta wn exceeds the cap 1/(3 tau) once wn > 9.524

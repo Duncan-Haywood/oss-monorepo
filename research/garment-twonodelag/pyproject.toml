@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodelag"
+version = "0.1.0"
+description = "Retuning a thermostat infrared-gating band when the textile has an actuation lag and each switch has a cost"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

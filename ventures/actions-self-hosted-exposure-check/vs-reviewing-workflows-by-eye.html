@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actions Self-Hosted Exposure Check vs. reviewing workflows by eye</title>
+<meta name="description" content="Spotting a bare self-hosted runner under pull_request_target is easy once you know the shape. The label buried in a runs-on: list, a second job further down the same file, and workflow_run or issue_comment as the risky trigger instead of pull_request_target are all easy to miss on a read-through. This page names no product -- reviewing by eye is a generic habit, not a competing tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reviewing-workflows-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Actions Self-Hosted Exposure Check vs. reviewing workflows by eye">
+<meta property="og:description" content="A careful read of one workflow file catches the obvious case. It has a harder time with a label buried in a runs-on: list, a second job in the same file, a runner group, a matrix runs-on:, or remembering that workflow_run and issue_comment are just as risky as pull_request_target.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/vs-reviewing-workflows-by-eye.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does reviewing a workflow for self-hosted exposure by eye actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A reviewer who knows the pattern will catch the obvious case: a job with runs-on: self-hosted sitting a few lines below an on: pull_request_target trigger. That recognition is real, and this tool checks the same underlying combination -- a self-hosted label and one of four documented risky triggers -- rather than a wider or different rule." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is self-hosted easy to miss when it's inside a runs-on: list?",
+      "acceptedAnswer": { "@type": "Answer", "text": "runs-on: can be a single label, a flow-style list like runs-on: [self-hosted, linux, x64], or a block list with one label per line. A reviewer scanning quickly for the literal line runs-on: self-hosted can walk right past self-hosted when it's the first of three items in a list, especially when the eye lands on a more distinctive label like linux or x64 first. This tool parses every label in the list, in any of the three forms, and matches self-hosted as one item among several rather than expecting the whole value to equal that one word." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are workflow_run and issue_comment easy to forget as risky triggers?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Most self-hosted-exposure review habit is trained on pull_request_target, because that trigger's whole reputation is built on the pwn-request pattern. workflow_run and issue_comment do not have \"pull request\" in the name, so a reviewer scanning a workflow's on: block for the familiar trigger can read past both without recognizing that they hand a stranger the same kind of influence GitHub's own guidance already names. This tool checks a job's runs-on: against the same fixed set of four triggers regardless of which one happens to be top of mind that day, and names the specific trigger that matched in its output." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a second job in the same workflow file easy to miss?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A reviewer who reads the first job in a file, confirms its runs-on: is safe, and moves on to the next file can stop reading before a second job further down the same file -- one with its own, different runs-on: line. This tool finds every job block in a file independently and classifies each one on its own runs-on:, so a risky second job is reported even when the first job in the same file is clean." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean result from this tool mean my self-hosted runners are safe?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It checks one specific, narrow pattern in the workflow files you give it: the literal self-hosted label combined with one of four documented risky triggers, in the jobs it can classify statically. A runs-on: that selects a runner group by name, or one built from a ${{ }} matrix expression, is reported honestly as unclassifiable from the file alone rather than guessed either way -- and it makes no network call, so it never knows whether the repository the workflow lives in is actually public." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 880px; margin: auto; padding: 28px 18px; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.58; }
+  .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+  .lede { font-size: 1.05rem; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+  code { background: #eef1f5; padding: .05em .3em; border-radius: 4px; font-size: .92em; }
+  .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  footer a, main a { color: #9a3412; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Actions Self-Hosted Exposure Check</a></p>
+  <h1>Actions Self-Hosted Exposure Check vs. reviewing workflows by eye</h1>
+  <p class="lede">Reading a workflow file for a self-hosted runner under a risky trigger is a real skill, and an
+    experienced reviewer catches the obvious case every time. This page names no product or company -- "reviewing by
+    eye" is the generic habit every maintainer already has, not a competing tool.</p>
+
+  <section class="card">
+    <h2>Where a careful read holds up, and where it slips</h2>
+    <p>
+      A job with <code>runs-on: self-hosted</code> sitting right below an <code>on: pull_request_target</code>
+      trigger is easy to spot once you know the shape. What's harder to hold in your head while scanning a real
+      repository's workflow files: <code>self-hosted</code> can show up as one label among several in a
+      <code>runs-on:</code> list rather than the whole value; <code>workflow_run</code> and <code>issue_comment</code>
+      carry the same fork-influenced risk as <code>pull_request_target</code> without "pull request" in the name to
+      cue the reviewer; a second job further down the same file can have its own, different <code>runs-on:</code>
+      after the first job already looked clean; and a runner group or a <code>${{ }}</code> matrix expression can't
+      be judged safe or unsafe from the file text at all, which is easy to either wave through or flag on a hunch.
+    </p>
+    <div class="table-wrap">
+    <table>
+      <caption class="note">Where to answer each question.</caption>
+      <thead><tr><th scope="col">Case</th><th scope="col">Reviewing by eye</th><th scope="col">This tool</th></tr></thead>
+      <tbody>
+        <tr><td>Bare <code>runs-on: self-hosted</code> under <code>pull_request_target</code></td><td>Easy to catch</td><td>Catches it the same way</td></tr>
+        <tr><td><code>runs-on: [self-hosted, linux, x64]</code> under the same trigger</td><td>Easy to miss when <code>self-hosted</code> is one item in a list rather than the whole line</td><td>Parses every label in flow-list, block-list, or single-value form</td></tr>
+        <tr><td>Trigger is <code>workflow_run</code> or <code>issue_comment</code> rather than <code>pull_request_target</code></td><td>Easy to read past -- review habit is trained on <code>pull_request_target</code>, and neither name says "pull request"</td><td>Checked against the same fixed four-trigger set regardless of which one is top of mind</td></tr>
+        <tr><td>A second job further down the same workflow file, with its own <code>runs-on:</code></td><td>Easy to skip once the first job in the file already looked clean</td><td>Every job block in the file is found and classified independently</td></tr>
+        <tr><td><code>runs-on:</code> selects a runner group by name</td><td>Easy to guess safe or unsafe from the group's name alone</td><td>Reported honestly as unclassifiable from this file, not guessed either way</td></tr>
+        <tr><td><code>runs-on: ${{ matrix.os }}</code> (a matrix expression)</td><td>Easy to wave through since it doesn't literally say <code>self-hosted</code></td><td>Flagged as unable to classify statically rather than silently passed as safe</td></tr>
+        <tr><td>A repository with a dozen workflow files</td><td>Re-reading all of them, every time a workflow changes, is tedious and easy to shortcut</td><td>Paste as many files as you have, or run <code>check.py</code> across a whole checked-out repository</td></tr>
+        <tr><td>Blocking a newly-added finding before it merges</td><td>Depends on a human noticing it in review</td><td><code>check.py --fail-on-risk</code> gives a real exit code from the same classification, wired into your own CI</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="note">The two are complementary, not competing: this tool does not decide whether a flagged job is
+      actually reachable from an attacker in your specific setup, or whether the repository is even public -- it
+      makes no network calls and never checks that. It replaces the tedious, error-prone part of the read-through:
+      finding every job in every file, parsing every <code>runs-on:</code> form, and checking each one against the
+      same fixed trigger list every time.</p>
+    <p><a class="cta" href="./">Run the free self-hosted exposure check</a></p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does reviewing a workflow for self-hosted exposure by eye actually catch?</h3>
+    <p>A reviewer who knows the pattern will catch the obvious case: a job with <code>runs-on: self-hosted</code> sitting a few lines below an <code>on: pull_request_target</code> trigger. That recognition is real, and this tool checks the same underlying combination -- a self-hosted label and one of four documented risky triggers -- rather than a wider or different rule.</p>
+    <h3>Why is self-hosted easy to miss when it's inside a runs-on: list?</h3>
+    <p><code>runs-on:</code> can be a single label, a flow-style list like <code>runs-on: [self-hosted, linux, x64]</code>, or a block list with one label per line. A reviewer scanning quickly for the literal line <code>runs-on: self-hosted</code> can walk right past <code>self-hosted</code> when it's the first of three items in a list, especially when the eye lands on a more distinctive label like <code>linux</code> or <code>x64</code> first. This tool parses every label in the list, in any of the three forms, and matches <code>self-hosted</code> as one item among several rather than expecting the whole value to equal that one word.</p>
+    <h3>Why are workflow_run and issue_comment easy to forget as risky triggers?</h3>
+    <p>Most self-hosted-exposure review habit is trained on <code>pull_request_target</code>, because that trigger's whole reputation is built on the pwn-request pattern. <code>workflow_run</code> and <code>issue_comment</code> do not have "pull request" in the name, so a reviewer scanning a workflow's <code>on:</code> block for the familiar trigger can read past both without recognizing that they hand a stranger the same kind of influence GitHub's own guidance already names. This tool checks a job's <code>runs-on:</code> against the same fixed set of four triggers regardless of which one happens to be top of mind that day, and names the specific trigger that matched in its output.</p>
+    <h3>Why is a second job in the same workflow file easy to miss?</h3>
+    <p>A reviewer who reads the first job in a file, confirms its <code>runs-on:</code> is safe, and moves on to the next file can stop reading before a second job further down the same file -- one with its own, different <code>runs-on:</code> line. This tool finds every job block in a file independently and classifies each one on its own <code>runs-on:</code>, so a risky second job is reported even when the first job in the same file is clean.</p>
+    <h3>Does a clean result from this tool mean my self-hosted runners are safe?</h3>
+    <p>No. It checks one specific, narrow pattern in the workflow files you give it: the literal <code>self-hosted</code> label combined with one of four documented risky triggers, in the jobs it can classify statically. A <code>runs-on:</code> that selects a runner group by name, or one built from a <code>${{ }}</code> matrix expression, is reported honestly as unclassifiable from the file alone rather than guessed either way -- and it makes no network call, so it never knows whether the repository the workflow lives in is actually public.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against fork-exposed CI, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against anything -- it is a static page describing a generic manual-review habit, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+  </footer>
+</main>
+</body></html>

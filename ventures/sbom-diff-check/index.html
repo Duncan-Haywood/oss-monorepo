@@ -89,7 +89,7 @@
     <pre class="cmd"><code>python3 sbom_diff.py old.json new.json                  # human-readable
 python3 sbom_diff.py old.json new.json --format json     # machine-readable
 python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything differs</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/sbom-diff-check/sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-change</code> into your own CI to catch an unexpected dependency drift before it merges.</p>
+    <p class="note">Get <a href="sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-change</code> into your own CI to catch an unexpected dependency drift before it merges.</p>
   </section>
 
   <section class="card">
@@ -104,16 +104,17 @@ python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything di
     <p>That still works. Only each package's name and version are compared, and both formats expose those two fields, so a CycloneDX document can be diffed against an SPDX document from an earlier build with no conversion step.</p>
     <h3>What about a package that appears twice with different versions in the same build?</h3>
     <p>Handled directly: packages are matched by name, and the set of versions recorded under that name is compared rather than assuming exactly one. A monorepo pulling in two versions of the same library through different paths is reported as a version gained or lost, not silently collapsed to one or crashed on.</p>
-    <p>More: <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the raw SBOM JSON files by hand</a>, and <a href="vs-cyclonedx-cli-diff.html">how this compares to the official cyclonedx-cli's diff command</a>.</p>
+    <p>More: <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the raw SBOM JSON files by hand</a>, and <a href="vs-cyclonedx-cli-diff.html">how this compares to the official cyclonedx-cli's diff command</a>. If one small version bump produced a report full of changes, see <a href="why-did-one-version-bump-show-up-as-dozens-of-changes.html">why bumping one package can show up as dozens of changes</a>.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/sbom-diff-check/sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. Both SBOMs you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>diff_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Checking one build's manifest rather than diffing two: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks whether a Dockerfile's base image is pinned to a content digest, and <a href="../license-drift-check/">License Drift Check</a> diffs a raw npm/pip/cargo/go dependency tree's declared licenses between two snapshots rather than a standardized SBOM document — three different slices of the same "what does this build actually contain, and did it change" question.</p>
     <p>Diffing an API contract instead of a build artifact: <a href="../openapi-breaking-change-check/">OpenAPI Breaking Change Check</a> compares two OpenAPI 3.x documents and classifies each difference as breaking or not, for the same "did this change and does it matter" question applied to a REST API version instead of a dependency inventory.</p>
+    <p>Preparing for a security audit rather than diffing a build: <a href="../soc2-readiness-checker/">SOC 2 Readiness Checker</a> scores your controls against what auditors test and ranks the gaps by effort.</p>
     <p class="support">Free and open source. If this saved you from writing a one-off SBOM diff script, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

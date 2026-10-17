@@ -1,0 +1,64 @@
+name: rsu-withholding-gap-calculator
+description: >-
+  Free browser tool for employees with RSU income that compares the flat 22%
+  (37% over $1M) federal withholding on a vest with the tax the vest actually
+  adds at their 2026 brackets, the Additional Medicare Tax, an optional flat
+  state rate, the underpayment-penalty safe harbor, and the extra W-4
+  withholding per paycheck that closes the gap. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. No sibling in ventures/
+# (grep rsu/espp/equity: none). Tech employees have money and get a surprise tax
+# bill in April because the employer withholds 22% while the vest is taxed at
+# 24-37%. Existing help is broker/employer blog posts and generic paycheck
+# calculators that do not model a lump of supplemental wages stacked on salary.
+#
+# First visitor: r/cscareerquestions, r/personalfinance, Blind and levels.fyi
+# threads on "RSU tax withholding 22% not enough", and searches like "RSU
+# withholding calculator", "am I under-withheld on RSUs". Search volume not
+# measured with an external tool.
+#
+# What makes it more than a calculator: it layers the vest through the brackets,
+# checks the safe harbor (so late-year extra withholding is named as the fix
+# rather than a late estimated payment), and converts the gap to a per-paycheck
+# W-4 4(c) amount.
+#
+# Path to revenue (payment rails stay off): lead magnet and natural next step
+# for equity-comp tools (ESPP/ISO AMT planners, sell-to-cover vs hold). A paid
+# tier, if usage appears, is multi-vest scheduling and a saved local plan behind
+# an env-var switch; not built.
+#
+# Liability: not tax advice; arithmetic only; tax on sale, AMT, credits and state
+# brackets stated as not covered on the page. Privacy: numbers never leave the
+# browser.
+#
+# Unverified: hand-calculated against 2026 tables only; no real pay stub or
+# return has been compared. The first real case that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      RSU holders facing a vest will enter salary and vest into a no-signup tool
+      that names the withholding gap and the per-paycheck fix, rather than
+      waiting for April or paying for advice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real vest whose withholding or tax the tool contradicts on a point of arithmetic.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rsu-withholding-gap-calculator/
+  analytics: null

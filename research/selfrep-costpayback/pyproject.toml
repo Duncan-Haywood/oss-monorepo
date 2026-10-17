@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-costpayback"
+version = "0.1.0"
+description = "Cost-weighted payback of the recycling machines of a self-replicating printer shop"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

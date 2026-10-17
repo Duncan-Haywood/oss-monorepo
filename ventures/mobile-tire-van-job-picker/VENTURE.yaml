@@ -1,0 +1,48 @@
+name: mobile-tire-van-job-picker
+description: 'Free, zero-network, zero-dependency browser tool and CLI for mobile tire, roadside-service and other one-van field businesses: paste the day''s requested jobs (price, materials, minutes on site, the time window each customer gives, and where they are) and get the exact most profitable set and order for one van (dynamic programming over job sets with non-dominated time/profit labels, verified against every ordering of every subset), the drive and idle time it implies, the exact price at which each declined job would earn a place, and the dollars first-come and biggest-ticket-first dispatch leave behind. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a one-van mobile tire or roadside operator keeps from a day's calls.
+# Checked 2026-10-02: ventures/ has tow-motor-club-call-calculator (accept/decline per call and a batch ranking by
+# profit per truck-hour, no time windows, no shared drive between calls), route-stop-optimizer (orders stops to cut
+# drive time, no pricing or accept/decline), tire-shop-ticket-margin-calculator (in-shop ticket margin) and
+# mobile-detailing-bid-calculator (one bid); none chooses which jobs to run, and in what order, under time windows with
+# drive cost between them. Not in screened-out.md. Towing was the first candidate; it is partly covered, so this takes
+# the uncovered one-van mobile-service shape, which a tow operator can use too by typing windows and distances.
+#
+# First visitor: searches "mobile tire service scheduling", "how to price mobile tire repair", "mobile tire shop
+# profit per day", "roadside service dispatch which call first"; mobile tire and mechanic operator forums and groups.
+# Volume not measured with an external tool. Field-service software schedules but does not tell an owner which call
+# to refuse or what price a far call needs; a hosted version that reads the day's calls from a phone or dispatch
+# export is the natural paid upgrade.
+hypotheses:
+  - claim: A one-van mobile tire operator will paste a day's queue, see how much first-come dispatch leaves behind, and change which calls they accept or what they quote for far ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An operator will return each morning with new calls, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No operator reports changing a call they accept or a price they quote because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-tire-van-job-picker/
+  analytics: null

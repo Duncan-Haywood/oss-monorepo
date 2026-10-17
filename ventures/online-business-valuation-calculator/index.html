@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Online Business Valuation Calculator — SaaS, Ecommerce, Content, Agency</title>
+  <meta name="description" content="Free online business valuation calculator. Enter revenue and SDE to get a sale price range for a SaaS, ecommerce, content or agency business, adjusted for growth, churn, concentration and owner hours. Nothing is uploaded.">
+  <meta property="og:title" content="Online Business Valuation Calculator — free, private, in your browser">
+  <meta property="og:description" content="What could your small online business sell for? SDE and ARR multiples, net of fees, plus what to fix before listing.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Online Business Valuation Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate what a SaaS, e-commerce, content or agency business could sell for from SDE and ARR multiples, adjusted for growth, churn, customer concentration, owner hours and age. Shows net after selling fees and which fixes add the most value. Runs in your browser.", "featureList": "SaaS valuation calculator, SDE multiple calculator, ARR multiple, ecommerce business valuation, net proceeds after broker fee, valuation levers, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is my online business worth?", "acceptedAnswer": {"@type": "Answer", "text": "Small online businesses are usually priced as a multiple of seller's discretionary earnings (SDE), which is annual profit before the owner's pay. Typical rules of thumb run from about 2x for agencies to 3x or more for subscription software, moving up with growth and low churn and down with customer concentration, owner dependence and a short history. This tool applies those adjustments and shows the range."}}, {"@type": "Question", "name": "What is SDE and how do I calculate it?", "acceptedAnswer": {"@type": "Answer", "text": "SDE is seller's discretionary earnings: net profit plus the owner's salary, one-off costs and personal expenses run through the business. It answers how much cash one working owner could take out of the business in a year. Use the same trailing 12 months as the revenue figure."}}, {"@type": "Question", "name": "What multiple do SaaS businesses sell for?", "acceptedAnswer": {"@type": "Answer", "text": "Small SaaS businesses commonly trade at roughly 2 to 4 times SDE, or 2 to 3 times annual recurring revenue, depending on growth and churn. Low monthly churn and steady growth push the multiple up; high churn or one customer paying most of the revenue pull it down."}}, {"@type": "Question", "name": "Why do buyers discount customer concentration?", "acceptedAnswer": {"@type": "Answer", "text": "If one customer or one traffic channel produces a large share of revenue, losing it can erase the profit the buyer is paying for. Diligence checks it early, so this tool lowers the multiple as the largest source's share rises."}}, {"@type": "Question", "name": "How can I raise my business's sale price before listing?", "acceptedAnswer": {"@type": "Answer", "text": "The tool lists the factors currently costing you multiple and the dollar value of fixing each one. Common fixes are documenting processes so you work fewer hours, diversifying revenue sources, cutting churn, and waiting until you have at least a year of clean records."}}, {"@type": "Question", "name": "Is this a valuation or appraisal?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a rule-of-thumb starting range from numbers you type. Real sale prices depend on the buyer, marketplace, deal structure, earn-outs and diligence. Talk to a business broker or accountant before you set an asking price."}}, {"@type": "Question", "name": "Is my financial data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is computed in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ONLINE BUSINESS VALUATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What could your online business sell for?</h1>
+    <p>Enter trailing-12-month revenue and <strong>SDE</strong> (profit before your own pay) for a SaaS, e-commerce, content or agency business. You get a <strong>price range</strong> from earnings and recurring-revenue multiples, the <strong>net after selling fees</strong>, what a buyer's payback looks like, and a ranked list of <strong>what is costing you multiple</strong> and what fixing it is worth.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A rule-of-thumb estimate, not an appraisal. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your business</h2>
+    <div class="grid">
+      <div><label for="type">Business type</label><select id="type"><option value="saas">SaaS / subscription software</option><option value="ecommerce">E-commerce / DTC store</option><option value="content">Content site / affiliate / newsletter</option><option value="agency">Agency / productised service</option></select></div>
+      <div><label for="revenue">Revenue, last 12 months ($)</label><input id="revenue" inputmode="decimal" placeholder="240000"></div>
+      <div><label for="sde">SDE, last 12 months ($)</label><input id="sde" inputmode="decimal" placeholder="96000"></div>
+      <div><label for="mrr">Monthly recurring revenue, SaaS only ($)</label><input id="mrr" inputmode="decimal" placeholder="20000"></div>
+      <div><label for="growth">Revenue growth vs prior year (%)</label><input id="growth" inputmode="decimal" value="10"></div>
+      <div><label for="churn">Monthly customer churn, SaaS only (%)</label><input id="churn" inputmode="decimal" value="2.5"></div>
+      <div><label for="top">Largest customer or channel share of revenue (%)</label><input id="top" inputmode="decimal" value="10"></div>
+      <div><label for="hours">Owner hours per week</label><input id="hours" inputmode="decimal" value="25"></div>
+      <div><label for="age">Business age (months)</label><input id="age" inputmode="numeric" value="36"></div>
+      <div><label for="fee">Broker or marketplace fee (%)</label><input id="fee" inputmode="decimal" value="10"></div>
+    </div>
+    <p class="note">SDE is net profit plus your own salary, one-off costs and personal expenses paid by the business. Use the same 12 months for revenue and SDE. Churn is ignored for non-SaaS types.</p>
+    <button type="button" id="run">Estimate value</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your numbers, then click Estimate value.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h2>How your multiple was built</h2>
+    <div class="scroll"><table id="factors"><thead><tr><th>Factor</th><th>Your input</th><th class="n">Effect on multiple</th></tr></thead><tbody></tbody></table></div>
+    <h2>What to fix before listing</h2>
+    <div class="scroll"><table id="levers"><thead><tr><th>Fix</th><th>Now</th><th class="n">Multiple gained</th><th class="n">Value gained</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Base multiples</strong> are broad rules of thumb for small online business sales: SaaS 3.3x SDE and 2.4x ARR, e-commerce 2.6x, content 3.0x, agency 2.0x. Five adjustments add to or subtract from the multiple: revenue growth, monthly churn (SaaS), largest-source concentration, owner hours and business age. The multiple never drops below 0.8x. SaaS with both SDE and MRR is valued on the average of the two methods; others on SDE. The <strong>range</strong> is the midpoint plus or minus 22% (SaaS, e-commerce) or 25% (content, agency). <strong>Net to seller</strong> is the midpoint less the fee you enter. <strong>Buyer payback</strong> is midpoint price divided by SDE.</p>
+    <p><strong>Not modelled:</strong> inventory and working capital, debt, asset-only or code-only sales, earn-outs and seller financing, tax on the sale, marketplace-specific demand, and business models outside the four types. <strong>Unverified:</strong> the base multiples and adjustment sizes are unaudited heuristics checked by unit tests for internal consistency only, not calibrated against a sales database.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is my online business worth?</h3>
+    <p>Small online businesses are usually priced as a multiple of seller's discretionary earnings (SDE), which is annual profit before the owner's pay. Typical rules of thumb run from about 2x for agencies to 3x or more for subscription software, moving up with growth and low churn and down with customer concentration, owner dependence and a short history. This tool applies those adjustments and shows the range.</p>
+    <h3>What is SDE and how do I calculate it?</h3>
+    <p>SDE is seller's discretionary earnings: net profit plus the owner's salary, one-off costs and personal expenses run through the business. It answers how much cash one working owner could take out of the business in a year. Use the same trailing 12 months as the revenue figure.</p>
+    <h3>What multiple do SaaS businesses sell for?</h3>
+    <p>Small SaaS businesses commonly trade at roughly 2 to 4 times SDE, or 2 to 3 times annual recurring revenue, depending on growth and churn. Low monthly churn and steady growth push the multiple up; high churn or one customer paying most of the revenue pull it down.</p>
+    <h3>Why do buyers discount customer concentration?</h3>
+    <p>If one customer or one traffic channel produces a large share of revenue, losing it can erase the profit the buyer is paying for. Diligence checks it early, so this tool lowers the multiple as the largest source's share rises.</p>
+    <h3>How can I raise my business's sale price before listing?</h3>
+    <p>The tool lists the factors currently costing you multiple and the dollar value of fixing each one. Common fixes are documenting processes so you work fewer hours, diversifying revenue sources, cutting churn, and waiting until you have at least a year of clean records.</p>
+    <h3>Is this a valuation or appraisal?</h3>
+    <p>No. It is a rule-of-thumb starting range from numbers you type. Real sale prices depend on the buyer, marketplace, deal structure, earn-outs and diligence. Talk to a business broker or accountant before you set an asking price.</p>
+    <h3>Is my financial data uploaded anywhere?</h3>
+    <p>No. Everything is computed in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not a professional appraisal or valuation opinion. Results are rule-of-thumb estimates from the numbers you enter; they do not predict what a buyer will pay. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any business marketplace, broker or valuation firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>valuation_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Building or selling a software business? See the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>, the <a href="../startup-exit-waterfall-calculator/">startup exit waterfall calculator</a> and the <a href="../insurance-agency-book-valuation-calculator/">insurance agency book valuation calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Buying a brick-and-mortar or service business with an SBA loan? The <a href="../small-business-acquisition-calculator/">small business acquisition calculator</a> tests price and SDE against DSCR and cash to close &mdash; nothing uploaded.</p>
+</footer>
+
+  <script type="module">
+    import { value, sampleText, reportCsv, money, multiple, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id) => { const v = $("#" + id).value.trim().replace(/[,$]/g, ""); return v === "" ? NaN : Number(v); };
+    const optional = (id) => { const n = num(id); return Number.isNaN(n) ? undefined : n; };
+    let last = null;
+
+    function run() {
+      const r = value({ type: $("#type").value, revenue: num("revenue"), sde: num("sde"), mrr: optional("mrr"), growth: num("growth"), monthlyChurn: optional("churn") ?? 0, topShare: num("top"), ownerHours: num("hours"), ageMonths: num("age"), sellingFeePct: num("fee") });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#big").innerHTML = [
+        [money(r.mid), "Estimated value (midpoint)"],
+        [`${money(r.low)} – ${money(r.high)}`, "Likely range"],
+        [money(r.netMid), `Net to you after a ${r.sellingFeePct}% fee`],
+        [r.buyerPaybackYears ? `${r.buyerPaybackYears.toFixed(1)} years` : "n/a", "Buyer payback on SDE"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#factors tbody").innerHTML = r.factors.map((f) => `<tr><td>${esc(f.label)}</td><td>${esc(f.note)}</td><td class="n">${f.delta >= 0 ? "+" : ""}${f.delta.toFixed(1)}x</td></tr>`).join("") + `<tr><td><strong>SDE multiple used</strong></td><td>${r.arrMult ? "ARR multiple " + esc(multiple(r.arrMult)) : ""}</td><td class="n"><strong>${esc(multiple(r.sdeMult))}</strong></td></tr>`;
+      $("#levers tbody").innerHTML = r.levers.length ? r.levers.map((l) => `<tr><td>${esc(l.label)}</td><td>${esc(l.note)}</td><td class="n">+${l.multipleGain.toFixed(1)}x</td><td class="n">${esc(money(l.valueGain))}</td></tr>`).join("") : `<tr><td colspan="4">No factor is currently pulling your multiple down.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(o) {
+      $("#type").value = o.type; $("#revenue").value = o.revenue; $("#sde").value = o.sde; $("#mrr").value = o.mrr; $("#growth").value = o.growth;
+      $("#churn").value = o.monthlyChurn; $("#top").value = o.topShare; $("#hours").value = o.ownerHours; $("#age").value = o.ageMonths; $("#fee").value = o.sellingFeePct;
+    }
+
+    $("#run").addEventListener("click", () => { if (run()) record("valuation_run"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleText());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented business, not a real sale."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["revenue", "sde", "mrr"]) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = "Enter your numbers, then click Estimate value."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "business-valuation.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

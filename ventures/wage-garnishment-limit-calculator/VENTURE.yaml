@@ -1,0 +1,77 @@
+name: wage-garnishment-limit-calculator
+description: >-
+  Free browser tool for workers with a garnished paycheck that turns a pay stub
+  into the most federal law lets an order take: disposable earnings, the
+  25%-or-floor rule for ordinary debt, the 15% student loan cap, the 50-65%
+  support caps, the combined limit, pay that is protected, an overtime what-if,
+  a check of the amount on the stub, and a draft request for payroll's
+  worksheet. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.27 (unrelated), no wage-garnishment or lien tool in ventures/ or
+# screened-out.md. Roughly a tenth of American workers with consumer debt in
+# collections face a judgment; the help on offer is a DOL fact sheet and law
+# firm blog posts with a static table, none of which does the arithmetic on
+# the person's own stub.
+#
+# First visitor: r/personalfinance, r/legaladvice and r/DebtCollection threads
+# ("can they garnish my whole check", "how much can they take from my
+# paycheck"), and searches like "wage garnishment calculator", "how much can
+# be garnished from my paycheck" and "garnishment limit child support
+# calculator". Search volume not measured with an external tool.
+#
+# What makes it more than a calculator: it applies the combined caps and the
+# support-first ordering, checks the amount on the stub against them, ranks
+# findings, and says what a difference could and could not mean; the letter
+# asks for payroll's worksheet and never alleges a violation. The overtime
+# what-if answers the question workers actually ask, whether extra hours are
+# worth it while garnished.
+#
+# Privacy is the liability boundary: pay and debt numbers never leave the
+# browser (tests assert no network calls). State law is not encoded because a
+# wrong state table is worse than none; a confirmed state percent can be typed.
+#
+# Path to revenue (payment rails stay off): lead magnet into debt-relief and
+# legal-aid referrals is not built and would need review. A paid tier, if usage
+# appears, is a state-by-state rule set with cited statutes, behind an
+# env-var switch; not built.
+#
+# Unverified: arithmetic run against invented stubs and hand calculation only;
+# the combined-cap ordering across support, student loan and ordinary debt is a
+# simplification of the DOL guidance. The first real stub that disagrees is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Workers who see a garnishment on a stub will enter the numbers from a
+      no-signup tool that shows the federal ceiling and what to ask payroll,
+      rather than accepting the amount or paying for advice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The overtime what-if brings people back: they test extra hours against the
+      garnishment before taking them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real stub whose figures the tool contradicts on a point of federal arithmetic, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wage-garnishment-limit-calculator/
+  analytics: null

@@ -85,7 +85,7 @@
 python3 check.py /path/to/repo    # scan a specific checkout
 python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-secrets-inherit-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
   </section>
 
   <section class="card">
@@ -100,12 +100,12 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page.</p>
     <h3>Does a clean scan mean my workflows are safe?</h3>
     <p>No. This checks two specific, well-documented patterns in a single workflow file at a time. It is not a security audit and makes no claim about your repository's overall security. It does not evaluate whether the called workflow is actually trustworthy, and it does not follow a local reusable workflow to see what it in turn calls.</p>
-    <p>More: <a href="what-is-github-actions-secrets-inherit.html">what is <code>secrets: inherit</code> and when is it risky?</a> &middot; already run <a href="vs-zizmor.html">zizmor</a>? see what its <code>secrets-inherit</code> audit does and does not check.</p>
+    <p>More: <a href="what-is-github-actions-secrets-inherit.html">what is <code>secrets: inherit</code> and when is it risky?</a> &middot; already run <a href="vs-zizmor.html">zizmor</a>? see what its <code>secrets-inherit</code> audit does and does not check &middot; reviewing workflows by hand instead? see <a href="vs-checking-by-hand.html">where that holds up and where it slips</a>.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against secret exposure, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-secrets-inherit-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also worth a pass over your workflows: <a href="../actions-secret-leak-check/">Actions Secret Leak Check</a> flags a secret that reaches a log or a later step unmasked, <a href="../pinned-actions-check/">Pinned Actions Check</a> flags a third-party <code>uses:</code> line referenced by a mutable tag instead of a pinned commit SHA, and <a href="../actions-permissions-check/">Actions Permissions Check</a> flags an overbroad <code>GITHUB_TOKEN</code> grant — three more slices of a hardened CI setup.</p>

@@ -1,0 +1,39 @@
+name: workflow-audit
+description: 'One free GitHub Action and zero-dependency CLI that runs twelve read-only workflow security and cost checks (injection, poisoning, secret leaks, permissions, self-hosted exposure, timeouts, deprecated runtimes, unpinned action refs) and merges them into one severity-ranked report with job summary and SARIF output. Nothing is uploaded; no network calls.'
+stage: prototype
+owner: duncan
+
+# Consolidation product, not a calculator: bundles the ten actions-* checker
+# ventures into the distribution shape those tools lacked -- a single
+# `uses:` line that a GitHub Marketplace listing and the Actions search can
+# surface. Alternatives named in README (zizmor, Scorecard, hosted
+# platforms); this is the smaller, install-free option and says so.
+#
+# Liability boundary: read-only pattern matching, never claims a workflow is
+# secure, no data leaves the runner.
+#
+# Path to revenue (rails off): lead magnet and donations. A later paid tier
+# could be org-wide scheduled scans and a baseline/ignore file; not built.
+# Publishing to the GitHub Marketplace is an owner step.
+hypotheses:
+  - claim: 'A maintainer will add a one-line audit step to CI, and keep it, when it replaces ten separate tools and writes the job summary for them.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No external repository is found using the Action within 90 days of the Marketplace listing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/workflow-audit/
+  analytics: null

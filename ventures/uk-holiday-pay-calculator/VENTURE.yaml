@@ -1,0 +1,39 @@
+name: uk-holiday-pay-calculator
+description: >-
+  Free browser tool for UK workers and small employers: enter the leave year, working pattern, start and leave dates to see statutory holiday (5.6 weeks, 28-day cap, pro-rated), the 12.07% irregular-hours method, days left and the value of unused days in final pay. Nothing is uploaded. Not tax or legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK holiday tool in ventures/ (paid-sick-leave-accrual-calculator is US state sick leave).
+#
+# First visitor: a UK part-timer, starter, leaver or zero-hours worker searching "holiday entitlement calculator", "part time holiday calculator", "12.07% holiday pay".
+# High-intent, high-volume, evergreen, with a spike each April and January; volume not measured. Sibling of the UK redundancy, take-home pay and sick pay tools for cross-links.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Competes with the free GOV.UK calculator by adding the irregular-hours method, contract check, bank holidays and final-pay value in one result.
+#
+# Liability: rules written from memory without network access. Every result names GOV.UK as the source to verify, carries no-warranty and not-tax-or-legal-advice clauses, and says what it does not decide
+# (Northern Ireland, overtime averaging, carry-over). Ethical risk is a wrong day count relied on in a dispute; mitigated by sourcing and "get it in writing" steps.
+hypotheses:
+  - claim: >-
+      UK part-time, starting, leaving and irregular-hours workers will use a free calculator to check their holiday days and final-pay holiday value against what their employer says.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an entitlement, rate or rounding rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-holiday-pay-calculator/
+  analytics: null

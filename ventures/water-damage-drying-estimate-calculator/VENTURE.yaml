@@ -1,0 +1,43 @@
+name: water-damage-drying-estimate-calculator
+description: >-
+  Free browser calculator for water damage restoration contractors: enter the wet floor, wall and ceiling area and the water class, and see the air
+  movers and dehumidifiers the loss needs, the equipment-day bill, the job margin, and what an extra drying day or a short carrier approval does to it.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. Nothing in ventures/ or screened-out.md sizes drying equipment or prices a water loss. mold-remediation-bid-calculator and
+# asbestos-abatement-bid-calculator are the nearest trade, but neither sizes equipment from affected area or models a carrier-capped equipment-day bill.
+#
+# First visitor: small restoration contractors and plumbers adding mitigation, searching "how many air movers per square foot", "water damage dehumidifier sizing",
+# "water damage restoration pricing" and "insurance approved drying days". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not a drying plan, not an industry standard and not carrier guidance;
+# says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small restoration contractors will type a loss's wet area and class into a no-signup calculator to size equipment and check margin against the carrier's
+      approved days, because most price from a rule of thumb and discover the shortfall when the invoice is cut.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/water-damage-drying-estimate-calculator/
+  analytics: null

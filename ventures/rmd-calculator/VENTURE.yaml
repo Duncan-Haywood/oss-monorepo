@@ -1,0 +1,55 @@
+name: rmd-calculator
+description: >-
+  Free browser tool for retirees that computes the required minimum
+  distribution from IRAs and employer plans, projects it to age 95, prices the
+  April 1 delay that stacks two RMDs into one year, shows how qualified
+  charitable distributions cut the taxable amount, and estimates the excise
+  tax on a missed RMD. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.15 (unrelated); no RMD tool in ventures/. People aged 72+ have a
+# hard annual deadline, a 25% penalty for missing it, and a first-year choice
+# (delay to April 1) that most calculators never price. Adjacent ventures
+# (Roth conversion bracket fill, Medicare IRMAA) are the "before" and "after"
+# of this one, so they link to each other.
+#
+# First visitor: searches like "rmd calculator", "required minimum
+# distribution calculator 2026", "should I delay my first rmd", "qcd rmd";
+# r/retirement and Bogleheads threads. Volume not measured externally.
+#
+# Path to revenue (payment rails stay off): lead magnet for the retirement
+# tax cluster. A paid tier, if usage appears, is a saved multi-year plan and a
+# printable report, local only, behind an env-var switch; not built.
+#
+# Liability: illustrative estimates, not advice; table and rules cited from
+# IRS Pub. 590-B; omissions (inherited IRAs, Joint Life table, still-working
+# exception, state tax) stated on the page and the custodian's figure is named
+# as the one to follow. Unverified against an IRS worksheet.
+
+hypotheses:
+  - claim: >-
+      People near RMD age will use a no-signup tool that prices the April 1
+      delay and a QCD rather than only returning one number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a custodian RMD figure the tool contradicts on a point of arithmetic, at which point the table or start-age handling needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rmd-calculator/
+  analytics: null

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mosquito Control Pricing Calculator: Price Per Visit and Season — Free</title>
+  <meta name="description" content="Free mosquito control pricing calculator for barrier spray operators: type your product, labour, drive time and re-treat rate to see the minimum price per visit and per prepaid season, customer lifetime value and customers needed to break even. Nothing uploaded.">
+  <meta property="og:title" content="Mosquito control program pricing calculator">
+  <meta property="og:description" content="What must a mosquito spray visit and a season program cost to leave your margin? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mosquito Control Program Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out the minimum price per visit and per season for a mosquito barrier spray program after product, labour, drive time, free re-treats, overhead and prepay discounts, plus customer lifetime value and break-even customers."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge for mosquito control?", "acceptedAnswer": {"@type": "Answer", "text": "Work up from your cost per visit: product for the yard, the applicator's time on site and driving, truck cost, free re-treats, then overhead and card fees as a share of price. Divide the direct cost by one minus those percentages and your wanted margin. This tool shows that minimum price per visit and for a prepaid season."}}, {"@type": "Question", "name": "Why does the prepay discount matter?", "acceptedAnswer": {"@type": "Answer", "text": "A discount comes straight off your margin because the costs do not fall. If you give 8% off to get paid up front, the list price has to be about 8% higher than the pay-per-visit minimum to keep the same margin. The tool shows both."}}, {"@type": "Question", "name": "What are free re-treats costing me?", "acceptedAnswer": {"@type": "Answer", "text": "Every visit you redo after rain costs product and a trip. The tool adds your re-treat share to the direct cost of every visit, so a bad weather season shows up as a lower margin before you sign the program."}}, {"@type": "Question", "name": "How many customers do I need to cover startup costs?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the startup cost by the profit per season-program customer. The tool also shows how many customers one truck can serve from your stops per day, days a week and season length."}}, {"@type": "Question", "name": "Is this legal or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Pesticide applicator licences, product labels, local limits and insurance requirements vary; check yours and use a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">MOSQUITO CONTROL PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What must a mosquito spray visit and season program cost?</h1>
+    <p>Type your product cost, time on site, drive time, free re-treat rate and overhead. The tool finds your cost per visit, the lowest price per visit and per prepaid season that leaves the margin you want, the profit at a ladder of prices, what a renewing customer is worth, and how many customers cover your startup cost.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, legal, tax or licensing advice. The example figures are placeholders, not your costs or local prices.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The yard and the visit</h2>
+      <div class="grid">
+        <div><label for="yardSqft">Treated area (sq ft)</label><input id="yardSqft" type="number" step="any" value="0"><p class="note">Average yard you spray. Most programs treat the foliage and perimeter, not the whole lot.</p></div>
+        <div><label for="productPer1k">Product cost per 1,000 sq ft ($)</label><input id="productPer1k" type="number" step="any" value="0"><p class="note">Concentrate and mix, per visit.</p></div>
+        <div><label for="onSiteMin">Minutes on site per visit</label><input id="onSiteMin" type="number" step="any" value="0"></div>
+        <div><label for="driveMin">Drive minutes between stops</label><input id="driveMin" type="number" step="any" value="0"><p class="note">Route average, one way.</p></div>
+        <div><label for="callbackPct">Free re-treats (% of visits)</label><input id="callbackPct" type="number" step="any" value="0"><p class="note">Rain washes it off, or a customer calls back.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Your costs</h2>
+      <div class="grid">
+        <div><label for="laborHour">Applicator cost per hour ($)</label><input id="laborHour" type="number" step="any" value="0"><p class="note">Wage plus payroll tax and insurance. Pay yourself here too.</p></div>
+        <div><label for="truckHour">Truck and sprayer cost per road hour ($)</label><input id="truckHour" type="number" step="any" value="0"><p class="note">Fuel, wear, equipment.</p></div>
+        <div><label for="overheadPct">Overhead (% of revenue)</label><input id="overheadPct" type="number" step="any" value="0"><p class="note">Insurance, licence, software, marketing.</p></div>
+        <div><label for="cardPct">Card fees (% of revenue)</label><input id="cardPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Price, program and route</h2>
+      <div class="grid">
+        <div><label for="visitPrice">Price per visit ($)</label><input id="visitPrice" type="number" step="any" value="0"><p class="note">What you charge pay-per-visit.</p></div>
+        <div><label for="visitsPerSeason">Visits in a season program</label><input id="visitsPerSeason" type="number" step="any" value="0"></div>
+        <div><label for="prepayDiscountPct">Prepay discount (%)</label><input id="prepayDiscountPct" type="number" step="any" value="0"><p class="note">Off the season total when paid up front.</p></div>
+        <div><label for="renewPct">Customers who renew (%)</label><input id="renewPct" type="number" step="any" value="0"><p class="note">Next season.</p></div>
+        <div><label for="seasonsCap">Seasons to count a customer</label><input id="seasonsCap" type="number" step="any" value="0"><p class="note">Value stops here.</p></div>
+        <div><label for="wantPct">Profit margin you want (%)</label><input id="wantPct" type="number" step="any" value="0"><p class="note">On the price the customer pays.</p></div>
+        <div><label for="stopsPerDay">Visits on a full route day</label><input id="stopsPerDay" type="number" step="any" value="0"></div>
+        <div><label for="routeDaysPerWeek">Spray days a week</label><input id="routeDaysPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="seasonWeeks">Weeks in your season</label><input id="seasonWeeks" type="number" step="any" value="0"></div>
+        <div><label for="startupCost">Startup cost ($)</label><input id="startupCost" type="number" step="any" value="0"><p class="note">Sprayer, licence, deposit, branding.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Work out my prices</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions mosquito control operators ask</h2>
+      <h3>How much should I charge for mosquito control?</h3>
+      <p>Work up from your cost per visit: product for the yard, the applicator's time on site and driving, truck cost, free re-treats, then overhead and card fees as a share of price. Divide the direct cost by one minus those percentages and your wanted margin. This tool shows that minimum price per visit and for a prepaid season.</p>
+      <h3>Why does the prepay discount matter?</h3>
+      <p>A discount comes straight off your margin because the costs do not fall. If you give 8% off to get paid up front, the list price has to be about 8% higher than the pay-per-visit minimum to keep the same margin. The tool shows both.</p>
+      <h3>What are free re-treats costing me?</h3>
+      <p>Every visit you redo after rain costs product and a trip. The tool adds your re-treat share to the direct cost of every visit, so a bad weather season shows up as a lower margin before you sign the program.</p>
+      <h3>How many customers do I need to cover startup costs?</h3>
+      <p>Divide the startup cost by the profit per season-program customer. The tool also shows how many customers one truck can serve from your stops per day, days a week and season length.</p>
+      <h3>Is this legal or business advice?</h3>
+      <p>No. It is arithmetic on figures you type. Pesticide applicator licences, product labels, local limits and insurance requirements vary; check yours and use a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Pesticide applicator licensing, product labels and local application limits, insurance, sales tax, seasonal weather, competitor prices in your area, and whether customers will accept the price. Costs are averages per visit; a route with long gaps or large lots will differ. The renewal rate is one flat percentage.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../pest-control-bid-calculator/">pest control bid calculator</a>, the <a href="../lawn-care-bid-calculator/">lawn care bid calculator</a> and the <a href="../pool-route-pricing/">pool route pricing calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you set prices or sign customers.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, v = r.visit, o = a.opts, s = r.season;
+      h += `<div class="finding"><h4>Charge at least ${money2(r.minPrice)} per visit, or ${money2(r.minListPrice)} per visit on a prepaid season</h4><p>That leaves ${pct(o.wantPct)} margin. At your ${money2(o.visitPrice)} you keep ${money2(v.profit)} a visit (${pct(v.margin)}). The season program collects ${money(s.paid)} after the ${pct(o.prepayDiscountPct)} prepay discount and earns ${money(s.profit)} (${pct(s.margin)}).</p><p><button type="button" class="secondary" id="csv">Download CSV</button></p></div>`;
+      h += `<div class="finding"><h4>Where one visit's money goes</h4>${table(["Line", "Amount"], [["Price", money2(v.price)], ["Product", money2(v.product)], ["Applicator time", money2(v.labor)], ["Truck and sprayer", money2(v.truck)], ["Free re-treats", money2(v.callback)], ["Overhead and card fees", money2(v.fees)], ["Profit", money2(v.profit)]])}</div>`;
+      h += `<div class="finding"><h4>If you charge more or less</h4>${table(["Price per visit", "Profit per visit", "Margin", "Season paid", "Season profit"], r.ladder.map((x) => [money(x.price), money2(x.visitProfit), pct(x.visitMargin), money(x.seasonPaid), money(x.seasonProfit)]))}</div>`;
+      const l = r.lifetime, t = r.route;
+      h += `<div class="finding"><h4>What a customer and a truck are worth</h4><p>With ${pct(o.renewPct)} renewing, a customer stays about ${l.expectedSeasons.toFixed(1)} seasons and earns ${money(l.value)} in profit on ${money(l.revenue)} of revenue. A full route day brings in ${money(t.dayRevenue)} and ${money(t.dayProfit)} of profit. One truck can serve about ${Math.floor(t.customers)} program customers a season, worth ${money(t.seasonProfit)}. ${Number.isFinite(t.breakEvenCustomers) ? `You need ${t.breakEvenCustomers} customers to cover the ${money(o.startupCost)} startup cost.` : "At these prices a season loses money, so startup cost is never recovered."}</p></div>`;
+      h += `<div class="finding"><h4>What one worse number costs per customer-season</h4>${table(["If this happens", "Change in season profit"], r.sensitivity.map((x) => [esc(x.label), money(x.delta)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "mosquito-control-pricing.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

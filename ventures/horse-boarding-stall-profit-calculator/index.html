@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Horse Boarding Stall Profit Calculator</title>
+  <meta name="description" content="Free profit calculator for horse boarding barns: stalls, occupancy, board price, feed, bedding, your own care time and fixed costs become monthly profit, break-even occupancy and the board price you need. Private, runs in your browser.">
+  <meta property="og:title" content="Horse boarding profit calculator: is your barn making money? Free, private">
+  <meta property="og:description" content="Stalls, occupancy, board, feed and your own labour in; monthly profit, break-even and the board price you need out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Horse Boarding Stall Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a horse boarding barn profitable?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on whether board covers feed, bedding, labour and the fixed costs of the property with stalls to spare. Many small barns look profitable only because the owner's own care time is counted as free. This calculator prices that time at a wage you choose, so you see what is left."}}, {"@type": "Question", "name": "What occupancy do I need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Fixed costs divided by what each boarded horse leaves after feed, bedding, labour and unpaid board gives the number of horses you need. Divide by your stalls for break-even occupancy. The page works it out and flags it when you run within ten points of it."}}, {"@type": "Question", "name": "How much should I charge for board?", "acceptedAnswer": {"@type": "Answer", "text": "The page works backwards: the board price at which your barn breaks even, and the price that reaches the monthly profit you want, at your current occupancy. It does not know what other barns near you charge, so compare the result with local rates before changing a price."}}, {"@type": "Question", "name": "Why count my own labour?", "acceptedAnswer": {"@type": "Answer", "text": "Hours you spend feeding, turning out and cleaning stalls are not free. If the barn only works when you are paid nothing, the profit is really a low hourly wage. Set the wage to zero to see the cash view, or to what you would pay a stall hand to see the real one."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HORSE BOARDING STALL PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your boarding barn making money? Monthly profit, break-even occupancy and the board price you need</h1>
+    <p>Enter stalls, occupancy, board, feed, bedding, the time you spend on care and your fixed costs. You get <strong>monthly profit</strong>, <strong>break-even occupancy</strong>, the <strong>board price</strong> that breaks even or reaches your target, and a table by occupancy.</p>
+    <p class="note">It works from your own figures. It does not know what other barns charge.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your barn</h2>
+    <div class="grid">
+      <div><label for="stalls">Stalls in the barn</label><input id="stalls" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="occupancy">Average occupancy, %</label><input id="occupancy" inputmode="decimal" value="" placeholder="85"></div>
+      <div><label for="boardprice">Board price per horse per month, dollars</label><input id="boardprice" inputmode="decimal" value="" placeholder="550"></div>
+      <div><label for="extras">Extras per horse per month: blanketing, supplements, lessons, dollars</label><input id="extras" inputmode="decimal" value="" placeholder="40"></div>
+      <div><label for="feed">Feed and hay per horse per month, dollars</label><input id="feed" inputmode="decimal" value="" placeholder="160"></div>
+      <div><label for="bedding">Bedding per horse per month, dollars</label><input id="bedding" inputmode="decimal" value="" placeholder="55"></div>
+      <div><label for="caremin">Care minutes per horse per day: feed, turnout, stalls</label><input id="caremin" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="wage">What an hour of care labour is worth, dollars (yours or a stall hand's)</label><input id="wage" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="fixedmonth">Monthly fixed costs: mortgage or lease, insurance, utilities, repairs, manure removal, dollars</label><input id="fixedmonth" inputmode="decimal" value="" placeholder="3000"></div>
+      <div><label for="baddebt">Late and unpaid board, %</label><input id="baddebt" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="target">Profit you want per month, dollars</label><input id="target" inputmode="decimal" value="" placeholder="2000"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the profit</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your barn, then click Work out the profit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Profit by occupancy</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Occupancy</th><th scope="col" class="n">Horses</th><th scope="col" class="n">Revenue a month</th><th scope="col" class="n">Profit a month</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download occupancy table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> horses = stalls x occupancy; income per horse = (board + extras) x (1 - unpaid share); labour per horse = care minutes x 30.4 days / 60 x hourly wage; profit = horses x (income - feed - bedding - labour) - fixed costs; break-even horses = fixed costs / what each horse leaves; break-even board = the price at which profit is zero at your occupancy.</li>
+      <li><strong>Not decided:</strong> what boarders near you will pay, zoning and licence terms, liability insurance and boarding contracts, sales tax, income tax and depreciation, one-off repairs, and whether a mix of full, partial and pasture board changes the average.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Is a horse boarding barn profitable?</h3>
+    <p>It depends on whether board covers feed, bedding, labour and the fixed costs of the property with stalls to spare. Many small barns look profitable only because the owner's own care time is counted as free. This calculator prices that time at a wage you choose, so you see what is left.</p>
+    <h3>What occupancy do I need to break even?</h3>
+    <p>Fixed costs divided by what each boarded horse leaves after feed, bedding, labour and unpaid board gives the number of horses you need. Divide by your stalls for break-even occupancy. The page works it out and flags it when you run within ten points of it.</p>
+    <h3>How much should I charge for board?</h3>
+    <p>The page works backwards: the board price at which your barn breaks even, and the price that reaches the monthly profit you want, at your current occupancy. It does not know what other barns near you charge, so compare the result with local rates before changing a price.</p>
+    <h3>Why count my own labour?</h3>
+    <p>Hours you spend feeding, turning out and cleaning stalls are not free. If the barn only works when you are paid nothing, the profit is really a low hourly wage. Set the wage to zero to see the cash view, or to what you would pay a stall hand to see the real one.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before changing a rate. Treat it as a worksheet to check, not a price recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../farrier-visit-pricing-calculator/">farrier visit pricing calculator</a> and the <a href="../dog-boarding-daycare-pricing/">dog boarding and daycare pricing tool</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { stalls: "stalls", occupancy: "occupancy", boardprice: "boardPrice", extras: "extras", feed: "feed", bedding: "bedding", caremin: "careMin", wage: "wage", fixedmonth: "fixedMonth", baddebt: "badDebt", target: "target" };
+    const IDLE = "Fill in your barn, then click Work out the profit.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const be = r.breakEvenOcc === null ? "break-even not reachable at this price" : `break-even ${r.breakEvenOcc.toFixed(0)}% full`;
+      $("#due").textContent = `${dollars(r.profit)} a month profit (${dollars(r.perStall)} a stall); ${be}; break-even board ${dollars(r.breakEvenPrice)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.occ}%</td><td class="n">${x.horses.toFixed(1)}</td><td class="n">${dollars(x.revenue)}</td><td class="n">${dollars(x.profit)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 20 stalls, 85% full, $550 board, your own care time paid at $15 an hour.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("horse-boarding-profit.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("horse-boarding-profit-by-occupancy.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

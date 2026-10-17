@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Yoga, Pilates and Fitness Studio Pricing Planner — Free</title>
+  <meta name="description" content="Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.">
+  <meta property="og:title" content="Is my studio's unlimited membership priced right? Free pricing planner">
+  <meta property="og:description" content="Memberships, packs and drop-ins in; profit, per-visit value, break-even class size and the best unlimited price out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236d28d9'/%3E%3Ccircle cx='16' cy='11' r='4' fill='%23fff'/%3E%3Cpath d='M8 25c2-7 14-7 16 0z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Boutique Fitness Studio Pricing Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price unlimited memberships, class packs and drop-ins for a yoga, pilates, barre or cycling studio: profit per month, per-visit value of each plan, break-even class size, empty-seat value and the best unlimited price. Runs in your browser; nothing is uploaded.","featureList":"Plan mix profit, per-visit value, pack breakage, member crossover points, break-even members, unlimited price search"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between an unlimited membership and a class pack for a studio?","acceptedAnswer":{"@type":"Answer","text":"An unlimited membership is a fixed monthly fee however often the member comes, so it earns more per visit when they come rarely and less when they come daily. A pack is paid up front for a set number of classes, and some are never taken, which is the pack's quiet margin. The planner shows what each plan earns per visit after card fees at the attendance and breakage you enter."}},{"@type":"Question","name":"How many classes a month does it take for unlimited to beat a pack or drop-in?","acceptedAnswer":{"@type":"Answer","text":"Divide the unlimited price by the per-class price. At $159 unlimited, $26 drop-in and a $19 per-class pack, unlimited is cheaper for the member from about 8.4 classes a month. The planner prints both crossover points for your own prices, which is how a pricing page should explain the plans."}},{"@type":"Question","name":"How full does a boutique fitness class need to be to break even?","acceptedAnswer":{"@type":"Answer","text":"Break-even class size is the cost of one class (instructor pay plus its share of rent and other fixed costs) divided by what an average visit nets after fees. The planner shows it next to your actual average attendance so you can see whether the schedule or the price is the problem."}},{"@type":"Question","name":"Should I raise the price of my unlimited membership?","acceptedAnswer":{"@type":"Answer","text":"The best price is where the extra fee from members who stay outweighs the members you lose. The planner moves the unlimited price from 80% to 140% of today's and shows profit at each step on a member-loss rate you set. The rate is your assumption, not a measurement; test any change on new sign-ups first."}},{"@type":"Question","name":"Is this business, tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in and an assumption you choose. Lease terms, instructor classification and pay law, sales tax on memberships, insurance and refunds are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b18; background: #f6f3fb; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #6d28d9; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2e1065; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e1065; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #57534e; }
+    .card { background: #fff; border: 1px solid #ddd3f2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2e106510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9a7e0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6d28d9; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e2f7; color: #2e1065; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e1f5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #57534e; }
+    .finding { border-bottom: 1px solid #e8e1f5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #ede9fe; color: #6d28d9; }
+    .stats { font-size: 1rem; color: #2f2a26; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd3f2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BOUTIQUE FITNESS STUDIO PRICING PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are your unlimited, pack and drop-in prices making your studio money?</h1>
+    <p>Enter your timetable, costs, members, packs and drop-ins. It shows monthly profit, what a visit earns under each plan (including the classes in a pack that are never taken), the class size you need to break even, where unlimited beats packs for a member, what empty seats are worth, and the unlimited price that earns the most on a member-loss rate you set.</p>
+    <p class="note">Planning arithmetic on your own numbers and an assumption you choose.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Timetable and costs</h2>
+      <div class="grid">
+        <div><label for="classesPerWeek">Classes per week</label><input id="classesPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="capacity">Spots per class</label><input id="capacity" type="number" step="any" value="0"></div>
+        <div><label for="instructorPay">Instructor pay per class ($)</label><input id="instructorPay" type="number" step="any" value="0"></div>
+        <div><label for="rentMonth">Rent per month ($)</label><input id="rentMonth" type="number" step="any" value="0"></div>
+        <div><label for="otherFixedMonth">Software, insurance, utilities, other fixed per month ($)</label><input id="otherFixedMonth" type="number" step="any" value="0"></div>
+        <div><label for="marketingMonth">Marketing per month ($)</label><input id="marketingMonth" type="number" step="any" value="0"></div>
+        <div><label for="feePct">Card and booking-platform fees (% of sales)</label><input id="feePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Unlimited memberships</h2>
+      <div class="grid">
+        <div><label for="unlMembers">Active unlimited members</label><input id="unlMembers" type="number" step="any" value="0"></div>
+        <div><label for="unlPrice">Unlimited price per month ($)</label><input id="unlPrice" type="number" step="any" value="0"></div>
+        <div><label for="unlVisits">Average classes an unlimited member takes per month</label><input id="unlVisits" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Class packs</h2>
+      <div class="grid">
+        <div><label for="packsSold">Packs sold per month</label><input id="packsSold" type="number" step="any" value="0"></div>
+        <div><label for="packPrice">Pack price ($)</label><input id="packPrice" type="number" step="any" value="0"></div>
+        <div><label for="packSize">Classes in a pack</label><input id="packSize" type="number" step="any" value="0"></div>
+        <div><label for="packBreakagePct">Classes in a pack that are never taken (%)</label><input id="packBreakagePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Drop-ins and your assumption</h2>
+      <div class="grid">
+        <div><label for="dropIns">Drop-in visits per month</label><input id="dropIns" type="number" step="any" value="0"></div>
+        <div><label for="dropPrice">Drop-in price ($)</label><input id="dropPrice" type="number" step="any" value="0"></div>
+        <div><label for="priceSensitivity">Members lost per 1% rise in the unlimited price (%, try 0.4 to 1.5)</label><input id="priceSensitivity" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Price the studio</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the difference between an unlimited membership and a class pack for a studio?</h3>
+      <p>An unlimited membership is a fixed monthly fee however often the member comes, so it earns more per visit when they come rarely and less when they come daily. A pack is paid up front for a set number of classes, and some are never taken, which is the pack's quiet margin. The planner shows what each plan earns per visit after card fees at the attendance and breakage you enter.</p>
+      <h3>How many classes a month does it take for unlimited to beat a pack or drop-in?</h3>
+      <p>Divide the unlimited price by the per-class price. At $159 unlimited, $26 drop-in and a $19 per-class pack, unlimited is cheaper for the member from about 8.4 classes a month. The planner prints both crossover points for your own prices, which is how a pricing page should explain the plans.</p>
+      <h3>How full does a boutique fitness class need to be to break even?</h3>
+      <p>Break-even class size is the cost of one class (instructor pay plus its share of rent and other fixed costs) divided by what an average visit nets after fees. The planner shows it next to your actual average attendance so you can see whether the schedule or the price is the problem.</p>
+      <h3>Should I raise the price of my unlimited membership?</h3>
+      <p>The best price is where the extra fee from members who stay outweighs the members you lose. The planner moves the unlimited price from 80% to 140% of today's and shows profit at each step on a member-loss rate you set. The rate is your assumption, not a measurement; test any change on new sign-ups first.</p>
+      <h3>Is this business, tax or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in and an assumption you choose. Lease terms, instructor classification and pay law, sales tax on memberships, insurance and refunds are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>How many members you will actually lose or gain at a new price (the member-loss rate is your assumption, not a measurement; test any price change on new sign-ups), lease terms, instructor classification and pay law, sales tax on memberships, insurance, refunds and freezes, member churn over time, and seasonality. The defaults are placeholders, not forecasts: check them against your own booking-platform reports.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../fitness-studio-membership-calculator/">fitness studio membership calculator</a> (member lifetime value, churn and break-even members), the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> (which timetable slots lose money), the <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing calculator</a> the <a href="../yoga-pilates-studio-class-profit-calculator/">yoga and pilates studio class profit calculator</a> (profit per class and room hour, and teach vs hire vs rent a room), and the <a href="../car-wash-membership-calculator/">car wash membership calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licence, insurance or safety obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you price your studio, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, studio, perVisit, memberChoices, breakEvenUnlimited, optimizeUnlimitedPrice, emptySeatValue, attendanceSteps } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const s = studio(o);
+      if (!(s.seats > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No classes</span> Enter classes per week and spots per class.</div>'; $("out").hidden = false; return; }
+      const v = perVisit(o), m = memberChoices(o), be = breakEvenUnlimited(o), op = optimizeUnlimitedPrice(o), ev = emptySeatValue(o);
+      const f = (x) => (Number.isFinite(x) ? money2(x) : "n/a");
+      let h = "";
+      h += `<div class="finding"><h4>Headline</h4><p class="stats">About ${Math.round(s.classes)} classes and ${Math.round(s.seated).toLocaleString("en-US")} visits a month, revenue ${money(s.revenue)}. After fees, instructors, rent and other costs: <strong>${s.profit >= 0 ? "profit" : "loss"} ${money(Math.abs(s.profit))} a month</strong>. The room is ${pct(s.fillRate)} full (${s.avgClass.toFixed(1)} people a class).</p></div>`;
+      h += `<div class="finding"><h4>What a visit earns under each plan</h4>${table(["Plan", "Monthly revenue", "Net per visit"], [["Unlimited", money(s.unlRev), f(v.unlimited)], ["Class pack (after never-taken classes)", money(s.packRev), f(v.pack)], ["Drop-in", money(s.dropRev), f(v.dropIn)]])}<p class="note">Net of card fees. A pack sold at ${f(v.packSticker)} a class earns ${f(v.pack)} a class actually taken, because some are never used.</p></div>`;
+      h += `<div class="finding"><h4>Is a class worth running?</h4><p>Each class costs about <strong>${money(s.costPerClass)}</strong> (instructor plus its share of rent and fixed costs). An average visit nets ${f(s.netPerVisit)}, so a class breaks even at about <strong>${Number.isFinite(s.breakEvenClassSize) ? s.breakEvenClassSize.toFixed(1) : "never"} people</strong>; yours average ${s.avgClass.toFixed(1)} of ${o.capacity} spots.</p>` + (be === null ? `<p>No number of unlimited members covers the month at these prices.</p>` : `<p>With your packs and drop-ins unchanged, the month is covered at about <strong>${be} unlimited members</strong> (you have ${Math.round(o.unlMembers)}).</p>`) + `</div>`;
+      h += `<div class="finding"><h4>What members should buy, and where unlimited wins</h4><p>Unlimited is cheaper for a member than drop-ins from about <strong>${m.unlimitedBeatsDropAt.toFixed(1)}</strong> classes a month and cheaper than packs from about <strong>${m.unlimitedBeatsPackAt.toFixed(1)}</strong>. Your unlimited members average ${o.unlVisits}.</p>${table(["Classes a month", "Unlimited", "Packs", "Drop-ins", "Cheapest", "Studio nets a visit"], m.rows.map((r) => [r.visits, money(r.unlimited), money(r.pack), money(r.dropIn), r.best, money2(r.studioPerVisit)]))}</div>`;
+      h += `<div class="finding"><h4>Empty seats</h4><p>${Math.round(s.emptySeats).toLocaleString("en-US")} seats a month go unsold. Instructors are paid either way, so each seat filled at your drop-in price adds the price less the card fee.</p>${table(["Fill this share of empty seats", "Seats", "Added profit a month"], ev.map((x) => [x.pct + "%", Math.round(x.seats), money(x.gain)]))}</div>`;
+      h += `<div class="finding"><h4>Best unlimited price on your assumption</h4><p>Moving the unlimited price from 80% to 140% of ${money2(o.unlPrice)}: the most profit is at <strong>${Math.round(op.best.mult * 100)}%</strong> (${money2(op.best.price)} for about ${Math.round(op.best.members)} members), ${money(op.best.profit)} a month against ${money(op.now.profit)} today, a difference of ${money(op.gain)}. This rests on losing ${o.priceSensitivity}% of members for each 1% rise; test it on new sign-ups before you rely on it.</p>${table(["Price", "Members", "Revenue", "Profit", "Room full"], op.rows.map((x) => [money2(x.price), Math.round(x.members), money(x.revenue), money(x.profit), pct(x.fillRate)]))}</div>`;
+      h += `<div class="finding"><h4>If attendance moves</h4>${table(["Attendance vs today", "People a class", "Room full", "Profit a month"], attendanceSteps(o).map((x) => [Math.round(x.mult * 100) + "%", x.avgClass.toFixed(1), pct(x.fillRate), money(x.profit)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+name: uk-capital-gains-tax-calculator
+description: >-
+  Free browser tool for UK investors, landlords and sellers: enter the sale, costs, losses and your income to see Capital Gains Tax for 2025/26 at 18% and 24%, the 3,000 GBP annual exempt amount, losses to carry forward and the 60-day property report. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no UK CGT tool in ventures/ (closest: uk-trading-allowance-calculator, a different tax). Sibling in the UK personal-tax cluster.
+#
+# First visitor: UK person who sold shares, crypto, a second home or a business asset and searches "capital gains tax calculator uk", "how much cgt on shares", "cgt on second home 2025/26".
+# The 2024 rate change and cut in the exempt amount to 3,000 pushed far more people into reporting; recurring annual search. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a share-pooling and crypto cost-basis importer behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (BADR, Scottish bands, share pooling, main-home relief, foreign gains). Ethical risk is an understated bill; mitigated by naming the unmodelled reliefs and sourcing.
+hypotheses:
+  - claim: >-
+      UK people selling assets will use a free calculator to see their Capital Gains Tax and reporting duty before they sell.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-capital-gains-tax-calculator/
+  analytics: null

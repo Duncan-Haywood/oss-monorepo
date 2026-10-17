@@ -62,3 +62,8 @@ test('vs-fossa page links back to the tool and carries required clauses', async 
   assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/, 'missing the sponsor link');
   assert.match(page, /not affiliated with, endorsed by, or sponsored by FOSSA/i, 'missing the non-affiliation disclaimer');
 });
+
+test('index links one hop to the license-compat-check sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\.\/license-compat-check\//);
+});

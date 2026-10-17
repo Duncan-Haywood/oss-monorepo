@@ -1,0 +1,54 @@
+Shaper twin: cart + slosh mode (M=80, m_full=20 kg, w_full=3.1416 rad/s), move D=3 m, a_max=0.5, tol=0.01 m; twin bang-bang T0=4.899 s
+
+== 1. Shaped residual = V(eps) * unshaped residual (undamped, real fill 1, 0.5, 0.25, design w = full-tank w) ==
+fill  eps      kind  V closed   residual (exact)   V*unshaped   move time (s)
+1.00  +0.0000  none  1.00000   0.106638           0.106638     4.899
+1.00  +0.0000  zv    0.00000   0.000000           0.000000     5.899
+1.00  +0.0000  zvd   0.00000   0.000000           0.000000     6.899
+0.50  -0.0513  none  1.00000   0.060066           0.060066     4.899
+0.50  -0.0513  zv    0.08052   0.004837           0.004837     5.899
+0.50  -0.0513  zvd   0.00648   0.000389           0.000389     6.899
+0.25  -0.0780  none  1.00000   0.039466           0.039466     4.899
+0.25  -0.0780  zv    0.12229   0.004826           0.004826     5.899
+0.25  -0.0780  zvd   0.01495   0.000590           0.000590     6.899
+
+== 2. Largest tolerated |eps| for tol (closed form, rho = tol/unshaped residual at that fill) vs actual eps ==
+fill  eps      unshaped R   rho     ZV tolerates  ZVD tolerates  ZV res    ZVD res   ZV ok  ZVD ok
+0.90  -0.0101  0.09704      0.103   0.0657        0.2081         0.00153   0.00002   True   True
+0.75  -0.0253  0.08280      0.121   0.0771        0.2260         0.00329   0.00013   True   True
+0.50  -0.0513  0.06007      0.166   0.1065        0.2676         0.00484   0.00039   True   True
+0.25  -0.0780  0.03947      0.253   0.1631        0.3358         0.00483   0.00059   True   True
+0.10  -0.0945  0.02859      0.350   0.2275        0.4029         0.00423   0.00062   True   True
+
+== 3. Time to a safe move at each fill, twin calibrated at full tank (slosh-twin: null-tuned 8 s to f=0.5, 28 s at f<=0.25) ==
+fill  ZV time  ZVD time  ZV safe  ZVD safe  null-tuned safe time  recalibrated null time
+1.00  5.899   6.899     True     True         8.000                 8.000
+0.90  5.899   6.899     True     True         8.000                 8.081
+0.75  5.899   6.899     True     True         8.000                 8.208
+0.50  5.899   6.899     True     True         8.000                 8.433
+0.25  5.899   6.899     True     True        28.000                 8.677
+0.10  5.899   6.899     True     True        28.000                 8.835
+
+== 4. Damping: real zeta = 0.05, full tank; undamped-design vs damped-design shapers ==
+none design zeta=0.00  residual 0.077376 m  time 4.899 s  weights 1.000
+zv   design zeta=0.00  residual 0.005620 m  time 5.899 s  weights 0.500,0.500
+zv   design zeta=0.05  residual 0.000000 m  time 5.900 s  weights 0.539,0.461
+zvd  design zeta=0.00  residual 0.000408 m  time 6.899 s  weights 0.250,0.500,0.250
+zvd  design zeta=0.05  residual 0.000000 m  time 6.901 s  weights 0.291,0.497,0.212
+damped-ZV, real zeta=0.05, design w off by eps:
+  eps=-0.05  residual 0.005753 m
+  eps=-0.02  residual 0.002302 m
+  eps=+0.02  residual 0.002301 m
+  eps=+0.05  residual 0.005743 m
+
+== 5. Fill-band robust design: worst case over fills in the band, design frequency searched (0.88..1.68 w_full, step 0.005) ==
+band       family  best time (s)  design w/w_full   detail
+[0.5,1]    null       8.000       1.000            order n=2
+[0.5,1]    zv         5.847       1.055            worst residual 0.00988 m
+[0.5,1]    zvd        6.505       1.245            worst residual 0.00987 m
+[0.25,1]   null       8.219       1.460            order n=3
+[0.25,1]   zv         5.847       1.055            worst residual 0.00988 m
+[0.25,1]   zvd        6.505       1.245            worst residual 0.00987 m
+[0.1,1]    null       8.362       1.435            order n=3
+[0.1,1]    zv         5.847       1.055            worst residual 0.00988 m
+[0.1,1]    zvd        6.505       1.245            worst residual 0.00987 m

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mix-twin"
+version = "0.1.0"
+description = "Mixing biased twin samples with scarce real samples: exact optimal weight, twin worth capped at sigma^2/delta^2 real samples, naive-pooling threshold, and estimated-bias weights"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,44 @@
+name: eu-packaging-regulation-checker
+description: >-
+  Free browser tool that gives a first read of the EU Packaging and Packaging Waste Regulation (PPWR, Regulation (EU) 2025/40) for a brand owner, importer, packaging maker or online seller: which duties reach the packaging, the date each applies from (producer registration, PFAS limits, label, recyclability, recycled content, the 50 percent empty-space rule), whether an EU operator stands behind it, and what is still open. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no packaging-regulation tool in ventures/ (duplicate_check top hit 0.19, eu-data-act-checker). Not in screened-out.md.
+#
+# First visitor: an online shop or brand owner outside or inside the EU hearing that the PPWR applies from 12 August 2026; search phrases
+# "PPWR requirements", "EU packaging regulation 2026", "PPWR authorised representative", "PPWR empty space 50%", "PPWR e-commerce packaging".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: per-SKU packaging data sheet and supplier-declaration tracker,
+# behind an env-var switch.
+#
+# Liability: first read of the Regulation's scope and dates; rejects bad input, says plainly that delegated acts and national enforcement decide, carries
+# no-warranty and not-legal-advice clauses. Dates were written from memory without network access to EUR-Lex in the building session and must be verified
+# (notably the 2028 label date, the 2029 deposit-return date and the 2030 design duties); article numbers are deliberately omitted. Ethical risk is false
+# comfort from an "out" result or a stale date.
+
+hypotheses:
+  - claim: >-
+      Online sellers and brand owners facing the 12 August 2026 PPWR start will use a free checker to learn which duties reach their packaging and by when.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a date or scope differs from the Regulation's text (or a later delegated act) on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-packaging-regulation-checker/
+  analytics: null

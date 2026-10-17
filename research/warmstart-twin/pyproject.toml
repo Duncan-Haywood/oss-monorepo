@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "warmstart-twin"
+version = "0.1.0"
+description = "Cold-start bias of a short digital-twin run: exact AR(1) bias, variance and MSE-optimal warm-up deletion, the exact M/M/1 empty-start bias constant (Spitzer), coverage of batch intervals, MSER-5 truncation, and how accurate a warm-start state must be"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

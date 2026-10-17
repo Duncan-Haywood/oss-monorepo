@@ -1,0 +1,30 @@
+Task: 40 training moves, 200 held-out moves, tray x 0.15..0.35 m, y -0.1..0.1 m
+Reach l1+l2 = 0.5 m, torque limit 0.6 N m per joint, settle tolerance 2 mm, horizon 1.5 s
+Search budget per method per seed: 1980 controller evaluations (each = mean move time over the training moves)
+
+A. fixed equal-link body, hand-set gains (10.0, 0.5, 10.0, 0.5): held-out mean move time 0.460 s, settled 100% of moves
+
+seed                             method  split l1/(l1+l2)  train s   test s  test settled
+   1    B. fixed body, tuned controller              0.50    0.246    0.286          100%
+   1   C. co-designed body + controller              0.50    0.248    0.289          100%
+   2    B. fixed body, tuned controller              0.50    0.248    0.291          100%
+   2   C. co-designed body + controller              0.40    0.248    0.275          100%
+   3    B. fixed body, tuned controller              0.50    0.245    0.289          100%
+   3   C. co-designed body + controller              0.45    0.250    0.286          100%
+
+Split sweep (inner tuning of per-split budget, held-out move time in s; '--' = tray not fully reachable)
+ split seed 1 seed 2 seed 3
+  0.30    --     --     -- 
+  0.35    --     --     -- 
+  0.40  0.284  0.275  0.286
+  0.45  0.284  0.289  0.286
+  0.50  0.289  0.287  0.287
+  0.55  0.288  0.293  0.285
+  0.60  0.288  0.281  0.288
+  0.65    --     --     -- 
+  0.70    --     --     -- 
+
+Summary over seeds (held-out mean move time, s)
+B. fixed body, tuned controller: mean 0.289, min 0.286, max 0.291
+C. co-designed body + controller: mean 0.283, min 0.275, max 0.289
+co-design vs tuned fixed body: +1.9% move time; vs hand-set gains: +38.5%

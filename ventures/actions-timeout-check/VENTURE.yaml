@@ -1,0 +1,48 @@
+name: actions-timeout-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for jobs with no job-level timeout-minutes (or one set to the 360-minute default) -- the jobs that can hang for six hours of runner time -- printing each with the worst-case billed minutes for its runner and the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# actions-* checkers. duplicate_check.py's closest match was
+# deploy-concurrency-check at 0.31 (shared "concurrency" vocabulary, a
+# different finding: overlapping deploys, not job runtime). No existing
+# checker in ventures/ reads timeout-minutes.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a mechanical, read-only line scanner with no advice-of-record, no
+# compliance claim, no data leaving the device, no scraping. Minute figures
+# are labelled upper bounds drawn from GitHub's default limit and documented
+# multipliers, not predictions of any bill.
+#
+# First visitor channel: search for "github actions timeout-minutes default"
+# and "github actions job stuck 6 hours" (docs and forum threads, no checker
+# attached), and maintainers of private repos on metered plans.
+hypotheses:
+  - claim: 'A maintainer on a metered Actions plan who has just hit a hung job will paste their workflow YAML here and find other jobs with no timeout-minutes before the next one hangs.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI so a job added without a timeout does not merge.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-timeout-check/
+  analytics: null

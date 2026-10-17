@@ -1,0 +1,43 @@
+name: woocommerce-product-csv-check
+description: >-
+  Free browser tool that checks a WooCommerce product import CSV before it is uploaded: header
+  typos, variations whose Parent matches no row or comes after them, variation values the parent
+  does not list, repeated SKUs, price and sale-date formats, sale price above regular price,
+  stock and flag values, GTIN check digits, image URLs, Excel scientific-notation SKUs and
+  semicolon-separated files, each with its line number, plus a safe-fixes pass that cleans the
+  mechanical faults and never edits a name, description, SKU, barcode, stock, category or image
+  address. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.38 (the
+# Shopify sibling, which uses a different file model: Handle grouping, three options; nothing
+# else near the 0.45 bar). No WooCommerce CSV tool exists in ventures/. WooCommerce runs a large
+# share of the open web's small stores, and store owners and agencies move catalogues by CSV when
+# migrating from Shopify/Magento/Etsy, loading a supplier feed or bulk-editing prices. The
+# importer either stops with a terse "Invalid or duplicated SKU" or "Parent product does not
+# exist" line, or succeeds and silently imports variations as orphans or with no price.
+# Existing answers are the importer's own log, paid bulk-edit plugins and generic CSV linters
+# that know nothing about Parent/variation linkage; nothing is a free page that explains each
+# fault with its line and fixes the mechanical ones.
+#
+# First visitor: store owners and agencies searching the literal error text ("WooCommerce CSV
+# import invalid or duplicated SKU", "WooCommerce import variations not showing", "WooCommerce
+# CSV parent product does not exist", "Excel scientific notation SKU WooCommerce"), WordPress
+# support threads and r/woocommerce. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it understands the importer's product model (a variable
+# product row, variation rows linked by Parent SKU or id:NN, attribute value lists), so the
+# findings are the ones WooCommerce users actually hit; it recovers from the Excel round trip
+# (scientific notation, semicolons, decimal commas, currency symbols); and the repair step is
+# deliberately narrow and lists every change.
+#
+# Privacy is the liability boundary: catalogues can be commercially sensitive, so the file never
+# leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the WooCommerce store-owner and
+# agency audience, cross-linked to shopify-product-csv-check. A paid version, if usage appears,
+# is bulk checks across store exports and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-WooCommerce clause, trademark used nominatively.

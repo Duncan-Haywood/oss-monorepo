@@ -74,7 +74,9 @@ Copilot code review does **not** count toward required approvals.
    when `config.yaml`'s `required_approvals` (default **2**) allowed bot
    approvals exist and checks pass.
 3. **Agent sessions** — before new work, run review pending PRs (see
-   `.github/prompts/review-open-prs-first.md`).
+   `.github/prompts/review-open-prs-first.md`). The session that opened a PR
+   still merges it itself (`.github/prompts/land-your-work.md`). Auto-merge
+   is a backstop for internal PRs and never fires on `ventures/*`.
 
 ## Local commands
 

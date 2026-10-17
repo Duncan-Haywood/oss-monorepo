@@ -1,0 +1,57 @@
+name: gabor-granger-price-analyzer
+description: >-
+  Free browser tool for founders, product managers and pricing consultants:
+  paste the highest price each survey respondent would buy at and get the
+  Gabor-Granger demand curve, the revenue-maximising price, the
+  profit-maximising price for a unit cost, price elasticity and bootstrap
+  bands on the best price. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "Gabor-Granger willingness to pay survey demand curve revenue maximizing
+# price": top match 0.16, unrelated. Sibling of van-westendorp-pricing-analyzer
+# (which finds an acceptable range but cannot rank prices by revenue); this one
+# turns yes/no willingness-to-pay data into a demand curve and a best price.
+# Buyers have money and a recurring problem: every launch and price change
+# needs a price, and the paid alternatives are survey platforms and pricing
+# consultants.
+#
+# First visitor: r/SaaS, r/startups, r/ProductManagement, Indie Hackers threads
+# on "how do I price my product"; searches "gabor granger analysis" and
+# "willingness to pay survey analysis"; volume not measured externally.
+#
+# Privacy is the liability boundary: responses never leave the browser (tests
+# assert no network calls). No survey vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: analysis of stated opinions, not advice; the page says stated
+# intent overstates purchases and it does not predict revenue. Unverified:
+# hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Founders and product managers who ran a willingness-to-pay survey will use
+      a no-signup tool that turns the answers into a demand curve and a best
+      price with a confidence band, and will return for each new survey.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a best price contradicts their own hand calculation on the same responses.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gabor-granger-price-analyzer/
+  analytics: null

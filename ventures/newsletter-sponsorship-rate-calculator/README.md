@@ -6,6 +6,8 @@ placement — a dedicated send, a primary in-issue slot, a secondary slot, and
 a classified/text-link placement — using commonly cited newsletter-ad-market
 CPM-per-1000-opens benchmarks. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/newsletter-sponsorship-rate-calculator/
+
 After using this, you can now **turn your own subscriber count and open rate
 into a defensible sponsorship price range in seconds**, which used to mean
 guessing from a competitor's public rate card or signing up with a

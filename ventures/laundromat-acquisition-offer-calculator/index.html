@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laundromat Acquisition Offer Calculator — what to pay and what the loan can carry</title>
+  <meta name="description" content="Free laundromat valuation calculator. Enter revenue and costs, a manager and machine reserve, and your loan terms; it shows adjusted cash flow, the most to offer, debt coverage and cash-on-cash. Private, in your browser.">
+  <meta property="og:title" content="Laundromat Acquisition Offer Calculator — what to pay and what the loan can carry">
+  <meta property="og:description" content="Free laundromat valuation calculator. Enter revenue and costs, a manager and machine reserve, and your loan terms; it shows adjusted cash flow, the most to offer, debt coverage and cash-on-cash. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Laundromat Acquisition Offer Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for people buying a laundromat. Enter revenue, operating costs, a manager and machine reserve and your loan terms; it returns adjusted cash flow, the most to offer, debt coverage and cash-on-cash. Runs in your browser; nothing is uploaded.","featureList":"laundromat valuation calculator, laundromat cash flow multiple, debt service coverage ratio, SBA loan payment, laundromat offer price"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I pay for a laundromat?","acceptedAnswer":{"@type":"Answer","text":"Price it off adjusted cash flow, not revenue: take the yearly revenue, subtract utilities, rent, labor, repairs, insurance and supplies, a paid manager if you will not work the store, and a reserve for replacing machines. Buyers commonly pay a multiple of that number, often around 3 to 4 times, then check that the cash flow can pay the loan with room to spare. The lower of the two limits is the price to walk away at."}},{"@type":"Question","name":"What is a good debt service coverage ratio for a laundromat loan?","acceptedAnswer":{"@type":"Answer","text":"Lenders usually want the cash flow to cover the yearly loan payments at least 1.25 times, so a 25% cushion. This calculator solves for the largest loan a cash flow can carry at the coverage you enter, then shows what happens to coverage if revenue falls 10% or 20%."}},{"@type":"Question","name":"Why include a manager and a machine reserve if I will run it myself?","acceptedAnswer":{"@type":"Answer","text":"Because the next owner may not, and because the books you are shown rarely pay the owner for their own hours. Counting a manager keeps the price honest if you ever step back, and a reserve for washers and dryers stops an old equipment room from looking like free cash flow."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this financial, tax or lending advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Verify the seller's revenue from meter reads, card-system reports and bank deposits, and check any offer with an accountant, broker or lender before you make it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LAUNDROMAT ACQUISITION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you offer for a laundromat?</h1>
+    <p>Enter the seller's revenue and what it really costs to run the store. The tool takes out <strong>utilities, rent, labor, repairs, a manager and a machine replacement reserve</strong>, prices the cash flow that is left two ways, and gives the <strong>walk-away price</strong> where a multiple and your loan both still work. Then it tests the offers you are weighing.</p>
+    <p class="note">The method with a worked example: <a href="./how-to-value-a-laundromat-before-you-make-an-offer.html">how to value a laundromat before you make an offer</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The store, per year</h2>
+    <div class="row3"><div><label for="rev">Revenue ($)</label><input type="number" id="rev" min="0" step="1000" value="360000" max="100000000"></div><div><label for="ut">Utilities: water, sewer, gas, power ($)</label><input type="number" id="ut" min="0" step="500" value="98000"></div><div><label for="rent">Rent ($)</label><input type="number" id="rent" min="0" step="500" value="60000"></div><div><label for="lab">Attendant labor ($)</label><input type="number" id="lab" min="0" step="500" value="42000"></div><div><label for="rm">Repairs and maintenance ($)</label><input type="number" id="rm" min="0" step="500" value="18000"></div><div><label for="oth">Insurance, supplies, fees, other ($)</label><input type="number" id="oth" min="0" step="500" value="14000"></div></div>
+    <h2 style="margin-top:20px">2. What an absentee owner still pays</h2>
+    <div class="row3"><div><label for="mgr">Manager or your own paid hours ($)</label><input type="number" id="mgr" min="0" step="500" value="36000"></div><div><label for="res">Machine replacement reserve ($)</label><input type="number" id="res" min="0" step="500" value="15000"></div></div>
+    <h2 style="margin-top:20px">3. Price and loan</h2>
+    <div class="row3"><div><label for="mult">Cash-flow multiple you will pay (x)</label><input type="number" id="mult" min="0" step="0.1" value="3.5" max="10"></div><div><label for="dp">Down payment (% of price)</label><input type="number" id="dp" min="0" step="1" value="15" max="99"></div><div><label for="ir">Interest rate (%)</label><input type="number" id="ir" min="0" step="0.25" value="10.5" max="30"></div><div><label for="yr">Loan term (years)</label><input type="number" id="yr" min="0" step="1" value="10" max="30"></div><div><label for="cc">Closing costs and working capital ($)</label><input type="number" id="cc" min="0" step="1000" value="20000"></div><div><label for="dscr">Debt coverage you require (x)</label><input type="number" id="dscr" min="0" step="0.05" value="1.25" min="1" max="3"></div></div>
+    <h2 style="margin-top:20px">4. Prices to test</h2>
+    <p class="note">Each row is a price you might offer or be asked to pay, such as the asking price. Up to six.</p>
+    <div class="scroll"><table id="bids"><thead><tr><th>Label</th><th>Price ($)</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-bid">Add a price</button>
+    <button type="button" id="solve">Find my walk-away price</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Find my walk-away price.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Offer</th><th class="num">Price</th><th class="num">Cash in</th><th class="num">Yearly loan payment</th><th class="num">Coverage</th><th class="num">Revenue down 10%</th><th class="num">Revenue down 20%</th><th class="num">Cash-on-cash</th><th>Walk-away</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Adjusted cash flow:</strong> revenue less utilities, rent, labor, repairs, other costs, a manager and a machine reserve. It is the cash a hands-off owner could take before paying the loan.</p>
+    <p><strong>Walk-away price:</strong> the lower of the cash-flow multiple and the largest price whose loan the cash flow can pay at your required coverage. The loan side is a standard amortising payment solved exactly, not searched for.</p>
+    <p><strong>Stress:</strong> coverage is recomputed with revenue 10% and 20% lower. Utilities fall with revenue; rent, labor and everything else are held fixed.</p>
+    <p><strong>Check:</strong> the test suite confirms the loan at the debt-limit price is covered at exactly the coverage you set, for hundreds of random stores.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I pay for a laundromat?</h3>
+    <p>Price it off adjusted cash flow, not revenue: take the yearly revenue, subtract utilities, rent, labor, repairs, insurance and supplies, a paid manager if you will not work the store, and a reserve for replacing machines. Buyers commonly pay a multiple of that number, often around 3 to 4 times, then check that the cash flow can pay the loan with room to spare. The lower of the two limits is the price to walk away at.</p>
+    <h3>What is a good debt service coverage ratio for a laundromat loan?</h3>
+    <p>Lenders usually want the cash flow to cover the yearly loan payments at least 1.25 times, so a 25% cushion. This calculator solves for the largest loan a cash flow can carry at the coverage you enter, then shows what happens to coverage if revenue falls 10% or 20%.</p>
+    <h3>Why include a manager and a machine reserve if I will run it myself?</h3>
+    <p>Because the next owner may not, and because the books you are shown rarely pay the owner for their own hours. Counting a manager keeps the price honest if you ever step back, and a reserve for washers and dryers stops an old equipment room from looking like free cash flow.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this financial, tax or lending advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Verify the seller's revenue from meter reads, card-system reports and bank deposits, and check any offer with an accountant, broker or lender before you make it.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not financial, tax, legal or lending advice. <strong>Use at your own risk.</strong> A business purchase can lose money and the result is only as good as the revenue and costs you enter; check any offer with an accountant, broker or lender.</p>
+    <p><strong>Independent.</strong> Not affiliated with any broker, marketplace, lender or equipment maker, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../laundromat-machine-payback-calculator/">laundromat machine payback calculator</a> and the <a href="../wash-and-fold-price-calculator/">wash-and-fold price calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  <p>Related tool: the <a href="../dry-cleaner-profit-calculator/">dry cleaner profit calculator</a> shows break-even pieces and debt coverage for buying a dry cleaning plant.</p>
+</footer>
+  <script type="module">
+    import { solve, money, pct, times, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_OFFERS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = {"revenue":"rev","utilities":"ut","rent":"rent","labor":"lab","repairs":"rm","other":"oth","manager":"mgr","reserve":"res","multiple":"mult","downPct":"dp","ratePct":"ir","years":"yr","closing":"cc","dscr":"dscr"};
+    let R = null;
+    function row(b) {
+      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Label for this price"></td><td><input type="number" class="ba" min="1" step="any" value="' + esc(b.price) + '" aria-label="Price in dollars"></td><td><button type="button" class="secondary rm" aria-label="Remove this price">Remove</button></td></tr>';
+    }
+    function setRows(rows) { $("#bids tbody").innerHTML = rows.map(row).join(""); }
+    function read() {
+      const o = {};
+      for (const [k, id] of Object.entries(IDS)) o[k] = Number($("#" + id).value);
+      o.offers = [...document.querySelectorAll("#bids tbody tr")].map((r) => ({ label: r.querySelector(".bl").value.trim(), price: Number(r.querySelector(".ba").value) }));
+      return o;
+    }
+    function fill(s) {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = s[k];
+      setRows(s.offers);
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[money(R.walkAway), "walk-away price"], [money(R.cashFlow), "adjusted cash flow a year"], [money(R.byMultiple), "price at your multiple"], [money(R.byDebt), "price the loan can carry"], [R.breakEvenDropPct === null ? "n/a" : R.breakEvenDropPct.toFixed(1) + "%", "revenue drop that uses up the cushion at walk-away"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      $("#out tbody").innerHTML = R.offers.map((o) => "<tr><td>" + esc(o.label) + '</td><td class="num">' + money(o.price) + '</td><td class="num">' + money(o.cash) + '</td><td class="num">' + money(o.debtService) + '</td><td class="num">' + times(o.dscr) + '</td><td class="num">' + times(o.dscr10) + '</td><td class="num">' + times(o.dscr20) + '</td><td class="num">' + pct(o.cashOnCash) + "</td><td>" + (o.clears ? "Within" : "Above") + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setRows(sampleInput().offers);
+    $("#add-bid").addEventListener("click", () => { const n = document.querySelectorAll("#bids tbody tr").length; if (n >= MAX_OFFERS) { status.textContent = "Up to " + MAX_OFFERS + " prices."; return; } $("#bids tbody").insertAdjacentHTML("beforeend", row({ label: "", price: "" })); });
+    $("#bids").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a $360,000-revenue store, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("laundromat-offer.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("laundromat-offer.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

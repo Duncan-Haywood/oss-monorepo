@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Agent Permission Config Check — Claude Code &amp; MCP Settings Linter</title>
+  <meta name="description" content="Paste your Claude Code .claude/settings.json or an .mcp.json / .cursor/mcp.json / .vscode/mcp.json MCP-server config and see every blanket Bash allow-all rule, unscoped destructive-command allow with no matching deny, plain-http MCP server URL, and hardcoded-looking secret in a committed env/header value. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your AI coding agent's permission config over-broad?">
+  <meta property="og:description" content="A deterministic static linter for Claude Code / Cursor / VS Code MCP permission and server configs: allow-all Bash, unguarded destructive commands, plain-http MCP endpoints, and hardcoded secrets. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Permission Config Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Statically lints an AI-coding-agent's permission and MCP-server configuration -- Claude Code's settings.json permissions.allow/deny/ask and the mcpServers block shared by .mcp.json, .cursor/mcp.json, and .vscode/mcp.json -- for a blanket Bash allow-all rule, an unscoped destructive-command allow with no matching deny rule, an MCP server reached over plain http://, and a hardcoded-looking secret in a committed server's env or headers instead of an environment-variable reference. Runs entirely in the browser or as a zero-dependency, zero-network Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a Bash allow-all rule matter?","acceptedAnswer":{"@type":"Answer","text":"Claude Code's permission rules scope a tool by an optional pattern, e.g. Bash(git diff:*). A bare \"Bash\", or a pattern whose scope is itself a wildcard, grants every shell command with no prompt at all — functionally the same as disabling permission prompts for the one tool an agent can use to do almost anything else on the machine, including reading other credentials, modifying git history, or making arbitrary network requests via curl."}},{"@type":"Question","name":"Why flag a plain http:// MCP server URL?","acceptedAnswer":{"@type":"Answer","text":"An MCP server reached over http:// sends every request, including any bearer token or API key in its headers, unencrypted on the wire. Anyone on the same network path can read or tamper with it. This is worth catching mechanically because a config that started as a local http://localhost dev server during setup is easy to copy into a shared or committed file without ever switching to https://."}},{"@type":"Question","name":"Does this tool run, connect to, or attack anything the config describes?","acceptedAnswer":{"@type":"Answer","text":"No. It only reads the JSON text you give it (pasted, or a local file when using the CLI) and looks for known-risky shapes in it — it never launches an MCP server's command, never makes a network request to a server's url, and never sends a value anywhere to test whether it is a real, live credential."}},{"@type":"Question","name":"How confident is the hardcoded-secret check?","acceptedAnswer":{"@type":"Answer","text":"A value matching a known token format (an Anthropic, OpenAI, GitHub, Slack, AWS, Google, GitLab, or npm token prefix) is reported at high confidence. A long, space-free, unrecognised literal is reported at medium confidence — flagged because it looks more like a token than a normal setting, not because it is proven to be a secret. Either way, verify by reading the value yourself before rotating anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 260px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.high { background: #fde8e8; color: #7f1d1d; }
+    .pill.medium { background: #fef3c7; color: #78350f; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AGENT PERMISSION CONFIG CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your AI coding agent's permission config over-broad?</h1>
+    <p>Paste your Claude Code <code>.claude/settings.json</code>, or an <code>.mcp.json</code> / <code>.cursor/mcp.json</code> / <code>.vscode/mcp.json</code> MCP-server config, and see every blanket <code>Bash</code> allow-all rule, unscoped destructive-command allow with no matching deny rule, MCP server reached over plain <code>http://</code>, and hardcoded-looking secret sitting in a server's <code>env</code> or <code>headers</code> instead of an environment-variable reference.</p>
+    <p class="note">Nothing is uploaded. The JSON you paste is parsed entirely in this browser and never sent anywhere. This tool never launches a server's command and never contacts a server's URL — it only reads the text you give it.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your config</h2>
+    <label for="config-input">.claude/settings.json, .mcp.json, .cursor/mcp.json, or .vscode/mcp.json content</label>
+    <textarea id="config-input" spellcheck="false" placeholder='{&#10;  "permissions": { "allow": ["Bash"], "deny": [] },&#10;  "mcpServers": {&#10;    "example": { "url": "http://example.com/mcp", "env": { "API_KEY": "sk-ant-api03-..." } }&#10;  }&#10;}'></textarea>
+
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with findings)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What was found</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Severity</th><th>Check</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it also flags whether a config carrying a hardcoded-looking secret is tracked by git:</p>
+    <pre class="cmd">node cli.mjs check                          # auto-discovers config files under .
+node cli.mjs check --root <dir>              # auto-discovers under <dir>
+node cli.mjs check --file <path> [--file ...] # check specific file(s)
+node cli.mjs check --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the config file(s) it finds or is told about, plus a best-effort local <code>git ls-files</code> check on the same file — no network call, ever. Exits 1 if any high/medium finding is present, so it works as a CI gate on the same pull request that adds or edits the config.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Check</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Blanket Bash allow-all</td><td>A <code>permissions.allow</code> entry of bare <code>"Bash"</code> or <code>"Bash(*)"</code> — every shell command runs with no prompt</td></tr>
+        <tr><td>Unscoped destructive command</td><td>An unscoped <code>allow</code> entry for a command family whose blast radius is large (<code>sudo</code>, <code>rm</code>, <code>curl</code>, <code>wget</code>, <code>chmod</code>, <code>eval</code>, <code>dd</code>, <code>mkfs</code>, <code>shutdown</code>, <code>reboot</code>), with no matching <code>deny</code> rule for the same command</td></tr>
+        <tr><td>Plain-http MCP server</td><td>An <code>mcpServers</code> entry whose <code>url</code> starts with <code>http://</code> instead of <code>https://</code></td></tr>
+        <tr><td>Hardcoded-looking secret</td><td>An <code>mcpServers</code> entry's <code>env</code> or <code>headers</code> value that is a literal matching a known API-token format (high confidence) or a long, space-free, unrecognised literal (medium confidence), instead of an <code>${VAR}</code>-style reference</td></tr>
+        <tr><td>No deny rules at all</td><td>Informational only: <code>allow</code> is non-empty and <code>deny</code> is completely empty, so nothing blocks a future edit from widening <code>allow</code></td></tr>
+      </tbody>
+    </table>
+    <p class="note">This is a static shape-matcher, not a runtime guard and not a secret-verification service — it never launches a server's command, never contacts a server's <code>url</code>, and never checks whether a flagged value is a real, live credential. A clean result is not a certification that your config is safe; a flagged one is not proof a value is a secret. See <a href="why-ai-agent-permission-configs-need-a-linter.html">why these configs are worth linting, and where this checker's own edges are</a>, or <a href="vs-manual-config-review.html">this checker vs. reading the JSON by eye</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a Bash allow-all rule matter?</h3>
+    <p>Claude Code's permission rules scope a tool by an optional pattern, e.g. <code>Bash(git diff:*)</code>. A bare <code>"Bash"</code>, or a pattern whose scope is itself a wildcard, grants every shell command with no prompt at all — functionally the same as disabling permission prompts for the one tool an agent can use to do almost anything else on the machine, including reading other credentials, modifying git history, or making arbitrary network requests via <code>curl</code>.</p>
+    <h3>Why flag a plain http:// MCP server URL?</h3>
+    <p>An MCP server reached over <code>http://</code> sends every request, including any bearer token or API key in its headers, unencrypted on the wire. Anyone on the same network path can read or tamper with it. This is worth catching mechanically because a config that started as a local <code>http://localhost</code> dev server during setup is easy to copy into a shared or committed file without ever switching to <code>https://</code>.</p>
+    <h3>Does this tool run, connect to, or attack anything the config describes?</h3>
+    <p>No. It only reads the JSON text you give it (pasted, or a local file when using the CLI) and looks for known-risky shapes in it — it never launches an MCP server's command, never makes a network request to a server's <code>url</code>, and never sends a value anywhere to test whether it is a real, live credential.</p>
+    <h3>How confident is the hardcoded-secret check?</h3>
+    <p>A value matching a known token format (an Anthropic, OpenAI, GitHub, Slack, AWS, Google, GitLab, or npm token prefix) is reported at high confidence. A long, space-free, unrecognised literal is reported at medium confidence — flagged because it looks more like a token than a normal setting, not because it is proven to be a secret. Either way, verify by reading the value yourself before rotating anything.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified professional or a careful read of your own config. It reports whether your config contains one of a fixed, named set of risky shapes — nothing more, and a clean result is not a guarantee that the config is safe or that no other risk exists. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for rotating any credential you have reason to believe was exposed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../agent-instructions-drift-check/">Agent Instructions Drift Check</a> checks whether your AGENTS.md / CLAUDE.md still matches what the repo actually has, not what your agent is allowed to run. <a href="../mcp-supply-chain-watch/">MCP Supply-Chain Watch</a> monitors an already-connected remote MCP server's own tool schema for change over time — a different question from whether your local config grants it too much up front.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseConfig, analyze } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#config-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a config first (or load the worked example).</span>`;
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = parseConfig(text);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">Could not parse as JSON: ${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      els.status.textContent = "";
+
+      const result = analyze(parsed);
+
+      els.summary.innerHTML = (result.status === "ok"
+        ? `<span class="ok">${escapeHtml(result.summary)}</span>`
+        : `<span class="changed">${escapeHtml(result.summary)}</span>`);
+
+      els.table.hidden = result.findings.length === 0;
+      els.rows.innerHTML = result.findings.map((f) => `<tr>
+        <td><span class="pill ${f.severity}">${f.severity}</span></td>
+        <td><code>${escapeHtml(f.kind)}</code></td>
+        <td>${escapeHtml(f.message)}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    // A plain JSON object literal (quoted keys, no computed expressions),
+    // deliberately, rather than built with template strings or `.repeat()`
+    // -- this venture's own page.test.mjs extracts this literal's source
+    // text and feeds it straight to JSON.parse to prove, against the real
+    // engine, that it demonstrates every finding kind (PRODUCT_PLAYBOOK.md
+    // §5e "prove it on a worked example"). A JS-only shorthand here would
+    // read fine in the browser and break that proof.
+    const EXAMPLE_CONFIG = JSON.stringify({
+      "permissions": { "allow": ["Bash", "Bash(rm:*)"], "deny": [] },
+      "mcpServers": {
+        "internal": { "command": "node", "env": { "API_KEY": "${INTERNAL_API_KEY}" } },
+        "third-party": {
+          "url": "http://api.example.com/mcp",
+          "env": { "ANTHROPIC_API_KEY": "sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
+        }
+      }
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_CONFIG;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

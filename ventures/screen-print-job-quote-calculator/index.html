@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Screen Print Job Quote Calculator — Price Per Shirt and Break-Even Order</title>
+  <meta name="description" content="Free screen printing quote calculator: price per piece from blanks, screens, ink and press time, a price-break ladder, and the smallest order that pays at your current price. Runs in your browser.">
+  <meta property="og:title" content="Screen Print Job Quote Calculator — free, private">
+  <meta property="og:description" content="Quote a screen printing job: price per piece, price breaks by quantity and break-even order size. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Screen Print Job Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free screen printing quote calculator: price per piece from garments, screens, ink and press time, with a price-break ladder and the break-even order size at your current price."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a screen printing job?", "acceptedAnswer": {"@type": "Answer", "text": "Add the blank garments (including spoiled ones you had to buy), the screens, ink, and the press and setup time at your labor and overhead rates. Divide that cost by one minus your target margin to get the revenue the job needs, subtract any screen fees you charge separately, and divide by the number of pieces."}}, {"@type": "Question", "name": "Why does the price per shirt drop as the order gets bigger?", "acceptedAnswer": {"@type": "Answer", "text": "Burning screens and registering the press cost about the same for 24 shirts as for 240, so on a small order that fixed setup is spread over few pieces. The price ladder shows the per-piece price at each quantity so you can set price breaks that still hold your margin."}}, {"@type": "Question", "name": "What counts as a screen?", "acceptedAnswer": {"@type": "Answer", "text": "One screen per colour per print location. A three-colour front and a one-colour sleeve is four screens. Every piece passes under every screen, so press time and ink scale with pieces times screens."}}, {"@type": "Question", "name": "Should I charge a screen fee?", "acceptedAnswer": {"@type": "Answer", "text": "That is your call. If you charge one, the tool takes it out of the per-piece price so your margin target still holds. If you do not, the screen cost is recovered inside the piece price, which makes small orders look expensive."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Artwork and separation time, ink waste and reclaim chemicals beyond the per-impression figure you enter, flash and cure time, shipping, sales tax, specialty inks and underbase passes (count an underbase as a colour), and payment fees."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab. There are no accounts."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic over the costs and margin you enter. Check the output against your own books before quoting a customer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #faf5f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #7a2e0e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a1a05; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1a05; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #e6d5c9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a1a0510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c4a998; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a2e0e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f3e3d8; color: #4a1a05; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #efe2d8; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    .finding { border-bottom: 1px solid #efe2d8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .big { font-size: 1.6rem; font-weight: 800; color: #4a1a05; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .stat span { display: block; font-size: .8rem; color: #46566a; text-transform: uppercase; letter-spacing: .03em; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d5c9; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SCREEN PRINT JOB QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should this screen printing job cost?</h1>
+    <p>Enter the order and your shop's costs. You get <strong>the price per piece that hits your margin, a price-break ladder by quantity, and the smallest order that pays at the price you were going to quote</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. Arithmetic over what you enter, not business advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The order</h2>
+    <div class="grid">
+      <div><label for="qty">Pieces ordered</label><input type="number" id="qty" min="1" step="1" value="48"></div>
+      <div><label for="colors">Colours per print location</label><input type="number" id="colors" min="1" step="1" value="2"></div>
+      <div><label for="locations">Print locations (front, back, sleeve)</label><input type="number" id="locations" min="1" step="1" value="1"></div>
+      <div><label for="garmentCost">Blank garment cost each ($)</label><input type="number" id="garmentCost" min="0" step="0.1" value="3.5"></div>
+      <div><label for="spoilPct">Spoilage (%)</label><input type="number" id="spoilPct" min="0" step="0.5" value="3"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Setup and press</h2>
+    <div class="grid">
+      <div><label for="screenCost">Cost per screen: mesh, emulsion, film, reclaim ($)</label><input type="number" id="screenCost" min="0" step="1" value="18"></div>
+      <div><label for="setupMinPerScreen">Setup minutes per screen (registration)</label><input type="number" id="setupMinPerScreen" min="0" step="1" value="10"></div>
+      <div><label for="jobSetupMin">Fixed job setup minutes (loading, test print)</label><input type="number" id="jobSetupMin" min="0" step="1" value="15"></div>
+      <div><label for="impressionsPerHour">Press speed (impressions per hour)</label><input type="number" id="impressionsPerHour" min="1" step="any" value="150"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Your costs and margin</h2>
+    <div class="grid">
+      <div><label for="laborRate">Labor cost per hour ($)</label><input type="number" id="laborRate" min="0" step="1" value="22"></div>
+      <div><label for="overheadRate">Overhead per press hour ($)</label><input type="number" id="overheadRate" min="0" step="1" value="18"></div>
+      <div><label for="inkPerImpression">Ink per impression ($)</label><input type="number" id="inkPerImpression" min="0" step="0.01" value="0.04"></div>
+      <div><label for="marginPct">Target margin (% of price)</label><input type="number" id="marginPct" min="0" step="1" value="35"></div>
+      <div><label for="screenFeeCharged">Screen fee you charge the customer per screen ($, optional)</label><input type="number" id="screenFeeCharged" min="0" step="1" value="20"></div>
+      <div><label for="yourPrice">Price each you were going to quote ($, optional)</label><input type="number" id="yourPrice" min="0" step="0.25" value="9"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers, or load the example, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Quote</h2>
+    <div class="stats">
+      <div class="stat"><span>Price each</span><div class="big" id="s-unit"></div></div>
+      <div class="stat"><span>Your cost each</span><div class="big" id="s-cost"></div></div>
+      <div class="stat"><span>Profit on the order</span><div class="big" id="s-profit"></div></div>
+    </div>
+    <div id="advice"></div>
+    <h3>Where the cost goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Cost</th></tr></thead><tbody id="parts"></tbody></table></div>
+    <h3>Price breaks</h3>
+    <p class="note">Price each at your margin for other order sizes, same screens and costs.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Pieces</th><th scope="col">Price each</th><th scope="col">Your cost each</th></tr></thead><tbody id="ladder"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download price breaks as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Screens</strong> = colours per location × locations. Each is burned once per job.</li>
+      <li><strong>Pieces printed</strong> = pieces ordered ÷ (1 − spoilage), rounded up. Spoiled blanks are bought and printed, so they sit in the cost.</li>
+      <li><strong>Hours</strong> = (screens × setup minutes + fixed setup) ÷ 60 + impressions ÷ press speed. Labor and overhead are charged on those hours.</li>
+      <li><strong>Revenue needed</strong> = total cost ÷ (1 − target margin). <strong>Price each</strong> = (revenue − screen fees you charge) ÷ pieces.</li>
+      <li><strong>Not modelled:</strong> artwork time, flash and cure, shipping, tax, payment fees, specialty inks. Count an underbase as a colour.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a screen printing job?</h3>
+    <p>Add the blank garments (including spoiled ones you had to buy), the screens, ink, and the press and setup time at your labor and overhead rates. Divide that cost by one minus your target margin to get the revenue the job needs, subtract any screen fees you charge separately, and divide by the number of pieces.</p>
+    <h3>Why does the price per shirt drop as the order gets bigger?</h3>
+    <p>Burning screens and registering the press cost about the same for 24 shirts as for 240, so on a small order that fixed setup is spread over few pieces. The price ladder shows the per-piece price at each quantity so you can set price breaks that still hold your margin.</p>
+    <h3>What counts as a screen?</h3>
+    <p>One screen per colour per print location. A three-colour front and a one-colour sleeve is four screens. Every piece passes under every screen, so press time and ink scale with pieces times screens.</p>
+    <h3>Should I charge a screen fee?</h3>
+    <p>That is your call. If you charge one, the tool takes it out of the per-piece price so your margin target still holds. If you do not, the screen cost is recovered inside the piece price, which makes small orders look expensive.</p>
+    <h3>What does this leave out?</h3>
+    <p>Artwork and separation time, ink waste and reclaim chemicals beyond the per-impression figure you enter, flash and cure time, shipping, sales tax, specialty inks and underbase passes (count an underbase as a colour), and payment fees.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab. There are no accounts.</p>
+    <h3>Is this business or financial advice?</h3>
+    <p>No. It is arithmetic over the costs and margin you enter. Check the output against your own books before quoting a customer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Quotes depend on the costs you enter.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../embroidery-shop-quote-calculator/">embroidery shop quote</a>, <a href="../apparel-decoration-price-calculator/">apparel decoration price</a>, <a href="../sign-shop-job-pricing-calculator/">sign shop job pricing</a>, <a href="../recipe-costing-calculator/">recipe costing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, usd } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["qty", "colors", "locations", "garmentCost", "spoilPct", "screenCost", "setupMinPerScreen", "jobSetupMin", "impressionsPerHour", "laborRate", "overheadRate", "inkPerImpression", "marginPct", "screenFeeCharged", "yourPrice"];
+    const labels = { garments: "Blank garments (incl. spoiled)", screens: "Screens", ink: "Ink", labor: "Labor", overhead: "Overhead" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#s-unit").textContent = usd(r.unit);
+      $("#s-cost").textContent = usd(r.unitCost);
+      $("#s-profit").textContent = usd(r.profit);
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#parts").innerHTML = Object.entries(r.cost.parts).map(([k, v]) => `<tr><th scope="row">${labels[k]}</th><td>${usd(v)}</td></tr>`).join("") + `<tr><th scope="row">Total</th><td>${usd(r.cost.total)}</td></tr>`;
+      $("#ladder").innerHTML = r.ladder.map((l) => `<tr><th scope="row">${l.qty}${l.isOrder ? " (this order)" : ""}</th><td>${usd(l.unit)}</td><td>${usd(l.cost)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Quote calculated.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("quote_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) if (s[k] !== undefined) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "screen-print-price-breaks.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

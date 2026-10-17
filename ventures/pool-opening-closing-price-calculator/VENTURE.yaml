@@ -1,0 +1,42 @@
+name: pool-opening-closing-price-calculator
+description: >-
+  Free browser calculator for pool service owners: enter the pool size, shape, cover, plumbing lines, crew, chemical costs and redo rate, and see a closing
+  price, an opening price, a season bundle, what green water does to the opening, and how many stops fill a crew day. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session (closing season). pool-service-route-calculator and pool-route-pricing price the weekly route; pool-plaster-bid-calculator
+# prices a resurface. None prices the two seasonal one-off visits, which are a different job shape: volume-scaled chemical, cover work, and water condition at opening.
+#
+# First visitor: pool service owners searching "how much to charge to close a pool", "pool opening price", "pool closing cost" and "pool winterizing price", and
+# pool-route operator forums. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal advice and not winterizing guidance; says what is not modelled;
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small pool service owners will type a pool's size, cover and water condition and their chemical and labour costs into a no-signup calculator to set opening and
+      closing prices, because most quote one flat number that ignores pool volume and green water.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pool-opening-closing-price-calculator/
+  analytics: null

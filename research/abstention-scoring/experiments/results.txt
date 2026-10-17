@@ -1,0 +1,39 @@
+E1  abstention region and information kept (pi=0.5, mu=1, Brier gain>=c, silence used correctly)
+  c=0.00  abstain interval (+0.000,+0.000)  P(abstain) 0.000  info 0.3368 nats (100.0%)  payment 0.1376  silence LR 1.0000
+  c=0.01  abstain interval (-0.203,+0.203)  P(abstain) 0.098  info 0.3363 nats ( 99.8%)  payment 0.1373  silence LR 1.0000
+  c=0.04  abstain interval (-0.424,+0.424)  P(abstain) 0.205  info 0.3311 nats ( 98.3%)  payment 0.1347  silence LR 1.0000
+  c=0.09  abstain interval (-0.693,+0.693)  P(abstain) 0.334  info 0.3135 nats ( 93.1%)  payment 0.1264  silence LR 1.0000
+  c=0.16  abstain interval (-1.099,+1.099)  P(abstain) 0.521  info 0.2610 nats ( 77.5%)  payment 0.1028  silence LR 1.0000
+
+E2  asymmetric prior: silence is evidence (mu=1, c=0.03)
+  pi=0.50  abstain (-0.361,+0.361)  silence LR 1.0000  P(theta=1|silence) 0.5000  P(theta=1|reports) 0.5000
+  pi=0.30  abstain (-0.541,+0.370)  silence LR 0.8523  P(theta=1|silence) 0.2676  P(theta=1|reports) 0.3095
+  pi=0.20  abstain (-1.103,+0.434)  silence LR 0.5759  P(theta=1|silence) 0.1259  P(theta=1|reports) 0.2550
+  pi=0.10  abstain (-inf,+0.609)  silence LR 0.3678  P(theta=1|silence) 0.0393  P(theta=1|reports) 0.5740
+  pi=0.05  abstain (-inf,+0.849)  silence LR 0.4545  P(theta=1|silence) 0.0234  P(theta=1|reports) 0.4776
+
+E3  n verifiers, log-loss of aggregator that uses silence vs ignores it (pi=0.1, mu=0.8, c=0.02, 20000 jobs)
+  n= 1  logloss silence-aware 0.2564  ignoring silence 0.2695  excess +0.0131  P(all silent) 0.878
+  n= 3  logloss silence-aware 0.1534  ignoring silence 0.2378  excess +0.0844  P(all silent) 0.730
+  n= 6  logloss silence-aware 0.0784  ignoring silence 0.3198  excess +0.2414  P(all silent) 0.576
+  n=12  logloss silence-aware 0.0205  ignoring silence 0.6223  excess +0.6018  P(all silent) 0.365
+
+E4  stale anchor: alpha != pi (pi=0.3, mu=1, c=0.03); who abstains?
+  alpha=0.3  abstain (-0.541,+0.370)  silence LR 0.8523  P(theta=1|silence) 0.2676  info 0.2860
+  alpha=0.4  abstain (-0.190,+0.571)  silence LR 1.4386  P(theta=1|silence) 0.3814  info 0.2882
+  alpha=0.5  abstain (+0.062,+0.785)  silence LR 2.2511  P(theta=1|silence) 0.4910  info 0.2888
+  alpha=0.6  abstain (+0.276,+1.037)  silence LR 3.4965  P(theta=1|silence) 0.5998  info 0.2888
+
+E5  Brier vs log-score gain: same c, different regions (pi=0.5, mu=1)
+  c=0.01  Brier (-0.203,+0.203) info 0.3363 | log (-0.142,+0.142) info 0.3366
+  c=0.04  Brier (-0.424,+0.424) info 0.3311 | log (-0.289,+0.289) info 0.3350
+  c=0.09  Brier (-0.693,+0.693) info 0.3135 | log (-0.445,+0.445) info 0.3301
+
+E6  reward scale k (unit reporting cost, report iff gain >= 1/k, pi=0.5, mu=1): information saturates, payment grows ~k
+  k=   5  info 0.1997  reporters 0.336  total payment 0.3846  verifier rent 0.0487
+  k=   8  info 0.2927  reporters 0.577  total payment 0.9352  verifier rent 0.3580
+  k=  12  info 0.3164  reporters 0.682  total payment 1.5343  verifier rent 0.8521
+  k=  20  info 0.3284  reporters 0.767  total payment 2.6700  verifier rent 1.9027
+  k=  30  info 0.3326  reporters 0.815  total payment 4.0638  verifier rent 3.2490
+  k=  50  info 0.3350  reporters 0.859  total payment 6.8320  verifier rent 5.9727
+  k= 100  info 0.3363  reporters 0.902  total payment 13.7268  verifier rent 12.8249

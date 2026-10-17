@@ -1,0 +1,42 @@
+name: rfp-compliance-matrix
+description: >-
+  Free browser tool and zero-dependency Node CLI for proposal teams: paste an RFP, RFQ or tender and get a compliance matrix with one row per shall/must/required obligation (section, category, strength, owner, status), plus page limits, due dates, copies and required forms pulled out separately. CSV and Markdown export. Nothing is uploaded. Not procurement advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15 in a new-venture-first session; a search of ventures/ found no compliance-matrix extractor (nearest: tender-bid-readiness, a go/no-go keyword checklist before bidding; tender-radar, a CSV shortlist). This tool is the step after the decision to bid.
+#
+# First visitor: a proposal manager or capture lead at a small government contractor, or a SaaS vendor answering a county/university RFP, searching "RFP compliance matrix template", "how to build a compliance matrix", "extract requirements from RFP". The paid incumbents (Loopio, Responsive/RFPIO, Privia, Qvidian, AutogenAI) charge per seat per year and are built for large response teams; a small shop answering a few RFPs a quarter does this by hand in Excel. Volume not measured.
+#
+# Path to revenue (payment rails stay off): free here as a lead magnet and open source (MIT); the business shape is a hosted team version with shared matrices, Word/PDF ingestion with section-aware parsing, and an LLM pass that splits compound requirements and maps them to a content library, behind an env-var switch and a flat low price. Built 2026-10-15 (v2): response outline, draft gap check, optional LLM split pass (own Anthropic key, output validated against source), Dockerfile + render.yaml for self-deploy, API server. Not built: file upload, accounts, shared matrices.
+#
+# Liability: output is a heuristic first pass and says so on screen; a missed requirement is the main harm, mitigated by showing the source sentence for every row, listing what is not decided, and telling the reader to check against the solicitation. Pasted text never leaves the device. No claim of affiliation with any buyer or portal.
+hypotheses:
+  - claim: >-
+      Small proposal teams answering a handful of RFPs a quarter will paste a solicitation into a free private extractor and start their compliance matrix from the CSV instead of retyping every shall/must statement by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams that try the free extractor will want shared matrices, Word/PDF ingestion and a content library enough to pay a low flat price for a hosted version.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - Two independent reports that the extractor misses obligations a proposal manager would call obvious on a real solicitation, with no cheap fix.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rfp-compliance-matrix/
+  analytics: null

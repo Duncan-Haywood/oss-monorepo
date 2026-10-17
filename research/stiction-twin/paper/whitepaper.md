@@ -1,0 +1,31 @@
+# A twin whose sliding friction is right still misses stick-slip hunting: the stiction excess sets the cycle
+
+*Stylised: a unit mass with Coulomb friction under a PID position loop, pure Python, every number is from `experiments/results.txt` (deterministic, about a minute). The "real" system is itself simulated; no lab or field data. Negative and out-of-model results are marked.*
+
+## Question
+Sliding friction is the friction parameter a twin is most likely to get right, because it is visible in any motion data. Static friction (breakaway force `Fs` above the kinetic level `Fc`) is visible only at the instant of departure from rest. If a twin has the correct `Fc` (or no friction at all) and its PID loop is stable, does the real loop converge, and if not, how large is the residual motion and what sets it?
+
+## Model
+Unit mass, position `x`, velocity `v`. Controller `u = −kp x − kd v − ki z`, `ż = x`, `kp = 10`. The mass sticks while `v = 0` and `|u| ≤ Fs`; otherwise `v̇ = u − Fc·sgn`, where `sgn` is the sign of `v` (or of `u` at breakaway), and a sign change of `v` within a step is a stop. Semi-implicit Euler, `dt = 0.01`. The frictionless twin has characteristic polynomial `s³ + kd s² + kp s + ki`, Hurwitz iff `kd·kp > ki`. A twin with `Fs = Fc` (Coulomb only, correctly identified) is the second twin. Write `ΔF = Fs − Fc`. The loop is piecewise linear in `(x, v, z, Fc, Fs)` jointly, so scaling `(x0, Fc, Fs)` by `s` scales the whole trajectory by `s`; hence the cycle amplitude can depend on `Fc, Fs` only through `ΔF/kp` and dimensionless ratios.
+
+## Results
+1. **Coulomb friction alone is harmless here (positive result).** With `Fs = Fc` (`Fc` = 0.2, 1, 5; five gain settings; start `x0 = 1`), the real loop converges to below 5·10⁻¹⁴ after 1000 s in all 15 cases, as the twin says. A twin with the right sliding friction and no stiction is therefore validated by this test, and that is exactly why it is dangerous.
+2. **A stiction excess makes the loop hunt, although the twin is stable to 1e-58.** At `Fc = 1`, `Fs = 2`, `(kd,ki)` = (1,2), (1,5), (4,2), (0.5,2) the real loop settles on a stick-slip cycle with amplitude 0.0833, 0.0886, 0.0543, 0.0929 (twin error 6e-82…9e-96). Normalised by `ΔF/kp`: 0.833, 0.886, 0.543, 0.929, and the same values for `Fs = 1.5` (0.832, 0.886, 0.552, 0.930). A tolerance below about `0.5ΔF/kp` is never met at any run length. Negative result for the claim that damping always helps: at `(kd,ki) = (4,5)` the loop converges for both `Fs` (7.8·10⁻¹⁶), so the same stiction is harmless in some gain settings.
+3. **The amplitude is set by `ΔF/kp`, not by `Fc`.** The normalised amplitude is 0.833 for `Fc` = 0, 0.1, 0.5, 1, 2, 5 and starts `x0` = 0.1, 1, 10 (0.832–0.833 throughout). In a 1000-s window `Fc = 20` and `ki = 0.1` appear to stall (tail amplitude 0, tail error 0.05–0.09); this is a window artefact: a 20 000-s run shows continuing breakaways (7 / 8 / 32 in the last 2000 s for `(ki,Fc)` = (0.1,1), (2,20), (2,5)) with normalised amplitude 0.807 / 0.832 / 0.834. The stuck stretches lengthen with `Fc/ki` (the integrator must ramp across `Fs`), so a short validation run can show a motionless "converged" twin-compatible error for a configuration that hunts; I did not fit the period law.
+4. **Dependence on the loop.** Normalised amplitude falls with damping (`kd` = 0.25, 0.5, 1, 2, 3, 4: 0.988, 0.929, 0.833, 0.693, 0.602, 0.543 at `ki = 2`) and rises weakly with integral gain (`ki` = 0.1, 0.5, 1, 2, 5, 9: 0.807, 0.813, 0.821, 0.833, 0.886, 0.973 at `kd = 1`). The constant is neither 1 nor a simple function I could identify; I report the numbers only.
+5. **Exact scaling, with a rounding caveat.** For `s` a power of two (2⁻⁷, 2¹⁰) the scaled trajectory is bit-identical over 20 000 steps. For `s` = 0.01 and 100 it agrees to 1.8·10⁻⁸ and 7.0·10⁻⁸ (relative to `s`) until a rounding-level difference flips a stick decision; the tail amplitudes at `s` = 0.01, 1, 100 are then 0.8318, 0.8333, 0.8327 (times `ΔF/kp`). So the cycle is unique only to about three digits: it is not a single exactly periodic orbit, or several orbits exist, and I did not resolve which.
+6. **Step size.** Halving `dt` three times moves the amplitude 0.08319, 0.08324, 0.08328, 0.08333 (0.2%): the effect is not a discretisation artefact.
+7. **Proportional-only control** (`ki = 0`) stalls anywhere inside a band `|x| ≤ Fs/kp = 0.2` (final `x` = 0.15 from 0.15, 0.0094, −0.1416, 0.1075, −0.0294 from 0.25, 0.5, 1, 5): integral action removes that static error (result 1) but the stiction excess turns it into hunting (result 2).
+
+## Limitations
+Scalar unit mass, Coulomb plus static friction only (no Stribeck curve, viscous term or presliding), no noise, no encoder quantisation, one loop structure, `kp` fixed at 10 and five `(kd,ki)` settings; the amplitude constant is empirical with no closed form, and the stability of the cycle and the dependence on initial conditions beyond the starts listed are established only by simulation. The simulated "real" plant is the same model family as the twin apart from `Fs`, so model-form error is not tested. Not evidence about any particular actuator.
+
+## Next steps
+A closed-form amplitude and period for the stick-slip orbit (piecewise-linear return map); identifying `Fs − Fc` from breakaway tests and the amount of data needed; dither or an integrator deadzone as compensation, with noise (link to `deadband-noise-twin`); combining with backlash (`backlash-twin`) and rate limits (`slew-twin`); certifying an amplitude bound from twin plus a measured `ΔF`.
+
+## References
+- Armstrong-Hélouvry, B., Dupont, P. & Canudas de Wit, C. (1994). A survey of models, analysis tools and compensation methods for the control of machines with friction. *Automatica* 30(7), 1083–1138.
+- Olsson, H., Åström, K. J., Canudas de Wit, C., Gäfvert, M. & Lischinsky, P. (1998). Friction models and friction compensation. *European Journal of Control* 4(3), 176–195.
+- Armstrong-Hélouvry, B. (1991). *Control of Machines with Friction*. Kluwer.
+- Khalil, H. K. (2002). *Nonlinear Systems*, 3rd ed. Prentice Hall.
+- Zhao, W., Queralta, J. P. & Westerlund, T. (2020). Sim-to-real transfer in deep reinforcement learning for robotics: a survey. *IEEE SSCI*.

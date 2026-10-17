@@ -1,0 +1,68 @@
+name: tile-layout-optimizer
+description: >-
+  Free browser tool for tilers, flooring installers and DIYers: enter a room, any
+  cut-outs and one or more tile sizes with box size and price, and a layout search
+  over grid start, tile direction and brick bond, with offcut reuse packed by a
+  guillotine packer, finds the fewest tiles and boxes to buy without cuts narrower
+  than your limit. Compares tile options by box cost against the 10 percent rule of
+  thumb and a corner-start layout, draws the plan to scale and lists every cut.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool. duplicate_check.py (run before building): closest rows were
+# shipping-box-size-optimizer 0.14, cut-list-optimizer 0.13 and
+# flooring-bid-calculator 0.10; nothing near the 0.45 line. Existing neighbours by
+# hand: cut-list-optimizer (sheet goods and boards, not a tile grid with a bond and
+# a start line), flooring-bid-calculator and kitchen-tile-backsplash-bid-calculator
+# (price a bid from an area and a waste percentage, no layout), and
+# carpet-install-bid-calculator. None lays out the tile grid or reuses offcuts.
+#
+# Why this niche: tile is bought by the box, a mistake costs a second trip and a
+# dye-lot mismatch or an overbuy of expensive porcelain, and installers quote
+# waste as a flat 10 to 15 percent that the room's real layout moves in both
+# directions. A tiler or a DIYer choosing between three tiles has no free tool
+# that lays the actual room out, rejects sliver cuts and prices the boxes; the
+# retailer calculators are the area-times-percent rule. For an installer this
+# tightens the material line of a bid and the cut plan saves time on site.
+#
+# First visitor: people searching "how many tiles do I need", "tile layout
+# calculator", "tile waste calculator", "how to start tiling a room", "tile
+# calculator with offcuts"; tiling and DIY forums when a room is being quoted.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic and a layout heuristic on user-typed figures;
+# a planning aid, not installation, structural or purchasing advice; no tile
+# maker, retailer or price asserted (the example tiles and prices are invented
+# and say so); the user keeps their own spare for breakage and dye lots.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a hosted multi-room estimate and cut plan for installers.
+
+hypotheses:
+  - claim: >-
+      Tilers and DIYers will use a private, no-signup layout optimizer when they
+      order tile, and the layout and offcut plan change how many boxes they buy or
+      where they start the grid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a plan covers the floor wrongly, overlaps a cut-out or lists a cut that cannot come out of the tile it is assigned to.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/
+  analytics: null

@@ -17,7 +17,7 @@ test("docs page links back to the tool", async () => {
 });
 
 test("all pages carry the no-warranty clause", async () => {
-  for (const file of ["index.html", "why-helm-silently-accepts-a-typo-in-values-yaml.html", "vs-helm-lint.html"]) {
+  for (const file of ["index.html", "why-helm-silently-accepts-a-typo-in-values-yaml.html", "vs-helm-lint.html", "vs-checking-it-by-eye.html"]) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), "utf8");
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
@@ -62,9 +62,19 @@ test("index links one hop to the k8s-deprecated-api-check sibling", async () => 
   );
 });
 
-test("sitemap lists all three published pages", async () => {
+test("sitemap lists all four published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  for (const loc of ["index.html", "why-helm-silently-accepts-a-typo-in-values-yaml.html", "vs-helm-lint.html"]) {
+  for (const loc of ["index.html", "why-helm-silently-accepts-a-typo-in-values-yaml.html", "vs-helm-lint.html", "vs-checking-it-by-eye.html"]) {
     assert.match(sitemap, new RegExp(loc.replace(/\./g, "\\.")));
   }
+});
+
+test("index links to the vs-checking-it-by-eye comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="vs-checking-it-by-eye\.html"/);
+});
+
+test("vs-checking-it-by-eye page links back to the tool", async () => {
+  const page = await readFile(new URL("./vs-checking-it-by-eye.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/);
 });

@@ -1,0 +1,66 @@
+name: 3pl-invoice-audit-checker
+description: >-
+  Free browser tool for e-commerce brands: enter the rate card from your 3PL contract and the monthly invoice lines (or paste a CSV),
+  and it recomputes every line, flags rates above contract, quantities your own records do not support, duplicate lines, charges that
+  are not in the rate card, account-minimum double billing and storage billed on more pallets than the on-hand average, totals the
+  recoverable dollars, ranks lines by dollars, names the proving record for each (WMS snapshot, order export, contract section) and
+  writes a dispute email. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Inspiration only, not copied and not named on any page: the freight-bill audit services and spreadsheet reviews that brands run on
+# their 3PL invoices by hand. Those are services or one-off sheets; this is the no-signup, no-upload version.
+#
+# Neighbours in this repo, and why this is not one of them: freight-accessorial-auditor audits a CARRIER's accessorial charges
+# (detention, liftgate, fuel as percent of linehaul) against a carrier contract; this audits a WAREHOUSE's fulfilment invoice
+# (receiving, storage, pick, pack, returns, kitting, minimums) against a 3PL contract and the brand's own WMS and order records.
+# 3pl-quote-normalizer compares several 3PL QUOTES before signing; this checks the one INVOICE after signing. Different document,
+# different decision, different proof records.
+#
+# Why this niche: a brand with a 3PL gets a dense monthly invoice priced from a contract it rarely re-reads, billed on counts it
+# rarely re-derives. Duplicate lines, storage on peak rather than average pallets, a minimum billed on top of charges that already
+# reach it, and one-off "project" fees are the usual leaks, each recoverable if the brand can point at the record that proves it.
+#
+# First visitor: someone searching "3PL invoice audit", "3PL billing errors", "check 3PL invoice against contract". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a multi-month trend and a saved rate-card library
+# behind an env-var switch. Neither is built.
+#
+# Liability: the risk is a dispute sent on a mistaken finding or a contract term read wrongly. Mitigations: every figure is a
+# deterministic function of the user's own inputs and hand-counted in unit tests, bad input throws instead of clamping, quantity
+# checks run only where the user supplies a record, ambiguous lines are held for review instead of guessed, the note asks the 3PL
+# to review rather than asserting breach, and the page says it is not legal or financial advice. It stores nothing and contacts
+# no one.
+
+hypotheses:
+  - claim: >-
+      An e-commerce operator will paste a monthly 3PL invoice into a free no-upload checker and send the generated dispute note,
+      because the recoverable dollars are visible and each line names the record that proves it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Duplicate lines, storage billed above average on-hand and unlisted charges are common enough on real 3PL invoices that a first
+      run finds recoverable money for most brands.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports sending a dispute on a finding the tool got wrong, or relying on it instead of reading their contract -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/
+  analytics: null

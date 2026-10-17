@@ -1,0 +1,24 @@
+# Free retries break Fiat-Shamir spot checks: deterrence needs ln(G/c) more samples than a beacon
+
+*Duncan Haywood. MIT licence. Code and experiments: `../src`, `../tests`, `../experiments`.*
+
+## Abstract
+Refereed verification of decentralised training often audits `q` of `T` committed steps chosen by hashing the prover's commitment (Fiat-Shamir), to avoid an interactive round. A prover who corrupts `k` steps escapes iff the challenge misses them, with probability `p = C(T−k,q)/C(T,q)`. Because the challenge is visible before submission and a failed try costs only `c`, the prover re-rolls (a different corrupted set or a salt) until it misses. We show: (i) the expected profit is exactly `G − c/p` when `pG > c` and `0` otherwise, so the cheat is deterred iff `p ≤ c/G`, i.e. `q ≳ ln(G/c)/λ_p`, `λ_p = −ln(1−k/T)`; (ii) a post-commitment beacon with slash `F` needs only `p ≤ F/(G+F)`, so grinding multiplies the required sample count by `ln(G/c)/ln(1+G/F)` (10× to 60× for `G/c = 2^10…2^60`, `F = G`, `T/k = 100`); (iii) adding proof-of-work of cost `x` to the challenge raises the attacker's per-try cost to `c0 + x`, and the total-overhead-minimising `x* = v/λ_p − c0` in closed form (`v` = verifier cost per opened step), 1.23× cheaper than no PoW in a worked example. Real SHA-256 grinding matches the geometric law. Stylised: uniform challenges, constant re-roll cost, risk-neutral prover.
+
+## 1. Setup
+Trace of `T` steps, `k` corrupted, challenge = `q` distinct uniform steps derived from `H(root)`. `p = C(T−k,q)/C(T,q)` (exact; `(1−k/T)^q ≈ e^{−qk/T}` with replacement, which overstates `p`: at `T=1000, k=10, q=400`, exact `0.0059` vs `0.0180`, E1, so sampling with replacement wastes samples). A try costs `c` (recompute the changed Merkle path, or re-train if the free choice is upstream); success pays `G`. Any degree of freedom suffices for grinding, including *which* `k` steps to corrupt, so dropping explicit nonces does not help whenever the cheat's location is flexible.
+
+## 2. Free retries
+The prover sees each challenge before submitting, so every try has expected gain `pG − c` regardless of history, and the optimal policy is to retry until success iff `pG > c`. Expected profit `G − c/p`; with at most `N` tries, `(1−(1−p)^N)(G − c/p)`. Deterrence `p ≤ c/G` gives `q* = ln(G/c)/λ_p` (up to the exact-vs-replacement correction). E4 (`T=1000, k=10, G=10^6, c=1`): profit is `≈ G` up to `q=500`, `16 888` at `q=745`, and `0` at `q*=746`. E2: real SHA-256 grinding with random corrupted sets gives first-try success `0.549, 0.529, 0.506` against `p = 0.558, 0.508, 0.519` and mean tries `1.82, 1.92, 1.95` against `1/p = 1.79, 1.97, 1.93`.
+
+## 3. Versus a beacon
+If the challenge comes from a beacon revealed after commitment there is one try: profit `pG − (1−p)F`, deterred iff `p ≤ F/(G+F)`; with `F=G` and `T/k=100` that is `q=69`. The hash-derived challenge needs `q = 690, 1379, 2067, 2755, 4130` for `G/c = 2^{10,20,30,40,60}`: **10.0×, 20.0×, 30×, 39.9×, 59.9×** (E3), matching `ln(G/c)/ln2`. The slash `F` plays no role under grinding, since failed tries are free: stake cannot substitute for samples (contrast `spot-check-slashing`, where stake and audits are complements when the challenge is exogenous).
+
+## 4. Optimal proof-of-work on the challenge
+Require `H(root‖nonce)` to have `d` leading zeros: cost `x` to honest prover (once) and attacker (per try), so the deterrence rule becomes `p ≤ (c0+x)/G`, `q = ln(G/(c0+x))/λ_p`. With verifier cost `v` per opened step the system overhead is `J(x) = x + (v/λ_p) ln(G/(c0+x))`, and `J' = 0` gives `x* = max(0, v/λ_p − c0)`: make one try cost as much as the verifier's cost of `1/λ_p` opened steps. E6 (`v=5, c0=1, G=2^40, T/k=100`): closed form `496.50`, brute force `496.49`; overhead `13 794 → 11 201` (**1.23×**), `q` `2759 → 2141`. If verification is cheap (`v/λ_p < c0`) PoW is unnecessary.
+
+## 5. Limitations
+(1) Uniform challenges and constant re-roll cost; real re-roll cost depends on where the freedom lives (Merkle-path recomputation vs re-execution) and may fall with parallel hardware, which the deterrence rule must budget for as a bound on `c`. (2) Risk-neutral prover; one corruption size `k`. (3) `G` is a single number; correlated multi-job gains would need a portfolio version. (4) PoW-based defences favour well-resourced provers and waste energy; verifiable-delay or beacon-based challenges avoid grinding at the cost of an extra round and beacon trust. (5) Not a claim about any deployed protocol. Contributions: the free-retry profit `G − c/p`, the `ln(G/c)` sample inflation over a beacon, stake irrelevance under grinding, and the closed-form PoW optimum.
+
+## Reproduce
+`PYTHONPATH=src python3 -m unittest discover -s tests -v` (12 tests) and `PYTHONPATH=src python3 experiments/run.py` (seeded; seconds).

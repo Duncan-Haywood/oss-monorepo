@@ -1,0 +1,47 @@
+Slosh twin: real = cart + damped slosh mass; twin = rigid mass M+m.  M=80 kg, m_full=20 kg, w_full=3.1416 rad/s (P=2.000 s)
+move D=3 m, a_max=0.5 m/s^2, tolerance 0.01 m; twin minimum-time T_min = 4.899 s = 2.449 slosh periods
+
+== 1. Residual slosh after a bang-bang move, undamped, full tank (twin predicts 0 for every T) ==
+T (s)   a0 (m/s^2)   closed form   exact propagation   RK4 two-mass |z|,|z'/w|   COM error (m)
+ 3.00      1.3333       0.33774             0.33774                  0.33774       3.55e-15
+ 4.00      0.7500       0.00000             0.00000                  0.00000       1.24e-14
+ 4.90      0.4998       0.10679             0.10679                  0.10679       1.02e-14
+ 6.00      0.3333       0.16887             0.16887                  0.16887       7.99e-15
+ 7.00      0.2449       0.06203             0.06203                  0.06203       8.44e-15
+ 8.00      0.1875       0.00000             0.00000                  0.00000       2.22e-15
+
+== 2. The twin-planned minimum-time move, T = T_min: what the twin does not see ==
+zeta=0.00  peak |z| during move 0.1957 m, residual amplitude 0.1066 m (10.7x tol), cart position error at T 3.37e-03 m (RK4), bound m/(M+m)*residual = 0.0213 m
+zeta=0.02  peak |z| during move 0.1840 m, residual amplitude 0.0926 m (9.3x tol), cart position error at T 5.39e-06 m (RK4), bound m/(M+m)*residual = 0.0185 m
+zeta=0.05  peak |z| during move 0.1698 m, residual amplitude 0.0774 m (7.7x tol), cart position error at T 3.49e-03 m (RK4), bound m/(M+m)*residual = 0.0155 m
+
+== 3. Fastest real move with residual <= 0.01 m (scan upward from T_min in 2 ms steps), full tank ==
+undamped nulls T_n = 2 n P: 4.000, 8.000, 12.000, 16.000
+  window around n=1: +-0.207 s at a0 = 0.7500 (T in [3.793, 4.207])
+  window around n=2: +-0.421 s at a0 = 0.1875 (T in [7.579, 8.421])
+  window around n=3: +-0.647 s at a0 = 0.0833 (T in [11.353, 12.647])
+zeta=0.00  fastest safe T = 7.603 s  (55% slower than twin's 4.899 s)
+zeta=0.02  fastest safe T = 7.579 s  (55% slower than twin's 4.899 s)
+zeta=0.05  fastest safe T = 7.649 s  (56% slower than twin's 4.899 s)
+zeta=0.10  fastest safe T = 11.447 s  (134% slower than twin's 4.899 s)
+
+== 4. Twin calibrated at full tank (w_model = 3.1416), plan T_n = 4 pi n / w_model, tank filled to f; distance D = 3 m fixed ==
+fill f   w_real   eps=w/w_model-1   residual at n=1, 2, 4, 8 (m; closed form)      smallest safe n   T (s)   recalibrated T (s)   envelope T (s)
+ 1.00   3.1416          +0.0000   0.00000  0.00000  0.00000  0.00000                2     8.00                8.00           24.66
+ 0.90   3.1100          -0.0101   0.00038  0.00038  0.00038  0.00037                2     8.00                8.08           24.66
+ 0.75   3.0620          -0.0253   0.00240  0.00238  0.00232  0.00210                2     8.00                8.21           24.66
+ 0.50   2.9804          -0.0513   0.00979  0.00954  0.00858  0.00548                2     8.00                8.43           24.66
+ 0.25   2.8964          -0.0780   0.02239  0.02107  0.01640  0.00508                7    28.00                8.68           24.66
+ 0.10   2.8448          -0.0945   0.03249  0.02971  0.02042  0.00286                7    28.00                8.83           24.66
+exact propagation check of the closed form at f = 0.5:
+  n=1  T=4.000 s  closed form 0.009790  exact 0.009790
+  n=2  T=8.000 s  closed form 0.009538  exact 0.009538
+  n=4  T=16.000 s  closed form 0.008580  exact 0.008580
+  n=8  T=32.000 s  closed form 0.005480  exact 0.005480
+
+== 5. Same calibration error but at fixed acceleration a0 = 0.5 m/s^2 (distance grows with n): the order threshold asin(sqrt(rho))/(pi|eps|) ==
+fill f   eps        first unsafe n   threshold (first unsafe = floor + 1)
+ 0.90   -0.0101                7       6.33
+ 0.75   -0.0253                3       2.51
+ 0.50   -0.0513                2       1.24
+ 0.25   -0.0780                1       0.82

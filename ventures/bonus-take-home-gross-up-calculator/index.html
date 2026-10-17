@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bonus Take-Home and Gross-Up Calculator — Free</title>
+  <meta name="description" content="Free bonus calculator: what a bonus pays after the 22% federal supplemental withholding, Social Security, Medicare and state tax, whether you owe or get a refund at filing, and the gross-up an employer needs to pay a bonus net. Nothing uploaded.">
+  <meta property="og:title" content="How much of my bonus do I keep? Free take-home and gross-up calculator">
+  <meta property="og:description" content="Net bonus, refund or balance due at filing, 401(k) deferral comparison and employer gross-up. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M16 6v20M21 11h-7a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-8' stroke='%23fff' stroke-width='2.5' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bonus Take-Home and Gross-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"See what a bonus pays after federal supplemental withholding, Social Security, Medicare and state tax, whether you will owe or get a refund at filing, and the gross bonus an employer must pay to leave a target amount net. Runs in your browser; nothing is uploaded.","featureList":"Bonus take-home, supplemental withholding vs real bracket, Social Security cap, Additional Medicare Tax, 401(k) deferral comparison, employer gross-up, employer cost"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my bonus check look so small?","acceptedAnswer":{"@type":"Answer","text":"Most employers withhold federal income tax on a bonus at a flat 22% (the supplemental rate), then take Social Security, Medicare and your state's share on top. With a state rate of 5% that is about 35 cents of every dollar before anything else. The tool lists each piece."}},{"@type":"Question","name":"Is a bonus really taxed at a higher rate?","acceptedAnswer":{"@type":"Answer","text":"No. The extra withholding is not a higher tax. Withholding is a prepayment: the bonus is added to your income for the year and taxed at your real bracket when you file. If 22% was more than your bracket, the difference comes back as a refund; if your bracket is higher, you owe the rest. The tool shows which."}},{"@type":"Question","name":"How much do I need to gross up to pay a bonus net?","acceptedAnswer":{"@type":"Answer","text":"Divide the net you want by what is left after every tax that applies, or let the tool solve it, including the Social Security cap and the Additional Medicare Tax once the wages pass their lines. This is what employers do when they promise a bonus after tax, for example a relocation or sign-on payment."}},{"@type":"Question","name":"Does putting a bonus in a 401(k) help?","acceptedAnswer":{"@type":"Answer","text":"A deferral takes income tax off that part now, but not Social Security or Medicare, which are still taken on the full bonus. The table shows take-home and the after-tax value of the bonus at several deferral shares. Contribution limits and your plan's rules apply and are not checked here."}},{"@type":"Question","name":"Is this tax or payroll advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on rates you type in. It does not run a payroll, know your W-4 or your state's rules, or file anything. The federal rates in the boxes are U.S. figures that change; confirm them before relying on a number."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">BONUS TAKE-HOME AND GROSS-UP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your bonus do you actually keep?</h1>
+    <p>Enter the bonus and what you have earned so far this year. It shows the check after federal supplemental withholding, Social Security, Medicare and state tax, whether that withholding was too much or too little against your real bracket, what a 401(k) deferral changes, and the gross bonus an employer must pay to leave a target amount in your pocket.</p>
+    <p class="note">Planning arithmetic on rates you type in.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The bonus</h2>
+      <div class="grid">
+        <div><label for="bonus">Gross bonus ($)</label><input id="bonus" type="number" step="any" value="0"></div>
+        <div><label for="ytdWages">Wages already paid this year, before the bonus ($)</label><input id="ytdWages" type="number" step="any" value="0"></div>
+        <div><label for="k401Pct">Share of the bonus you put in a 401(k) (%)</label><input id="k401Pct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Withholding on the bonus</h2>
+      <div class="grid">
+        <div><label for="fedWithholdPct">Federal withholding rate on the bonus (%; 22 is the flat supplemental rate)</label><input id="fedWithholdPct" type="number" step="any" value="0"></div>
+        <div><label for="stateWithholdPct">State and local withholding rate on the bonus (%)</label><input id="stateWithholdPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. What you really owe at the margin</h2>
+      <div class="grid">
+        <div><label for="fedMarginalPct">Your federal bracket (%)</label><input id="fedMarginalPct" type="number" step="any" value="0"></div>
+        <div><label for="stateMarginalPct">Your state and local marginal rate (%)</label><input id="stateMarginalPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Payroll tax settings</h2>
+      <div class="grid">
+        <div><label for="ssWageBase">Social Security wage base ($)</label><input id="ssWageBase" type="number" step="any" value="0"></div>
+        <div><label for="ssRatePct">Social Security rate (%)</label><input id="ssRatePct" type="number" step="any" value="0"></div>
+        <div><label for="medicareRatePct">Medicare rate (%)</label><input id="medicareRatePct" type="number" step="any" value="0"></div>
+        <div><label for="addlMedicareThreshold">Additional Medicare threshold ($)</label><input id="addlMedicareThreshold" type="number" step="any" value="0"></div>
+        <div><label for="addlMedicareRatePct">Additional Medicare rate (%)</label><input id="addlMedicareRatePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">5. A gross-up</h2>
+      <div class="grid">
+        <div><label for="targetNet">Cash you want in the paycheck after tax ($)</label><input id="targetNet" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out the bonus</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Why does my bonus check look so small?</h3>
+      <p>Most employers withhold federal income tax on a bonus at a flat 22% (the supplemental rate), then take Social Security, Medicare and your state's share on top. With a state rate of 5% that is about 35 cents of every dollar before anything else. The tool lists each piece.</p>
+      <h3>Is a bonus really taxed at a higher rate?</h3>
+      <p>No. The extra withholding is not a higher tax. Withholding is a prepayment: the bonus is added to your income for the year and taxed at your real bracket when you file. If 22% was more than your bracket, the difference comes back as a refund; if your bracket is higher, you owe the rest. The tool shows which.</p>
+      <h3>How much do I need to gross up to pay a bonus net?</h3>
+      <p>Divide the net you want by what is left after every tax that applies, or let the tool solve it, including the Social Security cap and the Additional Medicare Tax once the wages pass their lines. This is what employers do when they promise a bonus after tax, for example a relocation or sign-on payment.</p>
+      <h3>Does putting a bonus in a 401(k) help?</h3>
+      <p>A deferral takes income tax off that part now, but not Social Security or Medicare, which are still taken on the full bonus. The table shows take-home and the after-tax value of the bonus at several deferral shares. Contribution limits and your plan's rules apply and are not checked here.</p>
+      <h3>Is this tax or payroll advice?</h3>
+      <p>No. It is arithmetic on rates you type in. It does not run a payroll, know your W-4 or your state's rules, or file anything. The federal rates in the boxes are U.S. figures that change; confirm them before relying on a number.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your W-4 and the aggregate withholding method some employers use instead of the flat rate, state rules (some states have their own supplemental rate or none), local and disability taxes, tax credits and phase-outs your extra income may trigger, 401(k) contribution limits and employer match, and any other pay in the same check. The defaults are placeholders, not current legal figures: check every rate against your pay stub and the current IRS Publication 15.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../rsu-withholding-gap-calculator/">RSU withholding gap calculator</a>, the <a href="../overtime-pay-calculator/">overtime pay calculator</a> and the <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or your payroll provider. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any withholding, filing or payroll obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.bonus > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter the gross bonus.</div>'; $("out").hidden = false; return; }
+      const a = analyze(o), b = a.b;
+      let h = "";
+      h += `<div class="finding"><h4>You take home ${money(b.net)} of a ${money(b.gross)} bonus (${pct(b.keptRate, 0)})</h4><p class="stats">Withheld: federal <strong>${money(b.fedW)}</strong>, state <strong>${money(b.stateW)}</strong>, Social Security <strong>${money(b.ss)}</strong>, Medicare <strong>${money(b.medicare)}</strong>${b.addl > 0 ? ", Additional Medicare <strong>" + money(b.addl) + "</strong>" : ""}${b.deferred > 0 ? ". " + money(b.deferred) + " goes to your 401(k)" : ""}.${b.ssWages < b.gross ? " Social Security stops once your wages pass the base, so only " + money(b.ssWages) + " of the bonus is charged." : ""}</p></div>`;
+      h += `<div class="finding"><h4>${b.settlement >= 0 ? "About " + money(b.settlement) + " of this comes back at filing" : "You may owe about " + money(-b.settlement) + " more at filing"}</h4><p>Withholding is a prepayment. At your real federal bracket (${o.fedMarginalPct}%) and state rate (${o.stateMarginalPct}%) the bonus owes ${money(b.fedTrue + b.stateTrue)} in income tax against ${money(b.fedW + b.stateW)} withheld. After every tax the bonus is worth <strong>${money(b.afterTaxValue)}</strong> to you (${pct(b.afterTaxRate, 0)}).</p></div>`;
+      if (a.grossUp) {
+        const g = a.grossUp;
+        h += `<div class="finding"><h4>To leave ${money(o.targetNet)} in the paycheck, pay a gross bonus of ${money(g.gross)}</h4><p>That is ${(g.gross / o.targetNet).toFixed(2)} times the net. The employer's total cost with its matching Social Security and Medicare is <strong>${money(g.employerCost)}</strong>. Gross-ups are themselves taxable pay, which is why the number is larger than a simple 1 + rate.</p></div>`;
+      }
+      h += `<div class="finding"><h4>What the employer pays</h4><p>${money(b.gross)} bonus plus ${money(b.employerFica)} employer payroll tax is <strong>${money(b.employerCost)}</strong>.</p></div>`;
+      h += `<div class="finding"><h4>If part of the bonus goes to a 401(k)</h4>${table(["Share deferred", "Into 401(k)", "In your paycheck", "After-tax value of the bonus"], a.deferrals.map((r) => [r.share + "%", money(r.deferred), money(r.net), money(r.afterTaxValue)]))}<p class="note">Deferral lowers income tax only; Social Security and Medicare still apply to the whole bonus. Plan limits are not checked.</p></div>`;
+      h += `<div class="finding"><h4>At other bonus sizes</h4>${table(["Gross bonus", "In your paycheck", "Share kept", "Employer cost"], a.sizes.map((r) => [money(r.gross), money(r.net), pct(r.keptRate, 0), money(r.employerCost)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

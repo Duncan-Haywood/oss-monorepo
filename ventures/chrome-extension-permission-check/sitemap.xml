@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/chrome-extension-permission-check/</loc></url>
 <url><loc>https://example.invalid/chrome-extension-permission-check/purple-potassium-unused-permissions.html</loc></url>
 <url><loc>https://example.invalid/chrome-extension-permission-check/vs-crxcavator.html</loc></url>
+<url><loc>https://example.invalid/chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html</loc></url>
 </urlset>

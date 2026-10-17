@@ -1,0 +1,36 @@
+name: depop-fee-calculator
+description: A private browser calculator for Depop sellers that prices one sale against Depop's current per-region fee schedule -- 0% selling fee for US and UK sellers (a payment-processing fee of 3.3% + $0.45 in the US, or 2.9% + £0.30 in the UK, on the item price plus buyer-paid shipping) and the older flat 10% selling fee that still applies outside the US and UK -- plus the Boosted Listings surcharge, profit after item and shipping-label cost, the item price needed to hit a target profit, and a side-by-side comparison of what the same sale pays out in all three regions. Correctly keeps Depop's buyer-paid checkout Marketplace fee (up to 5% + $1) out of seller payout without inventing a precise figure for its unpublished sliding scale.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Depop sellers will use a calculator that separates the 0% selling fee from the payment-processing fee, because "Depop dropped its fee to 0%" and "Depop still takes a cut" are both half-true headlines that a flat "Depop takes 10%" or "Depop is free now" summary gets wrong.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers listing in more than one currency, or unsure which schedule their account runs, will use the three-region comparison before assuming either the US/UK schedule or the older flat 10% rest-of-world schedule applies to them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/Depop, r/DepopSuccess, and the search phrases "depop fee calculator", "depop seller fees", and "how much does depop take" are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Depop sellers run a real sale twice within 90 days of the tool being discoverable.
+  - Depop changes its published fee schedule again and the calculator's fixed constants no longer match a real payout statement.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/depop-fee-calculator/
+  analytics: null

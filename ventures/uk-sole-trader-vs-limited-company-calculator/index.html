@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sole Trader vs Limited Company Calculator UK 2026/27 — Take-Home, Best Salary and Dividends</title>
+  <meta name="description" content="Free UK calculator: compare what you keep as a sole trader or limited company director in 2026/27. Finds the best salary and dividend split, shows every tax line, and flags the Making Tax Digital threshold. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Sole trader vs limited company, UK 2026/27: what you actually keep">
+  <meta property="og:description" content="Dividend tax rose in April 2026. See the best salary, every tax line and the break-even picture for your profit.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Sole Trader vs Limited Company Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it still worth setting up a limited company in 2026/27?", "acceptedAnswer": {"@type": "Answer", "text": "Often less than it used to be. Dividend tax rose two points in April 2026 (ordinary rate 10.75%, upper rate 35.75%) and employer National Insurance is 15% above \u00a35,000, while the sole trader's Class 4 National Insurance is 6% up to \u00a350,270. At many profit levels the sole trader keeps about the same or more once the company's running costs are counted. The calculator runs your own numbers."}}, {"@type": "Question", "name": "What is the best director salary in 2026/27?", "acceptedAnswer": {"@type": "Answer", "text": "For a one-director company with no Employment Allowance, the answer is usually \u00a312,570 (the personal allowance, no employee National Insurance and income tax) or \u00a35,000 (no employer National Insurance). The calculator tests salaries in steps and shows the one that leaves you the most, keeping the year as a qualifying year for the State Pension by default."}}, {"@type": "Question", "name": "What does Making Tax Digital for Income Tax change for sole traders?", "acceptedAnswer": {"@type": "Answer", "text": "From April 2026, sole traders with qualifying income above \u00a350,000 keep digital records and send quarterly updates through software. The threshold falls to \u00a330,000 in April 2027 and \u00a320,000 in April 2028. It is measured on gross income before expenses. A limited company is outside that scheme."}}, {"@type": "Question", "name": "Does it cover Scotland?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses the rates for England, Wales and Northern Ireland. Scottish income tax bands differ, and student loan repayments, pension contributions and VAT are not modelled."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an estimate from published 2026/27 rates. Confirm figures on GOV.UK or with an accountant before you incorporate, which is a hard-to-reverse decision."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f7f5; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #0b5a46; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0a2e25; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0a2e25; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f5a52; }
+    .card { background: #fff; border: 1px solid #cfe0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0a2e2510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9fbab1; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b5a46; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcece6; color: #0a2e25; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e0ece8; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #3f5a52; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { font-size: 1.9rem; font-weight: 800; color: #0a2e25; }
+    .finding { border-bottom: 1px solid #e0ece8; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e0ece8; color: #0a2e25; }
+    .error { color: #9a3412; font-weight: 600; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #f6faf8; border: 1px solid #cfe0da; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0da; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK SOLE TRADER VS LIMITED COMPANY · 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Sole trader or limited company: what do you keep?</h1>
+    <p>Enter your yearly profit. You get the <strong>take-home both ways</strong>, the <strong>best director salary</strong> for the company, every tax line, and how the gap moves with profit.</p>
+    <p class="note">England, Wales and Northern Ireland rates for 2026/27. Not tax advice. Confirm rates on <a href="https://www.gov.uk/income-tax-rates" rel="noopener">GOV.UK</a>. Scottish bands, student loans, pension contributions and VAT are not modelled.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="profit">Yearly profit before tax and director pay (£)</label><input id="profit" type="number" min="0" step="100" inputmode="decimal" value="60000"></div>
+      <div><label for="costs">Extra yearly cost of running a company (£)</label><input id="costs" type="number" min="0" step="50" inputmode="decimal" value="1200"></div>
+      <div><label for="retain">Profit you leave in the company after corporation tax (£)</label><input id="retain" type="number" min="0" step="100" inputmode="decimal" value="0"></div>
+      <div><label for="salaryMode">Director salary</label><select id="salaryMode"><option value="best">Find the best salary for me</option><option value="custom">I will choose it</option></select></div>
+      <div><label for="salary">Chosen salary (£, if you choose it)</label><input id="salary" type="number" min="0" step="100" inputmode="decimal" value="12570"></div>
+      <div><label for="employmentAllowance">Employment Allowance available</label><select id="employmentAllowance"><option value="no">No (sole director, or no other staff)</option><option value="yes">Yes (company has other employees)</option></select></div>
+      <div><label for="keepNiYear">Keep a State Pension qualifying year</label><select id="keepNiYear"><option value="yes">Yes (salary at least £6,500)</option><option value="no">No, only maximise take-home</option></select></div>
+    </div>
+    <p><button type="button" id="calc">Compare</button><button type="button" class="secondary" id="example">Load an example</button></p>
+    <p id="msg" class="error" role="alert"></p>
+  </section>
+
+  <section class="card" id="result" hidden aria-live="polite">
+    <h2>What you keep</h2>
+    <p class="big" id="headline"></p>
+    <p class="note" id="sub"></p>
+    <div class="scroll"><table><thead><tr><th>Line</th><th class="n">Sole trader</th><th class="n">Limited company</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <div id="findings"></div>
+    <h3>Across profit levels (same settings)</h3>
+    <div class="scroll"><table><thead><tr><th class="n">Profit</th><th class="n">Sole trader keeps</th><th class="n">Limited company keeps</th><th class="n">Difference</th></tr></thead><tbody id="levels"></tbody></table></div>
+    <h3>Summary to copy</h3>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" class="secondary" id="download">Download as text</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>How it is worked out</h2>
+    <p>Sole trader: income tax at 20/40/45% after the personal allowance (tapered from £100,000) plus Class 4 National Insurance at 6% to £50,270 and 2% above. Company: director salary, employer National Insurance at 15% above £5,000, corporation tax at 19% to £50,000 rising to 25% from £250,000 with marginal relief between, then the rest paid as dividends taxed at 10.75% / 35.75% / 39.35% after a £500 allowance. The best salary is found by trying salaries in £100 steps. <strong>Not decided here:</strong> Scottish bands, student loans, pension contributions, VAT, IR35, director's loan rules, and whether lenders will treat dividends as income.</p>
+  </section>
+
+  <section class="card" id="faq"><h2>Common questions</h2><h3>Is it still worth setting up a limited company in 2026/27?</h3><p>Often less than it used to be. Dividend tax rose two points in April 2026 (ordinary rate 10.75%, upper rate 35.75%) and employer National Insurance is 15% above £5,000, while the sole trader's Class 4 National Insurance is 6% up to £50,270. At many profit levels the sole trader keeps about the same or more once the company's running costs are counted. The calculator runs your own numbers.</p><h3>What is the best director salary in 2026/27?</h3><p>For a one-director company with no Employment Allowance, the answer is usually £12,570 (the personal allowance, no employee National Insurance and income tax) or £5,000 (no employer National Insurance). The calculator tests salaries in steps and shows the one that leaves you the most, keeping the year as a qualifying year for the State Pension by default.</p><h3>What does Making Tax Digital for Income Tax change for sole traders?</h3><p>From April 2026, sole traders with qualifying income above £50,000 keep digital records and send quarterly updates through software. The threshold falls to £30,000 in April 2027 and £20,000 in April 2028. It is measured on gross income before expenses. A limited company is outside that scheme.</p><h3>Does it cover Scotland?</h3><p>No. It uses the rates for England, Wales and Northern Ireland. Scottish income tax bands differ, and student loan repayments, pension contributions and VAT are not modelled.</p><h3>Is this tax advice?</h3><p>No. It is an estimate from published 2026/27 rates. Confirm figures on GOV.UK or with an accountant before you incorporate, which is a hard-to-reverse decision.</p></section>
+
+  <footer>
+    <p>Comparing a contract day rate with a salaried job instead? See the <a href="../contract-vs-fte-rate-calculator/">contract vs FTE rate calculator</a>.</p>
+    <p>Contracting through your own company? See what the same day rate pays inside and outside IR35 with the <a href="../uk-ir35-inside-outside-calculator/">UK IR35 inside vs outside calculator</a>.</p>
+    <p>Is Making Tax Digital for Income Tax mandatory for you yet? Use the <a href="../uk-mtd-income-tax-checker/">UK Making Tax Digital checker</a>.</p>
+    <p>Working in construction? See how much CIS tax a contractor should hold back and what you can claim back with the <a href="../uk-cis-deduction-refund-calculator/">UK CIS deduction and refund calculator</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, accounting, compliance, or financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing its output and the current rates before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, summaryText, SAMPLE } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ids = ["profit", "costs", "retain", "salaryMode", "salary", "employmentAllowance", "keepNiYear"];
+    const read = () => Object.fromEntries(ids.map((id) => [id, $(id).value]));
+    const money = (n) => `£${Math.round(n).toLocaleString("en-GB")}`;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastText = "";
+    function run() {
+      const input = read();
+      const r = compare(input);
+      if (!r.ok) { $("msg").textContent = r.errors.join(" "); $("result").hidden = true; return false; }
+      $("msg").textContent = "";
+      $("headline").textContent = r.diff >= 0 ? `Limited company keeps ${money(r.diff)} more a year` : `Sole trader keeps ${money(-r.diff)} more a year`;
+      $("sub").textContent = `Sole trader ${money(r.st.takeHome)} · limited company ${money(r.lc.takeHome)} (salary ${money(r.lc.salary)}, dividends ${money(r.lc.dividends)}).`;
+      const rows = [
+        ["Salary", "", r.lc.salary], ["Dividends", "", r.lc.dividends], ["Profit left in company", "", r.lc.retained],
+        ["Company running costs", "", r.lc.costs], ["Employer National Insurance", "", r.lc.employerNi], ["Corporation tax", "", r.lc.corporationTax],
+        ["Employee National Insurance", "", r.lc.employeeNi], ["Class 4 National Insurance", r.st.class4, ""],
+        ["Income tax", r.st.incomeTax, r.lc.incomeTax], ["Dividend tax", "", r.lc.dividendTax],
+        ["Total tax and NI", r.st.tax, r.lc.tax], ["You keep", r.st.takeHome, r.lc.takeHome],
+      ];
+      $("lines").innerHTML = rows.map(([l, a, b]) => `<tr><td>${esc(l)}</td><td class="n">${a === "" ? "–" : money(a)}</td><td class="n">${b === "" ? "–" : money(b)}</td></tr>`).join("");
+      $("findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span><strong>${esc(f.title)}</strong><p>${esc(f.detail)}</p></div>`).join("");
+      $("levels").innerHTML = r.table.map((t) => `<tr${t.current ? ' style="font-weight:700"' : ""}><td class="n">${money(t.profit)}</td><td class="n">${money(t.soleTrader)}</td><td class="n">${money(t.limited)}</td><td class="n">${t.diff >= 0 ? "+" : "-"}${money(Math.abs(t.diff))}</td></tr>`).join("");
+      lastText = summaryText(input, r);
+      $("summary").textContent = lastText;
+      $("result").hidden = false;
+      return true;
+    }
+    $("calc").addEventListener("click", () => { if (run()) record("comparison_run"); });
+    for (const id of ids) { $(id).addEventListener("input", () => { if (!$("result").hidden) run(); }); $(id).addEventListener("change", () => { if (!$("result").hidden) run(); }); }
+    $("example").addEventListener("click", () => { for (const id of ids) $(id).value = SAMPLE[id] ?? ""; run(); record("example_loaded"); });
+    $("download").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastText], { type: "text/plain" }));
+      a.download = "sole-trader-vs-limited-company.txt"; a.click(); URL.revokeObjectURL(a.href);
+      record("summary_downloaded");
+    });
+    $("optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

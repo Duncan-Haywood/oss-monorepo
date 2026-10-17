@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "peer-prediction-effort"
+version = "0.1.0"
+description = "Peer prediction without ground truth: output-agreement failure, Dasgupta-Ghosh payoffs, effort coordination and the gold-check rate"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

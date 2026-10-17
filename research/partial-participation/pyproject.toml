@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "partial-participation"
+version = "0.1.0"
+description = "Local SGD when workers drop in and out: exact noise floor with participant averaging (E[1/K | K>=1]) versus fixed normalisation, stability limit, contraction rate, and the participation bias with its inverse-propensity fix"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ABA Authorization Tracker</title>
+  <meta name="description" content="Free ABA authorization tracker: paste your authorizations and see which units run out early, which expire unused, and when each reauthorization is due. Private, runs in your browser.">
+  <meta property="og:title" content="ABA authorization tracker: units, expirations and reauth dates — free, private">
+  <meta property="og:description" content="Paste your authorization list. See who runs out of units, who is under-using, and what is expiring unused. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ABA Authorization Tracker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know when an ABA authorization will run out of units?", "acceptedAnswer": {"@type": "Answer", "text": "Divide units used by the days elapsed to get a daily pace, then project it to the end date. If the projection passes the approved units, the units run out before the authorization ends. This page does it for every authorization in a list, using your scheduled units per week when you give them and the observed pace when you do not."}}, {"@type": "Question", "name": "How early should an ABA reauthorization be submitted?", "acceptedAnswer": {"@type": "Answer", "text": "Payers differ, and many ask for the request 30 to 45 days before the current authorization ends, sometimes with an updated assessment or progress report. Set your own lead time here and the page shows the submit-by date for each authorization. Check the payer's current requirement; this page does not know it."}}, {"@type": "Question", "name": "What happens to ABA units that are not used before the authorization ends?", "acceptedAnswer": {"@type": "Answer", "text": "Usually they expire. Unused units are sessions that were approved but never delivered or billed, so under-use is lost revenue and often a gap in the client's treatment. The page projects unused units and, if you enter a rate per unit, prices them."}}, {"@type": "Question", "name": "How many units is an hour of ABA?", "acceptedAnswer": {"@type": "Answer", "text": "CPT codes such as 97153 and 97155 are billed in 15-minute units, so one hour is 4 units. 10 hours a week is 40 units a week. Confirm the unit definition for each code with the payer."}}, {"@type": "Question", "name": "Does this page store client information?", "acceptedAnswer": {"@type": "Answer", "text": "No. Use initials or an internal client ID, not names. Everything is read in your browser and nothing is uploaded or saved."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+      .pill.low { background: #e3eaee; color: #14384f; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ABA AUTHORIZATION TRACKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Know which authorizations run out, which expire unused, and when to reauthorize.</h1>
+    <p>Paste a list with <strong>client, CPT code, units approved, start, end</strong> and <strong>units used</strong>. Add units scheduled per week and a rate per unit if you have them. The page projects each authorization to its end date, flags the ones that will run out of units early or leave units unused, prices the unused ones, and gives a reauthorization submit-by date.</p>
+    <p class="note">Use initials or an internal client ID, never full names. Nothing is sent anywhere. Payer rules differ; this page does the arithmetic on your numbers and does not know any payer's requirements.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your authorizations</h2>
+    <p class="note">A CSV or a pasted spreadsheet range with a header row. Required: client, code (CPT), units approved, start, end. Optional: units used, units per week, rate per unit. Dates as 2026-03-31 or 3/31/2026.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the lines</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Client,CPT,Units approved,Start,End,Units used,Units per week,Rate"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Settings</h2>
+    <div class="grid">
+      <div><label for="asof">As of date</label><input id="asof" placeholder="2026-06-01"></div>
+      <div><label for="lead">Reauthorization lead time (days before end)</label><input id="lead" inputmode="numeric" value="45"></div>
+      <div><label for="low">Flag when projected use is under (percent)</label><input id="low" inputmode="decimal" value="85"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check authorizations</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the list, then click Check authorizations.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Client</th><th scope="col">Code</th><th scope="col">Ends</th><th scope="col" class="n">Used / approved</th><th scope="col" class="n">Time elapsed</th><th scope="col" class="n">Projected at end</th><th scope="col">Reauth by</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Pace:</strong> your scheduled units per week if you gave them, otherwise units used divided by days elapsed, times seven. It is projected over the days left.</li>
+      <li><strong>Runs out:</strong> the projection passes the approved units, so the date the remaining units are gone is shown.</li>
+      <li><strong>Expires unused:</strong> projected use is under your threshold. Unused units times your rate is the figure at risk. A rate you leave blank is treated as zero.</li>
+      <li><strong>Reauthorization:</strong> end date minus your lead time.</li>
+      <li><strong>Not decided:</strong> any payer's rules for extensions, concurrent or retroactive authorization, whether a unit is billable, medical necessity, or what the authorization letter actually says. Check each against the payer's own documents.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know when an ABA authorization will run out of units?</h3>
+    <p>Divide units used by the days elapsed to get a daily pace, then project it to the end date. If the projection passes the approved units, the units run out before the authorization ends. This page does it for every authorization in a list, using your scheduled units per week when you give them and the observed pace when you do not.</p>
+    <h3>How early should an ABA reauthorization be submitted?</h3>
+    <p>Payers differ, and many ask for the request 30 to 45 days before the current authorization ends, sometimes with an updated assessment or progress report. Set your own lead time here and the page shows the submit-by date for each authorization. Check the payer's current requirement; this page does not know it.</p>
+    <h3>What happens to ABA units that are not used before the authorization ends?</h3>
+    <p>Usually they expire. Unused units are sessions that were approved but never delivered or billed, so under-use is lost revenue and often a gap in the client's treatment. The page projects unused units and, if you enter a rate per unit, prices them.</p>
+    <h3>How many units is an hour of ABA?</h3>
+    <p>CPT codes such as 97153 and 97155 are billed in 15-minute units, so one hour is 4 units. 10 hours a week is 40 units a week. Confirm the unit definition for each code with the payer.</p>
+    <h3>Does this page store client information?</h3>
+    <p>No. Use initials or an internal client ID, not names. Everything is read in your browser and nothing is uploaded or saved.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, billing, clinical, or financial advice, and it does not replace the payer's authorization letter, your billing system, or your own judgment. Confirm every date and unit count against the payer before you rely on it.</p>
+    <p><strong>Not affiliated with any payer, practice management, or billing company.</strong> This tool is independent; it is not sponsored, endorsed or connected to any insurer, EHR, billing service or government agency.</p>
+    <p><strong>Client data.</strong> Authorization lists can be protected health information. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your lines. Use initials or an internal ID rather than names, and do not rely on this page for HIPAA compliance. Closing the tab discards everything; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../insurance-denial-appeal-builder/">insurance denial appeal builder</a> helps when a claim is denied, and the <a href="../era-835-underpayment-finder/">ERA 835 underpayment finder</a> checks what was paid against what was billed; the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a> shows which payers are worth the capacity.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculate, sampleList, reportCsv, money, parseDate, fmtDate, DAY } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const today = () => Math.floor(Date.now() / DAY);
+    let last = null;
+    $("#asof").value = fmtDate(today());
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const asOf = parseDate($("#asof").value) ?? today();
+      const r = calculate(text, { asOf, leadDays: parseFloat($("#lead").value) || 45, lowPct: parseFloat($("#low").value) || 85 });
+      last = r;
+      const s = r.summary;
+      if (r.errors.length && !r.rows.length) { status.textContent = r.errors[0]; report.hidden = true; return; }
+      $("#report-stats").innerHTML = `<strong>${s.needAttention} of ${s.count} authorizations need attention</strong> · ${s.runningOut} projected to run out early · ${s.reauthDue} reauthorizations due within 14 days or late` + (s.hasRates ? ` · <strong>${money(s.atRiskCents)}</strong> projected to expire unused` : ` · ${s.unusedUnits} units projected to expire unused`);
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} row${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.client)}</td><td>${esc(x.code)}</td><td>${fmtDate(x.end)}</td><td class="n">${x.used} / ${x.approved} (${x.pctUsed.toFixed(0)}%)</td><td class="n">${x.pctTime.toFixed(0)}%</td><td class="n">${x.expired ? "expired" : x.projectedEnd.toFixed(0)}</td><td>${fmtDate(x.reauthBy)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.rows.filter((x) => x.flags.length).map((x) => `<div class="finding"><h4>${esc(x.client)} · ${esc(x.code)}</h4>${x.flags.map((f) => `<p><span class="pill ${f.level === "info" ? "low" : f.level}">${f.level === "high" ? "act" : f.level === "medium" ? "watch" : "note"}</span>${esc(f.text)}</p>`).join("")}</div>`).join("");
+      report.hidden = false;
+      status.textContent = `${s.count} authorizations checked as of ${fmtDate(asOf)}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
+      run(text); record("analysis_run");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#asof").value = fmtDate(today());
+      $("#paste").value = sampleList(today()); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up clients. One runs out of units early, one is under-using, one has missed its reauthorization lead time, one has expired.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the list, then click Check authorizations."; });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("aba-authorization-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

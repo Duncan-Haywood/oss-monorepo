@@ -1,0 +1,50 @@
+== 1. Coordinate-wise (rand-k) compression: exact vs literal simulation (H=4, 3 modes a=1,.25,.05; 150k rounds) ==
+N   alpha  rho    omega  exact     sim       ratio  floor/uncompressed
+4   0.50   0.25     3.0  0.07678  0.07807  1.017  4.25
+4   0.50   0.10     9.0  0.22616  0.22851  1.010  12.52
+16  0.80   0.10     9.0  0.08259  0.08311  1.006  10.90
+16  0.80   0.05    19.0  0.18756  0.18920  1.009  24.75
+
+== 2. Stability: alpha_max = 2/(s(1+omega/N)); extra workers restore the step but not the floor ==
+s=0.590 (stiffest mode)
+N     omega  alpha_max   floor multiplier at small alpha (1+omega)
+1     0      3.388       1
+4     9      1.042       10
+16    9      2.168       10
+64    9      2.970       10
+16    99     0.471       100
+256   99     2.443       100
+
+== 3. Norm-scaled compression: exact vs simulation (idealised dithering and a real 2-level stochastic rounding) ==
+quantiser         kappa  exact     sim       ratio  floor/uncompressed
+dither   0.5     0.500  0.03387  0.03367  0.994  1.54
+dither   1.5     1.500  0.05848  0.05801  0.992  2.66
+round    2       0.125  0.02495  0.02484  0.996  1.13
+round    1       0.500  0.03387  0.03340  0.986  1.54
+
+== 4. Norm scaling vs coordinate-wise at equal total error energy (kappa = omega = 1): where the error lands, not how much loss ==
+D   H    loss coord   loss norm   norm/coord
+3   1    0.01939     0.01939     1.0000
+3   16   0.01545     0.01692     1.0955
+16  1    0.10073     0.10073     1.0000
+16  16   0.09581     0.10586     1.1049
+per-mode variance at H=16, alpha=0.5, N=8 (a=1, .25, .05): coord ['0.00983', '0.04383', '0.24274']  norm ['0.01931', '0.04377', '0.19586']
+norm/coord per mode: ['1.97', '1.00', '0.81'] ; norm-scaling share of mode variance that is |d|-injected: ['0.76', '0.51', '0.38']
+
+== 5. Stability of norm scaling: (kappa/D) sum_j alpha s_j/(N(2-alpha s_j)) < 1 (many modes cannot help; one big kappa kills it) ==
+D=4    kappa=1.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.083
+D=4    kappa=5.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.417
+D=4    kappa=20.0  stable at alpha=1, N=4: False   (kappa/D)*sum A = 1.667
+D=32   kappa=1.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.083
+D=32   kappa=5.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.417
+D=32   kappa=20.0  stable at alpha=1, N=4: False   (kappa/D)*sum A = 1.667
+D=256  kappa=1.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.083
+D=256  kappa=5.0   stable at alpha=1, N=4: True   (kappa/D)*sum A = 0.417
+D=256  kappa=20.0  stable at alpha=1, N=4: False   (kappa/D)*sum A = 1.667
+
+== 6. Compress or sync less? Equal communication per inner step: keep fraction rho with H, versus uncompressed with H/rho (a=(1,.25,.05), eta=0.2, N=8) ==
+alpha  base(H=4,rho=1)  compress rho=.25 (H=4)  sync-less (H=16,rho=1)  compress rho=.0625 (H=4)  sync-less (H=64)
+1.0    0.01964          0.08493                 0.01964                 0.74891                    0.01964
+0.5    0.00903          0.03719                 0.00806                 0.17240                    0.00722
+0.2    0.00346          0.01399                 0.00295                 0.05845                    0.00251
+contraction of the flattest mode (a=0.05) per inner step: H=4: 0.99000  H=16: 0.99000  (identical per-step at alpha=1)

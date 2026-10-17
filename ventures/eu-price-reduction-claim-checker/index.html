@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Price Reduction Checker — Is Your “Was” Price Legal Under the 30-Day Rule?</title>
+  <meta name="description" content="Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out price or advertised discount holds up. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Is your crossed-out price legal? EU 30-day lowest price checker, free and private">
+  <meta property="og:description" content="Paste your price log, get the legal prior price and the true discount.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU Price Reduction Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the EU 30-day lowest price rule?", "acceptedAnswer": {"@type": "Answer", "text": "When a shop announces a price reduction, the previous price it shows must be the lowest price it applied in the 30 days before the reduction. This is Article 6a of the Price Indication Directive, added by the Omnibus Directive and applied since 28 May 2022."}}, {"@type": "Question", "name": "Does the percentage off have to use the same prior price?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. If a shop advertises a percentage reduction, it has to be calculated against that prior price, not against a list price or a price that was only briefly higher."}}, {"@type": "Question", "name": "What if the product is new or the price drops in steps?", "acceptedAnswer": {"@type": "Answer", "text": "Member States may set different rules for goods on the market for under 30 days, for perishable goods and for progressive reductions, where the prior price is usually the price before the first reduction. Check your country."}}, {"@type": "Question", "name": "Does raising the price just before a sale help?", "acceptedAnswer": {"@type": "Answer", "text": "No. The prior price is the lowest price in the 30 days, so a short rise does not move it."}}, {"@type": "Question", "name": "What are the penalties?", "acceptedAnswer": {"@type": "Answer", "text": "They are set by each Member State, and for widespread infringements the Directive requires fines that can reach at least 4 percent of annual turnover in the countries concerned."}}, {"@type": "Question", "name": "Is my price history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EU PRICE REDUCTION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your crossed-out price allowed?</h1>
+    <p>Paste your price history, enter the sale price and the “was” price or percentage you want to advertise. You get the <strong>prior price</strong> the 30-day rule lets you show, the <strong>true discount</strong>, and a flag on anything that does not hold up.</p>
+    <p class="note">After using this, you can now check a sale banner against your own price log in a minute, which used to mean counting back 30 days across a spreadsheet by hand. A first read written from the Directive without a live lookup; Member States differ in detail. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <label for="history">Price history: one line per price change, date then price (the price applies from that date)</label>
+    <textarea id="history" spellcheck="false" placeholder="2026-08-01, 89.00&#10;2026-09-05, 69.00"></textarea>
+    <div class="grid">
+      <div><label for="reductionDate">Reduced price starts on (YYYY-MM-DD)</label><input id="reductionDate" type="text" inputmode="numeric" placeholder="2026-10-10"></div>
+      <div><label for="salePrice">Reduced price (EUR)</label><input id="salePrice" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="claimedWas">Crossed-out “was” price you show (EUR, optional)</label><input id="claimedWas" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div><label for="claimedPct">Percentage off you advertise (optional)</label><input id="claimedPct" type="number" min="0" max="100" step="0.1" inputmode="decimal"></div>
+      <div><label for="mode">Type of reduction</label><select id="mode"></select></div>
+      <div><label for="firstReductionDate">First reduction date, if progressive (YYYY-MM-DD)</label><input id="firstReductionDate" type="text" inputmode="numeric"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my price claim</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Check my price claim.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the Article 6a prior-price rule for announced price reductions to consumers in the EU.</li>
+      <li><strong>Gives:</strong> the lowest price in the 30 days before the reduction, the true percentage off, and a check of your crossed-out price and advertised percentage against it.</li>
+      <li><strong>Not decided:</strong> national rules for new goods, perishables and progressive reductions beyond the option above, whether a price is a “reduction” in your market, rolling or bundle offers, other unfair-practice rules and any change after this page was written.</li>
+    </ul>
+    <p>Selling to EU consumers also means the <a href="../eu-green-claims-checker/">green claims check</a> and <a href="../gpsr-product-safety-checker/">GPSR product safety check</a> may apply to your listings.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the EU 30-day lowest price rule?</h3>
+    <p>When a shop announces a price reduction, the previous price it shows must be the lowest price it applied in the 30 days before the reduction. This is Article 6a of the Price Indication Directive, added by the Omnibus Directive and applied since 28 May 2022.</p>
+    <h3>Does the percentage off have to use the same prior price?</h3>
+    <p>Yes. If a shop advertises a percentage reduction, it has to be calculated against that prior price, not against a list price or a price that was only briefly higher.</p>
+    <h3>What if the product is new or the price drops in steps?</h3>
+    <p>Member States may set different rules for goods on the market for under 30 days, for perishable goods and for progressive reductions, where the prior price is usually the price before the first reduction. Check your country.</p>
+    <h3>Does raising the price just before a sale help?</h3>
+    <p>No. The prior price is the lowest price in the 30 days, so a short rise does not move it.</p>
+    <h3>What are the penalties?</h3>
+    <p>They are set by each Member State, and for widespread infringements the Directive requires fines that can reach at least 4 percent of annual turnover in the countries concerned.</p>
+    <h3>Is my price history uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a>, the <a href="../eu-green-claims-checker/">EU green claims checker</a>, the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a> and the <a href="../eu-product-liability-directive-checker/">EU Product Liability Directive checker</a> and the <a href="../etsy-profit-calculator/">Etsy profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { MODES, compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { history: "history", reductionDate: "reductionDate", salePrice: "salePrice", claimedWas: "claimedWas", claimedPct: "claimedPct", mode: "mode", firstReductionDate: "firstReductionDate" };
+    const IDLE = "Fill in the figures, then click Check my price claim.";
+    const LABEL = { ok: "Supported by your price history", misleading: "Not supported by your price history", "no-reduction": "No reduction to announce" };
+
+    $("#mode").innerHTML = MODES.map((m) => `<option value="${m.id}">${esc(m.label)}</option>`).join("");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = LABEL[r.verdict];
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 89.00 item briefly cut to 69.00, put back to 89.00, then sold at 59.00 with 34 percent off advertised.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; $("#mode").value = "standard"; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("price-reduction-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

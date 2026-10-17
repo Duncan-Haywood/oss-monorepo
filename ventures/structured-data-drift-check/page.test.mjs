@@ -112,3 +112,31 @@ test("vs-google-rich-results-test page's own FAQPage JSON-LD matches its own vis
   assert.equal(status, "ok", text);
   assert.deepEqual(report.errors, [], "vs page's own JSON-LD must parse cleanly");
 });
+
+const VS_BY_EYE_PAGE = "vs-checking-it-by-eye.html";
+
+test("index links to the vs-checking-it-by-eye comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    new RegExp(`href="${VS_BY_EYE_PAGE.replace(/\./g, "\\.")}"`),
+    "index must link the comparison page so crawlers can reach it",
+  );
+});
+
+test("vs-checking-it-by-eye page links back to the tool, names no competitor, and carries required clauses", async () => {
+  const page = await readFile(new URL(`./${VS_BY_EYE_PAGE}`, import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/, "must link back to the tool");
+  assert.match(page, /no warranty/i, "missing the no-warranty clause");
+  assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/, "missing the sponsor link");
+  assert.match(page, /names no specific product or company/i, "missing the generic-method disclaimer");
+});
+
+test("vs-checking-it-by-eye page's own FAQPage JSON-LD matches its own visible text (dogfooding)", async () => {
+  const page = await readFile(new URL(`./${VS_BY_EYE_PAGE}`, import.meta.url), "utf8");
+  const report = checkPage(page);
+  const { status, text } = summarize(report);
+  assert.ok(report.results.length > 0, "expected the vs-by-eye page to carry checkable JSON-LD");
+  assert.equal(status, "ok", text);
+  assert.deepEqual(report.errors, [], "vs-by-eye page's own JSON-LD must parse cleanly");
+});

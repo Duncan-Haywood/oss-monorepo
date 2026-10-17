@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01A8xs3Ca9A86MnS5gbtFC8D",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-13T07:13:02Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "selfrep-nextmachine"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/308",
+  "commits": [
+    "1ce6bca756a967518c899c915133adb8250f8a8c"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Open PRs #305-307 were fresh claims by concurrent runs; hundreds of old unrelated-history claude/* branches left alone.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

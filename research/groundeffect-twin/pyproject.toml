@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "groundeffect-twin"
+version = "0.1.0"
+description = "Ground-effect twin: a rotorcraft twin without ground effect predicts zero hover offset and unchanged stability near the ground; the real vehicle sits up to 30 mm high at one rotor radius and a delayed loop with 28% twin headroom goes unstable at 0.54 rotor radii"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

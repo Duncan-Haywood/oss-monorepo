@@ -1,0 +1,88 @@
+name: reseller-books
+description: >-
+  Free browser tool that reads a reseller's eBay Transaction report, Etsy
+  Payment Account statement, Poshmark My Sales Report and Whatnot orders export
+  together and returns one monthly profit and loss, the share of each sales
+  dollar every channel really keeps after fees, postage, ads and refunds, profit
+  by channel where costs are supplied, and a Schedule C style worksheet for a tax
+  preparer. Files are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-16 as the multi-channel layer over four single-marketplace
+# analyzers already on main. Those each answer "what did this one channel keep?"
+# for a seller who sells on one. A reseller who lists across eBay, Etsy,
+# Poshmark and Whatnot holds four exports in four shapes and today reconciles
+# them by hand at tax time or pays for bookkeeping software (a per-month
+# subscription with an account and a bank link). The files are already in their
+# hands; this reads them together.
+#
+# Not another calculator: the work is format detection (Poshmark and Whatnot
+# parsers accept each other's files and misread them, so the channel is decided
+# from the header row), a common ledger whose rows reconcile by construction
+# (sales + refunds + deductions = net payout, per month, channel and total,
+# asserted in tests), advertising separated from fees (the engines fold it
+# together), profit withheld unless every sale on a channel has a cost, and a
+# worksheet grouped under the Schedule C lines a preparer asks for.
+#
+# Engines are verbatim copies of the four analyzers' calc.mjs so the venture
+# deploys on its own (self-deploy principle); a test fails if a copy drifts from
+# its source while the source is present.
+#
+# First visitor: r/Reseller, r/ebayselling, r/Etsy, r/Poshmark and reseller
+# Facebook groups around tax season ("how do I combine my 1099-Ks and my
+# expenses"); search phrases "reseller profit tracker", "ebay etsy poshmark
+# profit spreadsheet", "reseller schedule c". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet and the front door to the
+# four analyzers. A paid tier, if usage appears, would be saved books across
+# years and an accountant export, behind an env-var switch on the deployer's own
+# keys; not built.
+#
+# Liability: arithmetic on the user's files and typed costs, model and omissions
+# on the page, no tax advice, no warranty, independent of every marketplace.
+#
+# Unverified: column names come from the four analyzers, which matched them by
+# alias from memory; no real export was available. The first report of an
+# unread real file is the priority fix. The Schedule C line placements are
+# common practice, not a ruling, and the rows say where a choice is the
+# preparer's.
+
+hypotheses:
+  - claim: >-
+      Resellers who sell on more than one marketplace will drop several
+      reports into one page before they will build a spreadsheet or pay for
+      bookkeeping software, because the files are already in their downloads.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing what each channel keeps of a sales dollar, with postage and ads
+      counted, changes which channel a reseller lists an item on next.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The Schedule C style worksheet is the reason to return at tax time, and a
+      preparer accepts it as a starting point.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong total, or a real export the tool cannot read, at which point the parsers need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/reseller-books/
+  analytics: null

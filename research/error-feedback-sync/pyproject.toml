@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "error-feedback-sync"
+version = "0.1.0"
+description = "Local SGD with biased sparsified pseudo-gradients and error feedback: exact noise floor and stability limit, the floor is restored where unbiased compression multiplies it by 1/rho, and the residual buys unbiasedness at a step-size price"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

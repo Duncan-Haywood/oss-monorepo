@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Etsy Ads ROI Analyzer — Are Your Ads Paying? Free</title>
+  <meta name="description" content="Free Etsy Ads ROI analyzer: drop in your Shop Manager ad report and see which listings lose money after ad spend and what share of sales the ad must cause to break even. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Etsy Ads ROI Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-listing profit after ad spend from your Etsy Etsy Ads report. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Etsy Ads ROI Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an Etsy Etsy Ads report CSV into per-listing profit after ad spend, the share of sales the ad must have caused to break even, and a list of listings to lower or drop. Runs in your browser; the file is never uploaded.", "featureList": "per-listing profit after ad spend, break-even caused-sales share, ad rate versus margin, ROAS versus break-even ROAS, organic-sales sensitivity"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do I get the Etsy Ads report?", "acceptedAnswer": {"@type": "Answer", "text": "In Shop Manager go to Marketing, then Etsy Ads, open the listings view and download the stats for a date range. Drop the CSV here or paste its text. Column names vary a little between campaign types, so the tool matches common spellings and tells you if it cannot find a Sales or Ad spend column."}}, {"@type": "Question", "name": "Why does it ask for my profit margin?", "acceptedAnswer": {"@type": "Answer", "text": "Etsy's report shows sales and ad spend but not what the item cost you. Profit before ads is your margin times sales, so every verdict depends on that one number. Use profit as a share of the sale price after item cost, Etsy's fees and shipping you pay. If you do not know it, try 15, 25 and 35 and see which listings change verdict."}}, {"@type": "Question", "name": "What does 'must have been caused by the ad' mean?", "acceptedAnswer": {"@type": "Answer", "text": "Etsy credits an ad with a sale when the buyer clicked the ad within the attribution window before buying. Some of those buyers would have bought anyway. The tool shows, per listing, the share of attributed sales that must really come from the ad for the fee to pay for itself. Above 100% means it loses money even if the ad caused every sale."}}, {"@type": "Question", "name": "Does it tell me what ad rate to set?", "acceptedAnswer": {"@type": "Answer", "text": "It shows the largest ad rate your margin can carry and which listings are above it. It cannot predict how a lower rate changes impressions, because that depends on competitors, so treat it as where to look and test one change at a time."}}, {"@type": "Question", "name": "Is my file uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never sent anywhere."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and margin you provide and does not replace your own records or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ETSY ADS ROI ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Etsy ads lose money?</h1>
+    <p>Drop in your <strong>Etsy Ads report</strong> and see, listing by listing, the <strong>profit after ad spend</strong> and the share of sales the ad had to <strong>actually cause</strong> for the fee to pay off. Etsy's report gives you sales and fees; it never subtracts what the item cost you.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Etsy Ads report</h2>
+    <p class="note">Shop Manager → Marketing → Etsy Ads → Listings, download as CSV. Needs a listing ID or title, a Sales column and a Spend column; impressions, clicks, quantity sold and campaign are used when present. Several rows for one listing are added together.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Listing ID,Listing title,Impressions,Clicks,Sold quantity,Sales,Ad spend"></textarea>
+    <div class="grid">
+      <div>
+        <label for="margin">Your profit margin before ad spend (% of sale price)</label>
+        <input type="number" id="margin" value="25" min="1" max="100" step="1">
+        <p class="note">After item cost, Etsy fees and shipping you pay. Only you know this; try a few values.</p>
+      </div>
+      <div>
+        <label for="organic">Share of ad-credited sales that would have sold anyway (%)</label>
+        <input type="number" id="organic" value="0" min="0" max="99" step="5">
+        <p class="note">Etsy credits the ad with any sale after a Etsy Ads click (within 30 days). Your guess, not a measurement.</p>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Every listing, biggest ad spend first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Listing</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Ad spend</th><th class="n" scope="col">Ad rate</th><th class="n" scope="col">Profit after fees</th><th class="n" scope="col">Must be caused</th><th scope="col">Verdict</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Profit before ads</strong> = sales × your margin. <strong>Profit after fees</strong> = that minus ad spend, crediting the ad with every attributed sale.</li>
+      <li><strong>Must be caused</strong> = ad spend ÷ profit before ads. It is the smallest share of the credited sales the ad must have really brought in. Above 100% the listing loses money even if the ad caused every sale.</li>
+      <li><strong>Verdicts.</strong> <em>loses</em>: above 100%. <em>marginal</em>: above 60%. <em>fails your assumption</em>: positive at 0% sold-anyway but negative at the share you entered. <em>pays</em>: otherwise.</li>
+      <li><strong>One margin for every listing.</strong> Real margins differ by item, so a verdict near a threshold is a prompt to check that item's own cost, not a finding.</li>
+      <li><strong>Not modelled:</strong> returns and refunds after the report period, ad spend on cancelled orders, Etsy's listing-level suggested rates, and any effect an ad has on a listing's organic ranking.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Where do I get the Etsy Ads report?</h3>
+    <p>In Shop Manager go to Marketing, then Etsy Ads, open the listings view and download the stats for a date range. Drop the CSV here or paste its text. Column names vary a little between campaign types, so the tool matches common spellings and tells you if it cannot find a Sales or Ad spend column.</p>
+    <h3>Why does it ask for my profit margin?</h3>
+    <p>Etsy's report shows sales and ad spend but not what the item cost you. Profit before ads is your margin times sales, so every verdict depends on that one number. Use profit as a share of the sale price after item cost, Etsy's fees and shipping you pay. If you do not know it, try 15, 25 and 35 and see which listings change verdict.</p>
+    <h3>What does 'must have been caused by the ad' mean?</h3>
+    <p>Etsy credits an ad with a sale when the buyer clicked the ad within the attribution window before buying. Some of those buyers would have bought anyway. The tool shows, per listing, the share of attributed sales that must really come from the ad for the fee to pay for itself. Above 100% means it loses money even if the ad caused every sale.</p>
+    <h3>Does it tell me what ad rate to set?</h3>
+    <p>It shows the largest ad rate your margin can carry and which listings are above it. It cannot predict how a lower rate changes impressions, because that depends on competitors, so treat it as where to look and test one change at a time.</p>
+    <h3>Is my file uploaded?</h3>
+    <p>No. The file is read in your browser tab and never sent anywhere.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file and margin you provide and does not replace your own records or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file and margin you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with or endorsed by Etsy Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling on Etsy? See the <a href="../etsy-profit-calculator/">Etsy profit calculator</a>, the <a href="../etsy-statement-profit-analyzer/">Etsy statement profit analyzer</a> and the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> for the same sale on another marketplace.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const VERDICT = { loses: "Loses money", "no-sale": "Fee, no sale", marginal: "Marginal", "fails-your-assumption": "Fails your assumption", pays: "Pays", free: "No fee", idle: "Idle" };
+    let lastText = "", lastRows = [];
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.listings, { marginPct: Number($("#margin").value), organicPct: Number($("#organic").value) });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary;
+      lastText = text; lastRows = r.rows;
+      $("#report-stats").innerHTML = `${s.listings} listings: <strong>${money(s.fees)}</strong> ad spend on ${money(s.sales)} of attributed sales (${pct(s.adRate)} effective ad rate). At a ${s.marginPct}% margin, profit after fees is <strong>${money(s.attributed)}</strong> if the ad caused every sale, <strong>${money(s.incremental)}</strong> if ${s.organicPct}% would have sold anyway.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.title || x.id)}${x.title && x.id ? ` <span class="note">${esc(x.id)}</span>` : ""}</th><td class="n">${money(x.sales)}</td><td class="n">${money(x.fees)}</td><td class="n">${pct(x.adRate)}</td><td class="n">${money(x.attributedProfit)}</td><td class="n">${x.fees > 0 ? pct(x.requiredCausedShare, 0) : "–"}</td><td><span class="pill ${x.verdict === "loses" || x.verdict === "no-sale" ? "high" : x.verdict === "pays" || x.verdict === "free" || x.verdict === "idle" ? "info" : "medium"}">${VERDICT[x.verdict]}</span></td></tr>`).join("");
+      $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      status.textContent = `Read ${n.listings.length} listings.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    for (const id of ["#margin", "#organic"]) $(id).addEventListener("input", () => { if (lastText) run(lastText); });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small music-gear seller. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastText = ""; lastRows = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      const q = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+      const rows = ["listing_id,title,sales,ad_fees,ad_rate,profit_after_fees,must_be_caused,verdict"].concat(lastRows.map((x) => [q(x.id), q(x.title), x.sales.toFixed(2), x.fees.toFixed(2), Number.isFinite(x.adRate) ? x.adRate.toFixed(4) : "", x.attributedProfit.toFixed(2), Number.isFinite(x.requiredCausedShare) ? x.requiredCausedShare.toFixed(4) : "", x.verdict].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "etsy-ads-roi.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+Impact twin: ball dropped from h0 = 1.0 m, g = 9.81, restitution e; twin = fixed-step semi-implicit Euler, truth = event-driven closed form.
+
+== 1. Truth: Zeno time T = (v1/g)(1+e)/(1-e), infinitely many impacts (v1 = 4.4294) ==
+e      Zeno time   first impact   impact 10   impact 50   t_last>1cm   dlnT/de = 2/(1-e^2)
+0.50      1.3546        0.4515      1.3528      1.3546       1.2191       2.67
+0.80      4.0637        0.4515      3.5789      4.0636       3.6450       5.56
+0.90      8.5789        0.4515      5.4302      8.5324       7.6603      10.53
+0.95     17.6094        0.4515      6.7957     16.2197      15.7801      20.51
+0.99     89.8532        0.4515      8.1832     35.2183      80.8604     100.50
+
+== 2. Apparent restitution of the twin, sqrt(first rebound apex / h0), true e in header ==
+e = 0.50
+dt       clamp       mirror      locate      
+0.01     0.48724     0.50273     0.48351     
+0.003    0.49831     0.51140     0.49510     
+0.001    0.49942     0.50373     0.49835     
+0.0003   0.49964     0.50020     0.49950     
+0.0001   0.49986     0.49998     0.49983     
+e = 0.90
+dt       clamp       mirror      locate      
+0.01     0.88589     0.89450     0.87906     
+0.003    0.89962     0.90693     0.89374     
+0.001    0.89984     0.90224     0.89790     
+0.0003   0.89962     0.89993     0.89937     
+0.0001   0.89984     0.89991     0.89979     
+
+== 3. Settling time (last instant above 1 cm), twin vs exact, relative error (twin-exact)/exact ==
+e = 0.50  exact 1.2191
+dt       clamp       mirror      locate      
+0.01     -0.0567     +0.0089     -0.1223     
+0.003    -0.0108     +0.0065     -0.0206     
+0.001    -0.0026     +0.0040     -0.0067     
+0.0003   -0.0009     -0.0007     -0.0021     
+0.0001   -0.0003     +0.0001     -0.0007     
+e = 0.90  exact 7.6603
+dt       clamp       mirror      locate      
+0.01     -0.1959     +0.0404     -0.3081     
+0.003    -0.0738     +0.0437     -0.1314     
+0.001    -0.0174     -0.0032     -0.0436     
+0.0003   -0.0042     -0.0002     -0.0104     
+0.0001   -0.0014     +0.0011     -0.0034     
+  log-log slope of |error| vs dt, clamp: 1.11
+  log-log slope of |error| vs dt, mirror: 1.12
+  log-log slope of |error| vs dt, locate: 1.00
+e = 0.95  exact 15.7801
+dt       clamp       mirror      locate      
+0.01     -0.3479     +0.4632     -0.4709     
+0.003    -0.1428     -0.0051     -0.2255     
+0.001    -0.0435     -0.0029     -0.0946     
+0.0003   -0.0152     +0.0008     -0.0310     
+0.0001   -0.0040     -0.0003     -0.0071     
+
+== 4. Amplification: e error -> settling-time error ==
+(a) exact-system sensitivity: Zeno time when the parameter is off by de
+e      de      predicted dlnT = 2 de/(1-e^2)   exact ln(T(e+de)/T(e))
+0.50   -0.01   -0.0267                        -0.0265
+0.50   +0.01   +0.0267                        +0.0268
+0.90   -0.01   -0.1053                        -0.1006
+0.90   +0.01   +0.1053                        +0.1106
+0.95   -0.01   -0.2051                        -0.1875
+0.95   +0.01   +0.2051                        +0.2283
+(b) the clamp twin at dt = 1e-2, e = 0.9: apparent e 0.88589 (de = -0.01411); predicted linear change in Zeno time -0.1485, measured change in settling time -0.1959
+
+== 5. Calibrating the twin's e on the first rebound (bisection so the twin's apparent e equals the true e) ==
+e_true = 0.9; 'param' is the e fed to the twin; settling-time error after calibration, relative
+clamp   dt=0.01   param 0.91419   settle error uncalibrated -0.1959   calibrated -0.0483
+clamp   dt=0.003  param 0.90038   settle error uncalibrated -0.0738   calibrated -0.0738
+clamp   dt=0.001  param 0.90016   settle error uncalibrated -0.0174   calibrated -0.0174
+mirror  dt=0.01   param 0.90559   settle error uncalibrated +0.0404   calibrated +0.5300
+mirror  dt=0.003  param 0.89303   settle error uncalibrated +0.0437   calibrated -0.0589
+mirror  dt=0.001  param 0.89775   settle error uncalibrated -0.0032   calibrated -0.0213
+locate  dt=0.01   param 0.92116   settle error uncalibrated -0.3081   calibrated -0.1802
+locate  dt=0.003  param 0.90628   settle error uncalibrated -0.1314   calibrated -0.0777
+locate  dt=0.001  param 0.90210   settle error uncalibrated -0.0436   calibrated -0.0275
+
+== 6. Impact counts: the twin's contacts are mostly resolution artefacts (e = 0.9, clamp) ==
+resolvable bounces = exact impacts whose following flight 2 v_n/g exceeds dt; twin impacts counted up to the exact Zeno time
+dt       resolvable   twin impacts   twin impacts separated by > 2 dt
+0.01             43            238         20
+0.001            65            444         41
+0.0001           87            688         62
+
+== 7. Where the settling error comes from: twin impact times vs exact, e = 0.9 (only impacts separated from the previous one by > 2 dt) ==
+impact time error (twin - exact) in units of dt; n = index of the exact impact; flight = exact following flight time / dt
+clamp   dt=0.01    n=1: -0.15 (flight 81 dt); n=2: -1.43 (flight 73 dt); n=5: -10.65 (flight 53 dt); n=10: +6.98 (flight 31 dt); n=20: -0.11 (flight 11 dt); n=30: +0.39 (flight 4 dt)
+clamp   dt=0.001   n=1: +0.48 (flight 813 dt); n=2: +0.73 (flight 731 dt); n=5: -3.55 (flight 533 dt); n=10: -27.22 (flight 315 dt); n=20: -1.05 (flight 110 dt); n=30: -0.14 (flight 38 dt); n=40: -0.47 (flight 13 dt)
+mirror  dt=0.01    n=1: -0.15 (flight 81 dt); n=2: -0.43 (flight 73 dt); n=5: +0.35 (flight 53 dt); n=10: +13.98 (flight 31 dt); n=20: +2.89 (flight 11 dt); n=30: +2.39 (flight 4 dt)
+mirror  dt=0.001   n=1: +0.48 (flight 813 dt); n=2: +1.73 (flight 731 dt); n=5: +6.45 (flight 533 dt); n=10: +7.78 (flight 315 dt); n=20: -13.05 (flight 110 dt); n=30: -14.14 (flight 38 dt); n=40: -1.47 (flight 13 dt)

@@ -5,6 +5,8 @@ driveway, patio, sidewalk, or slab the way the trade actually bids one —
 area times thickness for cubic yards, forms by the edge, finish by the
 surface — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/concrete-bid-calculator/
+
 **After using this, you can now send a pour price that already includes the
 extra yards from thickness, the plant's quarter-yard ticket, the short-load
 fee, and the access method, which used to take a spreadsheet and still

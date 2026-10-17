@@ -1,0 +1,58 @@
+name: tip-fica-credit-calculator
+description: >-
+  Free browser tool for restaurants, bars, delivery businesses and (for tips after 2024) hair,
+  nail and beauty salons: paste each employee's cash wage, hours and reported tips and get the
+  employer FICA tip credit (IRC section 45B, Form 8846) per person and in total, the part lost
+  to the $5.15 baseline, the Social Security wage-base cap, the after-tax value once the wage
+  deduction is reduced, and a rough look-back for unclaimed years. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "restaurant salon
+# FICA tip credit section 45B employer credit on tips" scored 0.18 against the nearest venture
+# (staffing-markup-calculator); restaurant-tip-pool-calculator and tip-pool-compliance-calculator
+# split and police tips, none computes the employer credit.
+#
+# Why this niche: it is money owners leave unclaimed. Tipped-wage restaurants, bars and now
+# salons pay employer FICA on every reported tip and a permanent credit returns most of it, yet
+# many small operators and some bookkeepers never claim it, and the 2025 law widened it to beauty
+# businesses. "FICA tip credit", "Form 8846" and "45B credit calculator" are searches by owners and
+# preparers who need a number before they pay anyone. Payroll vendors and CPA blogs explain the
+# rule; almost none let you paste a roster and see the figure.
+#
+# First visitor: restaurant, bar and salon owners, and bookkeepers and tax preparers serving them
+# (r/restaurateur, r/smallbusiness, r/Accounting, r/tax). Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed wages, hours and tips; it decides neither
+# eligibility nor whether tips were properly reported; rates and the wage base are editable
+# inputs with a stated default; no taxpayer identifiers requested; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a CSV import from
+# payroll exports and a preparer-facing multi-year worksheet (not built).
+
+hypotheses:
+  - claim: >-
+      Owners and preparers will paste a tipped-staff roster into a private page to size the
+      FICA tip credit and the unclaimed prior years, because the rule is well documented but
+      nothing free turns it into a number per employee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A CPA reports that a worked credit disagrees with Form 8846 fed the same wages, hours and tips.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tip-fica-credit-calculator/
+  analytics: null

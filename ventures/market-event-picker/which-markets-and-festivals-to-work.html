@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Which Markets and Festivals Are Worth Your Time? The Overlap Math</title>
+  <meta name="description" content="How to choose between overlapping markets, fairs and festivals: net per event after cost of goods, fees, travel and crew hours, and why the biggest event can be the wrong pick.">
+  <link rel="canonical" href="./which-markets-and-festivals-to-work.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I take the event with the biggest sales?", "acceptedAnswer": {"@type": "Answer", "text": "Not automatically. Compare the season's total net with and without it: its sales after cost of goods, percentage fee, flat fee, travel and crew hours, minus whatever the events it overlaps or crowds out would have netted."}}, {"@type": "Question", "name": "How do I compare a flat fee with a percentage fee?", "acceptedAnswer": {"@type": "Answer", "text": "Convert both to the sales you actually expect. A $400 flat fee and a 10% cut cost the same at $4,000 in sales; below that the percentage is cheaper, above it the flat fee is. The tool uses your expected sales, and shows each event's break-even sales so you can see how much room you have."}}, {"@type": "Question", "name": "How many events a week is too many?", "acceptedAnswer": {"@type": "Answer", "text": "That is your call, so it is an input: set the most events you will work in a Monday-to-Sunday week and the plan keeps the best ones within it. The tool also warns when a week passes 60 booth and setup hours."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Market Event Picker</a> · guide</p>
+  <h1>Which markets and festivals are worth your time? The overlap math</h1>
+  <p>Short answer: <strong>pick the set of events that nets the most for the season, not the single event with the biggest sales</strong>. An event is worth its sales after cost of goods and any percentage fee, less the flat booth fee, travel and the crew hours it takes including setup and teardown. Two events that overlap cannot both be worked, so the winner is a combination.</p>
+
+  <h2>A worked example</h2>
+  <p>One Saturday you are offered a big fair and two smaller events. Cost of goods is 35%, crew cost is $15 an hour, setup is 1 hour and teardown half an hour.</p>
+  <ul>
+    <li>A Big Fair, 09:00 to 19:00, $4,000 sales, $500 fee, $60 travel. Net $4,000 &times; 0.65 &minus; $500 &minus; $60 &minus; $15 &times; 11.5 = $1,867.50.</li>
+    <li>B Morning Market, 08:00 to 12:00, $1,800 sales, $50 fee. Net $1,037.50.</li>
+    <li>C Evening Rally, 14:30 to 21:00, $2,500 sales, $100 fee. Net $1,405.00.</li>
+  </ul>
+  <p>B and C leave room for setup and teardown and are not blocked by each other, but A overlaps both. Together B and C net $2,442.50 against $1,867.50 for A: the biggest event costs $575. The <a href="./">Market Event Picker</a> finds that answer on any list, exactly, and states what each skipped event would cost to swap in.</p>
+
+  <h2>How the plan is found</h2>
+  <ol>
+    <li>Each event gets a net value from your numbers. An event that loses money at your expected sales is never chosen.</li>
+    <li>Events that overlap once setup and teardown are added, or share a week when you set a weekly limit, form a cluster. Each cluster is searched exhaustively, pruned by what the remaining events could still add.</li>
+    <li>The tool compares the result with taking events in the order listed and biggest sales first, and re-checks the plan with sales cut to your bad-weather percentage.</li>
+  </ol>
+
+  <h2>Use break-even sales, not hope</h2>
+  <p>Every chosen event shows the sales at which it nets zero. If your honest estimate is close to that number, the event is a bet on weather and foot traffic, and a fee negotiation or a different event may be the better move. The tool also says how much a skipped event's fee would have to drop to take its place.</p>
+
+  <h2>Questions</h2>
+  <h3>Should I take the event with the biggest sales?</h3>
+  <p>Not automatically. Compare the season's total net with and without it: its sales after cost of goods, percentage fee, flat fee, travel and crew hours, minus whatever the events it overlaps or crowds out would have netted.</p>
+  <h3>How do I compare a flat fee with a percentage fee?</h3>
+  <p>Convert both to the sales you actually expect. A $400 flat fee and a 10% cut cost the same at $4,000 in sales; below that the percentage is cheaper, above it the flat fee is. The tool uses your expected sales, and shows each event's break-even sales so you can see how much room you have.</p>
+  <h3>How many events a week is too many?</h3>
+  <p>That is your call, so it is an input: set the most events you will work in a Monday-to-Sunday week and the plan keeps the best ones within it. The tool also warns when a week passes 60 booth and setup hours.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for the terms of any event you apply to. The worked example is illustrative arithmetic, not a forecast of what you will sell.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

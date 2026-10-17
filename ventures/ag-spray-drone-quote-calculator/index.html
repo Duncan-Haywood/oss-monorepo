@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ag Spray Drone Quote Calculator — price per acre, time and break-even</title>
+  <meta name="description" content="Free spray drone quote calculator for custom applicators. Enter your drone, batteries, costs and a list of fields; get the real time on each field, cost per acre, a recommended quote, minimum-charge check and season break-even. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Ag Spray Drone Quote Calculator — free, private, in your browser">
+  <meta property="og:description" content="What should you charge per acre? Real time per field from tank, battery and charger limits, cost per acre, recommended quote and break-even acres for a spray drone business.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ag Spray Drone Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your spray drone's swath, speed, pump, tank and batteries, your costs, and a list of fields. The calculator works out the real time on each field, the cost per acre, a recommended quote and the season break-even. Runs entirely in your browser; nothing is uploaded.", "featureList": "Spray drone price per acre, custom application quote, acres per hour, flow-limited speed, battery and charging bottleneck, minimum charge, break-even acres, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge per acre for spray drone application?", "acceptedAnswer": {"@type": "Answer", "text": "Work it from your own costs: drone wear per flight hour, battery wear per sortie, crew time on the field, setup and driving, truck miles, and your yearly fixed costs spread over the acres you expect to spray. Divide the cost per acre by one minus your target margin. The calculator does this for each field and for the whole job mix, and shows what each price per acre would do to a season."}}, {"@type": "Question", "name": "How many acres per hour will my spray drone really cover?", "acceptedAnswer": {"@type": "Answer", "text": "Less than the brochure. The coverage rate is swath width times ground speed, cut by a coverage efficiency for turns and overlap, and the speed is capped by how fast the pump can deliver your gallons per acre. On top of that, every sortie ends when the tank or the battery runs out, and the crew then refills and swaps a battery. The calculator reports spray-only acres per hour and the true time on each field including those stops."}}, {"@type": "Question", "name": "What limits a spray drone: the tank, the battery or the charger?", "acceptedAnswer": {"@type": "Answer", "text": "Whichever runs out first. A sortie ends when the tank is empty or the battery is, so a big tank on a short battery wastes tank. Between sorties the crew needs the refill and swap time, and if you have too few battery sets the charger sets the pace instead. The calculator names the limit for your setup so you know whether another battery set or a bigger pump would help."}}, {"@type": "Question", "name": "Why is there a minimum charge per field?", "acceptedAnswer": {"@type": "Answer", "text": "A small field costs nearly as much to reach as a big one: setup, driving and a crew standing there. The minimum charge covers that. The calculator shows which fields hit the minimum, and the recommended quote for each field, which is never below it."}}, {"@type": "Question", "name": "What does extra % mean on a field line?", "acceptedAnswer": {"@type": "Answer", "text": "Time added for hard fields: irregular shapes, trees, power lines, slopes or many obstacles. 25 means the spraying takes a quarter longer. It slows that field only, so it also increases the number of sorties when the battery is the limit."}}, {"@type": "Question", "name": "Does this tell me what chemical rate or product to use?", "acceptedAnswer": {"@type": "Answer", "text": "No. It only does arithmetic on the application rate you type. The label, your state applicator licence, your aviation authority rules for drone spraying and the customer's instructions decide what you may apply and how. Check them before you quote."}}, {"@type": "Question", "name": "Is my customer list uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. Download the quote table as a CSV to keep it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f4f8f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #44573f; }
+    .card { background: #fff; border: 1px solid #cfe0c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a2a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e8a62; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebd5; color: #1f4a2a; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f1e0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a2a; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #cfe0c8; }
+    table.t th { color: #1f4a2a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #a8c99c; border-radius: 12px; padding: 10px 12px; background: #f9fcf7; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #1f4a2a; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0c8; padding-top: 16px; }
+    .ghost { color: #44573f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">AG SPRAY DRONE QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge per acre to spray with a drone?</h1>
+    <p>Describe your <strong>drone, batteries and costs</strong>, list the <strong>fields</strong> you are quoting, and the calculator works out the <strong>real time on each field</strong> (tank, battery and charger limits included), the <strong>cost per acre</strong>, a <strong>recommended quote</strong> for each field and the <strong>acres you need to break even</strong> this season.</p>
+    <p class="note">The starter numbers are <strong>examples</strong>: replace them with your own drone's specifications and your own costs. New to the arithmetic? Read <a href="./how-to-price-spray-drone-application-per-acre.html">how to price spray drone application per acre, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. The fields</h2>
+    <label for="fields">One per line: name | acres | miles one way | extra % (optional, for hard fields)</label>
+    <textarea id="fields" spellcheck="false" placeholder="Miller north 80 | 80 | 6"></textarea>
+    <h2 style="margin-top:0px">2. The drone</h2>
+    <div class="row3">
+      <div><label for="swath">Swath width (ft)</label><input id="swath" inputmode="decimal" value="24"></div>
+      <div><label for="maxSpeed">Top spraying speed (mph)</label><input id="maxSpeed" inputmode="decimal" value="15"></div>
+      <div><label for="pump">Pump flow (gal/min)</label><input id="pump" inputmode="decimal" value="3.2"></div>
+      <div><label for="tank">Tank size (gal)</label><input id="tank" inputmode="decimal" value="10.5"></div>
+      <div><label for="rate">Application rate (gal/acre)</label><input id="rate" inputmode="decimal" value="2"></div>
+      <div><label for="turnEff">Coverage efficiency, turns and overlap (%)</label><input id="turnEff" inputmode="decimal" value="85"></div>
+    </div>
+    <h2 style="margin-top:18px">3. Batteries and crew stops</h2>
+    <div class="row3">
+      <div><label for="battMin">Flight minutes per battery with a full tank</label><input id="battMin" inputmode="decimal" value="9"></div>
+      <div><label for="sets">Battery sets</label><input id="sets" inputmode="decimal" value="3"></div>
+      <div><label for="charge">Charge minutes per set</label><input id="charge" inputmode="decimal" value="16"></div>
+      <div><label for="swap">Battery swap (min)</label><input id="swap" inputmode="decimal" value="1.5"></div>
+      <div><label for="refill">Mix and refill (min)</label><input id="refill" inputmode="decimal" value="3.5"></div>
+      <div><label for="setup">Setup per field (min)</label><input id="setup" inputmode="decimal" value="12"></div>
+    </div>
+    <h2 style="margin-top:18px">4. Costs</h2>
+    <div class="row3">
+      <div><label for="crew">Crew size</label><input id="crew" inputmode="decimal" value="2"></div>
+      <div><label for="wage">Crew cost per person-hour ($)</label><input id="wage" inputmode="decimal" value="28"></div>
+      <div><label for="dronePrice">Drone price ($)</label><input id="dronePrice" inputmode="decimal" value="26000"></div>
+      <div><label for="resale">Resale value at end of life (%)</label><input id="resale" inputmode="decimal" value="25"></div>
+      <div><label for="life">Drone life (flight hours)</label><input id="life" inputmode="decimal" value="1500"></div>
+      <div><label for="battPrice">Battery set price ($)</label><input id="battPrice" inputmode="decimal" value="1400"></div>
+      <div><label for="battCycles">Battery cycles</label><input id="battCycles" inputmode="decimal" value="1500"></div>
+      <div><label for="drivePrice">Truck cost per mile ($)</label><input id="drivePrice" inputmode="decimal" value="0.7"></div>
+      <div><label for="driveMph">Driving speed (mph)</label><input id="driveMph" inputmode="decimal" value="45"></div>
+      <div><label for="fixed">Fixed cost per year: insurance, licences, software ($)</label><input id="fixed" inputmode="decimal" value="7500"></div>
+      <div><label for="season">Acres you expect to spray per season</label><input id="season" inputmode="decimal" value="5000"></div>
+    </div>
+    <h2 style="margin-top:18px">5. Your price</h2>
+    <div class="row3">
+      <div><label for="price">Price per acre you quote ($)</label><input id="price" inputmode="decimal" value="9"></div>
+      <div><label for="minCharge">Minimum charge per field ($)</label><input id="minCharge" inputmode="decimal" value="150"></div>
+      <div><label for="margin">Target margin (%)</label><input id="margin" inputmode="decimal" value="30"></div>
+    </div>
+    <button type="button" id="analyze">Work out my quotes</button>
+    <button type="button" class="secondary" id="load-example">Load the example</button>
+    <button type="button" class="secondary" id="clear-all">Clear fields</button>
+    <p id="form-status" role="status" class="note">Check the numbers, then click Work out my quotes.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your quotes</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div style="overflow-x:auto"><table class="t" id="fieldtable"><thead><tr><th>Field</th><th class="n">Acres</th><th class="n">Sorties</th><th class="n">Hours on field</th><th class="n">Cost</th><th class="n">Your quote</th><th class="n">Margin</th><th class="n">Recommended quote</th><th class="n">Recommended $/acre</th></tr></thead><tbody></tbody></table></div>
+    <h3>What each price per acre would do</h3>
+    <div style="overflow-x:auto"><table class="t" id="ladder"><thead><tr><th class="n">Price per acre</th><th class="n">Revenue, these fields</th><th class="n">Margin</th><th class="n">Season profit</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the quote table (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Speed:</strong> acres per minute is swath width times ground speed, cut by your coverage efficiency. The pump caps the speed: gallons per minute is the application rate times acres per minute, and it cannot exceed the pump flow, so a high rate slows the drone down.</p>
+    <p><strong>Sorties:</strong> a sortie ends when the tank or the battery runs out, whichever is first. Between sorties the crew mixes and refills and swaps a battery; a sortie also waits for its battery set to finish charging, so with few sets the charger sets the pace. Time on the field is the first sortie start to the last sortie end, found with a closed form and re-checked by replaying every sortie.</p>
+    <p><strong>Cost:</strong> drone wear per flight hour, battery wear per sortie, crew cost over setup, driving and spraying, truck cost per mile, and your fixed yearly cost spread over the season acres. The recommended quote is the cost divided by one minus your target margin, never below your minimum charge. Break-even acres is the fixed cost divided by what each acre earns above its variable cost.</p>
+    <p><strong>Not modelled:</strong> wind, weather and spray windows; water haul time; mixing of products; re-flies and drift complaints; chemical cost or markup; taxes and financing; seasonal demand; customer payment delays; and your own licence, insurance and compliance costs beyond the fixed figure you enter. Unverified against real jobs: the closed-form time is checked by an independent sortie-by-sortie replay, and the cost lines are re-added, but nothing here is checked against a flown field.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge per acre for spray drone application?</h3>
+    <p>Work it from your own costs: drone wear per flight hour, battery wear per sortie, crew time on the field, setup and driving, truck miles, and your yearly fixed costs spread over the acres you expect to spray. Divide the cost per acre by one minus your target margin. The calculator does this for each field and for the whole job mix, and shows what each price per acre would do to a season.</p>
+    <h3>How many acres per hour will my spray drone really cover?</h3>
+    <p>Less than the brochure. The coverage rate is swath width times ground speed, cut by a coverage efficiency for turns and overlap, and the speed is capped by how fast the pump can deliver your gallons per acre. On top of that, every sortie ends when the tank or the battery runs out, and the crew then refills and swaps a battery. The calculator reports spray-only acres per hour and the true time on each field including those stops.</p>
+    <h3>What limits a spray drone: the tank, the battery or the charger?</h3>
+    <p>Whichever runs out first. A sortie ends when the tank is empty or the battery is, so a big tank on a short battery wastes tank. Between sorties the crew needs the refill and swap time, and if you have too few battery sets the charger sets the pace instead. The calculator names the limit for your setup so you know whether another battery set or a bigger pump would help.</p>
+    <h3>Why is there a minimum charge per field?</h3>
+    <p>A small field costs nearly as much to reach as a big one: setup, driving and a crew standing there. The minimum charge covers that. The calculator shows which fields hit the minimum, and the recommended quote for each field, which is never below it.</p>
+    <h3>What does extra % mean on a field line?</h3>
+    <p>Time added for hard fields: irregular shapes, trees, power lines, slopes or many obstacles. 25 means the spraying takes a quarter longer. It slows that field only, so it also increases the number of sorties when the battery is the limit.</p>
+    <h3>Does this tell me what chemical rate or product to use?</h3>
+    <p>No. It only does arithmetic on the application rate you type. The label, your state applicator licence, your aviation authority rules for drone spraying and the customer's instructions decide what you may apply and how. Check them before you quote.</p>
+    <h3>Is my customer list uploaded or stored?</h3>
+    <p>No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. Download the quote table as a CSV to keep it.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not agronomic, pesticide, aviation, legal, tax or financial advice and does not replace your applicator licence, product labels, aviation authority rules, insurer or accountant. It shows arithmetic on the numbers you type, not what a job will cost or earn. Drone specifications, rates, costs and prices come from what you enter; the starter values are examples. You are responsible for applying only what the label and the law allow and for the accuracy of every quote you give.</p>
+    <p><strong>Independent.</strong> Not affiliated with any drone maker, spray service, farm software company or regulator, and none is named or ranked here. The example prices are illustrative, not quotes.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your fields and costs are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../drone-mapping-job-calculator/">drone mapping job calculator</a>, the <a href="../pressure-washing-bid-calculator/">pressure washing bid calculator</a> the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> and, for the growers you spray for, the <a href="../grain-store-or-sell-calculator/">grain store-or-sell calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildSpec, validateSpec, solve, verifyPlan, planCsv, money2, money0, fmt, pct, SAMPLE_FIELDS, SAMPLE_ECON } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const KEYS = Object.keys(SAMPLE_ECON);
+    let last = null;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function fillExample() {
+      $("#fields").value = SAMPLE_FIELDS;
+      for (const k of KEYS) $("#" + k).value = SAMPLE_ECON[k];
+    }
+    $("#fields").value = SAMPLE_FIELDS;
+
+    function read() {
+      const input = { fields: $("#fields").value };
+      for (const k of KEYS) input[k] = $("#" + k).value;
+      return buildSpec(input);
+    }
+
+    function run() {
+      const { spec, errors } = read();
+      const all = [...errors, ...(errors.length ? [] : validateSpec(spec))];
+      $("#report").hidden = false;
+      if (all.length) {
+        status.textContent = all[0];
+        $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.slice(0, 12).map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+        for (const id of ["#big", "#fieldtable tbody", "#ladder tbody"]) $(id).innerHTML = "";
+        last = null;
+        return false;
+      }
+      const res = solve(spec);
+      const problems = verifyPlan(spec, res);
+      last = { spec, res };
+      let notice = problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "";
+      const m = res.machine;
+      notice += `<div class="warn">Spraying at <strong>${fmt(m.speed, 1)} mph</strong> (limited by ${m.speedLimit}), which is <strong>${fmt(m.acresPerSprayHour, 1)} acres per hour</strong> while the drone is flying. A sortie ends at the ${res.sortieLimit}; between sorties the pace is set by ${res.gapLimit}.</div>`;
+      const hit = res.rows.filter((r) => r.minChargeBinds).length;
+      if (hit) notice += `<div class="warn">${hit} field${hit === 1 ? "" : "s"} fall under your minimum charge, so the minimum is what you would be paid.</div>`;
+      const losing = res.rows.filter((r) => r.profit < 0).map((r) => r.name);
+      if (losing.length) notice += `<div class="bad">At ${money2(spec.price)} per acre you lose money on: ${esc(losing.join(", "))}.</div>`;
+      $("#notices").innerHTML = notice;
+      $("#big").innerHTML = [
+        [money2(res.baselinePrice), "price per acre for your target margin"],
+        [pct(res.margin, 1), "margin at your price"],
+        [Number.isFinite(res.breakEvenAcres) ? fmt(res.breakEvenAcres, 0) : "never", "acres to cover fixed costs"],
+        [money0(res.seasonProfit), `season profit at ${fmt(spec.season, 0)} acres`],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#fieldtable tbody").innerHTML = res.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${fmt(r.acres, 0)}</td><td class="n">${r.sorties}</td><td class="n">${fmt(r.crewHours, 2)}</td><td class="n">${money0(r.cost)}</td><td class="n">${money0(r.quote)}${r.minChargeBinds ? " (min)" : ""}</td><td class="n">${pct(r.margin)}</td><td class="n">${money0(r.recommended)}</td><td class="n">${money2(r.recommendedPerAcre)}</td></tr>`).join("");
+      $("#ladder tbody").innerHTML = res.ladder.map((l) => `<tr><td class="n">${money2(l.price)}</td><td class="n">${money0(l.revenue)}</td><td class="n">${pct(l.margin)}</td><td class="n">${money0(l.seasonProfit)}</td></tr>`).join("");
+      status.textContent = "Done. These are arithmetic on your numbers, not a promise about any job. Check them against your own records before you quote.";
+      return true;
+    }
+
+    const later = (fn) => setTimeout(fn, 0);
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("quote_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      fillExample();
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Example job list and made-up costs. Replace them with yours."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      $("#fields").value = ""; last = null; $("#report").hidden = true; status.textContent = "Cleared.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([planCsv(last.spec, last.res)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "spray-drone-quotes.csv"; a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true;
+    });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

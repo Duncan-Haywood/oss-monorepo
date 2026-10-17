@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EUDR Scope Checker — Is My Product Covered?</title>
+  <meta name="description" content="Free EU Deforestation Regulation (EUDR) checker: tick your role, size and commodities to see whether Regulation (EU) 2023/1115 covers you, your duties with the Articles, and your application date. Screens customs codes against Annex I. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EUDR scope checker: are you covered, what must you do, and by when? Free, private">
+  <meta property="og:description" content="Role, size and commodity in; scope, duties by Article and your application date out. Plus a customs-code screen.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EUDR Scope Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does the EU Deforestation Regulation apply to my business?", "acceptedAnswer": {"@type": "Answer", "text": "It applies if you place cattle, cocoa, coffee, oil palm, rubber, soya or wood products listed in Annex I on the EU market, make them available on it, or export them from the EU. Operators carry the main duties; downstream operators and traders carry information and record-keeping duties."}}, {"@type": "Question", "name": "When does the EUDR apply?", "acceptedAnswer": {"@type": "Answer", "text": "From 30 December 2026 for large and medium enterprises, and from 30 June 2027 for micro and small enterprises, except that micro and small enterprises already covered by the EU Timber Regulation start on 30 December 2026. The date has been postponed more than once, so confirm the text in force."}}, {"@type": "Question", "name": "Do I need a due diligence statement?", "acceptedAnswer": {"@type": "Answer", "text": "Operators placing products on the market or exporting them must submit a statement with the geolocation of the plots of land. After the 2025 amendment, downstream operators and traders do not file their own, but the first downstream operator collects the reference number."}}, {"@type": "Question", "name": "Are printed books still in scope?", "acceptedAnswer": {"@type": "Answer", "text": "The December 2025 amendment removed printed products such as books and newspapers (Chapter 49) from Annex I. Confirm against the current Annex I."}}, {"@type": "Question", "name": "What is the penalty?", "acceptedAnswer": {"@type": "Answer", "text": "Member states set penalties, and the maximum fine must be at least 4% of the operator's EU turnover (Article 25), with confiscation and exclusion from public procurement possible."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+      fieldset { border: 1px solid #dad6c8; border-radius: 10px; margin: 14px 0; padding: 8px 14px 12px; }
+    legend { font-weight: 700; padding: 0 6px; color: #14283b; }
+    fieldset h4 { margin: 12px 0 2px; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    label.chk { display: block; font-weight: 400; margin: 6px 0; line-height: 1.4; }
+    label.chk input { width: auto; margin-right: 6px; }
+    .art { font-size: .78rem; color: #54503f; white-space: nowrap; }
+    .tier-prohibited { color: #9a1b1b; } .tier-high { color: #9a3412; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EUDR SCOPE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does the EU Deforestation Regulation cover your products, and what must you do by when?</h1>
+    <p>Choose your role and size and tick what you trade. You get <strong>whether you are in scope</strong>, <strong>your duties</strong> with the Article behind each, and <strong>your application date</strong>. Paste customs codes to screen them against Annex I.</p>
+    <p class="note">A first read of Regulation (EU) 2023/1115 as amended in 2024 and December 2025. It reads only what you tick. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="role">Your role</label><select id="role"><option value="">Choose a role</option><option value="operator">Operator: I place relevant products on the EU market for the first time, or export them from the EU</option><option value="downstream">Downstream operator: I place products on the market that were made with relevant commodities I bought inside the EU</option><option value="trader">Trader: I only make relevant products available on the market, without being an operator</option></select></div>
+      <div><label for="size">Company size</label><select id="size"><option value="">Choose a size</option><option value="large">Large (not a micro, small or medium enterprise)</option><option value="medium">Medium enterprise</option><option value="small">Small enterprise</option><option value="micro">Micro enterprise</option></select></div>
+      <div><label for="eu">EU connection</label><select id="eu"><option value="market">I place or make the products available on the EU market, or export them from the EU</option><option value="none">No: no EU market and no export from the EU</option></select></div>
+      <div><label for="risk">Country of production</label><select id="risk"><option value="unknown">Not sure of the country's benchmark rating</option><option value="low">Low-risk country or region of production</option><option value="standard">Standard-risk country or region</option><option value="high">High-risk country or region</option></select></div>
+    </div>
+    <fieldset id="f-products"><legend>What you trade (Annex I commodities)</legend>
+        <label class="chk"><input type="checkbox" name="products" value="cattle"> Cattle, beef, bovine hides and leather</label>
+        <label class="chk"><input type="checkbox" name="products" value="cocoa"> Cocoa beans, paste, butter, powder, chocolate</label>
+        <label class="chk"><input type="checkbox" name="products" value="coffee"> Coffee, green, roasted or ground</label>
+        <label class="chk"><input type="checkbox" name="products" value="palm"> Palm oil, palm kernel products and certain derivatives</label>
+        <label class="chk"><input type="checkbox" name="products" value="rubber"> Natural rubber, rubber goods, tyres</label>
+        <label class="chk"><input type="checkbox" name="products" value="soya"> Soya beans, soya meal and oil, feed</label>
+        <label class="chk"><input type="checkbox" name="products" value="wood"> Wood, charcoal, pulp, paper, furniture, prefabricated wooden buildings</label>
+    </fieldset>
+    <fieldset id="f-out"><legend>Does any of this describe the product instead?</legend>
+        <label class="chk"><input type="checkbox" name="outOfScope" value="printed"> Printed books, newspapers, printed pictures (Chapter 49)</label>
+        <label class="chk"><input type="checkbox" name="outOfScope" value="waste"> Waste or scrap that has finished its life as a product (recycled material)</label>
+        <label class="chk"><input type="checkbox" name="outOfScope" value="packaging"> Only packaging material that supports, protects or carries another product</label>
+    </fieldset>
+    <label class="chk"><input type="checkbox" id="eutr"> I am a micro or small enterprise already covered by the EU Timber Regulation</label>
+    <p>
+      <button type="button" id="calc">Check scope</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose your role and size, tick what you trade, then click Check scope.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Your duties</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Article</th><th scope="col">As</th><th scope="col">Duty</th></tr></thead><tbody id="duty-rows"></tbody></table></div>
+    <h3>Dates</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">What</th></tr></thead><tbody id="date-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download duties (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="codes">
+    <h2>Screen customs codes against Annex I</h2>
+    <p>Paste CN or HS codes from your invoices, separated by spaces, commas or new lines.</p>
+    <label for="code-input">Codes</label>
+    <textarea id="code-input" placeholder="0901 11 00&#10;1806 32&#10;9403 60 33"></textarea>
+    <p><button type="button" id="screen">Screen codes</button> <button type="button" class="secondary" id="dl-codes">Download results (CSV)</button></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Code</th><th scope="col">Result</th><th scope="col">Commodity</th><th scope="col">Note</th></tr></thead><tbody id="code-rows"></tbody></table></div>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Order of decision:</strong> no EU connection, then no relevant commodity, then out-of-scope product types, then your role and size decide the duties and date, and the country risk rating decides how much due diligence.</li>
+      <li><strong>Not decided:</strong> whether your exact 8-digit code is in Annex I (the screen is by 4-digit heading), the country benchmark list as updated, conditions for the simplified declaration, and further changes from the Commission's simplification review. Dates are those in the amended Regulation; they have moved before.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the EU Deforestation Regulation apply to my business?</h3>
+    <p>It applies if you place cattle, cocoa, coffee, oil palm, rubber, soya or wood products listed in Annex I on the EU market, make them available on it, or export them from the EU. Operators carry the main duties; downstream operators and traders carry information and record-keeping duties.</p>
+    <h3>When does the EUDR apply?</h3>
+    <p>From 30 December 2026 for large and medium enterprises, and from 30 June 2027 for micro and small enterprises, except that micro and small enterprises already covered by the EU Timber Regulation start on 30 December 2026. The date has been postponed more than once, so confirm the text in force.</p>
+    <h3>Do I need a due diligence statement?</h3>
+    <p>Operators placing products on the market or exporting them must submit a statement with the geolocation of the plots of land. After the 2025 amendment, downstream operators and traders do not file their own, but the first downstream operator collects the reference number.</p>
+    <h3>Are printed books still in scope?</h3>
+    <p>The December 2025 amendment removed printed products such as books and newspapers (Chapter 49) from Annex I. Confirm against the current Annex I.</p>
+    <h3>What is the penalty?</h3>
+    <p>Member states set penalties, and the maximum fine must be at least 4% of the operator's EU turnover (Article 25), with confiscation and exclusion from public procurement possible.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with counsel or your national competent authority before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>, the <a href="../nis2-scope-checker/">NIS2 scope checker</a> and the <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, dutiesCsv, classifyCodes, codesCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null, lastCodes = [];
+    const SELECTS = ["role", "size", "eu", "risk"], FLAGS = ["eutr"], GROUPS = ["products", "outOfScope"];
+    const IDLE = "Choose your role and size, tick what you trade, then click Check scope.";
+    const DEFAULTS = { eu: "market", risk: "unknown" };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    function read() {
+      const o = {};
+      for (const id of SELECTS) o[id] = $("#" + id).value;
+      for (const id of FLAGS) o[id] = $("#" + id).checked ? "1" : "";
+      for (const g of GROUPS) o[g] = [...document.querySelectorAll('input[name="' + g + '"]:checked')].map((c) => c.value);
+      return o;
+    }
+    function write(o) {
+      for (const id of SELECTS) $("#" + id).value = o[id] || DEFAULTS[id] || "";
+      for (const id of FLAGS) $("#" + id).checked = Boolean(o[id]);
+      for (const g of GROUPS) for (const c of document.querySelectorAll('input[name="' + g + '"]')) c.checked = (o[g] || []).includes(c.value);
+    }
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const due = $("#due");
+      due.textContent = r.statusLabel + (r.via ? " (" + r.via + ")" : "") + (r.applicationDate ? " · applies on " + r.applicationDate : "");
+      due.className = "due tier-" + (r.status === "in" ? "high" : "out");
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => '<div class="finding"><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</div>").join("");
+      $("#duty-rows").innerHTML = r.duties.length ? r.duties.map((d) => "<tr><td>" + esc(d.article) + "</td><td>" + esc(d.who) + "</td><td>" + esc(d.text) + "</td></tr>").join("") : '<tr><td colspan="3">No duties on these answers.</td></tr>';
+      $("#date-rows").innerHTML = r.dates.length ? r.dates.map((d) => "<tr><td>" + esc(d.date) + "</td><td>" + esc(d.what) + "</td></tr>").join("") : '<tr><td colspan="2">No dates apply.</td></tr>';
+      report.hidden = false;
+      status.textContent = "Done. Confirm the current text and your codes before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      write(SAMPLE);
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a medium-sized coffee and cocoa importer sourcing from standard-risk countries. Illustrative, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { write({}); report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#screen").addEventListener("click", () => {
+      lastCodes = classifyCodes($("#code-input").value);
+      const label = { likely: "Likely in scope", check: "Check 8-digit code", out: "Out of scope", "not-listed": "Not listed", invalid: "Invalid" };
+      $("#code-rows").innerHTML = lastCodes.length ? lastCodes.map((c) => "<tr><td>" + esc(c.code) + "</td><td>" + esc(label[c.status]) + "</td><td>" + esc(c.commodity || "") + "</td><td>" + esc(c.note) + "</td></tr>").join("") : '<tr><td colspan="4">Paste some codes first.</td></tr>';
+      if (lastCodes.length) record("analysis_run");
+    });
+    $("#dl-codes").addEventListener("click", () => { if (lastCodes.length) { record("csv_downloaded"); download("eudr-code-screen.csv", codesCsv(lastCodes), "text/csv"); } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("eudr-scope.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("eudr-duties.csv", dutiesCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

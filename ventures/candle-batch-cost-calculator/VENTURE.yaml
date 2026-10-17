@@ -1,0 +1,60 @@
+name: candle-batch-cost-calculator
+description: >-
+  Free browser tool for candle, wax-melt and soap makers: enter products with
+  retail and wholesale price, wax weight, other cost and labor minutes, plus wax
+  and fragrance prices, waste and channel mix, and see cost per unit, margin
+  online, at fairs and wholesale, the price floor for a target margin, break-even
+  units, earnings per making hour and the cost of a wax price rise. No customer
+  data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). `ls ventures | grep` found no candle or soap venture;
+# etsy-profit-calculator and craft-fair-booth-calculator price a listing or a
+# booth, cottage-food-pricing-calculator prices food, 3d-print-price-calculator
+# prices prints. None models wax, fragrance load, pour waste and a three-channel
+# (online, fair, wholesale) mix for a handmade product. screened-out.md rows not hit.
+#
+# Why this niche: home candle makers number in the hundreds of thousands, sell
+# through Etsy, markets and wholesale to gift shops, and are told to "triple your
+# cost" while rarely counting waste, fragrance oil or their own hours. Wholesale
+# is the usual trap: the shop asks for half of retail and the maker finds out
+# afterwards that it loses money.
+#
+# First visitor: makers searching "candle cost calculator", "how to price candles
+# wholesale", "candle pricing formula". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices, wages
+# or fragrance-load guidance asserted; no safety, labelling or tax advice; says
+# what it does not model. No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted multi-product costing sheet with supplier price
+# history.
+
+hypotheses:
+  - claim: >-
+      Candle and soap makers will use a private, no-signup batch cost calculator
+      when deciding retail and wholesale prices.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/candle-batch-cost-calculator/
+  analytics: null

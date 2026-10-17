@@ -1,0 +1,45 @@
+== 1. continuous optimum k*(a/b) and binary threshold
+binary optimal iff a/b <= 2ln2-1 = 0.3863
+a/b=    0.2  k*=  1.696
+a/b=    0.4  k*=  2.000
+a/b=    1.0  k*=  2.718
+a/b=    3.0  k*=  4.319
+a/b=   10.0  k*=  8.174
+a/b=   30.0  k*= 16.230
+a/b=  100.0  k*= 37.662
+a/b= 1000.0  k*=225.992
+
+== 2. integer optimum for T=10^6, m=1 (b=1): best uniform k vs binary vs adaptive DP
+a=  0.25  binary=     25.0 (20 rds)  uniform k=  2 cost=    25.0 (1.00x cheaper)  adaptive=    25.0  sched=[2, 2, 2, 2, 2, 2, 2, 2]
+a=  1.00  binary=     40.0 (20 rds)  uniform k=  3 cost=    39.0 (1.03x cheaper)  adaptive=    38.0  sched=[2, 3, 3, 3, 3, 3, 3, 3]
+a=  5.00  binary=    120.0 (20 rds)  uniform k=  4 cost=    80.0 (1.50x cheaper)  adaptive=    78.0  sched=[4, 4, 4, 5, 5, 5, 5, 5]
+a= 10.00  binary=    220.0 (20 rds)  uniform k= 10 cost=   114.0 (1.93x cheaper)  adaptive=   114.0  sched=[5, 7, 7, 8, 8, 8, 8]
+a= 30.00  binary=    620.0 (20 rds)  uniform k= 16 cost=   225.0 (2.76x cheaper)  adaptive=   225.0  sched=[12, 17, 17, 17, 17]
+a=100.00  binary=   2020.0 (20 rds)  uniform k= 32 cost=   524.0 (3.85x cheaper)  adaptive=   523.0  sched=[28, 31, 33, 35]
+a=1000.00  binary=  20020.0 (20 rds)  uniform k=100 cost=  3297.0 (6.07x cheaper)  adaptive=  3297.0  sched=[100, 100, 100]
+
+== 3. gap of uniform to adaptive across T (a=10,b=1): adaptive gains from integer effects
+T=    1000 uniform=   57.00 (k=10)  adaptive=   57.00  saving 0.0%
+T=   10000 uniform=   76.00 (k=10)  adaptive=   76.00  saving 0.0%
+T=   50000 uniform=   90.00 (k=9)  adaptive=   89.00  saving 1.1%
+T=  100000 uniform=   95.00 (k=10)  adaptive=   95.00  saving 0.0%
+T= 1000000 uniform=  114.00 (k=10)  adaptive=  114.00  saving 0.0%
+
+== 4. leaf size: referee re-executes m steps at cost c each (T=10^6, a=10, b=1)
+c=  0.000  best leaf m=1000000  total=     0.00   vs full bisection=   114.00  (100.0% saved)
+c=  0.001  best leaf m=   4096  total=    50.10   vs full bisection=   114.00  (56.1% saved)
+c=  0.010  best leaf m=   1024  total=    67.24   vs full bisection=   114.01  (41.0% saved)
+c=  0.100  best leaf m=     64  total=    86.40   vs full bisection=   114.10  (24.3% saved)
+c=  1.000  best leaf m=      6  total=   105.00   vs full bisection=   115.00  (8.7% saved)
+c= 10.000  best leaf m=      1  total=   124.00   vs full bisection=   124.00  (0.0% saved)
+c=100.000  best leaf m=      1  total=   214.00   vs full bisection=   214.00  (0.0% saved)
+
+== 5. latency: per-round fixed cost a = gas + lambda*L pushes toward wider arity (b=1, base gas 5)
+lambda*L=   0  a=   5  rounds= 9  arities=[4, 4, 4, 5, 5, 5, 5, 5, 5]  cost=78.0
+lambda*L=   5  a=  10  rounds= 7  arities=[5, 7, 7, 8, 8, 8, 8]  cost=114.0
+lambda*L=  20  a=  25  rounds= 5  arities=[12, 17, 17, 17, 17]  cost=200.0
+lambda*L= 100  a= 105  rounds= 4  arities=[28, 31, 33, 35]  cost=543.0
+lambda*L= 500  a= 505  rounds= 3  arities=[100, 100, 100]  cost=1812.0
+
+== 6. executed protocol on a hash chain (T=1000, k=10): every corrupt position localised
+all localised: True  max rounds: 3 (theory 3)  max checkpoints posted: 27 (theory 27)

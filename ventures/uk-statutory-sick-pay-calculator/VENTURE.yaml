@@ -1,0 +1,37 @@
+name: uk-statutory-sick-pay-calculator
+description: >-
+  Free browser tool for UK small employers and bookkeepers: enter average weekly earnings, qualifying days and sickness dates to see the SSP weekly and daily rate, waiting days, days paid and total due, including the 6 April 2026 change. Nothing is uploaded. Not legal or payroll advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check found no UK SSP tool in ventures/ (siblings: uk-vat-registration-checker, uk-mtd-income-tax-checker).
+#
+# First visitor: UK small-business owner or bookkeeper searching "SSP calculator 2026", "statutory sick pay rate April 2026", "SSP waiting days removed". Search spike around the 6 April 2026 Employment Rights Act change; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: multi-employee absence log, linked-spell tracker, payslip export, behind an env-var switch.
+#
+# Liability: rules written from memory without network access (2025/26 GBP 118.75, 2026/27 GBP 123.25, LEL GBP 125, 28 weeks); every result names GOV.UK as the source to verify and carries no-warranty and not-payroll-advice clauses, and says what it does not decide (average earnings calculation, linked spells, company schemes). Ethical risk is underpaying an employee; mitigated by the verify line.
+hypotheses:
+  - claim: >-
+      UK small employers unsure what SSP they owe after the April 2026 change will use a free private calculator and download the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or rule differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-statutory-sick-pay-calculator/
+  analytics: null

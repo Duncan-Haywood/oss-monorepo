@@ -1,0 +1,31 @@
+name: etsy-listing-csv-check
+description: >-
+  Free browser tool that checks an Etsy bulk listing CSV before it is uploaded: titles over 140
+  characters, more than 13 tags or tags over 20 characters, price and currency formats, quantities
+  over 999, image links that are not direct image addresses, duplicate variation choices,
+  Excel-damaged SKUs and semicolon-separated files, each with its line number, plus a safe-fixes
+  pass that cleans the mechanical faults and never edits a title, description, tag word, image
+  address, variation value or SKU. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Siblings cover Shopify, WooCommerce,
+# BigCommerce, Square and Squarespace product CSVs; none reads Etsy's bulk listing layout (TITLE,
+# TAGS, CURRENCY_CODE, IMAGE1-10, VARIATION n columns). Etsy has millions of small sellers, and
+# anyone moving listings in from another platform or a listing tool, or bulk-editing a catalogue
+# in a spreadsheet, hits terse rejections or silently truncated titles and tags.
+#
+# First visitor: sellers searching the literal symptoms ("Etsy CSV upload error", "Etsy tags
+# limit 13", "Etsy title too long", "Etsy bulk upload images not importing"). Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory, with an explicit not-checked list; Etsy policy,
+# restricted items and trademark rules are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the Etsy seller audience, cross-linked
+# to etsy-profit-calculator and etsy-statement-profit-analyzer. A paid version, if usage appears,
+# is bulk checks and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Etsy clause,
+# trademark used nominatively.

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Which Serves Should a Process Server Take Today? Window and Drive-Time Math</title>
+  <meta name="description" content="How a one-vehicle process server should choose among assigned serves with time windows: margin after drive, idle time, and why first-come and biggest-fee-first dispatch leave money behind. With a worked ten-job queue.">
+  <link rel="canonical" href="./which-serves-should-a-process-server-take-today.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I decide which process serving serves to take?", "acceptedAnswer": {"@type": "Answer", "text": "Compare whole days, not single serves: for a set of jobs in a given order, add what each pays after materials and on-site time, subtract the drive between them, and check every time window. The best day is the best such set and order. The picker finds it exactly for up to 14 jobs."}}, {"@type": "Question", "name": "Is taking the biggest fees first a good rule?", "acceptedAnswer": {"@type": "Answer", "text": "Not reliably. Big fees often sit far from each other or in the same window, so you drive and wait for them. On the worked queue it earns $176.60 against $390.11 for the best day."}}, {"@type": "Question", "name": "What should a job pay to be worth a detour?", "acceptedAnswer": {"@type": "Answer", "text": "The picker prints, for each job it turns down, the price at which the best day would include it. That is the number to quote for a far or awkward serve, or the number to give a fleet that asks for a discount."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    .note { font-size: .86rem; color: #55606f; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Process Server Day Picker</a> · guide</p>
+  <h1>Which serves should a process server take today? Window and drive-time math</h1>
+  <p>Short answer: <strong>pick the set and order of serves whose combined margin, after the drive between them, is highest and that all fit their windows and get you home on time</strong>. One server can only be in one place, so a good-paying serve can be a bad choice if it displaces two better ones.</p>
+
+  <h2>A worked queue</h2>
+  <p>Ten assigned serves, one server starting at 08:00 and due back at 17:00, costing $35 an hour while driving or working and $0.70 a mile, driving 30 mph over roads 1.3 times the straight-line distance. Fees range from $55 for an early-morning residence to $150 for a rush restraining-order serve; each row has the window in which the person or the office can be reached.</p>
+  <ul>
+    <li>Taking serves in the order they were assigned fits 6 jobs and earns <strong>$147.46</strong>.</li>
+    <li>Biggest fees first fits 3 jobs and earns <strong>$176.60</strong>: it chases the rush serve and two fat multi-stop jobs, then runs out of window for the rest.</li>
+    <li>The best day runs 8 serves, starting with the rush papers, and earns <strong>$390.11</strong> over 89.6 miles, home at 15:43. That is <strong>$213.51</strong> more than the best simple rule.</li>
+  </ul>
+  <p>Two serves are turned down: the skip-traced address would earn a place only at about <strong>$120.43</strong>, and the rural residence 22 miles out would need about <strong>$108.88</strong>. Those are the numbers to quote, or the fee to ask an attorney for, instead of the fee offered.</p>
+
+  <h2>What to feed it</h2>
+  <ol>
+    <li>Hourly cost: what an hour of your time and vehicle costs you, with insurance and licence fees spread over hours actually worked.</li>
+    <li>Per-mile cost: fuel plus tires and maintenance per mile driven.</li>
+    <li>For each job, the window from the customer and the miles east and north from your depot.</li>
+  </ol>
+  <p>Check the agency or attorney agreement and the service rules where you work first: some require specific attempt counts or times, and a safe, lawful attempt comes before any optimum.</p>
+
+  <h2>Questions</h2>
+  <h3>How do I decide which process serving serves to take?</h3>
+  <p>Compare whole days, not single serves: for a set of jobs in a given order, add what each pays after materials and on-site time, subtract the drive between them, and check every time window. The best day is the best such set and order. The picker finds it exactly for up to 14 jobs.</p>
+  <h3>Is taking the biggest fees first a good rule?</h3>
+  <p>Not reliably. Big fees often sit far from each other or in the same window, so you drive and wait for them. On the worked queue it earns $176.60 against $390.11 for the best day.</p>
+  <h3>What should a job pay to be worth a detour?</h3>
+  <p>The picker prints, for each job it turns down, the price at which the best day would include it. That is the number to quote for a far or awkward serve, or the number to give a fleet that asks for a discount.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not financial, tax, legal or business advice, and you are responsible for verifying its output, for the numbers you enter, and for any contract that obliges you to take a serve. The worked example is illustrative arithmetic, not a forecast.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

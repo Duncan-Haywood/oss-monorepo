@@ -1,0 +1,55 @@
+name: git-bus-factor-check
+description: 'Free tool that computes a recency-weighted bus factor (truck factor) for every folder of a git repository from its own commit history -- who really owns it, whether that person is still active, which folders are orphaned or single-owner, and who to pair with -- browser (paste a git log) or zero-dependency CLI that runs git log locally, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest matches were
+# cloud-bucket-exposure-check and git-exposure-check at 0.30 (shared "git" /
+# "repository" vocabulary; both probe a deployed host for leaks, neither reads
+# a repository's contributor history). The paid category this undercuts is
+# repository-intelligence tooling (CodeScene, Hercules, Gitential); the free
+# open-source scripts that exist (e.g. the truck-factor research code) are
+# unmaintained notebooks, not a pasteable page or a CI gate. Not in
+# screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# medium-high. It reads commit metadata the user already holds, makes no
+# network calls and sends nothing off the device. The real risk is misuse as a
+# performance metric on individuals, so the page and the guide say it is a
+# heuristic from commit history, not a measure of understanding, and must not
+# be used on its own for hiring, firing, pay or performance decisions. The
+# framing is folders and backups, never ranked people.
+#
+# First visitor channel: search for "bus factor calculator git", "truck factor
+# github" and "how to measure bus factor", plus engineering-management threads
+# (r/ExperiencedDevs, r/engineeringmanagers, Hacker News "how do you measure
+# bus factor") where the answer today is a paid vendor or a research paper.
+hypotheses:
+  - claim: 'An engineering lead will paste a git log and find a folder whose main contributor left months ago that nobody had flagged.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire busfactor.py --fail-on-orphaned into a monthly CI job so a folder that loses its owner is noticed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using busfactor.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/git-bus-factor-check/
+  analytics: null

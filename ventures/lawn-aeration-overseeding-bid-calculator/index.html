@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job</title>
+  <meta name="description" content="Free calculator for lawn-care operators pricing core aeration and overseeding. Enter lot size, beds and hardscape, aerator passes and speed, seed and fertilizer rates, crew hours, truck miles and your machine cost; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, price per 1,000 sq ft, break-even jobs a season, and compares two jobs. Private, in your browser.">
+  <meta property="og:title" content="Lawn Aeration and Overseeding Bid Calculator — true profit, margin and lowest quote per job">
+  <meta property="og:description" content="Free calculator for lawn-care operators pricing core aeration and overseeding. Enter lot size, beds and hardscape, aerator passes and speed, seed and fertilizer rates, crew hours, truck miles and your machine cost; it shows true profit per job, margin, profit per crew hour, the lowest quote that hits your target margin, price per 1,000 sq ft, break-even jobs a season, and compares two jobs. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lawn Aeration and Overseeding Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for lawn-care operators: true profit per aeration and overseeding job, margin, profit per crew hour, the lowest quote for a target margin, price per 1,000 sq ft, minimum-job fee check, break-even jobs a season, and a two-job comparison. Runs in your browser; nothing is uploaded.","featureList":"core aeration pricing calculator, overseeding bid calculator, lawn aeration price per 1000 sq ft, seed cost per job, lawn care minimum job fee"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price core aeration and overseeding?","acceptedAnswer":{"@type":"Answer","text":"Start from the turf you can actually work, which is the lot minus beds, driveways and buildings. Work out the aerator hours from swath, ground speed and the number of passes, add the seeding time, then cost the seed and starter fertilizer by the pound per 1,000 square feet. Add crew labor with payroll cost, machine fuel and rental or depreciation, the truck, card fees and a share of your yearly overhead. Divide the costs that do not move with price by one minus your card-fee percentage and your target margin to get the lowest quote."}},{"@type":"Question","name":"How much seed does an overseeding job use?","acceptedAnswer":{"@type":"Answer","text":"It depends on the grass and on whether you are overseeding or starting from bare soil. Overseeding a cool-season lawn is often several pounds per 1,000 square feet, and the bag label gives the rate for your seed. The calculator multiplies your rate by the turf area and your price per pound, and shows the pounds so you can check the truck load."}},{"@type":"Question","name":"Why do two passes cost so much more than one?","acceptedAnswer":{"@type":"Answer","text":"Each pass is another full trip over the turf, so aerator hours double, and fuel and machine cost double with them. The calculator shows aerator hours separately so you can see what a second pass adds before you quote it."}},{"@type":"Question","name":"What is a sensible minimum job fee?","acceptedAnswer":{"@type":"Answer","text":"A small lawn still needs the truck, the drive, the load and the setup. Put your minimum fee in and the tool bills the job at the higher of your quote and the minimum, and tells you when the minimum is what is being charged."}},{"@type":"Question","name":"How many aeration jobs do I need to cover my overhead?","acceptedAnswer":{"@type":"Answer","text":"Take what one job earns above its direct costs, which is everything except the share of yearly overhead, and divide your yearly insurance, truck payment and overhead by that. The calculator shows the break-even jobs a season and warns when it is more than you plan to book."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this tax, insurance or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. The set-aside is only a percentage you choose, and your licensing, insurance, payroll and sales tax depend on where you operate. Check with an accountant or your insurer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LAWN AERATION AND OVERSEEDING BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does an aeration and overseeding job really make? True profit, margin and the lowest quote</h1>
+    <p>For lawn-care operators pricing fall core aeration and overseeding. Type the quote and the lawn. The tool works out the aerator hours from your swath, speed and passes, counts <strong>seed, fertilizer, crew hours, machine cost, truck and your yearly overhead</strong>, then shows profit per job and per crew hour, the <strong>lowest quote that earns your target margin</strong> and the price per 1,000 sq ft.</p>
+    <p class="note">The method with a worked example: <a href="./how-to-price-core-aeration-and-overseeding.html">how to price core aeration and overseeding</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. What you quote</h2>
+    <div class="row3">
+      <div><label for="pr">Your quote for the job ($)</label><input type="number" id="pr" min="0" step="5" max="100000" value="520"></div>
+      <div><label for="mf">Minimum job fee ($)</label><input type="number" id="mf" min="0" step="5" max="10000" value="150"></div>
+    </div>
+    <h2 style="margin-top:20px">2. The lawn and the aerator</h2>
+    <p class="note">Turf is the lot minus beds, driveway, patio and buildings. Aerator hours = turf × passes ÷ (swath × speed × field efficiency).</p>
+    <div class="row3">
+      <div><label for="lt">Lot size (sq ft)</label><input type="number" id="lt" min="100" step="any" max="5000000" value="12000"></div>
+      <div><label for="bd">Beds and hardscape (sq ft)</label><input type="number" id="bd" min="0" step="100" max="5000000" value="2500"></div>
+      <div><label for="ps">Aerator passes</label><input type="number" id="ps" min="1" step="1" max="6" value="2"></div>
+      <div><label for="sw">Aerator swath (ft)</label><input type="number" id="sw" min="0.5" step="0.5" max="20" value="2"></div>
+      <div><label for="sp">Ground speed (mph)</label><input type="number" id="sp" min="0.5" step="0.5" max="10" value="2.5"></div>
+      <div><label for="ef">Field efficiency (%, turns and gates)</label><input type="number" id="ef" min="10" step="5" max="100" value="60"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Seed and fertilizer</h2>
+    <div class="row3">
+      <div><label for="sr">Seed (lbs per 1,000 sq ft)</label><input type="number" id="sr" min="0" step="0.5" max="40" value="6"></div>
+      <div><label for="sp2">Seed price ($ per lb)</label><input type="number" id="sp2" min="0" step="0.1" max="100" value="2.8"></div>
+      <div><label for="fr">Starter fertilizer (lbs per 1,000 sq ft)</label><input type="number" id="fr" min="0" step="0.5" max="40" value="3"></div>
+      <div><label for="fp2">Fertilizer price ($ per lb)</label><input type="number" id="fp2" min="0" step="0.1" max="100" value="1.1"></div>
+      <div><label for="ss">Seeding speed (sq ft per hour)</label><input type="number" id="ss" min="500" step="any" max="500000" value="25000"></div>
+      <div><label for="eh">Extra on-site hours (flagging, gates, cleanup)</label><input type="number" id="eh" min="0" step="0.25" max="24" value="0.5"></div>
+    </div>
+    <h2 style="margin-top:20px">4. The crew and the truck</h2>
+    <p class="note">Hours are per person. Each person is paid for the on-site clock time, the drive and the load.</p>
+    <div class="row3">
+      <div><label for="cs">Crew size (people)</label><input type="number" id="cs" min="1" step="1" max="30" value="2"></div>
+      <div><label for="dh">Drive hours per person (round trip)</label><input type="number" id="dh" min="0" step="0.25" max="24" value="0.5"></div>
+      <div><label for="lh">Load, unload and cleaning hours per person</label><input type="number" id="lh" min="0" step="0.25" max="24" value="0.5"></div>
+      <div><label for="mi">Round-trip miles</label><input type="number" id="mi" min="0" step="1" max="2000" value="30"></div>
+      <div><label for="wg">Crew hourly wage ($, pay yourself too)</label><input type="number" id="wg" min="0.5" step="0.5" max="500" value="22"></div>
+      <div><label for="bu">Payroll tax and workers comp (%)</label><input type="number" id="bu" min="0" step="1" max="100" value="12"></div>
+      <div><label for="mg">Truck miles per gallon</label><input type="number" id="mg" min="1" step="0.5" max="100" value="13"></div>
+      <div><label for="fp">Fuel price ($ per gallon)</label><input type="number" id="fp" min="0.5" step="0.05" max="20" value="3.7"></div>
+      <div><label for="tw">Truck wear and tires ($ per mile)</label><input type="number" id="tw" min="0" step="0.01" max="10" value="0.35"></div>
+    </div>
+    <h2 style="margin-top:20px">5. The machine, your year and your margin</h2>
+    <div class="row3">
+      <div><label for="gh">Aerator fuel (gallons per hour)</label><input type="number" id="gh" min="0" step="0.1" max="20" value="0.8"></div>
+      <div><label for="eq">Aerator rental or depreciation ($ per machine hour)</label><input type="number" id="eq" min="0" step="1" max="1000" value="18"></div>
+      <div><label for="su">Other supplies, flags, tarps ($ per job)</label><input type="number" id="su" min="0" step="1" max="5000" value="6"></div>
+      <div><label for="pc">Card fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3"></div>
+      <div><label for="af">Yearly insurance, truck payment and overhead ($)</label><input type="number" id="af" min="0" step="100" max="1000000" value="4800"></div>
+      <div><label for="jy">Aeration jobs per season</label><input type="number" id="jy" min="1" step="1" max="5000" value="120"></div>
+      <div><label for="tx">Tax set-aside (% of profit)</label><input type="number" id="tx" min="0" step="1" max="60" value="25"></div>
+      <div><label for="tm">Margin you want (%)</label><input type="number" id="tm" min="0" step="1" max="90" value="30"></div>
+    </div>
+    <button type="button" id="solve">Check this job</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this job.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per job</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>6. Compare with a second job</h2>
+    <p class="note">Job A is everything above. Job B shares your seed, crew, machine, truck, fees and yearly overhead, and has its own quote, lot, beds, passes, seed rate and miles.</p>
+    <div class="row3">
+      <div><label for="bpr">Job B: quote ($)</label><input type="number" id="bpr" min="0" step="5" max="100000" value="800"></div>
+      <div><label for="blt">Job B: lot size (sq ft)</label><input type="number" id="blt" min="100" step="any" max="5000000" value="20000"></div>
+      <div><label for="bbd">Job B: beds and hardscape (sq ft)</label><input type="number" id="bbd" min="0" step="100" max="5000000" value="4000"></div>
+      <div><label for="bps">Job B: aerator passes</label><input type="number" id="bps" min="1" step="1" max="6" value="2"></div>
+      <div><label for="bsr">Job B: seed (lbs per 1,000 sq ft)</label><input type="number" id="bsr" min="0" step="0.5" max="40" value="6"></div>
+      <div><label for="bmi">Job B: round-trip miles</label><input type="number" id="bmi" min="0" step="1" max="2000" value="30"></div>
+    </div>
+    <button type="button" id="compare">Compare the two jobs</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Hours:</strong> aerator hours = turf × passes ÷ (swath × ground speed × 5,280 × field efficiency); seeding hours = turf ÷ seeding speed; each person is paid for those plus extra on-site time, the drive and the load. <strong>Job costs:</strong> crew labor with payroll cost, seed and starter fertilizer by the pound per 1,000 sq ft, other supplies, the aerator's fuel and rental or depreciation per machine hour, truck fuel and wear, card fees on the whole bill, and yearly overhead ÷ jobs per season. The job is billed at the higher of your quote and your minimum fee. <strong>True profit</strong> is that bill minus those costs, before tax.</p>
+    <p><strong>Lowest quote:</strong> the costs that do not depend on price, divided by (1 − card fees − target margin). The test suite checks that quoting exactly that amount earns the target margin for hundreds of random lawns.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price core aeration and overseeding?</h3>
+    <p>Start from the turf you can actually work, which is the lot minus beds, driveways and buildings. Work out the aerator hours from swath, ground speed and the number of passes, add the seeding time, then cost the seed and starter fertilizer by the pound per 1,000 square feet. Add crew labor with payroll cost, machine fuel and rental or depreciation, the truck, card fees and a share of your yearly overhead. Divide the costs that do not move with price by one minus your card-fee percentage and your target margin to get the lowest quote.</p>
+    <h3>How much seed does an overseeding job use?</h3>
+    <p>It depends on the grass and on whether you are overseeding or starting from bare soil. Overseeding a cool-season lawn is often several pounds per 1,000 square feet, and the bag label gives the rate for your seed. The calculator multiplies your rate by the turf area and your price per pound, and shows the pounds so you can check the truck load.</p>
+    <h3>Why do two passes cost so much more than one?</h3>
+    <p>Each pass is another full trip over the turf, so aerator hours double, and fuel and machine cost double with them. The calculator shows aerator hours separately so you can see what a second pass adds before you quote it.</p>
+    <h3>What is a sensible minimum job fee?</h3>
+    <p>A small lawn still needs the truck, the drive, the load and the setup. Put your minimum fee in and the tool bills the job at the higher of your quote and the minimum, and tells you when the minimum is what is being charged.</p>
+    <h3>How many aeration jobs do I need to cover my overhead?</h3>
+    <p>Take what one job earns above its direct costs, which is everything except the share of yearly overhead, and divide your yearly insurance, truck payment and overhead by that. The calculator shows the break-even jobs a season and warns when it is more than you plan to book.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this tax, insurance or business advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. The set-aside is only a percentage you choose, and your licensing, insurance, payroll and sales tax depend on where you operate. Check with an accountant or your insurer.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, insurance or financial advice. <strong>Use at your own risk.</strong> Check licensing, taxes, insurance and your contracts with an accountant or adviser. Seed and fertilizer rates are whatever you type; follow the product label and local rules.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lawn-care software vendor, equipment maker or seed brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_run</code>, <code>example_loaded</code>, <code>jobs_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../lawn-care-bid-calculator/">lawn care bid calculator</a> for recurring mowing, the <a href="../hydroseeding-job-bid-calculator/">hydroseeding job bid calculator</a> and the <a href="../sod-install-bid-calculator/">sod install bid calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareJobs, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleJob } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"price":"pr","minFee":"mf","lotSqft":"lt","bedsSqft":"bd","passes":"ps","swathFt":"sw","speedMph":"sp","efficiencyPct":"ef","seedRate":"sr","seedPrice":"sp2","fertRate":"fr","fertPrice":"fp2","spreadRate":"ss","extraHours":"eh","crewSize":"cs","driveHours":"dh","loadHours":"lh","miles":"mi","wage":"wg","burdenPct":"bu","mpg":"mg","fuelPrice":"fp","truckPerMile":"tw","machineGph":"gh","equipHour":"eq","supplies":"su","processPct":"pc","annualFixed":"af","jobsPerYear":"jy","taxPct":"tx","targetMargin":"tm"};
+    const B = {"price":"bpr","lotSqft":"blt","bedsSqft":"bbd","passes":"bps","seedRate":"bsr","miles":"bmi"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "true profit per job, before tax"], [pct(R.margin), "margin"], [cents(R.profitPerCrewHour), "profit per crew hour"], [cents(R.minRevenue), "lowest quote for your margin"], [cents(R.minPricePerKsf), "lowest price per 1,000 sq ft"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Turf (lot minus beds and hardscape), sq ft", Math.round(R.turf).toLocaleString("en-US")), row("Aerator hours", R.aerHours.toFixed(2)), row("Seeding hours", R.seedHours.toFixed(2)), row("Crew hours (all people)", R.crewHours.toFixed(2)),
+        row("Billed" + (R.minFeeApplied ? " (minimum job fee)" : ""), cents(R.revenue)), row("Price per 1,000 sq ft", cents(R.pricePerKsf)),
+        row("Crew labor", cents(R.labor)), row("Seed (" + R.seedLbs.toFixed(1) + " lbs)", cents(R.seedCost)), row("Starter fertilizer", cents(R.fertCost)), row("Other supplies", cents(R.supplies)),
+        row("Aerator fuel and rental/depreciation", cents(R.machine)), row("Truck fuel", cents(R.truckFuel)), row("Truck wear", cents(R.truckWear)), row("Card fees", cents(R.processing)), row("Yearly overhead share", cents(R.fixedShare)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("<strong>True profit per job</strong>", "<strong>" + cents(R.profit) + "</strong>"),
+        row("Tax set-aside", cents(R.setAside)), row("Take-home per job", cents(R.takeHome)),
+        row("Break-even jobs a season", R.breakevenJobs === null ? "n/a" : R.breakevenJobs.toFixed(0)),
+        row("Profit a season at your job count", money(R.annualProfit)),
+      ].join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareJobs(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per job</th><th class="num">Job A</th><th class="num">Job B</th></tr></thead><tbody>' +
+        line("Turf, sq ft", (x) => Math.round(x.turf).toLocaleString("en-US")) + line("Billed", (x) => cents(x.revenue)) + line("Crew hours", (x) => x.crewHours.toFixed(2)) + line("Total costs", (x) => cents(x.costs)) + line("True profit", (x) => cents(x.profit)) + line("Margin", (x) => pct(x.margin)) +
+        line("Profit per crew hour", (x) => cents(x.profitPerCrewHour)) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("job_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleJob()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a 12,000 sq ft lot, invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("jobs_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("aeration-overseeding-job-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("aeration-overseeding-job.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.job) fillMap(B, out.job); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

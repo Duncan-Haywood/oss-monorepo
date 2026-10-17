@@ -1,0 +1,37 @@
+E1 floor law vs simulation, d=12 r=3 tau_w^2=0.2 tau_b^2=1.0 K=4 (3000 runs each)
+ one shared module                purity 0.250 law 0.4750 sim 0.4766 (+0.3%)
+ 4 modules, random routing        purity 0.250 law 0.4750 sim 0.4766 (+0.3%)
+ 2 modules, block router          purity 0.500 law 0.3500 sim 0.3579 (+2.3%)
+ 4 modules, router error q=0.1    purity 0.813 law 0.1933 sim 0.1916 (-0.9%)
+ 4 modules, router error q=0.3    purity 0.520 law 0.3400 sim 0.3385 (-0.4%)
+ 4 modules, perfect router        purity 1.000 law 0.1000 sim 0.1012 (+1.2%)
+
+E2 non-uniform prior and asymmetric router (K=3), d=8 r=2 tau_w^2=0.3 tau_b^2=1 (3000 runs)
+ shared                   purity 0.460 law 0.4200 sim 0.4110 (-2.1%)
+ 2 modules, asymmetric    purity 0.670 law 0.3150 sim 0.3118 (-1.0%)
+
+E3 what modules buy, K=8 uniform clusters, tau_w^2=0.2 tau_b^2=1, d=32 r=4: floor by modules m
+  m  blockrouter floor  removed  |  random-routing floor
+  1  0.2687              0.0%   |  0.2687
+  2  0.2375             14.3%   |  0.2687
+  3  0.2062             28.6%   |  0.2687
+  4  0.1750             42.9%   |  0.2687
+  6  0.1125             71.4%   |  0.2687
+  8  0.0500            100.0%   |  0.2687
+ modules needed to remove 50% / 90% of between-cluster floor: 5 / 8
+
+E4 router error is expensive at first order: floor increase per unit q (K=8)
+ q=0.000 impurity 0.0000 (first-order 2q = 0.0000) floor 0.0500  share of ceiling  18.6%
+ q=0.020 impurity 0.0395 (first-order 2q = 0.0400) floor 0.0599  share of ceiling  22.3%
+ q=0.050 impurity 0.0971 (first-order 2q = 0.1000) floor 0.0743  share of ceiling  27.6%
+ q=0.100 impurity 0.1886 (first-order 2q = 0.2000) floor 0.0971  share of ceiling  36.1%
+ q=0.250 impurity 0.4286 (first-order 2q = 0.5000) floor 0.1571  share of ceiling  58.5%
+ q=0.500 impurity 0.7143 (first-order 2q = 1.0000) floor 0.2286  share of ceiling  85.0%
+ q=0.875 impurity 0.8750 (first-order 2q = 1.7500) floor 0.2687  share of ceiling 100.0%
+
+E5 auditing purity from labelled tasks: unbiased pair-collision estimator, module with pi=(0.8,0.1,0.1) (true 0.660)
+ n=   5 mean 0.6561 sd 0.2624
+ n=  10 mean 0.6535 sd 0.1806
+ n=  30 mean 0.6631 sd 0.1026
+ n= 100 mean 0.6590 sd 0.0563
+ n= 300 mean 0.6598 sd 0.0327

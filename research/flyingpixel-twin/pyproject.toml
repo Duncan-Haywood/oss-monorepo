@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flyingpixel-twin"
+version = "0.1.0"
+description = "Flying-pixel twin: a single-ray lidar twin returns only the near or far surface at a depth edge; a finite-width beam with merged pulses returns ghost ranges in free space, with a closed-form ghost-band width"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -562,3 +562,7 @@ test('index links to the marketplace fee comparison', () => {
 test('index links to the Faire wholesale fee calculator', () => {
   assert.match(html, /href="\.\.\/faire-wholesale-calculator\/"/);
 });
+
+test('index links to the print-on-demand profit calculator', () => {
+  assert.match(html, /href="\.\.\/print-on-demand-profit-calculator\/"/);
+});

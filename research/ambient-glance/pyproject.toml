@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-glance"
+version = "0.1.0"
+description = "Stylised model of when a glance beats speech for an always-on assistant"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

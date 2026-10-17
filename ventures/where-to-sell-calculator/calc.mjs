@@ -40,9 +40,9 @@ export const CHANNEL_PRESETS = [
     id: "ebay",
     label: "eBay",
     note: "The final value fee normally covers payment processing, so the separate processor rate is 0 here. Sell-through and days to sell are illustrative starting points, not a claim about how fast eBay actually sells.",
-    commissionRate: 13.25,
+    commissionRate: 13.6,
     paymentRate: 0,
-    paymentFixed: 0.3,
+    paymentFixed: 0.4,
     perListingFee: 0,
     monthlyFee: 0,
     adRate: 0,
@@ -98,6 +98,35 @@ export const CHANNEL_PRESETS = [
     feeRefundRate: 100,
     sellThroughPct: 55,
     daysToSell: 28,
+    listingRenewalDays: 0,
+  },
+  {
+    id: "mercari",
+    label: "Mercari",
+    note: "Mercari's current schedule (listings created or updated on or after January 6, 2025) charges a single 10% selling fee on the item price plus any buyer-paid shipping, with no separate payment processing fee -- a still-unedited older listing may instead be on the pre-2025 schedule, which `ventures/mercari-fee-calculator`'s own schedule comparison covers and this page does not model. Sell-through and days to sell are illustrative starting points, not a claim about Mercari velocity.",
+    // Matches ventures/mercari-fee-calculator's own SELLING_FEE_RATE (10%,
+    // current schedule, as of September 2026). Two tools in one portfolio
+    // printing different fee assumptions for the same marketplace is a
+    // credibility problem, so `channel-parity.test.mjs` asserts these stay
+    // equal by importing that calculator's own constant rather than
+    // restating it, the same rule the Reverb, TikTok Shop, Whatnot, Poshmark
+    // and StockX rows below follow.
+    commissionRate: 10,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. Mercari skews toward lower-priced,
+    // casual and used goods, so this starts a little above eBay's.
+    returnRate: 10,
+    returnShippingCost: 6,
+    resellableRate: 88,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a lower average price point tends
+    // to move faster than a general marketplace listing of the same kind.
+    sellThroughPct: 55,
+    daysToSell: 18,
     listingRenewalDays: 0,
   },
   {
@@ -339,9 +368,63 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "depop",
+    label: "Depop (fashion & vintage, US)",
+    note: "Off by default because it mostly suits fashion, vintage and streetwear. For a US seller Depop's selling fee is 0%; what comes off is Depop Payments processing at 3.3% of the item plus buyer-paid shipping and $0.45 per sale -- the old \"Depop takes 10%\" figure is still quoted everywhere but no longer applies in the US or UK. UK sellers pay 2.9% + £0.30 and sellers elsewhere a flat 10%, so replace the rates if that is you; `ventures/depop-fee-calculator` covers all three regions and Boosted Listings (an extra 12% on boosted sales), which this page does not. The buyer's own Marketplace fee is added on top of what they pay and never comes out of your payout. Sell-through and days to sell are illustrative starting points, not a claim about Depop velocity.",
+    // Matches ventures/depop-fee-calculator's US REGIONS row (0% selling,
+    // 3.3% + $0.45 processing, as of October 2026). `channel-parity.test.mjs`
+    // imports that table rather than restating it, like the other rows.
+    commissionRate: 0,
+    paymentRate: 3.3,
+    paymentFixed: 0.45,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: Depop has no buyer's-remorse return
+    // window, so returns are rare and happen as not-as-described disputes.
+    returnRate: 3,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire or renew,
+    // but one-off fashion pieces sit longer than a general-marketplace item.
+    sellThroughPct: 35,
+    daysToSell: 45,
+    listingRenewalDays: 0,
+    // Off until the seller says this is fashion: enabled by default it would
+    // add a channel most sellers cannot list on, like Poshmark and StockX.
+    enabled: false,
+  },
+  {
+    id: "facebook-marketplace",
+    label: "Facebook Marketplace (shipped)",
+    note: "Off by default because shipped checkout is not available for every item or seller. Prices a shipped Facebook Marketplace order: a 10% selling fee on the item price plus buyer-paid shipping. A local-pickup sale costs nothing, so for a locally sold item the direct-sale row is the better comparison. Facebook also applies an $0.80 minimum fee per shipped sale, which this page does not model (it only matters under $8) -- `ventures/facebook-marketplace-fee-calculator` does, along with the $20 dispute penalty. Sell-through and days to sell are illustrative starting points, not a claim about Marketplace velocity.",
+    // Matches ventures/facebook-marketplace-fee-calculator's FEE_RATE (10%,
+    // shipped checkout, as of October 2026); parity-tested by import.
+    commissionRate: 10,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions: casual, mostly used goods.
+    returnRate: 6,
+    returnShippingCost: 6,
+    resellableRate: 88,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: listings do not expire and cost
+    // nothing to keep up, and a large local audience moves cheap goods fast.
+    sellThroughPct: 50,
+    daysToSell: 20,
+    listingRenewalDays: 0,
+    // Off by default: shipped checkout is not available for every item or
+    // seller, and it would otherwise add a ninth row to every comparison.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Depop, GOAT, a craft fair, a wholesale account. Poshmark and StockX have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — GOAT, a craft fair, a wholesale account. Mercari, Poshmark, StockX, Depop and Facebook Marketplace have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Podcast Ad Pricing Uses Downloads, Not Subscribers</title>
+  <meta name="description" content="A podcast with 40,000 app subscribers and 10,000 real downloads in an episode's first 7 days is not a 40,000-download show to a sponsor. Here is why ad rate cards price off the download window, not the subscriber count, and what pricing off the wrong number actually costs you.">
+  <link rel="canonical" href="./why-downloads-not-subscribers.html">
+  <meta property="og:title" content="Why podcast ad pricing uses downloads, not subscribers">
+  <meta property="og:description" content="Sponsors pay for a spot that got served, not a lifetime subscriber count that includes people who stopped listening months ago. Here's the worked arithmetic on what pricing off the wrong number costs you.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does podcast ad pricing use downloads, not subscriber count?","acceptedAnswer":{"@type":"Answer","text":"Because a sponsor is paying for a spot that actually got served, not a standing audience that may or may not still be listening. Podcast ad marketplaces and network rate cards price against downloads within the first 7 days of an episode going live -- the industry-standard IAB/Podtrac measurement window -- rather than a subscriber or follower count, which includes anyone who subscribed once and stopped listening, and never shrinks even as a show's real audience does."}},{"@type":"Question","name":"What exactly counts as a download in the 7-day window?","acceptedAnswer":{"@type":"Answer","text":"A request for the episode's audio file, deduplicated by your hosting platform's analytics, counted from the moment the episode goes live through the following 7 days. That window is the IAB Podcast Measurement Technical Guidelines' own definition, which is why sponsors' ad-ops teams already expect a number measured this way -- a total quoted over 30 or 90 days, or since the episode's release with no cutoff, is a different, larger, and non-comparable figure."}},{"@type":"Question","name":"How much would pricing off subscribers instead of downloads actually change my ask?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own numbers: a business-niche, host-read show with 40,000 total app subscribers but 10,000 real downloads in an episode's first 7 days should price a mid-roll at $300-$450. Quoting off the subscriber count instead -- treating 40,000 as the reach -- prices the same spot at $1,200-$1,800, a 4x overask. A sponsor's ad-ops team, who already measures by 7-day downloads, will not read that as an aggressive opener; they will read it as a number that does not match their own data and move to the next show."}},{"@type":"Question","name":"Where do I find my show's actual 7-day downloads?","acceptedAnswer":{"@type":"Answer","text":"Your hosting platform's own analytics dashboard -- Spotify for Podcasters, Apple Podcasts Connect, Libsyn, Buzzsprout, and most other hosts all report downloads by episode with a rolling window you can set to 7 days. That is the number to enter here, not a lifetime download total, not an RSS subscriber count, and not app-reported \"followers\", each of which measures something a sponsor is not paying for."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 28px 18px 56px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 1.8em 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note { font-size: .86rem; color: #4c5a68; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1em 0; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ece7f2; }
+    th { color: #4c5a68; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    a { color: #1f4a5d; }
+    .cta { display: inline-block; margin: 6px 0 0; padding: 10px 15px; border-radius: 8px; background: #2a6b8e; color: #fff; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.4em; border-top: 1px solid #d6e0e6; padding-top: 16px; font-size: .86rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Podcast Sponsorship Rate Calculator</a></p>
+  <h1>Why podcast ad pricing uses downloads, not subscribers</h1>
+  <p>A podcast with 40,000 people subscribed in a podcast app is not a 40,000-download show, and a sponsor's ad-ops team knows the difference even if the pitch doesn't say so. This calculator prices off downloads in an episode's first 7 days for the same reason every marketplace and rate card does: it's the number that measures who actually received the ad, not who once tapped follow.</p>
+  <p><a class="cta" href="./?downloads=10000&amp;niche=business&amp;readType=host-read">Open this example on the calculator</a></p>
+
+  <h2>Two different numbers, and only one of them is what a sponsor is buying</h2>
+  <p>A subscriber or follower count is a standing total that only grows: everyone who ever subscribed stays counted, including people who stopped listening months ago, downgraded their queue, or never opened the app again. A 7-day download count is a fresh measurement, taken every episode, of how many people actually requested that specific episode's audio file in a defined window after it went live. One rises forever; the other tells you what happened this week.</p>
+  <p>Sponsors pay for the second number, because it's the one that describes who was actually served the ad. Podcast ad marketplaces and network rate cards are built on it, and so is the industry's own measurement standard: the <strong>IAB Podcast Measurement Technical Guidelines</strong>, which define the download window as the 7 days following an episode's release -- widely referred to as the IAB/Podtrac methodology. A number quoted any other way (since release with no cutoff, over 30 or 90 days, or a subscriber count standing in for either) is measuring something else, and a buyer whose own systems report 7-day downloads has no way to compare it.</p>
+
+  <h2>Worked example: 40,000 subscribers, 10,000 real downloads</h2>
+  <p>Take a business-niche show with a host-read mid-roll slot, 40,000 total subscribers across podcast apps, and 10,000 downloads in a typical episode's first 7 days -- a plausible gap, since plenty of subscribers stop listening without unsubscribing. Pricing the same mid-roll spot off each number gives two very different asks:</p>
+  <table>
+    <thead><tr><th>Priced off</th><th>Count used</th><th>Mid-roll range</th></tr></thead>
+    <tbody>
+      <tr><td>7-day downloads (correct)</td><td>10,000</td><td>$300&ndash;$450</td></tr>
+      <tr><td>Total app subscribers (wrong)</td><td>40,000</td><td>$1,200&ndash;$1,800</td></tr>
+    </tbody>
+  </table>
+  <p>That's a <strong>4x overask</strong> for identical inventory -- not because the download-based number is conservative, but because the subscriber count was never a measure of who receives a given episode's ad in the first place. A sponsor's ad-ops team, pricing by their own downloads-based benchmarks, won't negotiate that gap down; they'll read the pitch as unmeasured and move to a show whose numbers already match how the industry buys.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why does podcast ad pricing use downloads, not subscriber count?</h3>
+  <p>Because a sponsor is paying for a spot that actually got served, not a standing audience that may or may not still be listening. Podcast ad marketplaces and network rate cards price against downloads within the first 7 days of an episode going live -- the industry-standard IAB/Podtrac measurement window -- rather than a subscriber or follower count, which includes anyone who subscribed once and stopped listening, and never shrinks even as a show's real audience does.</p>
+  <h3>What exactly counts as a download in the 7-day window?</h3>
+  <p>A request for the episode's audio file, deduplicated by your hosting platform's analytics, counted from the moment the episode goes live through the following 7 days. That window is the IAB Podcast Measurement Technical Guidelines' own definition, which is why sponsors' ad-ops teams already expect a number measured this way -- a total quoted over 30 or 90 days, or since the episode's release with no cutoff, is a different, larger, and non-comparable figure.</p>
+  <h3>How much would pricing off subscribers instead of downloads actually change my ask?</h3>
+  <p>On this calculator's own numbers: a business-niche, host-read show with 40,000 total app subscribers but 10,000 real downloads in an episode's first 7 days should price a mid-roll at $300-$450. Quoting off the subscriber count instead -- treating 40,000 as the reach -- prices the same spot at $1,200-$1,800, a 4x overask. A sponsor's ad-ops team, who already measures by 7-day downloads, will not read that as an aggressive opener; they will read it as a number that does not match their own data and move to the next show.</p>
+  <h3>Where do I find my show's actual 7-day downloads?</h3>
+  <p>Your hosting platform's own analytics dashboard -- Spotify for Podcasters, Apple Podcasts Connect, Libsyn, Buzzsprout, and most other hosts all report downloads by episode with a rolling window you can set to 7 days. That is the number to enter here, not a lifetime download total, not an RSS subscriber count, and not app-reported "followers", each of which measures something a sponsor is not paying for.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own sponsorship terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record &mdash; nothing you enter is saved anywhere by this tool.</p>
+    <p><a href="./">Open the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a></p>
+  </footer>
+</body>
+</html>

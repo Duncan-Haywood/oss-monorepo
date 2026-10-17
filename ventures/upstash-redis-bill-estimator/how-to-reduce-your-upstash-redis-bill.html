@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Reduce Your Upstash Redis Bill: Levers and the Fixed-Plan Crossover</title>
+  <meta name="description" content="Where an Upstash Redis pay-as-you-go bill comes from, the changes that usually cut it most (pipelining, caching, polling, TTLs, payload size) and how to tell when a fixed plan is cheaper, with the arithmetic for each.">
+  <link rel="canonical" href="./how-to-reduce-your-upstash-redis-bill.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Upstash Redis cost usually dominates?", "acceptedAnswer": {"@type": "Answer", "text": "On pay-as-you-go it is almost always commands, because they are billed per million and a chatty client or polling loop multiplies them. Storage and bandwidth matter for large values or large datasets. Estimate your own mix rather than assuming."}}, {"@type": "Question", "name": "When should I move to a fixed plan?", "acceptedAnswer": {"@type": "Answer", "text": "When your monthly command volume is above the crossover for the smallest fixed plan that holds your data. The estimator prints that volume. Check each fixed plan's own bandwidth and connection limits on the vendor site first."}}, {"@type": "Question", "name": "Do the savings add up?", "acceptedAnswer": {"@type": "Answer", "text": "No. Pipelining and caching act on the same commands, so each lever is calculated alone and the list is a ranking, not a plan total."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Upstash Redis Bill Estimator</a></p>
+  <h1>How to reduce your Upstash Redis bill: levers ranked by dollar impact</h1>
+  <p>A pay-as-you-go Upstash Redis bill is three separately metered lines: commands (billed per million), storage (per GB-month) and bandwidth (per GB), each with a free allowance. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most, and would a flat fixed plan be cheaper". That is arithmetic you can do before the invoice, from the usage numbers in the console. Prices in this page are approximate and dated in the estimator; verify them on the vendor site.</p>
+
+  <h2>1. Pipeline and batch commands</h2>
+  <p>Every command is billed, and a client that issues one command per key pays for each. MGET, MSET and pipelines or transactions send many operations in one round trip and cut latency as well as the count where the operations are combined. Removing 30% of 60 million commands at $2 per million saves about $36 a month.</p>
+
+  <h2>2. Cache hot keys in front of Redis</h2>
+  <p>A handful of keys usually take most of the reads. A short in-process or edge cache means repeat reads never become commands. Removing 25% of 60 million commands is about $30.</p>
+
+  <h2>3. Stop polling</h2>
+  <p>A loop that checks a key every second is 2.6 million commands a month per worker. Replace it with pub/sub, a webhook or a longer interval.</p>
+
+  <h2>4. Set TTLs and eviction</h2>
+  <p>Keys nobody reads again still bill per GB-month. Give cache and session keys a TTL so storage tracks live data. Storage is usually the smallest line, so do this for hygiene before cost.</p>
+
+  <h2>5. Shrink payloads</h2>
+  <p>Bandwidth beyond the free allowance bills per GB. Compress large values, drop unused fields and keep clients in the same region as the database.</p>
+
+  <h2>6. Check whether a fixed plan is cheaper</h2>
+  <p>A fixed plan is a flat monthly price for a storage ceiling. Pay-as-you-go is cheaper at low volume; above a crossover volume of commands the flat price wins. The estimator picks the smallest fixed plan that holds your storage and prints the monthly command volume where the two cost the same, holding storage and bandwidth constant. Each fixed plan has bandwidth and connection limits of its own that this does not model, so read them before moving.</p>
+
+  <h2>Run it on your numbers</h2>
+  <p>Enter your usage in the <a href="./">estimator</a> or from the CLI, and gate a budget in CI:</p>
+  <pre>node cli.mjs estimate usage.csv --budget 100</pre>
+
+  <h2>What this cannot see</h2>
+  <p>Plans, regions, databases, add-ons, contracts and price changes are outside it. Prices here are approximate list prices and editable. The estimate is arithmetic on your inputs, never a bill reader.</p>
+
+  <h2>Common questions</h2>
+  <h3>Which Upstash Redis cost usually dominates?</h3>
+  <p>On pay-as-you-go it is almost always commands, because they are billed per million and a chatty client or polling loop multiplies them. Storage and bandwidth matter for large values or large datasets. Estimate your own mix rather than assuming.</p>
+  <h3>When should I move to a fixed plan?</h3>
+  <p>When your monthly command volume is above the crossover for the smallest fixed plan that holds your data. The estimator prints that volume. Check each fixed plan's own bandwidth and connection limits on the vendor site first.</p>
+  <h3>Do the savings add up?</h3>
+  <p>No. Pipelining and caching act on the same commands, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Upstash and Redis are trademarks of their owners; this project is not affiliated with or endorsed by Upstash or Redis Ltd.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

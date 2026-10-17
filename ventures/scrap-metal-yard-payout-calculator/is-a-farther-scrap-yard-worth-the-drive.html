@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Is a farther scrap yard worth the drive? A worked example</title>
+  <meta name="description" content="A worked example of netting a scrap load at two yards: gross payout, the cost of the drive, why splitting a load rarely pays, how far prices can fall, and when stripping copper wire beats selling it insulated.">
+  <meta property="og:title" content="Is a farther scrap yard worth the drive? A worked example">
+  <meta property="og:description" content="A worked example of netting a scrap load at two yards: gross payout, the cost of the drive, why splitting a load rarely pays, how far prices can fall, and when stripping copper wire beats selling it insulated.">
+  <link rel="canonical" href="./is-a-farther-scrap-yard-worth-the-drive.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it worth driving farther to a yard that pays more per pound?","acceptedAnswer":{"@type":"Answer","text":"Only if the extra pay covers the extra miles, time and any handling fee. The calculator nets each yard after fuel and vehicle cost per mile, the minutes the round trip takes at your hourly value, and the fee, then tells you how much more the lower-netting yard would have to pay across the board to match the winner."}},{"@type":"Question","name":"When does it pay to split a load between two yards?","acceptedAnswer":{"@type":"Answer","text":"Rarely for small loads. Each lot can pay more at one yard, but a split means two trips. The calculator sends every lot to its higher payer, charges both trips, and shows split only when it nets more than keeping everything at one yard."}},{"@type":"Question","name":"Should I strip copper wire or sell it insulated?","acceptedAnswer":{"@type":"Answer","text":"Compare what the stripped copper sells for, minus the insulated price you give up, minus the value of your time. The calculator does it for your wire: pounds, insulated price, bare copper price, the share of the weight that comes out as copper, and minutes per pound. It also shows the recovery percentage where stripping stops paying, so you can test a different yard price or a faster stripper."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2420; background: #f4f6f2; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5a2e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b3a22; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b3a22; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #424a43; }
+    .card { background: #fff; border: 1px solid #d3dcd1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b3a2212; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #55625a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5a2e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eae0; color: #1b3a22; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e2eae0; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #424a43; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f0e4; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b3a22; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dcd1; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Scrap Metal Yard Payout Calculator</a></p>
+    <h1>Is a farther scrap yard worth the drive?</h1>
+    <p>The yard that pays more per pound is not always the yard that pays you more. The sample load below is 2205 lb of copper tube, aluminum, brass, stainless and steel. The far yard pays more for the copper and the brass; the near yard wins the whole load anyway. The prices are invented; use your own yards' boards.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>Five lots, 2205 lb in all. At the near yard (9 miles each way, 55 minutes for the round trip) the load grosses <strong>$754.95</strong>. At the far yard (22 miles, 85 minutes, a $5 handling fee) it grosses <strong>$741.70</strong>, which is less, because the far yard pays less for the aluminum, stainless and steel that make up most of the weight.</p>
+    <p>The drive: at $0.70 a mile the near trip costs $12.60 in truck and $22.92 in time at $25 an hour, <strong>$35.52</strong> in all. The far trip costs <strong>$71.22</strong>. Netting each:</p>
+    <table><thead><tr><th>Option</th><th>Net</th></tr></thead><tbody>
+<tr><td>All at the near yard</td><td><strong>$719.43</strong></td></tr>
+<tr><td>All at the far yard</td><td><strong>$670.48</strong></td></tr>
+<tr><td>Split, each lot to its higher payer</td><td><strong>$666.97</strong></td></tr>
+    </tbody></table>
+    <p>That is $0.33 a pound netted at the near yard. The far yard would have to pay 6.6% more on everything to catch it.</p>
+  </section>
+  <section class="card">
+    <h2>Why splitting did not win</h2>
+    <p>Sending the copper and brass to the far yard and the rest to the near one grosses $773.70, better than either yard alone. But it means driving both trips, and the second trip costs more than the extra the better prices bring in. A split pays when the lots with the biggest price gap are heavy or valuable enough to cover a second drive; here they are not.</p>
+    <h2 style="margin-top:20px">If prices fall</h2>
+    <p>Scrap prices move while a load sits in the truck. With every price down 10%, the best option nets $643.94; with every price down 20%, it nets $568.44. The trip costs do not fall with the prices, so a thin load can go from worth the drive to not worth it.</p>
+  </section>
+  <section class="card">
+    <h2>Strip the wire or sell it insulated?</h2>
+    <p>Sixty pounds of insulated wire sells for <strong>$66.00</strong> at $1.10 a pound. If 55% of the weight comes out as bare copper at $3.55, that copper sells for <strong>$117.15</strong>. Stripping takes 1.5 minutes a pound, 1.50 hours, which at $25 an hour is <strong>$37.50</strong> of time. Stripping gains <strong>$13.65</strong>, or $34.10 extra for each hour at the stripper before any value on your time. It stops paying below 48.6% recovery; test your own wire by stripping a sample.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is it worth driving farther to a yard that pays more per pound?</h3>
+    <p>Only if the extra pay covers the extra miles, time and any handling fee. The calculator nets each yard after fuel and vehicle cost per mile, the minutes the round trip takes at your hourly value, and the fee, then tells you how much more the lower-netting yard would have to pay across the board to match the winner.</p>
+    <h3>When does it pay to split a load between two yards?</h3>
+    <p>Rarely for small loads. Each lot can pay more at one yard, but a split means two trips. The calculator sends every lot to its higher payer, charges both trips, and shows split only when it nets more than keeping everything at one yard.</p>
+    <h3>Should I strip copper wire or sell it insulated?</h3>
+    <p>Compare what the stripped copper sells for, minus the insulated price you give up, minus the value of your time. The calculator does it for your wire: pounds, insulated price, bare copper price, the share of the weight that comes out as copper, and minutes per pound. It also shows the recovery percentage where stripping stops paying, so you can test a different yard price or a faster stripper.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal or financial advice. Not affiliated with any scrap yard, recycler or price-reporting service. Best-effort hosting, no SLA.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

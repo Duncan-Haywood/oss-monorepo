@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Pay Gap Report Calculator — Pay Transparency Directive Indicators</title>
+  <meta name="description" content="Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job category with the 5% joint assessment flag. Runs in your browser.">
+  <meta property="og:title" content="EU Pay Gap Report Calculator — free, private">
+  <meta property="og:description" content="The seven Article 9 pay gap indicators from a pasted payroll table. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU Pay Gap Report Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "description": "Free browser calculator for the EU Pay Transparency Directive indicators: mean and median gender pay gap, variable pay gap, pay quartiles and gaps by job category with the 5% joint pay assessment flag."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the EU Pay Transparency Directive require employers to report?", "acceptedAnswer": {"@type": "Answer", "text": "Directive (EU) 2023/970 requires employers with 100 or more workers to report seven indicators: the gender pay gap in mean and median hourly pay, the gap in mean and median variable pay, the share of women and men receiving variable pay, the share of women and men in each pay quartile, and the pay gap by category of workers. Employers with 150 or more report annually from 7 June 2027, covering 2026; employers with 100 to 149 report every three years, first on 7 June 2031. Your member state's transposing law sets the final details."}}, {"@type": "Question", "name": "How is the gender pay gap calculated?", "acceptedAnswer": {"@type": "Answer", "text": "The gap is the difference between the average pay of men and women, expressed as a percentage of men's average pay: (men minus women) divided by men. A positive figure means women are paid less. The Directive compares gross hourly pay, including variable components such as bonuses."}}, {"@type": "Question", "name": "What is the 5% pay gap trigger?", "acceptedAnswer": {"@type": "Answer", "text": "If the average pay gap between women and men in any category of workers is 5% or more, and the employer cannot justify it with objective, gender-neutral criteria or remedy it within six months, the employer must carry out a joint pay assessment with workers' representatives (Art. 10)."}}, {"@type": "Question", "name": "What counts as a category of workers?", "acceptedAnswer": {"@type": "Answer", "text": "Workers doing the same work or work of equal value, grouped using objective gender-neutral criteria such as skills, effort, responsibility and working conditions. Use your own job grades or bands as the category column; this tool does not decide equal value."}}, {"@type": "Question", "name": "How are the pay quartiles worked out?", "acceptedAnswer": {"@type": "Answer", "text": "All workers are ranked by hourly pay and split into four equal parts, from lowest to highest paid. The tool counts the women and men in each part."}}, {"@type": "Question", "name": "Is my payroll data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The table you paste is processed in your browser tab and nothing is sent anywhere. There are no accounts. Anonymous feature counts are kept only in local storage on your device."}}, {"@type": "Question", "name": "Is this legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic over the numbers you paste, following the Directive's published indicators. National transposition laws differ and many member states were still legislating after the June 2026 deadline. Check your national law or ask an employment lawyer before filing a report."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EU PAY GAP REPORT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Is your pay gap over the 5% line the EU Pay Transparency Directive draws?</h1>
+    <p>Paste one row per worker. You get <strong>the mean and median gender pay gap, the variable pay gap, who receives bonuses, the women and men in each pay quartile, and the gap in every job category with the 5% joint pay assessment flag</strong>: the indicators employers with 100 or more workers must report under Directive (EU) 2023/970.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Use anonymised or test data if you prefer; the numbers never leave the page. A planning tool, not a filed report.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your payroll table</h2>
+    <p class="note">Columns in this order, or with a header row naming them: <code>gender, category, base, bonus, hours</code>. Base and bonus are annual gross amounts in one currency; hours are annual paid hours (so part-timers compare fairly). Gender is F or M. Comma, semicolon or tab separated.</p>
+    <label for="data">Payroll rows</label>
+    <textarea id="data" rows="10" spellcheck="false" placeholder="gender,category,base,bonus,hours&#10;F,Engineer,62000,3000,1800&#10;M,Engineer,66000,5000,1800"></textarea>
+    <div class="grid">
+      <div><label for="headcount">Total headcount (optional; defaults to the rows pasted)</label><input type="number" id="headcount" min="1" step="1" placeholder="e.g. 180"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate the indicators</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Paste your table, or load the example, then click Calculate the indicators.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Headline indicators</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Indicator</th><th scope="col">Women</th><th scope="col">Men</th><th scope="col">Gap</th></tr></thead><tbody id="headline"></tbody></table></div>
+    <h3>Pay quartiles (lowest to highest paid)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Quartile</th><th scope="col">Women</th><th scope="col">Men</th><th scope="col">Women share</th></tr></thead><tbody id="quartiles"></tbody></table></div>
+    <h3>Gap by job category</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Category</th><th scope="col">Women</th><th scope="col">Men</th><th scope="col">Basic pay gap</th><th scope="col">Variable pay gap</th><th scope="col">Total pay gap</th><th scope="col">5% flag</th></tr></thead><tbody id="categories"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How this works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Gap</strong> = (men's average minus women's average) / men's average. Positive means women are paid less. Pay is gross hourly pay: (base + bonus) / hours, or annual pay when hours are missing.</li>
+      <li><strong>Variable pay</strong> gaps compare the average bonus among those who received one; the share receiving one is shown separately.</li>
+      <li><strong>5% rule (Art. 10):</strong> a mean gap of 5% or more in any category, either direction, that is not justified by objective gender-neutral criteria or remedied within six months requires a joint pay assessment.</li>
+      <li><strong>Not modelled:</strong> deciding what is work of equal value, benefits in kind, workers who are neither F nor M in the data, national thresholds and report formats, reporting deadlines in your member state, and the filing itself. Many member states were still transposing the Directive after its 7 June 2026 deadline.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does the EU Pay Transparency Directive require employers to report?</h3>
+    <p>Directive (EU) 2023/970 requires employers with 100 or more workers to report seven indicators: the gender pay gap in mean and median hourly pay, the gap in mean and median variable pay, the share of women and men receiving variable pay, the share of women and men in each pay quartile, and the pay gap by category of workers. Employers with 150 or more report annually from 7 June 2027, covering 2026; employers with 100 to 149 report every three years, first on 7 June 2031. Your member state's transposing law sets the final details.</p>
+    <h3>How is the gender pay gap calculated?</h3>
+    <p>The gap is the difference between the average pay of men and women, expressed as a percentage of men's average pay: (men minus women) divided by men. A positive figure means women are paid less. The Directive compares gross hourly pay, including variable components such as bonuses.</p>
+    <h3>What is the 5% pay gap trigger?</h3>
+    <p>If the average pay gap between women and men in any category of workers is 5% or more, and the employer cannot justify it with objective, gender-neutral criteria or remedy it within six months, the employer must carry out a joint pay assessment with workers' representatives (Art. 10).</p>
+    <h3>What counts as a category of workers?</h3>
+    <p>Workers doing the same work or work of equal value, grouped using objective gender-neutral criteria such as skills, effort, responsibility and working conditions. Use your own job grades or bands as the category column; this tool does not decide equal value.</p>
+    <h3>How are the pay quartiles worked out?</h3>
+    <p>All workers are ranked by hourly pay and split into four equal parts, from lowest to highest paid. The tool counts the women and men in each part.</p>
+    <h3>Is my payroll data uploaded?</h3>
+    <p>No. The table you paste is processed in your browser tab and nothing is sent anywhere. There are no accounts. Anonymous feature counts are kept only in local storage on your device.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. It is arithmetic over the numbers you paste, following the Directive's published indicators. National transposition laws differ and many member states were still legislating after the June 2026 deadline. Check your national law or ask an employment lawyer before filing a report.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an employment lawyer or your national transposition of the Directive. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any report you file.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your payroll data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>gap_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../salary-range-posting-check/">salary range posting check</a>, <a href="../exempt-salary-threshold-checker/">exempt salary threshold checker</a>, <a href="../employee-cost-calculator/">employee cost calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Related tool: the <a href="../pay-transparency-directive-checker/">Pay Transparency Directive checker</a> shows which duties and report dates apply at your headcount. Also the <a href="../nis2-scope-checker/">NIS2 scope checker</a> applies the same kind of EU employer size thresholds to a cybersecurity directive.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["data", "headcount"];
+    const pct = (x) => (x == null ? "n/a" : x + "%");
+    const m2 = (x) => (x == null ? "n/a" : x.toLocaleString("en-US", { maximumFractionDigits: 2 }));
+    let last = null;
+
+    function run() {
+      const r = analyze($("#data").value, { headcount: $("#headcount").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.concat(r.obligation ? [r.obligation] : []).map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#headline").innerHTML = [
+        ["Mean hourly pay gap", "", "", pct(r.meanGap)],
+        ["Median hourly pay gap", "", "", pct(r.medianGap)],
+        ["Mean variable pay gap (recipients)", "", "", pct(r.variableMeanGap)],
+        ["Median variable pay gap (recipients)", "", "", pct(r.variableMedianGap)],
+        ["Receiving variable pay", pct(r.variable.shareF), pct(r.variable.shareM), ""],
+      ].map((x) => `<tr><th scope="row">${esc(x[0])}</th><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td></tr>`).join("");
+      $("#quartiles").innerHTML = r.quartiles.map((q) => `<tr><th scope="row">Q${q.quartile}</th><td>${q.women}</td><td>${q.men}</td><td>${q.womenPct}%</td></tr>`).join("");
+      $("#categories").innerHTML = r.categories.map((c) => c.comparable
+        ? `<tr class="${c.flag ? "off" : ""}"><th scope="row">${esc(c.category)}</th><td>${c.women}</td><td>${c.men}</td><td>${pct(c.basicGap)}</td><td>${pct(c.variableGap)}</td><td>${pct(c.totalGap)}</td><td>${c.flag ? "5% or more" : "below 5%"}</td></tr>`
+        : `<tr><th scope="row">${esc(c.category)}</th><td>${c.women}</td><td>${c.men}</td><td colspan="4">not comparable: one gender only</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Calculated from ${r.counts.women + r.counts.men} workers.` + (r.counts.skipped ? ` ${r.counts.skipped} unreadable row(s) skipped.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("gap_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#data").value = sampleInput();
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "eu-pay-gap-indicators.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

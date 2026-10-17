@@ -1,0 +1,57 @@
+name: laundromat-machine-payback-calculator
+description: >-
+  Free browser tool for laundromat owners and buyers: enter washer and dryer lines
+  with count, price per cycle, turns per day, utility cost per cycle and installed
+  cost, and see payback months and contribution by line, the turns per day each
+  line needs for a target payback, store net after overhead, and the share of
+  cycles a price rise can lose before it costs money. No customer data; nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were unrelated
+# (saas-cac-payback-calculator 0.34, forestry-mulching-bid-calculator 0.31); no
+# laundromat venture exists, screened-out rows not hit.
+#
+# Why this niche: there are tens of thousands of US self-service laundromats and
+# each owner or buyer decides on six-figure equipment spend by gut or a vendor's
+# own pro forma. Distributors quote payback; owners rarely have a neutral way to
+# check it against their own turns, vend prices and utility bills.
+#
+# First visitor: owners and prospective buyers searching "laundromat washer payback
+# calculator", "how many turns per day does a laundromat need", "laundromat ROI
+# calculator". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices, utility
+# rates or turn counts asserted; no tax or valuation advice; says what it does not
+# model. No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted multi-store machine-fleet tracker.
+
+hypotheses:
+  - claim: >-
+      Laundromat owners and buyers will use a private, no-signup payback
+      calculator when deciding which machines to add or replace.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/laundromat-machine-payback-calculator/
+  analytics: null

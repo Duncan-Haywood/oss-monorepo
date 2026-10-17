@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wedding Venue Pricing Optimizer: Best Price per Date Type — Free</title>
+  <meta name="description" content="Free wedding venue pricing optimizer: enter dates, current prices, bookings, turned-away enquiries and price sensitivity per date type to find the price that earns the most, and see what you leave on the table. Nothing uploaded.">
+  <meta property="og:title" content="Wedding venue date pricing optimizer">
+  <meta property="og:description" content="What should a venue charge for peak Saturdays, Fridays and weekdays? The exact contribution-maximising price per date type. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Venue Date Pricing Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the price per date type (peak Saturday, off-peak, Friday or Sunday, weekday) that earns a wedding venue the most, given bookings, turned-away enquiries and price sensitivity. Runs in your browser.","featureList":"Optimal price per date type, current-vs-best contribution, sold-out detection, price-sensitivity stress test, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How should a wedding venue price Saturdays versus weekdays?","acceptedAnswer":{"@type":"Answer","text":"Price each kind of date on its own demand. A Saturday that sells out every season, with enquiries turned away, is underpriced: raising the price loses few bookings until the date type stops selling out. A weekday that rarely books is limited by demand, so the best price sits close to your cost of hosting scaled by how price-sensitive couples are. The tool finds each price exactly."}},{"@type":"Question","name":"What is price sensitivity (elasticity) for a venue?","acceptedAnswer":{"@type":"Answer","text":"It is the percentage drop in bookings for each 1 percent rise in price. A value of 2 means a 10 percent price rise loses about 20 percent of bookings. Peak dates are usually less sensitive than weekdays. If you have raised prices before, use what you saw; otherwise run the tool at a low and a high value and read the stress test."}},{"@type":"Question","name":"Why count turned-away enquiries?","acceptedAnswer":{"@type":"Answer","text":"A calendar that is full hides true demand. If you booked all 26 peak Saturdays and turned away 14 more couples, demand at today's price is 40, not 26. Without that number no tool can tell you how far a sold-out date can rise."}},{"@type":"Question","name":"Does the tool include fixed costs?","acceptedAnswer":{"@type":"Answer","text":"No. It maximises contribution: price minus what each event costs you to host (catering margin share, cleaning, staff, insurance per event). Rent, mortgage and salaried staff are the same at any price, so they do not change the best price."}},{"@type":"Question","name":"Is this financial or pricing advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type, using a simple constant-elasticity demand curve. Real demand also depends on season, reviews, competitors and deposits. Test price changes on future dates before applying them everywhere."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">WEDDING VENUE DATE PRICING OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should your venue charge for each kind of date?</h1>
+    <p>For each kind of date, type how many you have, today's price, how many you book and how many couples you turn away. The tool finds the price that earns the most after the cost of hosting, shows how many bookings it expects, and tests the answer if your price-sensitivity guess is wrong.</p>
+    <p class="note">Arithmetic on figures you type, using a simple demand curve. Not pricing, financial or legal advice. The example figures are placeholders, not any market's prices.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Date type 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Name</label><input id="t0_name" type="text" value=""><p class="note">For example peak Saturday.</p></div>
+        <div><label for="t0_dates">Dates per year</label><input id="t0_dates" type="number" step="any" value="0"><p class="note">How many such dates your calendar has.</p></div>
+        <div><label for="t0_price">Current price ($)</label><input id="t0_price" type="number" step="any" value="0"><p class="note">What you charge today.</p></div>
+        <div><label for="t0_booked">Booked per year</label><input id="t0_booked" type="number" step="any" value="0"><p class="note">Events booked at that price.</p></div>
+        <div><label for="t0_turnedAway">Turned away per year</label><input id="t0_turnedAway" type="number" step="any" value="0"><p class="note">Enquiries lost because the date was taken. Zero if you never sell out.</p></div>
+        <div><label for="t0_cost">Cost to host one event ($)</label><input id="t0_cost" type="number" step="any" value="0"><p class="note">Catering, cleaning, staff and insurance per event, not rent or salaries.</p></div>
+        <div><label for="t0_elasticity">Price sensitivity</label><input id="t0_elasticity" type="number" step="any" value="0"><p class="note">Percent fewer bookings per 1% price rise. About 1.5 for peak, 2 to 3 for weekdays.</p></div>
+        <div><label for="t0_minPrice">Lowest price you would accept ($)</label><input id="t0_minPrice" type="number" step="any" value="0"><p class="note">Zero means your cost.</p></div>
+        <div><label for="t0_maxPrice">Highest price you would consider ($)</label><input id="t0_maxPrice" type="number" step="any" value="0"><p class="note">Zero means double today's price.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Date type 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Name</label><input id="t1_name" type="text" value=""><p class="note">For example peak Saturday.</p></div>
+        <div><label for="t1_dates">Dates per year</label><input id="t1_dates" type="number" step="any" value="0"><p class="note">How many such dates your calendar has.</p></div>
+        <div><label for="t1_price">Current price ($)</label><input id="t1_price" type="number" step="any" value="0"><p class="note">What you charge today.</p></div>
+        <div><label for="t1_booked">Booked per year</label><input id="t1_booked" type="number" step="any" value="0"><p class="note">Events booked at that price.</p></div>
+        <div><label for="t1_turnedAway">Turned away per year</label><input id="t1_turnedAway" type="number" step="any" value="0"><p class="note">Enquiries lost because the date was taken. Zero if you never sell out.</p></div>
+        <div><label for="t1_cost">Cost to host one event ($)</label><input id="t1_cost" type="number" step="any" value="0"><p class="note">Catering, cleaning, staff and insurance per event, not rent or salaries.</p></div>
+        <div><label for="t1_elasticity">Price sensitivity</label><input id="t1_elasticity" type="number" step="any" value="0"><p class="note">Percent fewer bookings per 1% price rise. About 1.5 for peak, 2 to 3 for weekdays.</p></div>
+        <div><label for="t1_minPrice">Lowest price you would accept ($)</label><input id="t1_minPrice" type="number" step="any" value="0"><p class="note">Zero means your cost.</p></div>
+        <div><label for="t1_maxPrice">Highest price you would consider ($)</label><input id="t1_maxPrice" type="number" step="any" value="0"><p class="note">Zero means double today's price.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Date type 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Name</label><input id="t2_name" type="text" value=""><p class="note">For example peak Saturday.</p></div>
+        <div><label for="t2_dates">Dates per year</label><input id="t2_dates" type="number" step="any" value="0"><p class="note">How many such dates your calendar has.</p></div>
+        <div><label for="t2_price">Current price ($)</label><input id="t2_price" type="number" step="any" value="0"><p class="note">What you charge today.</p></div>
+        <div><label for="t2_booked">Booked per year</label><input id="t2_booked" type="number" step="any" value="0"><p class="note">Events booked at that price.</p></div>
+        <div><label for="t2_turnedAway">Turned away per year</label><input id="t2_turnedAway" type="number" step="any" value="0"><p class="note">Enquiries lost because the date was taken. Zero if you never sell out.</p></div>
+        <div><label for="t2_cost">Cost to host one event ($)</label><input id="t2_cost" type="number" step="any" value="0"><p class="note">Catering, cleaning, staff and insurance per event, not rent or salaries.</p></div>
+        <div><label for="t2_elasticity">Price sensitivity</label><input id="t2_elasticity" type="number" step="any" value="0"><p class="note">Percent fewer bookings per 1% price rise. About 1.5 for peak, 2 to 3 for weekdays.</p></div>
+        <div><label for="t2_minPrice">Lowest price you would accept ($)</label><input id="t2_minPrice" type="number" step="any" value="0"><p class="note">Zero means your cost.</p></div>
+        <div><label for="t2_maxPrice">Highest price you would consider ($)</label><input id="t2_maxPrice" type="number" step="any" value="0"><p class="note">Zero means double today's price.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Date type 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Name</label><input id="t3_name" type="text" value=""><p class="note">For example peak Saturday.</p></div>
+        <div><label for="t3_dates">Dates per year</label><input id="t3_dates" type="number" step="any" value="0"><p class="note">How many such dates your calendar has.</p></div>
+        <div><label for="t3_price">Current price ($)</label><input id="t3_price" type="number" step="any" value="0"><p class="note">What you charge today.</p></div>
+        <div><label for="t3_booked">Booked per year</label><input id="t3_booked" type="number" step="any" value="0"><p class="note">Events booked at that price.</p></div>
+        <div><label for="t3_turnedAway">Turned away per year</label><input id="t3_turnedAway" type="number" step="any" value="0"><p class="note">Enquiries lost because the date was taken. Zero if you never sell out.</p></div>
+        <div><label for="t3_cost">Cost to host one event ($)</label><input id="t3_cost" type="number" step="any" value="0"><p class="note">Catering, cleaning, staff and insurance per event, not rent or salaries.</p></div>
+        <div><label for="t3_elasticity">Price sensitivity</label><input id="t3_elasticity" type="number" step="any" value="0"><p class="note">Percent fewer bookings per 1% price rise. About 1.5 for peak, 2 to 3 for weekdays.</p></div>
+        <div><label for="t3_minPrice">Lowest price you would accept ($)</label><input id="t3_minPrice" type="number" step="any" value="0"><p class="note">Zero means your cost.</p></div>
+        <div><label for="t3_maxPrice">Highest price you would consider ($)</label><input id="t3_maxPrice" type="number" step="any" value="0"><p class="note">Zero means double today's price.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Date type 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Name</label><input id="t4_name" type="text" value=""><p class="note">For example peak Saturday.</p></div>
+        <div><label for="t4_dates">Dates per year</label><input id="t4_dates" type="number" step="any" value="0"><p class="note">How many such dates your calendar has.</p></div>
+        <div><label for="t4_price">Current price ($)</label><input id="t4_price" type="number" step="any" value="0"><p class="note">What you charge today.</p></div>
+        <div><label for="t4_booked">Booked per year</label><input id="t4_booked" type="number" step="any" value="0"><p class="note">Events booked at that price.</p></div>
+        <div><label for="t4_turnedAway">Turned away per year</label><input id="t4_turnedAway" type="number" step="any" value="0"><p class="note">Enquiries lost because the date was taken. Zero if you never sell out.</p></div>
+        <div><label for="t4_cost">Cost to host one event ($)</label><input id="t4_cost" type="number" step="any" value="0"><p class="note">Catering, cleaning, staff and insurance per event, not rent or salaries.</p></div>
+        <div><label for="t4_elasticity">Price sensitivity</label><input id="t4_elasticity" type="number" step="any" value="0"><p class="note">Percent fewer bookings per 1% price rise. About 1.5 for peak, 2 to 3 for weekdays.</p></div>
+        <div><label for="t4_minPrice">Lowest price you would accept ($)</label><input id="t4_minPrice" type="number" step="any" value="0"><p class="note">Zero means your cost.</p></div>
+        <div><label for="t4_maxPrice">Highest price you would consider ($)</label><input id="t4_maxPrice" type="number" step="any" value="0"><p class="note">Zero means double today's price.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best prices</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Leave a date type's dates or price at zero to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions venue owners ask</h2>
+      <h3>How should a wedding venue price Saturdays versus weekdays?</h3>
+      <p>Price each kind of date on its own demand. A Saturday that sells out every season, with enquiries turned away, is underpriced: raising the price loses few bookings until the date type stops selling out. A weekday that rarely books is limited by demand, so the best price sits close to your cost of hosting scaled by how price-sensitive couples are. The tool finds each price exactly.</p>
+      <h3>What is price sensitivity (elasticity) for a venue?</h3>
+      <p>It is the percentage drop in bookings for each 1 percent rise in price. A value of 2 means a 10 percent price rise loses about 20 percent of bookings. Peak dates are usually less sensitive than weekdays. If you have raised prices before, use what you saw; otherwise run the tool at a low and a high value and read the stress test.</p>
+      <h3>Why count turned-away enquiries?</h3>
+      <p>A calendar that is full hides true demand. If you booked all 26 peak Saturdays and turned away 14 more couples, demand at today's price is 40, not 26. Without that number no tool can tell you how far a sold-out date can rise.</p>
+      <h3>Does the tool include fixed costs?</h3>
+      <p>No. It maximises contribution: price minus what each event costs you to host (catering margin share, cleaning, staff, insurance per event). Rent, mortgage and salaried staff are the same at any price, so they do not change the best price.</p>
+      <h3>Is this financial or pricing advice?</h3>
+      <p>No. It is arithmetic on figures you type, using a simple constant-elasticity demand curve. Real demand also depends on season, reviews, competitors and deposits. Test price changes on future dates before applying them everywhere.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your price-sensitivity numbers are right, how a price change on one date type moves couples to another, competitor prices, seasonal shifts within a type, package add-ons, deposits and cancellations, and fixed costs. Every date in a type is treated as identical.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../wedding-budget-allocator/">wedding budget allocator</a> and the <a href="../wedding-florist-proposal-calculator/">wedding florist proposal calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional and test price changes on a few future dates before you apply them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { TYPE_DEFAULTS, EXAMPLE_TYPES, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 5, TKEYS = Object.keys(TYPE_DEFAULTS);
+    const fill = () => { for (let i = 0; i < N; i++) for (const k of TKEYS) $("t" + i + "_" + k).value = (EXAMPLE_TYPES[i] || TYPE_DEFAULTS)[k]; };
+    const readAll = () => { const types = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of TKEYS) t[k] = $("t" + i + "_" + k).value; types.push(t); } return types; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += `<div class="finding"><h4>Best prices earn ${money(a.best)} a year after hosting costs</h4><p>Today's prices earn ${money(a.now)}, so repricing is worth ${a.gain > 0.5 ? money(a.gain) + " a year" : "nothing"} on the demand curve you entered.</p></div>`;
+      h += `<div class="finding"><h4>Price by date type</h4>${table(["Date type", "Today", "Best price", "Change", "Bookings now", "Bookings at best", "Earned now", "Earned at best"], a.rows.map((r) => [esc(r.name), money(r.nowPrice), money(r.price) + (r.soldOut ? " (sells out)" : ""), (r.change >= 0 ? "+" : "") + (r.change * 100).toFixed(0) + "%", r.nowBookings.toFixed(1), r.bookings.toFixed(1), money(r.nowProfit), money(r.profit)]))}</div>`;
+      h += `<div class="finding"><h4>If your price sensitivity is off</h4><p>Pricing as if customers were 30% less sensitive than you entered would earn ${money(a.stress[1].profit)} on your curve; 30% more sensitive, ${money(a.stress[0].profit)}. A small gap from the best figure means the answer is safe to act on; a large one means test on a few dates first.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "venue-pricing.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+name: auto-glass-bid-calculator
+description: A private browser calculator for mobile and in-shop auto-glass technicians that prices a windshield or door/back-glass replacement from glass source, ADAS camera/sensor calibration (dynamic, static, or both), mobile trip fee, and cash versus insurance billing — and flags a bid where a required calibration was never actually priced.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent auto-glass shops and mobile technicians will use a glass-and-calibration bid calculator because a flat "$249 windshield installed" coupon rate cannot see that an ADAS-equipped vehicle needing static and dynamic calibration is a different job from a base sedan with no camera on the glass.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The missing-calibration flag (a calibration requirement selected with zero hours and zero cost priced against it) catches a real, costly mistake this trade makes — quoting the glass and forgetting the camera — rather than one this calculator invented.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Splitting the cash discount from the insurance deductible/insurer-bills split, instead of one blended "price," is the distinction a shop actually needs when deciding what to quote a customer on the phone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified auto-glass shops or mobile technicians use the calculator twice within 90 days.
+  - Shops report that separating calibration, mobile fee, and cash/insurance billing is more work than their existing method without changing the price they would have bid.
+  - The starting hours and glass-cost tiers prove so far from real shop invoices that the tool cannot be used without vehicle-specific data we have no way to gather.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auto-glass-bid-calculator/
+  analytics: null

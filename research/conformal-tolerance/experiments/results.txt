@@ -1,0 +1,48 @@
+E1 calibration runs n needed for ANY finite PAC tolerance (threshold = sample max): n = ceil(ln delta / ln(1-alpha))
+ alpha    delta=0.1  0.01   0.001
+ 0.05         45       90      135
+ 0.01        230      459      688
+ 0.001      2302     4603     6905
+ 0.0001    23025    46050    69075
+
+E2 plain split conformal k=ceil((n+1)(1-alpha)) is right on average but rarely PAC
+ alpha=0.01   n      k   marginal FPR   P(cond FPR<=alpha)   sd(cond FPR)   PAC rank k  (delta=0.01)
+            500    496   0.00998        0.560              0.00444      500
+           1000    991   0.00999        0.543              0.00314      998
+           5000   4951   0.01000        0.519              0.00141      4967
+          20000  19801   0.01000        0.510              0.00070      19833
+
+E3 MC check of E2, alpha=0.01, delta=0.01, n=2000, uniform/lognormal/Pareto drift (400 calibration sets)
+ lognormal(0,1)  plain PAC-rate=0.527  PAC-rank rate=1.000  median threshold/true-quantile=1.287
+ pareto(3)       plain PAC-rate=0.517  PAC-rank rate=0.995  median threshold/true-quantile=1.266
+ (exact plain PAC prob 0.530, PAC-rank 0.9952)
+
+E4 hiding-room inflation of the PAC threshold over the true 1-alpha quantile (Pareto tail index a), alpha=0.01, delta=0.01
+ n       a=1.5   a=3    a=6
+ 500     2.928  1.711  1.308
+ 1000    2.233  1.494  1.222
+ 2000    1.588  1.260  1.123
+ 5000    1.293  1.137  1.066
+ 20000   1.123  1.060  1.029
+ 100000  1.051  1.025  1.013
+
+E5 plug-in Gaussian tolerance (exact mean, exact sd, t = mean + z sd) on lognormal(0,s) drift: TRUE false-slash rate
+ s      alpha=0.05   0.01    0.001   (nominal in header)
+ 0.25  0.0641  0.0237  0.0073
+ 0.5   0.0657  0.0312  0.0140
+ 1.0   0.0495  0.0288  0.0170
+
+E6 pooled vs per-hardware calibration: 3 classes, median drift 1:2:4, lognormal s=0.5, mix (0.5,0.3,0.2), alpha=0.01
+ pooled t=9.182
+  fast: pooled FPR=0.00000  per-class t=3.200  hiding room pooled/per-class=2.87x
+  mid: pooled FPR=0.00115  per-class t=6.400  hiding room pooled/per-class=1.43x
+  slow: pooled FPR=0.04826  per-class t=12.800  hiding room pooled/per-class=0.72x
+ marginal FPR under deployment mix (0.1, 0.3, 0.6): 0.0293  (calibration mix: 0.0100)
+ silent drift scaling c on the FAST class, pooled t: FPR =  c=1.0:0.0000  c=1.5:0.0001  c=2.0:0.0012  c=3.0:0.0126
+ runs needed per class for PAC(alpha=0.01, delta=0.01): 459 -> total 3 classes = 1377 ; runs for the rare class (0.2) at the calibration mix to see that many: 2295
+
+E7 measured float32 residuals (n=12 honest products), conformal tolerance alpha=0.02
+ mean residual 4.547e-07  conformal t (rank 196/199) = 8.684e-07 = 1.91 x mean
+ fresh false-slash rate 0.0317  (marginal 0.0200, se 0.0057)
+ Gaussian-fit t=mean+2.054 sd fresh FPR: 0.0400  (t=8.290e-07)
+ Freivalds (one Gaussian probe) misses a rank-one corruption of Frobenius norm t/1.483 = 5.855e-07 half the time = 1.29 x mean noise

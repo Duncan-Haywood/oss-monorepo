@@ -2,7 +2,9 @@ name: hetzner-gitops CI
 
 # Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
 # Job. HETZNERREADAPIKEY (Read token) is probed via empty POST /servers.
-# SSH preflight is workflow_dispatch only and uses HETZNERSSHKEY.
+# The SSH preflight/restore jobs were removed 2026-10-01: the Hetzner servers
+# they targeted were deleted by the owner, and a released IP can be
+# reassigned to a stranger. Everything below is offline validation.
 
 on:
   push:
@@ -45,69 +47,13 @@ on:
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
-    inputs:
-      preflight:
-        description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
-        type: boolean
-        default: false
-      restore:
-        description: >-
-          INSTALLS k3s + Argo CD on the two boxes. Owner-run only, after
-          HETZNERSSHKEY holds a private key. Type restore-cluster to confirm.
-        type: string
-        default: ""
-      with_codex_host:
-        description: >-
-          Also install the Codex worker's systemd-timer scheduler on the
-          agent box (gitops/agents/host/). Cannot fail the restore. It is
-          credentialed from the CODEX_AUTH_JSON and CODEX_GH_TOKEN secrets
-          if you have set them, and stays disabled until you also tick
-          codex_enabled below. Only used when restore is set.
-        type: boolean
-        default: false
-      codex_enabled:
-        description: >-
-          Turn the Codex worker ON at the end of this same run, so its first
-          tick is ~5 minutes later instead of needing a second trip. Draws on
-          the ChatGPT plan's INCLUDED quota via the CODEX_AUTH_JSON secret --
-          a tick costs nothing extra. Ignored unless with_codex_host is also
-          ticked, and the script refuses to enable an uncredentialed worker.
-          Only used when restore is set.
-        type: boolean
-        default: false
-      with_github_runner_host:
-        description: >-
-          Also install a self-hosted GitHub Actions runner as a systemd
-          service on the agent box (gitops/ci/host/), independent of k3s.
-          Cannot fail the restore. It registers with GitHub on this run if
-          you have set the RUNNER_TOKEN secret, and otherwise retries every
-          5 minutes until you credential it. Only used when restore is set.
-        type: boolean
-        default: false
-      with_portfolio_site_host:
-        description: >-
-          Also serve the portfolio site from the control-plane box's own
-          nginx (gitops/prod/host/), independent of k3s, Argo and Pages.
-          Reuses ARGOCDREPOTOKEN as the read-only clone credential. This IS
-          the decision to publish under the portfolio's public name on a
-          domain whose DNS already points here -- only check this box when
-          you mean to. Only used when restore is set.
-        type: boolean
-        default: false
-      site_tls_email:
-        description: >-
-          Only used with with_portfolio_site_host. Where Let's Encrypt sends
-          expiry warnings. Leave blank to serve over HTTP for now and add a
-          certificate later.
-        type: string
-        default: ""
 
 permissions:
   contents: read
 
 jobs:
   gitops:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Normally ~2-3 minutes (pytest + two network downloads + a front-door
     # generator run). Without a cap here a hung apt-get, curl, or nginx
     # boot rides the default 360-minute GitHub-hosted ceiling — on a
@@ -117,6 +63,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -145,6 +93,12 @@ jobs:
       # _to_run_it` fails if it ever skips on a *hosted* runner instead.
       - name: Install nginx
         run: sudo apt-get install -y --no-install-recommends nginx-light || true
+      # test_load_secrets.py drives `load-secrets.sh --encrypt`, which checks
+      # for the `age` binary before anything else. The hosted image stopped
+      # shipping it, so every gitops run on main went red on
+      # test_encrypt_refuses_an_empty_recipient_list (2026-10-01).
+      - name: Install age
+        run: sudo apt-get install -y --no-install-recommends age || true
       - name: pyflakes governor
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
@@ -218,11 +172,13 @@ jobs:
             /tmp/apps.yaml /tmp/platform.yaml /tmp/prod.yaml /tmp/staging.yaml /tmp/agents.yaml /tmp/ci.yaml
 
   tofu:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
         with:
           tofu_version: 1.10.6
       - name: fmt and validate
@@ -233,10 +189,12 @@ jobs:
           tofu validate
 
   scripts:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -281,10 +239,12 @@ jobs:
             platform/pages/publish-branch.sh
 
   hcloud-scope:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Prove HETZNERREADAPIKEY is Read-only
         env:
           HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
@@ -294,140 +254,3 @@ jobs:
             exit 0
           fi
           infra/scripts/assert_hcloud_read_only.sh
-
-  preflight:
-    if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    # SSHes to two live boxes; ssh-keyscan and the preflight script have no
-    # timeout of their own, so this is the only thing that stops a
-    # network stall (a firewalled port, a box mid-reboot) from riding the
-    # runner to its 360-minute default.
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - name: SSH preflight (read-only)
-        env:
-          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
-        run: |
-          set -euo pipefail
-          KEY="${HETZNERSSHKEY:-}"
-          if [ -z "${KEY}" ]; then
-            echo "HETZNERSSHKEY is unset." >&2
-            exit 1
-          fi
-          # The format classifier and its reasoning now live in
-          # bootstrap/scripts/load-ssh-key.sh, so the restore job below shares
-          # exactly this one rather than carrying a second copy that can drift.
-          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
-          eval "$(ssh-agent -s)"
-          ssh-add "${HOME}/.ssh/id_hetzner"
-          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
-          export CP=root@89.167.29.39 AG=root@157.180.80.188
-          bootstrap/preflight.sh
-
-  # The only thing in this repository that changes the two boxes. Everything
-  # else here reads: `tofu` never applies, HETZNERREADAPIKEY is asserted
-  # read-only, and `preflight` above is read-only by construction.
-  #
-  # It exists because rotating HETZNERSSHKEY was necessary but not sufficient:
-  # the recovery it unlocks was a human SSHing to two machines in order and
-  # copy-pasting a node token between them, which is not something an outage
-  # should be waiting on. See bootstrap/restore-cluster.sh for what it does and
-  # for why following the *documented* order fails today (the private network
-  # in infra/inventory.tf was never applied).
-  #
-  # Deliberately not reachable from push, schedule, or any agent Job: it is a
-  # workflow_dispatch that additionally requires the operator to type the
-  # confirmation string, so a mis-click on the Run workflow button does nothing.
-  #
-  # The three WITH_* flags below (added to the script in #3252, #3364 and
-  # #3438) forward the workflow_dispatch inputs of the same name. This job
-  # predates all three and, until now, had no way to pass any of them --
-  # `portfolio/ledger/asks.yaml` tells the owner "the GitHub route ...
-  # reaches the same script", which was true of the binary but not of what it
-  # would do: dispatching this workflow could only ever run steps 1-8, never
-  # steps 9-11, with no input here even naming the option. Defaulting all
-  # three to false keeps today's behaviour unchanged; ticking one is the same
-  # explicit opt-in the laptop route already requires via its env vars.
-  #
-  # The flags' *credentials* were the other half of that same gap, and they
-  # are forwarded below as of 2026-09-17. A flag reachable but uncredentialed
-  # is not the capability the flag names -- `WITH_CODEX_HOST=1` alone installs
-  # a worker with no auth.json, which the timer then ticks past every five
-  # minutes doing nothing, and `WITH_GITHUB_RUNNER_HOST=1` alone installs a
-  # runner that cannot register. Both are indistinguishable from success in
-  # this job's log, because the script deliberately cannot let an extra fail
-  # the restore.
-  #
-  # One credential is deliberately NOT forwarded: `OPENAI_API_KEY`, the Codex
-  # worker's metered fallback. `CODEX_AUTH_JSON` draws on a ChatGPT plan's
-  # included quota and a tick costs nothing extra, so it is safe to hand a
-  # dispatch that the owner typed a confirmation string into. A per-token key
-  # is not: the worker ticks every five minutes indefinitely, and CLAUDE.md's
-  # "Automation" rule reserves spending paid API budget unattended to the
-  # owner. If you genuinely have no ChatGPT plan to draw on, set
-  # `OPENAI_API_KEY` from the laptop route (`load-secrets.sh --exec`) where a
-  # project spend limit is in front of you, per infra/secrets/registry.tsv.
-  restore:
-    if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    # Longer than preflight's 10: this one waits on two k3s installs, a
-    # 180-second node-readiness wait and an Argo CD rollout. Still bounded, so
-    # a stalled join cannot ride the runner to the 360-minute default.
-    timeout-minutes: 45
-    concurrency:
-      # Two of these at once would race two k3s installs onto one box.
-      group: hetzner-restore
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v4
-      - name: Restore the k3s cluster
-        env:
-          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
-          CONFIRM: restore-cluster
-          # Optional but load-bearing: the GitOps repository is private, so
-          # without a credential Argo installs, applies the root Application
-          # and then fails every sync on repository authentication — a cluster
-          # that is up and a site that serves nothing. The script says so
-          # loudly rather than reporting success. A fine-grained PAT with
-          # Contents: Read on this repository is enough; it is the same
-          # permission the site's clone token needs, so one token can do both.
-          ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
-          WITH_CODEX_HOST: ${{ inputs.with_codex_host && '1' || '' }}
-          WITH_GITHUB_RUNNER_HOST: ${{ inputs.with_github_runner_host && '1' || '' }}
-          WITH_PORTFOLIO_SITE_HOST: ${{ inputs.with_portfolio_site_host && '1' || '' }}
-          # A WITH_* flag installs a service; the credential is what makes it
-          # do anything. Forwarding the flags alone (which is all this job did
-          # until now) installs a Codex worker with no auth.json and a runner
-          # with no registration token -- two dead systemd units, and a second
-          # trip over SSH to finish them. That second trip needs the private
-          # key, which is the one thing this whole route exists to avoid
-          # needing twice: the owner gets one session with that key, and
-          # spending it to discover the extras installed dead is the expensive
-          # version of this mistake. Each is gated on its own box being
-          # ticked, so an unchecked extra asks for no credential, and each is
-          # empty when the secret is unset -- restore-cluster.sh already
-          # handles that by installing and holding rather than failing.
-          CODEX_AUTH_JSON: ${{ inputs.with_codex_host && secrets.CODEX_AUTH_JSON || '' }}
-          CODEX_GH_TOKEN: ${{ inputs.with_codex_host && secrets.CODEX_GH_TOKEN || '' }}
-          CODEX_ENABLED: ${{ (inputs.with_codex_host && inputs.codex_enabled) && '1' || '' }}
-          RUNNER_TOKEN: ${{ inputs.with_github_runner_host && secrets.RUNNER_TOKEN || '' }}
-          # Same PAT as ARGOCD_REPO_TOKEN above (asks.yaml: "one PAT covers
-          # both") — empty unless the box is actually being asked to serve,
-          # so an unchecked box needs no clone credential to sit unused.
-          SITE_GH_TOKEN: ${{ inputs.with_portfolio_site_host && secrets.ARGOCDREPOTOKEN || '' }}
-          SITE_TLS_EMAIL: ${{ inputs.site_tls_email }}
-        run: |
-          set -euo pipefail
-          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
-          eval "$(ssh-agent -s)"
-          ssh-add "${HOME}/.ssh/id_hetzner"
-          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
-          export CP=root@89.167.29.39 AG=root@157.180.80.188
-          bootstrap/restore-cluster.sh
-      - name: What to do next
-        if: always()
-        run: |
-          echo "Dispatch 'Public surface check' — it needs no secret and is the"
-          echo "only reading a stranger's view agrees with. Record the result in"
-          echo "portfolio/ledger/infra_state.yaml with this run id."

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Credentialing Delay Cost Calculator — Free</title>
+  <meta name="description" content="Free calculator for medical, dental and therapy practices: what a payer credentialing or enrollment delay costs per new clinician in lost and deferred revenue, and how much filing earlier would save. Nothing uploaded.">
+  <meta property="og:title" content="Provider credentialing delay cost calculator">
+  <meta property="og:description" content="Lost and deferred revenue while a new clinician waits for payer enrollment, and what filing earlier saves. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f5c'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Provider Credentialing Delay Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Cost of insurance credentialing and payer enrollment delays for a new clinician: unbillable visits, lost versus deferred revenue, and what filing earlier saves. Runs in your browser.","featureList":"Lost and deferred revenue per clinician, backdated effective dates, pay during the unbillable gap, filing-earlier table, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a credentialing delay and why does it cost money?","acceptedAnswer":{"@type":"Answer","text":"When a clinician joins a practice, each insurance payer has to enroll them before it will pay for their visits at in-network rates. That process commonly takes weeks to months, and until the payer's effective date many of the clinician's visits cannot be billed to that payer. Pay and overhead continue while those visits are lost or pushed back. This tool puts a dollar figure on the gap from the numbers you type."}},{"@type":"Question","name":"What counts as lost versus deferred?","acceptedAnswer":{"@type":"Answer","text":"Visits that are rescheduled to after the effective date, or that the patient pays for and later gets reprocessed, are only deferred: the cash arrives late. Visits that go to another clinician, are cancelled, or are written off are lost. You set the share that waits; the tool splits the blocked revenue accordingly."}},{"@type":"Question","name":"What if a payer backdates the effective date?","acceptedAnswer":{"@type":"Answer","text":"Some payers set the effective date back to the application date or the first day of service, which shortens the gap you cannot bill. Type the number of days they backdate and the tool subtracts it. Many payers do not backdate at all, so the default in the example is zero. Check each payer's rule."}},{"@type":"Question","name":"How much does filing earlier help?","acceptedAnswer":{"@type":"Answer","text":"The table shows the lost revenue if every application were filed 30, 60, 90 or 120 days before the start date, which cuts each delay by that many days down to zero. It is the clearest argument for starting paperwork during recruiting rather than on day one."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CREDENTIALING DELAY COST · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the wait for payer enrollment costing us?</h1>
+    <p>List each new clinician with the days between their start date and the payer's effective date. Add the practice's numbers and the tool shows the revenue that cannot be billed in the gap, how much of it is lost for good versus only delayed, the pay going out meanwhile, and what filing earlier would have saved.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal, coding or billing advice. The values shown are placeholder data, not benchmarks, payer timelines or any real practice's figures. No clinician or patient names belong here: use labels like "New PT hire A".</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your new clinicians</h2>
+      <label for="providers">One per line: label, days of delay</label>
+      <textarea id="providers" rows="6" spellcheck="false"></textarea>
+      <p class="note">Days from the start date to the date the payers will pay in-network. Use your slowest major payer or an average.</p>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your practice</h2>
+      <div class="grid">
+        <div><label for="visitsPerWeek">Visits per week at a full schedule</label><input id="visitsPerWeek" type="text" value=""></div>
+        <div><label for="allowed">Average allowed amount per visit ($)</label><input id="allowed" type="text" value=""></div>
+        <div><label for="restrictedPct">Share of visits from payers that need the clinician enrolled (%)</label><input id="restrictedPct" type="text" value=""></div>
+        <div><label for="heldPct">Share of those visits that wait and are billed later (%)</label><input id="heldPct" type="text" value=""></div>
+        <div><label for="retroDays">Days the payers backdate the effective date</label><input id="retroDays" type="text" value=""><p class="note">Zero if they do not backdate.</p></div>
+        <div><label for="weeklyComp">Weekly pay and benefits per clinician ($)</label><input id="weeklyComp" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Cost the delay</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a credentialing delay and why does it cost money?</h3>
+      <p>When a clinician joins a practice, each insurance payer has to enroll them before it will pay for their visits at in-network rates. That process commonly takes weeks to months, and until the payer's effective date many of the clinician's visits cannot be billed to that payer. Pay and overhead continue while those visits are lost or pushed back. This tool puts a dollar figure on the gap from the numbers you type.</p>
+      <h3>What counts as lost versus deferred?</h3>
+      <p>Visits that are rescheduled to after the effective date, or that the patient pays for and later gets reprocessed, are only deferred: the cash arrives late. Visits that go to another clinician, are cancelled, or are written off are lost. You set the share that waits; the tool splits the blocked revenue accordingly.</p>
+      <h3>What if a payer backdates the effective date?</h3>
+      <p>Some payers set the effective date back to the application date or the first day of service, which shortens the gap you cannot bill. Type the number of days they backdate and the tool subtracts it. Many payers do not backdate at all, so the default in the example is zero. Check each payer's rule.</p>
+      <h3>How much does filing earlier help?</h3>
+      <p>The table shows the lost revenue if every application were filed 30, 60, 90 or 120 days before the start date, which cuts each delay by that many days down to zero. It is the clearest argument for starting paperwork during recruiting rather than on day one.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>How long any payer will actually take, whether a payer backdates or retroactively pays for earlier visits, out-of-network or incident-to billing options, credentialing-service fees, hospital privileging, state licensure timing, and how any of this affects your contracts or compliance obligations. Ask each payer and a qualified credentialing or billing professional.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a>, the <a href="../therapy-8-minute-rule-calculator/">therapy 8-minute rule calculator</a>, the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a> and the <a href="../dental-associate-pay-calculator/">dental associate pay calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + money(t.lost) + " lost and " + money(t.deferred) + " delayed across " + t.providers + " clinician" + (t.providers > 1 ? "s" : "") + "</h4><p>Pay going out while the restricted share of their schedules cannot be billed: about " + money(t.compUnbilled) + ". Each extra week of delay across all of them costs about " + money(t.perWeekAllProviders) + " more in lost revenue.</p></div>";
+      h += '<div class="finding"><h4>Each clinician</h4>' + table(["Clinician", "Delay (days)", "Unbillable days", "Lost", "Delayed", "Pay in the gap"], a.rows.map((r) => [esc(r.name), r.days, r.gapDays, money(r.lost), money(r.deferred), money(r.compUnbilled)])) + "</div>";
+      h += '<div class="finding"><h4>If every application had been filed earlier</h4>' + table(["Filed this many days earlier", "Lost revenue", "Saved"], a.sweep.map((s) => [s.lead === 0 ? "As it happened" : s.lead + " days", money(s.lost), money(s.saved)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "credentialing-delay.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

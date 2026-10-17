@@ -1,0 +1,29 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Set BASE_URL to the address you serve from (your own domain, once attached in Render).
+# ADMIN_KEY is generated; read it in the Render dashboard, it is the only way to create links.
+services:
+  - type: web
+    name: link-keeper
+    runtime: docker
+    dockerContext: ventures/link-keeper
+    dockerfilePath: ventures/link-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: BASE_URL
+        sync: false
+      - key: ALLOW_HOSTS
+        sync: false
+      - key: ROOT_REDIRECT
+        sync: false
+      - key: TRUST_PROXY
+        value: "true"

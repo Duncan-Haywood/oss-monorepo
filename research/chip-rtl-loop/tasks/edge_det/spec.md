@@ -1,0 +1,1 @@
+Module `edge_det(input clk, input rst, input x, output pulse)`. Synchronous active-high reset, rising-edge clock. `pulse` is 1 during the cycle after a clock edge at which `x` was 1 and the previously sampled `x` was 0 (a registered rising-edge detector, so `pulse` is a flop output). After reset the previous sample is 0.

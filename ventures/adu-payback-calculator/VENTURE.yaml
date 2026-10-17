@@ -1,0 +1,66 @@
+name: adu-payback-calculator
+description: >-
+  Free browser tool for homeowners and small builders weighing an accessory dwelling
+  unit: enter build cost lines, financing, rent and operating costs and see year-1
+  cash flow, yield on cost, payback, equity IRR and NPV over a hold period with an
+  optional value uplift, the break-even rent, and sensitivity to rent and build
+  cost. No account; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py "ADU accessory dwelling unit cost vs
+# rent payback calculator" top score 0.17 (no venture covers ADUs); screened-out
+# rows not hit. Nearest neighbours: str-cleaning-fee-pricing-calculator and
+# str-host-payout-calculator (short-term-rental host economics, not a build/finance
+# payback decision) and heat-pump-vs-furnace-calculator (same payback shape, other
+# asset).
+#
+# Why this niche: ADU legalisation (California, Oregon, Washington, Texas, many
+# cities) has created a large, active group of homeowners and small contractors
+# deciding whether a $150k-$400k backyard unit pays back. The decision is mostly a
+# spreadsheet of build cost, loan, rent, vacancy and a hoped-for appraisal bump,
+# and the people asking pay for ADU design/build services, lenders' ADU loans and
+# feasibility reports -- willingness to pay is demonstrated; this is the free
+# lead-magnet end of that funnel (builder/lender referral is a later, rails-off
+# path).
+#
+# First visitor: homeowners searching "is an ADU worth it", "ADU cost vs rental
+# income calculator", "ADU payback period"; r/ADU and r/HomeImprovement threads
+# asking the same; ADU builders sharing a client-facing feasibility link. Volume
+# not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; ships no rent, cost, rate or
+# value data as fact (sample numbers are labelled invented); not investment, tax,
+# legal, lending or construction advice; says what it does not model (taxes,
+# depreciation, local rent rules and permitting, construction risk and overruns
+# beyond the contingency input). Unverified: hand-calculated examples.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# front end for a hosted ADU feasibility report or builder/lender lead hand-off.
+
+hypotheses:
+  - claim: >-
+      Homeowners and ADU builders will use a private, no-signup payback calculator
+      when deciding whether to build, and return to rerun it as quotes arrive.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that IRR, NPV or payback disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/adu-payback-calculator/
+  analytics: null

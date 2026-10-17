@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roth Conversion Calculator 2026 — Fill Your Tax Bracket, Free</title>
+  <meta name="description" content="Free 2026 Roth conversion calculator: see exactly how much to convert to fill the 12%, 22% or 24% bracket, the tax it costs, the 65+ senior-deduction phase-out and the Medicare IRMAA cliff. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Roth Conversion Calculator 2026 — fill your bracket, free">
+  <meta property="og:description" content="How much to convert this year, what it costs, and where the senior-deduction and IRMAA traps sit. In your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Roth Conversion Bracket-Fill Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Calculates how much to convert from a traditional IRA to a Roth IRA to fill a chosen 2026 federal tax bracket, the tax owed, the 65+ senior-deduction phase-out and the Medicare IRMAA threshold. Entirely client-side.", "featureList": "Bracket fill, 2026 brackets, senior deduction phase-out, IRMAA check, multi-year ladder"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I convert to a Roth IRA?", "acceptedAnswer": {"@type": "Answer", "text": "A common rule is to convert up to the top of a tax bracket you expect to be below later. Enter your income before converting and pick a target bracket: the calculator returns the exact conversion that leaves your taxable income at the top of that bracket, and the tax it costs."}}, {"@type": "Question", "name": "What is a Roth conversion bracket fill?", "acceptedAnswer": {"@type": "Answer", "text": "Bracket filling means converting just enough pre-tax IRA money each year to use up the room left in a chosen tax bracket, so the converted dollars are taxed at that rate instead of a higher one in later years when required minimum distributions start."}}, {"@type": "Question", "name": "Does a Roth conversion raise my Medicare premiums?", "acceptedAnswer": {"@type": "Answer", "text": "It can. Medicare Part B and D premiums rise in steps (IRMAA) once modified AGI passes $109,000 single or $218,000 joint for 2026. The premium looks at your return from two years earlier, so a conversion at 63 or older can raise premiums at 65. It is a cliff: one dollar over triggers the whole surcharge."}}, {"@type": "Question", "name": "How does the senior deduction change conversion math?", "acceptedAnswer": {"@type": "Answer", "text": "For 2025 to 2028 a taxpayer 65 or older gets an extra $6,000 deduction that phases out at 6 cents per dollar of income above $75,000 single or $150,000 joint. Inside that range each converted dollar loses 6 cents of deduction, so the real marginal rate is the bracket rate times 1.06."}}, {"@type": "Question", "name": "Should I pay the tax from the IRA?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Paying from outside money keeps the full amount growing tax-free, and if you are under 59½ tax withheld from the conversion counts as an early distribution."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published 2026 IRS and SSA figures to the numbers you enter and ignores state tax, capital gains stacking, Social Security taxation, NIIT and credits. Confirm with a qualified tax professional before converting."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROTH CONVERSION CALCULATOR · 2026 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you convert to a Roth this year before the tax jumps?</h1>
+    <p>Enter your income before converting and pick a bracket. You get the
+    <strong>exact conversion that fills it</strong>, the tax it costs, what each
+    bracket would allow, and two traps most calculators skip: the
+    <strong>65+ senior-deduction phase-out</strong> and the
+    <strong>Medicare IRMAA cliff</strong>.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your 2026 income</h2>
+    <div class="grid">
+      <div>
+        <label for="agi">Adjusted gross income before converting ($)</label>
+        <input type="number" id="agi" min="0" step="1" placeholder="e.g. 60000">
+      </div>
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="hoh">Head of household</option>
+        </select>
+      </div>
+      <div>
+        <label for="target-rate">Fill up to the top of this bracket</label>
+        <select id="target-rate">
+          <option value="0.12">12%</option>
+          <option value="0.22">22%</option>
+          <option value="0.24" selected>24%</option>
+          <option value="0.32">32%</option>
+          <option value="0.35">35%</option>
+        </select>
+      </div>
+      <div>
+        <label for="seniors">Taxpayers age 65 or older</label>
+        <select id="seniors">
+          <option value="0">None</option>
+          <option value="1">One</option>
+          <option value="2">Two (joint only)</option>
+        </select>
+      </div>
+      <div>
+        <label for="balance">Traditional IRA balance to convert, optional ($)</label>
+        <input type="number" id="balance" min="0" step="1" placeholder="e.g. 500000">
+      </div>
+      <div>
+        <label for="deduction">Your own deduction instead of standard, optional ($)</label>
+        <input type="number" id="deduction" min="0" step="1" placeholder="standard deduction">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your income, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="result-table"></tbody></table>
+    <h3>What each bracket would allow</h3>
+    <table><thead><tr><th scope="col">Fill through</th><th scope="col">Convert</th><th scope="col">Federal tax</th><th scope="col">Average rate</th></tr></thead><tbody id="bracket-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Tax year 2026 only.</strong> Brackets, deductions and IRMAA tiers change every year.</li>
+      <li><strong>Ordinary income only.</strong> Long-term capital gains and qualified dividends stack on top of ordinary income and can be taxed more by a conversion; Social Security benefits becoming taxable, the 3.8% net investment income tax, state tax, credits and AMT are not modelled.</li>
+      <li><strong>MAGI is treated as AGI.</strong> Tax-exempt interest and some add-backs raise the MAGI used for IRMAA and the senior deduction.</li>
+      <li><strong>Not a recommendation to convert.</strong> Whether converting beats waiting depends on your future rate, your heirs and your state, which no bracket table decides.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I convert to a Roth IRA?</h3>
+    <p>A common rule is to convert up to the top of a tax bracket you expect to be below later. Enter your income before converting and pick a target bracket: the calculator returns the exact conversion that leaves your taxable income at the top of that bracket, and the tax it costs.</p>
+    <h3>What is a Roth conversion bracket fill?</h3>
+    <p>Bracket filling means converting just enough pre-tax IRA money each year to use up the room left in a chosen tax bracket, so the converted dollars are taxed at that rate instead of a higher one in later years when required minimum distributions start.</p>
+    <h3>Does a Roth conversion raise my Medicare premiums?</h3>
+    <p>It can. Medicare Part B and D premiums rise in steps (IRMAA) once modified AGI passes $109,000 single or $218,000 joint for 2026. The premium looks at your return from two years earlier, so a conversion at 63 or older can raise premiums at 65. It is a cliff: one dollar over triggers the whole surcharge.</p>
+    <h3>How does the senior deduction change conversion math?</h3>
+    <p>For 2025 to 2028 a taxpayer 65 or older gets an extra $6,000 deduction that phases out at 6 cents per dollar of income above $75,000 single or $150,000 joint. Inside that range each converted dollar loses 6 cents of deduction, so the real marginal rate is the bracket rate times 1.06.</p>
+    <h3>Should I pay the tax from the IRA?</h3>
+    <p>Usually not. Paying from outside money keeps the full amount growing tax-free, and if you are under 59½ tax withheld from the conversion counts as an early distribution.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies published 2026 IRS and SSA figures to the numbers you enter and ignores state tax, capital gains stacking, Social Security taxation, NIIT and credits. Confirm with a qualified tax professional before converting.</p>
+  </section>
+
+  <section class="card">
+    <p>Related tool: the <a href="../529-to-roth-rollover-calculator/">529 to Roth IRA rollover calculator</a> for leftover college savings.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation before converting. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tax_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../backdoor-roth-pro-rata-calculator/">backdoor Roth pro-rata calculator</a>, <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a>, <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and the <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a>.</p>
+    <p>Next step: the <a href="../retirement-withdrawal-sequencer/">retirement withdrawal sequencer</a> runs the whole retirement year by year and compares withdrawal orders and bracket-filling plans.</p>
+    <p>Converting to Roth after 63? A conversion also raises the MAGI Medicare uses two years later; the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a> shows how much fits under your tier.</p>
+    <p>Not converting? Required distributions start at 73 or 75; the <a href="../rmd-calculator/">RMD calculator</a> shows the amount, the April 1 delay trap and how a QCD lowers the tax.</p>
+    <p>Claiming Social Security too? The <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a> compares claim ages for you and your spouse, survivor benefit included.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { rothConversion, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["agi", "balance", "deduction"];
+    const v = (id) => Number($("#" + id).value) || 0;
+    const status = $("#form-status"), report = $("#report");
+    const pct = (x) => (x * 100).toFixed(1) + "%";
+
+    function runCalculate() {
+      const r = rothConversion({
+        agi: v("agi"), filingStatus: $("#filing-status").value, targetRate: Number($("#target-rate").value),
+        seniors: Number($("#seniors").value), balance: v("balance"), deductionOverride: v("deduction"),
+      });
+      if (r.invalid || !v("agi")) {
+        status.textContent = "Enter your adjusted gross income above zero.";
+        report.hidden = true;
+        return;
+      }
+      $("#report-stats").innerHTML = `Convert about <strong>${money(r.conversion)}</strong> to fill the ${Math.round(r.targetRate * 100)}% bracket. Federal tax on the conversion: <strong>${money(r.conversionTax)}</strong> (${pct(r.effectiveRate)} average). The next $1,000 after that would cost about ${pct(r.marginalRate)}.`;
+      const rows = [
+        ["Adjusted gross income before converting", money(r.agi)],
+        ["Deductions (standard unless overridden)", money(r.deductions)],
+        ["Taxable income before converting", money(r.taxableBefore)],
+        [`Top of the ${Math.round(r.targetRate * 100)}% bracket`, money(r.bracketTop)],
+        ["<strong>Conversion that fills it</strong>", `<strong>${money(r.conversion)}</strong>`],
+        ["Taxable income after converting", money(r.taxableAfter)],
+        ["<strong>Federal tax on the conversion</strong>", `<strong>${money(r.conversionTax)}</strong>`],
+      ];
+      if (r.ladderYears > 0) rows.push(["Years to convert your balance at this pace", String(r.ladderYears)]);
+      $("#result-table").innerHTML = rows.map(([k, val]) => `<tr><th scope="row">${k}</th><td>${val}</td></tr>`).join("");
+      $("#bracket-table").innerHTML = r.rows.map((x) => `<tr><td>${Math.round(x.rate * 100)}% bracket</td><td>${money(x.conversion)}</td><td>${money(x.tax)}</td><td>${pct(x.effectiveRate)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("tax_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { agi: 60000, balance: 500000, deduction: "" };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      $("#filing-status").value = "single";
+      $("#target-rate").value = "0.22";
+      $("#seniors").value = "0";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: single, $60,000 AGI, 22% bracket, $500,000 IRA. Converts $61,800.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your income, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

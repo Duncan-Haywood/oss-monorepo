@@ -1,0 +1,45 @@
+Setup: n=9 honest others (precision 1.0), replicator precision 1.0, prior precision 1. Pot(k=1) = 0.9091
+
+E1. Replicator's total Shapley payment vs number of copies k, by copy correlation rho
+k                1        2        3        5       10       50      200
+rho=0.0    0.0909   0.1667   0.2308   0.3333   0.5000   0.8333   0.9524
+rho=0.5    0.0909   0.1533   0.2011   0.2713   0.3746   0.5631   0.6329
+rho=1.0    0.0909   0.1451   0.1853   0.2421   0.3210   0.4473   0.4855
+share of pot (rho=1): 0.100 0.160 0.204 0.266 0.353 0.492 0.534
+share of pot (rho=0): 0.100 0.182 0.250 0.357 0.526 0.847 0.957
+stand-alone limit g(a) = 0.5000; gain factor at k=200 (rho=1) = 5.34x; limit 5.50x
+
+E2. Limit gain factor g(a)/phi_1 by number of honest others n (rho=1)
+n=1    phi_1=0.3333 limit=0.5000 ratio=1.50
+n=3    phi_1=0.2000 limit=0.5000 ratio=2.50
+n=9    phi_1=0.0909 limit=0.5000 ratio=5.50
+n=30   phi_1=0.0312 limit=0.5000 ratio=16.00
+n=100  phi_1=0.0098 limit=0.5000 ratio=51.00
+
+E3. Leave-one-out total payment to the replicator
+k                1        2        3        5       10       50      200
+rho=0.0    0.0091   0.0152   0.0192   0.0238   0.0263   0.0141   0.0046
+rho=1.0    0.0091   0.0000   0.0000   0.0000   0.0000   0.0000   0.0000
+LOO total distributed at k=1: 0.0909 of pot 0.9091 (10.0%)
+
+E4. Optimal number of copies when each extra copy costs c (rho=1, kmax=200)
+c=0.0    best k=200  net gain over k=1: 0.3946
+c=0.001  best k=48   net gain over k=1: 0.3075
+c=0.005  best k=18   net gain over k=1: 0.2033
+c=0.01   best k=11   net gain over k=1: 0.1403
+c=0.02   best k=6    net gain over k=1: 0.0723
+c=0.054  best k=2    net gain over k=1: 0.0002
+c=0.06   best k=1    net gain over k=1: 0.0000
+marginal value of the first extra copy (break-even cost) = 0.0542
+
+E5. Cost of the dedup fix: two honest contributors with genuinely independent data (rho=0) collapsed into one cluster
+paid separately: 0.1667; collapsed (one cluster, pays like k=1 at rho=0 stand-in): 0.0909; underpayment 45.5%
+
+E6. Attack against a mis-estimated correlation: evaluator assumes rho_hat, truth is rho=1
+The payment uses value with rho_hat; the attacker submits k=10 copies.
+rho_hat=0.0   paid 0.5000  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)
+rho_hat=0.25  paid 0.4191  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)
+rho_hat=0.5   paid 0.3746  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)
+rho_hat=0.75  paid 0.3440  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)
+rho_hat=0.9   paid 0.3295  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)
+rho_hat=1.0   paid 0.3210  (honest k=1 gets 0.0909; true k=1 benchmark 0.0909)

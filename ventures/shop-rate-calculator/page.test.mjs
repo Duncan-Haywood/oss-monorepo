@@ -308,3 +308,7 @@ test('index links one hop to the auto-repair-effective-labor-rate sibling', () =
   // to be sold, and a shop owner arriving at either is one hop from the other.
   assert.match(markup, /href="\.\.\/auto-repair-effective-labor-rate\//);
 });
+
+test('index links one hop to the handyman-minimum-job-calculator sibling', () => {
+  assert.match(markup, /href="\.\.\/handyman-minimum-job-calculator\//);
+});

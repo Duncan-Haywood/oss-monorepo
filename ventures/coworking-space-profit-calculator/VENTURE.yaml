@@ -1,0 +1,51 @@
+name: coworking-space-profit-calculator
+description: >-
+  Free browser tool for people planning or running a coworking or flex-office space: enter floor area, private offices, dedicated desks,
+  hot-desk memberships, day passes and meeting rooms, lease, staff and other costs, fit-out and a loan, and see monthly profit, break-even
+  occupancy, the price change that reaches a target margin, a sixty-month ramp-up with the lowest cash point and payback, and loan
+  coverage. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. No coworking or flex-office tool existed in ventures/ (grep for cowork, flex, desk).
+# Nearest are boutique-fitness-studio-pricing-planner and climbing-gym-profit-calculator (different asset, no desk/office mix or floor fit).
+# Not in screened-out.md.
+#
+# First visitor: an aspiring or current operator sizing a lease; search phrases "coworking space business plan calculator", "coworking
+# break-even occupancy", "how much does a coworking space make". Volume not measured with an external tool.
+#
+# Who: small operators and landlords converting space. A multi-year lease plus a six-figure fit-out is the commitment, and the ramp-up
+# cash dip is the number spreadsheets from blog posts leave out.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios and multi-location comparison
+# behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No market rate or occupancy is claimed, sample
+# figures are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice
+# clauses and lists what it does not decide (lease terms, zoning, demand, churn, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective coworking operator will enter floor area, room mix, prices, lease and staff cost before signing a lease, because the
+      ramp-up cash dip and the break-even occupancy are hard to see in a headline desk price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/coworking-space-profit-calculator/
+  analytics: null

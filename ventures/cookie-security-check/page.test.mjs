@@ -9,6 +9,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const docHtml = readFileSync(join(HERE, 'samesite-none-cookie-rejected.html'), 'utf8');
 const vsHtml = readFileSync(join(HERE, 'vs-cookiebot.html'), 'utf8');
+const vsCurlHtml = readFileSync(join(HERE, 'vs-curl-and-reading-headers-yourself.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -117,6 +118,40 @@ test('the comparison page carries valid FAQPage JSON-LD and the no-warranty disc
   assert.match(vsHtml, /No warranty/);
   assert.match(vsHtml, /provided free and as-is, without warranty/);
   assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by Cookiebot/i);
+});
+
+test('index links to the curl comparison page, and it links back', () => {
+  assert.match(html, /href="vs-curl-and-reading-headers-yourself\.html"/);
+  assert.match(vsCurlHtml, /href="index\.html"/);
+});
+
+test('the curl comparison page carries valid FAQPage JSON-LD, the no-warranty disclaimer, and the curl affiliation disclaimer', () => {
+  const blocks = jsonLdBlocks(vsCurlHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the curl comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  assert.match(vsCurlHtml, /No warranty/);
+  assert.match(vsCurlHtml, /provided free and as-is, without warranty/);
+  assert.match(vsCurlHtml, /not affiliated with, endorsed by, or sponsored by the curl project/i);
+});
+
+test('the curl comparison page explains why joining Set-Cookie headers and splitting on commas corrupts an Expires date', () => {
+  assert.match(vsCurlHtml, /Expires=Wed, 21 Oct 2026 07:28:00 GMT/);
+  assert.match(vsCurlHtml, /join(?:ed|ing|s)?[\s\S]{0,40}split/i);
+});
+
+test("the curl comparison page's worked example of header-splitting corruption is arithmetically real", () => {
+  const setCookie = [
+    'session=abc123; Path=/; Expires=Wed, 21 Oct 2026 07:28:00 GMT; Secure; HttpOnly',
+    'csrf=xyz789; SameSite=None',
+  ];
+  assert.equal(setCookie.length, 2, 'two real Set-Cookie headers');
+  const naiveFragments = setCookie.join(', ').split(',').map((s) => s.trim());
+  assert.equal(naiveFragments.length, 3, 'the Expires comma splits the join into three fragments, not two');
+  assert.ok(
+    !naiveFragments[1].includes('='),
+    'the middle fragment carries no cookie name at all once the Expires comma has split it off',
+  );
 });
 
 function extractConst(name) {

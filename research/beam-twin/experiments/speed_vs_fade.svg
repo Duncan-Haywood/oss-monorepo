@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Certified speed against scan-fade probability: the independent-beam twin certifies a higher speed than the real sensor needs, and the gap widens as fades become more likely">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Certified speed: matched twin vs real sensor (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="270.4" y2="270.4" stroke="#ddd"/><text x="58" y="274.4" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="212.8" y2="212.8" stroke="#ddd"/><text x="58" y="216.8" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="155.2" y2="155.2" stroke="#ddd"/><text x="58" y="159.2" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<line x1="64" x2="624" y1="97.6" y2="97.6" stroke="#ddd"/><text x="58" y="101.6" text-anchor="end" font-family="sans-serif" font-size="11">14</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">16</text>
+<text x="120.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="232.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="344.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="456.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="568.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">scan-fade probability s</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">certified speed v* (m/s)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="120.0,108.5 232.0,108.5 344.0,118.3 456.0,128.1 568.0,146.6"/>
+<circle cx="120.0" cy="108.5" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="108.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="118.3" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="128.1" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="146.6" r="3" fill="#c0392b"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#c0392b" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">twin (independent beams)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="120.0,108.5 232.0,137.3 344.0,155.2 456.0,187.7 568.0,252.3"/>
+<circle cx="120.0" cy="108.5" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="137.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="155.2" r="3" fill="#1f6fb2"/>
+<circle cx="456.0" cy="187.7" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="252.3" r="3" fill="#1f6fb2"/>
+<line x1="390" x2="414" y1="90" y2="90" stroke="#1f6fb2" stroke-width="2"/><text x="420" y="94" font-family="sans-serif" font-size="11">real (correlated fades)</text>
+</svg>

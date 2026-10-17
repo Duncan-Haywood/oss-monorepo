@@ -147,7 +147,10 @@
   <p>More background: <a href="reflected-origin-cors-vulnerability.html">what a reflected-origin CORS misconfiguration actually lets an attacker do</a>.</p>
   <p>Already testing with a full web security platform? See <a href="vs-burp-suite.html">how this
   checker compares to Burp Suite</a> — a six-request CI gate next to an interactive assessment
-  tool, and when each one is the right answer.</p>
+  tool, and when each one is the right answer. Testing with plain curl instead? See
+  <a href="vs-checking-cors-by-hand.html">how this checker compares to sending a crafted Origin
+  header yourself</a> — one curl request finds the obvious reflected-origin bug, but the other
+  three patterns only surface by comparing several requests side by side.</p>
 </section>
 
 <script type="module">
@@ -309,7 +312,14 @@
   Content-Security-Policy strength rather than a reflected <code>Origin</code>, and
   <a href="../supabase-rls-check/">Supabase RLS exposure checker</a> covers a database-level
   access-control evidence class again -- whether a table returns real rows, not a response
-  header at all.</p>
+  header at all, and
+  <a href="../graphql-introspection-exposure-check/">GraphQL introspection exposure checker</a>
+  covers a schema-enumeration evidence class again -- whether an unauthenticated introspection
+  query reveals the full query/mutation surface, not a response header or a database table, and
+  <a href="../regex-redos-check/">Regex ReDoS Check</a> covers a denial-of-service class in your own
+  source -- regular expressions that backtrack catastrophically on a crafted string, and
+  <a href="../jwt-verification-misuse-check/">JWT Verification Misuse Check</a> finds token
+  handling that decodes without verifying, accepts alg none or signs with a hard-coded secret.</p>
 </footer>
 </body>
 </html>

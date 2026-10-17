@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Contract Checker</title>
+  <meta name="description" content="Free freelance contract checker: paste the client agreement or statement of work and see the red flags before you sign, such as net 60 payment, unlimited revisions, IP assigned before you are paid, non-compete, uncapped indemnity, or no kill fee. Private, runs in your browser.">
+  <meta property="og:title" content="Check a freelance contract before you sign it — free, private">
+  <meta property="og:description" content="Paste the contract. Get the red flags and the exact change to ask for, before you agree to work you may not be paid for.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Contract Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should a freelance contract include?", "acceptedAnswer": {"@type": "Answer", "text": "The fee and when it is due, a deposit or milestone payments, a clear scope with a limited number of revisions, a change-order process, ownership of the work passing only on full payment, a kill fee or payment for work done if the client cancels, and a cap on your liability."}}, {"@type": "Question", "name": "Who owns the work I deliver as a freelancer?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the contract. Without a written assignment you usually keep copyright in what you create, and a work-made-for-hire or assignment clause moves it to the client. Make the transfer effective only on full payment and keep your pre-existing tools and templates."}}, {"@type": "Question", "name": "How many revisions should a freelance contract allow?", "acceptedAnswer": {"@type": "Answer", "text": "Commonly two rounds, with a round defined as one consolidated set of feedback. Anything beyond that is billed hourly under a change order. Unlimited or until-satisfied revisions turn a fixed fee into unpaid work."}}, {"@type": "Question", "name": "Is net 60 or net 90 payment normal for freelancers?", "acceptedAnswer": {"@type": "Answer", "text": "Large companies often ask for it, but it is negotiable. Freelancers commonly ask for net 15 to net 30, or a deposit and milestone invoices so the client never owes the whole fee at once."}}, {"@type": "Question", "name": "Should I sign a non-compete as a freelancer?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. A freelancer needs several clients, and a non-compete or exclusivity clause can remove most of the market. If a client insists, limit it to a named competitor, for the project term only, and charge for it."}}, {"@type": "Question", "name": "Does this tell me whether the contract is enforceable or fair?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the text with fixed rules and says what each finding means and what to ask for. Enforceability depends on your state and country and on facts the text does not show. Have an attorney review anything that matters."}}, {"@type": "Question", "name": "Is my contract uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #7a3e0a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #3b2a14; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #3b2a14; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREELANCE CONTRACT CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Read the client contract before it reads you.</h1>
+    <p>Paste the agreement or statement of work a client sent. The page checks the text for the <strong>common ways a contract costs a freelancer money</strong>: <strong>slow or conditional payment</strong>, no deposit, <strong>unlimited revisions</strong>, work assigned before you are paid, an IP clause wider than the project, a non-compete, cancellation with no pay for work done, and uncapped indemnity. For each one it tells you what to ask for.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. It reads wording with fixed rules; it is not a lawyer and does not decide whether a contract is fair or enforceable.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>1. The contract</h2>
+    <label for="file">Choose a text file</label>
+    <input type="file" id="file" accept=".txt,.md,text/plain">
+    <label for="paste">…or paste the contract text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Paste the full text of the agreement or statement of work here"></textarea>
+    <h2 style="margin-top:20px">2. What you know about the deal</h2>
+    <p class="note">All optional. Leave blank what you do not know.</p>
+    <div class="grid">
+      <div><label for="fee">Project fee, dollars</label><input id="fee" inputmode="decimal" placeholder="6000"></div>
+      <div><label for="wanted">Longest wait for payment you accept, days</label><input id="wanted" inputmode="numeric" placeholder="30"></div>
+      <div><label for="client">Client name</label><input id="client"></div>
+      <div><label for="project">Project name</label><input id="project"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check the contract</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste the contract, then click Check the contract.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="verdict"></p>
+    <p class="note" id="facts"></p>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download checklist (text)</button> <button type="button" class="secondary" id="dl-csv">Download findings (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it checks, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Getting paid:</strong> payment later than you want, pay-when-paid, no deposit or milestones, no late fee or right to pause work.</li>
+      <li><strong>Ownership:</strong> assignment or work-for-hire before payment, an IP clause wider than the project, no portfolio right.</li>
+      <li><strong>Scope:</strong> unlimited or unstated revisions, no change-order process, no acceptance step.</li>
+      <li><strong>Ending it:</strong> termination at any time with no pay for work done, one-sided termination.</li>
+      <li><strong>Restrictions and risk:</strong> non-compete, non-solicit, uncapped indemnity, no liability cap, absolute warranties, open-ended confidentiality, terms that read like employment.</li>
+      <li><strong>Not decided:</strong> whether the contract is fair or enforceable where you live, who is liable, tax status, and whether you should sign. It reads text and cannot see your negotiation.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What should a freelance contract include?</h3>
+    <p>The fee and when it is due, a deposit or milestone payments, a clear scope with a limited number of revisions, a change-order process, ownership of the work passing only on full payment, a kill fee or payment for work done if the client cancels, and a cap on your liability.</p>
+    <h3>Who owns the work I deliver as a freelancer?</h3>
+    <p>It depends on the contract. Without a written assignment you usually keep copyright in what you create, and a work-made-for-hire or assignment clause moves it to the client. Make the transfer effective only on full payment and keep your pre-existing tools and templates.</p>
+    <h3>How many revisions should a freelance contract allow?</h3>
+    <p>Commonly two rounds, with a round defined as one consolidated set of feedback. Anything beyond that is billed hourly under a change order. Unlimited or until-satisfied revisions turn a fixed fee into unpaid work.</p>
+    <h3>Is net 60 or net 90 payment normal for freelancers?</h3>
+    <p>Large companies often ask for it, but it is negotiable. Freelancers commonly ask for net 15 to net 30, or a deposit and milestone invoices so the client never owes the whole fee at once.</p>
+    <h3>Should I sign a non-compete as a freelancer?</h3>
+    <p>Usually not. A freelancer needs several clients, and a non-compete or exclusivity clause can remove most of the market. If a client insists, limit it to a named competitor, for the project term only, and charge for it.</p>
+    <h3>Does this tell me whether the contract is enforceable or fair?</h3>
+    <p>No. It reads the text with fixed rules and says what each finding means and what to ask for. Enforceability depends on your state and country and on facts the text does not show. Have an attorney review anything that matters.</p>
+    <h3>Is my contract uploaded anywhere?</h3>
+    <p>No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace an attorney. A clean result means these rules found nothing, not that a contract is safe; have an attorney review anything that matters.</p>
+    <p><strong>Contract data.</strong> A contract can name fees and parties that are commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>contract_checked</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>, the <a href="../freelance-rate-increase-calculator/">freelance rate increase calculator</a> and the <a href="../employment-contract-checker/">employment contract checker</a>. Paying people on 1099s? Screen them with the <a href="../worker-classification-checker/">worker classification checker</a>. Sending your own terms first? Build one with the <a href="../freelance-contract-maker/">freelance contract maker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summaryText, findingsCsv, sampleContract, SAMPLE_SETTINGS, VERDICT_TEXT, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const settings = () => ({ fee: $("#fee").value, wantedDays: $("#wanted").value.trim(), client: $("#client").value.trim(), project: $("#project").value.trim() });
+
+    function run(text) {
+      const s = settings();
+      const r = analyze(text, s);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = { r, s };
+      $("#verdict").textContent = VERDICT_TEXT[r.verdict];
+      const x = r.extracted;
+      $("#facts").textContent = `Payment due found: ${x.days ? x.days + " days" : "none"}. Revision rounds found: ${x.revisions ?? "none"}.${x.fee ? " Fee: " + dollars(x.fee) + "." : ""}`;
+      $("#report-findings").innerHTML = r.findings.length
+        ? r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask for:</em> ${esc(g.ask)}</div>`).join("")
+        : '<div class="finding">Nothing flagged by these rules. They read wording only and cannot tell you the contract is fair or enforceable.</div>';
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste the contract text first."; return; }
+      if (run(text)) record("contract_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleContract(); $("#file").value = "";
+      $("#fee").value = SAMPLE_SETTINGS.fee; $("#wanted").value = SAMPLE_SETTINGS.wantedDays; $("#client").value = SAMPLE_SETTINGS.client; $("#project").value = SAMPLE_SETTINGS.project;
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a made-up client agreement with several problems at once.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste the contract, then click Check the contract."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("freelance-contract-check.txt", summaryText(last.r, last.s), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("freelance-contract-findings.csv", findingsCsv(last.r), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

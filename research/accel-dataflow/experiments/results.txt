@@ -1,0 +1,64 @@
+P=1 check vs accel-kws (40 models): max |cycles+3 - RTL cycles| = 0; max |energy - (accel-kws + psum writes)| = 7.99e-15 nJ
+
+Best dataflow by energy per inference (psum SRAM at full cost), count of 40 models, by lanes P:
+  B=1 P= 1: OS=40, WS=40, IS=0, RT=40
+  B=1 P= 2: OS=40, WS=40, IS=0, RT=0
+  B=1 P= 4: OS=40, WS=40, IS=0, RT=0
+  B=1 P= 8: OS=40, WS=40, IS=0, RT=0
+  B=1 P=16: OS=40, WS=40, IS=0, RT=0
+  B=1 P=32: OS=40, WS=40, IS=0, RT=0
+  B=4 P= 1: OS=40, WS=0, IS=0, RT=0
+  B=4 P= 2: OS=40, WS=0, IS=0, RT=0
+  B=4 P= 4: OS=40, WS=0, IS=0, RT=0
+  B=4 P= 8: OS=40, WS=0, IS=0, RT=0
+  B=4 P=16: OS=40, WS=0, IS=0, RT=0
+  B=4 P=32: OS=40, WS=0, IS=0, RT=0
+
+Energy per inference, model 7 segments / 64 hidden / 4-bit (nJ), psum SRAM 1x:
+  B=1 P= 1: OS 11.15 nJ/5184 cyc/util 1.00  WS 11.15 nJ/5184 cyc/util 1.00  IS 43.92 nJ/5184 cyc/util 1.00  RT 11.15 nJ/5184 cyc/util 1.00
+  B=1 P= 8: OS 5.39 nJ/688 cyc/util 0.94  WS 5.39 nJ/688 cyc/util 0.94  IS 9.21 nJ/664 cyc/util 0.98  RT 11.15 nJ/664 cyc/util 0.98
+  B=1 P=16: OS 4.95 nJ/344 cyc/util 0.94  WS 4.95 nJ/344 cyc/util 0.94  IS 6.90 nJ/364 cyc/util 0.89  RT 11.15 nJ/364 cyc/util 0.89
+  B=1 P=32: OS 4.77 nJ/204 cyc/util 0.79  WS 4.77 nJ/204 cyc/util 0.79  IS 5.75 nJ/214 cyc/util 0.76  RT 11.15 nJ/214 cyc/util 0.76
+  B=4 P= 1: OS 11.15 nJ/20736 cyc/util 1.00  WS 47.90 nJ/20736 cyc/util 1.00  IS 47.90 nJ/20736 cyc/util 1.00  RT 47.90 nJ/20736 cyc/util 1.00
+  B=4 P= 8: OS 5.39 nJ/2752 cyc/util 0.94  WS 42.14 nJ/2752 cyc/util 0.94  IS 13.18 nJ/2656 cyc/util 0.98  RT 13.18 nJ/2656 cyc/util 0.98
+  B=4 P=16: OS 4.95 nJ/1376 cyc/util 0.94  WS 41.70 nJ/1376 cyc/util 0.94  IS 10.88 nJ/1456 cyc/util 0.89  RT 10.88 nJ/1456 cyc/util 0.89
+  B=4 P=32: OS 4.77 nJ/816 cyc/util 0.79  WS 41.52 nJ/816 cyc/util 0.79  IS 9.73 nJ/856 cyc/util 0.76  RT 9.73 nJ/856 cyc/util 0.76
+
+Spread (worst/best energy over dataflows), median and max over 40 models:
+  B=1 P= 1: median x4.13, max x4.62
+  B=1 P= 2: median x3.24, max x3.81
+  B=1 P= 4: median x2.47, max x2.94
+  B=1 P= 8: median x2.10, max x2.73
+  B=1 P=16: median x2.28, max x3.14
+  B=1 P=32: median x2.34, max x3.36
+  B=4 P= 1: median x4.51, max x5.20
+  B=4 P= 2: median x6.10, max x7.58
+  B=4 P= 4: median x7.65, max x10.23
+  B=4 P= 8: median x8.78, max x12.47
+  B=4 P=16: median x8.91, max x14.17
+  B=4 P=32: median x8.99, max x15.10
+
+Cycles (lowest over dataflows) and which dataflows reach it, median model, P=16, B=1:
+  OS: median cycles 272, median utilisation 0.94
+  WS: median cycles 272, median utilisation 0.94
+  IS: median cycles 278, median utilisation 0.89
+  RT: median cycles 278, median utilisation 0.89
+
+Sensitivity: winner counts with psum SRAM at 0.25x (B=4):
+  P= 1: OS=40, WS=0, IS=0, RT=0
+  P= 2: OS=40, WS=0, IS=0, RT=0
+  P= 4: OS=40, WS=0, IS=0, RT=0
+  P= 8: OS=40, WS=0, IS=0, RT=0
+  P=16: OS=40, WS=0, IS=0, RT=0
+  P=32: OS=40, WS=0, IS=0, RT=0
+
+Sensitivity: an input buffer holds the whole activation vector (every activation read once), psum SRAM 1x.
+Winner counts over 40 models, and median energy of each dataflow relative to the best (OS no-buffer value for reference):
+  B=1 P= 1: wins OS=40, WS=40, IS=0, RT=40 | median x best: OS 1.00, WS 1.00, IS 9.80, RT 1.00
+  B=1 P= 8: wins OS=40, WS=40, IS=0, RT=40 | median x best: OS 1.00, WS 1.00, IS 2.02, RT 1.00
+  B=1 P=16: wins OS=40, WS=40, IS=0, RT=40 | median x best: OS 1.00, WS 1.00, IS 1.49, RT 1.00
+  B=1 P=32: wins OS=40, WS=40, IS=0, RT=40 | median x best: OS 1.00, WS 1.00, IS 1.23, RT 1.00
+  B=4 P= 1: wins OS=40, WS=0, IS=0, RT=0 | median x best: OS 1.00, WS 9.24, IS 9.24, RT 9.24
+  B=4 P= 8: wins OS=30, WS=0, IS=10, RT=10 | median x best: OS 1.00, WS 9.24, IS 1.48, RT 1.48
+  B=4 P=16: wins OS=20, WS=0, IS=20, RT=20 | median x best: OS 1.04, WS 9.56, IS 1.02, RT 1.02
+  B=4 P=32: wins OS=0, WS=0, IS=40, RT=40 | median x best: OS 1.37, WS 12.78, IS 1.00, RT 1.00

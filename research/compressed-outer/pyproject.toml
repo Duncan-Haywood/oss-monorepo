@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "compressed-outer"
+version = "0.1.0"
+description = "Compressing DiLoCo-style pseudo-gradients: exact noise floor and stability limit for unbiased sparsified and dithered-quantised reports, participation as a special case, and the fixed-bandwidth split between more workers and more bits"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

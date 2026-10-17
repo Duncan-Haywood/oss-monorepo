@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hearing Aid Dispensing Margin Calculator — Free</title>
+  <meta name="description" content="Free calculator for hearing aid clinics and audiologists: what each hearing aid sale really earns after device cost, trial-period returns, follow-up visits, commission, card and plan fees and clinician time. Margin by sale type, price for a target margin, private pay vs plan, break-even sales. Nothing uploaded.">
+  <meta property="og:title" content="Hearing aid dispensing margin calculator">
+  <meta property="og:description" content="See which hearing aid sales earn money after returns, follow-ups and fees, and what to charge. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f4e79'/%3E%3Cpath d='M12 22c0-6 8-6 8-11a5 5 0 0 0-10 0' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hearing Aid Dispensing Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per hearing aid sale type for a hearing clinic or audiology practice after device cost, trial-period returns, follow-up visits, commission, plan and card fees and clinician time, with profit per clinician-hour, price for a target margin and break-even sales per month. Runs in your browser.","featureList":"Margin per sale type, profit per clinician-hour, price for target margin, private pay vs plan comparison, break-even sales, cost sensitivity including over-the-counter price pressure, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on hearing aids?","acceptedAnswer":{"@type":"Answer","text":"Hearing aids carry a high gross markup, but the gross number hides the cost of the service wrapped around the device: the fitting, the follow-up visits included in the price, trial-period returns and commission. This tool subtracts the device and accessories, a return allowance, card and plan fees, commission and the clinician's fitting and follow-up time, then shows what each kind of sale really earns so you can see where the margin is made."}},{"@type":"Question","name":"How do trial-period returns affect profit?","acceptedAnswer":{"@type":"Answer","text":"Most states require a trial window after a hearing aid sale. A return refunds the patient, but the clinic still lost the fitting time and some device value to restocking or refurbishing. Enter the share of fittings that come back, the share of device cost you lose on each, and the minutes wasted. The tool spreads that expected cost over every kept sale, and the scenario table shows what five more points of returns would cost in a month."}},{"@type":"Question","name":"Does bundled pricing earn more than unbundled pricing?","acceptedAnswer":{"@type":"Answer","text":"Bundled pricing includes follow-up care in one price, so every extra visit comes out of the same margin. Enter the number of included visits and the minutes each takes to see how much clinician time a bundle really consumes, and compare profit per clinician-hour across your tiers. Unbundled models can be tested by lowering the included visits and pricing them separately."}},{"@type":"Question","name":"How is over-the-counter competition modelled?","acceptedAnswer":{"@type":"Answer","text":"Over-the-counter hearing aids put pressure on the entry price of private-pay sales. The scenario table cuts every private-pay price by 15 percent while leaving insurer and benefit payments alone, and shows the monthly profit change on your own mix. It is a stress test on your numbers, not a forecast."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HEARING AID DISPENSING MARGIN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which hearing aid sales actually make money?</h1>
+    <p>Device markup is only part of it. Type your sale types, what the patient and any insurer or benefit each pay, what the devices cost you, your trial-period return rate, the follow-up visits bundled into the price, commission, fees and clinician wage. The tool shows what each kind of sale earns, which use a clinician hour best, the patient price that hits your target margin, how plan sales compare with private-pay sales, and how many sales a month cover your fixed costs.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not benchmarks or any real practice's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your costs</h2>
+      <div class="grid">
+        <div><label for="cardPct">Card fee (%)</label><input id="cardPct" type="text" value=""></div>
+        <div><label for="cardFixed">Card fee per sale ($)</label><input id="cardFixed" type="text" value=""></div>
+        <div><label for="planFee">Plan or benefit-manager fee (%)</label><input id="planFee" type="text" value=""><p class="note">Fees and short-pays withheld from insurer or benefit payments.</p></div>
+        <div><label for="returnRate">Trial-period return rate (%)</label><input id="returnRate" type="text" value=""><p class="note">Share of fittings returned inside the trial window.</p></div>
+        <div><label for="returnLoss">Device cost lost on a return (%)</label><input id="returnLoss" type="text" value=""><p class="note">Restocking fee, unrecovered credit or refurbish cost as a share of device cost.</p></div>
+        <div><label for="returnMins">Minutes wasted per return</label><input id="returnMins" type="text" value=""><p class="note">Clinician time on a fitting that does not stick.</p></div>
+        <div><label for="followups">Included follow-up visits per sale</label><input id="followups" type="text" value=""></div>
+        <div><label for="followMins">Minutes per follow-up visit</label><input id="followMins" type="text" value=""></div>
+        <div><label for="commission">Commission (% of collected)</label><input id="commission" type="text" value=""><p class="note">Sales commission or bonus paid on the sale.</p></div>
+        <div><label for="wage">Clinician wage ($/hour)</label><input id="wage" type="text" value=""></div>
+        <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" type="text" value=""><p class="note">Employer taxes, malpractice cover, paid breaks.</p></div>
+        <div><label for="fixedMonth">Fixed costs ($/month)</label><input id="fixedMonth" type="text" value=""><p class="note">Rent, utilities, base staffing, software, insurance, marketing. Not owner pay.</p></div>
+        <div><label for="target">Target margin per sale (%)</label><input id="target" type="text" value=""><p class="note">After devices, returns, fees, commission and clinician time.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your sale types</h2>
+      <p class="note">One row per kind of sale, such as a premium pair or a single device on a benefit. Enter the device cost you pay, not the retail price, for the whole sale (both ears for a pair). Fitting minutes are for the first fitting; follow-up visits are set above. Use 0 for plan pays on a private-pay sale. Leave a row empty to skip it.</p>
+      <div class="scroll"><table class="menu">
+        <thead><tr><th scope="col">Sale type</th><th scope="col" class="n">Patient pays $</th><th scope="col" class="n">Plan pays $</th><th scope="col" class="n">Device cost $</th><th scope="col" class="n">Accessories $</th><th scope="col" class="n">Fitting min</th><th scope="col" class="n">Sales/mo</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><label class="sr" for="name1">Sale 1 name</label><input id="name1" type="text" value=""></td>
+          <td><label class="sr" for="patient1">Sale 1 patient pays ($)</label><input id="patient1" type="text" value=""></td>
+          <td><label class="sr" for="plan1">Sale 1 plan payment ($)</label><input id="plan1" type="text" value=""></td>
+          <td><label class="sr" for="device1">Sale 1 device wholesale cost ($)</label><input id="device1" type="text" value=""></td>
+          <td><label class="sr" for="extras1">Sale 1 accessories cost ($)</label><input id="extras1" type="text" value=""></td>
+          <td><label class="sr" for="mins1">Sale 1 fitting minutes</label><input id="mins1" type="text" value=""></td>
+          <td><label class="sr" for="perMonth1">Sale 1 sales per month</label><input id="perMonth1" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name2">Sale 2 name</label><input id="name2" type="text" value=""></td>
+          <td><label class="sr" for="patient2">Sale 2 patient pays ($)</label><input id="patient2" type="text" value=""></td>
+          <td><label class="sr" for="plan2">Sale 2 plan payment ($)</label><input id="plan2" type="text" value=""></td>
+          <td><label class="sr" for="device2">Sale 2 device wholesale cost ($)</label><input id="device2" type="text" value=""></td>
+          <td><label class="sr" for="extras2">Sale 2 accessories cost ($)</label><input id="extras2" type="text" value=""></td>
+          <td><label class="sr" for="mins2">Sale 2 fitting minutes</label><input id="mins2" type="text" value=""></td>
+          <td><label class="sr" for="perMonth2">Sale 2 sales per month</label><input id="perMonth2" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name3">Sale 3 name</label><input id="name3" type="text" value=""></td>
+          <td><label class="sr" for="patient3">Sale 3 patient pays ($)</label><input id="patient3" type="text" value=""></td>
+          <td><label class="sr" for="plan3">Sale 3 plan payment ($)</label><input id="plan3" type="text" value=""></td>
+          <td><label class="sr" for="device3">Sale 3 device wholesale cost ($)</label><input id="device3" type="text" value=""></td>
+          <td><label class="sr" for="extras3">Sale 3 accessories cost ($)</label><input id="extras3" type="text" value=""></td>
+          <td><label class="sr" for="mins3">Sale 3 fitting minutes</label><input id="mins3" type="text" value=""></td>
+          <td><label class="sr" for="perMonth3">Sale 3 sales per month</label><input id="perMonth3" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name4">Sale 4 name</label><input id="name4" type="text" value=""></td>
+          <td><label class="sr" for="patient4">Sale 4 patient pays ($)</label><input id="patient4" type="text" value=""></td>
+          <td><label class="sr" for="plan4">Sale 4 plan payment ($)</label><input id="plan4" type="text" value=""></td>
+          <td><label class="sr" for="device4">Sale 4 device wholesale cost ($)</label><input id="device4" type="text" value=""></td>
+          <td><label class="sr" for="extras4">Sale 4 accessories cost ($)</label><input id="extras4" type="text" value=""></td>
+          <td><label class="sr" for="mins4">Sale 4 fitting minutes</label><input id="mins4" type="text" value=""></td>
+          <td><label class="sr" for="perMonth4">Sale 4 sales per month</label><input id="perMonth4" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name5">Sale 5 name</label><input id="name5" type="text" value=""></td>
+          <td><label class="sr" for="patient5">Sale 5 patient pays ($)</label><input id="patient5" type="text" value=""></td>
+          <td><label class="sr" for="plan5">Sale 5 plan payment ($)</label><input id="plan5" type="text" value=""></td>
+          <td><label class="sr" for="device5">Sale 5 device wholesale cost ($)</label><input id="device5" type="text" value=""></td>
+          <td><label class="sr" for="extras5">Sale 5 accessories cost ($)</label><input id="extras5" type="text" value=""></td>
+          <td><label class="sr" for="mins5">Sale 5 fitting minutes</label><input id="mins5" type="text" value=""></td>
+          <td><label class="sr" for="perMonth5">Sale 5 sales per month</label><input id="perMonth5" type="text" value=""></td>
+        </tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my margins</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good margin on hearing aids?</h3>
+      <p>Hearing aids carry a high gross markup, but the gross number hides the cost of the service wrapped around the device: the fitting, the follow-up visits included in the price, trial-period returns and commission. This tool subtracts the device and accessories, a return allowance, card and plan fees, commission and the clinician's fitting and follow-up time, then shows what each kind of sale really earns so you can see where the margin is made.</p>
+      <h3>How do trial-period returns affect profit?</h3>
+      <p>Most states require a trial window after a hearing aid sale. A return refunds the patient, but the clinic still lost the fitting time and some device value to restocking or refurbishing. Enter the share of fittings that come back, the share of device cost you lose on each, and the minutes wasted. The tool spreads that expected cost over every kept sale, and the scenario table shows what five more points of returns would cost in a month.</p>
+      <h3>Does bundled pricing earn more than unbundled pricing?</h3>
+      <p>Bundled pricing includes follow-up care in one price, so every extra visit comes out of the same margin. Enter the number of included visits and the minutes each takes to see how much clinician time a bundle really consumes, and compare profit per clinician-hour across your tiers. Unbundled models can be tested by lowering the included visits and pricing them separately.</p>
+      <h3>How is over-the-counter competition modelled?</h3>
+      <p>Over-the-counter hearing aids put pressure on the entry price of private-pay sales. The scenario table cuts every private-pay price by 15 percent while leaving insurer and benefit payments alone, and shows the monthly profit change on your own mix. It is a stress test on your numbers, not a forecast.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What your market will pay, how to price against over-the-counter devices, your state's licensing, trial-period and refund rules, manufacturer terms, insurance and billing compliance, clinical standards of care, equipment and financing, and how to treat any of this for tax or accounting. Take costs from invoices, take plan payments from your remittances, and talk to your accountant about the books.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a>, the <a href="../card-processing-fee-audit/">card processing fee audit</a> the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> and the <a href="../optical-dispensary-margin-calculator/">optical dispensary margin calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after devices, returns, fees, commission and clinician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
+      h += '<div class="finding"><h4>Each sale type</h4>' + table(["Sale type", "Collected", "Devices", "Return allowance", "Fees and commission", "Clinician time", "Earns", "Margin", "Per clinician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.returnCost), money2(r.card + r.planFee + r.commission), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perClinicianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per clinician-hour is what the sale earns before labor per hour of fitting and follow-up time, if the clinician did only that kind of sale. Patient price for target assumes the plan payment stays fixed.</p></div>';
+      h += '<div class="finding"><h4>Best and worst use of a clinician hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per clinician-hour (" + money(a.bestPerHour.perClinicianHour) + "); " + esc(a.worstPerHour.name) + " earns the least per clinician-hour (" + money(a.worstPerHour.perClinicianHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Plan sales vs private-pay sales</h4><p>Plan-funded sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average private-pay sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
+      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download sale table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "hearing-aid-sale-margins.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

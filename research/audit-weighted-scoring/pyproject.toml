@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audit-weighted-scoring"
+version = "0.1.0"
+description = "Scoring verifiers when truth is revealed only on audited tasks: report-dependent audit rates break naive scoring, inverse-propensity weighting keeps it exactly proper, and a Neyman audit allocation minimises payment variance"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

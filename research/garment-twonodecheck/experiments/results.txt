@@ -1,0 +1,27 @@
+pythermalcomfort 4.6.1 | numpy 2.2.6
+
+== A. 108 combinations, ta = tr (18-36 C), rh 30-80%, v 0.1, 1.0-2.0 met, 0.3-1.0 clo, im 0.45; ours run 60 min ==
+difference = ours - pythermalcomfort; columns: mean, mean |d|, min, max
+t_core                       [C   ] mean -0.038  mean|d| 0.040  min -0.251  max +0.035
+t_skin                       [C   ] mean +0.213  mean|d| 0.581  min -2.125  max +1.568
+w (skin wettedness)          [-   ] mean +0.048  mean|d| 0.073  min -0.156  max +0.291
+e_skin (evaporative loss)    [W/m2] mean +0.371  mean|d| 2.146  min -4.750  max +14.282
+q_sensible (dry loss)        [W/m2] mean -0.226  mean|d| 1.564  min -6.496  max +3.338
+
+== B. by air temperature: mean |d| of t_skin (C) and e_skin (W/m2), mean d of t_core (C) ==
+ta 18 C: |d t_skin| 1.01  |d e_skin| 0.66  d t_core -0.032
+ta 24 C: |d t_skin| 0.61  |d e_skin| 1.16  d t_core -0.013
+ta 30 C: |d t_skin| 0.42  |d e_skin| 2.01  d t_core -0.021
+ta 36 C: |d t_skin| 0.29  |d e_skin| 4.76  d t_core -0.087
+
+== C. largest single discrepancies ==
+t_skin: ours - ref = -2.13 C at ta 18 C, rh 30%, 1.0 met, 0.3 clo (ref 29.81)
+e_skin (evaporative loss): ours - ref = +14.28 W/m2 at ta 36 C, rh 80%, 1.0 met, 0.3 clo (ref 41.63)
+
+== D. does the run length matter? mean |d| of t_core and t_skin (C) for 30, 60, 120 min ==
+ 30 min: |d t_core| 0.093  |d t_skin| 0.497
+ 60 min: |d t_core| 0.040  |d t_skin| 0.581
+120 min: |d t_core| 0.070  |d t_skin| 0.662
+
+== E. is the sign of a change preserved? clo 0.3 -> 1.0 and rh 30 -> 80, change in t_skin (C), ours vs reference ==
+sign of the t_skin change agrees in 23 of 24 cases

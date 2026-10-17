@@ -1,0 +1,107 @@
+name: qsbs-exclusion-calculator
+description: >-
+  Free browser calculator for the Section 1202 Qualified Small Business
+  Stock (QSBS) gain exclusion, expanded by OBBBA for stock acquired after
+  July 4, 2025 -- computes the exclusion percentage under the new tiered
+  holding-period schedule (50% at 3 years, 75% at 4 years, 100% at 5
+  years) vs. the old all-or-nothing 5-year rule for earlier stock, the
+  per-issuer exclusion cap (greater of $15 million or 10x basis, up from
+  $10 million for older stock), and the resulting excluded and taxable
+  gain. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work,
+# following three other OBBBA calculators shipped earlier the same
+# session -- this one deliberately chosen to serve a different audience,
+# equity holders/founders rather than W-2 filers or itemizers).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.18 or below for the final description above -- well
+# under the 0.45 review bar. The closest match (qbi-deduction-calculator,
+# 0.18) shares only generic "deduction/gain" vocabulary; it is an
+# unrelated pass-through-income deduction, not a capital-gain exclusion.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against
+# Kutak Rock's "Changes to IRC Section 1202 Under the One Big Beautiful
+# Bill Act", Baker Tilly's "Evaluating section 1202 benefits after OBBBA"
+# and its section 1202 changes summary, The Tax Adviser's "QSBS gets a
+# makeover" and "Revisiting Sec. 1202", K&L Gates' amendments summary,
+# Grant Thornton's "Explaining enhanced Section 1202 benefits", and a
+# cross-check search confirming the pre-OBBBA five-year cliff had no
+# partial exclusion, cross-checked against each other: for stock acquired
+# on or before July 4, 2025 (OBBBA's enactment date), Section 1202 remains
+# strictly all-or-nothing -- 100% exclusion at more than 5 years held, 0%
+# before that, capped at the greater of $10,000,000 or 10x basis. For
+# stock acquired AFTER that date, OBBBA introduces a tiered schedule (50%
+# at 3 years, 75% at 4 years, 100% at 5 years) and raises the cap to the
+# greater of $15,000,000 or 10x basis. The rule that applies is determined
+# by ACQUISITION DATE, not the tax year of sale -- unusual among this
+# session's other OBBBA calculators, which key off tax year. The cap is
+# applied to eligible gain BEFORE the holding-period percentage, and is a
+# lifetime, per-issuer figure across every sale of that issuer's stock,
+# not a per-sale allowance.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes a QSBS/Section 1202 explainer for the OBBBA
+# changes, but none found combine an interactive old-vs-new rule toggle
+# with the "greater of dollar cap or 10x basis" arithmetic and a
+# next-holding-period-milestone indicator in one free, no-signup,
+# client-side tool.
+
+hypotheses:
+  - claim: >-
+      Startup founders, early employees with exercised options, and angel
+      investors approaching a liquidity event, and the accountants/wealth
+      advisors serving them, will search plain-language phrases ("QSBS
+      calculator", "section 1202 exclusion calculator 2026", "QSBS 3 year
+      rule") and some will prefer a free, private, no-signup calculator
+      over reading a law-firm alert and doing the cap/percentage
+      arithmetic by hand, especially around an acquisition or IPO
+      liquidity event.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published Section 1202/OBBBA
+      explainer articles from law firms and accounting firms (found
+      during WebSearch research 2026-09-25) is evidence of real, current
+      professional interest in this exact change -- a significant,
+      well-covered expansion for a wealthy and engaged audience (equity
+      holders with real capital-gains stakes), not a speculative niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A shareholder or preparer working this out by hand is likely to
+      apply the new tiered schedule to old stock, or to apply the
+      holding-period percentage to the full uncapped gain instead of the
+      capped eligible gain -- both materially wrong -- and a calculator
+      that keys off acquisition date and applies the cap before the
+      percentage prevents that specific, plausible mistake.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the first wave of post-OBBBA QSBS sales reaching a 3-year holding
+    milestone (stock acquired shortly after July 4, 2025 first reaches 3
+    years in mid-2028), by which point search interest in the new tiered
+    rule should have picked up if it is going to.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that milestone.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/qsbs-exclusion-calculator/
+  analytics: null

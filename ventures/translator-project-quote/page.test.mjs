@@ -116,3 +116,8 @@ test('index links one hop to the voiceover-project-rate-calculator sibling', () 
     'index must link ../voiceover-project-rate-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// Closes the orphan freelance-editor-quote-calculator: the same freelance language professional pricing a neighbouring job.
+test('index links one hop to the freelance-editor-quote-calculator sibling', () => {
+  assert.match(page, /href="\.\.\/freelance-editor-quote-calculator\/"/, 'index must link ../freelance-editor-quote-calculator/ in one hop');
+});

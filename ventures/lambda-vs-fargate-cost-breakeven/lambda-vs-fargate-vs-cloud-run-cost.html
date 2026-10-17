@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lambda vs Fargate vs Cloud Run: What Each Actually Costs</title>
+  <meta name="description" content="How Lambda, Cloud Run, Fargate and EC2 are billed, why pay-per-request is cheapest at low volume and always-on containers win at steady volume, and how to find your own break-even.">
+  <link rel="canonical" href="./lambda-vs-fargate-vs-cloud-run-cost.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS or Google Cloud account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the numbers you type and never contacts a cloud or any server. It cannot see your real invoice, free tier, savings plans or discounts, so every figure is arithmetic on list prices you can edit. This is an estimate, not a bill."}}, {"@type": "Question", "name": "Why does the break-even move so much between workloads?", "acceptedAnswer": {"@type": "Answer", "text": "Pay-per-request platforms charge for every request-second, so cost grows in a straight line with traffic. Always-on platforms charge for a floor of capacity, so cost is flat until traffic outgrows it. Duration, memory and how many requests one container handles at once decide where the lines cross."}}, {"@type": "Question", "name": "What does concurrency mean here?", "acceptedAnswer": {"@type": "Answer", "text": "How many requests one container or task serves at the same time. Lambda runs one request per environment. Cloud Run and Fargate containers usually handle 10 to 80, which is the main reason they get cheaper than Lambda at steady volume."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Free tiers, committed-use and Savings Plans discounts, data transfer, load balancer and NAT costs, cold starts and latency, provisioned concurrency, autoscaling lag, ops time and region differences. Treat the result as a first filter, then check your own bill."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Lambda vs Fargate Cost Break-Even</a></p>
+  <h1>Lambda vs Fargate vs Cloud Run: what each actually costs</h1>
+  <p>All four platforms run the same code. They differ in <strong>what you pay for</strong>: Lambda and Cloud Run (request-billed) charge for the time requests are in flight, while Fargate and EC2 charge for capacity that is up whether or not anyone calls it. That one difference decides most cost comparisons. This page gives an estimate, not a bill.</p>
+
+  <h2>How each is billed</h2>
+  <ul>
+    <li><strong>Lambda</strong>: a fee per million requests plus GiB-seconds of memory x duration. One request per environment, so concurrency is 1.</li>
+    <li><strong>Cloud Run (request-based)</strong>: a request fee plus vCPU-seconds and GiB-seconds while any request is in flight; one instance serves many requests at once, so the same work is billed as fewer seconds.</li>
+    <li><strong>Fargate</strong>: vCPU-hours and GiB-hours for every task, all month, sized for your peak and at least two tasks for availability.</li>
+    <li><strong>EC2</strong>: the node, all month, at a lower per-vCPU price but with bin-packing waste you must size for.</li>
+  </ul>
+
+  <h2>Why the answer flips with volume</h2>
+  <p>Pay-per-request cost is a straight line: double the requests, double the bill. Always-on cost is a floor with steps: nearly flat until traffic outgrows the current tasks. At low volume the line sits under the floor, so Lambda or Cloud Run is cheapest. Past the crossing, the floor wins, often by a large factor. At 10 million 120 ms requests a month the pay-per-request options are cheapest; at 500 million with concurrency 20, Fargate costs a small fraction of Lambda.</p>
+
+  <h2>Three inputs that move the break-even most</h2>
+  <ul>
+    <li><strong>Duration</strong>: long requests make Lambda GiB-seconds dominate the bill.</li>
+    <li><strong>Concurrency</strong>: a container that serves 20 requests at once is paid for once, not 20 times.</li>
+    <li><strong>Peak to average</strong>: always-on capacity is sized for the peak, so spiky traffic keeps pay-per-request competitive far longer.</li>
+  </ul>
+
+  <h2>What the comparison leaves out</h2>
+  <p>Free tiers, Savings Plans and committed-use discounts, data transfer, load balancers and NAT gateways, cold-start latency, provisioned concurrency, autoscaling lag, and the engineering time to operate containers. A saving of a few dollars rarely justifies a migration; a saving of thousands a month usually does.</p>
+
+  <h2>Run your own numbers</h2>
+  <pre>node cli.mjs compare --requests 40M --duration-ms 180 --memory 0.5 --vcpu 0.25 --concurrency 10
+node cli.mjs breakeven --duration-ms 300 --memory 1 --concurrency 1</pre>
+  <p>Or use the <a href="./">browser tool</a>; nothing is uploaded.</p>
+
+  <h2>Common questions</h2>
+  <h3>Does this connect to my AWS or Google Cloud account?</h3>
+  <p>No. It reads the numbers you type and never contacts a cloud or any server. It cannot see your real invoice, free tier, savings plans or discounts, so every figure is arithmetic on list prices you can edit. This is an estimate, not a bill.</p>
+  <h3>Why does the break-even move so much between workloads?</h3>
+  <p>Pay-per-request platforms charge for every request-second, so cost grows in a straight line with traffic. Always-on platforms charge for a floor of capacity, so cost is flat until traffic outgrows it. Duration, memory and how many requests one container handles at once decide where the lines cross.</p>
+  <h3>What does concurrency mean here?</h3>
+  <p>How many requests one container or task serves at the same time. Lambda runs one request per environment. Cloud Run and Fargate containers usually handle 10 to 80, which is the main reason they get cheaper than Lambda at steady volume.</p>
+  <h3>What does this leave out?</h3>
+  <p>Free tiers, committed-use and Savings Plans discounts, data transfer, load balancer and NAT costs, cold starts and latency, provisioned concurrency, autoscaling lag, ops time and region differences. Treat the result as a first filter, then check your own bill.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It does arithmetic on numbers you type and list prices that change; it is an estimate, not a bill, and not a guarantee of what any cloud will charge. Free tiers, discounts, data transfer, latency and cold starts are not modelled, and you are responsible for checking its output against your own bill before moving a workload. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. AWS, Lambda, Fargate, EC2, Google Cloud and Cloud Run are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+  </footer>
+</body>
+</html>

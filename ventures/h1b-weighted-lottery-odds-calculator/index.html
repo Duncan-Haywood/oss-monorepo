@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>H-1B Weighted Lottery Odds Calculator</title>
+  <meta name="description" content="Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person's selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.">
+  <meta property="og:title" content="H-1B weighted lottery odds by wage level — free, private">
+  <meta property="og:description" content="Level I gets one entry, Level IV gets four. See what that does to each candidate's odds. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "H-1B Weighted Lottery Odds Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does the H-1B weighted selection work?", "acceptedAnswer": {"@type": "Answer", "text": "Under the weighted rule, a registration is entered once for wage level I, twice for II, three times for III and four times for IV, based on the occupational wage level the offered salary meets. USCIS then draws from the weighted pool. This page models that draw; check USCIS for the current rule and dates."}}, {"@type": "Question", "name": "What are my odds in the H-1B lottery?", "acceptedAnswer": {"@type": "Answer", "text": "They depend on the wage level and on how many registrations are in each level, which USCIS only publishes after the season. Enter your own estimate of the pool; the page solves for the selection chance of each level and shows the old flat chance for comparison. The default pool is illustrative, not data."}}, {"@type": "Question", "name": "How is the master's cap handled?", "acceptedAnswer": {"@type": "Answer", "text": "Registrations for beneficiaries with a US master's or higher get a second chance: after the first draw, unselected advanced-degree registrations are drawn again for the extra advanced-degree places. The page models both stages with the share of advanced-degree registrations and the number of places you set."}}, {"@type": "Question", "name": "Is this exact?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses a standard continuous approximation of successive weighted draws, which is close for pools this large but is not a USCIS simulation. Treat the figures as planning estimates, and expect the real pool mix to differ from your guess."}}, {"@type": "Question", "name": "Is my candidate list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">H-1B WEIGHTED LOTTERY ODDS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What are my H-1B odds when Level IV gets four entries?</h1>
+    <p>List your candidates with the <strong>wage level</strong> their offered salary meets and whether they hold a <strong>US master's or higher</strong>. The page estimates each person's chance of selection under the weighted rule, compares it with the old flat lottery, and shows what <strong>one wage level higher</strong> is worth in points of probability.</p>
+    <p class="note">The list is read in this browser tab and never leaves your device. These are planning estimates from a model of the draw and a pool you enter, not a USCIS result and not immigration advice. Confirm with an immigration attorney before deciding salaries or filings.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your candidates</h2>
+    <p class="note">A CSV or pasted spreadsheet range with a header row. Columns: name, wage level (1-4 or I-IV), US master's or higher (yes/no).</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the list</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Name,Wage level,US master's or higher&#10;Asha,2,yes"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Your guess at the registration pool</h2>
+    <p class="note">USCIS publishes the real counts only after the season. The numbers below are illustrative, not data: replace them with your own estimate.</p>
+    <div class="grid">
+      <div><label for="pool1">Level I registrations</label><input id="pool1" inputmode="numeric" value="137600"></div>
+      <div><label for="pool2">Level II registrations</label><input id="pool2" inputmode="numeric" value="86000"></div>
+      <div><label for="pool3">Level III registrations</label><input id="pool3" inputmode="numeric" value="68800"></div>
+      <div><label for="pool4">Level IV registrations</label><input id="pool4" inputmode="numeric" value="51600"></div>
+      <div><label for="selections">Selected in the first draw</label><input id="selections" inputmode="numeric" value="100000"></div>
+      <div><label for="adv-selections">Extra selected in the advanced-degree draw</label><input id="adv-selections" inputmode="numeric" value="20000"></div>
+      <div><label for="adv-share">Share of registrations with a US master's or higher, percent</label><input id="adv-share" inputmode="decimal" value="30"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Work out the odds</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the list, then click Work out the odds.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Candidate</th><th scope="col" class="n">Level</th><th scope="col" class="n">Weighted odds</th><th scope="col" class="n">Old flat odds</th><th scope="col" class="n">One level higher</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Odds by wage level for this pool</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Level</th><th scope="col" class="n">Entries</th><th scope="col" class="n">No advanced degree</th><th scope="col" class="n">US master's or higher</th></tr></thead><tbody id="levels"></tbody></table></div>
+    <p><button type="button" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Weights:</strong> Level I = 1 entry, II = 2, III = 3, IV = 4. Each registration is one beneficiary-registration pair.</li>
+      <li><strong>Model:</strong> successive weighted draws without replacement are approximated by a chance of 1 - exp(-lambda x entries), with lambda solved so the expected selections match the number you enter. Close for pools this large; not a USCIS simulation.</li>
+      <li><strong>Advanced-degree draw:</strong> unselected registrations for people with a US master's or higher are drawn again for the extra places, with the same weights.</li>
+      <li><strong>Rules reviewed:</strong> 2026-10-06, by the author from the published final rule and USCIS pages, not by a lawyer. The rule, weights, caps and dates can change; check USCIS.</li>
+      <li><strong>Not decided:</strong> whether a salary meets a wage level for a given occupation and area, eligibility, cap-exempt employers, the petition filing rate, fees, and whether a registration is valid.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How does the H-1B weighted selection work?</h3>
+    <p>Under the weighted rule, a registration is entered once for wage level I, twice for II, three times for III and four times for IV, based on the occupational wage level the offered salary meets. USCIS then draws from the weighted pool. This page models that draw; check USCIS for the current rule and dates.</p>
+    <h3>What are my odds in the H-1B lottery?</h3>
+    <p>They depend on the wage level and on how many registrations are in each level, which USCIS only publishes after the season. Enter your own estimate of the pool; the page solves for the selection chance of each level and shows the old flat chance for comparison. The default pool is illustrative, not data.</p>
+    <h3>How is the master's cap handled?</h3>
+    <p>Registrations for beneficiaries with a US master's or higher get a second chance: after the first draw, unselected advanced-degree registrations are drawn again for the extra advanced-degree places. The page models both stages with the share of advanced-degree registrations and the number of places you set.</p>
+    <h3>Is this exact?</h3>
+    <p>No. It uses a standard continuous approximation of successive weighted draws, which is close for pools this large but is not a USCIS simulation. Treat the figures as planning estimates, and expect the real pool mix to differ from your guess.</p>
+    <h3>Is my candidate list uploaded anywhere?</h3>
+    <p>No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace an immigration attorney or USCIS guidance. The odds it shows are estimates.</p>
+    <p><strong>Not affiliated with any court, housing agency or government body.</strong> This tool is independent; it is not sponsored, endorsed or connected to USCIS, the Department of Homeland Security, the Department of Labor or any government body.</p>
+    <p><strong>Candidate data.</strong> A candidate list holds names and immigration-related details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your list. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>list_checked</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../startup-option-value-calculator/">startup option value calculator</a> and the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a> cover other founder and employer decisions.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { evaluate, sampleList, reportCsv, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const num = (id) => parseFloat($(id).value) || 0;
+    const pool = () => ({ 1: num("#pool1"), 2: num("#pool2"), 3: num("#pool3"), 4: num("#pool4") });
+    const opts = () => ({ selections: num("#selections"), advancedSelections: num("#adv-selections"), advancedShare: Math.min(1, Math.max(0, num("#adv-share") / 100)) });
+
+    function run(text) {
+      const r = evaluate(text, pool(), opts());
+      if (r.error) { status.textContent = r.error; return; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.expected.toFixed(2)} expected selections</strong> from ${s.count} candidate${s.count === 1 ? "" : "s"} · ${pct(s.atLeastOne)} chance at least one is selected${s.errors ? ` · ${s.errors} line(s) unreadable` : ""}`;
+      $("#rows").innerHTML = r.rows.map((x) => x.error ? `<tr><td colspan="5">${esc(x.error)}</td></tr>` : `<tr><td>${esc(x.name)}${x.advanced ? " (adv.)" : ""}</td><td class="n">${x.level}</td><td class="n">${pct(x.prob)}</td><td class="n">${pct(x.flat)}</td><td class="n">${x.gainNext == null ? "top level" : "+" + (x.gainNext * 100).toFixed(1) + " pts"}</td></tr>`).join("");
+      $("#levels").innerHTML = [1, 2, 3, 4].map((l) => { const b = r.model.byLevel[l]; return `<tr><td>Level ${l}</td><td class="n">${b.weight}</td><td class="n">${pct(b.regular)}</td><td class="n">${pct(b.advanced)}</td></tr>`; }).join("");
+      report.hidden = false;
+      status.textContent = `${s.count} candidate${s.count === 1 ? "" : "s"} evaluated.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the list first."; return; }
+      run(text); record("list_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleList(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up candidates and an illustrative pool.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the list, then click Work out the odds."; });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("h1b-odds-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

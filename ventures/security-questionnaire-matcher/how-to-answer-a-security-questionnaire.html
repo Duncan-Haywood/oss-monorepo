@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Answer a Customer Security Questionnaire Faster</title>
+  <meta name="description" content="Customer security questionnaires repeat the same questions. How to build an answer library, what to check before reusing an answer, and the mistakes that contradict you later.">
+  <meta property="og:title" content="How to Answer a Customer Security Questionnaire Faster">
+  <meta property="og:description" content="Build an answer library once, reuse it for every customer, and know which matches to double-check. Free matcher included.">
+  <link rel="canonical" href="./how-to-answer-a-security-questionnaire.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long should a security questionnaire take to answer?", "acceptedAnswer": {"@type": "Answer", "text": "The first one is slow because nothing is written down. After that most rows repeat: encryption, access control, incident response, backups, subprocessors, and compliance reports recur in nearly every customer's sheet. Keeping approved answers in one library and reusing them turns most of a questionnaire into review rather than writing."}}, {"@type": "Question", "name": "Who should approve security questionnaire answers?", "acceptedAnswer": {"@type": "Answer", "text": "One named owner, usually the security lead or the founder at a small company, so that answers do not contradict each other. Sales can draft, but a single person should confirm anything that makes a promise: notification windows, retention periods, certifications and insurance limits."}}, {"@type": "Question", "name": "Should I send my SOC 2 report instead of filling in the questionnaire?", "acceptedAnswer": {"@type": "Answer", "text": "Sometimes a report or a trust page answers most of it, and many customers accept that for the rows it covers. Ask which rows still need an answer. Whether they accept it is the customer's decision, so do not assume it."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    .cta { display: inline-block; padding: 10px 14px; border-radius: 8px; background: #0b5d7a; color: #fff; text-decoration: none; font-weight: 650; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { border: 1px solid #8884; padding: .35rem .5rem; text-align: left; }
+    footer { margin-top: 2.5em; border-top: 1px solid #8884; padding-top: 16px; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Security questionnaire answer matcher</a></p>
+  <h1>How to answer a customer security questionnaire faster</h1>
+  <p>Before a business buys software, its security team often sends a spreadsheet of a hundred or more questions. The questions differ in wording but cover the same ground, so the fastest approach is to write each answer once, keep it somewhere approved, and reuse it. The risk is reusing an answer that no longer fits the question. This guide covers both halves.</p>
+  <p><a class="cta" href="./">Match a questionnaire against your saved answers</a></p>
+
+  <h2>Build the library</h2>
+  <ul>
+    <li><strong>Start from the last questionnaire you answered.</strong> Save each question and the answer you gave, one row each, as a two-column CSV.</li>
+    <li><strong>Cover the recurring topics:</strong> access control and MFA, encryption at rest and in transit, incident response and notification windows, backups and restore tests, penetration testing, vulnerability management, subprocessors, employee screening and training, compliance reports, data retention and deletion.</li>
+    <li><strong>Put figures in the answer.</strong> "Within 72 hours" is checkable next time; "promptly" is not.</li>
+    <li><strong>Date each answer</strong> in a tags column so stale ones are easy to find.</li>
+  </ul>
+
+  <h2>Before you reuse an answer</h2>
+  <ul>
+    <li><strong>Compare the numbers.</strong> A question asking for a 24-hour notification and an answer promising 72 are close in wording and opposite in meaning.</li>
+    <li><strong>Watch negations.</strong> "Do you allow X?" and "Do you not allow X?" take opposite yes/no answers.</li>
+    <li><strong>Check scope.</strong> An answer about your production environment may not hold for support tooling or a customer-specific deployment.</li>
+    <li><strong>Check that it is still true.</strong> A pen test from two years ago is not "annual".</li>
+  </ul>
+
+  <h2>Mistakes that come back later</h2>
+  <ul>
+    <li>Answers that contradict a contract, a trust page or a previous customer's sheet.</li>
+    <li>Promising controls you plan to have rather than controls you have.</li>
+    <li>Several people answering the same topic differently.</li>
+    <li>Pasting a long policy where a one-line yes/no was asked.</li>
+  </ul>
+
+  <h2>Doing the first pass in seconds</h2>
+  <p>The <a href="./">free matcher</a> runs in your browser. It compares each incoming question with your saved questions, folds synonyms such as MFA and two-factor, shows a confidence level, flags changed figures and negations, and lists the questions you still have to write answers for. It is a heuristic: it suggests, you decide. Related tools: <a href="../soc2-readiness-checker/">SOC 2 readiness checker</a>, <a href="../security-headers-check/">security headers check</a> and <a href="../rfp-compliance-matrix/">RFP compliance matrix generator</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>How long should a security questionnaire take to answer?</h3>
+  <p>The first one is slow because nothing is written down. After that most rows repeat: encryption, access control, incident response, backups, subprocessors, and compliance reports recur in nearly every customer's sheet. Keeping approved answers in one library and reusing them turns most of a questionnaire into review rather than writing.</p>
+  <h3>Who should approve security questionnaire answers?</h3>
+  <p>One named owner, usually the security lead or the founder at a small company, so that answers do not contradict each other. Sales can draft, but a single person should confirm anything that makes a promise: notification windows, retention periods, certifications and insurance limits.</p>
+  <h3>Should I send my SOC 2 report instead of filling in the questionnaire?</h3>
+  <p>Sometimes a report or a trust page answers most of it, and many customers accept that for the rows it covers. Ask which rows still need an answer. Whether they accept it is the customer's decision, so do not assume it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and tool are provided free and as-is, without warranty of any kind. It is not legal, security or compliance advice; you are responsible for verifying every answer before you send it to a customer. <strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> &mdash; optional. MIT licensed.</p>
+  </footer>
+</body>
+</html>

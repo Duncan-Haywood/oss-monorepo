@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Music Teacher Studio Profit Calculator</title>
+  <meta name="description" content="Free music teacher calculator: real hourly rate after prep, travel and cancellations, and private vs school vs rented room.">
+  <meta property="og:title" content="Music Teacher Studio Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a piano, guitar or voice lesson really earns per hour after prep, travel, cancellations and unbilled weeks, and whether a music school split or a rented room would pay better.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Music Teacher Studio Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free music teacher studio calculator: turn lesson prices, prep and travel time, cancellations, weeks billed, rent and recital costs into an effective hourly rate, the price for your target hourly, break-even students and a private versus music school versus rented room comparison."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a private music teacher charge per lesson?", "acceptedAnswer": {"@type": "Answer", "text": "Add the lesson minutes, the unpaid prep, any travel and a share of the weekly admin, value those hours at the hourly rate you want, add your share of rent, instruments and recital costs and the books you buy, then divide by the share of booked lessons that actually pay. Type your own numbers and the calculator prints the price per lesson kind that earns exactly your target hourly."}}, {"@type": "Question", "name": "Why is my real hourly rate so much lower than my lesson price?", "acceptedAnswer": {"@type": "Answer", "text": "A 60-minute lesson advertised at $60 is $60 an hour only if the hour is the whole job. Preparation, scheduling and billing, driving to in-home students, cancelled lessons that are never paid and teaching weeks you do not bill all use hours that earn nothing. The calculator shows the advertised hourly beside what you keep for each kind of lesson."}}, {"@type": "Question", "name": "How much do cancellations cost a music teacher?", "acceptedAnswer": {"@type": "Answer", "text": "Each cancelled lesson that you neither charge for nor make up loses its fee. A make-up lesson keeps the fee but costs a second slot of your time. The calculator prices both: the lost tuition a year and the make-up time at your target hourly rate, so you can see what a stricter late-cancel policy is worth."}}, {"@type": "Question", "name": "Is it better to teach privately, for a music school, or in a rented room?", "acceptedAnswer": {"@type": "Answer", "text": "Teaching privately keeps the whole tuition and carries rent, billing and empty slots. A school pays a split of the tuition but supplies the students, room and billing. A rented room replaces your own rent with an hourly charge on the lesson hours you book. The calculator prints the net and the hourly rate for each, the split at which the school pays the same as teaching privately, and the room rate at which renting stops being cheaper than your own rent."}}, {"@type": "Question", "name": "How many students does a music teacher need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the studio's fixed cost for the year (rent, instruments spread over their years, other costs and recital costs, less recital fees) by what one weekly lesson slot contributes over the year after books and mileage. The calculator gives that figure, and a second one that also pays your target hourly for the time each lesson takes."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Income and self-employment tax, sales tax, card and invoicing fees, licensing and music-publisher fees, insurance beyond the monthly figure you enter, a school's own policies and the chance it sends fewer students than you assume. It is a planning aid, not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MUSIC TEACHER STUDIO PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does a private lesson really pay per hour, and should you teach privately, for a school or in a rented room?</h1>
+    <p>Enter your lesson prices, lesson and prep minutes, cancellation policy, weeks taught and billed, rent, instruments and recital costs. You get <strong>your effective hourly rate, the price each kind of lesson needs for your target hourly, break-even students, what cancellations cost a year, and what the same teaching nets privately, for a music school at a percentage split, or in a room rented by the hour</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What you book in a typical teaching week</h2>
+    <div class="grid">
+      <div><label for="shortQty">30-minute private lessons booked per week</label><input type="number" id="shortQty" min="0" step="1" value="8"></div>
+      <div><label for="shortPrice">30-minute private lessons price per lesson ($)</label><input type="number" id="shortPrice" min="0" step="any" value="35"></div>
+      <div><label for="shortMin">30-minute private lessons minutes</label><input type="number" id="shortMin" min="0" step="any" value="30"></div>
+      <div><label for="shortPrep">30-minute private lessons unpaid prep minutes</label><input type="number" id="shortPrep" min="0" step="any" value="10"></div>
+      <div><label for="shortMat">30-minute private lessons books and materials ($ each)</label><input type="number" id="shortMat" min="0" step="any" value="1"></div>
+      <div><label for="longQty">45 or 60-minute private lessons booked per week</label><input type="number" id="longQty" min="0" step="1" value="10"></div>
+      <div><label for="longPrice">45 or 60-minute private lessons price per lesson ($)</label><input type="number" id="longPrice" min="0" step="any" value="60"></div>
+      <div><label for="longMin">45 or 60-minute private lessons minutes</label><input type="number" id="longMin" min="0" step="any" value="60"></div>
+      <div><label for="longPrep">45 or 60-minute private lessons unpaid prep minutes</label><input type="number" id="longPrep" min="0" step="any" value="15"></div>
+      <div><label for="longMat">45 or 60-minute private lessons books and materials ($ each)</label><input type="number" id="longMat" min="0" step="any" value="2"></div>
+      <div><label for="groupQty">Group or theory classes booked per week</label><input type="number" id="groupQty" min="0" step="1" value="2"></div>
+      <div><label for="groupPrice">Group or theory classes price per class (all students) ($)</label><input type="number" id="groupPrice" min="0" step="any" value="80"></div>
+      <div><label for="groupMin">Group or theory classes minutes</label><input type="number" id="groupMin" min="0" step="any" value="60"></div>
+      <div><label for="groupPrep">Group or theory classes unpaid prep minutes</label><input type="number" id="groupPrep" min="0" step="any" value="30"></div>
+      <div><label for="groupMat">Group or theory classes books and materials ($ each)</label><input type="number" id="groupMat" min="0" step="any" value="5"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Cancellations, term billing and your time</h2>
+    <div class="grid">
+      <div><label for="cancelPct">Late cancels and no-shows (% of booked lessons)</label><input type="number" id="cancelPct" min="0" step="any" value="8"></div>
+      <div><label for="chargedPct">Of those, charged under your policy (%)</label><input type="number" id="chargedPct" min="0" step="any" value="25"></div>
+      <div><label for="makeupPct">Of those, made up in another slot (%)</label><input type="number" id="makeupPct" min="0" step="any" value="50"></div>
+      <div><label for="weeksTaught">Weeks per year you actually teach</label><input type="number" id="weeksTaught" min="0" step="any" value="40"></div>
+      <div><label for="weeksBilled">Weeks per year students pay for</label><input type="number" id="weeksBilled" min="0" step="any" value="36"></div>
+      <div><label for="adminHoursWeek">Admin hours per teaching week (billing, messages, scheduling)</label><input type="number" id="adminHoursWeek" min="0" step="any" value="3"></div>
+      <div><label for="targetHourly">Hourly rate you want to earn ($)</label><input type="number" id="targetHourly" min="0" step="any" value="40"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Travel, studio, instruments and recitals</h2>
+    <div class="grid">
+      <div><label for="inHomePct">Private lessons taught at the student's home (%)</label><input type="number" id="inHomePct" min="0" step="any" value="20"></div>
+      <div><label for="travelMin">Round-trip travel minutes per in-home lesson</label><input type="number" id="travelMin" min="0" step="any" value="40"></div>
+      <div><label for="travelCost">Mileage and parking per in-home lesson ($)</label><input type="number" id="travelCost" min="0" step="any" value="6"></div>
+      <div><label for="rentPerMonth">Studio rent, or your home-studio share of rent and utilities ($ per month)</label><input type="number" id="rentPerMonth" min="0" step="any" value="400"></div>
+      <div><label for="equipmentCost">Instruments, stands, tuning and software ($)</label><input type="number" id="equipmentCost" min="0" step="any" value="3000"></div>
+      <div><label for="equipmentYears">Years you will use them</label><input type="number" id="equipmentYears" min="0" step="any" value="10"></div>
+      <div><label for="otherFixedMonth">Insurance, advertising and other fixed cost ($ per month)</label><input type="number" id="otherFixedMonth" min="0" step="any" value="80"></div>
+      <div><label for="recitalCostYear">Recital hall, programs and prizes ($ per year)</label><input type="number" id="recitalCostYear" min="0" step="any" value="600"></div>
+      <div><label for="recitalIncomeYear">Recital or registration fees you collect ($ per year)</label><input type="number" id="recitalIncomeYear" min="0" step="any" value="400"></div>
+    </div>
+    <h2 style="margin-top:22px">4. If you taught for a music school or rented a room</h2>
+    <div class="grid">
+      <div><label for="schoolPct">Share of tuition a music school pays you (%)</label><input type="number" id="schoolPct" min="0" step="any" value="50"></div>
+      <div><label for="schoolFillPct">Lessons the school would send you, as % of your current ones</label><input type="number" id="schoolFillPct" min="0" step="any" value="100"></div>
+      <div><label for="schoolAdminHours">Admin hours a week if the school handles billing</label><input type="number" id="schoolAdminHours" min="0" step="any" value="0.5"></div>
+      <div><label for="schoolCancelPaidPct">Cancelled lessons the school still pays you for (%)</label><input type="number" id="schoolCancelPaidPct" min="0" step="any" value="50"></div>
+      <div><label for="roomHourly">Room rental by the hour ($)</label><input type="number" id="roomHourly" min="0" step="any" value="18"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the studio</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the studio.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each kind of lesson</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Lesson</th><th scope="col">Price</th><th scope="col">Advertised per hour</th><th scope="col">Kept per working hour</th><th scope="col">Working hours per booked lesson</th><th scope="col">Price for your target hourly</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>The week at different volumes: hourly rate three ways</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Booked per week</th><th scope="col">Working hours per week</th><th scope="col">Teach privately</th><th scope="col">Music school</th><th scope="col">Rented room</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Of the lessons you book, a share cancel late or do not show. Cancelled lessons you charge for still pay and free the slot; the share you make up are taught again in another slot for one fee; the rest earn nothing. Only taught lessons use prep, books, travel and mileage.</li>
+      <li>Tuition is earned over the weeks students pay for. Your hours, books and mileage run over the weeks you actually teach. Rent, instruments, other fixed cost and recital cost run all year, less any recital or registration fees you collect.</li>
+      <li>Your effective hourly rate is what is left after all of that, divided by every working hour: lessons, unpaid prep, in-home travel and admin. Nothing is taken out for your own pay, so it is the figure to compare with the hourly rate you want.</li>
+      <li>A music school pays you its split of the tuition for the lessons you teach and a share of the cancelled ones, with no rent, travel or recital cost to you, less admin hours. A rented room replaces your rent with an hourly charge on the booked lesson hours you teach there; in-home lessons need no room.</li>
+      <li><strong>Not modelled:</strong> income and self-employment tax, sales tax, card and invoicing fees, licensing and publisher fees, a school's own rules and the chance it sends fewer students than you assume, travel to a rented room, and growth or churn in your student list.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a private music teacher charge per lesson?</h3>
+    <p>Add the lesson minutes, the unpaid prep, any travel and a share of the weekly admin, value those hours at the hourly rate you want, add your share of rent, instruments and recital costs and the books you buy, then divide by the share of booked lessons that actually pay. Type your own numbers and the calculator prints the price per lesson kind that earns exactly your target hourly.</p>
+    <h3>Why is my real hourly rate so much lower than my lesson price?</h3>
+    <p>A 60-minute lesson advertised at $60 is $60 an hour only if the hour is the whole job. Preparation, scheduling and billing, driving to in-home students, cancelled lessons that are never paid and teaching weeks you do not bill all use hours that earn nothing. The calculator shows the advertised hourly beside what you keep for each kind of lesson.</p>
+    <h3>How much do cancellations cost a music teacher?</h3>
+    <p>Each cancelled lesson that you neither charge for nor make up loses its fee. A make-up lesson keeps the fee but costs a second slot of your time. The calculator prices both: the lost tuition a year and the make-up time at your target hourly rate, so you can see what a stricter late-cancel policy is worth.</p>
+    <h3>Is it better to teach privately, for a music school, or in a rented room?</h3>
+    <p>Teaching privately keeps the whole tuition and carries rent, billing and empty slots. A school pays a split of the tuition but supplies the students, room and billing. A rented room replaces your own rent with an hourly charge on the lesson hours you book. The calculator prints the net and the hourly rate for each, the split at which the school pays the same as teaching privately, and the room rate at which renting stops being cheaper than your own rent.</p>
+    <h3>How many students does a music teacher need to break even?</h3>
+    <p>Divide the studio's fixed cost for the year (rent, instruments spread over their years, other costs and recital costs, less recital fees) by what one weekly lesson slot contributes over the year after books and mileage. The calculator gives that figure, and a second one that also pays your target hourly for the time each lesson takes.</p>
+    <h3>What does this leave out?</h3>
+    <p>Income and self-employment tax, sales tax, card and invoicing fees, licensing and music-publisher fees, insurance beyond the monthly figure you enter, a school's own policies and the chance it sends fewer students than you assume. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written studio policy or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>studio_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../music-lesson-break-even/">music lesson break-even</a>, <a href="../driving-instructor-lesson-pricing-calculator/">driving instructor lesson pricing</a>, <a href="../massage-therapist-profit-calculator/">massage therapist profit</a>, <a href="../braiding-studio-profit-calculator/">braiding studio profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["shortQty", "shortPrice", "shortMin", "shortPrep", "shortMat", "longQty", "longPrice", "longMin", "longPrep", "longMat", "groupQty", "groupPrice", "groupMin", "groupPrep", "groupMat", "cancelPct", "chargedPct", "makeupPct", "weeksTaught", "weeksBilled", "adminHoursWeek", "targetHourly", "inHomePct", "travelMin", "travelCost", "rentPerMonth", "equipmentCost", "equipmentYears", "otherFixedMonth", "recitalCostYear", "recitalIncomeYear", "schoolPct", "schoolFillPct", "schoolAdminHours", "schoolCancelPaidPct", "roomHourly"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.price)}</td><td>${usd(l.headlineHourly)}</td><td>${usd(l.effectiveHourly)}</td><td>${l.hoursPerBooked}</td><td>${l.targetPrice === null ? "n/a" : usd(l.targetPrice)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${usd(x.private)}</td><td>${usd(x.school)}</td><td>${usd(x.room)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Teaching privately: ${usd(r.season.effectiveHourly)} an hour across ${r.season.hoursPerWeek} working hours a week.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("studio_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "music-teacher-studio-hourly.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

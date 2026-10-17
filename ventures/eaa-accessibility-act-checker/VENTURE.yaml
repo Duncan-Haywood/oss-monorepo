@@ -1,0 +1,45 @@
+name: eaa-accessibility-act-checker
+description: >-
+  Free browser tool that applies the scope rules of the European Accessibility Act (Directive (EU) 2019/882) to what a business makes or sells, its role and its whole-group size: whether it is likely in scope, whether the Article 4(5) microenterprise exemption covers it, the Article the call rests on, the result at the other size class, and the main duties for its role. Nothing is uploaded. A first read of the Directive's text, not legal advice and not a national transposition check.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no EAA tool in ventures/ (nearest: pdf-accessibility-tag-check, vpat-acr-generator, shopify-a11y-*,
+# nis2-scope-checker). Not in screened-out.md.
+#
+# First visitor: an EU (or non-EU, selling into the EU) online shop owner, agency or product team asked by a customer, marketplace or lawyer "does the
+# Accessibility Act apply to us?"; search phrases "European Accessibility Act applies to me", "EAA microenterprise exemption", "does the EAA apply to
+# online shops". The Directive has applied since 28 June 2025, so questions are current. Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be a WCAG 2.1 AA site scan and an
+# accessibility statement generator for e-commerce sites, behind an env-var switch.
+#
+# Liability: encodes the Directive's Article 2 (scope), Article 4(5) (microenterprise service exemption) and the Recommendation 2003/361 microenterprise
+# ceilings, each result naming its Article. It says plainly that national transposition decides, does not model partner-enterprise proportional size,
+# disproportionate burden or the Article 32 transitional detail, rejects bad input instead of clamping, and carries the no-warranty and not-legal-advice
+# clauses. Ethical risk is false comfort from an exempt or out-of-scope result; the page says it is a first read and points to the national authority.
+
+hypotheses:
+  - claim: >-
+      EU online shops and product teams asked whether the European Accessibility Act applies will use a free role-and-size checker to get a first answer and the Article behind it, instead of paying for a consultation to find out whether to start.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the scope, exemption or Article reference differs from the Directive's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eaa-accessibility-act-checker/
+  analytics: null

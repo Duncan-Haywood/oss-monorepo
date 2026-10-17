@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CD and Treasury Ladder Planner: After-Tax Yield by Rung — Free</title>
+  <meta name="description" content="Free CD and Treasury ladder calculator: build a ladder from the rates you type, see after-tax yield per rung with the state-tax exemption, and compare it with the longest CD or rolling short if rates move. Nothing uploaded.">
+  <meta property="og:title" content="CD and Treasury ladder planner: after-tax yield and rate scenarios">
+  <meta property="og:description" content="Ladder vs longest CD vs rolling short across rate rises and falls, after tax. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M7 25V19h5v6zM13 25V13h5v12zM19 25V7h5v18z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CD and Treasury Ladder Planner","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Build a CD or Treasury ladder from the rates you type, see after-tax yield per rung and how the ladder compares with the longest CD or rolling short under rate rises and falls. Runs in your browser; nothing is uploaded.","featureList":"CD ladder, Treasury ladder, after-tax yield with state-tax exemption, rate shift scenarios, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CD ladder?","acceptedAnswer":{"@type":"Answer","text":"You split your money into equal parts and buy CDs or Treasuries with different maturities, for example 1, 2, 3, 4 and 5 years. Each year one rung matures, giving you cash access, and you can reinvest it at the longest term. You earn closer to long-term rates while some money always comes due soon."}},{"@type":"Question","name":"Is a Treasury ladder better than a CD ladder?","acceptedAnswer":{"@type":"Answer","text":"Treasury interest is exempt from state and local income tax, CD interest is not, so in a state with income tax a Treasury can win after tax even at a slightly lower rate. Where there is no state income tax the higher headline rate usually wins. The tool compares both after tax at the rates you type."}},{"@type":"Question","name":"Is a ladder better than putting everything in the longest CD?","acceptedAnswer":{"@type":"Answer","text":"Only when rates rise. If rates fall after you buy, the single longest CD wins because you locked the high rate. If rates rise, rolling short or a ladder reinvests at the better rates. The scenario table shows the result for rate moves of minus 2 to plus 2 points."}},{"@type":"Question","name":"How many rungs and how long should each be?","acceptedAnswer":{"@type":"Answer","text":"More rungs mean smaller chunks come due more often, which helps liquidity, at the cost of managing more positions. Common ladders use 4 to 5 rungs of 12 months, or 12 monthly or quarterly rungs of short T-bills. Match the spacing to when you may need the cash."}},{"@type":"Question","name":"Are the rates in the example real?","acceptedAnswer":{"@type":"Answer","text":"No. They are placeholders, not current quotes. Type in the rates you can actually get from your bank, brokerage or TreasuryDirect, and update them when they change."}},{"@type":"Question","name":"Is this financial or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It does not know your tax situation, FDIC or SIPC coverage limits, early-withdrawal penalties or whether a CD is callable, and it does not recommend any bank or security. Talk to a qualified adviser."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CD &amp; TREASURY LADDER PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is a CD or Treasury ladder worth it after tax?</h1>
+    <p>Type the CD and Treasury rates you can get today. See an equally spaced ladder with its after-tax yield per rung (Treasuries skip state tax), when cash comes due, and how the ladder compares with one long CD or rolling short-term terms if rates rise or fall by up to two points.</p>
+    <p class="note">Arithmetic on numbers you type in. Not tax, legal or financial advice. The example rates are placeholders, not current quotes.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The ladder</h2>
+      <div class="grid">
+        <div><label for="amount">Amount to ladder ($)</label><input id="amount" type="number" step="any" value="0"></div>
+        <div><label for="rungs">Number of rungs</label><input id="rungs" type="number" step="any" value="0"></div>
+        <div><label for="spacingMonths">Months between rungs</label><input id="spacingMonths" type="number" step="any" value="0"></div>
+        <div><label for="kind">Ladder of</label><select id="kind"><option value="cd">Bank CDs</option><option value="treasury">Treasuries (bills and notes)</option></select></div>
+        <div><label for="fedPct">Federal marginal tax rate (%)</label><input id="fedPct" type="number" step="any" value="0"></div>
+        <div><label for="statePct">State income tax rate (%)</label><input id="statePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The rates you can get</h2>
+      <p>One line per quote: months, APY in percent, and cd or treasury. The tool interpolates between terms you list.</p>
+      <label for="quotesText">Rate quotes</label>
+      <textarea id="quotesText" rows="12" spellcheck="false"></textarea>
+      <button type="button" id="run">Build the ladder</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a CD ladder?</h3>
+      <p>You split your money into equal parts and buy CDs or Treasuries with different maturities, for example 1, 2, 3, 4 and 5 years. Each year one rung matures, giving you cash access, and you can reinvest it at the longest term. You earn closer to long-term rates while some money always comes due soon.</p>
+      <h3>Is a Treasury ladder better than a CD ladder?</h3>
+      <p>Treasury interest is exempt from state and local income tax, CD interest is not, so in a state with income tax a Treasury can win after tax even at a slightly lower rate. Where there is no state income tax the higher headline rate usually wins. The tool compares both after tax at the rates you type.</p>
+      <h3>Is a ladder better than putting everything in the longest CD?</h3>
+      <p>Only when rates rise. If rates fall after you buy, the single longest CD wins because you locked the high rate. If rates rise, rolling short or a ladder reinvests at the better rates. The scenario table shows the result for rate moves of minus 2 to plus 2 points.</p>
+      <h3>How many rungs and how long should each be?</h3>
+      <p>More rungs mean smaller chunks come due more often, which helps liquidity, at the cost of managing more positions. Common ladders use 4 to 5 rungs of 12 months, or 12 monthly or quarterly rungs of short T-bills. Match the spacing to when you may need the cash.</p>
+      <h3>Are the rates in the example real?</h3>
+      <p>No. They are placeholders, not current quotes. Type in the rates you can actually get from your bank, brokerage or TreasuryDirect, and update them when they change.</p>
+      <h3>Is this financial or tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type. It does not know your tax situation, FDIC or SIPC coverage limits, early-withdrawal penalties or whether a CD is callable, and it does not recommend any bank or security. Talk to a qualified adviser.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether to hold these instruments at all. The model ignores early-withdrawal penalties, callable CDs, FDIC and SIPC limits, brokered-CD fees, Treasury auction mechanics and purchase limits, inflation, and the tax treatment of discount on bills. It treats a rate move as a single parallel shift right after you buy and values accrued interest at the end of the ladder.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../tax-lot-sale-optimizer/">tax lot sale optimizer</a>, the <a href="../mortgage-extra-payment-vs-invest-calculator/">mortgage extra payment vs invest calculator</a> and the <a href="../social-security-claiming-age-calculator/">Social Security claiming age calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not recommend any bank, product or security. Results are arithmetic on figures you type. Verify rates with the bank or TreasuryDirect and a qualified professional before you move money.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money0, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const TEXT = new Set(["kind", "quotesText"]);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = TEXT.has(k) ? $(k).value : (Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]); return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const t = a.rows.find((r) => r.shift === 0);
+      h += `<div class="finding"><h4>Ladder summary</h4><p>${a.rungs.length} rungs of ${money0(a.opts.amount / a.rungs.length)}, the first coming due in ${a.firstAccessMonths} months and the last in ${a.horizon}. Blended after-tax yield ${pct(a.blended)}. If rates do not move, the ladder ends with ${money0(t.ladder)} (${money0(a.interest)} after-tax interest), versus ${money0(t.longest)} for one ${a.horizon}-month term and ${money0(t.shortest)} for rolling ${a.opts.spacingMonths}-month terms.</p></div>`;
+      h += `<div class="finding"><h4>Each rung</h4>${table(["Rung", "Term (months)", "Amount", "After-tax yield", "Value at maturity", "Rate"], a.rungs.map((r) => [r.rung, r.months, money0(r.amount), pct(r.afterTaxYield), money0(r.maturity), r.interpolated ? "interpolated" : "quoted"]))}<p><button type="button" class="secondary" id="csv">Download ladder (CSV)</button></p></div>`;
+      h += `<div class="finding"><h4>If rates move right after you buy</h4>${table(["Rate move", "Ladder", "All in longest", "Roll shortest", "Highest"], a.rows.map((r, i) => [(r.shift > 0 ? "+" : "") + r.shift + " pts", money0(r.ladder), money0(r.longest), money0(r.shortest), a.shiftWinners[i].winner]))}</div>`;
+      if (a.compare.length) h += `<div class="finding"><h4>Treasury vs CD after tax at your tax rates</h4>${table(["Term (months)", "CD APY", "Treasury APY", "CD after tax", "Treasury after tax", "Higher"], a.compare.map((c) => [c.months, pct(c.cdApy), pct(c.treasuryApy), pct(c.cdAfterTax), pct(c.treasuryAfterTax), c.winner]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "ladder.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

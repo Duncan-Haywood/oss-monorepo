@@ -1,0 +1,85 @@
+name: hsa-contribution-limit-calculator
+description: >-
+  Free browser calculator computing the 2026 HSA (Health Savings Account)
+  contribution limit for self-only or family HDHP coverage, prorated by
+  months of eligibility or the full amount under the last-month rule
+  (with its testing-period tradeoff explained), plus the fixed $1,000
+  age-55 catch-up. Also checks a plan's deductible and out-of-pocket
+  maximum against the 2026 HDHP-qualification bounds. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (no build-now
+# candidate in candidates.yaml -- all 60 already graduated per
+# validate_candidates.py -- so per DIRECTION.md's standing owner direction
+# a fresh gate-cleared niche ranks ahead of a parity feature).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.15 or below for the final description above -- well under
+# the 0.45 review bar. The closest existing venture,
+# mega-backdoor-roth-calculator, is a different account type (401(k)
+# after-tax contributions, not an HSA) with a different eligibility
+# mechanism entirely.
+#
+# Distribution channel, named rather than assumed: open-enrollment season
+# (October-December) and new-hire benefits elections drive a predictable
+# annual search spike for "HSA contribution limit 2026", "HSA limit
+# self-only vs family", and "last-month rule HSA" -- this session confirmed
+# the underlying figures changed again this year (both base limits and the
+# HDHP deductible/out-of-pocket bounds rise annually) via WebSearch against
+# Fidelity, Thomson Reuters Tax, and Mercer, plus IRS Rev. Proc. 2025-19
+# itself. No external search-volume tool was queried to confirm magnitude,
+# matching this pipeline's standing caveat for every checker at graduation.
+#
+# Liability: same shape and mitigation as exempt-salary-threshold-checker
+# and salt-cap-calculator (a numeric limit applied to published federal
+# figures, heavy explicit disclosure of scope). Getting the last-month
+# rule's testing-period consequence wrong could lead someone into an
+# unexpected tax bill, so the page states the 10%-additional-tax
+# consequence explicitly in three places (the intro caveat, the dedicated
+# finding shown when the rule is selected, and the FAQ) rather than only
+# stating the benefit. Every dollar figure was verified against three
+# independent named sources plus the IRS's own Rev. Proc. before being
+# committed.
+
+hypotheses:
+  - claim: >-
+      A benefits-eligible employee choosing an HDHP during open enrollment,
+      or a new hire mid-year, will search "HSA contribution limit 2026" or
+      "how much can I put in my HSA" and return to a free, no-signup
+      calculator that handles proration and the last-month rule, rather
+      than reading a benefits-provider blog post meant for a full-year
+      employee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A user switching HDHP plans mid-year, or losing HSA eligibility
+      partway through the year, will be surprised the limit prorates by
+      month rather than applying in full, and will use the last-month
+      rule comparison to decide whether the testing-period tradeoff is
+      worth it for their situation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page applies a fixed table to the
+  # numbers the user types in (nothing uploaded, nothing fetched). Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the last-month-rule result without understanding the testing-period consequence, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hsa-contribution-limit-calculator/
+  analytics: null

@@ -87,3 +87,8 @@ test('index links one hop to the ice-dam-removal-bid-calculator sibling', () => 
   );
   assert.match(html, /ice dam removal bid calculator/i);
 });
+
+test('index links one hop to the snow-plow-contract-calculator sibling', () => {
+  // Route-level counterpart: many sites, low/normal/high snow years, five contract models and a past-season audit.
+  assert.match(html, /href="\.\.\/snow-plow-contract-calculator\/"/);
+});

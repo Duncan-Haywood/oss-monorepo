@@ -222,6 +222,18 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'laborRatePerHour',
     targetMargin: 'targetMarginPercent',
   },
+  // "Installer rate ($/hr)" is a single loaded rate for one installer's time
+  // -- the same raw, per-person wage shape as `hourlyWage` -- spelled
+  // `installerRate`. "Target margin on price (%)" is the same net-margin-on-
+  // price concept as `targetMargin`, spelled `targetMarginPercent` (same
+  // convention as `biohazard-cleanup-bid-calculator` above). It has no
+  // separate payroll-burden field, and its overhead ("Booth / shop overhead
+  // ($)") is a flat dollar figure per job rather than a percentage of direct
+  // cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'window-tinting-bid-calculator': {
+    hourlyWage: 'installerRate',
+    targetMargin: 'targetMarginPercent',
+  },
 };
 
 /**
@@ -279,6 +291,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
   'biohazard-cleanup-bid-calculator':
     'This tool has no separate payroll-burden field and prices PPE, supplies, equipment and disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'window-tinting-bid-calculator':
+    'This tool has no separate payroll-burden field and allocates overhead as a flat dollar figure for the job rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**
@@ -345,6 +359,194 @@ export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
  * disagrees with the reading. Each entry names the quantity that differs.
  */
 export const REVIEWED_NOT_CARRIED = {
+  'trade-bid-studio':
+    'it is the trade-agnostic front door over the same four quantities (wage, burden % of labour, overhead % of direct cost, target margin % of price) but is not yet wired to read the saved shop rates; nothing differs arithmetically, so wiring it in is the follow-up, not an exclusion.',
+  'bowling-center-profit-calculator':
+    'the hourly wage prices paid front-desk, bar, kitchen and mechanic hours across the open week of a bowling center, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net center revenue.',
+  'padel-club-profit-calculator':
+    'the hourly wage prices paid front-desk, bar and cleaning hours across the open week of a padel club, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net club revenue.',
+  'indoor-play-center-profit-calculator':
+    'the hourly wage prices paid floor and cafe staff hours across the open week of a children\'s play centre, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net centre revenue.',
+  'dry-cleaner-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole plant month, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the price change is an average per piece.',
+  'convenience-store-gas-station-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open store day, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and fuel margin is cents a gallon after card fees.',
+  'pet-boarding-daycare-profit-calculator':
+    'the attendant wage and payroll-extras percentage price staffed hours across every open day of a kennel, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollars, and the target margin is a pricing goal for nightly and daycare prices.',
+  'kombucha-brewery-profit-calculator':
+    'the hourly labour cost prices minutes per gallon of kombucha for a production brewery sold by the gallon, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net brewery revenue.',
+  'pizzeria-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open day of a pizzeria, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
+  'boba-tea-shop-profit-calculator':
+    'the hourly wage prices paid staff hours across a whole open day of a drink shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollar totals, and the target margin is a share of net shop revenue.',
+  'ice-cream-shop-seasonal-profit-calculator':
+    'the hourly wage and payroll-extras percentage price counter staff across every open day of a seasonal ice cream shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and there is no target margin.',
+  'hydroponic-farm-profit-calculator':
+    'the hourly labour cost prices minutes per head of lettuce for a farm sold by the head, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are a monthly dollar total, and the target margin is a share of net farm revenue.',
+  'self-serve-dog-wash-profit-calculator':
+    'the attendant wage and payroll-extras percentage price staffed hours across every open day of a dog wash shop, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, fixed costs are monthly dollars, and the pricing goal is a yield on start-up cost.',
+  'ebike-rental-fleet-profit-calculator':
+    'the hourly wage and payroll extras price counter staff for every open day of a rental season, not a shop labour rate for a job quote; the target margin is a pricing goal for half-day and full-day rental prices, and there is no overhead-on-cost or markup field for a job quote.',
+  'cake-pricing-calculator':
+    "the hourly wage is the baker's own take-home pay for one custom cake, not a shop labour rate for a job quote; overhead is a percentage of materials plus labor for one order, and the target margin is a share of the final price (fees and margin come out of the price), not a markup on cost.",
+  'sawmill-custom-sawing-calculator':
+    'the helper wage and owner wage build a cost per sawing hour for a portable mill priced per board foot or per hour, not a shop labour rate for a job quote; there is no overhead-on-cost or markup field, and the margin is a share of the quote.',
+  'hearing-aid-dispensing-margin-calculator':
+    'the clinician wage and payroll-extras percentage price the fitting and follow-up minutes on each hearing aid sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
+  'optical-dispensary-margin-calculator':
+    'the optician wage and payroll-extras percentage price the minutes spent on each eyeglass sale, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and plan pay.',
+  'independent-pharmacy-rx-margin-calculator':
+    'staff pay and payroll extras price the minutes spent on each prescription, not a shop labour rate for a job quote; there is no overhead-on-cost field, fixed costs are a monthly dollar total, and the target margin is a share of what the patient and PBM pay.',
+  'provider-credentialing-delay-cost-calculator':
+    'it prices the revenue blocked while a new clinician waits for payer enrollment from visits, allowed amounts and delay days the user types; weekly pay is a cost line for the gap, not a shop labour rate for a job quote, and there is no overhead-on-cost or markup field.',
+  'dental-patient-financing-fee-calculator':
+    'it compares ways of collecting a treatment fee (merchant fee, instalments, defaults, discount) from rates the user types; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
+  'real-estate-photographer-shoot-profit-calculator':
+    'the hourly figure is a target earning rate for total time worked rather than a wage or a shop labour rate, and overhead is monthly dollars; there is no markup or burden field for a job quote.',
+  'veterinary-wellness-plan-pricing-calculator':
+    'it prices a monthly wellness-plan fee from per-service list prices and costs the user types, with billing fees as a rate on plan payments; there is no shop labour rate, overhead-on-cost or markup field for a job quote.',
+  'veterinary-dental-estimate-calculator':
+    "it costs a dental procedure by grade of disease from per-hour staff and room rates and per-tooth supplies the user types; those hourly costs are applied to anesthesia time, not a shop labour rate for a job quote, and the target margin prices each grade rather than a job markup.",
+  'mobile-vet-house-call-fee-calculator':
+    "it costs a veterinary house call from the user's own hourly cost, vehicle cost per mile and drive time, then prices a visit fee and zone surcharge for a target margin; the hourly cost is applied to a visit's door-to-door hours, not a shop labour rate for a job quote, and there is no overhead-on-cost or markup field.",
+  'demand-charge-interval-analyzer':
+    'it analyses pasted utility interval data against a demand rate in dollars per kW the user types; there is no labour rate, overhead-on-cost, markup or job-quote field.',
+  'therapy-8-minute-rule-calculator':
+    'the tool counts billable units from timed minutes and prices them at allowed amounts per unit the user types; there is no labour rate, overhead or markup, and no shop rate for a job quote.',
+  'fitness-studio-membership-calculator':
+    'it models recurring membership revenue, churn and per-member cost, not hours of labour; there is no shop labour rate, overhead-on-cost or target-margin-on-job field, and fixed costs are a monthly dollar total.',
+  'cafe-drink-margin-calculator':
+    'the wage and payroll-extras percentage price the seconds a barista spends making each drink, not a shop labour rate for a job quote; there is no overhead-on-cost or target-margin-on-job field, fixed costs are a monthly dollar total, and the target margin is a share of each drink price.',
+  'lash-studio-service-profit-calculator':
+    'the take-home figure is a lash artist\'s own pay per chair hour after supplies, card fees, no-shows and studio rent, not a shop labour rate for a job quote, there is no burden or overhead-on-cost field, and the target is an hourly take-home rather than a margin on cost',
+  'water-well-drilling-bid-calculator':
+    'the rig rate is one hourly cost for the rig, compressor and crew applied to drilling hours, the install rate is a separate crew hour for the pump, there is no burden field, overhead is a share of direct cost, and the target margin is a share of the price after a dry-hole allowance; the tool prices a well from feet drilled and rig hours instead of being quoted a shop rate',
+  'adjunct-course-offer-calculator':
+    'the hourly figure is what a per-course teaching contract pays per hour of the instructor\'s own time after prep, grading and unpaid hours, not a shop labour rate for a job quote, there is no burden or overhead field, and the target is an hourly pay rate the instructor wants rather than a margin on cost',
+  'sign-shop-job-pricing-calculator':
+    'the labour rate is one loaded hourly cost for print, finishing and design hours beside a separate install rate, there is no burden field, overhead is a dollar amount per shop hour rather than a percentage of direct cost, and the target margin is a share of the price net of card fees; the tool prices a sign job from square footage and shop hours instead of being quoted a shop rate',
+  'medical-billing-pricing-calculator':
+    'the hourly figure is a billing specialist\'s loaded cost per staff hour applied to minutes per claim, not a shop labour rate for a job quote, there is no burden field, and the target margin is a share of the revenue each pricing offer earns, not a markup on direct cost',
+  'ghostwriter-book-quote-calculator':
+    'the hourly figure is the writer\'s target pay per worked hour across drafting, interview and revision hours, not a shop labour rate, there is no burden field, and the only overhead-like input is a marketplace commission taken as a share of the whole invoice rather than a percentage markup on direct cost.',
+  'birth-doula-package-pricing-calculator':
+    'the hourly figure is the doula\'s target pay per worked hour, not a shop labour rate, and overhead is a yearly dollar total spread over clients rather than a percentage of direct cost; there is no burden field or job quote built from a wage',
+  'sauna-cold-plunge-install-bid-calculator':
+    'the labour rate is one hourly figure for the installer beside a separate helper rate, there is no burden field, overhead is a monthly dollar total spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the price net of card fees with materials marked up on their own tier; the tool solves an install price from a bill of materials instead of being quoted a shop rate',
+  'hay-baling-own-vs-hire-calculator':
+    'the wage is the producer\'s own value of an hour of mowing, raking and baling per acre, there is no burden or overhead percentage (equipment ownership is a yearly depreciation, interest and insurance total), and the target margin is a share of the hay sale price; the tool compares owning with hiring custom baling rather than being quoted a shop rate',
+  'stump-grinding-price-calculator':
+    'the loaded crew cost is an hourly figure per person with a separate machine cost per cutting hour, overhead and the target margin are both shares of the final price rather than a shop-rate markup on labour, and the price is floored at a minimum charge; the tool derives grinding time from stump volume rather than being quoted a shop rate',
+  'pottery-piece-pricing-calculator':
+    'the wage is the potter\'s own hourly value applied to the minutes one piece takes, there is no burden or overhead percentage (studio rent is a monthly dollar figure spread over pieces), and the target margin is a share of the sale price after selling fees; the tool prices a made piece from clay, kiln loads and breakage rather than being quoted a shop rate',
+  'solar-panel-cleaning-quote-planner':
+    'overhead is a percentage of labour only, not of direct cost (vehicle and consumables sit outside it), and the target margin is applied to a per-panel and per-job quote floored at a minimum call-out charge, so neither shop rate means what the shared bar would carry',
+  'childcare-center-break-even-calculator':
+    'the wage is a classroom teacher\'s pay inside a staffing model driven by licensing ratios and burden is payroll tax and benefits on that wage; there is no job price, overhead percentage or quote to a customer',
+  'hvac-repair-tier-price-calculator':
+    'the wage and burden are the pay behind each hour the options are built from, but overhead is four annual dollar totals (van, insurance, tools, other) spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the time charge only, with parts and equipment marked up on their own tiers and a callback reserve added to the price; the tool prices three repair options and an average call instead of being quoted a shop rate',
+  'plumber-flat-rate-price-calculator':
+    'the wage and burden are the pay behind each hour a price book is built from, but overhead is four annual dollar totals (truck, insurance, tools, other) spread over billable hours rather than a percentage of direct cost, and the target margin is a share of the time charge only, with parts marked up on their own tiers; the tool solves a flat-rate price for each job in a book instead of being quoted a shop rate',
+  'embroidery-shop-quote-calculator':
+    'the labor rate is the operator\'s hourly cost applied to the clock time of one job and overhead is a dollar figure per machine hour, not a percentage of direct cost; the target margin is a share of the quote, and there is no burden field -- the tool quotes a decorated piece from machine time rather than being handed a shop rate',
+  'grease-trap-pumping-price-calculator':
+    'labour and truck cost are dollars per hour applied to one visit\'s drive, setup, pumping and dump-trip minutes, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a pump-out visit and sets a pump-out interval rather than being quoted a shop rate',
+  'bed-bug-heat-treatment-price-calculator':
+    'labour is dollars per person-hour applied to one job\'s prep, heat-up, hold and pack-out hours, and fuel and heater wear are dollars per heater hour, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a heat treatment from heaters, clutter and callback risk rather than being quoted a shop rate',
+  'standby-generator-install-price-calculator':
+    'labour is dollars per person-hour applied to one job\'s install and drive hours, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a standby generator install from equipment, runs and callback risk rather than being quoted a shop rate',
+  'pool-opening-closing-price-calculator':
+    'labour is dollars per person-hour applied to one visit\'s setup, line, cover and drive hours, and chemical is dollars per 10,000 gallons, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the price -- the tool prices a seasonal pool opening and closing from gallons, cover and water condition rather than being quoted a shop rate',
+  'hydroseeding-job-bid-calculator':
+    'labour is dollars per person-hour applied to a job\'s setup, spraying and tank-refill hours for the whole crew with a payroll-extras percentage on top, and the hydroseeder and overhead are season fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a job from its own slurry gallons, tank loads and crew hours rather than being quoted a contractor rate',
+  'lawn-aeration-overseeding-bid-calculator':
+    'labour is dollars per person-hour applied to a job\'s aerator, seeding, drive and load hours for the whole crew with a payroll-extras percentage on top, and the overhead is a season fixed cost spread over jobs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a core aeration and overseeding job from turf area, seed and machine hours, so sharing the four canonical rates would prefill figures that mean different things.',
+  'bike-shop-repair-profit-calculator':
+    'labour is dollars per mechanic hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and stands, tools and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a bike repair shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'upholstery-shop-job-profit-calculator':
+    'labour is dollars per upholsterer hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the tools and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an upholstery shop from its own bench minutes, materials and fixed costs rather than being quoted a shop rate',
+  'tailor-alterations-shop-profit-calculator':
+    'labour is dollars per tailor hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the machines and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an alterations shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'barbershop-chair-profit-calculator':
+    'labour is the owner\'s own dollars per chair hour applied to each service\'s chair minutes (spread over the appointments that show up) or a barber\'s commission percentage with payroll extras on it, and the chair\'s rent and equipment are weekly fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a barbershop chair from its own chair minutes, no-show rate and fixed costs rather than being quoted a shop rate',
+  'driving-school-profit-calculator':
+    'labour is the owner\'s own dollars per car hour applied to each offer\'s car minutes (spread over the lessons that happen) or an instructor\'s percentage of the lesson price with payroll extras on it, and the car\'s office rent, cost net of resale and insurance are weekly fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a driving-school car from its own car minutes, cancellation rate and fixed costs rather than being quoted a market lesson rate',
+  'yoga-pilates-studio-class-profit-calculator':
+    'teacher pay is a flat dollar fee per class, dollars per student who attends with a per-class minimum, or a percentage of the class\'s revenue, each with payroll extras on it, and the premises are weekly fixed costs, not a percentage of direct cost; the margin is a share of revenue -- the tool costs a studio timetable from its own attendance, price mix and fixed costs rather than being quoted a market class rate',
+  'braiding-studio-profit-calculator':
+    'labour is the owner\'s own dollars per chair hour applied to each style\'s chair minutes (spread over the appointments that show up) or a braider\'s commission percentage with payroll extras on it, and the chair\'s rent and equipment are weekly fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a braiding studio chair from its own chair minutes, no-show rate and fixed costs rather than being quoted a shop rate',
+  'mobile-oil-change-route-profit-calculator':
+    'every figure is the visitor\'s own: per-vehicle prices, minutes, quarts, oil cost per quart, filter and disposal cost, mileage cost and an hourly value of their own time applied to a week of stops, with a no-show rate and a share of the price collected on one; the franchise fee percent, the wage and the mileage reimbursement are options the visitor is weighing, not published rates -- the tool costs a mobile oil change route from its own drive and on-site minutes rather than being quoted a franchise, shop or supplier rate',
+  'boat-rental-fleet-profit-calculator':
+    'labour is the owner\'s own dollars per dock hour applied to each rental\'s turnaround minutes, and fuel and wear are dollars per engine hour, not a percentage of direct cost; the dock, insurance and the boat are year-round fixed costs spread over the weeks the visitor can rent, and the commission and captain pay are options the visitor types -- the margin is a share of the price, and the tool costs a rental boat from its own hours, cancellation rate and season length rather than being quoted a market rental rate',
+  'mobile-phlebotomy-route-profit-calculator':
+    'every figure is the visitor\'s own: per-draw fees, minutes, supplies, mileage cost and an hourly value of their own time applied to a week of stops, with a failed-trip rate and a share of the fee collected on one; the agency\'s take, the wage and the mileage reimbursement are options the visitor is weighing, not published rates -- the tool costs a mobile phlebotomy route from its own drive and on-site minutes rather than being quoted a lab, agency or payer rate',
+  'esthetician-studio-profit-calculator':
+    'labour is the owner\'s own dollars per chair hour applied to each treatment\'s chair minutes (spread over the appointments that show up) or an esthetician\'s commission percentage with payroll extras on it, and the chair\'s rent and equipment are weekly fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an esthetician studio chair from its own chair minutes, no-show rate and fixed costs rather than being quoted a shop rate',
+  'music-teacher-studio-profit-calculator':
+    'there is no labour rate, burden or overhead-on-cost field: the teacher\'s own target dollars per hour is applied to lesson, prep, travel and admin hours, and rent, instruments and recital costs are annual fixed costs, not a percentage of direct cost; the tool works out an effective hourly rate and the lesson prices that reach a target hourly rather than being quoted a shop rate',
+  'swim-lesson-pool-rental-profit-calculator':
+    'labour is the instructor\'s own dollars per hour applied to each class\'s lesson minutes and the pool is rented at a dollars-per-hour rate for the same minutes plus any rented-but-empty hours, not a percentage of direct cost; the margin is a share of the price -- the tool costs a swim lesson from its own pool rental, class size and cancellations rather than being quoted a shop rate',
+  'phone-repair-shop-profit-calculator':
+    'labour is dollars per technician hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and a warranty redo percentage adds the labour and parts of jobs redone free; equipment and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a phone repair shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'shoe-repair-shop-profit-calculator':
+    'labour is dollars per tailor hour applied to each job\'s bench minutes with a payroll-extras percentage on top, and the machines and rent are fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs an shoe repair shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'ski-snowboard-tune-shop-profit-calculator':
+    'labour is dollars per technician hour applied to each tune\'s bench minutes with a payroll-extras percentage on top, and the grinder and rent are season fixed costs, not a percentage of direct cost; the margin is a share of the price -- the tool costs a seasonal tune shop from its own bench minutes and fixed costs rather than being quoted a shop rate',
+  'private-chef-service-price-calculator':
+    'labour is dollars per chef hour applied to one visit\'s shopping, prep, cooking, cleanup and travel hours, and overhead is dollars per visit, not a percentage of direct cost; the margin is a share of the price and the grocery markup sits inside it -- the tool prices a private dinner or meal-prep visit from guests and hours rather than being quoted a shop rate',
+  'paintless-dent-repair-quote-calculator':
+    'labour is dollars per loaded tech hour applied to one job\'s repair and remove-and-install hours, and overhead is dollars per work day, not a percentage of direct cost; the margin is a share of the price -- the tool prices a dent repair or hail job from dent counts and tech time and checks a per-dent matrix against it rather than being quoted a shop rate',
+  'ppf-ceramic-coating-price-calculator':
+    'labour is dollars per tech hour applied to one job\'s install, correction and coating hours, and bay overhead is dollars per bay day, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a PPF and coating job from film footage, waste and bay days rather than being quoted a shop rate',
+  'water-damage-drying-estimate-calculator':
+    'labour and technician cost are dollars per hour applied to one loss\'s set, monitoring, drive, extraction and demo hours, not a percentage of direct cost, and there is no burden or overhead field; the margin is a share of the billed amount -- the tool sizes drying equipment and checks a job against the carrier\'s approved days rather than being quoted a shop rate',
+  'hoarding-cleanout-bid-calculator':
+    'labour is dollars per hour per person applied to the paid crew days of one job, not a percentage of direct cost, and there is no burden or overhead field; the risk allowance and margin are shares of cost and price -- the tool prices a cleanout from debris volume, crew days and containers rather than being quoted a shop rate',
+  'powder-coating-job-price-calculator':
+    'labour and overhead are dollars per labour hour applied to one job\'s prep, spray and setup minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a coating job from powder use, oven batches and setup rather than from a shop rate',
+  'laser-cutting-engraving-job-price-calculator':
+    'labour and overhead are dollars per labour hour applied to one job\'s setup, sheet loading and finishing minutes, not a percentage of direct cost, and there is no burden field; the margin is a share of the price -- the tool prices a laser job from sheet nesting, cut and engrave time rather than from a shop rate',
+  'screen-print-job-quote-calculator':
+    'labor and overhead are dollars per hour applied to setup and press hours of one job, not a percentage of direct cost, and there is no burden field; the target margin is a share of the quote -- the tool prices a print job from screens, garments and press time rather than being handed a shop rate',
+  'sports-official-game-fee-calculator':
+    'there is no labor rate, burden or quote to a customer: the tool turns an official\'s per-game fee, assignor cut and drive into pay per hour and season take-home; the hourly figure is a target the user sets for themselves',
+  'course-launch-revenue-calculator':
+    'there is no labor rate or job pricing: the tool turns a course creator\'s own list, conversion rates, price and fees into launch profit; nothing is quoted to a customer',
+  'freelance-rate-increase-calculator':
+    'the rates are the freelancer\'s own hourly billing rates compared before and after a raise, with no cost or burden fields; the tool solves a break-even client loss rather than quoting a shop rate',
+  'tattoo-piece-profit-calculator':
+    'the hourly figure is a take-home target for all of the artist\'s time on a piece, and the shop share is a percentage of price or a monthly booth rent spread over tattooing hours rather than a percentage of direct cost; there is no burden field',
+  'handyman-minimum-job-calculator':
+    'the hourly pay is the owner\'s own target wage for every hour on a call, drive and estimate included, and overhead is a dollar monthly figure spread over billable hours rather than a percentage of direct cost; the tool solves the smallest job and a price floor from them instead of quoting a shop rate',
+  'candle-batch-cost-calculator':
+    'the hourly figure is what the maker wants an hour of their own time to be worth, overhead is a dollar amount per month spread over units rather than a percentage of direct cost, and the target margin is a share of each product price solved into a retail and wholesale floor; there is no burden or job quote',
+  'house-cleaning-quote-calculator':
+    'the wage and burden are the pay behind each cleaner-hour of a recurring home visit and the target margin is a share of the visit price solved into a price floor; there is no overhead rate and no shop rate being quoted, the discount limit per frequency is the output',
+  'home-care-agency-margin-calculator':
+    'the wage is the caregiver pay behind an hourly bill rate and overheadPerHour is a dollar cost per billed hour, not a percentage of direct cost; the target margin is a percentage of collected revenue and the tool solves the bill rate from it rather than being quoted a shop rate',
+  'cottage-food-pricing-calculator':
+    'the wage is what the maker wants an hour of their own time to be worth, overhead is a percentage on ingredients, packaging and that labour, and margin is a share of a per-item price; there is no burden or job quote',
+  'crew-dispatch-optimizer':
+    'the crew hourly cost is the payroll cost of a van-day being planned, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'route-stop-optimizer':
+    'wage and fuel cost are the running cost of a driver on a route being sequenced, not a rate used to price a job; nothing is quoted to a customer',
+  'shift-cover-optimizer':
+    'wage and burden are the payroll cost of shifts on a staffing plan, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'freight-broker-load-margin-calculator':
+    'there is no labor or job rate: the tool computes a freight broker\'s net margin on loads from the shipper and carrier rates the user types in; nothing is priced or quoted to a customer',
+  'breakeven-roas-calculator':
+    'there is no labor rate or job pricing: the tool turns a seller\'s own price, cost of goods and fees into the ad spend that breaks even; nothing is quoted to a customer',
+  'business-loan-offer-comparator':
+    'there is no labor or job rate: the tool compares financing offers a business owner has received (APR, factor rate, fees); nothing is priced or quoted to a customer',
+  'time-off-request-planner':
+    'there is no rate at all: the tool decides which leave requests fit a team\'s minimum cover from names, roles and dates; nothing is priced or quoted to a customer',
+  'shift-roster-builder':
+    'wage and burden are the payroll cost of a staff roster being assigned, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'retirement-withdrawal-sequencer':
+    'real return and heir tax rate are planning assumptions for a retirement drawdown simulation, not a rate used to price a job; there is no overhead or margin and nothing is quoted to a customer',
+  'restaurant-labor-cost-daypart-analyzer':
+    'hourlyWage is only the default for shifts whose time entries carry no pay, and burdenRate is a placeholder for payroll tax on wages already in the export; there is no overhead or margin, and the analysis reads labor cost from a file rather than pricing a job',
   // The trap in the set, and the reason this map exists rather than a bare
   // allowlist: `overheadRate` here is the *canonical id* but asks "Overhead (%
   // of revenue)", a different base from the spec's percentage of direct cost.
@@ -353,12 +555,22 @@ export const REVIEWED_NOT_CARRIED = {
   // named `loadedLaborRate` and says so.
   'medical-courier-route-margin':
     'overhead is a percentage of revenue, not of direct cost, and the labour rate is loaded',
+  'tow-motor-club-call-calculator':
+    'overhead is dollars per month spread over billable truck hours and margin is an accept threshold on a payout someone else set, not a price the operator quotes; wage is one driver rate',
   'pool-route-pricing':
     'labour is one "Labor cost / hour" with no burden field, and overhead is dollars per account per month',
   'custom-farm-rate-calculator':
     'the labour rate is what the operator wants to earn for their own time, not a wage cost, and there is no overhead percentage',
   'dog-walking-route-pricing':
     'the hourly figure is a target sell rate rather than a wage, and overhead is monthly dollars',
+  'wedding-photographer-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over working hours rather than a percentage of direct cost; there is no burden field',
+  'dj-gig-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over working hours rather than a percentage of direct cost; there is no burden field',
+  'dog-grooming-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
+  'massage-therapist-profit-calculator':
+    'the hourly figure is a take-home target rather than a wage, and overhead is monthly dollars spread over bookable hours rather than a percentage of direct cost; there is no burden field',
   'dog-boarding-daycare-pricing':
     'overhead is a flat dollar allowance per dog-day rather than a percentage of direct cost, and there is no burden field, so prefilling from the shared shop-rate bar would put a considered-looking wrong number on the overhead field even though the wage and margin fields are genuine',
   'notary-trip-quote':
@@ -367,6 +579,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labour rate carries burden with it and there is no overhead percentage',
   'drone-mapping-job-calculator':
     'the field and processing rates are billed rates, not wages',
+  'home-inspection-business-profit-calculator':
+    'labour is the owner\'s own dollars per hour applied to each job\'s on-site, report and drive hours, or an associate\'s flat pay per completed inspection, and the insurance, software and equipment are weekly fixed costs, not a percentage of direct cost; the margin is a share of the fee -- the tool costs an inspection business from its own hours, mileage and fixed costs rather than being quoted a shop rate',
   'home-inspection-fee-calculator':
     'the hourly rate is a single billed rate rather than a wage plus burden, and overhead is a flat dollar allowance per job rather than a percentage of direct cost',
   'staffing-markup-calculator':

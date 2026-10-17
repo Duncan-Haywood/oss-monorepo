@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is Slopsquatting, and Why Doesn't a Lockfile Already Protect You?</title>
+  <meta name="description" content="Slopsquatting explained: why LLM code generators hallucinate npm package names, how attackers pre-register those exact names, why a lockfile alone doesn't catch a first-time install, and how the free slopsquatting-check CLI verifies a name against the live registry.">
+  <link rel="canonical" href="./what-is-slopsquatting.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't npm just fail if the package doesn't exist?","acceptedAnswer":{"@type":"Answer","text":"Only until someone registers the name. The risk window is between an AI assistant hallucinating a name and an attacker claiming it -- before that, install fails loudly and safely; after it, install succeeds quietly against the attacker's package, and nothing about the failure you would have expected ever happens."}},{"@type":"Question","name":"If my lockfile already resolves the name, am I safe?","acceptedAnswer":{"@type":"Answer","text":"A lockfile records a name and version that already resolved once, which means either it was always a real package, or it was a hallucinated name that had already been squatted by the time someone ran install and committed the lockfile -- a lockfile cannot tell those two apart after the fact. The moment that matters is the first install of a newly added name, before it is ever committed."}},{"@type":"Question","name":"Why not just always tell the AI assistant to double check?","acceptedAnswer":{"@type":"Answer","text":"Some tools do, and it helps, but it relies on the same model that hallucinated the name to also catch its own mistake, which the USENIX study's own numbers argue against relying on alone. A check against the registry itself does not depend on the model being right twice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Slopsquatting Check</a></p>
+  <h1>What is slopsquatting, and why doesn't a lockfile already protect you?</h1>
+
+  <p>Code-generating LLMs suggest <code>npm install</code> or <code>pip
+  install</code> commands as part of their answers. A May 2025 USENIX
+  Security study, <em>"We Have a Package for You! A Comprehensive Analysis of
+  Package Hallucinations by Code Generating LLMs,"</em> tested 16 models and
+  found that <strong>19.7% of the packages they recommended did not exist at
+  all</strong> — 21.7% for open-source models versus 5.2% for proprietary
+  ones — and collected more than 205,000 unique hallucinated package names
+  across the study. That is not a rare edge case; it is roughly one in five
+  suggestions from the weaker end of that range.</p>
+
+  <p>An attacker who wants to distribute malware does not need to guess at
+  random: they can generate code with the same class of models, collect the
+  names those models hallucinate, and register the most repeated ones on the
+  real registry ahead of time. The next developer who pastes the AI's
+  suggested install command gets the attacker's package instead of an
+  install error. Security researcher Andrew Nesbitt and later researchers
+  named this <strong>slopsquatting</strong> — a play on typosquatting, where
+  the "typo" is one the model made for you.</p>
+
+  <h2>Two real cases</h2>
+  <table>
+    <thead><tr><th>Case</th><th>Date</th><th>What happened</th></tr></thead>
+    <tbody>
+      <tr><td>huggingface-cli</td><td>2023</td><td>Security researcher Bar Lanyado registered a package under a name he had seen an LLM hallucinate and published it empty, as a proof of concept. It was downloaded more than 30,000 times in three months, and the same hallucinated name turned up inside an Alibaba research repository's own README.</td></tr>
+      <tr><td>PhantomRaven campaign</td><td>flagged October 2025 (active since November 2022)</td><td>Koi Security and DCODX documented 100+ malicious npm packages distributed under slopsquatted and typosquatted names; CrowdStrike assessed the malware itself was written with the help of an LLM. The packages stole authentication tokens, CI/CD secrets, and GitHub credentials.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Why a lockfile doesn't already catch this</h2>
+  <p>A <code>package-lock.json</code> pins a name and version that already
+  resolved successfully once. That tells you nothing about how the name got
+  there in the first place — it is equally consistent with "this was always
+  a real, well-known package" and with "an AI hallucinated this name, an
+  attacker had already squatted it by the time someone ran <code>npm
+  install</code>, and the lockfile faithfully recorded the attacker's
+  package as if it were the intended one." The moment that actually matters
+  is the <em>first</em> install of a newly added dependency, before it is
+  ever committed — which is also the one moment a lockfile, by definition,
+  cannot yet describe.</p>
+
+  <h2>What actually helps</h2>
+  <p>Two independent, narrow checks, neither of which needs to trust a
+  model to grade its own homework:</p>
+  <ul>
+    <li><strong>Does the name exist at all?</strong> If it does not, that is
+    either a genuine typo in your own manifest or a name nobody has claimed
+    yet — worth fixing or verifying before it becomes true by someone else's
+    registration.</li>
+    <li><strong>If it exists, does it look freshly squatted?</strong> A
+    name registered days ago with one version published is a different risk
+    profile from a package with years of history and dozens of releases,
+    even though both "exist."</li>
+  </ul>
+  <pre>node cli.mjs package.json          # both checks, one read-only request per dependency
+node cli.mjs package.json --strict # also fail CI on a suspiciously new (but real) name</pre>
+  <p>Get <a href="./">the free browser check and CLI</a> — Node 18+, zero
+  dependencies, MIT licensed. See also <a href="./vs-socket.html">how this
+  compares to Socket</a>, an ongoing registry-aware scanning service, and
+  <a href="./vs-checking-package-names-by-eye.html">how this compares to
+  reading package.json by hand</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>Doesn't npm just fail if the package doesn't exist?</h3>
+  <p>Only until someone registers the name. The risk window is between an AI assistant hallucinating a name and an attacker claiming it -- before that, install fails loudly and safely; after it, install succeeds quietly against the attacker's package, and nothing about the failure you would have expected ever happens.</p>
+  <h3>If my lockfile already resolves the name, am I safe?</h3>
+  <p>A lockfile records a name and version that already resolved once, which means either it was always a real package, or it was a hallucinated name that had already been squatted by the time someone ran install and committed the lockfile -- a lockfile cannot tell those two apart after the fact. The moment that matters is the first install of a newly added name, before it is ever committed.</p>
+  <h3>Why not just always tell the AI assistant to double check?</h3>
+  <p>Some tools do, and it helps, but it relies on the same model that hallucinated the name to also catch its own mistake, which the USENIX study's own numbers argue against relying on alone. A check against the registry itself does not depend on the model being right twice.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is; not a security
+    audit, not a malware scanner, not a guarantee. See the tool's own
+    <a href="./">disclaimer</a> for the full text.</p>
+  </footer>
+</body>
+</html>

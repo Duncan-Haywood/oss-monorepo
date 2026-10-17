@@ -118,7 +118,7 @@ node cli.mjs diff baseline.json current.json --ignore left-pad,is-odd</code></pr
       <thead><tr><th>Project</th><th>From</th><th>To</th><th>Date</th><th>What followed</th></tr></thead>
       <tbody id="events-rows"></tbody>
     </table>
-    <p class="note">More: <a href="how-a-dependency-license-change-reaches-your-lockfile.html">why Dependabot and Renovate don't catch this, and how to wire the CLI into CI</a>, or how this compares to <a href="vs-fossa.html">FOSSA</a>, a hosted, continuously-scanning alternative with policy enforcement.</p>
+    <p class="note">More: <a href="how-a-dependency-license-change-reaches-your-lockfile.html">why Dependabot and Renovate don't catch this, and how to wire the CLI into CI</a>, how this compares to <a href="vs-manually-rechecking-licenses.html">manually re-checking each dependency's license by hand</a>, or to <a href="vs-fossa.html">FOSSA</a>, a hosted, continuously-scanning alternative with policy enforcement.</p>
   </section>
 
   <section class="card">
@@ -140,6 +140,7 @@ node cli.mjs diff baseline.json current.json --ignore left-pad,is-odd</code></pr
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also worth a pass over your CI: <a href="../actions-injection-check/">Actions Injection Check</a> scans your GitHub Actions workflow YAML for pwn-request checkouts and script-injection holes — the same "one paste, deterministic finding" shape as this tool, for a different attack surface.</p>
     <p>And over your dependency tree's other silent-change risk: <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a> diffs two package-lock.json snapshots to flag exactly which packages started running code at install time since the last one — the mechanism behind the ua-parser-js, coa/rc, and Shai-Hulud npm supply-chain attacks.</p>
+    <p>And once the licenses are stable: <a href="../license-compat-check/">License Compatibility Check</a> tells you whether those licenses are actually compatible with how you ship — closed-source app, hosted SaaS, or your own open-source license.</p>
     <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

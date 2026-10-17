@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. ranking your route by transaction count</title>
+<meta name="description" content="Two locations that each do 220 withdrawals a month are not the same placement. This free calculator prices what transaction count alone can't see: the commission split, vault cash size, and travel behind each stop -- with a worked example where the busier-looking pair of locations is actually the losing one.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-ranking-by-transaction-count.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. ranking your route by transaction count">
+<meta property="og:description" content="Two locations, the same 220 withdrawals a month. One nets $262.03. The other loses $29.38. Transaction count can't tell them apart -- the placement terms behind each stop can.">
+<meta property="og:url" content="https://example.invalid/atm-route-margin/vs-ranking-by-transaction-count.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is transaction count a bad way to judge a location?","acceptedAnswer":{"@type":"Answer","text":"Not on its own terms — it tells you the location gets foot traffic, which is real information. The problem is using it as a stand-in for profit. Two locations doing the identical 220 withdrawals a month can land on opposite sides of zero once the commission split, the vault cash sitting in the machine, and the drive to service it are counted, and a monthly report that only lists withdrawal counts has no way to show that."}},{"@type":"Question","name":"How can two locations with the same withdrawal count have such different profit?","acceptedAnswer":{"@type":"Answer","text":"Because withdrawal count only drives one line — gross surcharge revenue — and every other cost is set by the placement terms, not the traffic. On this calculator's own worked example, both locations gross an identical $605.00 from 220 withdrawals at the same surcharge fee. One pays a 25% commission on a $2,000 cash load with a 10-minute drive; the other pays 55% on a $5,000 cash load with a 35-minute drive. The first nets $262.03. The second loses $29.38."}},{"@type":"Question","name":"Which locations does this catch that a withdrawal-count ranking misses?","acceptedAnswer":{"@type":"Answer","text":"The ones a monthly transaction report ranks in the middle or even near the top, because it sorts by traffic, not by what the traffic is worth after the location's cut, the processor fee, and the cost of servicing the stop. A route operator dropping the lowest-count machines to trim the route can pass right over a busier machine that is actually the one losing money, and keep a quieter one that pays better per visit."}},{"@type":"Question","name":"Does this replace watching my withdrawal counts?","acceptedAnswer":{"@type":"Answer","text":"No. Withdrawal count is still the number that tells you whether a location is getting used at all, and a machine trending toward zero withdrawals is a real problem this calculator does not need to tell you about. What it adds is the number withdrawal count cannot produce on its own: whether the traffic that is there is actually profitable once the placement's own terms are priced in."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#12241f;background:#eef6f2}
+body{max-width:760px;margin:auto;padding:28px 18px 56px;line-height:1.55}
+a{color:#0f5c3c;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.12;letter-spacing:-.04em;margin:.3rem 0}
+.lede{font-size:1.05rem;color:#254b3d}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1c7a52}
+section{background:#fff;border:1px solid #bfe0d1;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 8px 24px #0a3f2c08}
+h2{margin-top:0}
+h3{margin-bottom:.3rem}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3ecdf;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#1c7a52}
+.cta{display:inline-block;margin:8px 8px 4px 0;padding:10px 14px;border-radius:8px;background:#0f5c3c;color:#eef6f2;text-decoration:none;font-weight:650}
+.note,footer{font-size:.85rem;color:#4c6a5d}
+footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<p class="eyebrow"><a href="./">&larr; ATM Route Margin Calculator</a></p>
+<header>
+<h1>This calculator vs. ranking your route by transaction count</h1>
+<p class="lede">Names no specific product or company. This compares a free calculator against the generic habit every route operator already has: sorting locations by monthly withdrawal count and treating the busiest machines as the best ones.</p>
+</header>
+
+<section>
+<h2>First &mdash; transaction count is not useless</h2>
+<p>
+  A withdrawal report is real information: it tells you a location still gets
+  foot traffic, and a machine trending toward zero withdrawals is a genuine
+  problem worth acting on. Nothing below argues for ignoring that report.
+  What it argues is that count alone cannot answer the next question &mdash;
+  <em>which of these locations is actually worth keeping</em> &mdash; because
+  count only drives one line of the arithmetic, and every other cost is set
+  by the placement terms, not the traffic.
+</p>
+
+<h2>The worked example</h2>
+<p>Both locations below process the identical 220 withdrawals this month at
+  the same $2.75 surcharge fee &mdash; so a transaction-count ranking would
+  place them side by side. The only things that differ are the commission
+  split, the size of the vault cash load, and the drive to service the
+  machine.</p>
+
+<div class="table-scroll">
+<table>
+<thead><tr><th scope="col">Figure</th><th scope="col">Location A &mdash; 25% commission, $2,000 cash, 10-min drive</th><th scope="col">Location B &mdash; 55% commission, $5,000 cash, 35-min drive</th></tr></thead>
+<tbody>
+<tr><td><strong>Monthly withdrawals</strong></td><td>220</td><td>220 &mdash; identical</td></tr>
+<tr><td><strong>Gross surcharge revenue</strong></td><td>$605.00</td><td>$605.00 &mdash; identical</td></tr>
+<tr><td><strong>Location commission</strong></td><td>$151.25 (25%)</td><td>$332.75 (55%)</td></tr>
+<tr><td><strong>Processor fees</strong></td><td>$66.00</td><td>$66.00 &mdash; identical</td></tr>
+<tr><td><strong>Vault cash cost of capital</strong></td><td>$13.33 ($2,000 at 8%/yr)</td><td>$33.33 ($5,000 at 8%/yr)</td></tr>
+<tr><td><strong>Mileage cost</strong></td><td>$10.72</td><td>$58.96</td></tr>
+<tr><td><strong>Your refill labor</strong></td><td>$41.67 (1.67 hrs)</td><td>$83.33 (3.33 hrs)</td></tr>
+<tr><td><strong>Net monthly profit</strong></td><td>$262.03 (43.3% margin)</td><td>&minus;$29.38 (&minus;4.9% margin)</td></tr>
+<tr><td><strong>Profit per withdrawal</strong></td><td>$1.19</td><td>&minus;$0.13</td></tr>
+</tbody>
+</table>
+</div>
+
+<a class="cta" href="./">Price your own route</a>
+<a class="cta" href="is-this-atm-placement-worth-it.html">Evaluating a new offer instead? &rarr;</a>
+<p class="note">Every figure above is this calculator's own arithmetic on the two location profiles described, not a claim about any real route or an industry benchmark. Your commission splits, cash loads, and drive times will produce different numbers &mdash; the point is which numbers to check, not what they should come out to.</p>
+</section>
+
+<section>
+<h2>The two places a transaction-count ranking goes quiet</h2>
+<h3>1. It cannot see the placement terms behind the count</h3>
+<p>A withdrawal report has one column. It cannot show that Location B's 55%
+  commission takes more than double the cut Location A's 25% does on the
+  identical surcharge revenue, or that the processor fee &mdash; fixed per
+  withdrawal &mdash; already lands the same on both before commission is even
+  subtracted. Two machines that look identical on a traffic report can be
+  running under completely different agreements.</p>
+<h3>2. It cannot see the cash and the drive</h3>
+<p>Vault cash cost and refill mileage scale with the machine's own cash load
+  and location, not with how many withdrawals it processes. A location that
+  needs a larger cash float and a longer drive carries a real monthly cost a
+  transaction count never states, which is most of the gap between Location
+  A's $262.03 profit and Location B's $29.38 loss on the same 220
+  withdrawals.</p>
+</section>
+
+<section>
+<h2>When ranking by count is still the right first check</h2>
+<p>Watching withdrawal counts month to month is still the cheapest way to
+  catch a location going quiet, and it needs no calculator. The point at
+  which count stops being enough is when you are deciding which locations to
+  keep, drop, or renegotiate &mdash; that decision needs the commission
+  split, the cash load, and the drive behind each stop, which is what this
+  calculator prices per location before rolling the whole route up against a
+  monthly income goal.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Is transaction count a bad way to judge a location?</h3>
+<p>Not on its own terms &mdash; it tells you the location gets foot traffic, which is real information. The problem is using it as a stand-in for profit. Two locations doing the identical 220 withdrawals a month can land on opposite sides of zero once the commission split, the vault cash sitting in the machine, and the drive to service it are counted, and a monthly report that only lists withdrawal counts has no way to show that.</p>
+<h3>How can two locations with the same withdrawal count have such different profit?</h3>
+<p>Because withdrawal count only drives one line &mdash; gross surcharge revenue &mdash; and every other cost is set by the placement terms, not the traffic. On this calculator's own worked example, both locations gross an identical $605.00 from 220 withdrawals at the same surcharge fee. One pays a 25% commission on a $2,000 cash load with a 10-minute drive; the other pays 55% on a $5,000 cash load with a 35-minute drive. The first nets $262.03. The second loses $29.38.</p>
+<h3>Which locations does this catch that a withdrawal-count ranking misses?</h3>
+<p>The ones a monthly transaction report ranks in the middle or even near the top, because it sorts by traffic, not by what the traffic is worth after the location's cut, the processor fee, and the cost of servicing the stop. A route operator dropping the lowest-count machines to trim the route can pass right over a busier machine that is actually the one losing money, and keep a quieter one that pays better per visit.</p>
+<h3>Does this replace watching my withdrawal counts?</h3>
+<p>No. Withdrawal count is still the number that tells you whether a location is getting used at all, and a machine trending toward zero withdrawals is a real problem this calculator does not need to tell you about. What it adds is the number withdrawal count cannot produce on its own: whether the traffic that is there is actually profitable once the placement's own terms are priced in.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it helped you price a route, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a>.</p>
+</footer>
+</body>
+</html>

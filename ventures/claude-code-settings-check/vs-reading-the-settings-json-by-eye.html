@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Settings Check vs. reading the settings.json by eye</title>
+<meta name="description" content="Reading a short settings.json catches an obviously empty hook command. It reliably misses a matcher regex that looks fine but fails to compile, a permission rule with one stray parenthesis, a rule duplicated across allow/deny/ask, and a rule that quietly contradicts itself between settings.json and settings.local.json -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reading-the-settings-json-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Claude Code Settings Check vs. reading the settings.json by eye">
+<meta property="og:description" content="Reading a settings.json yourself catches an obviously empty hook command. It cannot reliably catch a matcher regex that fails to compile, a rule duplicated across allow/deny/ask, or a contradiction between settings.json and settings.local.json -- all of which this checker computes exactly.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/vs-reading-the-settings-json-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just read my settings.json myself?","acceptedAnswer":{"@type":"Answer","text":"For a short file with one hook and an obviously empty command, yes -- that case is visible on a single read. What reading does not reliably catch is a matcher regex that looks like valid syntax but fails to compile, a permission rule with one extra or missing parenthesis, a rule duplicated across allow/deny/ask, or a rule that contradicts itself between settings.json and settings.local.json. Those need every rule and every matcher checked the same mechanical way, not remembered while skimming a file with a dozen hooks and rules in it."}},{"@type":"Question","name":"Why is a regex that fails to compile easy to miss on a read-through?","acceptedAnswer":{"@type":"Answer","text":"Because a matcher string like Bash( or [unclosed reads as plausible regex syntax at a glance -- nothing about the shape looks obviously wrong until something actually tries to compile it. A hook behind a broken matcher never fires and produces no error, no log line, and nothing to notice; the only way to know is to run the same compile step this tool runs, against every matcher in the file, not skim the string and judge it by eye."}},{"@type":"Question","name":"Why is a cross-file contradiction between settings.json and settings.local.json easy to miss?","acceptedAnswer":{"@type":"Answer","text":"Because each file reads as correct in isolation -- a deny in the shared, committed settings.json and an allow for the exact same rule string in your own settings.local.json are two ordinary-looking lines in two files most editors don't show side by side. Catching the contradiction means holding both files' full rule lists in mind at once and comparing them rule by rule, which is a pairwise check a tool runs the same way every time and a person reviewing one file at a time does not."}},{"@type":"Question","name":"What about a rule duplicated across allow, deny, and ask?","acceptedAnswer":{"@type":"Answer","text":"A rule string repeated in two of the three lists, or twice within one list, does not look wrong on its own -- each occurrence is a valid rule. Noticing the repeat means comparing every entry in allow against every entry in deny and ask, which is easy with three or four rules and easy to miss once a settings.json accumulates dozens across a project's history."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit anyone editing a Claude Code settings.json already has -- reading the hooks and permissions sections by eye before trusting them. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Claude Code Settings Check</a></p>
+<header>
+<h1>Claude Code Settings Check vs. reading the settings.json by eye</h1>
+<p class="lede">Reading a short settings.json with one obviously empty hook command catches that command. It reliably misses a matcher regex that looks fine but fails to compile, a permission rule with one stray parenthesis, a rule duplicated across allow/deny/ask, and a rule that quietly contradicts itself between settings.json and settings.local.json &mdash; which is what this free, no-upload checker computes exactly, in one pass.</p>
+</header>
+<section>
+<h2>Where reading it yourself stops being enough</h2>
+<p>
+  Anyone editing a settings.json already does this: read the <code>hooks</code> and <code>permissions</code>
+  blocks and decide whether they look right before trusting them to fire unattended. For a single hook with
+  an obviously empty <code>command</code>, that read catches it. The problem is the other checks below are
+  not the kind of thing a skim of rendered JSON reliably surfaces, especially once a project carries a
+  committed settings.json and a personal settings.local.json side by side.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Reading the settings.json yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>A hook entry has an empty or missing <code>command</code>.</td><td>Works. This is the one case a plain read reliably catches.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>A hook <code>matcher</code> regex compiles at all, rather than just looking like plausible syntax.</td><td>A string like <code>Bash(</code> reads as ordinary regex text; nothing about it looks wrong until something tries to compile it.</td><td>Actually compiled, the same way every time, against every matcher in the file.</td></tr>
+<tr><td>A hook event or type name matches this tool's documented list, as a caution against a typo.</td><td>Requires recognizing nine event names and one hook type from memory while reading.</td><td>Checked against a dated reference list automatically.</td></tr>
+<tr><td>A permission rule string has balanced parentheses, a single non-empty specifier, and no stray whitespace.</td><td>A rule with one extra or missing parenthesis reads as roughly right at a glance.</td><td>Parsed and checked against the exact grammar, every rule.</td></tr>
+<tr><td>A rule appears more than once within one list, or in more than one of allow/deny/ask.</td><td>Easy with three or four rules; easy to miss once a file accumulates dozens across a project's history.</td><td>Every rule compared against every other rule in both files, exactly.</td></tr>
+<tr><td>A rule in settings.json contradicts one for the same specifier in settings.local.json.</td><td>Each file reads as correct in isolation; most editors don't show both side by side.</td><td>Both files' full rule lists compared against each other, rule by rule.</td></tr>
+<tr><td>Re-checking an entire settings.json (and its local override) again after adding or editing one hook or rule.</td><td>One hook or rule at a time, remembered by hand, every time something changes.</td><td>One paste, both files, every time.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A quick read is still the fastest way to catch an obviously empty command in a short file, and this
+  checker is not doing anything a careful line-by-line audit couldn't &mdash; it is reading the same
+  <code>hooks</code> and <code>permissions</code> blocks a careful audit would, just compiling every matcher
+  and comparing every rule automatically instead of leaving the comparison to be remembered by hand.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses JSON you paste entirely in your own browser. It never sends your settings anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just read my settings.json myself?</h3>
+<p>For a short file with one hook and an obviously empty command, yes -- that case is visible on a single read. What reading does not reliably catch is a matcher regex that looks like valid syntax but fails to compile, a permission rule with one extra or missing parenthesis, a rule duplicated across allow/deny/ask, or a rule that contradicts itself between settings.json and settings.local.json. Those need every rule and every matcher checked the same mechanical way, not remembered while skimming a file with a dozen hooks and rules in it.</p>
+<h3>Why is a regex that fails to compile easy to miss on a read-through?</h3>
+<p>Because a matcher string like Bash( or [unclosed reads as plausible regex syntax at a glance -- nothing about the shape looks obviously wrong until something actually tries to compile it. A hook behind a broken matcher never fires and produces no error, no log line, and nothing to notice; the only way to know is to run the same compile step this tool runs, against every matcher in the file, not skim the string and judge it by eye.</p>
+<h3>Why is a cross-file contradiction between settings.json and settings.local.json easy to miss?</h3>
+<p>Because each file reads as correct in isolation -- a deny in the shared, committed settings.json and an allow for the exact same rule string in your own settings.local.json are two ordinary-looking lines in two files most editors don't show side by side. Catching the contradiction means holding both files' full rule lists in mind at once and comparing them rule by rule, which is a pairwise check a tool runs the same way every time and a person reviewing one file at a time does not.</p>
+<h3>What about a rule duplicated across allow, deny, and ask?</h3>
+<p>A rule string repeated in two of the three lists, or twice within one list, does not look wrong on its own -- each occurrence is a valid rule. Noticing the repeat means comparing every entry in allow against every entry in deny and ask, which is easy with three or four rules and easy to miss once a settings.json accumulates dozens across a project's history.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit anyone editing a Claude Code settings.json already has -- reading the hooks and permissions sections by eye before trusting them. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee of how Claude Code will behave at runtime, and it does not replace testing your configuration in the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking any finding against Claude Code's current documentation. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your settings are never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

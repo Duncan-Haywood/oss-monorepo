@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Statutory Sick Pay Calculator 2026/27 — SSP Due, Rate and Days Paid</title>
+  <meta name="description" content="Free UK SSP calculator for 2026/27: enter average weekly earnings, qualifying days and sickness dates to see the weekly and daily rate, days paid and total SSP due, including the 6 April 2026 change. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Statutory Sick Pay calculator 2026/27. Free, private">
+  <meta property="og:description" content="SSP from day one, lower of flat rate and 80% of earnings, 28-week limit.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Statutory Sick Pay Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is Statutory Sick Pay in 2026/27?", "acceptedAnswer": {"@type": "Answer", "text": "The flat weekly rate is \u00a3123.25 from 6 April 2026, or 80% of the employee's average weekly earnings if that is lower. Check GOV.UK for the current figure."}}, {"@type": "Question", "name": "Are there still waiting days?", "acceptedAnswer": {"@type": "Answer", "text": "Not for sickness from 6 April 2026: SSP is payable from the first qualifying day. Before that date the first three qualifying days of a period of incapacity were unpaid."}}, {"@type": "Question", "name": "Does the employee need to earn the lower earnings limit?", "acceptedAnswer": {"@type": "Answer", "text": "Not from 6 April 2026. Before that date, average weekly earnings had to be at least \u00a3125."}}, {"@type": "Question", "name": "How long does SSP last?", "acceptedAnswer": {"@type": "Answer", "text": "Up to 28 weeks per entitlement. Linked spells within 8 weeks of each other add together."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK SSP CALCULATOR 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much Statutory Sick Pay do you owe for this absence?</h1>
+    <p>Enter the employee's average weekly earnings, their qualifying days and the sickness dates. You get the weekly and daily rate, waiting days, days paid, the 28-week limit and the total SSP due, with the 6 April 2026 rule change applied day by day.</p>
+    <p class="note">Written from the published rules without a live lookup. Rates and rules change; GOV.UK and HMRC decide. Not legal, payroll or employment advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="weeklyEarnings">Average weekly earnings (£)</label><input id="weeklyEarnings" type="text" inputmode="decimal" placeholder="310"></div>
+      <div><label for="qualifyingDays">Qualifying days (the days they normally work)</label><input id="qualifyingDays" type="text" placeholder="Mon Tue Wed Thu Fri"></div>
+      <div><label for="startDate">First day of sickness (YYYY-MM-DD)</label><input id="startDate" type="text" inputmode="numeric" placeholder="2026-05-04"></div>
+      <div><label for="endDate">Last day of sickness (YYYY-MM-DD)</label><input id="endDate" type="text" inputmode="numeric" placeholder="2026-05-22"></div>
+      <div><label for="waitingServed">Waiting days already served in a linked spell (0-3, pre-April 2026 only)</label><input id="waitingServed" type="number" min="0" max="3" step="1" placeholder="0"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate SSP</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter the details, then click Calculate SSP.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>How it was worked out</h2>
+    <div class="scroll"><table><thead><tr><th>Rule set</th><th class="n">Days</th><th class="n">Daily rate</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the 4-day period of incapacity test, qualifying days, the rate as the lower of the flat rate and 80% of average weekly earnings from 6 April 2026, the older waiting-day and lower-earnings-limit rules before that date, and the 28-week limit for one spell.</li>
+      <li><strong>Gives:</strong> weekly and daily rate, waiting days, days paid and the total SSP due, as a text file you can keep with the payroll record.</li>
+      <li><strong>Not decided:</strong> how average weekly earnings are calculated from the 8-week reference period, whether the employee is an employee for SSP, notice and evidence rules, company sick pay schemes, linked spells beyond the waiting-day field, and entitlement after 28 weeks. Your payroll provider or HMRC decides these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much is Statutory Sick Pay in 2026/27?</h3>
+    <p>The flat weekly rate is £123.25 from 6 April 2026, or 80% of the employee's average weekly earnings if that is lower. Check GOV.UK for the current figure.</p>
+    <h3>Are there still waiting days?</h3>
+    <p>Not for sickness from 6 April 2026: SSP is payable from the first qualifying day. Before that date the first three qualifying days of a period of incapacity were unpaid.</p>
+    <h3>Does the employee need to earn the lower earnings limit?</h3>
+    <p>Not from 6 April 2026. Before that date, average weekly earnings had to be at least £125.</p>
+    <h3>How long does SSP last?</h3>
+    <p>Up to 28 weeks per entitlement. Linked spells within 8 weeks of each other add together.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, payroll, or employment advice. You are responsible for verifying its output on GOV.UK or with the HMRC Employers' Helpline before you pay an employee.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-vat-registration-checker/">UK VAT registration checker</a> the <a href="../uk-statutory-maternity-pay-calculator/">UK statutory maternity pay calculator</a>, the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a> and the <a href="../au-redundancy-pay-calculator/">Australian redundancy pay calculator</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, fromDay } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + (Math.round(n * 100) / 100).toFixed(2);
+    let last = null;
+    const map = { weeklyEarnings: "weeklyEarnings", qualifyingDays: "qualifyingDays", startDate: "startDate", endDate: "endDate", waitingServed: "waitingServed" };
+    const IDLE = "Enter the details, then click Calculate SSP.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${gbp(r.total)} SSP due · ${r.paidDays} paid day(s) · ${gbp(r.weeklyRate)} a week`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.length ? r.rows.map((x) => `<tr><td>${esc(x.era)}</td><td class="n">${x.days}</td><td class="n">${gbp(x.daily)}</td><td class="n">${gbp(x.amount)}</td></tr>`).join("") + `<tr class="total"><td>Total</td><td class="n">${r.paidDays}</td><td></td><td class="n">${gbp(r.total)}</td></tr>` : `<tr><td colspan="4">No SSP is payable for these dates.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Verify the rate on GOV.UK before paying.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: three weeks off in May 2026 on £310 a week.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-ssp-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

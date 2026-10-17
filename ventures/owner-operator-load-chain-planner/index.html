@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Owner Operator Load Chain Planner — Which Loads to Chain and What to Counter</title>
+  <meta name="description" content="Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which loads should you chain, and what's the lowest rate each is worth?">
+  <meta property="og:description" content="The best chain from your own shortlist after deadhead, waiting for pickup windows and rest, plus a walk-away rate per load. Your estimates, not a market rate. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Owner Operator Load Chain Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded. Browser or zero-dependency Node CLI. Your estimates, not a market rate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a load board or a market rate tool?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every rate, cost, speed and time window in the answer is a number you typed. It does not read a load board, look up market rates or predict what a lane will pay. It does the arithmetic on your own shortlist and shows which loads to chain, which to leave and the lowest rate each is worth."}}, {"@type": "Question", "name": "Does it upload my loads?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "Why not just take the highest rate per mile?", "acceptedAnswer": {"@type": "Answer", "text": "Because the empty run to the pickup, the wait for its window to open and the rest you are forced to take are paid by the same week. On the worked list the best chain beats the highest-rate-first habit by $454.36 over the window, because it takes a lower-rate Memphis to Chicago load that sits on the way home."}}, {"@type": "Question", "name": "What is the walk-away rate?", "acceptedAnswer": {"@type": "Answer", "text": "For each load in the plan, the lowest rate at which it still belongs in the best plan, found exactly against the best plan without that load. Counter at or above it; below it, you are better off with the alternative."}}, {"@type": "Question", "name": "Does it follow hours-of-service rules?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses a simplified drive-then-rest rule you can change or turn off (11 hours driving then a 10-hour rest by default) so the clock cost of long drives shows up in the plan. It is not a logbook and not compliance advice; the rules that apply to you are yours to follow."}}, {"@type": "Question", "name": "How are distances worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Straight-line miles between approximate city centres times a road factor (1.2 by default), unless you give a load's own miles. That is good to a few percent on long hauls and rougher on short ones, which is why a load's own miles can be supplied."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1060px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1d3a2f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3a2f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3a2f10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select, input[type=text] { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #25523f; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #1d3a2f; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OWNER OPERATOR LOAD CHAIN PLANNER · RUNS IN YOUR BROWSER</p>
+    <h1>Which of these loads should you chain, and what's the lowest rate each one is worth?</h1>
+    <p>The best posted rate per mile is often the wrong next load: the empty run to its pickup, the wait for its window and the rest you must take come out of the same week. Paste your shortlist with <strong>your own rates, pickup windows and deadlines</strong> and get <strong>the exact best chain to run</strong>, <strong>the lowest rate each load is worth</strong>, the loads to leave, and what a simple rule would have cost you.</p>
+    <p class="note"><strong>Your estimates, not a market rate and not a route plan.</strong> This page reads no load board, knows no rates and predicts nothing: every rate, cost, speed and time is a number you type. For owner-operators, hotshot and box-truck drivers who pick their own loads. Nothing is uploaded: the text boxes are analysed in this browser tab.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your shortlist</h2>
+    <label for="ev-input">One row per load: name, from city, to city, rate (total dollars), then optional loaded miles, pickup opens, pickup closes, deliver by (hours after you are ready; day 2 at 8am is 32), extra cost, note. Cities like "Dallas TX" with no comma, or @lat/lon. Up to 14 loads.</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Dallas to Atlanta,Dallas TX,Atlanta GA,2350,,0,10,,25&#10;Atlanta to Charlotte,Atlanta GA,Charlotte NC,720,,24,100"></textarea>
+    <h2>2. Where you are and what a mile costs you</h2>
+    <p>
+      <label for="start">Ready to load in</label><input type="text" id="start" value="Dallas TX" list="cities" autocomplete="off">
+      <datalist id="cities"></datalist>
+      <label for="horizon">Hours you are free</label><input type="number" id="horizon" value="120" min="1" max="720" step="1">
+      <label for="objective">Maximise</label>
+      <select id="objective"><option value="total" selected>Total profit in the window</option><option value="perDay">Profit per day the chain takes</option></select>
+    </p>
+    <p>
+      <label for="mph">Average moving speed (mph)</label><input type="number" id="mph" value="50" min="1" max="90" step="1">
+      <label for="mpg">Miles per gallon</label><input type="number" id="mpg" value="6.5" min="1" max="40" step="0.1">
+      <label for="fuel">Fuel ($ per gallon)</label><input type="number" id="fuel" value="3.9" min="0" step="0.05">
+      <label for="permile">Other cost per mile ($)</label><input type="number" id="permile" value="0.25" min="0" step="0.05">
+    </p>
+    <p>
+      <label for="fixedday">Fixed cost per day ($)</label><input type="number" id="fixedday" value="150" min="0" step="10">
+      <label for="dwell">Hours at each stop</label><input type="number" id="dwell" value="2" min="0" max="48" step="0.5">
+      <label for="roadfactor">Road factor</label><input type="number" id="roadfactor" value="1.2" min="1" max="2" step="0.05">
+    </p>
+    <p>
+      <label for="hos"><input type="checkbox" id="hos" checked> Apply a drive-then-rest rule</label>
+      <label for="drivehours">Drive hours</label><input type="number" id="drivehours" value="11" min="1" max="24" step="0.5">
+      <label for="resthours">Rest hours</label><input type="number" id="resthours" value="10" min="0" max="48" step="0.5">
+      <label for="returnhome"><input type="checkbox" id="returnhome"> Charge the empty run back to the start</label>
+    </p>
+    <p>
+      <button type="button" id="analyze">Plan the chain</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>3. The plan</h2>
+    <p id="summary"></p>
+    <h3>Run, in this order</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Load</th><th>Route</th><th>Rate</th><th>Per loaded mile</th><th>Per mile incl. empty</th><th>Empty to reach it</th><th>Pick up</th><th>Deliver</th><th>Net of miles</th><th>Walk-away rate</th><th>Room</th></tr></thead>
+      <tbody id="chain-rows"></tbody>
+    </table></div>
+    <p id="totals" class="note"></p>
+    <h3>Left out</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Load</th><th>Route</th><th>Rate</th><th>Why</th></tr></thead>
+      <tbody id="other-rows"></tbody>
+    </table></div>
+    <h3>Against simple rules</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Loads</th><th>Profit before fixed costs</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+    <p class="note">Nothing here is a prediction. The plan is your own numbers multiplied out; a load can be gone, late or paid less by the time you call.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan loads.csv --start "Dallas TX" --horizon 120
+cat loads.csv | node cli.mjs plan - --start "Dallas TX" --per-day --return-home --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-string-truckload-loads-together-and-cut-deadhead.html">How to string loads together and cut deadhead</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type (a dynamic programme over every set and order of loads, and walk-away rates solved against the best plan without each load). It does not know market rates, real routes, traffic, weather, fuel-stop prices, detention, broker credit or the driving-time rules that apply to you.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this a load board or a market rate tool?</h3>
+    <p>No. Every rate, cost, speed and time window in the answer is a number you typed. It does not read a load board, look up market rates or predict what a lane will pay. It does the arithmetic on your own shortlist and shows which loads to chain, which to leave and the lowest rate each is worth.</p>
+    <h3>Does it upload my loads?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>Why not just take the highest rate per mile?</h3>
+    <p>Because the empty run to the pickup, the wait for its window to open and the rest you are forced to take are paid by the same week. On the worked list the best chain beats the highest-rate-first habit by $454.36 over the window, because it takes a lower-rate Memphis to Chicago load that sits on the way home.</p>
+    <h3>What is the walk-away rate?</h3>
+    <p>For each load in the plan, the lowest rate at which it still belongs in the best plan, found exactly against the best plan without that load. Counter at or above it; below it, you are better off with the alternative.</p>
+    <h3>Does it follow hours-of-service rules?</h3>
+    <p>No. It uses a simplified drive-then-rest rule you can change or turn off (11 hours driving then a 10-hour rest by default) so the clock cost of long drives shows up in the plan. It is not a logbook and not compliance advice; the rules that apply to you are yours to follow.</p>
+    <h3>How are distances worked out?</h3>
+    <p>Straight-line miles between approximate city centres times a road factor (1.2 by default), unless you give a load's own miles. That is good to a few percent on long hauls and rougher on short ones, which is why a load's own miles can be supplied.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, insurance, safety or hours-of-service advice, it is not a market rate, route plan or forecast, and it does not replace a qualified professional or a dispatcher. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the rates, costs, speeds and time windows you type, for the real route, weight, permits, insurance and driving-time rules that apply to each load, and for which loads you accept. Rates and availability change and loads are often gone or paid less when you call. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen on a lane.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any load board, broker, carrier or trucking company; no such names are used.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Hauling cars? The <a href="../car-hauler-load-planner/">car hauler load planner</a> picks which vehicles to carry and on which deck.</p>
+    <p>Related tools on the same repo: <a href="../owner-operator-cpm-calculator/">Owner Operator Cost Per Mile Calculator</a>, <a href="../freight-broker-load-margin-calculator/">Freight Broker Load Margin Calculator</a>, <a href="../route-stop-optimizer/">Route Stop Optimizer</a>, <a href="../ifta-quarterly-fuel-tax-calculator/">IFTA Quarterly Fuel Tax Calculator</a> and <a href="../freight-accessorial-auditor/">Freight Accessorial Auditor</a>.</p>
+    <p class="support">Free and open source. If this saved you a bad load, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLoads, plan, summarize, money, pct, miles, clock, hours, CITIES, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    $("#cities").innerHTML = CITIES.map((c) => `<option value="${escapeHtml(c.name)}"></option>`).join("");
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseLoads(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.loads.length) {
+        status.innerHTML = `<span class="error">No load rows found.</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, {
+          start: $("#start").value, horizon: $("#horizon").value, objective: $("#objective").value, mph: $("#mph").value, mpg: $("#mpg").value,
+          fuel: $("#fuel").value, perMile: $("#permile").value, fixedDay: $("#fixedday").value, dwell: $("#dwell").value, roadFactor: $("#roadfactor").value,
+          hos: $("#hos").checked, hosDrive: $("#drivehours").value, hosRest: $("#resthours").value, returnHome: $("#returnhome").checked,
+        });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#chain-rows").innerHTML = p.chain.map((c, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.from)} → ${escapeHtml(c.to)}</td><td>${money(c.rate)}</td><td>${money(c.ratePerLoadedMile)}</td><td>${money(c.allInPerMile)}</td><td>${miles(c.deadheadMiles)}</td><td>${clock(c.pickupAt)}${c.waitHours > 0.05 ? ` (waits ${hours(c.waitHours)})` : ""}</td><td>${clock(c.deliverAt)}</td><td>${money(c.net)}</td><td>${money(c.walkAway)}</td><td>${money(c.headroom)}</td></tr>`).join("") || `<tr><td colspan="12">Nothing on this list covers its running cost in your window.</td></tr>`;
+      const t = p.totals;
+      $("#totals").textContent = t ? `Gross ${money(t.revenue)} on ${miles(t.totalMiles)} (${miles(t.emptyMiles)} empty), cost of miles ${money(t.fuelAndMileCost)}${t.extras ? `, extras ${money(t.extras)}` : ""}. Profit before fixed costs ${money(t.profitBeforeFixed)} over ${hours(t.elapsedHours)}; after ${money(p.options.fixedDay)} a day of fixed cost that is ${money(t.perDayAfterFixed)} a day on the chain and ${money(t.netOverWindow)} over your ${hours(p.options.horizon)} window.` : "";
+      $("#other-rows").innerHTML = p.others.map((o) => `<tr><td>${escapeHtml(o.name)}</td><td>${escapeHtml(o.from)} → ${escapeHtml(o.to)}</td><td>${money(o.rate)}</td><td>${escapeHtml(o.reason)}</td></tr>`).join("") || `<tr><td colspan="4">Every load is in the plan.</td></tr>`;
+      $("#compare-rows").innerHTML = [["Best chain (this tool)", p.chain.length, t ? t.profitBeforeFixed : 0], ...p.baselines.map((b) => [b.label, b.loads.length, b.profit])]
+        .map(([l, n, v]) => `<tr><td>${escapeHtml(l)}</td><td>${n}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,from,to,rate,miles,pickup_open,pickup_close,deliver_by,extra,note
+Dallas to Atlanta dry van,Dallas TX,Atlanta GA,2350,,0,10,,25,posted $2.20 a mile; early pickup only
+Fort Worth to Houston reefer,Fort Worth TX,Houston TX,650,,0,30,40,0,short and quick
+Houston to New Orleans,Houston TX,New Orleans LA,780,,6,40,,15,
+New Orleans to Atlanta,New Orleans LA,Atlanta GA,1050,,12,70,90,0,
+Dallas to Oklahoma City,Dallas TX,Oklahoma City OK,420,,0,24,,0,
+Oklahoma City to Kansas City,Oklahoma City OK,Kansas City MO,720,,4,40,,0,
+Kansas City to Chicago,Kansas City MO,Chicago IL,980,,12,60,,30,
+Atlanta to Charlotte,Atlanta GA,Charlotte NC,720,,24,100,,0,
+Houston to Memphis,Houston TX,Memphis TN,1300,,0,48,,20,
+Memphis to Chicago,Memphis TN,Chicago IL,1180,,24,80,,0,
+Chicago to Dallas,Chicago IL,Dallas TX,2100,,30,100,125,40,
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#start").value = "Dallas TX"; $("#horizon").value = 120; $("#objective").value = "total";
+      $("#mph").value = 50; $("#mpg").value = 6.5; $("#fuel").value = 3.9; $("#permile").value = 0.25;
+      $("#fixedday").value = 150; $("#dwell").value = 2; $("#roadfactor").value = 1.2;
+      $("#hos").checked = true; $("#drivehours").value = 11; $("#resthours").value = 10; $("#returnhome").checked = false;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -147,7 +147,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # This job runs on every PR that touches any of the paths above and chains
     # roughly fifty checks and unit-test modules in sequence; it has taken
     # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
@@ -158,6 +158,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # read-only job; nothing here pushes
 
       - uses: actions/setup-python@v5
         with:
@@ -527,20 +529,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_venture_regression
 
-      # PRODUCT_PLAYBOOK.md §6 / DIRECTION.md "Legal guardrails" forbid payment
-      # collection fleet-wide ("no checkout, no card fields, no billing code,
-      # not even disabled"), but that sentence had no check behind it. Two
-      # ventures had real Stripe checkout code on `main` with no matching
-      # decision row before 2026-09-06 -- one already flagged
-      # (local-site-studio, #731), one found only when this check was written
-      # (print-atelier). This fails a third silent instance instead of relying
-      # on a session remembering the sentence above.
-      - name: Check no venture ships payment-SDK code without a decision-queue row
-        run: python3 platform/ci/check_no_payment_code.py
+      # Payment code may ship off by default on the deployer's own keys
+      # (PRODUCT_PLAYBOOK.md §6); a real account hardcoded in the tree may not.
+      - name: Check no venture hardcodes a payment account
+        run: python3 platform/ci/check_payment_keys.py
 
-      - name: Payment-SDK checker unit tests
+      - name: Payment-account checker unit tests
         working-directory: platform/ci
-        run: python3 -m unittest test_check_no_payment_code
+        run: python3 -m unittest test_check_payment_keys
 
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
@@ -661,6 +657,21 @@ jobs:
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci
         run: python3 -m unittest test_branch_cleanup
+
+      # Branch cleanup's blind spot, from the other side: a branch that never
+      # had a pull request. `unlanded_work.py` is the gate every session runs
+      # before it ends (.github/prompts/land-your-work.md); these tests build
+      # throwaway repositories with real refs/pull/<n>/head refs, so they need
+      # git and nothing else.
+      - name: Unlanded-work gate tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_unlanded_work
+
+      # The scheduled half of the same gate: adopt-stranded-branches.yml opens a
+      # draft PR for each branch whose session died before it could.
+      - name: Adopt-stranded-branches tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_adopt_stranded
 
       - name: Check break-even.md agrees with its pinned snapshot
         run: python3 portfolio/ledger/break_even.py --check

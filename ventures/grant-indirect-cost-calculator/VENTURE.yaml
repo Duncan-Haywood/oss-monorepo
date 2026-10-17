@@ -1,0 +1,41 @@
+name: grant-indirect-cost-calculator
+description: 'Free, zero-network browser calculator for nonprofit, university and small-organisation grant budgets: enter direct costs, equipment and subawards and get modified total direct costs (MTDC) with the federal exclusions applied (equipment of $10,000 or more per unit, tuition remission, participant support, rental, patient care, and each subaward above its first $50,000), the indirect cost at the 15% de minimis rate or your own, your effective rate on direct costs, and the largest direct budget that fits under a funder total award cap. Arithmetic on the numbers the user types, not grant advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: grant writers and small nonprofits routinely under-claim or over-claim indirect cost because MTDC is not the same as total direct costs.
+# Checked 2026-10-03: duplicate_check.py scored the niche 0.15 at most against ventures/ and the pipeline; no tool computes MTDC or indirect cost recovery; not in screened-out.md.
+#
+# First visitor: searches "MTDC calculator", "indirect cost calculator grant budget", "modified total direct costs",
+# "15 percent de minimis indirect rate", "grant budget indirect cost"; grant-writing communities and sponsored-programs
+# offices. Volume not measured with an external tool. A hosted version that builds a full multi-year grant budget
+# workbook, with fringe and escalation by year, is the natural paid upgrade.
+hypotheses:
+  - claim: A grant writer will enter a budget, see the effective indirect rate on direct costs, and change a line (a subaward, an equipment purchase) or the request.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the award-cap fit (how much direct budget fits under a funder's cap) at least as often as for the plain MTDC calculation.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No grant writer reports changing a budget or an indirect request because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grant-indirect-cost-calculator/
+  analytics: null

@@ -1,0 +1,90 @@
+name: exempt-salary-threshold-checker
+description: >-
+  Free browser calculator checking a weekly salary against the 2026 FLSA
+  white-collar overtime-exemption salary threshold -- the federal
+  $684/week figure, or the higher state figure that controls instead in
+  California, Washington, Maine, Alaska, or New York, including New
+  York's carve-out excluding the professional exemption from its higher
+  figure. A salary-level check only, never a full exemption
+  determination. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work, so
+# per DIRECTION.md's standing owner direction a fresh gate-cleared niche
+# ranks ahead of a parity feature). duplicate_check.py scored every
+# venture, screened-out row, and pipeline candidate at 0.13 or below for
+# the final description above -- well under the 0.45 review bar. The
+# closest existing venture, salary-range-posting-check, checks a
+# different question entirely (whether a job posting discloses a pay
+# range) and shares only the "state employment-law reference table"
+# archetype, not the object being checked.
+#
+# Distribution channel, named rather than assumed: payroll administrators,
+# HR compliance staff, and small-business owners doing their own annual
+# reclassification review search variants of "exempt salary threshold
+# 2026," "overtime exemption salary requirements by state," or a specific
+# state's figure, once a year around January when most of the new
+# thresholds take effect and again when reviewing a raise or a new hire's
+# classification -- a fast-growing, heavily-published compliance topic
+# this session confirmed via live WebSearch (five states raising their
+# figure for 2026, several tied to state minimum-wage formulas that move
+# annually). No external search-volume tool was queried to confirm
+# magnitude, matching this pipeline's standing caveat for every checker at
+# graduation.
+#
+# Liability: same shape and mitigation as salary-range-posting-check and
+# call-recording-consent-check (a jurisdictional legal-reference table
+# with heavy, explicit disclosure of scope). Getting a threshold wrong
+# could contribute to a real misclassification decision, so the page
+# states in three places (the intro, a dedicated "what this does not
+# cover" section, and the footer) that the salary threshold is necessary
+# but not sufficient -- an employee must also clear the salary-basis and
+# duties tests this tool does not evaluate at all -- and that this is not
+# legal advice. All six dollar figures were verified against multiple
+# named, independent sources (two law-firm client alerts plus three
+# payroll-platform explainers plus the DOL's own Federal Register
+# amendment) before being committed, following salt-cap-calculator's
+# same-session precedent for a compliance-adjacent numeric tool.
+
+hypotheses:
+  - claim: >-
+      An HR administrator, payroll processor, or small-business owner
+      reviewing salary classifications for 2026 will search a plain-
+      language phrase ("exempt salary threshold 2026", "overtime exemption
+      salary by state", "[state] exempt salary threshold") and return to a
+      free, no-signup checker that states the applicable figure plainly,
+      rather than piecing it together from a state-by-state blog table.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A user checking a professional-exemption employee in New York will
+      be surprised that the state's own higher figure does not apply, and
+      will return to double-check other employees' classifications once
+      they learn the carve-out exists.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page looks everything up from a fixed
+  # table shipped with it (nothing uploaded, nothing fetched). Serving one
+  # more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's threshold result to classify an actual employee without independently verifying the duties and salary-basis tests, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/exempt-salary-threshold-checker/
+  analytics: null

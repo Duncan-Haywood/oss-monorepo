@@ -1,0 +1,58 @@
+name: flsa-regular-rate-overtime-audit
+description: >-
+  Free browser tool for small employers, bookkeepers and staffing agencies: paste
+  payroll rows with hours, rate, nondiscretionary bonuses and shift differentials
+  and see each employee's FLSA regular rate per workweek, the overtime premium owed,
+  the back pay if overtime was paid on the base rate, and lookback exposure. CSV and
+  text export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12. duplicate_check.py: closest row was overtime-pay-calculator
+# 0.26 (computes one person's overtime pay; this audits a payroll batch for the
+# regular-rate error); nothing near the 0.45 line.
+#
+# Why this niche: overtime computed on the base rate while a bonus, shift
+# differential or commission went unaccounted for is among the most common FLSA wage
+# claims, and the fix is arithmetic. Payroll suites sell a regular-rate audit as an
+# add-on; a restaurant owner, retailer, staffing agency or their bookkeeper has a
+# payroll export and nothing that says which weeks were short-paid or what the
+# exposure looks like.
+#
+# First visitor: people searching "regular rate of pay calculator", "overtime with
+# bonus calculator", "flsa regular rate bonus", "shift differential overtime".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed payroll rows and user-editable rules.
+# No payments, no accounts, nothing stored or uploaded. Not legal advice; the preset
+# is a summary the user must verify, and the page says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid payroll-export importer or state-rules pack.
+
+hypotheses:
+  - claim: >-
+      Small employers and their bookkeepers will paste a period of payroll rows into
+      a private auditor to find regular-rate overtime shortfalls, and return each
+      pay period.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with 29 CFR part 778 for the preset, and the preset is not corrected within a week.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/flsa-regular-rate-overtime-audit/
+  analytics: null

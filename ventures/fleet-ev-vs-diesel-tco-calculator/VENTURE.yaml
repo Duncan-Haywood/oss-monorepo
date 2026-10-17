@@ -1,0 +1,57 @@
+name: fleet-ev-vs-diesel-tco-calculator
+description: >-
+  Free browser tool for small fleet owners deciding whether to go electric: vehicle and charger
+  cost, fuel, electricity with demand charges, maintenance, insurance, resale, escalation and a
+  discount rate in; year-by-year cost, present-value savings, payback year, break-even fuel price,
+  electricity rate and mileage, a price sensitivity grid and a range and overnight-charging check
+  out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "fleet EV vs diesel TCO"
+# scored 0.19 against the nearest venture (fleet-repair-or-replace-planner, a single-vehicle
+# repair decision); ev-charger-bid-calculator prices the installer's side of the same job.
+#
+# Why this niche: owners of 3-50 vans, box trucks and service trucks are being pushed (customers,
+# city rules, fuel costs, dealer pitches) to electrify and have no neutral way to test it on their
+# own routes. Vendor calculators are sales tools that assume the answer; fleet-management suites
+# are sold to large fleets. The honest answer turns on three numbers (fuel price, electricity
+# rate including demand charges, miles per year) and on whether the vehicle can do the hardest
+# day, so the tool reports break-evens and a feasibility check, not just a verdict.
+#
+# First visitor: small-fleet and contractor owners asking "are electric vans worth it" in trade
+# groups, r/smallbusiness, r/electricvehicles and search. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no tax, financing, incentive-eligibility,
+# utility-tariff or insurance advice; incentives default to zero and must be user-confirmed;
+# defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted version
+# that compares a quoted vehicle list per route and prints a board-ready summary (not built).
+
+hypotheses:
+  - claim: >-
+      Small fleet owners will use a private EV-versus-diesel tool that reports break-even fuel
+      price, electricity rate and mileage plus a range and charging check, because vendor
+      calculators assume the answer and ignore demand charges and the hardest day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A fleet manager reports that the cost arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fleet-ev-vs-diesel-tco-calculator/
+  analytics: null

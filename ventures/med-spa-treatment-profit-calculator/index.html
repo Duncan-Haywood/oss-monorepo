@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Med Spa Treatment Profit Calculator — Margin per Room Hour, Free</title>
+  <meta name="description" content="Free med spa treatment profit calculator: contribution margin per treatment after product, card fees, provider time and room overhead, ranked by profit per room hour, with the price that hits your target margin. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Med Spa Treatment Profit Calculator — free">
+  <meta property="og:description" content="Which treatments actually make money per room hour? Price, product, provider time and overhead in, margin and target price out. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Med Spa Treatment Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for med spa and aesthetics clinics: contribution margin per treatment after product, card fees, provider time and room overhead, ranked by profit per room hour, with the price that hits your target margin. Entirely client-side; nothing is uploaded.", "featureList": "contribution per visit, margin, profit per room hour, break-even price, target price, monthly profit, room capacity check"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if a med spa treatment is profitable?", "acceptedAnswer": {"@type": "Answer", "text": "Subtract the product cost, the card fee, the provider's time and the room's overhead from the price. What is left is the contribution per visit. Divide it by the room hours the visit occupies to compare treatments fairly when the schedule is full."}}, {"@type": "Question", "name": "What is a good profit margin for a med spa treatment?", "acceptedAnswer": {"@type": "Answer", "text": "Injectables are product-heavy and often land around 40 to 55 percent contribution margin once provider time is counted, while device and facial treatments carry more of their cost in provider and room time. Set your own target and let the calculator show which treatments miss it."}}, {"@type": "Question", "name": "How should I count provider cost?", "acceptedAnswer": {"@type": "Answer", "text": "Use the loaded hourly cost of whoever performs the treatment: wages or commission, payroll taxes, malpractice insurance and benefits, divided by the hours they are actually paid to work. The calculator charges that rate for treatment minutes."}}, {"@type": "Question", "name": "What is room overhead per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Rent, utilities, equipment payments and front-desk cost for the months you are open, divided by the room hours you could sell. Charging it to each visit stops a long, low-priced treatment looking better than it is."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you enter. It is not accounting, tax, legal or medical advice, and it does not tell you what to charge or which treatments are appropriate for a patient."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .rank td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MED SPA TREATMENT PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which treatments on your menu actually make money per room hour?</h1>
+    <p>List each treatment with its price, product cost and minutes. Add what your provider and your room cost per hour.
+    You get the <strong>contribution per visit</strong>, the <strong>margin</strong>, the <strong>profit per room hour</strong>, the <strong>price that hits your target margin</strong>, and what your monthly mix earns against fixed costs and room capacity.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your costs</h2>
+    <div class="grid">
+      <div><label for="provider-rate">Provider loaded cost per hour ($)</label>
+        <input type="number" id="provider-rate" min="0" step="0.01" placeholder="e.g. 60"></div>
+      <div><label for="room-rate">Room overhead per hour ($)</label>
+        <input type="number" id="room-rate" min="0" step="0.01" placeholder="e.g. 30"></div>
+      <div><label for="turnover">Turnover minutes between visits</label>
+        <input type="number" id="turnover" min="0" step="1" value="0" placeholder="e.g. 10"></div>
+      <div><label for="fee-pct">Card processing fee (%)</label>
+        <input type="number" id="fee-pct" min="0" step="0.1" value="3" placeholder="3"></div>
+      <div><label for="target-margin">Target contribution margin (%)</label>
+        <input type="number" id="target-margin" min="0" step="1" value="50" placeholder="50"></div>
+      <div><label for="room-hours">Room hours you can sell per month (optional)</label>
+        <input type="number" id="room-hours" min="0" step="1" placeholder="e.g. 120"></div>
+      <div><label for="fixed">Monthly fixed costs not already in room overhead (optional, $)</label>
+        <input type="number" id="fixed" min="0" step="1" placeholder="e.g. 4000"></div>
+    </div>
+    <p class="note">Provider cost: wages or commission plus payroll tax, insurance and benefits, per paid hour. Room overhead: rent, utilities, equipment payments and front desk, per sellable room hour. Leave fixed costs empty if those are already in the room rate.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your treatments</h2>
+    <label for="treatments">One per line: name, price, product cost, minutes, visits per month</label>
+    <textarea id="treatments" rows="7" placeholder="Neurotoxin 40 units, 600, 280, 30, 20&#10;Lip filler 1 syringe, 750, 320, 45, 8&#10;HydraFacial, 220, 40, 50, 25"></textarea>
+    <p class="note">Product cost is what the visit consumes: neurotoxin units, syringes, serums, consumables. You can paste rows from a spreadsheet (tab separated). Visits per month is optional and only feeds the monthly totals.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your costs and at least one treatment, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>Per treatment, best use of a room hour first</h3>
+    <table><thead><tr><th>Treatment</th><th>Price</th><th>Contribution</th><th>Margin</th><th>Per room hour</th><th>Break-even price</th><th>Target-margin price</th></tr></thead><tbody id="treatment-table" class="rank"></tbody></table>
+    <h3>Monthly</h3>
+    <table><tbody id="month-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Consults, no-shows and refunds.</strong> Free consults, cancelled visits and touch-ups cost room and provider time that no listed treatment pays for.</li>
+      <li><strong>Memberships, packages and retail.</strong> Prepaid revenue and product sales are not modelled; enter the effective per-visit price instead.</li>
+      <li><strong>Commission structures</strong> that change with volume. Use an average loaded hourly rate.</li>
+      <li><strong>Medical appropriateness.</strong> Margin is not a reason to recommend a treatment. Clinical decisions belong to the licensed provider and the medical director.</li>
+      <li><strong>Taxes.</strong> Everything is before income tax and before owner pay.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know if a med spa treatment is profitable?</h3>
+    <p>Subtract the product cost, the card fee, the provider's time and the room's overhead from the price. What is left is the contribution per visit. Divide it by the room hours the visit occupies to compare treatments fairly when the schedule is full.</p>
+    <h3>What is a good profit margin for a med spa treatment?</h3>
+    <p>Injectables are product-heavy and often land around 40 to 55 percent contribution margin once provider time is counted, while device and facial treatments carry more of their cost in provider and room time. Set your own target and let the calculator show which treatments miss it.</p>
+    <h3>How should I count provider cost?</h3>
+    <p>Use the loaded hourly cost of whoever performs the treatment: wages or commission, payroll taxes, malpractice insurance and benefits, divided by the hours they are actually paid to work. The calculator charges that rate for treatment minutes.</p>
+    <h3>What is room overhead per hour?</h3>
+    <p>Rent, utilities, equipment payments and front-desk cost for the months you are open, divided by the room hours you could sell. Charging it to each visit stops a long, low-priced treatment looking better than it is.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It does arithmetic on the numbers you enter. It is not accounting, tax, legal or medical advice, and it does not tell you what to charge or which treatments are appropriate for a patient.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not medical advice or a substitute for your accountant or medical director. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>treatments_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Booking and no-shows? The <a href="../appointment-no-show-analyzer/">no-show analyzer</a> and <a href="../appointment-deposit-calculator/">deposit calculator</a> cover the schedule side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const IDS = ["treatments", "room-hours", "fixed"];
+    const DEFAULTS = { "provider-rate": "", "room-rate": "", "turnover": "0", "fee-pct": "3", "target-margin": "50" };
+    const els = { status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      treatmentTable: $("#treatment-table"), monthTable: $("#month-table"), findings: $("#report-findings") };
+    const num = (id) => Number($("#" + id).value) || 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const a = analyse({
+        providerRate: num("provider-rate"), roomRate: num("room-rate"), turnoverMinutes: num("turnover"),
+        feePct: num("fee-pct"), targetMargin: num("target-margin"), roomHoursAvailable: num("room-hours"),
+        monthlyFixed: num("fixed"), treatmentText: $("#treatments").value,
+      });
+      renderFindings(els.findings, a.findings);
+      els.report.hidden = false;
+      if (!a.result) {
+        els.stats.textContent = "";
+        els.treatmentTable.innerHTML = els.monthTable.innerHTML = "";
+        return;
+      }
+      const r = a.result, top = r.ranked[0];
+      els.stats.innerHTML = `Best use of a room hour: <strong>${esc(top.name)}</strong> at <strong>${money(top.perRoomHour)}</strong> per room hour. Your mix earns <strong>${money(r.contribution)}</strong> a month in contribution (${pct(r.margin)} of ${money(r.revenue)} revenue).`;
+      els.treatmentTable.innerHTML = r.ranked.map((t) => `<tr><td>${esc(t.name)}</td><td>${money(t.price)}</td><td>${money(t.contribution)}</td><td>${pct(t.margin)}</td><td>${money(t.perRoomHour)}</td><td>${money(t.breakEvenPrice)}</td><td>${t.targetPrice === null ? "n/a" : money(t.targetPrice)}</td></tr>`).join("");
+      const rows = [
+        ["Monthly revenue", money(r.revenue)],
+        ["Monthly contribution", `${money(r.contribution)} (${pct(r.margin)})`],
+        ["Room hours used", r.roomHours.toFixed(1) + (r.utilisation === null ? "" : ` (${pct(r.utilisation)} of capacity)`)],
+      ];
+      if (r.fixed > 0) {
+        rows.push(["Fixed costs", money(r.fixed)], ["Operating profit before owner pay", money(r.profit)]);
+        if (r.breakEvenRoomHours !== null) rows.push(["Room hours needed to cover fixed costs at this mix", r.breakEvenRoomHours.toFixed(1)]);
+      }
+      els.monthTable.innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      els.status.textContent = "";
+      record("treatments_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "provider-rate": "60", "room-rate": "30", "turnover": "10", "fee-pct": "3", "target-margin": "50",
+        "room-hours": "120", "fixed": "4000",
+        "treatments": "Neurotoxin 40 units, 600, 280, 30, 40\nLip filler 1 syringe, 750, 320, 45, 12\nHydraFacial, 220, 40, 50, 30\nLaser hair removal, 180, 12, 30, 40\nMicroneedling, 400, 95, 60, 10" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example with invented numbers: five treatments, a $60 provider hour, a $30 room hour and a 50% target margin.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of IDS) $("#" + id).value = "";
+      for (const [id, v] of Object.entries(DEFAULTS)) $("#" + id).value = v;
+      els.report.hidden = true;
+      els.status.textContent = "Enter your costs and at least one treatment, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

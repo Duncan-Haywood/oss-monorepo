@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shaper-twin"
+version = "0.1.0"
+description = "Input-shaped moves of a liquid-carrying cart: ZV and ZVD residual sin(pi eps/2) and sin^2(pi eps/2), the closed-form calibration error each tolerates, and the fill-band-robust design"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

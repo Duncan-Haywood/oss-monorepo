@@ -1,0 +1,53 @@
+name: structured-settlement-buyout-calculator
+description: >-
+  Free browser tool for anyone offered cash for structured settlement or annuity payments: type the
+  payments being sold, their dates, the cash offered and the fees, and see the yearly discount rate the
+  buyer is charging, cents on the dollar, what the payments are worth at a rate you call fair, and what
+  the same payments would fetch at lower rates as a counter-offer range. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. No existing venture prices a stream of
+# scheduled settlement payments against a factoring offer; injury-settlement-net-proceeds-calculator is
+# about lawyer fees and liens on the award, and the buyout calculators value royalties, leases and pensions.
+#
+# Why this niche: payees get unsolicited calls and mailers from factoring companies offering cash for
+# future payments, and the offer shows dollar figures only. The implied discount rate is often far above
+# ordinary borrowing rates and is the one number that makes quotes comparable. "Structured settlement
+# buyout calculator" and "structured settlement discount rate" are searched by people holding an offer.
+#
+# First visitor: someone in r/personalfinance or a settlement-payee forum asking whether an offer is fair,
+# or a family member helping them. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; every payment treated as certain; not legal, tax
+# or financial advice; embeds no buyer names, rates or state rules; says court approval and state law
+# apply and to read the paperwork; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a printable quote-comparison
+# sheet for several buyers and life-contingent payment support (not built).
+
+hypotheses:
+  - claim: >-
+      People holding a structured settlement purchase offer will type it into a private page to see the
+      yearly rate behind it, because the offer shows only the cash and the payments sold.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user or adviser reports that a computed rate or present value disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/structured-settlement-buyout-calculator/
+  analytics: null

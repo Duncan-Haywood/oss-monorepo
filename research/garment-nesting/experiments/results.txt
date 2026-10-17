@@ -1,0 +1,33 @@
+A. Random rectangle markers: n=8 boxes, 10..60 x 10..80 cm, fabric width 100 cm, 20 instances (seed 0).
+   SA = 500 bottom-left decodes. Exact = MILP (HiGHS), 30 s limit per instance.
+   exact proved optimal on 19/20 instances (median solve 0.7 s).
+   mean area bound / optimum (proved only): 0.856  (1.0 = no waste possible beyond the area)
+   method   mean gap to exact (%)  worst gap (%)  #matches exact   [proved-optimal instances only]
+   NFDH         19.8            46.8       0
+   FFDH         17.0            46.8       0
+   BL-area       7.3            27.9       3
+   SA            0.5             7.4      16
+   SA beat plain bottom-left on 15/20 instances.
+   mean efficiency (piece area / (W x L)): area bound on the optimum 0.856 (proved instances); NFDH 0.728, BL 0.802, SA 0.851
+
+B. Stylised garments, one ply, no seam allowance, grain kept (180-degree turns only), 2 cm raster.
+   efficiency = true piece area / (fabric width x marker length). SA: 200 decodes, mean (min-max) over 5 seeds.
+   'bbox' packs each piece's bounding box (rectangles, exact MILP when n<=9 else SA); 'poly' packs the polygons.
+   garment    W  area m2 | bbox NFDH   bbox SA |  poly BL          poly SA | eff bbox-NFDH -> poly-SA
+   shirt    110    1.201 |   214.4cm   150.4cm |  162.0cm  139.2cm (136-146) | 0.509 -> 0.803   (area bound 109.2 cm)
+   shirt    140    1.201 |   142.4cm   132.0cm |  132.0cm  128.0cm (126-130) | 0.602 -> 0.681   (area bound 85.8 cm)
+   shirt    150    1.201 |   140.4cm   132.0cm |  130.0cm  123.2cm (120-124) | 0.570 -> 0.667   (area bound 80.1 cm)
+   skirt    110    0.811 |   128.0cm   128.0cm |  128.0cm  116.0cm (116-116) | 0.576 -> 0.636   (area bound 73.7 cm)
+   skirt    140    0.811 |   120.0cm   120.0cm |  120.0cm   82.0cm (82-82) | 0.483 -> 0.707   (area bound 57.9 cm)
+   skirt    150    0.811 |   120.0cm   120.0cm |  120.0cm   68.0cm (68-68) | 0.451 -> 0.795   (area bound 54.1 cm)
+
+   Marker efficiency range over these runs (best poly SA): 0.636 to 0.803; bbox-NFDH: 0.451 to 0.602.
+   For reference, garment-teardown assumed a marker efficiency of 0.78 to 0.80 for its coats (an assumption, not a measurement).
+
+C. What the efficiency gap costs, per garment, at the assumed cloth price of $7/m^2 (garment-teardown replica price; an assumption):
+   shirt W=110: bbox-NFDH uses 2.359 m^2 ($16.51); poly-SA uses 1.496 m^2 ($10.47); saving $6.04
+   shirt W=140: bbox-NFDH uses 1.994 m^2 ($13.96); poly-SA uses 1.764 m^2 ($12.35); saving $1.61
+   shirt W=150: bbox-NFDH uses 2.107 m^2 ($14.75); poly-SA uses 1.800 m^2 ($12.60); saving $2.15
+   skirt W=110: bbox-NFDH uses 1.408 m^2 ($9.86); poly-SA uses 1.276 m^2 ($8.93); saving $0.92
+   skirt W=140: bbox-NFDH uses 1.680 m^2 ($11.76); poly-SA uses 1.148 m^2 ($8.04); saving $3.72
+   skirt W=150: bbox-NFDH uses 1.800 m^2 ($12.60); poly-SA uses 1.020 m^2 ($7.14); saving $5.46

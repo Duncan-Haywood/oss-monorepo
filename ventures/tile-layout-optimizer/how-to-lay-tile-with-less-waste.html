@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Lay Tile With Less Waste: A Worked Example</title>
+  <meta name="description" content="Where to start tiling, brick versus straight grid, and offcut reuse: a worked example of a 3.67 by 5.12 m L-shaped room where the best layout needs 67 plank tiles, against 73 by the 10 percent rule and 82 from a corner start.">
+  <meta property="og:title" content="How To Lay Tile With Less Waste: A Worked Example">
+  <meta property="og:description" content="The same L-shaped room needs 67, 73 or 82 plank tiles depending on how you lay it out. Here is how to check your own room.">
+  <link rel="canonical" href="./how-to-lay-tile-with-less-waste.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find where to start tiling a room?", "acceptedAnswer": {"@type": "Answer", "text": "Dry-lay a row of tiles across the room from the centre, or measure the leftover at each wall for a few starting lines. Tilers want equal, reasonably wide cuts at opposite walls rather than whole tiles at one wall and a thin sliver at the other. The optimizer tries many starting lines in both directions and rejects any layout with a cut narrower than the limit you set."}}, {"@type": "Question", "name": "Is a brick pattern wasteful?", "acceptedAnswer": {"@type": "Answer", "text": "It usually needs a few more tiles than a straight grid because alternate rows start and end with a part tile, but the cut pieces from one end of a row often fit the other end, so the difference can be small. In the worked example the straight grid was the cheapest for the plank and a brick bond was the cheapest for the large tile, which is why the optimizer compares them."}}, {"@type": "Question", "name": "Is the 10 percent rule enough?", "acceptedAnswer": {"@type": "Answer", "text": "Sometimes it overbuys and sometimes it does not cover the awkward room. In the worked example it asked for 73 plank tiles when the best layout needs 67, and a corner start with no offcut reuse needed 82. Rooms with cut-outs, thin planks and offset patterns move the answer in either direction, so lay the actual room out."}}, {"@type": "Question", "name": "Why would a smaller number of tiles not mean the best choice?", "acceptedAnswer": {"@type": "Answer", "text": "Tiles come in boxes, and a different tile size has a different box size and price. The optimizer ranks tile options by the cost of whole boxes after spare, and shows tiles in the layout beside the rule of thumb so you can see where the box rounding changes the answer."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #0f5a6e; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dce5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5563; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Tile layout optimizer</a></p>
+  <h1>How to lay tile with less waste, with a worked example</h1>
+  <p>The tile you need is not the floor area divided by the tile area. It depends on where the grid starts, which way the tile runs, how the rows are offset, and whether a piece cut off at one wall can be used at another. Three choices decide most of it.</p>
+  <p><a class="cta" href="./">Open the free tile layout optimizer</a></p>
+
+  <h2>The three choices</h2>
+  <p><strong>The starting line.</strong> A grid started against one wall leaves whatever is left over at the opposite wall. If that is 2 cm, you have a sliver that breaks when cut and is the first thing the eye finds. Sliding the whole grid changes every cut in the room at once, and the best position is rarely the corner.</p>
+  <p><strong>The bond.</strong> A straight grid lines the joints up. A half or one-third brick offset hides a slightly bowed plank and looks better in a long room, but every second row starts and ends with a part tile.</p>
+  <p><strong>Offcut reuse.</strong> The 36 cm left over from the end of one plank is often the 36 cm piece you need at the next wall. Reusing offcuts is a packing problem: which cut pieces come out of which whole tiles with straight saw cuts. It cannot be done well by eye on more than a handful of pieces.</p>
+
+  <h2>A worked example</h2>
+  <p>An invented room is 3.67 &times; 5.12 m with a 1.7 &times; 1.5 m corner taken out (an L-shape), 10 mm gaps at the walls, 3 mm grout, a 2 mm saw cut and no cut narrower than 50 mm. Three invented tile options, each with an invented box price:</p>
+  <table>
+    <thead><tr><th>Tile</th><th class="n">Best layout, tiles</th><th class="n">Boxes with 5% spare</th><th class="n">Cost</th><th class="n">10% rule, boxes / cost</th><th class="n">Corner start, no reuse, tiles</th></tr></thead>
+    <tbody>
+      <tr><td>Plank 20 &times; 120 cm, 6 per box, $62</td><td class="n">67</td><td class="n">12</td><td class="n">$744</td><td class="n">13 / $806</td><td class="n">82</td></tr>
+      <tr><td>Subway-size 30 &times; 60 cm, 8 per box, $71</td><td class="n">90</td><td class="n">12</td><td class="n">$852</td><td class="n">13 / $923</td><td class="n">102</td></tr>
+      <tr><td>Large format 60 &times; 60 cm, 4 per box, $68</td><td class="n">46</td><td class="n">13</td><td class="n">$884</td><td class="n">13 / $884</td><td class="n">57</td></tr>
+    </tbody>
+  </table>
+  <p>The floor to cover is about 16.1 m&sup2;. For the plank, the best layout is a straight grid started about 20 cm from the left wall, and it needs 67 tiles against a lower bound of 66 from the area that must be covered: it is within one tile of the best that could exist. The 10 percent rule asked for 73, and a corner start with every cut piece taking its own tile needed 82, which is 15 boxes and $930. For the large tile the best layout is a one-third brick, and it needs 46 tiles, but with 5 percent spare and whole boxes the cost is the same as the rule of thumb. The honest reading is that the rule of thumb cost the same for the large tile and about 9 percent more tile for the plank (73 against 67), so it is a fair starting guess but not a number to order from.</p>
+  <p>Notice what the table does not say: it does not say the plank is the better floor. It only says which of these three costs least to buy for this room. Look, durability, slip rating and installation cost are yours to weigh.</p>
+
+  <h2>How to check your own room</h2>
+  <ol>
+    <li>Measure the room as its bounding rectangle and add each tub, island or corner as a cut-out.</li>
+    <li>Enter the tile sizes, tiles per box and prices of the options you are choosing between.</li>
+    <li>Set your grout joint, the narrowest cut you will accept, and whether the tile can be turned or its offcuts reused.</li>
+    <li>Compare tiles in the layout, boxes, cost and the number of slivers; then print or download the cutting list.</li>
+  </ol>
+  <p>It is a heuristic: it tries many starting lines, bonds and orderings and keeps the best, which is not a proof that nothing cheaper exists. The lower bound shows how close it is. Walls are never perfectly square, so keep your own spare.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I find where to start tiling a room?</h3>
+  <p>Dry-lay a row of tiles across the room from the centre, or measure the leftover at each wall for a few starting lines. Tilers want equal, reasonably wide cuts at opposite walls rather than whole tiles at one wall and a thin sliver at the other. The optimizer tries many starting lines in both directions and rejects any layout with a cut narrower than the limit you set.</p>
+  <h3>Is a brick pattern wasteful?</h3>
+  <p>It usually needs a few more tiles than a straight grid because alternate rows start and end with a part tile, but the cut pieces from one end of a row often fit the other end, so the difference can be small. In the worked example the straight grid was the cheapest for the plank and a brick bond was the cheapest for the large tile, which is why the optimizer compares them.</p>
+  <h3>Is the 10 percent rule enough?</h3>
+  <p>Sometimes it overbuys and sometimes it does not cover the awkward room. In the worked example it asked for 73 plank tiles when the best layout needs 67, and a corner start with no offcut reuse needed 82. Rooms with cut-outs, thin planks and offset patterns move the answer in either direction, so lay the actual room out.</p>
+  <h3>Why would a smaller number of tiles not mean the best choice?</h3>
+  <p>Tiles come in boxes, and a different tile size has a different box size and price. The optimizer ranks tile options by the cost of whole boxes after spare, and shows tiles in the layout beside the rule of thumb so you can see where the box rounding changes the answer.</p>
+  <p>Pricing the job rather than the material? The <a href="../flooring-bid-calculator/">flooring bid calculator</a> and the <a href="../kitchen-tile-backsplash-bid-calculator/">kitchen tile backsplash bid calculator</a> build a bid, and the <a href="../cut-list-optimizer/">cut list optimizer</a> does the same job for sheets and boards.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, construction or installation advice, and not a substitute for a qualified tiler or your tile maker's instructions. The example room, tiles and prices are invented and your supplier's prices, box sizes and packing differ. Verify the output and keep your own spare; you remain responsible for decisions made from it. No data is uploaded.</p>
+    <p><a href="./">Use the optimizer</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+  </footer>
+</body>
+</html>

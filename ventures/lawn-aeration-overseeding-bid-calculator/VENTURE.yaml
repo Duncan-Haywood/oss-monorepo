@@ -1,0 +1,56 @@
+name: lawn-aeration-overseeding-bid-calculator
+description: >-
+  Free browser tool for lawn-care operators pricing core aeration and overseeding: enter lot
+  size, beds and hardscape, aerator swath, speed and passes, seed and fertilizer rates and
+  prices, crew hours, truck miles, the aerator's cost per hour, card fees and yearly overhead
+  and see true profit per job, margin, profit per crew hour, the lowest quote that earns a
+  target margin, price per 1,000 sq ft, whether the minimum job fee applies, break-even jobs
+  a season, and a two-job comparison. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session. lawn-care-bid-calculator prices recurring
+# mowing stops and says in its README that one-off jobs (aeration, overseed, install) are out
+# of scope; hydroseeding-job-bid-calculator and sod-install-bid-calculator cover other
+# install methods. No aeration/overseeding venture existed. Why this niche: fall aeration and
+# overseeding is the biggest one-off revenue line for small lawn companies, quoted by lot size
+# or a guessed per-1,000-sq-ft rate, while the real cost swings with turf actually present,
+# the number of aerator passes, and a seed bill that is often 40% of the job. Searches like
+# "how much to charge for lawn aeration" and "overseeding price per square foot" recur.
+# Landscape management software costs $50-300 a month and does not answer the pricing
+# question, so this is the lead magnet for a later paid multi-job season planner (payment
+# rails stay off for now).
+#
+# First visitor: lawn-care operator groups and forums. Volume not measured with an external
+# tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Seed and fertilizer rates are the
+# user's own; says to follow the product label. Not tax, legal, insurance or financial
+# advice; says so. Names no vendor or brand. No data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Small lawn-care operators will enter a quote and their lot, seed and crew costs into a
+      no-signup tool and use the lowest-quote and price-per-1,000-sq-ft numbers to raise
+      aeration and overseeding prices or set a minimum job fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest quote that does not reproduce the tool's own target margin when typed back in as the quote.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lawn-aeration-overseeding-bid-calculator/
+  analytics: null

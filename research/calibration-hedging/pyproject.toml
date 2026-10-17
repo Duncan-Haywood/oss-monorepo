@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calibration-hedging"
+version = "0.1.0"
+description = "Calibration tests are gameable: a Foster-Vohra/Blackwell hedger passes any calibration slashing test with no information; only resolution-sensitive scoring detects it"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,36 @@
+name: ebay-file-exchange-check
+description: >-
+  Free browser tool that checks an eBay File Exchange or bulk listing CSV before it is uploaded:
+  semicolon or UTF-16 files where comma-separated UTF-8 is expected, titles over 80 characters,
+  missing or misspelled Action and site header, ItemIDs and SKUs that Excel turned into scientific
+  notation, UPCs that lost their leading zero and UPC and EAN check digits, bad prices, quantities,
+  Format and Duration combinations, picture URLs separated by commas or not https, and JavaScript in
+  descriptions, each with its line number, plus a safe-fixes pass that converts the delimiter and
+  restores a UPC's zero only when the check digit confirms it. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Sibling checkers read Amazon, Shopify, Etsy,
+# WooCommerce and Square files; none reads eBay's File Exchange CSV, and duplicate_check.py scored
+# the niche 0.35 at most (etsy-listing-csv-check) because the vocabulary is different: Action,
+# ItemID, CustomLabel, ConditionID, Duration, pipe-separated PicURL. eBay has millions of active
+# sellers and a long tail of power sellers who move listings through spreadsheets and listing tools
+# because Seller Hub's own editor is slow past a few dozen items; a rejected upload comes back as an
+# error file naming a row but rarely the cause.
+#
+# First visitor: sellers searching the literal symptoms ("eBay File Exchange error", "eBay bulk
+# upload CSV title too long", "eBay file exchange UPC leading zero", "eBay Seller Hub reports upload
+# failed", "eBay GTC auction duration error"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory, with an explicit not-checked list; category
+# requirements, item specifics, business policies, variations, VeRO and prohibited items are out of
+# scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the eBay seller audience, cross-linked
+# to ebay-fee-calculator and marketplace-fee-compare. A paid version, if usage appears, is bulk checks,
+# category templates and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-eBay clause,
+# trademark used nominatively.

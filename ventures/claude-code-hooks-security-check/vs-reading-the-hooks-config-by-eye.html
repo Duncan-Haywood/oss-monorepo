@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Hooks Security Check vs. reading the hooks config by eye</title>
+<meta name="description" content="Reading a short hooks config catches an obvious curl-to-shell download. It reliably misses a credential read and network send split across a pipe, an env dump piped to curl, a base64-decoded payload piped to a shell, or a broad rm -rf hidden in a longer chained command -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reading-the-hooks-config-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Claude Code Hooks Security Check vs. reading the hooks config by eye">
+<meta property="og:description" content="Reading a hooks config yourself catches an obviously broad command. It cannot reliably catch a credential read and network send split across a pipe, an env dump piped to curl, or a base64-decoded payload piped to a shell -- all of which this checker computes exactly.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/vs-reading-the-hooks-config-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just read the hooks config myself?","acceptedAnswer":{"@type":"Answer","text":"For a short config with one hook and an obvious curl-piped-to-bash download, yes -- that case is visible on a single read. What reading does not reliably catch is a credential file read and a network send that live in different parts of the same command line, an environment-variable dump piped to curl, a base64-decoded payload piped to a shell, or a broad rm -rf buried inside a longer chain of && and ; separated statements. Those need the whole command line checked against eleven separate shapes the same mechanical way every time, not remembered while skimming a settings.json with a dozen hooks in it."}},{"@type":"Question","name":"Why is credential exfiltration easy to miss on a read-through?","acceptedAnswer":{"@type":"Answer","text":"Because the read of a sensitive path like ~/.ssh/id_rsa or ~/.aws/credentials and the curl -d or scp that sends it out can sit on opposite ends of a long piped or chained command, with ordinary-looking steps in between. A reviewer's eye catches either half in isolation easily; confirming both halves are present in the same command line, for every command in the config, is the kind of pairing a mechanical check does the same way every time and a skim does not."}},{"@type":"Question","name":"Why is a base64-decoded payload piped to a shell hard to spot?","acceptedAnswer":{"@type":"Answer","text":"Because the dangerous part -- what actually runs -- is hidden inside an encoded blob, not written out as a readable command. The visible text is just \"base64 -d | bash\" or similar, which looks unremarkable next to a curl-to-shell download unless you already know to treat any decode-then-execute pipe as the same risk shape. This tool flags the pipe shape itself, without needing to decode or run the payload."}},{"@type":"Question","name":"What about a broad rm -rf buried in a longer command?","acceptedAnswer":{"@type":"Answer","text":"A hook command chained with && or ; can run several statements in sequence, and an unguarded rm -rf ~ or rm -rf $HOME sitting third or fourth in that chain is easy to skim past while reading left to right for the command's obvious purpose. Splitting every command on its statement separators and checking each part for a broad, unguarded recursive delete is a mechanical pass through every clause, not a read of the parts that look load-bearing."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit anyone reviewing a Claude Code hooks configuration already has -- reading each hook's command text by eye before trusting it to fire unattended. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Claude Code Hooks Security Check</a></p>
+<header>
+<h1>Claude Code Hooks Security Check vs. reading the hooks config by eye</h1>
+<p class="lede">Reading a short hooks config with one obvious curl-to-shell download catches that download. It reliably misses a credential read and network send split across a pipe, an environment dump piped to curl, a base64-decoded payload piped to a shell, and a broad <code>rm -rf</code> buried inside a longer chain of statements &mdash; which is what this free, no-upload checker computes exactly, in one pass.</p>
+</header>
+<section>
+<h2>Where reading it yourself stops being enough</h2>
+<p>
+  Anyone about to trust a hooks configuration already does this: open <code>settings.json</code>, read each
+  hook's <code>command</code> string, and decide whether it looks right before letting it fire automatically
+  and unattended. For a single hook with an obviously broad <code>curl | bash</code>, that read catches it.
+  The problem is the other ten checks below are not the kind of thing a skim of a rendered command string
+  reliably surfaces, especially once a config carries several hooks across several events.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Reading the config yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>A command pipes a <code>curl</code>/<code>wget</code> download straight into a shell interpreter, or downloads with PowerShell and executes it with <code>Invoke-Expression</code>.</td><td>Works. This is the one case a plain read reliably catches.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>A command reads a credential path (SSH key, AWS credentials, <code>.npmrc</code>, kube config, and similar) and separately sends data out over the network, anywhere in the same command line.</td><td>Easy to miss when the read and the send sit on opposite ends of a long piped or chained command with ordinary-looking steps between them.</td><td>Matched as a pair &mdash; a sensitive path plus a network-send shape &mdash; in the same command, regardless of where each half sits.</td></tr>
+<tr><td>Environment variables dumped (<code>env</code>/<code>printenv</code>/<code>export -p</code>) and piped or sent to a network command in the same line.</td><td>The dump and the send can be several tokens apart in a chained command; easy to read each half as unremarkable on its own.</td><td>Checked as a pair against the same command line, every time.</td></tr>
+<tr><td>An unguarded recursive delete (<code>rm -rf</code> or equivalent flags) targeting a broad path like <code>/</code>, <code>~</code>, or <code>$HOME</code>, possibly third or fourth in a <code>&amp;&amp;</code>/<code>;</code>-separated chain.</td><td>Easy to skim past while reading left to right for the command's obvious purpose.</td><td>Every statement in the chain split and checked for the same broad-delete shape.</td></tr>
+<tr><td>TLS/certificate verification disabled on a request (<code>curl -k</code>, <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code>, and similar), which can sit as one flag among many.</td><td>A single flag buried in a long argument list is easy to read past.</td><td>Matched against the exact flag/variable shapes across every command, every time.</td></tr>
+<tr><td>A base64-decoded payload piped straight into a shell &mdash; the dangerous part is hidden inside an encoded blob, not written as a readable command.</td><td>Reads as an unremarkable-looking pipe unless you already know to treat decode-then-execute as the same risk as a plain download-to-shell.</td><td>Flags the decode-then-execute pipe shape itself, with no need to decode or run anything.</td></tr>
+<tr><td>Persistence via a shell startup file, crontab, or user service, so the command runs again later independent of this hook firing again.</td><td>Requires noticing an append (<code>&gt;&gt;</code>) to a dotfile or a <code>crontab</code>/<code>systemctl --user</code> call buried in a longer line.</td><td>Matched against the specific persistence-target shapes, every time.</td></tr>
+<tr><td>World-writable permissions granted (<code>chmod 777</code>/<code>a+w</code>/<code>o+w</code>) and a process started detached from the hook (<code>nohup</code>/<code>setsid</code>/<code>tmux -d</code> and similar).</td><td>Each is a short, easy-to-miss flag in a longer argument list.</td><td>Checked against the exact flag shapes, across every command in the config.</td></tr>
+<tr><td>Re-checking an entire hooks config again after adding or editing one hook.</td><td>One hook at a time, remembered by hand, every time something changes.</td><td>One paste, every command, every time.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A quick read is still the fastest way to catch an obviously dangerous command in a short config, and
+  this checker is not doing anything a careful line-by-line audit couldn't &mdash; it is reading the same
+  command strings a careful audit would, just checking every one against eleven fixed shapes automatically
+  instead of leaving the comparison to be remembered by hand across however many hooks the config has.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses JSON you paste entirely in your own browser. It never sends your hooks configuration anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just read the hooks config myself?</h3>
+<p>For a short config with one hook and an obvious curl-piped-to-bash download, yes -- that case is visible on a single read. What reading does not reliably catch is a credential file read and a network send that live in different parts of the same command line, an environment-variable dump piped to curl, a base64-decoded payload piped to a shell, or a broad rm -rf buried inside a longer chain of && and ; separated statements. Those need the whole command line checked against eleven separate shapes the same mechanical way every time, not remembered while skimming a settings.json with a dozen hooks in it.</p>
+<h3>Why is credential exfiltration easy to miss on a read-through?</h3>
+<p>Because the read of a sensitive path like ~/.ssh/id_rsa or ~/.aws/credentials and the curl -d or scp that sends it out can sit on opposite ends of a long piped or chained command, with ordinary-looking steps in between. A reviewer's eye catches either half in isolation easily; confirming both halves are present in the same command line, for every command in the config, is the kind of pairing a mechanical check does the same way every time and a skim does not.</p>
+<h3>Why is a base64-decoded payload piped to a shell hard to spot?</h3>
+<p>Because the dangerous part -- what actually runs -- is hidden inside an encoded blob, not written out as a readable command. The visible text is just "base64 -d | bash" or similar, which looks unremarkable next to a curl-to-shell download unless you already know to treat any decode-then-execute pipe as the same risk shape. This tool flags the pipe shape itself, without needing to decode or run the payload.</p>
+<h3>What about a broad rm -rf buried in a longer command?</h3>
+<p>A hook command chained with && or ; can run several statements in sequence, and an unguarded rm -rf ~ or rm -rf $HOME sitting third or fourth in that chain is easy to skim past while reading left to right for the command's obvious purpose. Splitting every command on its statement separators and checking each part for a broad, unguarded recursive delete is a mechanical pass through every clause, not a read of the parts that look load-bearing.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit anyone reviewing a Claude Code hooks configuration already has -- reading each hook's command text by eye before trusting it to fire unattended. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded.</p>
+<p class="note">
+  Want to know what a zero-finding scan actually means? Read <a href="./why-a-clean-scan-isnt-a-safety-guarantee.html">why a clean scan isn't a safety guarantee</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own hooks configuration before trusting it to fire unattended. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your hooks configuration is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,45 @@
+name: consignment-markdown-planner
+description: 'Free, zero-network, zero-dependency browser tool and CLI for consignment, resale, thrift and vintage shops: paste the items on the floor (price, weekly sell chance at full price, shop share of the sale, shelf cost per week) and get the exact best markdown schedule for each (dynamic programming over the discount levels the shop allows, verified against brute force), which items to decline at intake and the price or shop share that would make them worth taking, the dollars a fixed 30/60-day rule or never marking down leaves behind, and a slow-season re-check. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a small consignment shop keeps from stock it already holds.
+# Checked 2026-10-02: ventures/ has clearance-markdown-planner (retail clearance, no consignor split or
+# shelf-slot cost), booth-rent-vs-commission and price-elasticity-estimator; none plans a per-item markdown
+# schedule under a consignment split with shelf cost or screens items at intake. Not in screened-out.md.
+#
+# First visitor: searches "consignment shop markdown schedule", "when to mark down consignment items",
+# "consignment store pricing strategy", "resale shop markdown strategy"; r/Flipping, r/ThriftStoreHauls
+# shop-owner threads, resale-shop owner groups. Volume not measured with an external tool. Shops run on
+# consignment software that applies one fixed schedule; a hosted version that reads the POS sales export
+# to estimate sell rates and lift itself is the natural paid upgrade.
+hypotheses:
+  - claim: A consignment shop owner searching for a markdown schedule will paste their item types, see how much a fixed rule leaves behind, and change when they mark down or what they accept.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A shop owner will return each season with new sell rates, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No shop owner reports changing a markdown or intake rule because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/consignment-markdown-planner/
+  analytics: null

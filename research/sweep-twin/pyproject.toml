@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sweep-twin"
+version = "0.1.0"
+description = "Snapshot-scan twin of a spinning lidar on a moving platform: wall placement shifts by v*t, parallel walls appear to converge by spin*v*tau/(2 pi)*(1/d1+1/d2), one scan reveals the velocity, yaw biases bearings by -k*beta/(1+k), acceleration biases scan-to-scan odometry by a*t_f"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

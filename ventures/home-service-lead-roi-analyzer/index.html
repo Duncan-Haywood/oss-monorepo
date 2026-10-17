@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Service Lead ROI Analyzer — Cost per Booked Job by Lead Source</title>
+  <meta name="description" content="Free analyzer for plumbers, electricians, HVAC and other home-service pros: load your Thumbtack, Angi, Google Local Services, Yelp or ad leads and see cost per lead, close rate, cost per booked job and profit per source, and which paid sources lose money. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Home Service Lead ROI Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Which lead source books jobs and which just charges you? Cost per booked job, break-even close rate and profit per source. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Service Lead ROI Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a lead log from Thumbtack, Angi, Google Local Services, Yelp, ads and referrals into cost per lead, close rate, cost per booked job, job value and profit per source, service and month, and names the paid sources that lose money. Runs entirely in your browser; the file is never uploaded.", "featureList": "Cost per booked job by source, close rate, break-even close rate, profit after lead cost, uncredited bad leads, duplicate charges, monthly trend, copyable summary"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which of my lead sources actually make money?", "acceptedAnswer": {"@type": "Answer", "text": "Copy your leads from each platform (Thumbtack, Angi, HomeAdvisor, Google Local Services, Yelp, Facebook) and your own referrals into one sheet with a date, a source, what the lead cost and whether it became a job, then drop it here. The tool divides each source's spend by the jobs it brought to get cost per booked job, compares the job value you booked against what you paid for leads, and names the sources that lose money once your margin is taken off. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "Why is cost per booked job better than cost per lead?", "acceptedAnswer": {"@type": "Answer", "text": "A cheap lead that never answers the phone costs more than an expensive one that books. Cost per booked job is total spend on a source divided by the jobs it won, so the leads that went nowhere are counted against it. It is the number that compares a $25 lead you close one time in ten with a $60 lead you close one time in three."}}, {"@type": "Question", "name": "What is the break-even close rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is the share of leads you must turn into jobs for the average job to repay what a lead costs: cost per lead divided by average job value times your margin. If you close less than that on a source, each job it brings leaves you behind on that source, before you count your own time."}}, {"@type": "Question", "name": "Can I get a refund for bad leads?", "acceptedAnswer": {"@type": "Answer", "text": "Many platforms credit some spam, wrong-number, duplicate or out-of-area leads if you report them in time. Which ones, and how long you have, is each platform's own policy and is not modelled here. The tool lists the leads you marked that way that were charged and not credited so you know what is worth checking."}}, {"@type": "Question", "name": "Which columns does the file need?", "acceptedAnswer": {"@type": "Answer", "text": "A date, a source and a lead cost, plus either a Status column (won, lost, open, spam and so on) or a Job Value column. A Service column, a Refund or Credit column and a lead or customer name are used when present. Column names are matched by alias; if a row cannot be read the page lists it with its line number and reason."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you supply and a job margin you type, which is an assumption and not a measurement. It is independent of every lead platform named on this page and is not affiliated with or endorsed by any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME SERVICE LEAD ROI ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your paid lead sources actually book jobs?</h1>
+    <p>Load a <strong>lead log</strong> (a date, a source, what the lead cost and whether it became a job) and get <strong>cost per lead, close rate, cost per booked job, job value and profit for each source</strong>, the <strong>break-even close rate</strong> each source has to beat, the <strong>paid sources that lose money</strong>, and the <strong>spam, wrong-number and duplicate leads you paid for</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Thumbtack, Angi, HomeAdvisor, Google, Yelp and every other lead platform: not affiliated with or endorsed by any of them. Profit uses a job margin you type, which is an assumption.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your lead log</h2>
+    <p class="note">Needs a <strong>Date</strong>, a <strong>Source</strong> (or <strong>Platform</strong>) and a <strong>Lead Cost</strong> (or <strong>Cost</strong>; use 0 for referrals and repeat customers), plus either a <strong>Status</strong> column (won, booked, lost, open, spam, wrong number, duplicate …) or a <strong>Job Value</strong> column. Used when present: <strong>Service</strong>, <strong>Refund</strong> or <strong>Credit</strong>, and a <strong>Lead ID</strong> or customer name (to spot repeat charges). Comma, tab and semicolon files, quoted fields, US and day-first dates and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Source,Lead Cost,Status,Job Value"></textarea>
+    <div class="grid">
+      <div><label for="margin">Gross margin on a job, % (before lead cost)</label><input type="number" id="margin" value="35" min="0" max="100" step="1"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By source</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Source</th><th class="n" scope="col">Leads</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Cost / lead</th><th class="n" scope="col">Booked</th><th class="n" scope="col">Close rate</th><th class="n" scope="col">Cost / booked job</th><th class="n" scope="col">Job value</th><th class="n" scope="col">Avg job</th><th class="n" scope="col">Break-even close</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="by-source"></tbody></table></div>
+    <h3>By service</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Service</th><th class="n" scope="col">Leads</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Cost / lead</th><th class="n" scope="col">Booked</th><th class="n" scope="col">Close rate</th><th class="n" scope="col">Cost / booked job</th><th class="n" scope="col">Job value</th><th class="n" scope="col">Avg job</th><th class="n" scope="col">Break-even close</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="by-service"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Leads</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Cost / lead</th><th class="n" scope="col">Booked</th><th class="n" scope="col">Close rate</th><th class="n" scope="col">Cost / booked job</th><th class="n" scope="col">Job value</th><th class="n" scope="col">Avg job</th><th class="n" scope="col">Break-even close</th><th class="n" scope="col">Profit</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download source table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Spend</strong> is the lead cost minus any refund or credit in the file. <strong>Cost per booked job</strong> is a source's spend divided by the jobs it won, counting every lead that went nowhere.</li>
+      <li><strong>Won</strong> comes from the Status column (won, booked, hired, scheduled, completed, paid …) or, with no Status column, from a job value above zero. Status words are matched loosely; a status the tool does not recognise is treated as open.</li>
+      <li><strong>Profit</strong> is the job value you booked times the job margin you typed, minus spend. The default of 35% is a placeholder, not a measurement; use your own. Your time, travel, warranty work and overhead are not in it.</li>
+      <li><strong>Break-even close rate</strong> is cost per lead divided by average job value times margin: the share of leads that must become jobs for the average job to repay a lead.</li>
+      <li><strong>Reconciles.</strong> The source rows, the service rows and the month rows each add up to the totals at the top.</li>
+      <li><strong>Named sources need at least five leads.</strong> A source with fewer is shown but never called a loser, and a cost per booked job compared across sources needs at least two jobs won.</li>
+      <li><strong>Open leads</strong> have no outcome yet, so recent months look worse than they will turn out to be.</li>
+      <li><strong>Not modelled:</strong> repeat business a lead turns into later, lifetime value, seasonality, how fast you called back, each platform's own refund rules, taxes, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which of my lead sources actually make money?</h3>
+    <p>Copy your leads from each platform (Thumbtack, Angi, HomeAdvisor, Google Local Services, Yelp, Facebook) and your own referrals into one sheet with a date, a source, what the lead cost and whether it became a job, then drop it here. The tool divides each source's spend by the jobs it brought to get cost per booked job, compares the job value you booked against what you paid for leads, and names the sources that lose money once your margin is taken off. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>Why is cost per booked job better than cost per lead?</h3>
+    <p>A cheap lead that never answers the phone costs more than an expensive one that books. Cost per booked job is total spend on a source divided by the jobs it won, so the leads that went nowhere are counted against it. It is the number that compares a $25 lead you close one time in ten with a $60 lead you close one time in three.</p>
+    <h3>What is the break-even close rate?</h3>
+    <p>It is the share of leads you must turn into jobs for the average job to repay what a lead costs: cost per lead divided by average job value times your margin. If you close less than that on a source, each job it brings leaves you behind on that source, before you count your own time.</p>
+    <h3>Can I get a refund for bad leads?</h3>
+    <p>Many platforms credit some spam, wrong-number, duplicate or out-of-area leads if you report them in time. Which ones, and how long you have, is each platform's own policy and is not modelled here. The tool lists the leads you marked that way that were charged and not credited so you know what is worth checking.</p>
+    <h3>Which columns does the file need?</h3>
+    <p>A date, a source and a lead cost, plus either a Status column (won, lost, open, spam and so on) or a Job Value column. A Service column, a Refund or Credit column and a lead or customer name are used when present. Column names are matched by alias; if a row cannot be read the page lists it with its line number and reason.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file you supply and a job margin you type, which is an assumption and not a measurement. It is independent of every lead platform named on this page and is not affiliated with or endorsed by any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the margin you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or advertising decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any lead platform.</strong> Thumbtack, Angi, HomeAdvisor, Google, Yelp, Facebook and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing the job itself? See the <a href="../shop-rate-calculator/">shop rate calculator</a> for the hourly rate your bids should carry.</p>
+    <p>Do your leads win less the longer they wait? The <a href="../lead-response-time-analyzer/">lead response time analyzer</a> reads your own log for that.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const dash = (v, f) => (v === null || v === undefined ? "–" : f(v));
+    const whole = (v) => money(v).replace(/\.00$/, "");
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const m = parseFloat($("#margin").value);
+      const r = analyze(n.items, { marginPct: Number.isFinite(m) ? m : 35, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.leads} leads from ${s.sources} source(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Spend $${money(s.spend)}, <strong>${s.won} booked (${pct(s.closeRate)} close rate)</strong>, job value $${money(s.revenue)}, <strong>profit $${money(s.profit)}</strong> after lead cost at a ${(s.margin * 100).toFixed(0)}% job margin` + (s.costPerWon === null ? "." : `, $${money(s.costPerWon)} per booked job.`);
+      $("#report-findings").innerHTML = r.findings.length ? r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out: no named source loses money after lead cost.</p>`;
+      const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.leads}</td><td class="n">${money(g.spend)}</td><td class="n">${dash(g.costPerLead, money)}</td><td class="n">${g.won}</td><td class="n">${dash(g.closeRate, pct)}</td><td class="n">${dash(g.costPerWon, money)}</td><td class="n">${money(g.revenue)}</td><td class="n">${dash(g.avgJob, whole)}</td><td class="n">${dash(g.breakEvenClose, pct)}</td><td class="n">${money(g.profit)}</td></tr>`).join("");
+      $("#by-source").innerHTML = grp(r.bySource);
+      $("#by-service").innerHTML = grp(r.byService);
+      $("#by-month").innerHTML = grp(r.byMonth);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      notes.push(n.statusMode === "column" ? "Outcomes read from the Status column." : "No Status column: a lead with a job value counted as won and every other lead as open.");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r);
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} leads.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic leads from five made-up sources for an invented plumbing company. Not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["source,leads,spend,cost_per_lead,booked,close_rate,cost_per_booked_job,job_value,avg_job,break_even_close_rate,profit"].concat(last.bySource.map((g) => [q(g.label), g.leads, g.spend.toFixed(2), f(g.costPerLead), g.won, f(g.closeRate), f(g.costPerWon), g.revenue.toFixed(2), f(g.avgJob), f(g.breakEvenClose), g.profit.toFixed(2)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "lead-source-roi.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

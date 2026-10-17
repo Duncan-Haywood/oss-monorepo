@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" role="img" aria-label="Power to reject a Coulomb-10% pendulum twin under Student-t noise, five paired statistics">
+<rect width="700" height="400" fill="#fff"/>
+<text x="350.0" y="20" text-anchor="middle" font-family="sans-serif" font-size="14">Paired tests, Coulomb &#8722;10% twin, Student-t(3) noise</text>
+<line x1="60" x2="684" y1="350.0" y2="350.0" stroke="#ddd"/><text x="54" y="354.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="60" x2="684" y1="280.0" y2="280.0" stroke="#ddd"/><text x="54" y="284.0" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<line x1="60" x2="684" y1="210.0" y2="210.0" stroke="#ddd"/><text x="54" y="214.0" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="60" x2="684" y1="140.0" y2="140.0" stroke="#ddd"/><text x="54" y="144.0" text-anchor="end" font-family="sans-serif" font-size="11">0.75</text>
+<line x1="60" x2="684" y1="70.0" y2="70.0" stroke="#ddd"/><text x="54" y="74.0" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="60.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="268.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="476.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="684.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="372.0" y="390" text-anchor="middle" font-family="sans-serif" font-size="12">matched trajectories n</text>
+<text x="14" y="210.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 210.0)">power at 5% null quantile</text>
+<polyline points="60.0,326.2 268.0,332.6 476.0,325.6 684.0,323.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="60.0" cy="326.2" r="3" fill="#c0392b"/>
+<circle cx="268.0" cy="332.6" r="3" fill="#c0392b"/>
+<circle cx="476.0" cy="325.6" r="3" fill="#c0392b"/>
+<circle cx="684.0" cy="323.4" r="3" fill="#c0392b"/>
+<rect x="60" y="34" width="14" height="10" fill="#c0392b"/><text x="80" y="43" font-family="sans-serif" font-size="11">mean_sq</text>
+<polyline points="60.0,70.0 268.0,70.0 476.0,70.0 684.0,70.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="60.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="268.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="476.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#1f6fb2"/>
+<rect x="185" y="34" width="14" height="10" fill="#1f6fb2"/><text x="205" y="43" font-family="sans-serif" font-size="11">median_sq</text>
+<polyline points="60.0,70.0 268.0,70.0 476.0,70.0 684.0,70.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="60.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="268.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="476.0" cy="70.0" r="3" fill="#2e8b57"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#2e8b57"/>
+<rect x="310" y="34" width="14" height="10" fill="#2e8b57"/><text x="330" y="43" font-family="sans-serif" font-size="11">trim20_sq</text>
+<polyline points="60.0,71.4 268.0,70.0 476.0,70.0 684.0,70.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="60.0" cy="71.4" r="3" fill="#8e44ad"/>
+<circle cx="268.0" cy="70.0" r="3" fill="#8e44ad"/>
+<circle cx="476.0" cy="70.0" r="3" fill="#8e44ad"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#8e44ad"/>
+<rect x="435" y="34" width="14" height="10" fill="#8e44ad"/><text x="455" y="43" font-family="sans-serif" font-size="11">mean_abs</text>
+<polyline points="60.0,85.4 268.0,70.0 476.0,70.0 684.0,70.0" fill="none" stroke="#d68910" stroke-width="2"/>
+<circle cx="60.0" cy="85.4" r="3" fill="#d68910"/>
+<circle cx="268.0" cy="70.0" r="3" fill="#d68910"/>
+<circle cx="476.0" cy="70.0" r="3" fill="#d68910"/>
+<circle cx="684.0" cy="70.0" r="3" fill="#d68910"/>
+<rect x="560" y="34" width="14" height="10" fill="#d68910"/><text x="580" y="43" font-family="sans-serif" font-size="11">huber</text>
+</svg>

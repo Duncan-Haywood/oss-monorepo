@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farm Crop Mix Optimizer: Best Acres per Crop — Free</title>
+  <meta name="description" content="Free farm crop mix optimizer: enter yields, prices, costs, labor hours and operating capital per crop to find the acres that earn the most, and see what an extra acre, labor hour or dollar of capital is worth. Nothing uploaded.">
+  <meta property="og:title" content="Farm crop mix optimizer">
+  <meta property="og:description" content="How many acres of each crop? The exact margin-maximising plan under land, labor and capital limits, versus your plan. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Farm Crop Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the acres of each crop that earn the most gross margin, given land, labor hours, operating capital and per-crop limits. Runs in your browser.","featureList":"Optimal crop acreage, current-vs-best comparison, shadow prices for land, labor and capital, break-even margin for left-out crops, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide how many acres of each crop to plant?","acceptedAnswer":{"@type":"Answer","text":"Rank crops by gross margin per acre, then plant the best one until a limit stops you: the acres you have, the labor hours at planting and harvest, the operating capital you can borrow, or a rotation ceiling. When a limit binds, the answer changes, because a crop that earns less per acre can earn more per scarce hour. The tool solves this exactly as a linear program."}},{"@type":"Question","name":"What is a shadow price?","acceptedAnswer":{"@type":"Answer","text":"It is what one more unit of a limit is worth: one more acre, one more labor hour, or one more dollar of operating capital. If labor shows $150 an hour, hiring help for less than that raises profit; if an acre shows $170, a lease at less than that rent is worth taking."}},{"@type":"Question","name":"Why does a crop with a positive margin get zero acres?","acceptedAnswer":{"@type":"Answer","text":"Because acres, hours or dollars are better spent elsewhere. The tool shows the margin per acre that crop would need, everything else unchanged, before it earns a place in the plan."}},{"@type":"Question","name":"Does it handle crop rotation?","acceptedAnswer":{"@type":"Answer","text":"Only through the minimum and maximum acres you set per crop. If soybeans should not exceed 500 acres, enter 500. Agronomic rotation, soil, drainage and field size are yours to judge."}},{"@type":"Question","name":"Is this agronomic, financial or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on yields, prices and costs you type. Yield and price risk, crop insurance, government programs, taxes and lender terms vary; check them with a qualified advisor."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FARM CROP MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many acres of each crop should I plant?</h1>
+    <p>Type your acres, peak-season labor hours and operating capital, then each crop's yield, price, cost and labor. The tool finds the plan with the highest gross margin, compares it with your current plan, and prices one more acre, one more labor hour and one more dollar of capital.</p>
+    <p class="note">Arithmetic on figures you type. Not agronomic, financial, lending or insurance advice. The example figures are placeholders, not any region's yields, prices or costs.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">The farm</h2>
+      <div class="grid">
+        <div><label for="totalAcres">Acres available</label><input id="totalAcres" type="number" step="any" value="0"><p class="note">Cropland you can plant this season.</p></div>
+        <div><label for="laborHours">Peak-season labor hours</label><input id="laborHours" type="number" step="any" value="0"><p class="note">Hours you and your crew can work in the tightest season. Zero means no limit.</p></div>
+        <div><label for="capital">Operating capital ($)</label><input id="capital" type="number" step="any" value="0"><p class="note">Cash and credit for variable costs. Zero means no limit.</p></div>
+        <div><label for="landCostPerAcre">Land cost per acre ($)</label><input id="landCostPerAcre" type="number" step="any" value="0"><p class="note">Rent or ownership cost; it does not change the plan, only the total.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Crop 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Crop name</label><input id="t0_name" type="text" value=""></div>
+        <div><label for="t0_yieldPerAcre">Expected yield per acre</label><input id="t0_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t0_price">Expected price per unit ($)</label><input id="t0_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t0_costPerAcre">Variable cost per acre ($)</label><input id="t0_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t0_laborPerAcre">Peak-season labor hours per acre</label><input id="t0_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t0_minAcres">Fewest acres</label><input id="t0_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t0_maxAcres">Most acres</label><input id="t0_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t0_current">Acres in your current plan</label><input id="t0_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Crop 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Crop name</label><input id="t1_name" type="text" value=""></div>
+        <div><label for="t1_yieldPerAcre">Expected yield per acre</label><input id="t1_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t1_price">Expected price per unit ($)</label><input id="t1_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t1_costPerAcre">Variable cost per acre ($)</label><input id="t1_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t1_laborPerAcre">Peak-season labor hours per acre</label><input id="t1_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t1_minAcres">Fewest acres</label><input id="t1_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t1_maxAcres">Most acres</label><input id="t1_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t1_current">Acres in your current plan</label><input id="t1_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Crop 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Crop name</label><input id="t2_name" type="text" value=""></div>
+        <div><label for="t2_yieldPerAcre">Expected yield per acre</label><input id="t2_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t2_price">Expected price per unit ($)</label><input id="t2_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t2_costPerAcre">Variable cost per acre ($)</label><input id="t2_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t2_laborPerAcre">Peak-season labor hours per acre</label><input id="t2_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t2_minAcres">Fewest acres</label><input id="t2_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t2_maxAcres">Most acres</label><input id="t2_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t2_current">Acres in your current plan</label><input id="t2_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Crop 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Crop name</label><input id="t3_name" type="text" value=""></div>
+        <div><label for="t3_yieldPerAcre">Expected yield per acre</label><input id="t3_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t3_price">Expected price per unit ($)</label><input id="t3_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t3_costPerAcre">Variable cost per acre ($)</label><input id="t3_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t3_laborPerAcre">Peak-season labor hours per acre</label><input id="t3_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t3_minAcres">Fewest acres</label><input id="t3_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t3_maxAcres">Most acres</label><input id="t3_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t3_current">Acres in your current plan</label><input id="t3_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Crop 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Crop name</label><input id="t4_name" type="text" value=""></div>
+        <div><label for="t4_yieldPerAcre">Expected yield per acre</label><input id="t4_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t4_price">Expected price per unit ($)</label><input id="t4_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t4_costPerAcre">Variable cost per acre ($)</label><input id="t4_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t4_laborPerAcre">Peak-season labor hours per acre</label><input id="t4_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t4_minAcres">Fewest acres</label><input id="t4_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t4_maxAcres">Most acres</label><input id="t4_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t4_current">Acres in your current plan</label><input id="t4_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Crop 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Crop name</label><input id="t5_name" type="text" value=""></div>
+        <div><label for="t5_yieldPerAcre">Expected yield per acre</label><input id="t5_yieldPerAcre" type="number" step="any" value="0"><p class="note">Bushels, tons or bales; match the price unit.</p></div>
+        <div><label for="t5_price">Expected price per unit ($)</label><input id="t5_price" type="number" step="any" value="0"><p class="note">Cash price at harvest or contract.</p></div>
+        <div><label for="t5_costPerAcre">Variable cost per acre ($)</label><input id="t5_costPerAcre" type="number" step="any" value="0"><p class="note">Seed, fertilizer, chemicals, fuel, drying, insurance; not land.</p></div>
+        <div><label for="t5_laborPerAcre">Peak-season labor hours per acre</label><input id="t5_laborPerAcre" type="number" step="any" value="0"><p class="note">Hours in the tightest season; zero if labor is not a limit.</p></div>
+        <div><label for="t5_minAcres">Fewest acres</label><input id="t5_minAcres" type="number" step="any" value="0"><p class="note">Contracted or must-plant acres.</p></div>
+        <div><label for="t5_maxAcres">Most acres</label><input id="t5_maxAcres" type="number" step="any" value="0"><p class="note">Rotation or market ceiling. Zero means no limit.</p></div>
+        <div><label for="t5_current">Acres in your current plan</label><input id="t5_current" type="number" step="any" value="0"><p class="note">Leave zero if you have no plan to compare.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best plan</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Leave a crop's yield or price at zero to leave it out.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions growers ask</h2>
+      <h3>How do I decide how many acres of each crop to plant?</h3>
+      <p>Rank crops by gross margin per acre, then plant the best one until a limit stops you: the acres you have, the labor hours at planting and harvest, the operating capital you can borrow, or a rotation ceiling. When a limit binds, the answer changes, because a crop that earns less per acre can earn more per scarce hour. The tool solves this exactly as a linear program.</p>
+      <h3>What is a shadow price?</h3>
+      <p>It is what one more unit of a limit is worth: one more acre, one more labor hour, or one more dollar of operating capital. If labor shows $150 an hour, hiring help for less than that raises profit; if an acre shows $170, a lease at less than that rent is worth taking.</p>
+      <h3>Why does a crop with a positive margin get zero acres?</h3>
+      <p>Because acres, hours or dollars are better spent elsewhere. The tool shows the margin per acre that crop would need, everything else unchanged, before it earns a place in the plan.</p>
+      <h3>Does it handle crop rotation?</h3>
+      <p>Only through the minimum and maximum acres you set per crop. If soybeans should not exceed 500 acres, enter 500. Agronomic rotation, soil, drainage and field size are yours to judge.</p>
+      <h3>Is this agronomic, financial or insurance advice?</h3>
+      <p>No. It is arithmetic on yields, prices and costs you type. Yield and price risk, crop insurance, government programs, taxes and lender terms vary; check them with a qualified advisor.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your yields and prices will hold, yield and price risk, crop insurance, government payments, rotation and soil, field size and timing, machinery and storage limits, taxes and financing. Each crop is treated as one uniform acre with a fixed margin.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../fertilizer-blend-optimizer/">fertilizer blend optimizer</a>, the <a href="../crop-insurance-coverage-calculator/">crop insurance coverage calculator</a> and the <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you plant, borrow or lease anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, CROP_DEFAULTS, EXAMPLE_CROPS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = 6, SKEYS = Object.keys(SHARED_DEFAULTS), TKEYS = Object.keys(CROP_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = SHARED_DEFAULTS[k];
+      for (let i = 0; i < N; i++) for (const k of TKEYS) $("t" + i + "_" + k).value = (EXAMPLE_CROPS[i] || CROP_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const crops = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of TKEYS) t[k] = $("t" + i + "_" + k).value; crops.push(t); }
+      return { shared, crops };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const ac = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    let last = null;
+    function run() {
+      const { shared, crops } = readAll();
+      const a = analyze(crops, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const vs = a.hasCurrent ? ` Your plan earns ${money(a.current.net)}, so the best plan is ${a.gain > 0.5 ? money(a.gain) + " better" : "no better"}.` : "";
+      h += `<div class="finding"><h4>Best plan: ${money(a.best.net)} margin over variable and land cost</h4><p>${ac(a.best.acres)} of ${ac(a.shared.totalAcres)} acres planted, ${ac(a.best.labor)} labor hours, ${money(a.best.capital)} of operating capital.${vs}</p></div>`;
+      h += `<div class="finding"><h4>Acres by crop</h4>${table(["Crop", "Margin / acre", "Your plan", "Best plan", "Change", "Note"], a.rows.map((r) => [esc(r.name), money(r.margin), ac(r.current), ac(r.optimal), (r.change > 0 ? "+" : "") + ac(r.change), r.atCeiling ? "at your limit" : r.needs ? "needs " + money(r.needs) + " / acre to earn a place" : ""]))}</div>`;
+      const parts = [];
+      if (a.shadow.acre > 1e-6) parts.push(`one more acre is worth ${money(a.shadow.acre)}`);
+      if (a.shadow.labor > 1e-6) parts.push(`one more labor hour is worth ${money(a.shadow.labor)}`);
+      if (a.shadow.capital > 1e-6) parts.push(`one more dollar of capital returns ${money2(a.shadow.capital)}`);
+      h += `<div class="finding"><h4>What the limits cost you</h4><p>${parts.length ? "At the margin, " + parts.join("; ") + ". Compare these with the rent, wage or interest you would pay." : "None of your limits binds: the crop ceilings stop the plan first."}</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "crop-mix.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    const money2 = (n) => "$" + n.toFixed(2);
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

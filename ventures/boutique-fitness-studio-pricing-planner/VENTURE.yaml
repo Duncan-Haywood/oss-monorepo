@@ -1,0 +1,57 @@
+name: boutique-fitness-studio-pricing-planner
+description: >-
+  Free browser tool for yoga, pilates, barre and cycling studio owners: classes, costs,
+  unlimited members, class packs and drop-ins in; monthly profit, what a visit earns under
+  each plan (including pack classes never taken), break-even class size, where unlimited
+  beats packs for a member, what empty seats are worth, and the best unlimited price on a
+  member-loss rate you set. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py on "yoga pilates
+# boutique fitness studio unlimited membership class pack drop-in breakage pricing": closest row
+# studio-class-slot-optimizer 0.33, below the 0.45 line. That tool reads an attendance log to find
+# losing timetable slots; this one prices the three ways a class is sold and shows what each earns
+# per visit, so the two are used one after the other.
+#
+# Why this niche: boutique studios sell the same seat three ways and set the prices by copying the
+# studio down the road. Owners ask "unlimited or packs", "what does a pack really earn once some
+# classes expire" and "should unlimited go up $10" in studio-owner groups. Booking platforms report
+# revenue by plan, not what a visit earns under each or the class size that breaks even.
+#
+# First visitor: independent studio owners in owner groups and forums; volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers plus a member-loss rate the user chooses and
+# the page says is an assumption; no lease, employment, tax, insurance or refund advice; defaults
+# are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted version that
+# reads a booking-platform export (Mindbody, Momence, Walla) and fits visits and breakage from real
+# data (not built).
+
+hypotheses:
+  - claim: >-
+      Independent fitness studio owners will use a private pricing planner that turns their plan
+      mix into profit, per-visit value and a best unlimited price, because booking platforms report
+      revenue by plan but not what a visit earns under each or the class size that breaks even.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An owner reports that the per-visit, break-even class size or crossover arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/boutique-fitness-studio-pricing-planner/
+  analytics: null

@@ -1,0 +1,82 @@
+name: subscription-audit-from-statement
+description: >-
+  Free browser tool that reads a bank or credit-card statement CSV and lists
+  every recurring charge (weekly to yearly) with its monthly and yearly cost,
+  price rises, charges made twice, yearly renewals coming up, charges that seem
+  to have stopped and several services of the same kind, with a tick-to-cancel
+  saving. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, after the obvious
+# seller-report analyzers (Airbnb, Amazon, gig driver, Stripe, POS) were found
+# already built by duplicate_check.py. This one is aimed at a much larger
+# audience than any trade: anyone with a bank login. Paid subscription
+# managers (Rocket Money, Trim, Bobby, Truebill-style apps) charge a fee or a
+# cut of savings and want a bank connection; this does the detection on a CSV
+# the user already has, locally, with no connection and no account.
+#
+# First visitor: searches like "find all my subscriptions from bank statement",
+# "how to find recurring charges on credit card statement", "cancel unwanted
+# subscriptions", and r/personalfinance, r/frugal and r/Debt threads asking
+# how to audit subscriptions. Search volume not measured with an external tool.
+#
+# What makes it more than a total: the cadence must fit a weekly-to-yearly
+# rhythm (60% of gaps), weekly/six-monthly/yearly must hold a steady price so a
+# coffee habit is not a subscription, same-day double charges are reported
+# instead of becoming a cycle, price rises are dated and priced per year,
+# charges that stopped leave the totals, overlapping streaming/storage/fitness
+# services are grouped by a name list, and a tick-to-cancel what-if shows the
+# saving. Sign convention (negative vs positive purchases) and date order
+# (month-first vs day-first) are detected and can be overridden.
+#
+# Privacy is the liability boundary: the statement never leaves the browser (a
+# test asserts no network calls), so the portfolio holds no financial data and
+# needs no bank credential, aggregator or Plaid-style access.
+#
+# Path to revenue (payment rails stay off): free lead magnet with GitHub
+# Sponsors. A paid tier, if usage appears, is a local-only monthly re-check
+# (paste this month's export, see what is new or rose), behind an env-var
+# switch; not built. Not built: bank connections and cancel-on-your-behalf
+# automation, both of which need credentials, licences and terms review.
+#
+# Liability: arithmetic on the user's file, model and omissions stated on the
+# page, no advice, no warranty, independent-of-every-bank clause, category
+# guesses labelled as guesses.
+#
+# Unverified: column names are matched by alias and no real bank or card export
+# was available; the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      People will drop a bank or card CSV into a no-signup, no-bank-connection
+      tool to see every subscription and its yearly cost, rather than pay a
+      subscription-manager app or read statements line by line.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a yearly total and a dated price rise leads at least one visitor
+      to cancel or downgrade something, and re-running each quarter is the
+      reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/subscription-audit-from-statement/
+  analytics: null

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coworking Space Profit Calculator — Break-Even, Ramp-Up, Payback</title>
+  <meta name="description" content="Free coworking space profit calculator: floor area, offices, desks, memberships, rent and staff become monthly profit, break-even occupancy, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.">
+  <meta property="og:title" content="Coworking space calculator: will it break even, and when? Free, private">
+  <meta property="og:description" content="Floor area, rooms, desks, prices, lease and staff in; profit, break-even occupancy, ramp-up reserve and payback out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Coworking Space Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much profit does a coworking space make?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the rent you pay, how many people you can fit, what you charge and how quickly you fill it. Enter your own figures; the page works out revenue after fees, fixed costs, monthly profit and margin once stabilized, and how many months it takes to get your money back."}}, {"@type": "Question", "name": "How many desks fit in a coworking space?", "acceptedAnswer": {"@type": "Answer", "text": "Only part of the floor is rentable: lobby, kitchen, halls, restrooms and phone booths take the rest. Enter the share you expect, then the square feet each private office, dedicated desk and hot-desk seat needs. The page tells you if your mix does not fit."}}, {"@type": "Question", "name": "What occupancy does a coworking space need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Two figures are shown: the occupancy that covers operating costs (rent, staff, utilities, software, insurance, fees) and the higher one that also covers the loan payment. Both are exact for your inputs."}}, {"@type": "Question", "name": "Why does the ramp-up matter?", "acceptedAnswer": {"@type": "Answer", "text": "Members arrive over months while the lease and staff cost the same from day one. The page runs sixty months and shows the lowest cash point, which is the reserve to hold on top of your own money."}}, {"@type": "Question", "name": "Does this tell me if a lease or location is good?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works only from your figures. Check the lease term, escalations, personal guarantee, zoning and accessibility rules, and local demand before you sign."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COWORKING SPACE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your coworking or flex-office space break even, and how much cash does the ramp-up eat?</h1>
+    <p>Enter the floor area you lease, your mix of private offices, dedicated desks and hot-desk memberships, the lease and staff cost, and how full you expect it to get. You get <strong>monthly profit</strong> once stabilized, <strong>break-even occupancy</strong>, the <strong>price change that hits your target margin</strong>, a sixty-month <strong>ramp-up</strong> with the lowest cash point and payback, and <strong>loan coverage</strong>.</p>
+    <p class="note">It works from your own figures. It does not know what desks rent for near you, how fast a new space fills, or what your landlord will agree to.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your space</h2>
+    <div class="grid">
+      <div><label for="sqft">Total square feet you lease</label><input id="sqft" inputmode="decimal" value="" placeholder="6000"></div>
+      <div><label for="rentablepct">Rentable share of the floor, % (rest is lobby, kitchen, halls, restrooms)</label><input id="rentablepct" inputmode="decimal" value="" placeholder="75"></div>
+      <div><label for="offices">Private offices (whole number)</label><input id="offices" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="officesqft">Square feet per private office</label><input id="officesqft" inputmode="decimal" value="" placeholder="110"></div>
+      <div><label for="officerate">Monthly price per private office, dollars</label><input id="officerate" inputmode="decimal" value="" placeholder="950"></div>
+      <div><label for="desks">Dedicated desks (whole number)</label><input id="desks" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="desksqft">Square feet per dedicated desk</label><input id="desksqft" inputmode="decimal" value="" placeholder="50"></div>
+      <div><label for="deskrate">Monthly price per dedicated desk, dollars</label><input id="deskrate" inputmode="decimal" value="" placeholder="350"></div>
+      <div><label for="hot">Hot-desk memberships sold at full (whole number)</label><input id="hot" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="hotsqft">Square feet of floor per hot-desk seat</label><input id="hotsqft" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="hotrate">Monthly price per hot-desk membership, dollars</label><input id="hotrate" inputmode="decimal" value="" placeholder="150"></div>
+      <div><label for="daypasses">Day passes sold per month at the stabilized level</label><input id="daypasses" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="dayrate">Day pass price, dollars</label><input id="dayrate" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="meetinghours">Meeting room hours booked per month at the stabilized level</label><input id="meetinghours" inputmode="decimal" value="" placeholder="80"></div>
+      <div><label for="meetingrate">Meeting room price per hour, dollars</label><input id="meetingrate" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="stabocc">Stabilized occupancy, % of memberships sold</label><input id="stabocc" inputmode="decimal" value="" placeholder="80"></div>
+      <div><label for="startocc">Occupancy in month 1, %</label><input id="startocc" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="rampmonths">Months to reach stabilized occupancy</label><input id="rampmonths" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="leasepersqft">Base rent per square foot per year, dollars</label><input id="leasepersqft" inputmode="decimal" value="" placeholder="26"></div>
+      <div><label for="otherleasecostpct">Taxes, common-area charges and other lease costs, % of base rent</label><input id="otherleasecostpct" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="staffmonthly">Staff and community manager per month, dollars</label><input id="staffmonthly" inputmode="decimal" value="" placeholder="6500"></div>
+      <div><label for="utilitiesmonthly">Utilities and internet per month, dollars</label><input id="utilitiesmonthly" inputmode="decimal" value="" placeholder="1800"></div>
+      <div><label for="suppliesmonthly">Cleaning, coffee and supplies per month, dollars</label><input id="suppliesmonthly" inputmode="decimal" value="" placeholder="900"></div>
+      <div><label for="softwaremarketingmonthly">Software and marketing per month, dollars</label><input id="softwaremarketingmonthly" inputmode="decimal" value="" placeholder="1200"></div>
+      <div><label for="insuranceyear">Insurance per year, dollars</label><input id="insuranceyear" inputmode="decimal" value="" placeholder="3600"></div>
+      <div><label for="feespct">Card and platform fees, % of revenue</label><input id="feespct" inputmode="decimal" value="" placeholder="3.5"></div>
+      <div><label for="baddebtpct">Bad debt and discounts, % of revenue</label><input id="baddebtpct" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="buildoutpersqft">Fit-out per square foot, dollars</label><input id="buildoutpersqft" inputmode="decimal" value="" placeholder="55"></div>
+      <div><label for="furniturepersea">Furniture and equipment per seat, dollars</label><input id="furniturepersea" inputmode="decimal" value="" placeholder="650"></div>
+      <div><label for="depositmonths">Lease deposit, months of rent</label><input id="depositmonths" inputmode="decimal" value="" placeholder="2"></div>
+      <div><label for="launch">Launch cost: legal, signage, opening marketing, dollars</label><input id="launch" inputmode="decimal" value="" placeholder="15000"></div>
+      <div><label for="contingencypct">Contingency on fit-out, furniture and launch, %</label><input id="contingencypct" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="ltcpct">Loan as % of startup cost (0 for all cash)</label><input id="ltcpct" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="loanrate">Loan interest rate, %</label><input id="loanrate" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="termyears">Loan term, years</label><input id="termyears" inputmode="decimal" value="" placeholder="7"></div>
+      <div><label for="targetmargin">Target operating margin, %</label><input id="targetmargin" inputmode="decimal" value="" placeholder="25"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the space</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your space, then click Work out the space. Only square feet, stabilized occupancy and at least one office, desk or membership are required; the rest default to zero or the neutral choice.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>If occupancy runs above or below plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Occupancy</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If you charge more or less</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Price change</th><th scope="col" class="n">Profit per month</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rent-rows"></tbody></table></div>
+    <h3>Year by year, first five years</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Year</th><th scope="col" class="n">Operating profit</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="year-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download occupancy table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Revenue:</strong> offices, dedicated desks and hot-desk memberships are sold at your prices times stabilized occupancy; day passes and meeting hours are the monthly volumes you enter at the stabilized level. Card and platform fees and bad debt come off revenue.</li>
+      <li><strong>Costs:</strong> base rent per square foot per year divided by 12, plus other lease costs as a share of it, plus staff, utilities, supplies, software and marketing, and insurance. Profit = revenue after fees &minus; those fixed costs.</li>
+      <li><strong>Startup:</strong> fit-out per square foot, furniture per seat, deposit in months of rent, launch cost and a contingency on fit-out, furniture and launch. The loan is a share of that total on level payments.</li>
+      <li><strong>Ramp-up:</strong> month by month for sixty months, occupancy and walk-in volume climb in a straight line from the month-1 figure to the stabilized one. Payback is the first month cumulative cash covers your equity. The reserve is how far cash falls below where you started.</li>
+      <li><strong>Not decided:</strong> whether the lease terms, zoning and accessibility rules suit shared office use; how much demand there is near you or how fast members join; churn, which is folded into your stabilized occupancy; rent escalations, income tax and depreciation; and what a lender will offer.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much profit does a coworking space make?</h3>
+    <p>It depends on the rent you pay, how many people you can fit, what you charge and how quickly you fill it. Enter your own figures; the page works out revenue after fees, fixed costs, monthly profit and margin once stabilized, and how many months it takes to get your money back.</p>
+    <h3>How many desks fit in a coworking space?</h3>
+    <p>Only part of the floor is rentable: lobby, kitchen, halls, restrooms and phone booths take the rest. Enter the share you expect, then the square feet each private office, dedicated desk and hot-desk seat needs. The page tells you if your mix does not fit.</p>
+    <h3>What occupancy does a coworking space need to break even?</h3>
+    <p>Two figures are shown: the occupancy that covers operating costs (rent, staff, utilities, software, insurance, fees) and the higher one that also covers the loan payment. Both are exact for your inputs.</p>
+    <h3>Why does the ramp-up matter?</h3>
+    <p>Members arrive over months while the lease and staff cost the same from day one. The page runs sixty months and shows the lowest cash point, which is the reserve to hold on top of your own money.</p>
+    <h3>Does this tell me if a lease or location is good?</h3>
+    <p>No. It works only from your figures. Check the lease term, escalations, personal guarantee, zoning and accessibility rules, and local demand before you sign.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before signing a lease, borrowing money or building out a space. Treat it as a worksheet to check, not a business recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a>, the <a href="../climbing-gym-profit-calculator/">climbing gym profit calculator</a> and the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { sqft: "sqft", rentablepct: "rentablePct", offices: "offices", officesqft: "officeSqft", officerate: "officeRate", desks: "desks", desksqft: "deskSqft", deskrate: "deskRate", hot: "hot", hotsqft: "hotSqft", hotrate: "hotRate", daypasses: "dayPasses", dayrate: "dayRate", meetinghours: "meetingHours", meetingrate: "meetingRate", stabocc: "stabOcc", startocc: "startOcc", rampmonths: "rampMonths", leasepersqft: "leasePerSqft", otherleasecostpct: "otherLeaseCostPct", staffmonthly: "staffMonthly", utilitiesmonthly: "utilitiesMonthly", suppliesmonthly: "suppliesMonthly", softwaremarketingmonthly: "softwareMarketingMonthly", insuranceyear: "insuranceYear", feespct: "feesPct", baddebtpct: "badDebtPct", buildoutpersqft: "buildoutPerSqft", furniturepersea: "furniturePerSeat", depositmonths: "depositMonths", launch: "launch", contingencypct: "contingencyPct", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
+    const IDLE = "Fill in your space, then click Work out the space. Only square feet, stabilized occupancy and at least one office, desk or membership are required; the rest default to zero or the neutral choice.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const pct = (n) => (n * 100).toFixed(1) + "%";
+    
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${r.seats} seats; ${whole(r.steady.profit)} profit a month at ${r.input.stabOcc}% full (${r.margin === null ? "n/a" : pct(r.margin)} margin); break-even ${r.beOps === null ? "n/a" : r.beOps.toFixed(0) + "%"} occupancy; equity back ${r.paybackMonth === null ? "not within 60 months" : "in month " + r.paybackMonth}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.occSweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.occ.toFixed(0)}%</td><td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#rent-rows").innerHTML = r.priceSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td></tr>`).join("");
+      $("#year-rows").innerHTML = r.yearProfit.map((v, i) => `<tr><td class="n">${i + 1}</td><td class="n">${whole(v)}</td><td class="n">${whole(r.yearCash[i])}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 6,000 sq ft, 10 offices, 12 desks, 30 hot desks, 80% full. Illustrative figures, not market rates or a forecast.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("coworking-space.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("coworking-by-occupancy.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

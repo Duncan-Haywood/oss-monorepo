@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upwork Earnings and Fee Analyzer — What You Really Keep</title>
+  <meta name="description" content="Free analyzer for freelancers: drop in your Upwork transaction history CSV and see the service fee you actually paid, Connects, membership and withdrawal costs, what you keep by contract and by month, and net pay per hour. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Upwork Earnings and Fee Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Observed service fee, Connects and withdrawal costs, and net pay per hour by contract, from your own transaction history. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Upwork Earnings and Fee Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a freelancer transaction history CSV into observed platform fees, Connects and withdrawal costs, take-home by contract and month, and net pay per hour. Runs entirely in your browser; the file is never uploaded.", "featureList": "Observed fee rate, Connects cost, membership cost, withdrawal fees, net per hour by contract, monthly take-home, refunds"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see what Upwork really takes from my earnings?", "acceptedAnswer": {"@type": "Answer", "text": "Download your transaction history CSV from the Reports section of your account, drop it here, and the tool adds up earnings, service fees, Connects, membership and withdrawal fees, then shows what share of your earnings you kept, by contract and by month. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "What fee rate should I expect?", "acceptedAnswer": {"@type": "Answer", "text": "Use the rate your own file shows. Platform fee schedules have changed over the years and can differ by contract start date, so the tool reports the observed service fee as a percentage of earnings for each contract instead of assuming one. Check the platform's current terms for what applies to new contracts."}}, {"@type": "Question", "name": "How is my effective hourly rate worked out?", "acceptedAnswer": {"@type": "Answer", "text": "For contracts where hours can be found (an Hours column, or text such as 12.5 hrs in the description), the tool divides earnings minus the service fee by those hours. Time the platform did not record, such as unbilled prep or messaging, is not in the file, so treat the result as an upper bound."}}, {"@type": "Question", "name": "Is a Connects spend worth it?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows what Connects and membership cost as a share of earnings and per paying contract. It cannot see proposals that got no reply, so it cannot give a win rate; keep a count of proposals sent if you want one."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified tax adviser. It is independent of Upwork and every other platform and is not affiliated with or endorsed by any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">UPWORK EARNINGS AND FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you actually keep from your freelance work?</h1>
+    <p>Drop in your <strong>transaction history CSV</strong> and see the <strong>service fee you really paid</strong>, what <strong>Connects, membership and withdrawal fees</strong> add on top, <strong>take-home by contract and by month</strong>, and <strong>net pay per hour</strong> where hours are in the file, without giving another app access to your account.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Upwork and every other freelance platform: not affiliated with or endorsed by any of them.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your transaction history</h2>
+    <p class="note">Needs a <strong>Date</strong> and an <strong>Amount</strong> column. <strong>Type</strong>, <strong>Description</strong>, <strong>Ref ID</strong>, <strong>Team</strong> (or Client) and <strong>Hours</strong> are used when present; hours are also read from text such as "12.5 hrs" in the description. Fees may be negative or positive. Comma, tab and semicolon files, US and day-first dates, and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Ref ID,Type,Description,Team,Amount"></textarea>
+    <div class="grid">
+      <div><label for="target">Your minimum net pay per hour (optional)</label><input type="number" id="target" min="0" step="any" placeholder="e.g. 30"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money went</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of earnings</th></tr></thead><tbody id="breakdown"></tbody></table></div>
+    <h3>By contract</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Contract</th><th class="n" scope="col">Earned</th><th class="n" scope="col">Service fee</th><th class="n" scope="col">Fee %</th><th class="n" scope="col">Kept</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Net / hour</th></tr></thead><tbody id="by-contract"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Earned</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Kept</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download contract table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Earnings</strong> are positive rows of an earnings type (hourly, fixed price, milestone, bonus and similar). <strong>Refunds</strong> and reversals are subtracted.</li>
+      <li><strong>Fees</strong> are grouped as service fee, Connects, membership, withdrawal and other, by the words in each row's Type and Description. A withdrawal itself is cash leaving the platform, not a cost, and is counted separately.</li>
+      <li><strong>Reconciles.</strong> Earned minus refunds minus every fee group equals the kept total, and the monthly rows add up to it.</li>
+      <li><strong>Service fee by contract</strong> is matched through the shared Ref ID, or the same date and contract. Fees that match nothing stay in the totals and are listed as unmatched.</li>
+      <li><strong>Net per hour</strong> uses only payments where hours were found, and deducts that payment's share of the service fee. It does not deduct Connects or membership, which belong to finding work rather than to one contract.</li>
+      <li><strong>Not modelled:</strong> taxes, currency conversion done outside the file, unbilled time, proposals that got no reply, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see what Upwork really takes from my earnings?</h3>
+    <p>Download your transaction history CSV from the Reports section of your account, drop it here, and the tool adds up earnings, service fees, Connects, membership and withdrawal fees, then shows what share of your earnings you kept, by contract and by month. The file is read in your browser and never uploaded.</p>
+    <h3>What fee rate should I expect?</h3>
+    <p>Use the rate your own file shows. Platform fee schedules have changed over the years and can differ by contract start date, so the tool reports the observed service fee as a percentage of earnings for each contract instead of assuming one. Check the platform's current terms for what applies to new contracts.</p>
+    <h3>How is my effective hourly rate worked out?</h3>
+    <p>For contracts where hours can be found (an Hours column, or text such as 12.5 hrs in the description), the tool divides earnings minus the service fee by those hours. Time the platform did not record, such as unbilled prep or messaging, is not in the file, so treat the result as an upper bound.</p>
+    <h3>Is a Connects spend worth it?</h3>
+    <p>The tool shows what Connects and membership cost as a share of earnings and per paying contract. It cannot see proposals that got no reply, so it cannot give a win rate; keep a count of proposals sent if you want one.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified tax adviser. It is independent of Upwork and every other platform and is not affiliated with or endorsed by any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any platform.</strong> Upwork, Fiverr and other names are trademarks of their respective owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Freelancing? See the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> and the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null ? "–" : money(v));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.rows, { targetHourly: Number($("#target").value) || null, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.rows} rows, ${dateStr(s.from)} to ${dateStr(s.to)}. Earned ${cur}${money(s.gross)}, fees ${cur}${money(s.feeTotal)}, refunds ${cur}${money(s.refunds)}, <strong>kept ${cur}${money(s.net)} (${pct(s.keepRate)})</strong>` + (s.netPerHour !== null ? ` — <strong>${cur}${money(s.netPerHour)} per hour</strong> net over ${s.hours.toFixed(1)} recorded hours` : "") + ".";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const share = (v) => (s.gross > 0 ? pct(v / s.gross) : "–");
+      const lines = [["Service fee", s.fees.service], ["Connects", s.fees.connects], ["Membership", s.fees.membership], ["Withdrawal fees", s.fees.withdrawal], ["Other fees", s.fees.other], ["Refunds and reversals", s.refunds]];
+      $("#breakdown").innerHTML = lines.map(([l, v]) => `<tr><th scope="row">${l}</th><td class="n">${money(v)}</td><td class="n">${share(v)}</td></tr>`).join("");
+      $("#by-contract").innerHTML = r.byContract.map((c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${money(c.gross)}</td><td class="n">${money(c.serviceFee)}</td><td class="n">${c.feeRate === null ? "–" : pct(c.feeRate)}</td><td class="n">${money(c.net)}</td><td class="n">${c.hours ? c.hours.toFixed(1) : "–"}</td><td class="n">${rate(c.netPerHour)}</td></tr>`).join("");
+      $("#by-month").innerHTML = r.byMonth.map((m) => `<tr><th scope="row">${m.month}</th><td class="n">${money(m.gross)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (n.mixedCurrency) notes.push("The file mixes currencies; amounts are added as if they were one currency.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic rows for made-up clients. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const num = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["contract,earned,service_fee,fee_rate,kept,hours,net_per_hour"].concat(last.byContract.map((c) => [q(c.label), c.gross.toFixed(2), c.serviceFee.toFixed(2), c.feeRate === null ? "" : c.feeRate.toFixed(4), c.net.toFixed(2), c.hours ? c.hours.toFixed(2) : "", num(c.netPerHour)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "freelance-earnings-by-contract.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

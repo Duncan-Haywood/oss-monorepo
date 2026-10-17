@@ -1,0 +1,31 @@
+== exact segment time vs Monte Carlo ==
+w=  2 exact=  3.1977 mc=  3.1988
+w=  8 exact=  9.8883 mc=  9.8854
+w= 20 exact= 24.5362 mc= 24.5579
+== Lambert-W optimum vs Young-Daly (C=1) ==
+lam=0.0001  w*= 140.755 young= 141.421 young/w*=1.005 overhead@w*=1.0148 overhead@young=1.0148
+lam=0.001   w*=  44.057 young=  44.721 young/w*=1.015 overhead@w*=1.0513 overhead@young=1.0513
+lam=0.01    w*=  13.483 young=  14.142 young/w*=1.049 overhead@w*=1.2136 overhead@young=1.2138
+lam=0.05    w*=   5.676 young=   6.325 young/w*=1.114 overhead@w*=1.7453 overhead@young=1.7483
+lam=0.2     w*=   2.534 young=   3.162 young/w*=1.248 overhead@w*=4.0548 overhead@young=4.1077
+== misspecified interval a*w*  (lam=0.01, C=1, R=5) ==
+a=0.25  overhead ratio=1.1467
+a=0.5   overhead ratio=1.0330
+a=0.8   overhead ratio=1.0033
+a=1.25  overhead ratio=1.0034
+a=2     overhead ratio=1.0353
+a=4     overhead ratio=1.1744
+== synchronous scaling wall (lam=1e-4 per worker, C=1, R=5) ==
+n=     1 w*=  140.76 efficiency=0.9854
+n=    10 w*=   44.06 efficiency=0.9512
+n=   100 w*=   13.48 efficiency=0.8240
+n=  1000 w*=    3.83 efficiency=0.4112
+n=  3000 w*=    1.96 efficiency=0.1644
+n= 10000 w*=    0.84 efficiency=0.0264
+n_half(50%) = 691  n at 90% = 36  C=10: 156
+== elastic crossover (rho = per-failure rebalance cost) ==
+rho=   50 elastic eff=0.9950 crossover n=1
+rho=  200 elastic eff=0.9804 crossover n=2
+rho= 1000 elastic eff=0.9091 crossover n=32
+== heterogeneous pool: 100 reliable (1e-4) + 100 flaky (5e-3) ==
+best k=100 throughput=82.40; all 200 workers throughput=16.76; k=100 throughput=82.40

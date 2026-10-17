@@ -1,0 +1,72 @@
+name: etsy-statement-profit-analyzer
+description: >-
+  Free browser tool that turns an Etsy Payment Account statement CSV (and,
+  optionally, the Sold Order Items CSV) into a fee waterfall, profit per
+  listing, Offsite Ads and Etsy Ads share of sales, refund findings and a
+  monthly table. The files are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, the second data-file
+# archetype after amazon-seller-profit-analyzer. The value is the analysis
+# paid Etsy-seller tools (Craftybase, Sellerboard-style Etsy dashboards, Etsy
+# stats add-ons like EverBee/Alura for research, Shop Analyzer spreadsheets on
+# Etsy itself) do, minus connecting a third party to the shop through the
+# Etsy API. etsy-profit-calculator models one hypothetical order from typed
+# inputs; this derives real per-listing results from the seller's own files.
+# duplicate_check.py checked before building.
+#
+# First visitor: Etsy sellers asking r/EtsySellers, r/Etsy and Etsy forums how
+# to see profit per listing, how much Offsite Ads really cost, or why deposits
+# are less than sales. Search phrases "etsy payment account statement
+# analyzer", "etsy profit per listing spreadsheet", "how much did offsite ads
+# cost me". Volume not measured with an external tool.
+#
+# Privacy is the differentiator and the liability boundary: the files never
+# leave the browser (a test asserts the page has no network calls), so the
+# portfolio holds no order or buyer data. Page carries an independent-of-Etsy
+# trademark clause.
+#
+# Column and row-title matching was written from Etsy's documented export
+# layout, not from a live shop; unrecognised rows land in an "other" bucket
+# and unreadable rows are listed with line and reason, so a format drift shows
+# up as a visible bucket rather than a wrong total.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If the free tool earns repeat visitors,
+# the natural paid step is multi-year comparison and a per-listing repricing
+# suggestion, still local-only.
+
+hypotheses:
+  - claim: >-
+      Etsy sellers who want profit per listing will prefer a no-signup,
+      no-API-access tool that reads their own CSV exports locally over
+      connecting a third-party app to their shop.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing Offsite Ads, Etsy Ads and refund fees as a share of sales, with
+      the per-listing effect, changes ad and pricing decisions and is the
+      reason to return after each monthly download.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in file) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from a real Payment Account statement, at which point the row classification or column mapping needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/etsy-statement-profit-analyzer/
+  analytics: null

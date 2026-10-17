@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-meshconverge"
+version = "0.1.0"
+description = "Do the isolated feasible pockets of the gauge-2 bracket move or vanish when the mesh is refined?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

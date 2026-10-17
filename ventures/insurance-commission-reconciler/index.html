@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Insurance Commission Reconciler</title>
+  <meta name="description" content="Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers' commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Find the commissions your carriers did not pay — free, private">
+  <meta property="og:description" content="Load the policy book and the carrier statements. See which policies never paid, which paid short and which were charged back by mistake. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Insurance Commission Reconciler", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares an insurance agency's policy book with carrier commission statements and lists unpaid, underpaid, charged-back and duplicated commissions. Runs in the browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do you reconcile carrier commission statements?", "acceptedAnswer": {"@type": "Answer", "text": "Match each statement line to a policy in your book by policy number and carrier, work out what the book says each policy should have paid (premium times the agreed rate), and look at what is left over: policies with no line, lines paid at a different rate, chargebacks on policies still in force, duplicate lines, and a statement total that differs from its lines. This page does that match in your browser."}}, {"@type": "Question", "name": "How do I know a policy is really missing and not just late?", "acceptedAnswer": {"@type": "Answer", "text": "A policy is only called missing once its effective date plus the carrier's usual lag (30 days by default, change it) falls inside the statement period you load, and it is on none of the statements. Policies not yet due are counted separately, and policies due before the period are listed as possibly paid on an earlier statement."}}, {"@type": "Question", "name": "What if I do not know my commission rate for every policy?", "acceptedAnswer": {"@type": "Answer", "text": "Use the rate column in your book, or paste a small rate table with a carrier, a line and new and renewal rates. With neither, the page compares each policy with what that carrier pays you on the other policies of the same line, once there are five or more lines and one rate clearly dominates."}}, {"@type": "Question", "name": "Why would a carrier charge back a policy that is still active?", "acceptedAnswer": {"@type": "Answer", "text": "Usually because the carrier recorded a cancellation, a rewrite or a non-pay that your records do not show, or because it reversed the wrong term. Either your book is out of date or the carrier's status is wrong, and the page lists each case so you can ask."}}, {"@type": "Question", "name": "Does it send anything to the carrier?", "acceptedAnswer": {"@type": "Answer", "text": "No. It writes a review request per carrier that you can copy into an email. The request states amounts as your calculation and asks the carrier to confirm or correct, because the producer agreement and the carrier's records decide what is owed."}}, {"@type": "Question", "name": "Are the files uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Both files are read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f2f5f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #0b5394; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e4f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e4f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5b6a; }
+    .card { background: #fff; border: 1px solid #d9e2e9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e4f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b6c5d1; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b5394; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3edf5; color: #0b2e4f; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e6edf2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5b6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e6edf2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3edf5; color: #0b2e4f; }
+    .big { font-size: 1.9rem; font-weight: 800; color: #0b2e4f; margin: 4px 0; }
+    .stats { font-size: .95rem; color: #2f3e4b; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9e2e9; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 110px; padding: 9px 10px; border: 1px solid #b6c5d1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdff; border: 1px solid #d9e2e9; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INSURANCE AGENCIES · COMMISSION STATEMENTS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find the commissions your carriers did not pay.</h1>
+    <p>Load your <strong>policy book</strong> and the <strong>commission statements</strong> your carriers sent. The page matches every statement line to a policy and shows you the <strong>policies that never paid</strong>, the ones <strong>paid below your rate</strong>, <strong>chargebacks on policies you still show in force</strong>, lines <strong>paid twice</strong>, and statements whose <strong>total does not match their lines</strong>. Then it writes one review request per carrier.</p>
+    <p class="note">Both files are read in this browser tab and never leave your device. It finds questions to ask; it does not decide what a carrier owes. Your producer agreement and the carrier's records decide that.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your policy book</h2>
+    <p class="note">A CSV export from your agency management system (or a spreadsheet saved as CSV), one row per policy. Columns recognised: policy number, insured, carrier, line of business, effective date, premium, commission rate, new or renewal, status, billing (agency or direct).</p>
+    <label for="book-file">Choose a CSV file</label>
+    <input type="file" id="book-file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="book-paste">…or paste the book</label>
+    <textarea id="book-paste" spellcheck="false" wrap="off" placeholder="Policy,Insured,Carrier,Line,Effective,Premium,Commission Rate,Business Type,Status&#10;PA-100231,Alvarez Bakery LLC,Northbridge Mutual,Commercial Package,2026-07-28,8400,15%,New,Active"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. The commission statements</h2>
+    <p class="note">One CSV per carrier. The file name is used as the carrier name (for example <em>Northbridge Mutual.csv</em>) unless the file has a carrier column. Columns recognised: policy number, insured, transaction type, effective date, premium, rate, commission, statement date. A title block above the header row is fine. A PDF statement has to be converted to CSV first.</p>
+    <label for="stmt-files">Choose one or more CSV files</label>
+    <input type="file" id="stmt-files" accept=".csv,.tsv,.txt,text/csv,text/plain" multiple>
+    <label for="stmt-paste">…or paste one statement</label>
+    <textarea id="stmt-paste" spellcheck="false" wrap="off" placeholder="Policy,Insured,Transaction,Effective Date,Premium,Rate,Commission,Statement Date"></textarea>
+    <label for="stmt-carrier">Carrier name for the pasted statement</label>
+    <input id="stmt-carrier" placeholder="Northbridge Mutual">
+  </section>
+
+  <section class="card">
+    <h2>3. Your agency and the period</h2>
+    <div class="grid">
+      <div><label for="agency">Agency name</label><input id="agency" value="Your agency"></div>
+      <div><label for="producer">Producer code (optional)</label><input id="producer"></div>
+      <div><label for="period-start">Statement period starts</label><input id="period-start" type="date"></div>
+      <div><label for="period-end">Statement period ends</label><input id="period-end" type="date"></div>
+      <div><label for="lag">Days a carrier normally takes to pay</label><input id="lag" inputmode="numeric" value="30"></div>
+      <div><label for="rate-tol">Rate difference to ignore (points)</label><input id="rate-tol" inputmode="decimal" value="0.25"></div>
+    </div>
+    <p class="note">Leave the period blank to read it from the statement dates. Policies only count as missing once their effective date plus the days above falls inside the period.</p>
+    <label for="rates">Commission rates by carrier (optional, for policies with no rate in the book)</label>
+    <textarea id="rates" spellcheck="false" wrap="off" placeholder="Carrier,Line,New,Renewal&#10;Northbridge Mutual,Commercial Auto,15%,12%&#10;Northbridge Mutual,,12%,10%"></textarea>
+    <p>
+      <button type="button" id="run">Reconcile</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Load the policy book and at least one statement, then click Reconcile.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="note">Money worth asking about</p>
+    <p class="big" id="chase"></p>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Carrier</th><th scope="col" class="n">Lines</th><th scope="col" class="n">Commission paid</th><th scope="col" class="n">Items</th><th scope="col" class="n">To ask about</th></tr></thead><tbody id="carriers"></tbody></table></div>
+    <h3>Review request</h3>
+    <label for="letter-pick">Carrier</label>
+    <select id="letter-pick"></select>
+    <pre class="letter" id="letter"></pre>
+    <h3>Findings</h3>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-letters">Download review requests (text)</button> <button type="button" class="secondary" id="dl-findings">Download findings (CSV)</button> <button type="button" class="secondary" id="dl-carriers">Download carrier summary (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The checks it runs, and what it leaves out</h2>
+    <ul>
+      <li><strong>Matching:</strong> a statement line belongs to a policy with the same number at the same carrier, ignoring punctuation, case and leading zeros. A term suffix (PA-100231-01) is matched to PA-100231 and said so. A number found only at another carrier is matched when exactly one policy has it, and said so.</li>
+      <li><strong>No commission:</strong> a policy with no positive line on any statement you loaded, once it is due. Cancelled policies, policies not yet due and policies already charged back are left out. Direct-billed policies are a warning, because their commission arrives with installments.</li>
+      <li><strong>Paid at a different rate:</strong> paid commission divided by the statement premium against the book rate, then the rate table, then what the carrier pays you on the other lines of that kind (five or more lines, one rate on at least 60% of them).</li>
+      <li><strong>Chargebacks:</strong> a negative line on a policy your book shows in force is listed. A chargeback on a cancelled policy is not.</li>
+      <li><strong>Duplicates and totals:</strong> identical lines, and a statement total that differs from the sum of its lines.</li>
+      <li><strong>Not decided:</strong> what your producer agreement says, whether a cancellation was earned, vesting, splits between producers, contingent or bonus commission, or anything a carrier owes. The rate used is the one you typed or exported.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you reconcile carrier commission statements?</h3>
+    <p>Match each statement line to a policy in your book by policy number and carrier, work out what the book says each policy should have paid (premium times the agreed rate), and look at what is left over: policies with no line, lines paid at a different rate, chargebacks on policies still in force, duplicate lines, and a statement total that differs from its lines. This page does that match in your browser.</p>
+    <h3>How do I know a policy is really missing and not just late?</h3>
+    <p>A policy is only called missing once its effective date plus the carrier's usual lag (30 days by default, change it) falls inside the statement period you load, and it is on none of the statements. Policies not yet due are counted separately, and policies due before the period are listed as possibly paid on an earlier statement.</p>
+    <h3>What if I do not know my commission rate for every policy?</h3>
+    <p>Use the rate column in your book, or paste a small rate table with a carrier, a line and new and renewal rates. With neither, the page compares each policy with what that carrier pays you on the other policies of the same line, once there are five or more lines and one rate clearly dominates.</p>
+    <h3>Why would a carrier charge back a policy that is still active?</h3>
+    <p>Usually because the carrier recorded a cancellation, a rewrite or a non-pay that your records do not show, or because it reversed the wrong term. Either your book is out of date or the carrier's status is wrong, and the page lists each case so you can ask.</p>
+    <h3>Does it send anything to the carrier?</h3>
+    <p>No. It writes a review request per carrier that you can copy into an email. The request states amounts as your calculation and asks the carrier to confirm or correct, because the producer agreement and the carrier's records decide what is owed.</p>
+    <h3>Are the files uploaded anywhere?</h3>
+    <p>No. Both files are read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, insurance, or financial advice, and it does not replace your producer agreement, your accountant or your counsel. Results depend entirely on the files you provide. <strong>You are responsible for reviewing and verifying every figure and every request before sending it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any carrier or software vendor.</strong> This tool is independent; it is not sponsored, endorsed or connected to any insurance company, agency management system vendor, or regulator.</p>
+    <p><strong>Client data.</strong> A policy book holds client names and premiums. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your files. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>reconciled</code>, <code>example_loaded</code>, <code>letters_downloaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../era-835-underpayment-finder/">835 underpayment finder</a> does the same job for medical remittances, and the <a href="../insurance-agency-book-valuation-calculator/">agency book valuation calculator</a> prices the book you are reconciling.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { reconcile, sampleBook, sampleStatements, SAMPLE_OPTS, disputeLetter, allDisputeLetters, findingsCsv, carrierCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const opts = () => ({
+      agency: $("#agency").value.trim() || "Your agency", producerCode: $("#producer").value.trim(),
+      periodStart: $("#period-start").value, periodEnd: $("#period-end").value,
+      lagDays: Math.max(0, parseInt($("#lag").value, 10) || 30), rateTol: Math.max(0, parseFloat($("#rate-tol").value) || 0.25),
+    });
+    const showLetter = () => { const c = $("#letter-pick").value; $("#letter").textContent = last && c ? disputeLetter(last, c) : "Nothing to ask this carrier about."; };
+
+    function run(book, statements, rates) {
+      const r = reconcile({ book, statements, rates, opts: opts() });
+      last = r;
+      const s = r.summary;
+      $("#chase").textContent = dollars(s.recoverableCents);
+      $("#report-stats").innerHTML = `${s.missing} polic${s.missing === 1 ? "y" : "ies"} with no commission (${dollars(s.missingCents)}) · ${s.underpaid} paid short (${dollars(s.underpaidCents)}) · ${s.chargebacks} charged back while in force (${dollars(s.chargebackCents)}) · ${dollars(s.overpaidCents)} possibly overpaid · ${s.statementLines} statement lines, ${s.matched} matched, ${s.unmatched} not in the book${s.period ? ` · period ${esc(s.period.start)} to ${esc(s.period.end)}` : ""}`;
+      $("#carriers").innerHTML = r.carriers.map((c) => `<tr><td>${esc(c.carrier)}</td><td class="n">${c.lines}</td><td class="n">${dollars(c.paidCents)}</td><td class="n">${c.items}</td><td class="n">${dollars(c.recoverableCents)}</td></tr>`).join("") || `<tr><td colspan="5">No statement lines read.</td></tr>`;
+      $("#letter-pick").innerHTML = r.carriers.map((c) => `<option value="${esc(c.carrier)}">${esc(c.carrier)}</option>`).join("");
+      showLetter();
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No findings.</p>";
+      report.hidden = false;
+      status.textContent = `${s.errors} error${s.errors === 1 ? "" : "s"}, ${s.warnings} warning${s.warnings === 1 ? "" : "s"}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#run").addEventListener("click", async () => {
+      const bf = $("#book-file").files[0];
+      const book = bf ? await bf.text() : $("#book-paste").value;
+      const statements = [];
+      for (const f of $("#stmt-files").files) statements.push({ name: f.name, carrier: f.name.replace(/\.[^.]+$/, ""), text: await f.text() });
+      if ($("#stmt-paste").value.trim()) { const c = $("#stmt-carrier").value.trim() || "Pasted statement"; statements.push({ name: c, carrier: c, text: $("#stmt-paste").value }); }
+      if (!book.trim() || !statements.length) { status.textContent = "Load the policy book and at least one statement first."; return; }
+      run(book, statements, $("#rates").value);
+      record("reconciled");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const st = sampleStatements();
+      $("#book-paste").value = sampleBook(); $("#book-file").value = ""; $("#stmt-files").value = "";
+      $("#stmt-paste").value = st[0].text; $("#stmt-carrier").value = st[0].carrier;
+      $("#agency").value = SAMPLE_OPTS.agency; $("#producer").value = SAMPLE_OPTS.producerCode;
+      $("#period-start").value = SAMPLE_OPTS.periodStart; $("#period-end").value = SAMPLE_OPTS.periodEnd;
+      run(sampleBook(), st, "");
+      record("example_loaded");
+      status.textContent = "Worked example: a made-up agency, two made-up carriers. The pasted box holds the first carrier's statement; both were reconciled.";
+    });
+    $("#letter-pick").addEventListener("change", showLetter);
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["#book-paste", "#stmt-paste", "#stmt-carrier", "#rates"]) $(id).value = "";
+      $("#book-file").value = ""; $("#stmt-files").value = ""; report.hidden = true; last = null;
+      status.textContent = "Load the policy book and at least one statement, then click Reconcile.";
+    });
+    $("#dl-letters").addEventListener("click", () => { if (last) { record("letters_downloaded"); download("commission-review-requests.txt", allDisputeLetters(last) || "Nothing to ask any carrier about.", "text/plain"); } });
+    $("#dl-findings").addEventListener("click", () => { if (last) { record("findings_downloaded"); download("commission-findings.csv", findingsCsv(last), "text/csv"); } });
+    $("#dl-carriers").addEventListener("click", () => { if (last) download("commission-carriers.csv", carrierCsv(last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RFP Compliance Matrix Generator: shall and must statements to a spreadsheet</title>
+<meta name="description" content="Paste an RFP, RFQ or tender. Get a compliance matrix of every shall/must/required obligation with section numbers, categories and owner/status columns, plus the page limits, due dates and forms. CSV download. Private, in your browser.">
+<meta property="og:title" content="RFP Compliance Matrix Generator">
+<meta property="og:description" content="Turn a solicitation into a requirement-by-requirement compliance matrix in seconds. Nothing is uploaded.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"RFP Compliance Matrix Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an RFP compliance matrix?","acceptedAnswer":{"@type":"Answer","text":"A compliance matrix is a table with one row per requirement in a solicitation: where the requirement appears, what it says, who answers it, where in the proposal it is answered, and whether it is done. Proposal managers use it to make sure no shall or must statement goes unanswered, because a missed mandatory requirement can make a proposal non-responsive."}},{"@type":"Question","name":"How does the generator find the requirements?","acceptedAnswer":{"@type":"Answer","text":"It splits the pasted text into sentences, keeps the section number each sits under, and flags sentences with shall, must, is required to, will (when the contractor is the subject) and similar wording. It separates prohibitions (shall not), desirables (should) and the buyer's own duties (the County will). A lead-in such as The Contractor shall followed by a list becomes one row per list item."}},{"@type":"Question","name":"Is it as good as reading the RFP?","acceptedAnswer":{"@type":"Answer","text":"No. It is a first pass that saves the typing. A sentence can contain two obligations, and requirements can hide in tables, figures and attachments that were not pasted. Read the whole solicitation and every addendum yourself, and check the matrix against it."}},{"@type":"Question","name":"Is my RFP uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The extraction runs in your browser and nothing is sent to a server. There is also a command-line version that runs on your own machine."}}]}</script>
+<style>
+:root{--bg:#f6f4ee;--fg:#1b2430;--muted:#4b5767;--card:#fff;--line:#cfd6df;--accent:#0b5d7a;--warn:#8a3b12}
+@media (prefers-color-scheme:dark){:root{--bg:#12171d;--fg:#e8edf2;--muted:#a9b5c2;--card:#1a2129;--line:#33404d;--accent:#6cc3e0;--warn:#f0a070}}
+*{box-sizing:border-box}
+body{font:16px/1.5 system-ui,sans-serif;margin:0;padding:1rem;background:var(--bg);color:var(--fg)}
+main,footer{max-width:1100px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.25rem;margin:1rem 0}
+h1{font-size:clamp(1.8rem,4.5vw,3rem);line-height:1.1;margin:.2rem 0 .6rem}
+textarea{width:100%;min-height:220px;padding:.8rem;border:2px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--fg)}
+button{background:var(--accent);color:#fff;border:0;padding:.65rem 1rem;border-radius:8px;font-weight:700;cursor:pointer;margin:.4rem .4rem .4rem 0}
+@media (prefers-color-scheme:dark){button{color:#0b1218}}
+button.secondary{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+td.req{min-width:22rem}
+input.cell,select.cell{width:100%;min-width:7rem;font:inherit;padding:.25rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.pill{display:inline-block;padding:0 .5rem;border-radius:999px;border:1px solid var(--line);font-size:.8rem}
+.Prohibition{color:var(--warn);font-weight:700}
+.stats span{display:inline-block;margin:0 1rem .3rem 0}
+.warn{color:var(--warn)}
+footer{font-size:.85rem;color:var(--muted);padding-bottom:3rem}
+a{color:var(--accent)}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<main>
+<p><strong>Proposal teams</strong> · private browser tool · free</p>
+<h1>Turn an RFP into a compliance matrix</h1>
+<p>Paste the solicitation. Get a row for every <em>shall</em>, <em>must</em> and <em>required</em> statement, with its section number, a category, and Owner / Status / Proposal-section columns ready to fill in. Page limits, due dates, copies and required forms are pulled out separately. Download it as a spreadsheet.</p>
+
+<section class="card">
+  <label for="source"><strong>Solicitation text</strong></label>
+  <textarea id="source" placeholder="Paste the RFP, RFQ or tender text here, keeping the section numbers (1.1, 3.2.4, L.4 ...)"></textarea>
+  <div>
+    <button type="button" id="extract">Build the matrix</button>
+    <button type="button" class="secondary" id="example">Load a fictional example</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+  </div>
+  <p id="status" aria-live="polite">Nothing is uploaded. Extraction runs on this device.</p>
+</section>
+
+<section class="card" id="report" hidden>
+  <h2>Compliance matrix</h2>
+  <p class="stats" id="stats"></p>
+  <div>
+    <label for="filter" class="sr">Filter by category</label>
+    <select id="filter" class="cell" style="max-width:16rem"><option value="">All categories</option></select>
+  </div>
+  <div class="wrap"><table id="matrix"><thead><tr><th>ID</th><th>Section</th><th>Requirement</th><th>Strength</th><th>Category</th><th>Owner</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+  <p>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-md">Copy as Markdown</button>
+    <button type="button" class="secondary" id="dl-outline">Download response outline</button>
+  </p>
+  <p class="warn">Owner and Status edited here are not saved or included in the download; the CSV has blank Owner and Not started columns for your team to fill in the spreadsheet.</p>
+  <h3>Proposal instructions found</h3>
+  <p>Check these once, at the end: they apply to the whole proposal rather than to a section.</p>
+  <div class="wrap"><table id="instr"><thead><tr><th>Type</th><th>Section</th><th>Text</th></tr></thead><tbody></tbody></table></div>
+  <h3>Read this first</h3>
+  <ul id="warnings"></ul>
+</section>
+
+<section class="card" id="coverage" hidden>
+  <h2>Check your draft against the matrix</h2>
+  <p>Paste your draft proposal response (cite requirement IDs like <code>REQ-004</code> if you can). The tool lists the requirements your draft does not seem to address yet. It compares key terms, so it finds gaps to look at; it cannot tell you a requirement is satisfied.</p>
+  <label for="draft" class="sr">Draft response text</label>
+  <textarea id="draft" placeholder="Paste your draft response here"></textarea>
+  <div><button type="button" id="check-draft">Find gaps</button><button type="button" class="secondary" id="dl-gaps">Download gap report (CSV)</button></div>
+  <p id="gap-summary" aria-live="polite"></p>
+  <div class="wrap"><table id="gaps"><thead><tr><th>ID</th><th>Strength</th><th>Status</th><th>Requirement</th><th>Terms not found</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section class="card" id="rules">
+  <h2>What it does, and what it leaves to you</h2>
+  <ul>
+    <li><strong>Finds:</strong> shall / must / is required to / will (when the contractor is the subject) obligations, shall-not prohibitions and should-style desirables, each with the sentence it came from. Lists introduced by "The Contractor shall:" become one row per item. Repeated sentences are merged.</li>
+    <li><strong>Leaves out:</strong> the buyer's own duties ("the County will evaluate...").</li>
+    <li><strong>Not decided:</strong> whether you can meet a requirement, whether a requirement is reasonable or lawful, evaluation weighting, or anything in a table, image or attachment you did not paste. Read the solicitation and every addendum.</li>
+  </ul>
+  <p>Prefer the command line? <code>node cli.mjs rfp.txt --format csv &gt; matrix.csv</code> runs the same code on your own machine (see the README in the repository). Teams can also deploy their own copy with an API and an optional AI pass that splits compound requirements, using their own keys.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What is an RFP compliance matrix?</h3>
+  <p>A compliance matrix is a table with one row per requirement in a solicitation: where the requirement appears, what it says, who answers it, where in the proposal it is answered, and whether it is done. Proposal managers use it to make sure no shall or must statement goes unanswered, because a missed mandatory requirement can make a proposal non-responsive.</p>
+  <h3>How does the generator find the requirements?</h3>
+  <p>It splits the pasted text into sentences, keeps the section number each sits under, and flags sentences with shall, must, is required to, will (when the contractor is the subject) and similar wording. It separates prohibitions (shall not), desirables (should) and the buyer's own duties (the County will). A lead-in such as The Contractor shall followed by a list becomes one row per list item.</p>
+  <h3>Is it as good as reading the RFP?</h3>
+  <p>No. It is a first pass that saves the typing. A sentence can contain two obligations, and requirements can hide in tables, figures and attachments that were not pasted. Read the whole solicitation and every addendum yourself, and check the matrix against it.</p>
+  <h3>Is my RFP uploaded anywhere?</h3>
+  <p>No. The extraction runs in your browser and nothing is sent to a server. There is also a command-line version that runs on your own machine.</p>
+  <p class="seo-link"><a href="./how-to-build-an-rfp-compliance-matrix.html">How to build an RFP compliance matrix</a> &middot; <a href="../tender-bid-readiness/">Tender bid readiness checker &mdash; decide whether to bid first</a> &middot; <a href="../tender-radar/">Tender Radar &mdash; shortlist tenders</a> &middot; <a href="../contractor-bid-readiness/">Contractor bid readiness checklist</a></p>
+</section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, procurement, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. We count anonymous feature events (<code>matrix_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>outline_downloaded</code>, <code>draft_checked</code>), never people, only in your own browser's storage, and counting honors Do Not Track and Global Privacy Control.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Finding what to bid on? <a href="../recompete-radar/">Recompete Radar</a> shows which federal contracts in your NAICS code expire next and who holds them.</p>
+  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support on GitHub Sponsors</a> if this saved your proposal team an afternoon &mdash; optional, the tool stays free either way.</p>
+</footer>
+
+<script type="module">
+import { extract, toCsv, toMarkdown, csvCell } from "./extract.mjs";
+import { toOutlineMarkdown, coverage, coverageToCsv } from "./shred.mjs";
+import { SAMPLE } from "./sample.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const IDLE = "Nothing is uploaded. Extraction runs on this device.";
+let last = null;
+
+function download(name, body, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([body], { type }));
+  a.download = name;
+  a.click();
+}
+
+function renderRows() {
+  const cat = $("#filter").value;
+  const rows = last.requirements.filter((r) => !cat || r.category === cat);
+  $("#matrix tbody").innerHTML = rows.map((r) => `<tr><td>${esc(r.id)}</td><td>${esc(r.section)}</td><td class="req">${esc(r.text)}${r.also.length ? `<br><small>Also in ${esc(r.also.join(", "))}</small>` : ""}</td><td class="${r.strength}">${esc(r.strength)}</td><td>${esc(r.category)}</td><td><input class="cell" aria-label="Owner for ${esc(r.id)}"></td><td><select class="cell" aria-label="Status for ${esc(r.id)}"><option>Not started</option><option>In progress</option><option>Drafted</option><option>Reviewed</option><option>Done</option></select></td></tr>`).join("");
+}
+
+function run() {
+  const result = extract($("#source").value);
+  last = result;
+  if (!result.requirements.length && !result.instructions.length) {
+    $("#report").hidden = true;
+    $("#status").textContent = result.warnings[result.warnings.length - 1];
+    return false;
+  }
+  const c = result.counts;
+  $("#stats").innerHTML = `<span><strong>${c.total}</strong> requirements</span>` + Object.entries(c.byStrength).map(([k, v]) => `<span>${esc(k)}: <strong>${v}</strong></span>`).join("") + `<span>Instructions: <strong>${result.instructions.length}</strong></span>`;
+  $("#filter").innerHTML = `<option value="">All categories</option>` + Object.entries(c.byCategory).map(([k, v]) => `<option value="${esc(k)}">${esc(k)} (${v})</option>`).join("");
+  renderRows();
+  $("#instr tbody").innerHTML = result.instructions.map((i) => `<tr><td>${esc(i.type)}</td><td>${esc(i.section)}</td><td>${esc(i.text)}</td></tr>`).join("") || `<tr><td colspan="3">None detected.</td></tr>`;
+  $("#warnings").innerHTML = result.warnings.map((w) => `<li>${esc(w)}</li>`).join("");
+  $("#report").hidden = false;
+  $("#coverage").hidden = false;
+  $("#status").textContent = `Done: ${c.total} requirements. Check the matrix against the solicitation before you rely on it.`;
+  return true;
+}
+
+$("#extract").addEventListener("click", () => { if (run()) record("matrix_built"); });
+$("#example").addEventListener("click", () => { $("#source").value = SAMPLE; run(); record("example_loaded"); });
+$("#clear").addEventListener("click", () => { $("#source").value = ""; $("#report").hidden = true; last = null; $("#status").textContent = IDLE; });
+$("#filter").addEventListener("change", () => { if (last) renderRows(); });
+$("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("compliance-matrix.csv", toCsv(last), "text/csv"); } });
+$("#copy-md").addEventListener("click", async () => {
+  if (!last) return;
+  try { await navigator.clipboard.writeText(toMarkdown(last)); $("#status").textContent = "Copied the matrix as a Markdown table."; }
+  catch { $("#status").textContent = "Copy was blocked by the browser; use Download CSV instead."; }
+});
+let lastCov = null;
+$("#dl-outline").addEventListener("click", () => { if (last) { record("outline_downloaded"); download("response-outline.md", toOutlineMarkdown(last), "text/markdown"); } });
+$("#check-draft").addEventListener("click", () => {
+  if (!last) return;
+  const cov = coverage(last, $("#draft").value);
+  lastCov = cov;
+  record("draft_checked");
+  const s = cov.summary;
+  $("#gap-summary").textContent = `${s.addressed} addressed, ${s.partial} partial, ${s.missing} missing.` + (cov.mandatoryGaps.length ? ` Mandatory requirements not clearly addressed: ${cov.mandatoryGaps.join(", ")}.` : " No mandatory gaps found by this heuristic; still read the draft against the solicitation.");
+  const rank = { missing: 0, partial: 1, addressed: 2 };
+  $("#gaps tbody").innerHTML = [...cov.rows].sort((a, b) => rank[a.status] - rank[b.status]).map((r) => `<tr><td>${esc(r.id)}</td><td>${esc(r.strength)}</td><td>${esc(r.status)}</td><td class="req">${esc(r.text)}</td><td>${esc(r.missingTerms.join(" "))}</td></tr>`).join("");
+});
+$("#dl-gaps").addEventListener("click", () => { if (lastCov) download("gap-report.csv", coverageToCsv(lastCov, csvCell), "text/csv"); });
+$("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+</script>
+</body>
+</html>

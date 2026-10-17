@@ -1,0 +1,50 @@
+Blur twin: real = exposure T=0.01 s (smear d = v T px), twin = instantaneous (d = 0). Bar width w px, contrast C, pixel noise sigma.
+Detection: known location, false-alarm rate alpha=0.001 on noise alone, target Pd=0.9.
+
+== 1. Profile: closed form vs 2000-sub-exposure forward simulation ==
+max |closed form - simulation| over 5 (w, d) pairs and ~600 points = 5.00e-04 (quantisation bound 1/2000 = 5.0e-04)
+
+== 2. Peak height and energy (w = 6, C = 1): peak = min(1, w/d), plateau |d - w|, base w + d, energy C w conserved ==
+    d   peak (grid max)   min(1,w/d)   energy (sum*dx)
+    0           1.0000       1.0000           6.0050
+    3           1.0000       1.0000           6.0000
+    6           1.0000       1.0000           6.0000
+   12           0.5000       0.5000           6.0000
+   30           0.2000       0.2000           6.0000
+   60           0.1000       0.1000           6.0000
+
+== 3. Detection power vs smear d (w = 6, C/sigma = 10): twin certifies Pd = 1 at every speed ==
+(mean outputs in units of sigma; Pd from the Gaussian formula, MC = 20000 noise draws; 'fixed' box = length round(w), i.e. tuned on the twin)
+    d   v px/s   peak: out  Pd (MC)        matched box: out  Pd (MC)      fixed box: out  Pd (MC)    twin Pd
+    0        0   10.00  1.000 (1.000)   24.49  1.000 (1.000)   24.49  1.000 (1.000)   1.000
+    6      600    9.17  1.000 (1.000)   18.86  1.000 (1.000)   18.37  1.000 (1.000)   1.000
+   12     1200    5.00  0.972 (0.972)   15.16  1.000 (1.000)   12.25  1.000 (1.000)   1.000
+   24     2400    2.50  0.278 (0.280)   11.48  1.000 (1.000)    6.12  0.999 (0.999)   1.000
+   36     3600    1.67  0.077 (0.078)    9.58  1.000 (1.000)    4.08  0.839 (0.842)   1.000
+   48     4800    1.25  0.033 (0.033)    8.39  1.000 (1.000)    3.06  0.489 (0.491)   1.000
+   60     6000    1.00  0.018 (0.019)    7.55  1.000 (1.000)    2.45  0.261 (0.261)   1.000
+
+== 4. Speed limits for Pd >= 0.9 at alpha=1e-3 (largest smear d); closed form vs numeric bisection on pixel outputs ==
+closed forms: peak d* = w C/(sigma z); full box d* = (w C/(sigma z))^2 - w; box of length d: solve C w (1 - w/(4d))/sqrt(d) = sigma z;
+z = Q^-1(alpha) - Q^-1(Pd) = 4.372. numeric: peak = max pixel (phase 0); box = best of L in {round(d)-3..round(d)+3, round(w+d)+1}
+  w   C/sigma   peak cf   peak num   full-box cf   len-d cf   box num   speed gain num (box/peak)   peak limit px/s   box limit px/s
+  3        8      5.49       5.49         27.14      28.58     28.50                      5.19x               549             2850
+  3       10      6.86       6.86         44.09      45.55     45.47                      6.63x               686             4547
+  3       15     10.29      10.29        102.95     104.44    104.35                     10.14x              1029            10435
+  3       20     13.72      13.72        185.36     186.85    186.75                     13.61x              1372            18675
+  6        8     10.98      10.98        114.55     117.49    117.45                     10.70x              1098            11745
+  6       10     13.72      13.72        182.36     185.32    185.30                     13.50x              1372            18530
+  6       15     20.59      20.59        417.81     420.79    420.78                     20.44x              2059            42078
+  6       20     27.45      27.45        747.43     750.42    750.40                     27.34x              2745            75040
+ 12        8     21.96      21.96        470.20     476.14    476.14                     21.68x              2196            47614
+ 12       10     27.45      27.45        741.43     747.40    747.38                     27.23x              2745            74738
+ 12       15     41.17      41.17       1683.23    1689.21   1689.21                     41.03x              4117           168921
+ 12       20     54.90      54.90       3001.74    3007.73   3007.72                     54.79x              5490           300772
+
+== 5. Best integer box length vs smear (w = 6, C/sigma = 10): numeric argmax over all L vs closed form for L = d ==
+    d   best L   output at best L   output at L = d   closed form C w/sqrt(d) (1 - w/(4d))   output at L = w+d   C w/sqrt(w+d)
+    6        8             18.856            18.371                                 18.371              17.321          17.321
+    9       11             16.751            16.667                                 16.667              15.492          15.492
+   12       12             15.155            15.155                                 15.155              14.142          14.142
+   24       24             11.482            11.482                                 11.482              10.954          10.954
+   48       48              8.390             8.390                                  8.390               8.165           8.165

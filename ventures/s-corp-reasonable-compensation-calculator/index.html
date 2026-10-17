@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S-Corp Reasonable Compensation Calculator — Salary vs. Distribution</title>
+  <meta name="description" content="Free browser calculator for single-shareholder S-corp owners: compare your planned W-2 salary against a comparable-wage figure you supply, see the FICA-tax cost of closing the gap, and get a printable nine-factor documentation checklist for your own records. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="S-Corp Reasonable Compensation Calculator">
+  <meta property="og:description" content="Compare your S-corp salary against a comparable-wage figure, see the FICA cost of the gap, and get the IRS's own nine-factor checklist — no signup, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"S-Corp Reasonable Compensation Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based calculator that compares a single-shareholder S-corp's planned salary against a comparable-wage figure the owner supplies, reports the FICA-tax cost of the gap, and renders a nine-factor reasonable-compensation documentation checklist."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is \"reasonable compensation\" for an S-corp owner?","acceptedAnswer":{"@type":"Answer","text":"A shareholder of an S-corp who also performs services for the business must be paid a reasonable salary as W-2 wages before any profit is distributed to them. The IRS and the courts test this by comparing your pay to what an unrelated employer would pay someone else to do the same job, for the same hours — not by any fixed percentage of profit."}},{"@type":"Question","name":"Is there an IRS safe-harbor percentage, like paying yourself 60% of profit as salary?","acceptedAnswer":{"@type":"Answer","text":"No. The IRS has never published a safe-harbor percentage, and the \"60/40\" or \"1/3\" rules of thumb circulating online are informal guidance from advisors, not an IRS rule. This calculator does not use a percentage rule; it compares your planned salary to a comparable-wage figure you supply for your own role and hours, which is the test actually applied in litigated cases."}},{"@type":"Question","name":"What happens if I pay myself too little salary and take the rest as distributions?","acceptedAnswer":{"@type":"Answer","text":"The IRS can recharacterize part of your distributions as wages, assess back payroll tax (both the employer and employee shares of FICA), plus penalties and interest. Watson v. Commissioner (8th Cir. 2012) is the leading case: a $24,000 salary against roughly $200,000–274,000 of annual profit was recharacterized to $91,044."}},{"@type":"Question","name":"Can my S-corp pay me more salary than it actually earned this year?","acceptedAnswer":{"@type":"Answer","text":"A corporation is not generally expected to pay out more in salary than it earned in a lean year — the reasonable-compensation rule targets disguised distributions from profit that exists, not a shortfall when there isn't any. If your comparable-wage figure exceeds what the business made, that is a signal to talk to your own preparer about the options, not a hard floor this calculator enforces."}},{"@type":"Question","name":"Why does raising my salary cost more in FICA tax?","acceptedAnswer":{"@type":"Answer","text":"W-2 salary is subject to combined Social Security and Medicare tax (FICA) — 15.3% combined below the annual Social Security wage base, 2.9% above it, plus an extra 0.9% employee-only Medicare tax above a fixed income threshold. Distributions from an S-corp are not subject to FICA. That tax difference is exactly why the IRS scrutinizes a low salary paired with a large distribution — it is the incentive to understate salary, not a loophole this calculator is built to help you exploit."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#1c2430; --muted:#5a6472; --paper:#f3f0e9; --card:#fffdf9; --accent:#2f5d50; --line:#dbd4c4; --ok:#2f6d3f; --warn:#a4321f; --caution:#a4711f; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:1060px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:780px; font:700 clamp(2rem,5.2vw,3.3rem)/1.05 Georgia,serif; letter-spacing:-.02em; margin:0 0 16px; } h2 { font:700 1.4rem Georgia,serif; margin:0 0 10px; } h3 { font-size:1.02rem; margin:16px 0 4px; }
+    .intro { max-width:740px; color:var(--muted); font-size:1.08rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:740px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 26px #2a231010; }
+    .row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end; } .row[hidden] { display:none; }
+    label { display:grid; gap:5px; color:var(--muted); font-size:.85rem; } input, select { width:100%; padding:11px; border:1px solid #bcb3a0; border-radius:8px; font:inherit; color:var(--ink); background:white; }
+    button { border:0; border-radius:8px; padding:11px 16px; font-weight:700; cursor:pointer; background:var(--ink); color:white; } button.secondary { background:#e6e0d0; color:var(--ink); }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+    .result[hidden] { display:none; }
+    .result { display:grid; gap:14px; margin-top:6px; }
+    .banner { border-radius:10px; padding:14px 16px; font-size:.98rem; border:1px solid; }
+    .banner.ok { background:#eaf5ec; border-color:#bfdcc6; color:var(--ok); }
+    .banner.warn { background:#fbeae7; border-color:#f0c3ba; color:var(--warn); }
+    .banner.caution { background:#fbf1e2; border-color:#eed3a0; color:var(--caution); }
+    .banner.info { background:#eef1f6; border-color:#c9d3e2; color:#33486b; }
+    .figures { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+    .figure { background:#faf7ef; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+    .figure strong { display:block; font-size:1.35rem; }
+    .figure span { color:var(--muted); font-size:.82rem; }
+    .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
+    .privacy { font-size:.9rem; color:var(--muted); }
+    .factor { border-bottom:1px solid var(--line); padding:12px 0; }
+    .factor:last-child { border-bottom:0; }
+    .factor h3 { margin:0 0 4px; }
+    .factor p { margin:0; color:var(--muted); font-size:.94rem; }
+    footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    @media(max-width:900px) { .row { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body><main>
+  <h1>Is your S-corp salary defensible — and what does closing the gap cost?</h1>
+  <p class="intro">A single-shareholder S-corp that also performs services for the business must pay a "reasonable" W-2 salary before taking any profit out as a distribution. There is no IRS safe-harbor percentage — the test is a comparable-wage comparison: what an unrelated employer would pay someone else to do your job, for your hours. Enter your own numbers below and see where you stand, and what raising salary would cost in FICA tax.</p>
+  <p class="value"><strong>After using this, you can now</strong> see whether your planned S-corp salary is defensible against the actual test the IRS and courts apply, and exactly how much closing the gap costs in FICA tax — which used to mean paying $200-900 for a third-party reasonable-compensation report or guessing at a mythical "60/40 rule" that isn't an IRS rule at all. See <a href="why-the-irs-tests-your-s-corp-salary.html">why the IRS cares</a>, <a href="vs-rcreports-and-a-paid-valuation-report.html">how this compares to a paid reasonable-compensation report</a>, or <a href="vs-picking-a-round-number.html">how this compares to just picking a round number</a>.</p>
+
+  <p class="privacy">Lowering your salary also raises your Section 199A QBI deduction (wages reduce QBI) — see the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> for that side of the same pass-through income, and weigh it against the audit-risk flag below before deciding. Own your home? See what renting it to your business for up to 14 days saves with the <a href="../augusta-rule-calculator/">Augusta rule calculator</a>.</p>
+
+  <section class="card"><h2>Your numbers</h2><p class="privacy">"Compensation pool" is your S-corp's net ordinary income for the year, before your own wages are subtracted. The comparable-wage figure is one you supply — from BLS OEWS wage data, a trade salary survey, or your own judgment of what a competing employer would pay for this exact role and these exact hours.</p><form id="entry-form"><div class="row">
+    <label>Compensation pool this year ($, optional)<input name="compensationPool" type="number" min="0" step="100" placeholder="e.g. 180000"></label>
+    <label>Planned or current W-2 salary ($)<input name="plannedSalary" type="number" min="0" step="100" value="0" required></label>
+    <label>Comparable full-time wage for this role ($/yr, optional)<input name="marketWageFullTime" type="number" min="0" step="100" placeholder="e.g. 85000"></label>
+    <label>Hours worked per week<input name="hoursPerWeek" type="number" min="0" step="1" value="40"></label>
+  </div><div class="row" style="grid-template-columns:1fr auto"><label>Filing status (sets the Additional Medicare Tax threshold)<select name="filingStatus" id="filingStatus"></select></label><div></div></div>
+  <div class="actions"><button type="submit">Assess</button><button class="secondary" type="button" id="sample">Load a sample scenario</button></div></form></section>
+
+  <section class="card"><h2>Result</h2>
+    <p id="empty" class="privacy">Enter your numbers above and choose Assess.</p>
+    <div class="result" id="result" hidden>
+      <p class="banner" id="banner"></p>
+      <p class="note" id="poolNote" hidden></p>
+      <div class="figures">
+        <div class="figure"><strong id="figFloor">—</strong><span>Comparable-wage floor (hours-adjusted)</span></div>
+        <div class="figure"><strong id="figDistribution">—</strong><span>Implied distribution at your planned salary</span></div>
+        <div class="figure"><strong id="figFicaPlanned">—</strong><span>Combined FICA tax at your planned salary</span></div>
+        <div class="figure"><strong id="figFicaExtra">—</strong><span>Extra FICA to raise salary to the floor</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card"><h2>Nine-factor documentation checklist</h2><p class="privacy">Courts and the IRS weigh a multi-factor test rather than one number (see the <a href="why-the-irs-tests-your-s-corp-salary.html">explainer page</a> for the case law). This calculator does not score or sum these into a figure — that would overstate what arithmetic can settle. Print this page or copy your answers into your own file as evidence of how the number above was reached.</p>
+    <div id="factors"></div>
+  </section>
+
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Every figure you enter stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is "reasonable compensation" for an S-corp owner?</h3>
+    <p>A shareholder of an S-corp who also performs services for the business must be paid a reasonable salary as W-2 wages before any profit is distributed to them. The IRS and the courts test this by comparing your pay to what an unrelated employer would pay someone else to do the same job, for the same hours — not by any fixed percentage of profit.</p>
+    <h3>Is there an IRS safe-harbor percentage, like paying yourself 60% of profit as salary?</h3>
+    <p>No. The IRS has never published a safe-harbor percentage, and the "60/40" or "1/3" rules of thumb circulating online are informal guidance from advisors, not an IRS rule. This calculator does not use a percentage rule; it compares your planned salary to a comparable-wage figure you supply for your own role and hours, which is the test actually applied in litigated cases.</p>
+    <h3>What happens if I pay myself too little salary and take the rest as distributions?</h3>
+    <p>The IRS can recharacterize part of your distributions as wages, assess back payroll tax (both the employer and employee shares of FICA), plus penalties and interest. Watson v. Commissioner (8th Cir. 2012) is the leading case: a $24,000 salary against roughly $200,000–274,000 of annual profit was recharacterized to $91,044.</p>
+    <h3>Can my S-corp pay me more salary than it actually earned this year?</h3>
+    <p>A corporation is not generally expected to pay out more in salary than it earned in a lean year — the reasonable-compensation rule targets disguised distributions from profit that exists, not a shortfall when there isn't any. If your comparable-wage figure exceeds what the business made, that is a signal to talk to your own preparer about the options, not a hard floor this calculator enforces.</p>
+    <h3>Why does raising my salary cost more in FICA tax?</h3>
+    <p>W-2 salary is subject to combined Social Security and Medicare tax (FICA) — 15.3% combined below the annual Social Security wage base, 2.9% above it, plus an extra 0.9% employee-only Medicare tax above a fixed income threshold. Distributions from an S-corp are not subject to FICA. That tax difference is exactly why the IRS scrutinizes a low salary paired with a large distribution — it is the incentive to understate salary, not a loophole this calculator is built to help you exploit.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is free and as-is, without warranty of any kind. It is not legal, tax, or financial advice and does not replace a qualified CPA or tax attorney. It does not determine what your salary must be, file anything, or guarantee an outcome in an IRS examination — it is a starting-point estimate and a documentation aid, not a determination. FICA figures use the 2026 Social Security wage base ($184,500, per the Social Security Administration's own announcement) and current statutory rates, and assume this S-corp salary is your only wage income for the year. The comparable-wage figure is one you supply; this tool has no live wage-data source and does not verify it. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your specific facts with your own preparer. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<p class="support">Free and open source. If it helped you set a defensible number, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+    // Remember the visitor's usage-counting choice between visits, before
+    // anything is recorded or the control could otherwise be read in its
+    // default state. Same pattern as the sibling economic-nexus-threshold-
+    // tracker's identical block.
+    (() => {
+      const usagePreference = 's-corp-reasonable-compensation-calculator-usage-preference';
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { assess, FILING_STATUS_OPTIONS, NINE_FACTORS, loadState } from './calc.mjs';
+  const form = document.querySelector('#entry-form');
+  const filingSelect = document.querySelector('#filingStatus');
+  filingSelect.innerHTML = FILING_STATUS_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  const storageKey = 's-corp-reasonable-compensation-calculator-state';
+  const escapeHtml = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money = (n) => { if (n == null) return '—'; const text = `$${Math.abs(Math.round(n)).toLocaleString('en-US')}`; return n < 0 && /[1-9]/.test(text) ? `-${text}` : text; };
+  const track = (event) => { if (document.querySelector('#usage').checked && !navigator.doNotTrack && !navigator.globalPrivacyControl) { try { const key = 's-corp-reasonable-compensation-calculator-events'; const data = JSON.parse(localStorage.getItem(key) || '{}'); data[event] = (data[event] || 0) + 1; localStorage.setItem(key, JSON.stringify(data)); } catch {} } };
+
+  const factorsEl = document.querySelector('#factors');
+  factorsEl.innerHTML = NINE_FACTORS.map(f => `<div class="factor"><h3>${escapeHtml(f.title)}</h3><p>${escapeHtml(f.prompt)}</p></div>`).join('');
+
+  const resultEl = document.querySelector('#result');
+  const emptyEl = document.querySelector('#empty');
+  const bannerEl = document.querySelector('#banner');
+  const poolNoteEl = document.querySelector('#poolNote');
+
+  const render = (data) => {
+    const result = assess(data);
+    if (!result.ok) {
+      resultEl.hidden = true;
+      emptyEl.hidden = false;
+      emptyEl.textContent = result.reason;
+      return;
+    }
+    emptyEl.hidden = true;
+    resultEl.hidden = false;
+    bannerEl.className = `banner ${result.flagLevel}`;
+    bannerEl.textContent = result.flag;
+    if (result.poolNote) { poolNoteEl.hidden = false; poolNoteEl.textContent = result.poolNote; } else { poolNoteEl.hidden = true; }
+    document.querySelector('#figFloor').textContent = money(result.floor);
+    document.querySelector('#figDistribution').textContent = money(result.distribution);
+    document.querySelector('#figFicaPlanned').textContent = money(result.plannedFica.total);
+    document.querySelector('#figFicaExtra').textContent = result.extraFicaToReachFloor == null ? '—' : money(result.extraFicaToReachFloor);
+  };
+
+  const readForm = () => Object.fromEntries(new FormData(form));
+  const saveState = (data) => { try { localStorage.setItem(storageKey, JSON.stringify(data)); } catch {} };
+  const restored = (() => { try { return loadState(localStorage.getItem(storageKey)); } catch { return null; } })();
+  if (restored) {
+    for (const [key, value] of Object.entries(restored)) {
+      const field = form.elements.namedItem(key);
+      if (field) field.value = value;
+    }
+    render(restored);
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = readForm();
+    saveState(data);
+    render(data);
+    track('assessed');
+  });
+
+  document.querySelector('#sample').onclick = () => {
+    const sample = { compensationPool: '180000', plannedSalary: '24000', marketWageFullTime: '91000', hoursPerWeek: '40', filingStatus: 'single' };
+    for (const [key, value] of Object.entries(sample)) {
+      const field = form.elements.namedItem(key);
+      if (field) field.value = value;
+    }
+    saveState(sample);
+    render(sample);
+    track('sample_loaded');
+  };
+</script></body></html>

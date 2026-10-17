@@ -1,0 +1,67 @@
+name: bundle-discount-optimizer
+description: >-
+  Free browser tool for Shopify, Etsy, Amazon and other small online sellers:
+  paste the order history (order id, sku) and product price and cost, and get
+  which pairs of products customers already buy together, the bundle discount
+  that earns the most, and the break-even: how much more often shoppers must add
+  the second item for the discount to pay. Checks each pairing on held-out
+  newest orders, gives bootstrap ranges, profit at 5-20% off, and exports the
+  result as CSV. The response to a discount is a stated assumption. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "product bundle pricing optimizer choose bundle discount to maximize profit
+# from order history": closest is shopify-payout-profit-analyzer at 0.22
+# (reads payouts, does not price bundles), far below the read-this-first bar.
+# price-elasticity-estimator prices one product from its own sales; nothing here
+# chooses a bundle or a bundle discount, or computes what a bundle discount must
+# lift to pay for the orders that already pair. Alternatives: Shopify
+# bundle apps (Bundler, Fast Bundle, Frequently Bought Together) that set a
+# discount by rule of thumb and charge monthly, spreadsheets, gut feel.
+#
+# First visitor: Shopify/Etsy/Amazon small-store owners searching "how much
+# discount should I give on a bundle", "which products to bundle together",
+# "bundle pricing calculator", "frequently bought together report"; r/shopify,
+# r/ecommerce, r/EtsySellers threads on bundling. Volume not measured with an
+# external tool. Feeds from shopify-fee-calculator and the other seller fee
+# tools in this catalogue.
+#
+# Privacy is the liability boundary: orders and costs never leave the browser
+# (tests assert no network calls). No platform or app is named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved multi-store analyses or a live bundle A/B
+# read-back; not built.
+# Liability: sizes a pricing decision, does not set any price or assert that a
+# discount is lawful in any jurisdiction; the page says response is an assumption
+# and the not-modelled list. Unverified: tested against hand calculations,
+# brute-force counts and invented data, not a real store's bundle results.
+
+hypotheses:
+  - claim: >-
+      Small online sellers will use a private, no-signup tool that turns their own
+      order history into the few bundles worth running and the discount that pays
+      for itself, and will come back after each order export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a profit change, break-even or pairing count that the stated inputs do not reproduce.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bundle-discount-optimizer/
+  analytics: null

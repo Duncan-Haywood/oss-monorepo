@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Startup Exit Waterfall Calculator — Who Gets Paid What When the Company Sells</title>
+  <meta name="description" content="Free startup exit waterfall calculator. Enter the sale price and your cap table (common, options, preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class is paid, the exit price where each series converts, and a sweep across exit prices. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Startup Exit Waterfall Calculator — free, private, in your browser">
+  <meta property="og:description" content="Liquidation preferences, participation caps, seniority and options: see what founders, employees and each investor take home at any sale price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Startup Exit Waterfall Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free startup exit waterfall calculator. Enter the sale price and your cap table (common, options, preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class is paid, the exit price where each series converts, and a sweep across exit prices. Runs in your browser, nothing is uploaded.","featureList":"exit waterfall calculator, liquidation preference, participating preferred with cap, seniority and pari passu, cumulative dividends, option strike prices, management carve-out, conversion breakpoints, CSV download"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a liquidation preference?","acceptedAnswer":{"@type":"Answer","text":"A right, negotiated in a financing, for a series of preferred stock to be paid a set amount, usually the money invested times a multiple such as 1x, before common stockholders receive anything when the company is sold. Some series then also share in what is left (participating preferred), some only take the greater of the preference or their as-converted share (non-participating)."}},{"@type":"Question","name":"What is the difference between participating and non-participating preferred?","acceptedAnswer":{"@type":"Answer","text":"Non-participating preferred chooses: take the preference, or convert to common and share pro rata, whichever pays more. Participating preferred collects the preference and then also shares in the remainder as if it had converted, often up to a cap such as 3x the money invested, after which it would rather convert if that pays more."}},{"@type":"Question","name":"What does seniority mean in a waterfall?","acceptedAnswer":{"@type":"Answer","text":"Senior series are paid in full before junior ones see anything. Series with the same seniority number are pari passu: if the money runs short they share it in proportion to their claims. Enter 1 for the series paid first, 2 for the next."}},{"@type":"Question","name":"Why do options pay less than shares?","acceptedAnswer":{"@type":"Answer","text":"An option holder pays the strike price to buy the share, so the value is the price per common share minus the strike. If the sale values a common share below the strike the options are worth nothing at that price."}},{"@type":"Question","name":"Why is my percentage of the company not my percentage of the sale?","acceptedAnswer":{"@type":"Answer","text":"Because preferred terms, debt, fees and any management carve-out are paid first. At modest prices common stock and options can get far less than their ownership share, and at high prices the gap closes as preferred series convert."}},{"@type":"Question","name":"What is a management carve-out?","acceptedAnswer":{"@type":"Answer","text":"A slice of the sale proceeds set aside for managers or employees, paid before the preferred preferences. It usually matters when the sale price is near or below the preference stack. Enter the percentage of proceeds after debt and fees."}},{"@type":"Question","name":"What does this leave out?","acceptedAnswer":{"@type":"Answer","text":"Escrows and holdbacks, earn-outs, taxes, pay-to-play and other special terms, warrants, convertible notes and SAFEs that have not converted, unvested equity, anti-dilution adjustments, and the exact wording of your charter. It reads the terms you enter; the legal documents control. Read your charter and get advice from a lawyer before relying on any figure."}},{"@type":"Question","name":"Is my cap table uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input[type=text] { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    table.entry { min-width: 860px; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: #e4edf1; margin: 6px 0 2px; }
+    .bar span { display: block; height: 100%; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STARTUP EXIT WATERFALL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>When the company sells, who actually gets paid what?</h1>
+    <p>Owning 20% of a company is not the same as getting 20% of the sale. Debt, fees, liquidation preferences, participation and seniority are paid first. Enter the sale price and your cap table and see <strong>what each class takes home, the exit price at which each investor is better off converting, and how the split changes across prices</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Illustrative arithmetic on the terms you enter, not advice. Not legal, tax, or financial advice. Your charter and a lawyer decide what is actually owed.</p>
+  </header>
+
+  <section class="card">
+    <h2>The sale</h2>
+    <div class="grid">
+      <div><label for="exit">Headline sale price ($)</label><input id="exit" type="text" inputmode="decimal" value="60000000" autocomplete="off"></div>
+      <div><label for="debt">Debt and liabilities repaid at close ($)</label><input id="debt" type="text" inputmode="decimal" value="1500000" autocomplete="off"></div>
+      <div><label for="fee">Transaction fees (% of price)</label><input id="fee" type="text" inputmode="decimal" value="2" autocomplete="off"></div>
+      <div><label for="carve">Management carve-out (% after debt and fees)</label><input id="carve" type="text" inputmode="decimal" value="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Preferred stock (investors)</h2>
+    <p class="note">One row per series. Shares are as converted to common. Seniority 1 is paid first; equal numbers are paid pari passu. Leave unused rows blank. The cap is the total payout as a multiple of the money invested (used only for capped participation).</p>
+    <div class="scroll"><table class="entry"><thead><tr><th>Series</th><th>Invested ($)</th><th>Shares</th><th>Pref multiple</th><th>Participation</th><th>Cap (x)</th><th>Seniority</th><th>Dividend %/yr</th><th>Years</th></tr></thead><tbody>
+<tr><td><input id="p1-name" type="text" aria-label="Series 1 name" value="" autocomplete="off"></td><td><input id="p1-invested" type="text" inputmode="decimal" aria-label="Series 1 amount invested" value="" autocomplete="off"></td><td><input id="p1-shares" type="text" inputmode="decimal" aria-label="Series 1 shares as converted" value="" autocomplete="off"></td><td><input id="p1-multiple" type="text" inputmode="decimal" aria-label="Series 1 liquidation multiple" value="1" autocomplete="off"></td><td><select id="p1-part" aria-label="Series 1 participation"><option value="none">Non-participating</option><option value="full">Participating</option><option value="capped">Participating, capped</option></select></td><td><input id="p1-cap" type="text" inputmode="decimal" aria-label="Series 1 total cap multiple" value="" autocomplete="off"></td><td><input id="p1-rank" type="text" inputmode="decimal" aria-label="Series 1 seniority" value="1" autocomplete="off"></td><td><input id="p1-div" type="text" inputmode="decimal" aria-label="Series 1 dividend percent a year" value="" autocomplete="off"></td><td><input id="p1-years" type="text" inputmode="decimal" aria-label="Series 1 years of dividend" value="" autocomplete="off"></td></tr>
+<tr><td><input id="p2-name" type="text" aria-label="Series 2 name" value="" autocomplete="off"></td><td><input id="p2-invested" type="text" inputmode="decimal" aria-label="Series 2 amount invested" value="" autocomplete="off"></td><td><input id="p2-shares" type="text" inputmode="decimal" aria-label="Series 2 shares as converted" value="" autocomplete="off"></td><td><input id="p2-multiple" type="text" inputmode="decimal" aria-label="Series 2 liquidation multiple" value="1" autocomplete="off"></td><td><select id="p2-part" aria-label="Series 2 participation"><option value="none">Non-participating</option><option value="full">Participating</option><option value="capped">Participating, capped</option></select></td><td><input id="p2-cap" type="text" inputmode="decimal" aria-label="Series 2 total cap multiple" value="" autocomplete="off"></td><td><input id="p2-rank" type="text" inputmode="decimal" aria-label="Series 2 seniority" value="1" autocomplete="off"></td><td><input id="p2-div" type="text" inputmode="decimal" aria-label="Series 2 dividend percent a year" value="" autocomplete="off"></td><td><input id="p2-years" type="text" inputmode="decimal" aria-label="Series 2 years of dividend" value="" autocomplete="off"></td></tr>
+<tr><td><input id="p3-name" type="text" aria-label="Series 3 name" value="" autocomplete="off"></td><td><input id="p3-invested" type="text" inputmode="decimal" aria-label="Series 3 amount invested" value="" autocomplete="off"></td><td><input id="p3-shares" type="text" inputmode="decimal" aria-label="Series 3 shares as converted" value="" autocomplete="off"></td><td><input id="p3-multiple" type="text" inputmode="decimal" aria-label="Series 3 liquidation multiple" value="1" autocomplete="off"></td><td><select id="p3-part" aria-label="Series 3 participation"><option value="none">Non-participating</option><option value="full">Participating</option><option value="capped">Participating, capped</option></select></td><td><input id="p3-cap" type="text" inputmode="decimal" aria-label="Series 3 total cap multiple" value="" autocomplete="off"></td><td><input id="p3-rank" type="text" inputmode="decimal" aria-label="Series 3 seniority" value="1" autocomplete="off"></td><td><input id="p3-div" type="text" inputmode="decimal" aria-label="Series 3 dividend percent a year" value="" autocomplete="off"></td><td><input id="p3-years" type="text" inputmode="decimal" aria-label="Series 3 years of dividend" value="" autocomplete="off"></td></tr>
+<tr><td><input id="p4-name" type="text" aria-label="Series 4 name" value="" autocomplete="off"></td><td><input id="p4-invested" type="text" inputmode="decimal" aria-label="Series 4 amount invested" value="" autocomplete="off"></td><td><input id="p4-shares" type="text" inputmode="decimal" aria-label="Series 4 shares as converted" value="" autocomplete="off"></td><td><input id="p4-multiple" type="text" inputmode="decimal" aria-label="Series 4 liquidation multiple" value="1" autocomplete="off"></td><td><select id="p4-part" aria-label="Series 4 participation"><option value="none">Non-participating</option><option value="full">Participating</option><option value="capped">Participating, capped</option></select></td><td><input id="p4-cap" type="text" inputmode="decimal" aria-label="Series 4 total cap multiple" value="" autocomplete="off"></td><td><input id="p4-rank" type="text" inputmode="decimal" aria-label="Series 4 seniority" value="1" autocomplete="off"></td><td><input id="p4-div" type="text" inputmode="decimal" aria-label="Series 4 dividend percent a year" value="" autocomplete="off"></td><td><input id="p4-years" type="text" inputmode="decimal" aria-label="Series 4 years of dividend" value="" autocomplete="off"></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Common stock and options</h2>
+    <div class="grid">
+      <div><h3>Common holders</h3><table><thead><tr><th>Holder</th><th>Shares</th></tr></thead><tbody>
+<tr><td><input id="c1-name" type="text" aria-label="Common holder 1 name" value="" autocomplete="off"></td><td><input id="c1-shares" type="text" inputmode="decimal" aria-label="Common holder 1 shares" value="" autocomplete="off"></td></tr>
+<tr><td><input id="c2-name" type="text" aria-label="Common holder 2 name" value="" autocomplete="off"></td><td><input id="c2-shares" type="text" inputmode="decimal" aria-label="Common holder 2 shares" value="" autocomplete="off"></td></tr>
+<tr><td><input id="c3-name" type="text" aria-label="Common holder 3 name" value="" autocomplete="off"></td><td><input id="c3-shares" type="text" inputmode="decimal" aria-label="Common holder 3 shares" value="" autocomplete="off"></td></tr>
+      </tbody></table></div>
+      <div><h3>Options (granted and vested or accelerating)</h3><table><thead><tr><th>Pool</th><th>Shares</th><th>Strike ($)</th></tr></thead><tbody>
+<tr><td><input id="o1-name" type="text" aria-label="Option pool 1 name" value="" autocomplete="off"></td><td><input id="o1-shares" type="text" inputmode="decimal" aria-label="Option pool 1 shares" value="" autocomplete="off"></td><td><input id="o1-strike" type="text" inputmode="decimal" aria-label="Option pool 1 strike price" value="" autocomplete="off"></td></tr>
+<tr><td><input id="o2-name" type="text" aria-label="Option pool 2 name" value="" autocomplete="off"></td><td><input id="o2-shares" type="text" inputmode="decimal" aria-label="Option pool 2 shares" value="" autocomplete="off"></td><td><input id="o2-strike" type="text" inputmode="decimal" aria-label="Option pool 2 strike price" value="" autocomplete="off"></td></tr>
+      </tbody></table></div>
+    </div>
+    <button type="button" id="run">Run the waterfall</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Enter your terms, then click Run the waterfall.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="bar-wrap"></div>
+    <div class="scroll"><table id="rows"><thead><tr><th>Holder</th><th>Class</th><th class="n">Shares</th><th class="n">Payout</th><th class="n">Per share</th><th class="n">Share of proceeds</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    <h3>Breakpoints</h3>
+    <div class="scroll"><table id="points"><thead><tr><th>Event</th><th class="n">Headline sale price</th></tr></thead><tbody></tbody></table></div>
+    <h3>The same terms at other sale prices</h3>
+    <div class="scroll"><table id="sweep"><thead id="sweep-head"></thead><tbody></tbody></table></div>
+    <h3>What stands out</h3>
+    <div id="report-findings"></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Net proceeds are the sale price less debt, fees, and any carve-out. Preferred series that have not converted are paid their claim (money invested times the multiple, plus simple cumulative dividends) in order of seniority; equal seniority shares a shortfall in proportion to the claims. What remains is shared per share among common stock, converted preferred, participating preferred (up to any cap) and in-the-money options, whose share is worth the per-share value less their strike. Each series then chooses whether to convert to common, and the tool repeats until no series can do better by switching, which is how the conversion breakpoints are found.</p>
+    <p><strong>Not modelled:</strong> escrows, earn-outs, taxes, warrants, unconverted notes and SAFEs, unvested equity and acceleration, anti-dilution adjustments, pay-to-play, and any term not in the boxes above. <strong>Unverified:</strong> checked by hand calculation and unit tests only; compare against your charter, your counsel, and the acquirer's own funds-flow before relying on a figure. New tool, recently graduated from screening; expect rough edges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a liquidation preference?</h3>
+    <p>A right, negotiated in a financing, for a series of preferred stock to be paid a set amount, usually the money invested times a multiple such as 1x, before common stockholders receive anything when the company is sold. Some series then also share in what is left (participating preferred), some only take the greater of the preference or their as-converted share (non-participating).</p>
+    <h3>What is the difference between participating and non-participating preferred?</h3>
+    <p>Non-participating preferred chooses: take the preference, or convert to common and share pro rata, whichever pays more. Participating preferred collects the preference and then also shares in the remainder as if it had converted, often up to a cap such as 3x the money invested, after which it would rather convert if that pays more.</p>
+    <h3>What does seniority mean in a waterfall?</h3>
+    <p>Senior series are paid in full before junior ones see anything. Series with the same seniority number are pari passu: if the money runs short they share it in proportion to their claims. Enter 1 for the series paid first, 2 for the next.</p>
+    <h3>Why do options pay less than shares?</h3>
+    <p>An option holder pays the strike price to buy the share, so the value is the price per common share minus the strike. If the sale values a common share below the strike the options are worth nothing at that price.</p>
+    <h3>Why is my percentage of the company not my percentage of the sale?</h3>
+    <p>Because preferred terms, debt, fees and any management carve-out are paid first. At modest prices common stock and options can get far less than their ownership share, and at high prices the gap closes as preferred series convert.</p>
+    <h3>What is a management carve-out?</h3>
+    <p>A slice of the sale proceeds set aside for managers or employees, paid before the preferred preferences. It usually matters when the sale price is near or below the preference stack. Enter the percentage of proceeds after debt and fees.</p>
+    <h3>What does this leave out?</h3>
+    <p>Escrows and holdbacks, earn-outs, taxes, pay-to-play and other special terms, warrants, convertible notes and SAFEs that have not converted, unvested equity, anti-dilution adjustments, and the exact wording of your charter. It reads the terms you enter; the legal documents control. Read your charter and get advice from a lawyer before relying on any figure.</p>
+    <h3>Is my cap table uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative arithmetic on the terms you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and no result is a statement of what any person or fund is owed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any cap table platform, law firm, investor or acquirer, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>waterfall_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your own browser's local storage, never with any of your data, and honour Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also for founders: the <a href="../safe-dilution-calculator/">SAFE dilution calculator</a> and the <a href="../startup-option-value-calculator/">startup option value calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleTerms, money, money2, pct, shares } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => document.getElementById(id).value;
+    const set = (id, v) => { document.getElementById(id).value = v ?? ""; };
+    const COLORS = ["#1f5f86", "#4a8f6d", "#c98a1b", "#8a5fa8", "#c2554a", "#5f6f7a", "#2d8f9e", "#9c7a3c"];
+    let last = null;
+
+    function readForm() {
+      const rows = (prefix, count, fields) => Array.from({ length: count }, (_, k) => Object.fromEntries(fields.map(([key, suffix]) => [key, val(prefix + (k + 1) + "-" + suffix)])));
+      return {
+        exit: val("exit"), debt: val("debt"), feePct: val("fee"), carvePct: val("carve"),
+        preferred: rows("p", 4, [["name", "name"], ["invested", "invested"], ["shares", "shares"], ["multiple", "multiple"], ["participation", "part"], ["cap", "cap"], ["rank", "rank"], ["dividend", "div"], ["years", "years"]]),
+        common: rows("c", 3, [["name", "name"], ["shares", "shares"]]),
+        options: rows("o", 2, [["name", "name"], ["shares", "shares"], ["strike", "strike"]]),
+      };
+    }
+
+    function fillForm(t) {
+      set("exit", t.exit); set("debt", t.debt); set("fee", t.feePct); set("carve", t.carvePct);
+      for (let k = 1; k <= 4; k++) {
+        const p = t.preferred[k - 1] || {};
+        set("p" + k + "-name", p.name); set("p" + k + "-invested", p.invested); set("p" + k + "-shares", p.shares); set("p" + k + "-multiple", p.multiple ?? "1");
+        set("p" + k + "-part", p.participation || "none"); set("p" + k + "-cap", p.cap); set("p" + k + "-rank", p.rank ?? "1"); set("p" + k + "-div", p.dividend); set("p" + k + "-years", p.years);
+      }
+      for (let k = 1; k <= 3; k++) { const c = t.common[k - 1] || {}; set("c" + k + "-name", c.name); set("c" + k + "-shares", c.shares); }
+      for (let k = 1; k <= 2; k++) { const o = t.options[k - 1] || {}; set("o" + k + "-name", o.name); set("o" + k + "-shares", o.shares); set("o" + k + "-strike", o.strike); }
+    }
+
+    function run() {
+      const r = analyze(readForm());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const w = r.waterfall;
+      const common = w.rows.filter((x) => x.group === "common").reduce((s, x) => s + x.payout, 0);
+      const pref = w.rows.filter((x) => x.group === "preferred").reduce((s, x) => s + x.payout, 0);
+      $("#big").innerHTML = [[money(w.net), "Net to shareholders"], [money(pref), "Paid to preferred"], [money(common), "Paid to common stock"], [w.price === Infinity ? "n/a" : money2(w.price), "Value per common share"]].map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
+      $("#bar-wrap").innerHTML = '<div class="bar" role="img" aria-label="Share of proceeds by holder">' + w.rows.map((x, i) => '<span title="' + esc(x.name) + " " + pct(w.net > 0 ? x.payout / w.net : 0) + '" style="width:' + (w.net > 0 ? (100 * x.payout / w.net).toFixed(2) : 0) + "%;background:" + COLORS[i % COLORS.length] + '"></span>').join("") + "</div>" +
+        '<p class="note">' + w.rows.map((x, i) => '<span style="color:' + COLORS[i % COLORS.length] + '">■</span> ' + esc(x.name)).join(" &nbsp; ") + "</p>";
+      $("#rows tbody").innerHTML = w.rows.map((x) => {
+        const note = x.group === "preferred" ? (x.converted ? "converts to common" : (x.participation > 0.5 ? "preference + participation" : "takes its preference")) : (x.underwater ? "underwater" : "");
+        return "<tr><td>" + esc(x.name) + "</td><td>" + x.group + '</td><td class="n">' + shares(x.shares) + '</td><td class="n">' + money(x.payout) + '</td><td class="n">' + money2(x.perShare) + '</td><td class="n">' + pct(w.net > 0 ? x.payout / w.net : 0) + "</td><td>" + note + "</td></tr>";
+      }).join("");
+      $("#points tbody").innerHTML = r.points.length ? r.points.map((p) => "<tr><td>" + esc(p.label) + '</td><td class="n">' + money(p.exit) + "</td></tr>").join("") : '<tr><td colspan="2">No breakpoints to report.</td></tr>';
+      $("#sweep-head").innerHTML = "<tr><th>Sale price</th>" + w.rows.map((x) => '<th class="n">' + esc(x.name) + "</th>").join("") + "</tr>";
+      $("#sweep tbody").innerHTML = r.sweep.map((s) => "<tr><td>" + money(s.exit) + " (" + s.mult + 'x)</td>' + s.rows.map((x) => '<td class="n">' + money(x.payout) + "</td>").join("") + "</tr>").join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => '<div class="finding"><h4><span class="pill ' + x.severity + '">' + x.severity + "</span>" + esc(x.title) + "</h4><p>" + esc(x.detail) + "</p></div>").join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#run").addEventListener("click", () => { if (run()) record("waterfall_run"); });
+    $("#load-example").addEventListener("click", () => {
+      fillForm(sampleTerms());
+      if (run()) { record("example_loaded"); status.textContent = "Sample scenario: invented company and terms, not a real one."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "exit-waterfall.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -231,6 +231,23 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
+      # Fourth of the same class: nginx's mime.types has no `py` entry either
+      # (verified against 1.27.0). 18 ventures publish a standalone CLI
+      # checker (`check.py` and friends, `DOWNLOADABLE_CLI_FILES` in
+      # build.mjs) that their own page offers as a same-origin download --
+      # "get it from the repo, run it yourself, no network calls." Typed as
+      # text/plain rather than left to default_type: a visitor's browser
+      # should be able to open and read it before running it, not just save
+      # an octet-stream blob it cannot preview.
+      location ~ \.py$ {
+        types { }
+        default_type text/plain;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
       # Not the same class as the three above: nginx's mime.types *does* have
       # an `xml` entry, so the feed already serves as text/xml and every reader
       # accepts it. This is the narrower correctness fix — `application/

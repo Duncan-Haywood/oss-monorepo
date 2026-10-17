@@ -6,6 +6,8 @@ you paid for the gear. Use it when a buyer offer lands and you need to know
 whether taking it still beats waiting for list — or listing the same item on
 eBay.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/
+
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
 fees Reverb or eBay will charge: enter the rates from your last payout and
@@ -56,8 +58,8 @@ the browser refuses clipboard access, for the seller to review and send.
 
 The SEO page
 [`should-i-take-this-reverb-offer.html`](should-i-take-this-reverb-offer.html)
-walks the default worked example ($800 list, $720 offer, $284.33 vs $210.65
-on Reverb, $233.76 on eBay at list, $745.10 crossover).
+walks the default worked example ($800 list, $720 offer, $281.60 vs $208.15
+on Reverb, $230.60 on eBay at list, $744.45 crossover).
 
 ## Take the offer now, or wait for a better one?
 
@@ -181,6 +183,34 @@ This is distinct from the eBay fee calculator (final-value fee on one
 channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
 channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
+
+## The marketplace fee caps at $500
+
+Every fee above is a flat percent — except Reverb's own selling
+(marketplace) fee, which is not. Reverb caps it at $500 per sale, for
+standard and Preferred sellers alike (confirmed against Reverb's own
+"What fees will I pay for selling on Reverb?" and "What are my fees as a
+Reverb Preferred Seller?" help pages, 2026-09): a $15,000 guitar owes $500,
+not the uncapped 5% of $750. A calculator that charges a flat percent with
+no ceiling overstates the fee — and understates net cash — on anything
+that clears roughly $10,000 at a 5% rate, which is an ordinary price for a
+vintage or boutique instrument here, not an edge case. Reverb itself
+advertises the cap as what makes the platform "particularly cost-effective
+for selling high-value instruments," so a calculator that ignores it argues
+the opposite of what Reverb's own pricing does on exactly the listings
+where the gap is largest.
+
+The cap is a field (`marketplaceFeeCap`, default $500, 0 = no cap) rather
+than a hard-coded number, for the same reason every other rate here is an
+input: Reverb could change it, and a stored number that has drifted is
+worse than none. It feeds every comparison on the page — offer vs list, vs
+eBay, vs a shop, the counter-offer message — because all of them share
+`calculateReverbSale`. The two crossover solvers
+(`offerThatMatchesEbayList`, the included-list match) do not use that
+function directly; they solve the sale-price algebra in closed form, so
+each re-solves piecewise around the price where the fee flattens rather
+than assuming one straight line the whole way up
+(`solvePriceForReverbProfit`).
 
 ## Comparing to other channels without retyping
 

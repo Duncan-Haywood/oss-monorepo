@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cfar-family-twin"
+version = "0.1.0"
+description = "Which CFAR detector should be calibrated in a Gaussian-clutter twin: false-alarm inflation, repair cost and detection loss of CA, OS and log-t CFAR under independent gamma texture"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

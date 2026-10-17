@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Excess Business Loss Calculator — 2025-2026, Free</title>
+  <meta name="description" content="Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner's net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Excess Business Loss Calculator — free, 2025-2026">
+  <meta property="og:description" content="Compute how much of your net business loss is deductible this year under the permanent Section 461(l) limitation, and how much carries forward as an NOL. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Excess Business Loss Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the IRC Section 461(l) excess business loss limitation, made permanent by the One Big Beautiful Bill Act: how much of a noncorporate taxpayer's net trade-or-business loss is deductible against other income this year, under the 2025 ($313,000 single/HOH/MFS, $626,000 MFJ) or 2026 ($256,000/$512,000, a rebased and lower figure than 2025) threshold, and how much becomes a net operating loss carryforward instead. Entirely client-side; nothing is uploaded.","featureList":"2025 and 2026 Section 461(l) threshold by filing status, net business loss computation, allowed-loss vs. NOL-carryforward split, 2026 threshold-decrease flag, QBI-interaction flag"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the excess business loss limitation?","acceptedAnswer":{"@type":"Answer","text":"IRC Section 461(l) limits how much of a noncorporate taxpayer's net business loss can offset OTHER income — wages, interest, dividends — in the current year. It was scheduled to expire after 2028; the One Big Beautiful Bill Act made it permanent starting with the 2025 tax year."}},{"@type":"Question","name":"What happens to the loss above the threshold?","acceptedAnswer":{"@type":"Answer","text":"It is not lost — the excess is added to your net operating loss (NOL) carryforward to next year, where it can offset up to 80% of that year's taxable income under current law, with no carryback for most businesses."}},{"@type":"Question","name":"Why is the 2026 threshold LOWER than 2025's?","acceptedAnswer":{"@type":"Answer","text":"OBBBA rebased how this threshold is indexed for inflation, resetting it closer to its original 2017 Tax Cuts and Jobs Act base instead of continuing to compound. The result is counterintuitive: $313,000 single/HOH/MFS in 2025 falls to $256,000 in 2026; $626,000 MFJ falls to $512,000. Most OBBBA changes raise a threshold — this one is a rare exception."}},{"@type":"Question","name":"Does married filing jointly get double the single threshold?","acceptedAnswer":{"@type":"Answer","text":"Yes, exactly double. Single, head-of-household, and married-filing-separately filers all share the same threshold; married filing jointly gets precisely twice that figure, not a separate number of its own."}},{"@type":"Question","name":"What counts as the net business loss?","acceptedAnswer":{"@type":"Answer","text":"Aggregate income or gain from all your trades or businesses, minus aggregate deductions attributable to those same trades or businesses. Wages, interest, dividends, and capital gains outside a business are not part of this figure — they are what the ALLOWED loss then offsets."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal excess-business-loss threshold to the numbers you enter. It does not compute your business income or deductions, model the interaction with the QBI deduction, or verify your filing status, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EXCESS BUSINESS LOSS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your business loss is deductible this year?</h1>
+    <p>The One Big Beautiful Bill Act made the <strong>excess business loss
+    limitation</strong> permanent — and, unlike most OBBBA changes, its 2026
+    threshold is actually LOWER than 2025's. A pass-through owner's net
+    business loss above the threshold does not disappear; it becomes a net
+    operating loss carried into next year instead. This tool runs the
+    numbers for your filing status and year.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status and tax year</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single" selected>Single / head of household / married filing separately</option>
+          <option value="mfj">Married filing jointly</option>
+        </select>
+      </div>
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025" selected>2025 ($313,000 / $626,000 threshold)</option>
+          <option value="2026">2026 ($256,000 / $512,000 threshold — lower than 2025)</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">Married filing jointly gets exactly double the other
+    three statuses' shared threshold.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your business numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="business-income">Total trade/business income this year ($)</label>
+        <input type="number" id="business-income" min="0" step="1000" value="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="business-deductions">Total trade/business deductions this year ($)</label>
+        <input type="number" id="business-deductions" min="0" step="1000" placeholder="e.g. 400000">
+      </div>
+    </div>
+    <p class="note">Aggregate across all your trades or businesses. Wages,
+    interest, dividends, and capital gains outside a business do not belong
+    here — they are what the allowed loss then offsets.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in your filing status, year, and business numbers, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This computes one
+      limitation on one net figure — not total tax liability, other
+      deductions or credits, or state tax.</li>
+      <li><strong>Does not compute your net business loss for you.</strong>
+      You supply aggregate business income and deductions directly; this
+      tool does not derive them from a Schedule C, K-1, or other source
+      document.</li>
+      <li><strong>No QBI-deduction interaction.</strong> A large business
+      loss can reduce a future year's Section 199A qualified business
+      income deduction — flagged, not computed. See the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a>.</li>
+      <li><strong>No NOL carryforward valuation.</strong> The excess is
+      flagged as an NOL carryforward, but its value in a future year
+      (including the 80%-of-taxable-income limit) is left to a tax
+      professional.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the excess business loss limitation?</h3>
+    <p>IRC Section 461(l) limits how much of a noncorporate taxpayer's net business loss can offset OTHER income — wages, interest, dividends — in the current year. It was scheduled to expire after 2028; the One Big Beautiful Bill Act made it permanent starting with the 2025 tax year.</p>
+    <h3>What happens to the loss above the threshold?</h3>
+    <p>It is not lost — the excess is added to your net operating loss (NOL) carryforward to next year, where it can offset up to 80% of that year's taxable income under current law, with no carryback for most businesses.</p>
+    <h3>Why is the 2026 threshold LOWER than 2025's?</h3>
+    <p>OBBBA rebased how this threshold is indexed for inflation, resetting it closer to its original 2017 Tax Cuts and Jobs Act base instead of continuing to compound. The result is counterintuitive: $313,000 single/HOH/MFS in 2025 falls to $256,000 in 2026; $626,000 MFJ falls to $512,000. Most OBBBA changes raise a threshold — this one is a rare exception.</p>
+    <h3>Does married filing jointly get double the single threshold?</h3>
+    <p>Yes, exactly double. Single, head-of-household, and married-filing-separately filers all share the same threshold; married filing jointly gets precisely twice that figure, not a separate number of its own.</p>
+    <h3>What counts as the net business loss?</h3>
+    <p>Aggregate income or gain from all your trades or businesses, minus aggregate deductions attributable to those same trades or businesses. Wages, interest, dividends, and capital gains outside a business are not part of this figure — they are what the ALLOWED loss then offsets.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published federal excess-business-loss threshold to the numbers you enter. It does not compute your business income or deductions, model the interaction with the QBI deduction, or verify your filing status, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also want to check your QBI deduction? See the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> — a large business loss this tool flags can reduce that deduction in a future year. Selling qualified small business stock instead of running a loss? See the <a href="../qsbs-exclusion-calculator/">QSBS exclusion calculator</a> — another OBBBA change made permanent in 2025, this one on capital gains rather than ordinary losses.</p>
+    <p>Own a short-term rental that throws off a big first-year depreciation loss? See the <a href="../str-tax-loophole-calculator/">STR tax loophole calculator</a> — it checks whether that loss is non-passive and how much of it clears this limit.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of the excess business loss limitation usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { excessBusinessLossOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), taxYear: $("#tax-year"),
+      income: $("#business-income"), deductions: $("#business-deductions"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = excessBusinessLossOutcome({
+        filingStatus: els.filingStatus.value,
+        businessIncome: Number(els.income.value) || 0,
+        businessDeductions: Number(els.deductions.value) || 0,
+        taxYear: Number(els.taxYear.value),
+      });
+
+      els.stats.innerHTML = `Net business loss: <strong>${money(result.netLoss)}</strong>. Deductible this year: <strong>${money(result.allowedLoss)}</strong>.`;
+
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">Threshold for ${result.taxYear}</th><td>${money(result.threshold)}</td></tr>
+        <tr><th scope="row">Net business loss</th><td>${money(result.netLoss)}</td></tr>
+        <tr><th scope="row"><strong>Deductible this year</strong></th><td><strong>${money(result.allowedLoss)}</strong></td></tr>
+        <tr><th scope="row">Excess (NOL carryforward)</th><td>${money(result.excessLoss)}${result.limited ? " ⚠ limited" : ""}</td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      els.taxYear.value = "2025";
+      els.income.value = "0";
+      els.deductions.value = "400000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a single filer with no business income and $400,000 of business deductions, 2025.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      els.taxYear.value = "2025";
+      els.income.value = "0";
+      els.deductions.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in your filing status, year, and business numbers, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

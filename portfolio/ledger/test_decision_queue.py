@@ -233,39 +233,26 @@ class OutageFlag(unittest.TestCase):
         self.assertIn("down comes first", header)
         self.assertNotIn("not downstream of each other", header)
 
-    def test_the_live_queue_flags_only_the_origin_still_dark(self):
+    def test_the_live_queue_flags_no_outage_after_the_servers_were_deleted(self):
         # Not a fixture: the real asks.yaml.
         #
-        # This test used to require BOTH origins to carry the outage flag, and
-        # its own comment predicted the day that would stop being true: "a
-        # future session that fixes one and clears its flag should see this
-        # test fall back to the singular case". That day was 2026-09-06.
-        # `deploy-settings` is granted -- GitHub's managed builder deployed
-        # `gh-pages` (run 34039823265) and `pages_state.py` reads `served` --
-        # so the Pages origin is no longer dark and correctly no longer
-        # flagged. The `marisstella.dev` origin still is: k3s `:6443` refused,
-        # and the SSH key needed to repair it is a public key.
-        #
-        # Nobody caught the transition, because nothing runs this suite:
-        # CLAUDE.md's starvation checklist names `gitops/tests` and
-        # `platform/ci` and no other Python directory, and
-        # `checklist_coverage.py` only enumerated `*.test.mjs`. Both are fixed
-        # in the same commit as this test.
+        # Until 2026-10-01 this asserted that `hetzner-ssh-key-is-a-public-key`
+        # was the one origin still flagged dark. The owner deleted the Hetzner
+        # servers that day, so the k3s route is retired rather than down and
+        # its row is gone; GitHub Pages is the only host and it is served.
+        # Nothing in the live queue may claim a restorable outage, so the
+        # header must carry no OUTAGE banner at all.
         flagged = {d["id"] for d in load() if d.get("outage") and not d["blocked_by"]}
-        self.assertIn("hetzner-ssh-key-is-a-public-key", flagged)
-        self.assertNotIn(
-            "deploy-settings",
-            flagged,
-            "deploy-settings is granted and Pages serves; it must not be "
-            "flagged as a dark origin. If this fails, re-measure with "
-            "`python3 platform/ci/pages_state.py` before editing the test.",
-        )
-        # With one origin dark the header must use the singular wording, which
-        # is the branch `test_one_outage_row_keeps_the_singular_wording` covers
-        # against a fixture. Asserting it here ties that branch to the real file.
+        self.assertEqual(flagged, set())
+        ids = {d["id"] for d in load()}
+        for gone in (
+            "hetzner-ssh-key-is-a-public-key",
+            "codex-governor-enable",
+            "portfolio-site-hetzner-deploy",
+        ):
+            self.assertNotIn(gone, ids, f"{gone} depends on servers deleted 2026-10-01")
         header = render(load(), TODAY).split("1. ")[0]
-        self.assertIn("comes first", header)
-        self.assertNotIn("not downstream of each other", header)
+        self.assertNotIn("OUTAGE", header)
 
 
 class Helpers(unittest.TestCase):
@@ -589,14 +576,17 @@ class DispatchNeedsARunner(unittest.TestCase):
         d = decision(action="Paste the key into Settings -> Secrets.")
         self.assertEqual(check([d], {}), [])
 
-    def test_the_shipped_ssh_key_row_names_a_runner_free_route(self):
+    def test_the_shipped_pages_row_names_a_runner_free_route(self):
+        # Was pinned to `hetzner-ssh-key-is-a-public-key` until that row was
+        # removed on 2026-10-01 (servers deleted). `deploy-settings` is now the
+        # shipped row that carries the runner-free escape hatch.
         rows = {d["id"]: d for d in load()}
-        row = rows["hetzner-ssh-key-is-a-public-key"]
+        row = rows["deploy-settings"]
         self.assertTrue(
             str(row.get("runner_free", "")).strip(),
-            "the one outage route that works without a runner must say so",
+            "the Pages route that works without a runner must say so",
         )
-        self.assertIn("restore-cluster.sh", row["action"])
+        self.assertIn("publish-branch.sh", row["runner_free"])
 
 
 class UnmeasuredIsNotBlocked(unittest.TestCase):

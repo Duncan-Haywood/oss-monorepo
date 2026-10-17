@@ -285,7 +285,11 @@
     rate and post-processing. Already running your shop through Printavo or a
     similar platform? See <a href="vs-printavo.html">how this calculator
     differs</a> — it costs a job before that number ever reaches a quoting
-    system.</p>
+    system. Pricing jobs off a spreadsheet instead? See <a
+    href="./vs-a-spreadsheet.html">what a flat per-piece rate leaves
+    out</a> — setup spread over the wrong quantity, blanks bought without
+    a spoilage margin, and embroidery machine time divided by heads when
+    hooping should not be.</p>
   </section>
 
   <section class="card">
@@ -310,7 +314,8 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your rates and volumes are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. Anonymous feature events (<code>estimate</code>, <code>example_loaded</code>, <code>inputs_saved</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
-    <p>Also quoting printed parts? The <a href="../3d-print-price-calculator/">3D print price calculator</a> prices a print from machine time, material, failure rate and post-processing — the same setup-plus-machine-time shape as a decoration job. The <a href="../cnc-machining-quote-calculator/">CNC machining quote calculator</a> is the same shape again for a machined part, and adds the two things a decorated garment never has: material bought in whole bars or sheets with a yield, and an outside-process lot minimum.</p>
+    <p>Also quoting printed parts? The <a href="../3d-print-price-calculator/">3D print price calculator</a> prices a print from machine time, material, failure rate and post-processing — the same setup-plus-machine-time shape as a decoration job. The <a href="../cnc-machining-quote-calculator/">CNC machining quote calculator</a> is the same shape again for a machined part, and adds the two things a decorated garment never has: material bought in whole bars or sheets with a yield, and an outside-process lot minimum. Running an embroidery machine? The <a href="../embroidery-shop-quote-calculator/">embroidery shop quote calculator</a> goes deeper on that one process: clock time across heads, a quantity-break table, and whether a flat per-1000-stitches rule loses money on small runs. Screen printing? The <a href="../screen-print-job-quote-calculator/">screen print job quote calculator</a> prices a run from screens, press time and spoilage, with a price-break ladder and the break-even order size. Pricing banners, signs or vinyl? The <a href="../sign-shop-job-pricing-calculator/">sign shop job pricing calculator</a> prices wide-format jobs from material with waste, print time, design and install.</p>
+    <p>Quoting a flat price per shirt regardless of the job? See <a href="vs-a-flat-price-per-shirt.html">what that flat rate hides</a> — on this calculator's own defaults, the same $14-a-shirt price is a thin profit on a front-only run and a real loss the moment a back placement is added.</p>
     <p>Free and open source. If this helped you price the next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

@@ -1,0 +1,57 @@
+name: tenant-security-deposit-deadline-checker
+description: >-
+  Free browser tool for tenants: pick a US state (19 covered), enter the deposit, move-out date and what has come back, and
+  see the day the landlord's statutory return deadline ran out, the statute it comes from, what the statute says about a landlord
+  who misses it, and a demand, forwarding-address or deduction-dispute letter that fills itself in. Nothing is uploaded.
+  Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. duplicate_check.py scored the niche 0.26 at most (against donor-acknowledgment-letter-generator and
+# uk-late-payment-interest-calculator, neither of which is a tenant tool). rent-increase-notice-checker is the landlord-notice
+# side; nothing here covers getting a deposit back.
+# Search phrases: "how long does a landlord have to return a security deposit [state]", "security deposit return deadline",
+# "security deposit demand letter template", "landlord didn't return my deposit", "security deposit penalty [state]".
+# Volume not measured with an external tool; this is a perennial high-intent query set (every move-out), and the first visitors
+# are tenants posting in r/Tenant, r/legaladvice-adjacent threads and state tenant-rights forums who ask "is this late?".
+#
+# Who: renters who have moved out and are waiting. Existing answers are state attorney-general PDFs (one state each, no date
+# arithmetic) and letter templates that do not know the deadline. The paying buyer, if there is one, is a tenant-rights
+# organisation or a move-out checklist / renters-insurance brand; payment rails stay off.
+#
+# What makes it more than a template: the date arithmetic per state (calendar days, business days, months, Florida's two clocks,
+# forwarding-address-triggered clocks), a status that distinguishes "not yet late" from "late" from "statement arrived late",
+# and a letter that matches the situation.
+#
+# Liability: general information only. It cites the statute, says what it does not decide (whether any deduction or penalty is
+# lawful, local ordinances, holidays), and never states that a penalty is owed. The multiple is shown "for scale only".
+#
+# Unverified: the statute table was written from the author's reading of each statute, not reviewed by a lawyer, and not checked
+# against current text for 2026 amendments. The first report of a wrong deadline is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A renter whose deposit has not come back will enter a state and dates into a no-signup page to learn whether the landlord
+      is late and to get a letter, because the attorney-general guide gives a number of days but not a date and the template
+      letter has blanks they do not know how to fill.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a described situation) engage with the tool by 2027-03-01.
+  - A user reports a wrong deadline for a covered state, at which point the statute table needs re-checking against current text.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tenant-security-deposit-deadline-checker/
+  analytics: null

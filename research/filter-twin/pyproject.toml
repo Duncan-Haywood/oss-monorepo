@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "filter-twin"
+version = "0.1.0"
+description = "A state estimator tuned in a digital twin with wrong noise levels: exact real-world MSE of the twin's Kalman gain, instability threshold, twin's optimistic claim, and innovation-based retuning"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

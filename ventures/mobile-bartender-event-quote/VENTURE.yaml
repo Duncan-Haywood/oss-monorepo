@@ -1,0 +1,41 @@
+name: mobile-bartender-event-quote
+description: Free, zero-network browser tool + CLI that prices a mobile bar or bartending event from guests, hours, bartenders, drinks, call minimums, supplies, travel and insurance; shows a walk-away floor, price per guest at a target margin, a full-bar / beer-wine / service-only comparison, and whether a client's per-head ask makes money (--ask and --max-price CI gates). Planning arithmetic, not a licensing determination.
+stage: prototype
+
+owner: duncan
+
+# CLI + browser archetype. No existing mobile-bar venture; closest are the food-truck and
+# portable-restroom event quotes (different cost structure: staffing ratio + drinks-per-guest).
+#
+# Where the first real visitor would come from: searches like "how much to charge for mobile
+# bartending", "bartender cost per guest calculator", "how many bartenders do I need",
+# r/bartenders and mobile-bar Facebook groups, wedding-vendor forums. Competing paid products
+# (HoneyBook, Tripleseat, bar-quote spreadsheets sold on Etsy) are general event CRMs or static
+# sheets; the wedge is a free, private, bar-specific per-head ask check.
+hypotheses:
+  - claim: A mobile bar owner will search how to price an event, enter their pay and costs, and use the walk-away floor when a client haggles per head.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The per-head ask check changes whether an owner accepts a low-ball offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified mobile bar operators use the calculator twice within 90 days of it being reachable from the published site.
+  - Operators report the per-head ask check does not change a quote they would have given.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mobile-bartender-event-quote/
+  analytics: null

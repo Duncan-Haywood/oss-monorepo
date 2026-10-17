@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mechanics Lien Deadline Calculator — Free, 5 States</title>
+  <meta name="description" content="Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, and Washington. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Mechanics Lien Deadline Calculator — free, 5 states">
+  <meta property="og:description" content="Preliminary notice and lien filing dates from your first and last day on the job, with days remaining. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mechanics Lien Deadline Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the preliminary-notice deadline and the lien-filing deadline for a subcontractor or material supplier in California, Texas, Florida, Arizona, and Washington from the first and last date labor or materials were furnished, with weekend flags and days remaining. Entirely client-side; nothing is uploaded.","featureList":"Preliminary notice and lien filing dates, five states, Texas commercial and residential month rules, California and Arizona notice-of-completion shortening, weekend safe dates, days remaining"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a preliminary notice in a mechanics lien claim?","acceptedAnswer":{"@type":"Answer","text":"A preliminary notice (called a Notice to Owner in Florida, a notice of unpaid balance in Texas, and a 20-day preliminary notice in Arizona) is a written notice a subcontractor or supplier sends to the owner and general contractor early in a job, to preserve the right to file a lien later. Several states make it a condition of lien rights, so a missed deadline can cost the claim."}},{"@type":"Question","name":"How long do I have to file a mechanics lien after finishing the work?","acceptedAnswer":{"@type":"Answer","text":"It depends on the state. California allows 90 days after completion of the project, or 30 days after the owner records a notice of completion. Florida allows 90 days after your last furnishing, Washington 90 days after your last furnishing, Arizona 120 days after completion or 60 days after a recorded notice of completion, and Texas the 15th day of the 4th month on commercial work or the 3rd month on residential work."}},{"@type":"Question","name":"When does the preliminary notice clock start?","acceptedAnswer":{"@type":"Answer","text":"For California, Arizona, Florida, and Washington it starts on the day you first furnished labor or materials: 20 days in California and Arizona, 45 days in Florida, and 60 days in Washington (10 days on new single-family residential work). Texas instead counts months: the 15th day of the 3rd month after the month of unpaid work on commercial jobs, or the 2nd month on residential jobs."}},{"@type":"Question","name":"Why does the calculator use my last furnishing date when I do not know the completion date?","acceptedAnswer":{"@type":"Answer","text":"Some states measure the lien deadline from completion of the whole project. Your own last day on the job can only be the same as or earlier than completion, so using it gives the same date or an earlier, safer one. Entering the real completion date can only move the deadline later."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies a simplified reading of published state timing rules to the dates you enter, for a first-tier subcontractor or supplier. It does not model second-tier claimants, public projects, required notice content, delivery method, or foreclosure deadlines, and lien rights can be lost by missing a deadline. Confirm every date with a construction attorney or the current statute before relying on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MECHANICS LIEN DEADLINE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are your lien deadlines still open?</h1>
+    <p>A subcontractor or supplier who is not paid usually keeps the right to
+    file a <strong>mechanics lien</strong> only if two clocks are respected:
+    an early <strong>preliminary notice</strong>, and a later
+    <strong>lien filing</strong>. Both run from dates on your own job. Enter
+    the day you first furnished labor or materials and the day you last did,
+    and this tool shows both dates for California, Texas, Florida, Arizona,
+    or Washington — and how many days are left.</p>
+    <p class="note">Nothing is uploaded. Your dates are read in this browser
+    and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. State and project type</h2>
+    <div class="grid">
+      <div>
+        <label for="state">State</label>
+        <select id="state">
+          <option value="CA" selected>California — 20-day notice; lien 90 days after completion</option>
+          <option value="TX">Texas — 15th of the 2nd/3rd month; lien 15th of the 3rd/4th month</option>
+          <option value="FL">Florida — 45-day notice; lien 90 days after last furnishing</option>
+          <option value="AZ">Arizona — 20-day notice; lien 120 days after completion</option>
+          <option value="WA">Washington — 60-day (10 residential) notice; lien 90 days</option>
+        </select>
+      </div>
+      <div>
+        <label for="project-type">Project type</label>
+        <select id="project-type">
+          <option value="commercial" selected>Commercial / other</option>
+          <option value="residential">Residential</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">Project type changes the dates only in Texas and
+    Washington. You are assumed to contract directly with the general
+    contractor (first tier).</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your dates</h2>
+    <div class="grid">
+      <div>
+        <label for="first-date">First day you furnished labor or materials</label>
+        <input type="date" id="first-date">
+      </div>
+      <div>
+        <label for="last-date">Last day you furnished labor or materials</label>
+        <input type="date" id="last-date">
+      </div>
+      <div>
+        <label for="completion-date">Project completion date (optional)</label>
+        <input type="date" id="completion-date">
+      </div>
+      <div>
+        <label for="noc-date">Date the owner recorded a notice of completion (optional)</label>
+        <input type="date" id="noc-date">
+      </div>
+      <div>
+        <label for="today-date">Today</label>
+        <input type="date" id="today-date">
+      </div>
+    </div>
+    <p class="note">Completion and notice-of-completion dates only matter in
+    California and Arizona. If you leave completion blank the tool uses your
+    last day on the job, which gives the cautious (earlier) date.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Check deadlines</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Choose a state, enter your first and last dates, then click Check deadlines.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not legal advice, and lien rights are lost by missing a deadline.</strong>
+      Confirm every date against the current statute or with a construction
+      attorney before relying on it.</li>
+      <li><strong>First-tier claimants only.</strong> Second-tier and lower
+      suppliers and subcontractors often have different or shorter clocks —
+      not modeled.</li>
+      <li><strong>Five states only.</strong> Every other state has its own
+      rules; none are guessed here.</li>
+      <li><strong>No public projects.</strong> Bond-claim and payment-bond
+      deadlines on public work are separate and not modeled.</li>
+      <li><strong>No weekend or holiday extensions.</strong> Weekend dates are
+      flagged with the last business day before them as the safe date;
+      holidays are not modeled.</li>
+      <li><strong>No notice content or delivery rules.</strong> A notice has to
+      be correctly worded and served, not just sent on time, and contracts
+      can add their own notice terms.</li>
+      <li><strong>No foreclosure or suit deadlines.</strong> Filing a lien is
+      not the last step; enforcing it has its own clock.</li>
+      <li><strong>Point-in-time figures.</strong> Verified 2026-09-30 against
+      published explainers; statutes change.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a preliminary notice in a mechanics lien claim?</h3>
+    <p>A preliminary notice (called a Notice to Owner in Florida, a notice of unpaid balance in Texas, and a 20-day preliminary notice in Arizona) is a written notice a subcontractor or supplier sends to the owner and general contractor early in a job, to preserve the right to file a lien later. Several states make it a condition of lien rights, so a missed deadline can cost the claim.</p>
+    <h3>How long do I have to file a mechanics lien after finishing the work?</h3>
+    <p>It depends on the state. California allows 90 days after completion of the project, or 30 days after the owner records a notice of completion. Florida allows 90 days after your last furnishing, Washington 90 days after your last furnishing, Arizona 120 days after completion or 60 days after a recorded notice of completion, and Texas the 15th day of the 4th month on commercial work or the 3rd month on residential work.</p>
+    <h3>When does the preliminary notice clock start?</h3>
+    <p>For California, Arizona, Florida, and Washington it starts on the day you first furnished labor or materials: 20 days in California and Arizona, 45 days in Florida, and 60 days in Washington (10 days on new single-family residential work). Texas instead counts months: the 15th day of the 3rd month after the month of unpaid work on commercial jobs, or the 2nd month on residential jobs.</p>
+    <h3>Why does the calculator use my last furnishing date when I do not know the completion date?</h3>
+    <p>Some states measure the lien deadline from completion of the whole project. Your own last day on the job can only be the same as or earlier than completion, so using it gives the same date or an earlier, safer one. Entering the real completion date can only move the deadline later.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. This tool applies a simplified reading of published state timing rules to the dates you enter, for a first-tier subcontractor or supplier. It does not model second-tier claimants, public projects, required notice content, delivery method, or foreclosure deadlines, and lien rights can be lost by missing a deadline. Confirm every date with a construction attorney or the current statute before relying on it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified construction attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the deadlines that actually apply to your contract and project.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deadlines_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Not getting paid on time more generally? The <a href="../late-invoice-collections-kit/">late invoice collections kit</a> covers the follow-up side, and the <a href="../change-order-margin-calculator/">change order margin calculator</a> helps price extra work before it becomes a dispute.</p>
+    <p>Signing a lien waiver with a payment? The <a href="../lien-waiver-checker/">lien waiver checker</a> flags what it releases before you sign.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { lienDeadlines, formatDate } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      state: $("#state"), projectType: $("#project-type"),
+      first: $("#first-date"), last: $("#last-date"),
+      completion: $("#completion-date"), noc: $("#noc-date"), today: $("#today-date"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function todayIso() {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, "0");
+      return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+    }
+    els.today.value = todayIso();
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function dateCell(d) {
+      if (!d) return "enter the date above";
+      const left = d.daysLeft === null ? "" : d.status === "passed" ? " — passed " + Math.abs(d.daysLeft) + " day(s) ago" : d.status === "today" ? " — due today" : " — " + d.daysLeft + " day(s) left";
+      return "<strong>" + formatDate(d.date) + "</strong>" + left + (d.weekend ? " (weekend; safe date " + formatDate(d.safeDate) + ")" : "");
+    }
+
+    function runCalculate() {
+      const r = lienDeadlines({
+        state: els.state.value,
+        projectType: els.projectType.value,
+        firstFurnishing: els.first.value,
+        lastFurnishing: els.last.value,
+        completionDate: els.completion.value,
+        noticeOfCompletionDate: els.noc.value,
+        today: els.today.value,
+      });
+      els.stats.innerHTML = r.stateName + " (" + r.projectType + "): " + r.prelimLabel + " by " + (r.prelim ? "<strong>" + formatDate(r.prelim.safeDate) + "</strong>" : "(enter first date)") + "; " + r.lienLabel + " by " + (r.lien ? "<strong>" + formatDate(r.lien.safeDate) + "</strong>" : "(enter last date)") + ".";
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">State</th><td>${r.stateName} (${r.citation})</td></tr>
+        <tr><th scope="row">${r.prelimLabel}</th><td>${dateCell(r.prelim)}</td></tr>
+        <tr><th scope="row">Rule</th><td>${r.prelim ? r.prelim.description : "—"}</td></tr>
+        <tr><th scope="row">To ${r.lienLabel}</th><td>${dateCell(r.lien)}</td></tr>
+        <tr><th scope="row">Rule</th><td>${r.lien ? r.lien.description : "—"}</td></tr>`;
+      renderFindings(els.findings, r.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("deadlines_checked");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.state.value = "TX";
+      els.projectType.value = "commercial";
+      els.first.value = "2026-08-03";
+      els.last.value = "2026-09-18";
+      els.completion.value = "";
+      els.noc.value = "";
+      els.today.value = "2026-09-30";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a Texas commercial subcontractor who started 2026-08-03 and last worked 2026-09-18. The notice for August work is due by 2026-11-15 (a Sunday, so the safe date is Friday 2026-11-13) and the lien affidavit by 2027-01-15.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.state.value = "CA";
+      els.projectType.value = "commercial";
+      for (const el of [els.first, els.last, els.completion, els.noc]) el.value = "";
+      els.today.value = todayIso();
+      els.report.hidden = true;
+      els.status.textContent = "Choose a state, enter your first and last dates, then click Check deadlines.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

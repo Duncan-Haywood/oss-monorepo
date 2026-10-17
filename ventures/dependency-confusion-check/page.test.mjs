@@ -127,3 +127,21 @@ test('index links one hop to the ios-privacy-manifest-check sibling', () => {
     'index must link ../ios-privacy-manifest-check/ so crawlers reach the iOS privacy-manifest checker in one hop',
   );
 });
+
+// Reciprocal half of pypi-provenance-check's own inbound-link test.
+test('index links one hop to the pypi-provenance-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/pypi-provenance-check\/"/,
+    'index must link ../pypi-provenance-check/ so crawlers reach the PyPI provenance checker in one hop',
+  );
+});
+
+// Reciprocal half of requirements-pin-check's own related-checks link.
+test('index links one hop to the requirements-pin-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/requirements-pin-check\/"/,
+    'index must link ../requirements-pin-check/ so crawlers reach the requirements pin checker in one hop',
+  );
+});

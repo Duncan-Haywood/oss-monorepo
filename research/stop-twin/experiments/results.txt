@@ -1,0 +1,46 @@
+Stopping a twin run that counts rare failures: sequential Wald stopping vs inverse sampling (run to m failures).
+
+== 0. Exact estimator moments under inverse sampling (sum of the negative-binomial pmf) ==
+m    p        E[(m-1)/(N-1)]/p   E[m/N]/p   m/(m-1)   sd of Haldane/p   1/sqrt(m-2)
+5    0.05     1.000000           1.2301     1.2500    0.5500            0.5774
+5    0.001    1.000000           1.2496     1.2500    0.5768            0.5774
+30   0.05     1.000000           1.0326     1.0345    0.1839            0.1890
+30   0.001    1.000000           1.0344     1.0345    0.1889            0.1890
+100  0.05     1.000000           1.0096     1.0101    0.0984            0.1010
+100  0.001    1.000000           1.0101     1.0101    0.1010            0.1010
+
+== 1. Sequential Wald stopping on an absolute half-width (check every 100 draws from n0=100; 2000 runs) ==
+Rule: stop when 1.96 sqrt(p^ (1-p^)/n) <= eps.  A run with zero failures has half-width 0 and stops at once.
+p       eps      fixed n for eps   stopped with 0 failures   P(0 fails at n0) exact   coverage of Wald   median n   mean claimed p^
+0.01    0.002    9508              0.372                     0.366                    0.597              8800       6.27e-03
+0.001   0.0002   95940             0.901                     0.905                    0.096              100        9.77e-05
+0.0001  2e-05    960269            0.991                     0.990                    0.009              100        8.61e-07
+
+== 2. Same rule with a minimum number of failures before stopping is allowed (p=0.001, eps=0.0002, 2000 runs) ==
+min failures   coverage   median n   mean n   mean p^/p
+0              0.100      100        10291    0.106
+1              0.938      95500      95065    0.990
+5              0.938      95500      94712    0.986
+10             0.942      96000      95381    0.993
+30             0.941      95500      95241    0.992
+
+== 3. Inverse sampling (p=0.001, 2000 runs): exact interval, Haldane vs naive m/N ==
+m     E[N] = m/p   mean m/N / p   mean Haldane / p   sd Haldane / p   1/sqrt(m-2)   exact CI coverage   mean CI upper/lower   Wald-at-N coverage
+10    10000        1.1038         0.9935             0.3593           0.3536        0.950               3.561                 0.954
+30    30000        1.0306         0.9963             0.1861           0.1890        0.953               2.057                 0.956
+100   100000       1.0100         0.9999             0.1013           0.1010        0.955               1.481                 0.954
+400   400000       1.0033         1.0008             0.0492           0.0501        0.955               1.217                 0.955
+
+== 4. Failures needed for a relative sd r, and what a planned fixed n delivers when p is misjudged ==
+r      m = 2 + 1/r^2
+0.3    14
+0.2    27
+0.1    102
+0.05   402
+Fixed n planned for a 20% relative Wald half-width at p0=1e-3 (n = 95940); true p differs:
+true p    expected failures   relative half-width delivered   P(zero failures)   inverse sampling m=102: expected N   relative sd
+0.01      959.4               0.063                           0.0000             10200                                0.100
+0.001     95.9                0.200                           0.0000             102000                               0.100
+0.0003    28.8                0.365                           0.0000             340000                               0.100
+0.0001    9.6                 0.633                           0.0001             1020000                              0.100
+1e-05     1.0                 2.001                           0.3831             10200000                             0.100

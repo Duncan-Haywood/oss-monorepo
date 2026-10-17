@@ -168,10 +168,22 @@ resolve_cname() {
 # By the time this runs the force-push has already succeeded and the site is
 # live. Failing the script here would report a *successful deploy* as a failure
 # -- and the most likely reason to fail is that the host has no egress to
-# api.indexnow.org, which is true of every agent session sandbox and is not a
-# defect in anything. So this reports and returns 0. What it must not do is
-# report *nothing*: the announcement is loud either way, which is the whole
-# point of moving it out of prose.
+# api.indexnow.org, which was true of every agent session sandbox tested
+# through 2026-09-11 and is not a defect in anything. So this reports and
+# returns 0. What it must not do is report *nothing*: the announcement is loud
+# either way, which is the whole point of moving it out of prose.
+#
+# CORRECTED 2026-09-24: "every agent session sandbox" was an overclaim. A
+# scheduled session's run of this exact script reached api.indexnow.org and
+# got a real 200 (1557 URLs, `POST https://api.indexnow.org/indexnow -> 200`),
+# where every prior reading through 2026-09-11 had gotten a 403 at CONNECT.
+# Egress policy is evidently per-session-type or per-environment rather than a
+# fixed property of "an agent sandbox" -- so treat the 403 as the common case
+# to plan around, not a guarantee, and keep trying this route rather than
+# assuming it is dead. `indexnow_state.py` still reports `never` after this,
+# because it reads only GitHub workflow run history and has no way to record
+# a by-hand submission -- that gap is real and is not what this correction
+# is about.
 #
 # `INDEXNOW=0` skips it, for a publish you deliberately do not want announced
 # (a rollback, or a snapshot you are about to replace).
@@ -302,6 +314,34 @@ echo "Checking the built artifact..."
 # worth its one byte.
 : > "$dist/.nojekyll"
 
+# The development analyses (platform/devlog/): experiments, the process
+# backlog, process and drift reports, studies, and run-record friction, read
+# from files on main. Written after `check.mjs` like the deploy page: it is a
+# separate set of rendered documents, under the dev/ dashboard.
+echo "Building the development analyses..."
+node "$repo_root/platform/devlog/build.mjs" --out="$dist/dev/analyses" >/dev/null
+
+# The self-deploy page (platform/deploy/). Written after `check.mjs` because it
+# is a separate static app with its own tests, not a catalogue page: the hub
+# footer links to it (check.mjs exempts that one link), and `check.mjs` would read its 1,200 data files as
+# orphans.
+echo "Building the self-deploy page..."
+node "$repo_root/platform/deploy/build.mjs" --out="$dist/deploy" >/dev/null
+
+# The development dashboard (platform/devstats/): merges, lead time, CI and
+# review health, branches, and what each agent run cost. Written after
+# `check.mjs` like the deploy page, and linked from the hub's overview. With
+# GITHUB_TOKEN set (the publish workflow) it adds the GitHub API metrics.
+# The published stats.json lets it reuse the CI counts of days it already
+# counted, so a refresh spends a few dozen API requests rather than ~170.
+echo "Building the development dashboard..."
+prev_stats="$scratch/prev-stats.json"
+for ref in "refs/remotes/origin/$BRANCH" "refs/heads/$BRANCH"; do
+  git -C "$repo_root" show "$ref:dev/stats.json" > "$prev_stats" 2>/dev/null && break
+  rm -f "$prev_stats"
+done
+node "$repo_root/platform/devstats/build.mjs" --out="$dist/dev" --previous="$prev_stats" >/dev/null
+
 # GitHub reads the custom domain back out of this file on every deploy, so it
 # has to be in every tree this script writes, not only the one where it was
 # first set. Written after `check.mjs` for the same reason `.nojekyll` is:
@@ -379,6 +419,14 @@ if [ "${PUSH:-}" = '1' ]; then
     if [ "$source_sha" != "$main_tip" ] \
        && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
       git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
+    if [ "$source_sha" != "$main_tip" ] \
+       && git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
+      # On main, but main has moved on: a stale local checkout publishes an
+      # older site than the one a visitor should get (seen in friction reports).
+      say "WARNING: $source_sha is behind origin/main ($main_tip); this publishes"
+      say "         an older site. To publish current main: git fetch origin main &&"
+      say "         git reset --hard origin/main, then re-run."
     fi
     if ! git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
       die "refusing to publish a commit that is not on origin/main: $source_sha
@@ -467,7 +515,7 @@ if [ "${PUSH:-}" = '1' ]; then
       fi
     fi
   fi
-  echo "Pushing $BRANCH to origin..."
+  echo "Pushing $BRANCH to origin (can take minutes on a large snapshot; no output until it ends)..."
   # Force, because each run is a fresh orphan commit with no ancestry in
   # common with the last one. Safe against losing authored work -- everything
   # on the branch is regenerated from `main` by this script -- with the

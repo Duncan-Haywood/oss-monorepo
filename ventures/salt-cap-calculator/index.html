@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
+  <meta name="description" content="Free calculator for the SALT (state and local tax) itemized deduction cap under the One Big Beautiful Bill Act — applies the 2025/2026 $40,000/$40,400 cap, the 30%-of-excess-MAGI phase-out above $500,000/$505,000, and the $10,000 floor the cap can never drop below, by filing status. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="SALT Deduction Cap Calculator — free, 2025-2026">
+  <meta property="og:description" content="Compute your effective SALT deduction cap after OBBBA's MAGI-based phase-out, the resulting deductible amount, and the MAGI at which the cap floors out completely. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"SALT Deduction Cap Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the effective SALT (state and local tax) itemized deduction cap under the One Big Beautiful Bill Act's temporary 2025-2029 increase: the 2025/2026 $40,000/$40,400 cap ($20,000/$20,200 married filing separately), the 30-cents-per-dollar phase-out above $500,000/$505,000 MAGI ($250,000/$252,500 MFS), the $10,000/$5,000 floor the cap can never drop below, and the resulting deductible amount and non-deductible excess for state and local taxes actually paid. Entirely client-side; nothing is uploaded.","featureList":"2025 and 2026 SALT cap and phase-out threshold by filing status, 30%-of-excess-MAGI phase-out arithmetic, floor amount and the MAGI at which it is reached, deductible vs. non-deductible amount, married-filing-separately halving flag, pass-through entity tax (PTET) caveat"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the SALT deduction cap, and did it really go up?","acceptedAnswer":{"@type":"Answer","text":"The One Big Beautiful Bill Act (OBBBA), signed July 4, 2025, temporarily raised the SALT (state and local tax) itemized deduction cap from $10,000 ($5,000 married filing separately) to $40,000 ($20,000 MFS) for 2025, increasing 1% per year through 2029 — $40,400 ($20,200 MFS) for 2026. In 2030 the cap is scheduled to revert to $10,000 ($5,000 MFS) unless Congress acts again."}},{"@type":"Question","name":"Is the $40,000 cap the same for single, head of household, and married filing jointly?","acceptedAnswer":{"@type":"Answer","text":"Yes. Single, head-of-household, and married-filing-jointly filers all get the same $40,000 (2025) / $40,400 (2026) cap and the same $500,000 (2025) / $505,000 (2026) phase-out threshold — a joint return does not get double the single amount. Only married filing separately gets a different, exactly-halved figure: a $20,000/$20,200 cap phasing out above $250,000/$252,500 MAGI."}},{"@type":"Question","name":"How does the phase-out work?","acceptedAnswer":{"@type":"Answer","text":"Once modified adjusted gross income (MAGI) exceeds the threshold, the increased cap is reduced by 30 cents for every dollar of MAGI above it — not a cliff, and not a percentage of the cap itself. The reduction stops once the cap reaches its floor: $10,000 for most filers, $5,000 for married filing separately. That floor point is $600,000 MAGI in 2025 for single/HOH/MFJ ($300,000 MFS), and roughly $606,333/$303,167 in 2026."}},{"@type":"Question","name":"Can my SALT deduction ever drop below $10,000?","acceptedAnswer":{"@type":"Answer","text":"No. The phase-out only removes the OBBBA increase above the permanent-law floor — $10,000 for most filers ($5,000 married filing separately) — which every itemizing filer keeps regardless of income. This is the same amount the cap has been since the 2017 Tax Cuts and Jobs Act; OBBBA's phase-out cannot push it any lower."}},{"@type":"Question","name":"Does this account for a pass-through entity tax (PTET) election?","acceptedAnswer":{"@type":"Answer","text":"No. Several states let a partnership or S corporation elect to pay state tax at the entity level, which the owner's share can then deduct above this individual cap entirely. This calculator estimates the cap on state and local tax paid directly by an individual filer — it does not model a PTET election's effect, which can materially change the picture for a pass-through business owner."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal SALT cap and phase-out rules to the numbers you enter. It does not compute your MAGI, verify your filing status, or model state-specific PTET elections, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALT DEDUCTION CAP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's your SALT deduction actually capped at?</h1>
+    <p>The One Big Beautiful Bill Act raised the <strong>SALT (state and
+    local tax) itemized deduction cap</strong> to $40,000 for 2025 — but
+    above $500,000 of MAGI, that increase phases back down at 30 cents per
+    dollar, never below a $10,000 floor. This tool applies the exact 2025 or
+    2026 cap, threshold, and phase-out for your filing status to your own
+    numbers.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status and tax year</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single" selected>Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025" selected>2025 ($40,000 cap / $500,000 threshold)</option>
+          <option value="2026">2026 ($40,400 cap / $505,000 threshold)</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">Married filing separately gets a halved cap and
+    threshold, not a per-person share of the joint figures. Single, head of
+    household, and married filing jointly all share the same cap and
+    threshold.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="magi">Modified adjusted gross income, MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1000" placeholder="e.g. 520000">
+      </div>
+      <div>
+        <label for="salt-paid">State and local taxes paid ($)</label>
+        <input type="number" id="salt-paid" min="0" step="100" placeholder="e.g. 50000">
+      </div>
+    </div>
+    <p class="note">MAGI is close to AGI for most filers — this tool does
+    not compute it for you. State and local taxes paid means property tax
+    plus state income tax (or sales tax, if you elect that instead), the
+    total before any cap is applied.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in your filing status, MAGI, and taxes paid, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Your SALT cap</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This computes one cap on
+      one deduction — not total itemized deductions, whether itemizing
+      beats the standard deduction, other credits, AMT, or state tax.</li>
+      <li><strong>Does not compute MAGI.</strong> You supply MAGI directly;
+      this tool does not derive it from wages, business income, or other
+      add-backs.</li>
+      <li><strong>No pass-through entity tax (PTET) modeling.</strong> A
+      PTET election can let a pass-through business owner deduct state tax
+      above this individual cap entirely — flagged, not computed.</li>
+      <li><strong>2025 and 2026 only.</strong> The cap is scheduled to
+      increase 1% per year through 2029, then revert to $10,000 in 2030 —
+      those years are out of scope here.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the SALT deduction cap, and did it really go up?</h3>
+    <p>The One Big Beautiful Bill Act (OBBBA), signed July 4, 2025, temporarily raised the SALT (state and local tax) itemized deduction cap from $10,000 ($5,000 married filing separately) to $40,000 ($20,000 MFS) for 2025, increasing 1% per year through 2029 — $40,400 ($20,200 MFS) for 2026. In 2030 the cap is scheduled to revert to $10,000 ($5,000 MFS) unless Congress acts again.</p>
+    <h3>Is the $40,000 cap the same for single, head of household, and married filing jointly?</h3>
+    <p>Yes. Single, head-of-household, and married-filing-jointly filers all get the same $40,000 (2025) / $40,400 (2026) cap and the same $500,000 (2025) / $505,000 (2026) phase-out threshold — a joint return does not get double the single amount. Only married filing separately gets a different, exactly-halved figure: a $20,000/$20,200 cap phasing out above $250,000/$252,500 MAGI.</p>
+    <h3>How does the phase-out work?</h3>
+    <p>Once modified adjusted gross income (MAGI) exceeds the threshold, the increased cap is reduced by 30 cents for every dollar of MAGI above it — not a cliff, and not a percentage of the cap itself. The reduction stops once the cap reaches its floor: $10,000 for most filers, $5,000 for married filing separately. That floor point is $600,000 MAGI in 2025 for single/HOH/MFJ ($300,000 MFS), and roughly $606,333/$303,167 in 2026.</p>
+    <h3>Can my SALT deduction ever drop below $10,000?</h3>
+    <p>No. The phase-out only removes the OBBBA increase above the permanent-law floor — $10,000 for most filers ($5,000 married filing separately) — which every itemizing filer keeps regardless of income. This is the same amount the cap has been since the 2017 Tax Cuts and Jobs Act; OBBBA's phase-out cannot push it any lower.</p>
+    <h3>Does this account for a pass-through entity tax (PTET) election?</h3>
+    <p>No. Several states let a partnership or S corporation elect to pay state tax at the entity level, which the owner's share can then deduct above this individual cap entirely. This calculator estimates the cap on state and local tax paid directly by an individual filer — it does not model a PTET election's effect, which can materially change the picture for a pass-through business owner.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published federal SALT cap and phase-out rules to the numbers you enter. It does not compute your MAGI, verify your filing status, or model state-specific PTET elections, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers and elections before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Own part of an S corporation or partnership? See the <a href="../pte-tax-election-calculator/">PTE tax election calculator</a> — whether a state pass-through entity tax election gets around this cap, or costs you money.</p>
+    <p>Turning 65 (or married to someone who is) instead? See the <a href="../senior-deduction-calculator/">senior deduction calculator</a> — a different new OBBBA deduction, phased fully to zero rather than floored like this one. Also giving to charity in 2026? See the <a href="../charitable-deduction-calculator/">charitable deduction calculator</a> — another new itemized-deduction floor, this one on charitable giving rather than state and local tax.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of the SALT cap phase-out usually goes wrong</a>. Wondering whether a bigger cap actually helps your refund? See <a href="./is-the-salt-deduction-worth-itemizing-for.html">is the SALT deduction worth itemizing for?</a> — sometimes none of it is.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { saltCapOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), taxYear: $("#tax-year"),
+      magi: $("#magi"), saltPaid: $("#salt-paid"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = saltCapOutcome({
+        filingStatus: els.filingStatus.value,
+        magi: Number(els.magi.value) || 0,
+        stateLocalTaxesPaid: Number(els.saltPaid.value) || 0,
+        taxYear: Number(els.taxYear.value),
+      });
+
+      els.stats.innerHTML = `Effective SALT cap: <strong>${money(result.effectiveCap)}</strong> (of a ${money(result.cap)} base cap). Deductible: <strong>${money(result.deduction)}</strong>.`;
+
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">Base cap (before phase-out)</th><td>${money(result.cap)}</td></tr>
+        <tr><th scope="row">Phase-out threshold (MAGI)</th><td>${money(result.threshold)}</td></tr>
+        <tr><th scope="row">Excess MAGI</th><td>${money(result.excessMagi)}</td></tr>
+        <tr><th scope="row">Cap reduction</th><td>${money(result.reduction)}</td></tr>
+        <tr><th scope="row"><strong>Effective cap</strong></th><td><strong>${money(result.effectiveCap)}</strong>${result.atFloor ? " ⚠ at floor" : ""}</td></tr>
+        <tr><th scope="row">State/local tax paid</th><td>${money(result.taxesPaid)}</td></tr>
+        <tr><th scope="row"><strong>Deductible amount</strong></th><td><strong>${money(result.deduction)}</strong></td></tr>
+        <tr><th scope="row">Not deductible</th><td>${money(result.nonDeductible)}</td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "mfj";
+      els.taxYear.value = "2025";
+      els.magi.value = "520000";
+      els.saltPaid.value = "50000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a married couple filing jointly, $520,000 MAGI, $50,000 of state and local tax paid, 2025.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      els.taxYear.value = "2025";
+      els.magi.value = "";
+      els.saltPaid.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in your filing status, MAGI, and taxes paid, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

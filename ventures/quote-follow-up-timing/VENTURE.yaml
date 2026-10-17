@@ -1,0 +1,65 @@
+name: quote-follow-up-timing
+description: >-
+  Free browser tool for contractors, agencies and freelancers: paste or upload
+  past quotes as days to decision, won / lost / open and optional value, and see
+  when wins actually arrive, the eventual win rate with open quotes counted
+  correctly (Aalen-Johansen competing risks, not "open = lost"), how much chance
+  each open quote still has, the wins and dollars still expected in the pipeline,
+  and bootstrap ranges. Refuses a history too small or too flat to show timing.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "quote follow-up timing: when do sent quotes stop converting, from your own
+# won lost history": closest is bid-win-rate-optimizer at 0.31, below the
+# read-this-first bar. That tool fits win chance against markup (a pricing
+# question); this one fits win chance against time since sending (a follow-up
+# question) and handles quotes still open, which a logistic fit on markup cannot.
+# Alternatives: CRM "win rate" reports (count open as lost or drop them), a
+# spreadsheet pivot of days-to-close (same bias), and follow-up-automation tools
+# (HubSpot, Jobber, Housecall Pro sequences) which send the follow-up but do not
+# say when it stops paying.
+#
+# First visitor: searches "how long should I wait to follow up on a quote", "when
+# to follow up on an estimate", "quote win rate calculator", "what percentage of
+# quotes close"; r/HVAC, r/Construction, r/freelance, r/agency threads. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: quote lists never leave the browser (tests
+# assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved log that pulls quotes from a CRM export on a
+# schedule; not built.
+# Liability: statistical estimate of supplied data, not advice; refuses when the
+# data cannot support an answer and says it cannot tell whether following up works.
+# Unverified: tested on simulated histories with known curves, not a published
+# dataset.
+
+hypotheses:
+  - claim: >-
+      Small service businesses with 25 or more past quotes will use a private,
+      no-signup tool that says when their wins arrive and which open quotes are
+      worth chasing, and will return as their quote log grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the eventual win rate or the open-quote chance disagrees with a standard Kaplan-Meier / Aalen-Johansen implementation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/quote-follow-up-timing/
+  analytics: null

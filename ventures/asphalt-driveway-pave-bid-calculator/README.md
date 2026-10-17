@@ -6,6 +6,8 @@ mill-and-overlay versus full-depth, mix tons from thickness, the street
 apron, failed base, and the sawcut — and shows the margin before the
 price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/asphalt-driveway-pave-bid-calculator/
+
 **After using this, you can now** send a paving bid that names the
 method, the tons, and the walk-away number, **which used to take**
 matching a published $3.50-a-square-foot special and hoping the base
@@ -64,8 +66,9 @@ into a proposal.
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
 
-See also: [this calculator vs. a flat rate per square foot](vs-a-flat-rate-per-square-foot.html)
-and [this calculator vs. JobNimbus](vs-jobnimbus.html).
+See also: [this calculator vs. a flat rate per square foot](vs-a-flat-rate-per-square-foot.html),
+[this calculator vs. JobNimbus](vs-jobnimbus.html), and
+[should I only charge material cost for paving fabric?](should-i-only-charge-material-cost-for-paving-fabric.html).
 
 ## Privacy
 

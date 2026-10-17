@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self-Employment Tax Calculator 2026 — Schedule SE, Free</title>
+  <meta name="description" content="Free 2026 self-employment tax calculator for freelancers and sole proprietors: Social Security and Medicare, the $184,500 wage base, W-2 wages, Additional Medicare Tax, and how much of every payment to set aside. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Self-Employment Tax Calculator 2026 — free, in your browser">
+  <meta property="og:description" content="See your self-employment tax, the deductible half, and the percent of each invoice to set aside for taxes. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Self-Employment Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Calculates 2026 self-employment tax (Schedule SE) for freelancers and sole proprietors: Social Security and Medicare parts, the wage base, W-2 wages, Additional Medicare Tax, the deductible half, and how much of each payment to set aside. Entirely client-side; nothing is uploaded.", "featureList": "Schedule SE, 92.35% net earnings, Social Security wage base, Additional Medicare Tax, quarterly set-aside"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is self-employment tax in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "Self-employment tax is 15.3% of 92.35% of your net profit: 12.4% Social Security on earnings up to the $184,500 wage base and 2.9% Medicare on everything. On $100,000 of profit that is about $14,130, an effective rate near 14.1%. Above the wage base only the 2.9% Medicare rate applies to the excess."}}, {"@type": "Question", "name": "Why is it 92.35% and not the full profit?", "acceptedAnswer": {"@type": "Answer", "text": "The IRS lets you treat your net profit like a wage earned with an employer share removed: you multiply by 92.35% (100% less 7.65%) before applying the 15.3% rate. That is why the effective SE tax rate is about 14.1% of profit, not 15.3%."}}, {"@type": "Question", "name": "Can I deduct part of self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. You deduct one-half of your SE tax when figuring adjusted gross income on Form 1040. It lowers your income tax, but not the SE tax itself or the QBI deduction base in the way people often expect, so check Schedule SE and Form 8995."}}, {"@type": "Question", "name": "Do W-2 wages change my self-employment tax?", "acceptedAnswer": {"@type": "Answer", "text": "They can. Social Security tax stops at the wage base across wages and self-employment combined, so W-2 wages use up the base first and less of your self-employment income pays the 12.4%. The 2.9% Medicare part always applies."}}, {"@type": "Question", "name": "What is the Additional Medicare Tax?", "acceptedAnswer": {"@type": "Answer", "text": "A 0.9% tax on wages plus self-employment earnings above $200,000 single, $250,000 married filing jointly or $125,000 married filing separately, reported on Form 8959. For self-employment income the threshold is reduced by your W-2 Medicare wages."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. This tool applies published IRS and SSA rules to the numbers you enter. It does not replace Schedule SE instructions or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SELF-EMPLOYMENT TAX CALCULATOR · 2026 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your freelance income goes to self-employment tax?</h1>
+    <p>Self-employment tax is <strong>15.3% of 92.35%</strong> of your net profit
+    (12.4% Social Security up to <strong>$184,500</strong>, plus 2.9% Medicare).
+    Enter your profit and see the tax, the half you can deduct, and the
+    <strong>percent of every payment to set aside</strong>.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your income</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net profit from self-employment, Schedule C line 31 ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 100000">
+      </div>
+      <div>
+        <label for="w2-wages">W-2 wages from a job, if any ($)</label>
+        <input type="number" id="w2-wages" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single / head of household</option>
+          <option value="mfj">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="marginal-rate">Your federal income tax bracket (%), optional</label>
+        <input type="number" id="marginal-rate" min="0" step="1" placeholder="e.g. 22">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your net profit, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Item</th><th scope="col">Amount</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Tax year 2026 rates only.</strong> The wage base changes every year.</li>
+      <li><strong>Simplified income-tax estimate.</strong> The set-aside multiplies your profit, less half of SE tax, by the one bracket you enter. It ignores the standard deduction, the QBI deduction, other income, credits and state tax. Treat it as a planning rule of thumb.</li>
+      <li><strong>Church employees, clergy, farm income and partnership earnings</strong> follow different rules and are not modelled.</li>
+      <li><strong>Not a filed return.</strong> Figures here do not replace Schedule SE or Form 8959.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is self-employment tax in 2026?</h3>
+    <p>Self-employment tax is 15.3% of 92.35% of your net profit: 12.4% Social Security on earnings up to the $184,500 wage base and 2.9% Medicare on everything. On $100,000 of profit that is about $14,130, an effective rate near 14.1%. Above the wage base only the 2.9% Medicare rate applies to the excess.</p>
+    <h3>Why is it 92.35% and not the full profit?</h3>
+    <p>The IRS lets you treat your net profit like a wage earned with an employer share removed: you multiply by 92.35% (100% less 7.65%) before applying the 15.3% rate. That is why the effective SE tax rate is about 14.1% of profit, not 15.3%.</p>
+    <h3>Can I deduct part of self-employment tax?</h3>
+    <p>Yes. You deduct one-half of your SE tax when figuring adjusted gross income on Form 1040. It lowers your income tax, but not the SE tax itself or the QBI deduction base in the way people often expect, so check Schedule SE and Form 8995.</p>
+    <h3>Do W-2 wages change my self-employment tax?</h3>
+    <p>They can. Social Security tax stops at the wage base across wages and self-employment combined, so W-2 wages use up the base first and less of your self-employment income pays the 12.4%. The 2.9% Medicare part always applies.</p>
+    <h3>What is the Additional Medicare Tax?</h3>
+    <p>A 0.9% tax on wages plus self-employment earnings above $200,000 single, $250,000 married filing jointly or $125,000 married filing separately, reported on Form 8959. For self-employment income the threshold is reduced by your W-2 Medicare wages.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published IRS and SSA rules to the numbers you enter. It does not replace Schedule SE instructions or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>tax_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also self-employed? Deduct your premiums with the <a href="../self-employed-health-insurance-deduction-calculator/">self-employed health insurance deduction calculator</a>. Sort your bank file into Schedule C lines with the <a href="../freelancer-schedule-c-categorizer/">freelancer Schedule C categorizer</a>, or see the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a>, the <a href="../home-office-deduction-calculator/">home office deduction calculator</a>, the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> and the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>.</p>
+    <p>Want the whole bill, not just SE tax? The <a href="../us-freelancer-tax-set-aside-calculator/">US freelancer tax set-aside calculator</a> adds federal income tax with the QBI deduction and a state estimate, and shows how much of each invoice to put away.</p>
+    <p>Real estate agent? The <a href="../agent-brokerage-split-calculator/">brokerage split calculator</a> compares what you keep after each brokerage's split, cap and fees.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { selfEmploymentTax, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["net-profit", "w2-wages", "marginal-rate"];
+    const v = (id) => Number($("#" + id).value) || 0;
+    const status = $("#form-status"), report = $("#report");
+    const pct = (x) => (x * 100).toFixed(1) + "%";
+
+    function runCalculate() {
+      const r = selfEmploymentTax({
+        netProfit: v("net-profit"), w2Wages: v("w2-wages"),
+        filingStatus: $("#filing-status").value, marginalRate: v("marginal-rate") / 100,
+      });
+      if (r.invalid) {
+        status.textContent = "Enter a net profit above zero.";
+        report.hidden = true;
+        return;
+      }
+      $("#report-stats").innerHTML = `Self-employment tax: <strong>${money(r.seTax)}</strong> (${pct(r.effectiveRate)} of profit). Your next $1,000 of profit costs about ${pct(r.marginalSeRate)} in SE tax.`;
+      const rows = [
+        ["Net earnings (92.35% of profit)", money(r.netEarnings)],
+        ["Social Security (12.4%)", money(r.socialSecurity)],
+        ["Medicare (2.9%)", money(r.medicare)],
+        ["<strong>Self-employment tax</strong>", `<strong>${money(r.seTax)}</strong>`],
+        ["Deductible half of SE tax", money(r.halfDeduction)],
+        ["Additional Medicare Tax (Form 8959)", money(r.additionalMedicare)],
+      ];
+      if (v("marginal-rate") > 0) {
+        rows.push(["Estimated income tax at your bracket", money(r.incomeTaxEstimate)]);
+        rows.push([`<strong>Set aside for taxes (${pct(r.setAsideRate)} of profit)</strong>`, `<strong>${money(r.totalSetAside)}</strong>`]);
+        rows.push(["Per quarter, if paid evenly", money(r.quarterlyPayment)]);
+      }
+      $("#result-table").innerHTML = rows.map(([k, val]) => `<tr><th scope="row">${k}</th><td>${val}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("tax_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "net-profit": 100000, "w2-wages": 0, "marginal-rate": 22 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      $("#filing-status").value = "single";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $100,000 net profit, single, 22% bracket. SE tax $14,129.55.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your net profit, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

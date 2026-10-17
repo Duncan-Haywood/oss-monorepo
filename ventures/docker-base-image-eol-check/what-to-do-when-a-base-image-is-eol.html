@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What to do when a Docker base image comes back end-of-life | Docker Base Image EOL Check</title>
+<meta name="description" content="An 'eol' or 'deprecated-image' finding is not itself an incident -- it is a prioritization signal. How to triage by exposure, plan the upgrade instead of just bumping the tag, and what to do if you cannot upgrade today.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./what-to-do-when-a-base-image-is-eol.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What to do when a Docker base image comes back end-of-life">
+<meta property="og:description" content="An EOL finding is a prioritization signal, not an incident. Triage by exposure, plan the upgrade, and what to do if you cannot upgrade today.">
+<meta property="og:url" content="https://example.invalid/docker-base-image-eol-check/what-to-do-when-a-base-image-is-eol.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does an end-of-life finding mean my image is already vulnerable?","acceptedAnswer":{"@type":"Answer","text":"No. It means the release line's publisher has stopped shipping security patches for it, so any vulnerability discovered from that date forward will not be fixed upstream. An image on that release line can still show a clean vulnerability scan today — the risk is that nobody is looking for new issues in it any more, not that a specific one is already known. Treat it as a prioritization signal, not an incident."}},{"@type":"Question","name":"Which finding should I fix first?","acceptedAnswer":{"@type":"Answer","text":"Triage by exposure before you triage by how long a release has been end-of-life. An internet-facing service on an end-of-life image outranks an internal batch job on one that went end-of-life more recently, even if the batch job's finding looks more urgent by date alone. Within a tier, deprecated-image findings (a repository discontinued outright, not just a version that stopped getting patches) and eol findings outrank eol-soon warnings."}},{"@type":"Question","name":"Can I just bump the tag and rebuild?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, for a patch-level bump within the same major version. A bump across a major version line (node:18 to node:22, python:3.9 to python:3.12, an Ubuntu codename change) can carry breaking changes in the runtime or the base OS's own package versions, so treat it as a real change to test in CI, not a same-day find-and-replace across every Dockerfile that references the old tag."}},{"@type":"Question","name":"What if I cannot upgrade right now?","acceptedAnswer":{"@type":"Answer","text":"Pin the current image to its exact content digest so it stops moving further from the point where it was last patched, note the finding somewhere it will not be forgotten (a ticket, not just this page's report, which nothing here saves for you), and set a re-check date. That is a documented, time-boxed exception, not a fix — the release line is still unpatched upstream for as long as the pin stands."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 30ch; color: #17324a; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17324a10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #17324a; }
+  ol, ul { padding-left: 1.3rem; }
+  li { margin: .4rem 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+  @media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Docker Base Image EOL Check</a></p>
+<header>
+<h1>What to do when a base image comes back end-of-life</h1>
+<p class="lede">An <code>eol</code> or <code>deprecated-image</code> finding is a prioritization signal, not an incident report. Here is how to triage findings across more than one Dockerfile, plan the upgrade rather than just bumping the tag, and what to document if you cannot upgrade today.</p>
+</header>
+
+<section>
+<h2>Triage by exposure first, by date second</h2>
+<p>
+  A scan across a monorepo commonly returns several findings at once, and not
+  every finding carries the same risk even at the same days-past-end-of-life
+  count. Work the list in this order:
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Priority</th><th scope="col">What it looks like</th><th scope="col">Why it comes first</th></tr></thead>
+<tbody>
+<tr><td>1 &mdash; highest</td><td>An internet-facing service, on a <code>deprecated-image</code> or <code>eol</code> finding</td><td>Directly reachable, and the release line is either discontinued outright or already unpatched</td></tr>
+<tr><td>2</td><td>An internal service handling untrusted input (uploads, webhooks, third-party feeds), on <code>eol</code></td><td>Not directly exposed, but processes data it does not control</td></tr>
+<tr><td>3</td><td>An internal batch job or CI-only image, on <code>eol</code></td><td>Narrower attack surface, but still unpatched and worth a planned upgrade</td></tr>
+<tr><td>4 &mdash; lowest</td><td>Any of the above on <code>eol-soon</code></td><td>Still supported today; the work is scheduling the upgrade before the date arrives, not an urgent fix</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool does not know which of your services is internet-facing or what data it handles &mdash; it only classifies the base image reference. Apply your own exposure knowledge on top of its output; do not read the table above as a re-ranking the tool performs for you.</p>
+</section>
+
+<section>
+<h2>Plan the upgrade &mdash; a major-version bump is a real change</h2>
+<p>
+  A patch-level bump within the same major release (<code>node:18.19</code>
+  to the latest <code>node:18</code> point release) is usually safe to
+  rebuild and ship. Moving across a major version line &mdash;
+  <code>node:18</code> to <code>node:22</code>, <code>python:3.9</code> to
+  <code>python:3.12</code>, an Ubuntu codename change &mdash; can change
+  runtime defaults, drop deprecated APIs, or bring newer versions of
+  whatever the base OS installs by default. Treat it the way you would any
+  dependency major bump:
+</p>
+<ol>
+<li>Read the target release's own changelog or migration notes for breaking changes, not just its end-of-life date.</li>
+<li>Bump one Dockerfile or one stage at a time rather than a repo-wide find-and-replace, especially across a multi-stage build where a builder stage and a runtime stage can reasonably land on different release lines.</li>
+<li>Rebuild and run your existing test suite against the new image before merging &mdash; a clean build is not evidence the runtime behaves the same.</li>
+<li>Re-scan afterward. A successful upgrade should turn the finding into <code>supported</code>, not just move it further from today's date.</li>
+</ol>
+</section>
+
+<section>
+<h2>If you cannot upgrade today</h2>
+<p>
+  Sometimes the upgrade is real work &mdash; a framework version tied to the
+  runtime, a dependency that has not caught up yet, a freeze window. Three
+  things are worth doing even when the fix has to wait:
+</p>
+<ul>
+<li><strong>Pin to the image's current exact content digest.</strong> This does not change its end-of-life status, but it stops the reference from silently moving further from the last point it was patched while you wait. See <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> for that specific question.</li>
+<li><strong>Write the finding down somewhere durable.</strong> This tool's report lives in your browser tab and this page saves nothing on your behalf &mdash; open a ticket or note it in whatever tracks technical debt on your team, with the release line and the end-of-life date from the report.</li>
+<li><strong>Set a re-check date</strong>, and prefer wiring <code>check.py --fail-on-risk</code> into CI over relying on someone remembering to re-run this page. A documented, time-boxed exception is a defensible decision; an undocumented one is just drift.</li>
+</ul>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Does an end-of-life finding mean my image is already vulnerable?</h3>
+<p>No. It means the release line's publisher has stopped shipping security patches for it, so any vulnerability discovered from that date forward will not be fixed upstream. An image on that release line can still show a clean vulnerability scan today &mdash; the risk is that nobody is looking for new issues in it any more, not that a specific one is already known. Treat it as a prioritization signal, not an incident.</p>
+<h3>Which finding should I fix first?</h3>
+<p>Triage by exposure before you triage by how long a release has been end-of-life. An internet-facing service on an end-of-life image outranks an internal batch job on one that went end-of-life more recently, even if the batch job's finding looks more urgent by date alone. Within a tier, deprecated-image findings (a repository discontinued outright, not just a version that stopped getting patches) and eol findings outrank eol-soon warnings.</p>
+<h3>Can I just bump the tag and rebuild?</h3>
+<p>Sometimes, for a patch-level bump within the same major version. A bump across a major version line (node:18 to node:22, python:3.9 to python:3.12, an Ubuntu codename change) can carry breaking changes in the runtime or the base OS's own package versions, so treat it as a real change to test in CI, not a same-day find-and-replace across every Dockerfile that references the old tag.</p>
+<h3>What if I cannot upgrade right now?</h3>
+<p>Pin the current image to its exact content digest so it stops moving further from the point where it was last patched, note the finding somewhere it will not be forgotten (a ticket, not just this page's report, which nothing here saves for you), and set a re-check date. That is a documented, time-boxed exception, not a fix &mdash; the release line is still unpatched upstream for as long as the pin stands.</p>
+<p class="note">Want the accuracy question instead &mdash; where the dates come from and what a clean scan does and doesn't mean? See <a href="./">the tool's own FAQ</a>, or how this compares to <a href="vs-a-vulnerability-scanner.html">a vulnerability scanner</a> and to <a href="vs-checking-eol-dates-by-hand.html">checking end-of-life dates by hand</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including re-checking any end-of-life date against the upstream project's own page. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">optional support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

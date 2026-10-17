@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pool Opening and Closing Price Calculator — Season Price, Bundle and Stops per Day</title>
+  <meta name="description" content="Free pool opening and closing price calculator: enter the pool size, cover, water condition, crew and chemical costs, and get a price for each visit, a season bundle and stops per day. Runs in your browser.">
+  <meta property="og:title" content="Pool Opening and Closing Price Calculator — free, private">
+  <meta property="og:description" content="Price a pool opening and closing from gallons, cover, water condition and crew time.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pool Opening and Closing Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free pool opening and closing price calculator: turn pool size, cover, water condition, crew and chemical costs into a price for each visit, a season bundle and stops per day."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge to close a swimming pool?", "acceptedAnswer": {"@type": "Answer", "text": "Add the crew hours (setup, lowering the water, blowing out and plugging the lines, fitting the cover), times the crew and their rate, then the winterizing chemicals and supplies and the expected cost of a redo, and divide by one minus your margin. This tool does that for the size of pool you type, and shows the same for the opening."}}, {"@type": "Question", "name": "How much should I charge to open a swimming pool?", "acceptedAnswer": {"@type": "Answer", "text": "The same arithmetic with opening chemicals and the cover work in reverse, plus the one input that moves it most: how green the water is. A clear pool is a short visit; a green one takes about twice the time and three times the chemical. The table shows clear, cloudy and green side by side."}}, {"@type": "Question", "name": "How many gallons is my pool?", "acceptedAnswer": {"@type": "Answer", "text": "Length times width times average depth times a shape factor: 7.5 for a rectangle, 6.7 for an oval, 5.9 for a round pool and 6.3 for a freeform. It is an estimate; use the volume you already know for a pool you service."}}, {"@type": "Question", "name": "Should I discount opening and closing together?", "acceptedAnswer": {"@type": "Answer", "text": "A bundle locks in the customer for both ends of the season and saves a sales call, but it comes straight off your margin. The tool shows the season price, what the customer saves and the margin you keep after the discount."}}, {"@type": "Question", "name": "How many pools can a crew open in a day?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the crew day by the elapsed hours per stop, including the drive. The tool shows stops per day and the day's revenue for closings and for openings, which is the number that decides whether you take another route in spring."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, licences, insurance, equipment repairs found at opening, leak checks, heater and salt-cell winterizing, freeze damage and anything the manufacturer or local rules require. It is a bidding aid, not a quote and not winterizing guidance."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+</head>
+<body>
+  <header>
+    <p class="note">POOL OPENING AND CLOSING PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge to open and close this pool?</h1>
+    <p>Enter the pool and your costs. You get <strong>a closing price, an opening price, a season bundle, the cost of a green pool and how many stops fill a crew day</strong>. A flat opening price loses money on green water and on large pools.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The pool</h2>
+    <div class="grid">
+      <div><label for="lengthFt">Length (feet)</label><input type="number" id="lengthFt" min="0" step="any" value="32"></div>
+      <div><label for="widthFt">Width (feet)</label><input type="number" id="widthFt" min="0" step="any" value="16"></div>
+      <div><label for="avgDepthFt">Average depth (feet)</label><input type="number" id="avgDepthFt" min="0" step="any" value="5"></div>
+      <div><label for="shape">Shape</label><select id="shape"><option value="rectangle" selected>Rectangle</option><option value="oval">Oval</option><option value="round">Round</option><option value="freeform">Freeform</option></select></div>
+      <div><label for="cover">Cover</label><select id="cover"><option value="none">None</option><option value="mesh" selected>Mesh</option><option value="solid">Solid</option><option value="safety">Safety</option></select></div>
+      <div><label for="condition">Water at opening</label><select id="condition"><option value="clear">Clear</option><option value="cloudy" selected>Cloudy</option><option value="green">Green</option></select></div>
+      <div><label for="lines">Plumbing lines to blow out and plug</label><input type="number" id="lines" min="0" step="any" value="4"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Time</h2>
+    <div class="grid">
+      <div><label for="baseCloseHrs">Closing a 20,000 gal pool (crew hours)</label><input type="number" id="baseCloseHrs" min="0" step="any" value="1.5"></div>
+      <div><label for="baseOpenHrs">Opening a 20,000 gal clear pool (crew hours)</label><input type="number" id="baseOpenHrs" min="0" step="any" value="1.5"></div>
+      <div><label for="lineCloseHrs">Per plumbing line at closing (hours)</label><input type="number" id="lineCloseHrs" min="0" step="any" value="0.15"></div>
+      <div><label for="driveHrs">Driving per stop (hours)</label><input type="number" id="driveHrs" min="0" step="any" value="0.7"></div>
+      <div><label for="crew">People on the crew</label><input type="number" id="crew" min="0" step="any" value="2"></div>
+      <div><label for="dayHrs">Crew day (hours)</label><input type="number" id="dayHrs" min="0" step="any" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Costs and margin</h2>
+    <div class="grid">
+      <div><label for="laborRate">Labour ($/hour per person)</label><input type="number" id="laborRate" min="0" step="any" value="26"></div>
+      <div><label for="closeChemPer10k">Closing chemicals ($ per 10,000 gal)</label><input type="number" id="closeChemPer10k" min="0" step="any" value="14"></div>
+      <div><label for="openChemPer10k">Opening chemicals, clear water ($ per 10,000 gal)</label><input type="number" id="openChemPer10k" min="0" step="any" value="18"></div>
+      <div><label for="closeSupplies">Antifreeze, plugs, cover hardware ($ per closing)</label><input type="number" id="closeSupplies" min="0" step="any" value="28"></div>
+      <div><label for="openSupplies">Test strips, filter cleaner ($ per opening)</label><input type="number" id="openSupplies" min="0" step="any" value="6"></div>
+      <div><label for="redoPct">Visits that need a redo (%)</label><input type="number" id="redoPct" min="0" step="any" value="6"></div>
+      <div><label for="redoCost">Cost of one redo ($)</label><input type="number" id="redoCost" min="0" step="any" value="180"></div>
+      <div><label for="bundlePct">Bundle discount for both visits (%)</label><input type="number" id="bundlePct" min="0" step="any" value="5"></div>
+      <div><label for="marginPct">Margin wanted (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="40"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="250"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price this pool</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the pool and your costs, or load the example, then click Price this pool.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Opening at each water condition</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Water</th><th scope="col">Hours on site</th><th scope="col">Cost</th><th scope="col">Price</th><th scope="col">Stops per day</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>The same pool at other sizes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Gallons</th><th scope="col">Closing</th><th scope="col">Opening</th><th scope="col">Season bundle</th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Gallons are length times width times average depth times a shape factor (7.5, 6.7, 5.9 or 6.3).</li>
+      <li>Each visit's time is half fixed and half scaled by gallons over 20,000, plus plumbing lines, plus cover work (mesh, solid or safety, different at each end of the season), times 1, 1.3 or 2 for clear, cloudy or green water at opening.</li>
+      <li>Labour is elapsed hours (including the drive) times people times the rate. Chemical is your per-10,000-gallon cost times the gallons, times 1, 1.6 or 3 for water condition at opening. A redo is its rate times its cost.</li>
+      <li>Price is cost divided by one minus your margin, never below your minimum charge. The bundle is the two prices less the discount.</li>
+      <li><strong>Not modelled:</strong> sales tax, licences and insurance, repairs found at opening, leak checks, heater or salt-cell winterizing, freeze damage, and what the pool or equipment maker requires. Follow your own procedure for how to close and open a pool; this only prices it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge to close a swimming pool?</h3>
+    <p>Add the crew hours (setup, lowering the water, blowing out and plugging the lines, fitting the cover), times the crew and their rate, then the winterizing chemicals and supplies and the expected cost of a redo, and divide by one minus your margin. This tool does that for the size of pool you type, and shows the same for the opening.</p>
+    <h3>How much should I charge to open a swimming pool?</h3>
+    <p>The same arithmetic with opening chemicals and the cover work in reverse, plus the one input that moves it most: how green the water is. A clear pool is a short visit; a green one takes about twice the time and three times the chemical. The table shows clear, cloudy and green side by side.</p>
+    <h3>How many gallons is my pool?</h3>
+    <p>Length times width times average depth times a shape factor: 7.5 for a rectangle, 6.7 for an oval, 5.9 for a round pool and 6.3 for a freeform. It is an estimate; use the volume you already know for a pool you service.</p>
+    <h3>Should I discount opening and closing together?</h3>
+    <p>A bundle locks in the customer for both ends of the season and saves a sales call, but it comes straight off your margin. The tool shows the season price, what the customer saves and the margin you keep after the discount.</p>
+    <h3>How many pools can a crew open in a day?</h3>
+    <p>Divide the crew day by the elapsed hours per stop, including the drive. The tool shows stops per day and the day's revenue for closings and for openings, which is the number that decides whether you take another route in spring.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, licences, insurance, equipment repairs found at opening, leak checks, heater and salt-cell winterizing, freeze damage and anything the manufacturer or local rules require. It is a bidding aid, not a quote and not winterizing guidance.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written quote, your winterizing procedure or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pool_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../pool-service-route-calculator/">pool service route</a>, <a href="../pool-route-pricing/">pool route pricing</a>, <a href="../pool-plaster-bid-calculator/">pool plaster bid</a>, <a href="../shop-rate-calculator/">shop rate</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["lengthFt", "widthFt", "avgDepthFt", "shape", "cover", "condition", "lines", "baseCloseHrs", "baseOpenHrs", "lineCloseHrs", "driveHrs", "crew", "laborRate", "closeChemPer10k", "openChemPer10k", "closeSupplies", "openSupplies", "redoPct", "redoCost", "bundlePct", "marginPct", "minCharge", "dayHrs"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.conditions.map((x) => `<tr class="${x.condition === r.input.condition ? "drive" : ""}"><th scope="row">${esc(x.condition)}${x.condition === r.input.condition ? " (your input)" : ""}</th><td>${x.onSiteHrs}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${x.stopsPerDay}</td></tr>`).join("");
+      $("#sens").innerHTML = r.sizes.map((x) => `<tr><th scope="row">${x.gallons.toLocaleString("en-US")}</th><td>${usd(x.closePrice)}</td><td>${usd(x.openPrice)}</td><td>${usd(x.season)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Close ${usd(r.close.price)}, open ${usd(r.open.price)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("pool_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "pool-opening-closing-price.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

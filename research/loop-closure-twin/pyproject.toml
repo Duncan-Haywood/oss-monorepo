@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loop-closure-twin"
+version = "0.1.0"
+description = "Loop-closure gating of a scalar drift filter tuned in an odometry twin that is too clean: exact ungated real error, genuine-closure rejection, aliasing trade-off, and a fitted-drift repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

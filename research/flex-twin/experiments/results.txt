@@ -1,0 +1,66 @@
+Flex twin: rigid twin (inertia M) vs real two-mass plant, load-side PD.  eps = w/ws, zeta = twin damping ratio, delta = modal damping ratio, mu = J1 J2 / M^2.
+
+== 1. Critical bandwidth eps_c is independent of the mass ratio (zeta = 0.7, delta = 0.05) ==
+mu = 0.01  eps_c = 0.071415910590
+mu = 0.05  eps_c = 0.071415910590
+mu = 0.1   eps_c = 0.071415910590
+mu = 0.2   eps_c = 0.071415910590
+mu = 0.25  eps_c = 0.071415910590
+max spread over mu: 0.0e+00
+max |bisection on Routh - root of the cubic| over 18 (delta, zeta) pairs: 1.7e-16
+
+== 2. eps_c and the small-damping law eps_c ~ delta/zeta ==
+delta    zeta=0.5   zeta=0.7   zeta=1.0    | eps_c*zeta/delta at zeta=0.5, 0.7, 1.0
+0.005    0.01000    0.00714    0.00500     | 0.9999  1.0000  1.0001
+0.01     0.01999    0.01429    0.01000     | 0.9996  1.0000  1.0002
+0.02     0.03994    0.02857    0.02002     | 0.9984  1.0000  1.0008
+0.05     0.09903    0.07142    0.05025     | 0.9903  0.9998  1.0050
+0.1      0.19285    0.14280    0.10203     | 0.9642  0.9996  1.0203
+0.2      0.35633    0.28649    0.21698     | 0.8908  1.0027  1.0849
+undamped flexible mode (delta = 0): stable at any eps?  [False, False, False, False, False]
+
+== 3. Collocated (motor-side) sensing: Routh-Hurwitz on a grid ==
+7320 grid points, 0 unstable
+
+== 4. Twin vs real step response (delta = 0.05, zeta = 0.7, mu = 0.2, unit step, dt = 0.01) ==
+eps_c = 0.07142
+eps/eps_c  eps      twin ts(2%)  real ts(2%)   max|y_real - y_twin|   real peak
+0.05       0.00357  1674.3       1674.3        2.336e-05              1.0460
+0.1        0.00714  837.2        837.2         9.230e-05              1.0460
+0.25       0.01785  334.9        334.9         5.567e-04              1.0460
+0.5        0.03571  167.4        167.4         2.103e-03              1.0458
+0.75       0.05356  111.6        112.2         4.479e-03              1.0467
+0.9        0.06427  93.0         94.6          6.247e-03              1.0485
+
+== 5. Simulation agrees with Routh on both sides of eps_c (delta = 0.2, zeta = 0.7, mu = 0.2; 600 time units from x2 = 1) ==
+eps_c = 0.28649
+eps/eps_c = 0.7  Routh-stable True   max|y| t in [20,60] 4.946e-02   t in [560,600] 1.252e-16
+eps/eps_c = 0.9  Routh-stable True   max|y| t in [20,60] 5.807e-02   t in [560,600] 9.840e-07
+eps/eps_c = 1.1  Routh-stable False  max|y| t in [20,60] 2.761e-01   t in [560,600] 9.874e+03
+eps/eps_c = 1.6  Routh-stable False  max|y| t in [20,60] 1.057e+02   t in [560,600] 1.749e+28
+
+== 6. Mis-stated modal damping: a twin with delta_twin = f * delta_real certifies eps_c(delta_twin) (zeta = 0.7) ==
+delta_real  f      certified eps   real eps_c   ratio   real stable at half the certified eps?   at 0.8 of it?
+0.01        0.5    0.00714         0.01429      0.500   True                                    True
+0.01        1.25   0.01786         0.01429      1.250   True                                    True
+0.01        1.5    0.02143         0.01429      1.500   True                                    False
+0.01        2      0.02857         0.01429      2.000   True                                    False
+0.01        3      0.04285         0.01429      3.000   False                                   False
+0.01        5      0.07142         0.01429      4.999   False                                   False
+0.05        0.5    0.03571         0.07142      0.500   True                                    True
+0.05        1.25   0.08926         0.07142      1.250   True                                    True
+0.05        1.5    0.10711         0.07142      1.500   True                                    False
+0.05        2      0.14280         0.07142      2.000   True                                    False
+0.05        3      0.21432         0.07142      3.001   False                                   False
+0.05        5      0.36015         0.07142      5.043   False                                   False
+0.2         0.5    0.14280         0.28649      0.498   True                                    True
+0.2         1.25   0.36015         0.28649      1.257   True                                    False
+0.2         1.5    0.43651         0.28649      1.524   True                                    False
+0.2         2      0.60311         0.28649      2.105   False                                   False
+0.2         3      1.02941         0.28649      3.593   False                                   False
+0.2         5      2.20894         0.28649      7.710   False                                   False
+largest f for which a design at fraction m of the twin-certified eps is stable for the real plant (delta_real = 0.05):
+m = 1     f_max = 1.0000
+m = 0.8   f_max = 1.2501
+m = 0.5   f_max = 2.0004
+m = 0.25  f_max = 3.9887

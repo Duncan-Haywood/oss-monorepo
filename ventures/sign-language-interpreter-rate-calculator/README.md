@@ -7,6 +7,8 @@ after-hours/weekend/holiday differential, and a flag for when the setting
 and length suggest a two-interpreter team — plus a separate late-cancellation
 fee calculator. Entirely client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/
+
 After using this, you can now **turn an assignment request into a defensible
 fee, including travel and any after-hours differential, in seconds**, which
 used to mean doing the minimum-hours, travel, and differential math by hand
@@ -33,6 +35,8 @@ numbers, with nothing to sign up for.
 Open [`index.html`](index.html), enter an assignment's hours, rate, setting,
 and travel, and click **Calculate my rate**. A second section works out a
 late-cancellation fee from a previously scheduled fee and the notice given.
+
+See also: [this calculator vs. a flat fee per assignment](vs-a-flat-fee-per-assignment.html).
 
 ## What it calculates
 

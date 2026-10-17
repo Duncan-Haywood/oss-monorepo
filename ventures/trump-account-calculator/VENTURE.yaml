@@ -1,0 +1,119 @@
+name: trump-account-calculator
+description: >-
+  Free browser calculator for the new federal "Trump Account" child savings
+  account (One Big Beautiful Bill Act, 26 U.S.C. 530A) -- projects the
+  $1,000 federal seed deposit plus family/employer contributions to age 18
+  or later, and applies the IRA-style pro-rata withdrawal rule -- only
+  individual contributions are tax-free basis, while the seed, employer
+  money, and all growth are taxed as ordinary income, the detail most
+  529-plan comparisons get backwards. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-24 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict, main advancing under heavy
+# concurrency with 6 sessions committing inside one 15-minute window;
+# DIRECTION.md's 2026-09-06 owner direction ranks a fresh gate-cleared niche
+# ahead of a parity feature when no in-progress venture work exists).
+# duplicate_check.py scored every venture, screened-out row, ai-first-markets
+# idea, and pipeline candidate at 0.10 or below for "Trump Account (OBBBA
+# child savings account) contribution and growth calculator ... compares
+# that projection against a 529 college savings plan ... flags the
+# withdrawal-timing rules" -- well under the 0.45 review bar, and the
+# closest match (mega-backdoor-roth-calculator, 0.10) is a different
+# account entirely (an employer 401(k) after-tax bucket vs. a federal child
+# savings account), confirmed by grepping the whole ventures/ tree for
+# "trump account" and "trump-account" (no matches) before this venture was
+# created. Not in portfolio/pipeline/screened-out.md: no row mentions Trump
+# Accounts, 530A, or a child savings account.
+#
+# Same regulatory-provision shape that graduated
+# no-tax-on-tips-overtime-calculator, auto-loan-interest-deduction-calculator,
+# senior-deduction-calculator, and mega-backdoor-roth-calculator the same
+# weeks -- a specific, brand-new OBBBA provision nobody in this portfolio
+# had built a dedicated, private, no-signup tool for -- with mechanics
+# verified via WebSearch on 2026-09-24 (not screening-estimate figures):
+# Ameriprise Financial's and Sikich's OBBBA explainers, BDO's summary of the
+# IRS's initial Trump Account guidance, Surgent CPE's CPA guide, Alloy
+# Silverstein's contribution-limit/deadline summary, the Journal of
+# Accountancy's and The Tax Adviser's coverage of the proposed section 128
+# employer-contribution regulations, Mercer Advisors, Seyfarth Shaw, the
+# Treasury Department's own press release on employer contributions, and
+# TaxSharkInc's worked pro-rata withdrawal examples, cross-checked against
+# each other: one-time $1,000 federal pilot deposit for a US citizen born
+# 2025-2028 (does not count toward the annual cap), $5,000/year combined
+# contribution cap for 2026-2027 (indexed in $100 increments from 2028), a
+# $2,500/year employer sub-cap that counts INSIDE (not on top of) the
+# $5,000 total and is excluded from federal income tax but not payroll tax,
+# no distribution of any kind before age 18, IRA-style tax treatment from
+# 18 on (10% early-withdrawal penalty before 59.5 unless a recognized-use
+# exception applies), and -- the mechanic this calculator is built around --
+# the IRA pro-rata basis rule: individual contributions are basis and come
+# out tax-free, while the seed deposit, employer contributions, and all
+# investment growth are not, and every withdrawal is part tax-free and part
+# taxable in that same ratio, never "basis first."
+#
+# Differentiation from existing finance-blog/CPA-firm explainers found
+# during research (trumpaccounts.guide, TaxSharkInc, and several CPA-firm
+# blog posts, each ad/content-marketing supported or written as static
+# prose without an interactive calculator): this is privacy-first with no
+# upsell, is an actual interactive projector (not a static explainer),
+# applies the full pro-rata basis split with a live tax-free/taxable dollar
+# breakdown rather than describing the rule in prose, and explicitly names
+# the one assumption a visitor arriving from this portfolio's own 529-style
+# mental model is statistically likely to get backwards -- that this is NOT
+# taxed like a 529 plan.
+
+hypotheses:
+  - claim: >-
+      Parents opening a Trump Account for a child born 2025-2028, and the
+      payroll/tax-prep professionals fielding their questions, will search
+      plain-language phrases ("trump account calculator", "how much will a
+      trump account be worth", "trump account vs 529") as accounts open
+      through 2026, and some will prefer a free, private, no-signup,
+      no-upsell projection tool over a paid tax-prep marketing page or a
+      static CPA-firm explainer with no calculator at all.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published Trump Account explainer
+      sites and CPA-firm blog posts (found during WebSearch research
+      2026-09-24) is evidence of real, proven search volume for these
+      phrases; the pro-rata-basis framing (rather than a static description
+      of the rule) is a real differentiation, not just a duplicate entrant
+      into an already-crowded field of explainers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who assume a Trump Account is taxed like a 529 plan (the
+      child-savings vehicle most parents already know) will get a
+      materially wrong withdrawal-tax estimate from a naive hand
+      calculation, and a calculator that surfaces the pro-rata split
+      explicitly prevents that specific, high-consequence mistake.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the first tax-filing season in which meaningful numbers of Trump
+    Accounts have been open a full year (April 2027).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/trump-account-calculator/
+  analytics: null

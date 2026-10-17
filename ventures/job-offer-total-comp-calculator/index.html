@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Job Offer Total Compensation Calculator — Compare Offers With Equity and Hours</title>
+  <meta name="description" content="Free job offer comparison calculator. Enter up to three offers with base, bonus, sign-on, equity and hours to see four-year average pay, true hourly rate, and the base salary you would need to counter with. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Job Offer Total Compensation Calculator — free, private, in your browser">
+  <meta property="og:description" content="Compare offers by four-year pay, equity at your confidence level, and true hourly rate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Job Offer Total Compensation Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares up to three job offers by four-year average pay, equity at your confidence level, and true hourly rate, and finds the base salary needed to match the best offer. Runs in your browser.", "featureList": "offer comparison, equity vesting haircut, sign-on and match, true hourly rate, counteroffer base, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I compare job offers with equity?", "acceptedAnswer": {"@type": "Answer", "text": "Turn each offer into a yearly total: base, target bonus, sign-on in year one, retirement match, and the equity that vests each year. Then cut the equity by how confident you are it will be worth that much. This tool does that for up to three offers and shows the four-year average, so a big sign-on or a back-loaded grant does not distort the comparison."}}, {"@type": "Question", "name": "How should I value startup equity in an offer?", "acceptedAnswer": {"@type": "Answer", "text": "With a large haircut. Private company shares are illiquid and most grants end up worth far less than the paper value. Setting confidence to 25 to 50 percent gives a cautious figure; setting it to zero shows the cash-only offer. The tool flags any offer where equity is over 30 percent of the four-year value."}}, {"@type": "Question", "name": "What is the true hourly rate of a job?", "acceptedAnswer": {"@type": "Answer", "text": "Total yearly pay divided by the hours you actually give the job, including the hours you work each week, your commute, and your paid days off. A lower-paid job with shorter hours and more time off can pay more per hour than a higher-paid one."}}, {"@type": "Question", "name": "How do I use this to negotiate?", "acceptedAnswer": {"@type": "Answer", "text": "The tool computes the base salary each lower offer would need to match the best one over four years. That is a concrete counteroffer number rather than a guess."}}, {"@type": "Question", "name": "Should I count a sign-on bonus?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, but only in year one, and only if you are willing to stay. Many employers claw it back if you leave early. The tool puts it in year one and the four-year average spreads it out."}}, {"@type": "Question", "name": "How is a retirement match counted?", "acceptedAnswer": {"@type": "Answer", "text": "As a percentage of base up to an optional dollar cap, added to your yearly total. It is free money only if you contribute enough to receive it."}}, {"@type": "Question", "name": "Does it work out taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Only as a flat rate you choose, to give an after-tax view. Real tax depends on your state, filing status and how equity is taxed at vest, which this tool does not model."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">JOB OFFER TOTAL COMPENSATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which job offer actually pays more?</h1>
+    <p>Base salary hides the difference. Enter up to three offers and get each one's <strong>four-year average pay</strong>, with equity cut to a confidence you choose, its <strong>true hourly rate</strong> after commute and time off, and the <strong>base you would need to counter with</strong> to match the best offer.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Offer 1</h2>
+    <div class="grid">
+      <div><label for="o1_name">Name of the offer</label><input type="text" id="o1_name" placeholder="Company A" autocomplete="off"></div>
+      <div><label for="o1_base">Yearly base salary</label><input type="text" id="o1_base" inputmode="decimal" placeholder="150000" autocomplete="off"></div>
+      <div><label for="o1_bonusPct">Target bonus, percent of base</label><input type="text" id="o1_bonusPct" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="o1_signOn">Sign-on bonus (year 1)</label><input type="text" id="o1_signOn" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="o1_equityGrant">Total equity grant value</label><input type="text" id="o1_equityGrant" inputmode="decimal" placeholder="240000" autocomplete="off"></div>
+      <div><label for="o1_vestYears">Years to vest</label><input type="text" id="o1_vestYears" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o1_growth">Yearly growth in equity value, percent</label><input type="text" id="o1_growth" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o1_confidence">Confidence the equity is worth that, percent</label><input type="text" id="o1_confidence" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="o1_refresh">Yearly refresh grant value (from year 2)</label><input type="text" id="o1_refresh" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o1_matchPct">Retirement match, percent of base</label><input type="text" id="o1_matchPct" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o1_matchCap">Match dollar cap (optional)</label><input type="text" id="o1_matchCap" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="o1_other">Other yearly benefits value</label><input type="text" id="o1_other" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o1_taxRate">Flat tax rate for after-tax view, percent</label><input type="text" id="o1_taxRate" inputmode="decimal" placeholder="32" autocomplete="off"></div>
+      <div><label for="o1_hours">Hours worked per week</label><input type="text" id="o1_hours" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+      <div><label for="o1_commute">Commute hours per week</label><input type="text" id="o1_commute" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o1_pto">Paid days off per year</label><input type="text" id="o1_pto" inputmode="decimal" placeholder="15" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer 2 (optional)</h2>
+    <div class="grid">
+      <div><label for="o2_name">Name of the offer</label><input type="text" id="o2_name" placeholder="Company A" autocomplete="off"></div>
+      <div><label for="o2_base">Yearly base salary</label><input type="text" id="o2_base" inputmode="decimal" placeholder="150000" autocomplete="off"></div>
+      <div><label for="o2_bonusPct">Target bonus, percent of base</label><input type="text" id="o2_bonusPct" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="o2_signOn">Sign-on bonus (year 1)</label><input type="text" id="o2_signOn" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="o2_equityGrant">Total equity grant value</label><input type="text" id="o2_equityGrant" inputmode="decimal" placeholder="240000" autocomplete="off"></div>
+      <div><label for="o2_vestYears">Years to vest</label><input type="text" id="o2_vestYears" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o2_growth">Yearly growth in equity value, percent</label><input type="text" id="o2_growth" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o2_confidence">Confidence the equity is worth that, percent</label><input type="text" id="o2_confidence" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="o2_refresh">Yearly refresh grant value (from year 2)</label><input type="text" id="o2_refresh" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o2_matchPct">Retirement match, percent of base</label><input type="text" id="o2_matchPct" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o2_matchCap">Match dollar cap (optional)</label><input type="text" id="o2_matchCap" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="o2_other">Other yearly benefits value</label><input type="text" id="o2_other" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o2_taxRate">Flat tax rate for after-tax view, percent</label><input type="text" id="o2_taxRate" inputmode="decimal" placeholder="32" autocomplete="off"></div>
+      <div><label for="o2_hours">Hours worked per week</label><input type="text" id="o2_hours" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+      <div><label for="o2_commute">Commute hours per week</label><input type="text" id="o2_commute" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o2_pto">Paid days off per year</label><input type="text" id="o2_pto" inputmode="decimal" placeholder="15" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer 3 (optional)</h2>
+    <div class="grid">
+      <div><label for="o3_name">Name of the offer</label><input type="text" id="o3_name" placeholder="Company A" autocomplete="off"></div>
+      <div><label for="o3_base">Yearly base salary</label><input type="text" id="o3_base" inputmode="decimal" placeholder="150000" autocomplete="off"></div>
+      <div><label for="o3_bonusPct">Target bonus, percent of base</label><input type="text" id="o3_bonusPct" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="o3_signOn">Sign-on bonus (year 1)</label><input type="text" id="o3_signOn" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="o3_equityGrant">Total equity grant value</label><input type="text" id="o3_equityGrant" inputmode="decimal" placeholder="240000" autocomplete="off"></div>
+      <div><label for="o3_vestYears">Years to vest</label><input type="text" id="o3_vestYears" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o3_growth">Yearly growth in equity value, percent</label><input type="text" id="o3_growth" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o3_confidence">Confidence the equity is worth that, percent</label><input type="text" id="o3_confidence" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="o3_refresh">Yearly refresh grant value (from year 2)</label><input type="text" id="o3_refresh" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o3_matchPct">Retirement match, percent of base</label><input type="text" id="o3_matchPct" inputmode="decimal" placeholder="4" autocomplete="off"></div>
+      <div><label for="o3_matchCap">Match dollar cap (optional)</label><input type="text" id="o3_matchCap" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="o3_other">Other yearly benefits value</label><input type="text" id="o3_other" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o3_taxRate">Flat tax rate for after-tax view, percent</label><input type="text" id="o3_taxRate" inputmode="decimal" placeholder="32" autocomplete="off"></div>
+      <div><label for="o3_hours">Hours worked per week</label><input type="text" id="o3_hours" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+      <div><label for="o3_commute">Commute hours per week</label><input type="text" id="o3_commute" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+      <div><label for="o3_pto">Paid days off per year</label><input type="text" id="o3_pto" inputmode="decimal" placeholder="15" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare offers</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in at least one offer, then click Compare offers.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Offers compared</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Offer</th><th class="n">Year 1</th><th class="n">4-year average</th><th class="n">After tax, 4 years</th><th class="n">True hourly</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Yearly total = base + target bonus + retirement match (base x match percent, up to the cap) + other benefits + sign-on (year 1 only) + equity. Equity vests in even yearly slices over the vesting years, each slice grown by the yearly growth rate and multiplied by your confidence; a refresh grant is added from year 2 at the same confidence. The comparison uses the average of years one to four. True hourly rate = average yearly total / ((52 weeks - paid days off / 5) x (hours + commute hours per week)). The counteroffer base is found by searching for the base at which an offer's four-year average matches the best offer's.</p>
+    <p><strong>Not modelled:</strong> state and federal tax beyond the flat rate you enter, how equity is taxed at vest, health insurance differences, cost of living, vesting cliffs, refresh grants beyond one flat amount, stock option strike prices. <strong>Unverified:</strong> checked by hand calculation and unit tests only.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I compare job offers with equity?</h3>
+    <p>Turn each offer into a yearly total: base, target bonus, sign-on in year one, retirement match, and the equity that vests each year. Then cut the equity by how confident you are it will be worth that much. This tool does that for up to three offers and shows the four-year average, so a big sign-on or a back-loaded grant does not distort the comparison.</p>
+    <h3>How should I value startup equity in an offer?</h3>
+    <p>With a large haircut. Private company shares are illiquid and most grants end up worth far less than the paper value. Setting confidence to 25 to 50 percent gives a cautious figure; setting it to zero shows the cash-only offer. The tool flags any offer where equity is over 30 percent of the four-year value.</p>
+    <h3>What is the true hourly rate of a job?</h3>
+    <p>Total yearly pay divided by the hours you actually give the job, including the hours you work each week, your commute, and your paid days off. A lower-paid job with shorter hours and more time off can pay more per hour than a higher-paid one.</p>
+    <h3>How do I use this to negotiate?</h3>
+    <p>The tool computes the base salary each lower offer would need to match the best one over four years. That is a concrete counteroffer number rather than a guess.</p>
+    <h3>Should I count a sign-on bonus?</h3>
+    <p>Yes, but only in year one, and only if you are willing to stay. Many employers claw it back if you leave early. The tool puts it in year one and the four-year average spreads it out.</p>
+    <h3>How is a retirement match counted?</h3>
+    <p>As a percentage of base up to an optional dollar cap, added to your yearly total. It is free money only if you contribute enough to receive it.</p>
+    <h3>Does it work out taxes?</h3>
+    <p>Only as a flat rate you choose, to give an after-tax view. Real tax depends on your state, filing status and how equity is taxed at vest, which this tool does not model.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the values you enter and on equity that may be worth far less than its stated value. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before accepting or declining any job offer.</p>
+    <p><strong>Independent.</strong> Not affiliated with any employer, recruiter or equity plan administrator.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your offer details are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>offer_compared</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Offered startup options? The <a href="../startup-option-value-calculator/">startup option value calculator</a> values them after dilution and preferences.</p>
+    <p>Got equity? The <a href="../rsu-withholding-gap-calculator/">RSU withholding gap calculator</a> and the <a href="../iso-exercise-amt-calculator/">ISO exercise AMT calculator</a> cover the tax side.</p>
+    <p>Got the offer in writing? The <a href="../employment-contract-checker/">employment contract checker</a> flags the non-compete, repayment, invention-assignment and equity clauses before you sign.</p>
+    <p>Weighing the salary against a contract? The <a href="../contract-vs-fte-rate-calculator/">contract vs. salary rate calculator</a> finds the hourly 1099 rate that leaves you the same cash.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => "$" + money(n);
+    const OFFERS = [1, 2, 3];
+    const KEYS = ["name", "base", "bonusPct", "signOn", "equityGrant", "vestYears", "growth", "confidence", "refresh", "matchPct", "matchCap", "other", "taxRate", "hours", "commute", "pto"];
+    let last = null;
+
+    function read() { return { offers: OFFERS.map((i) => Object.fromEntries(KEYS.map((k) => [k, $("#o" + i + "_" + k).value]))) }; }
+    function fill(x) { OFFERS.forEach((i, n) => KEYS.forEach((k) => { $("#o" + i + "_" + k).value = (x.offers && x.offers[n] && x.offers[n][k]) ?? ""; })); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.best;
+      const tiles = [[b.offer.label, "highest four-year average"], [usd(b.avg), "average per year, before tax"], [usd(b.year1), "year 1 total"], ["$" + b.hourly.toFixed(0), "true hourly rate"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.results.map((r) => `<tr class="${r === b ? "best" : ""}"><td>${esc(r.offer.label)}</td><td class="n">${usd(r.year1)}</td><td class="n">${usd(r.avg)}</td><td class="n">${usd(r.afterTax4)}</td><td class="n">$${r.hourly.toFixed(0)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("offer_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: three invented offers, not real employers."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in at least one offer, then click Compare offers."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "job-offer-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

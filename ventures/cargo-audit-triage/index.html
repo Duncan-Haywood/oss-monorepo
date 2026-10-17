@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>cargo audit Triage — Which RustSec Advisories Does Your Rust Code Actually Use?</title>
+  <meta name="description" content="Paste cargo audit --json and your Rust source: see which flagged crates your code actually uses and which are test-only or unreferenced noise. Free cargo audit triage, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Which cargo audit findings actually matter?">
+  <meta property="og:description" content="Rank cargo audit advisories by whether your code uses the crate. Free, offline, with a CI gate CLI.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"cargo audit Triage","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies; reads Rust source as text","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Ranks cargo audit --json findings by whether your Rust source uses the flagged crate, in the browser or as a CI-gate CLI. Static text scan, not a security audit."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does cargo audit report vulnerabilities in crates I barely use?","acceptedAnswer":{"@type":"Answer","text":"cargo audit matches every crate in Cargo.lock against the RustSec advisory database. It does not look at your code, so it cannot tell a crate your service calls on every request from a transitive dependency of a build tool. It also mixes vulnerabilities with unmaintained, unsound and yanked warnings, so a long list has no obvious order. This tool adds one signal, whether your Rust source uses the crate, so you read the reachable findings first."}},{"@type":"Question","name":"How does the triage decide a crate is reachable?","acceptedAnswer":{"@type":"Answer","text":"It scans .rs source as text for use declarations (including brace groups), extern crate and crate::path expressions, maps dashes in crate names to underscores (serde-json is used as serde_json) and compares them to the audit. A flagged crate named from src/ ranks first, one named only from tests, benches, examples or build.rs ranks next, and one never named ranks last. Real vulnerabilities rank above unmaintained or yanked warnings. It is a static text scan and cannot see macro-generated paths, renamed dependencies or feature-gated code."}},{"@type":"Question","name":"Does this mean the low-ranked advisories are safe to ignore?","acceptedAnswer":{"@type":"Answer","text":"No. Not used is not the same as not exploitable: a crate can be compiled in through another crate you do use, and a build script runs at build time. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule."}},{"@type":"Question","name":"Does this tool upload my audit output or source code?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else."}},{"@type":"Question","name":"Is this security advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.imported { background: #fde8e8; color: #9a3412; }
+    .pill.test-only { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CARGO-AUDIT TRIAGE · RUNS IN YOUR BROWSER</p>
+    <h1>Which cargo audit findings does your Rust code actually use?</h1>
+    <p><code>cargo audit</code> prints every RustSec advisory that matches your <code>Cargo.lock</code> with no way to tell the crate your service calls from the one a build tool dragged in. Paste the <code>cargo audit --json</code> output and your Rust source: findings are ranked by whether the flagged crate is <strong>used by your runtime code</strong>, <strong>test/bench/build-script only</strong>, or <strong>not referenced</strong>. Paid platforms (Snyk, Endor Labs) sell reachability analysis; this is the free, offline first pass.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a static text scan and a heuristic ranking, not a security audit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste <code>cargo audit --json</code></h2>
+    <textarea id="audit" spellcheck="false" placeholder='{"vulnerabilities":{"list":[ ... ]},"warnings":{}}'></textarea>
+    <h2 style="margin-top:14px">2. Paste your source (optional but it is the point)</h2>
+    <p class="note">Concatenate files, or put a line <code>// file: src/main.rs</code> before each so test files are recognised. In the CLI the directory is scanned for you.</p>
+    <textarea id="src" spellcheck="false" placeholder="// file: src/main.rs&#10;use serde_json::Value;"></textarea>
+    <p>
+      <button type="button" id="check">Triage</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste the audit output above and click Triage.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Ranked findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Crate</th><th>Advisories</th><th>Reachability</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Want it as a CI gate?</h2>
+    <p>Same logic, zero dependencies. It reads the audit file and walks your source directory, nothing else:</p>
+    <pre class="cmd"><code>cargo audit --json | node cargo-audit-triage.mjs - src          # triage, print ranked list
+cargo audit --json | node cargo-audit-triage.mjs - src --fail-on-imported   # exit 1 if a runtime-used crate has a vulnerability
+node cargo-audit-triage.mjs audit.json src lib --json         # machine-readable</code></pre>
+    <p class="note">Get <a href="cargo-audit-triage.mjs" rel="noopener">cargo-audit-triage.mjs</a> and <a href="triage.mjs" rel="noopener">triage.mjs</a> from the repo. Run <code>cargo audit</code> yourself first; this tool only reads its output. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does cargo audit report vulnerabilities in crates I barely use?</h3>
+    <p>cargo audit matches every crate in Cargo.lock against the RustSec advisory database. It does not look at your code, so it cannot tell a crate your service calls on every request from a transitive dependency of a build tool. It also mixes vulnerabilities with unmaintained, unsound and yanked warnings, so a long list has no obvious order. This tool adds one signal, whether your Rust source uses the crate, so you read the reachable findings first.</p>
+    <h3>How does the triage decide a crate is reachable?</h3>
+    <p>It scans .rs source as text for use declarations (including brace groups), extern crate and crate::path expressions, maps dashes in crate names to underscores (serde-json is used as serde_json) and compares them to the audit. A flagged crate named from src/ ranks first, one named only from tests, benches, examples or build.rs ranks next, and one never named ranks last. Real vulnerabilities rank above unmaintained or yanked warnings. It is a static text scan and cannot see macro-generated paths, renamed dependencies or feature-gated code.</p>
+    <h3>Does this mean the low-ranked advisories are safe to ignore?</h3>
+    <p>No. Not used is not the same as not exploitable: a crate can be compiled in through another crate you do use, and a build script runs at build time. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule.</p>
+    <h3>Does this tool upload my audit output or source code?</h3>
+    <p>No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else.</p>
+    <h3>Is this security advice?</h3>
+    <p>No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities.</p>
+    <p>More: <a href="how-to-triage-cargo-audit-findings.html">how to triage cargo audit findings without ignoring real risk</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice or a security audit, and its heuristic reading of your use statements can miss reachable vulnerabilities. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cargo-audit-triage.mjs" rel="noopener">cargo-audit-triage.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The audit output and source you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../npm-audit-triage/">npm Audit Triage</a>, <a href="../pip-audit-triage/">pip-audit Triage</a> and <a href="../npm-lockfile-duplicates-check/">npm Lockfile Duplicates Check</a>.</p>
+    <p class="support">Free and open source. If this told you where to look first, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { triage, summaryLine } from "./triage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { audit: $("#audit"), src: $("#src"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    // Synthetic audit output and source. The advisory ids (RUSTSEC-0000-xxxx) are placeholders, not real advisories.
+    const adv = (id, pkg, title, patched) => ({ advisory: { id, package: pkg, title, aliases: [] }, versions: { patched, unaffected: [] }, package: { name: pkg, version: "1.0.0" } });
+    const EXAMPLE_AUDIT = JSON.stringify({
+      vulnerabilities: { found: true, count: 4, list: [
+        adv("RUSTSEC-0000-0001", "serde-json", "Example: stack overflow on deeply nested input", [">=1.0.5"]),
+        adv("RUSTSEC-0000-0002", "regex", "Example: denial of service on crafted pattern", [">=1.5.5"]),
+        adv("RUSTSEC-0000-0003", "tokio-test", "Example: test helper issue", [">=0.4.3"]),
+        adv("RUSTSEC-0000-0004", "openssl-sys", "Example: issue in a transitive crate", [">=0.9.80"])
+      ] },
+      warnings: { unmaintained: [{ kind: "unmaintained", package: { name: "atty", version: "0.2.14" }, advisory: { id: "RUSTSEC-0000-0005", package: "atty", title: "Example: crate is unmaintained" }, versions: { patched: [] } }] }
+    }, null, 1);
+    const EXAMPLE_SRC = `// file: src/main.rs
+use serde_json::Value;
+use regex::Regex;
+// file: tests/api.rs
+use tokio_test::block_on;`;
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const LABEL = { imported: "used by your code", "test-only": "test / bench / build script only", "not-referenced": "not referenced" };
+
+    function splitFiles(text) {
+      const files = []; let path = "(pasted)"; let buf = [];
+      const flush = () => { if (buf.length) files.push({ path, text: buf.join("\n") }); buf = []; };
+      for (const line of text.split("\n")) {
+        const m = line.match(/^\s*\/\/\s*file:\s*(\S+)/i);
+        if (m) { flush(); path = m[1]; } else buf.push(line);
+      }
+      flush();
+      return files;
+    }
+
+    function run(auditText, srcText) {
+      if (!auditText.trim()) { els.status.innerHTML = `<span class="error">Paste the cargo audit --json output first.</span>`; return false; }
+      const result = triage(auditText, splitFiles(srcText));
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.className = `verdict ${result.urgent.length ? "risk" : ""}`;
+      els.verdict.textContent = result.urgent.length ? `${result.urgent.length} flagged crate(s) with a vulnerability that your code uses. ` + summaryLine(result) : summaryLine(result);
+      els.rows.innerHTML = result.items.map((i) => `
+        <tr><td><code>${escapeHtml(i.name)}@${escapeHtml(i.version)}</code><div class="note">${escapeHtml(i.kind === "vulnerability" ? "" : i.kind + " warning. ")}${escapeHtml(i.vulns[0] ? i.vulns[0].title : "")}</div></td>
+        <td>${i.vulns.length}<div class="note">${escapeHtml(i.vulns.map((v) => v.id).join(", "))}</div></td>
+        <td><span class="pill ${i.bucket}">${LABEL[i.bucket]}</span>${i.evidence[0] ? `<div class="note">${escapeHtml(i.evidence[0])}</div>` : ""}</td>
+        <td>${escapeHtml(i.fix)}</td></tr>`).join("")
+        || `<tr><td colspan="4" class="note">cargo audit reported no flagged crates.</td></tr>`;
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.audit.value, els.src.value));
+    $("#load-example").addEventListener("click", () => {
+      els.audit.value = EXAMPLE_AUDIT;
+      els.src.value = EXAMPLE_SRC;
+      if (run(EXAMPLE_AUDIT, EXAMPLE_SRC)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: serde-json and regex are used by src/ and rank first; the test helper ranks lower; openssl-sys and the unmaintained atty are not named by any file. Advisory ids are placeholders.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.audit.value = ""; els.src.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste the audit output above and click Triage.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

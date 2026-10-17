@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01JR8kta8wubES2egnCBnAAm",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/2026-10-15-session_013VkAq5ZZEf8SUo1nWJpT2J.json",
+      "issue": "malformed record already on main makes promptctl validate and test_the_real_prompt_system_is_valid fail; not mine, left untouched"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/self-employment-tax-calculator/calc.mjs",
+        "test": "node --test ventures/self-employment-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 1,
+        "commit": "028f4fedc0",
+        "sites": 70,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 30,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "return Number.isFinite(n) && n > 0 ? n : 0;",
+            "after": "return Number.isFinite(n) && n > 1 ? n : 0;",
+            "line_text": "  return Number.isFinite(n) && n > 0 ? n : 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 39,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "const netEarnings = netProfit * SE_NET_EARNINGS_FACTOR;",
+            "after": "const netEarnings = netProfit / SE_NET_EARNINGS_FACTOR;",
+            "line_text": "  const netEarnings = netProfit * SE_NET_EARNINGS_FACTOR;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 40,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "if (netEarnings < SE_MINIMUM) return { netEarnings, socialSecurity: 0, medicare: 0, total: 0, ssTaxable: 0 };",
+            "after": "if (netEarnings < SE_MINIMUM) return { netEarnings, socialSecurity: 1, medicare: 0, total: 0, ssTaxable: 0 };",
+            "line_text": "  if (netEarnings < SE_MINIMUM) return { netEarnings, socialSecurity: 0, medicare: 0, total: 0, ssTaxable: 0 };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "socialSecurity returned for <$400 earnings"
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 51,
+            "col": 75,
+            "operator": "minus-to-plus",
+            "before": "const onSelfEmployment = Math.max(0, netEarnings - Math.max(0, threshold - w2Wages));",
+            "after": "const onSelfEmployment = Math.max(0, netEarnings - Math.max(0, threshold + w2Wages));",
+            "line_text": "  const onSelfEmployment = Math.max(0, netEarnings - Math.max(0, threshold - w2Wages));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 60,
+            "col": 16,
+            "operator": "le-to-lt",
+            "before": "if (netProfit <= 0) return { invalid: true };",
+            "after": "if (netProfit < 0) return { invalid: true };",
+            "line_text": "  if (netProfit <= 0) return { invalid: true };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 74,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "if (p.netEarnings < SE_MINIMUM) {",
+            "after": "if (p.netEarnings <= SE_MINIMUM) {",
+            "line_text": "  if (p.netEarnings < SE_MINIMUM) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "exactly-$400 boundary"
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 81,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if (p.netEarnings >= SE_MINIMUM && p.ssTaxable < p.netEarnings) {",
+            "after": "if (p.netEarnings >= SE_MINIMUM || p.ssTaxable < p.netEarnings) {",
+            "line_text": "  if (p.netEarnings >= SE_MINIMUM && p.ssTaxable < p.netEarnings) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "and-to-or on wage-base finding"
+          },
+          {
+            "file": "ventures/self-employment-tax-calculator/calc.mjs",
+            "line": 95,
+            "col": 16,
+            "operator": "ge-to-gt",
+            "before": "if (netProfit >= 80000) {",
+            "after": "if (netProfit > 80000) {",
+            "line_text": "  if (netProfit >= 80000) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "exactly-$80,000 boundary"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/self-employment-tax-calculator/calc.mjs",
+        "issue": "Additional Medicare Tax charged on SE earnings under the $400 Schedule SE minimum (netProfit 100, W-2 300000 gave 900.83, should be 900)",
+        "patched": true
+      }
+    ]
+  }
+}

@@ -155,3 +155,33 @@ test("formatWeightedBreakdown never throws on an empty result", () => {
   const r = computeWeightedAverageOvertime({ entries: [] });
   assert.doesNotThrow(() => formatWeightedBreakdown(r));
 });
+
+// --- Red-team guards (2026-10-15) ----------------------------------------
+// Each test below fails against a seeded mutant that the suite above let
+// through (prompts/redteam.py; see the run record for that date).
+
+test("single rate: negative hours are treated as zero, not as negative pay", () => {
+  const r = computeSingleRateOvertime({ hourlyRate: 20, hoursWorked: -5 });
+  assert.equal(r.totalPay, 0);
+  assert.equal(r.regularHours, 0);
+});
+
+test("single rate: a zero overtime threshold falls back to 40 hours", () => {
+  const r = computeSingleRateOvertime({ hourlyRate: 20, hoursWorked: 45, overtimeThresholdHours: 0 });
+  assert.equal(r.regularHours, 40);
+  assert.equal(r.overtimeHours, 5);
+});
+
+test("weighted average: no 'no-overtime' finding when there is overtime", () => {
+  const r = computeWeightedAverageOvertime({
+    entries: [{ hours: 30, rate: 20 }, { hours: 15, rate: 30 }],
+  });
+  assert.ok(r.overtimeHours > 0);
+  assert.ok(!r.findings.some((f) => f.id === "no-overtime"));
+});
+
+test("single rate: a negative hourly rate is treated as zero", () => {
+  const r = computeSingleRateOvertime({ hourlyRate: -20, hoursWorked: 45 });
+  assert.equal(r.totalPay, 0);
+  assert.equal(r.overtimeRate, 0);
+});

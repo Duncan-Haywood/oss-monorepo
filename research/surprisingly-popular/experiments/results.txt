@@ -1,0 +1,50 @@
+setup: prior faulty 0.5, a faulty job is flagged w.p. sens=0.45, a sound job w.p. 1-spec=0.05
+Bayesian verifier predicts flag fraction u=0.4100 after flag, v=0.1967 after no flag; SP threshold theta=0.2500
+
+E1 exact error vs n (state A = faulty, B = sound; overall at prior 1/2)
+   n   majority: A / B / all       SP: A / B / all           Bayes (known params): A / B / all
+    5  0.5931 1.2e-03 0.2971    2.56e-01 2.3e-02 1.39e-01    5.03e-02 2.3e-01 1.38e-01
+   11  0.6331 5.8e-06 0.3166    6.52e-02 1.5e-02 4.02e-02    6.52e-02 1.5e-02 4.02e-02
+   21  0.6790 1.1e-09 0.3395    3.89e-02 4.4e-04 1.97e-02    1.26e-02 3.2e-03 7.92e-03
+   51  0.7641 1.1e-20 0.3820    1.26e-03 9.6e-07 6.29e-04    1.36e-04 3.6e-05 8.63e-05
+  101  0.8438 7.2e-39 0.4219    2.07e-05 3.5e-12 1.04e-05    1.02e-07 2.5e-08 6.34e-08
+  301  0.9591 3.1e-111 0.4796    5.97e-13 5.9e-32 2.99e-13    2.02e-20 5.3e-20 3.65e-20
+
+E2 votes needed for overall error <= 1e-3 (prior 1/2)
+ SP: 47  Bayes: 36  majority: never (error -> prior mass of A = 0.5 )
+
+E3 limit correctness region: SP right iff 1-spec < theta < sens; scan of 99k common-prior draws with sens+spec>1
+ violations: 0 of 99612
+ majority right in the limit iff sens>1/2 and spec>1/2; share of the same draws: 0.502
+
+E4 prior misspecification: verifiers believe faulty-prior pi_b, truth 0.5 (n->infinity correctness, then n=101 error)
+  pi_b    theta     right in limit?   n=101 error in A   error in B
+  0.02   0.0580   True             1.998e-15       3.930e-01
+  0.1    0.0900   True             4.330e-15       2.993e-02
+  0.3    0.1700   True             2.074e-09       2.604e-06
+  0.5    0.2500   True             2.075e-05       3.505e-12
+  0.7    0.3300   True             7.842e-03       1.822e-19
+  0.9    0.4100   True             2.152e-01       5.748e-28
+  0.99   0.4460   True             5.053e-01       1.216e-32
+ believed prior in [0.001, 0.999] keeps SP right in the limit (true model theta is 0.250 at pi_b=0.5)
+
+E4b believed detector quality (sens_b, spec_b) wrong; truth sens=0.45, spec=0.95, prior 0.5
+  believed (sens_b,spec_b)   theta    right in limit?  (needs 0.05 < theta < 0.45)
+  (0.45, 0.95)              0.2500   True
+  (0.6, 0.95)              0.3250   True
+  (0.9, 0.5)              0.7000   False
+  (0.9, 0.9)              0.5000   False
+  (0.99, 0.6)              0.6950   False
+  (0.3, 0.95)              0.1750   True
+  (0.55, 0.55)              0.5000   False
+
+E5 Byzantine verifiers vote 'no flag' and predict flag-fraction 1 (n=2000, 60 runs, state A)
+ closed-form breakdown rho* = 0.1359
+  rho     SP says A    SP trimmed(=rho) says A
+  0.0    1.00         1.00
+  0.05   1.00         1.00
+  0.1    1.00         1.00
+  0.13   0.78         1.00
+  0.15   0.03         1.00
+  0.2    0.00         1.00
+  0.3    0.00         0.00

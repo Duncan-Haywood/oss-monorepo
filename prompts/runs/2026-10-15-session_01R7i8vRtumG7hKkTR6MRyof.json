@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01R7i8vRtumG7hKkTR6MRyof",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Docker Compose self-deploy path for the 4 server ventures",
+  "projects": [
+    "platform/deploy"
+  ],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The 'Every run ships' rule and ventures prompt-1 point at different things (deploy-first vs new depth); picking the platform/deploy known-gaps list resolved it, but took several reads of 1,000-line DIRECTION.md to confirm nothing better was queued."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/deploy/README.md",
+      "why": "The README's known-gaps list suggested more providers; DigitalOcean App Platform has no persistent disk so 3 of 4 server apps would lose state, so I built the Docker Compose path instead.",
+      "did": "Docker Compose download bundle",
+      "result": "works; 25/25 deploy tests"
+    }
+  ],
+  "goal": null,
+  "notes": "Added 'docker' download-only provider to platform/deploy (compose.yaml, .env.example, setup.sh, README). regen --verify exit 0; node --test platform/deploy 25/25.",
+  "corrections": [],
+  "redteam": null
+}

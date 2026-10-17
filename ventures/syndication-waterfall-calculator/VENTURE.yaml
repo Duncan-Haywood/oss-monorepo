@@ -1,0 +1,54 @@
+name: syndication-waterfall-calculator
+description: >-
+  Free browser calculator for a real estate syndication distribution waterfall: equity with an optional sponsor
+  co-invest, a preferred return that compounds annually, and up to three IRR hurdles with a sponsor promote above each.
+  Shows LP IRR and equity multiple, sponsor IRR, the promote in dollars and as a share of profit, and the split tier by
+  tier and year by year. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session (session_gate: build-now pipeline empty). Grep of ventures/
+# found no GP/LP waterfall tool (the two "waterfall" ventures are SaaS MRR and startup exit). The real analogues are
+# paid Excel templates sold by real estate education sites and enterprise underwriting software (ARGUS, Juniper
+# Square); the free, no-signup, no-upload version a sponsor or passive investor can open mid-conversation is the gap.
+# It helps sponsors explain terms and LPs see what a pref and promote pays them.
+#
+# First visitor: r/CommercialRealEstate, BiggerPockets and syndication-investor communities asking "how does the
+# promote work" and "what is my LP IRR after the split"; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet into the rental DSCR and 1031 calculators; sponsorship only.
+# If usage appears the paid layer is what a browser page cannot do: monthly periods, GP catch-up, multiple investor
+# classes, capital calls, a shareable investor statement PDF. Not built.
+#
+# Liability: arithmetic on typed numbers; the page lists what it omits, says the operating agreement controls, and
+# is not an offer or investment advice.
+#
+# Unverified: the waterfall convention (annual compounding hurdles measured on the whole investor class, balances
+# floored at zero, no catch-up) is a common textbook model written without review by a securities professional or a
+# real operating agreement. The first user report of a mismatch with a real agreement is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Sponsors and passive investors will use a no-signup waterfall calculator to see LP and GP returns under a pref
+      and tiered promote before reading an operating agreement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports a figure that disagrees with their real operating agreement, at which point the convention needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/syndication-waterfall-calculator/
+  analytics: null

@@ -111,7 +111,7 @@ EMBED_PREFIX = "embed/"
 # key for the whole pod, not a path breakdown, because there is only ever one
 # path: that pod's nginx does `try_files /index.html =404`, so every request it
 # counts logs the same URI. A per-path split would be fiction." That was true
-# and is not any more. `front-door-tools.mjs` mirrors 336 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 1278 complete ventures onto
 # that same pod, so it now serves the front page *and* those tools, and folding
 # them all onto one key would recreate — inside this pod — exactly the
 # conflation this key was added to prevent: "did anyone find the portfolio" and
@@ -250,6 +250,10 @@ def slug_for(uri: str) -> str | None:
         # A bare root page such as "/404.html" or "/offline.html".
         return parts[0].removesuffix(".html")
     if parts[0] == "c":
+        # `/c/index.html` is the Tools index that lists every category: its own
+        # `c` row, not a category called "index".
+        if parts[1] == "index.html":
+            return "c"
         return f"c/{parts[1].removesuffix('.html')}"
     if parts[0] == COMPARE_DIR and len(parts) > 2:
         # `/compare/jobber/index.html` — one of the comparison index's

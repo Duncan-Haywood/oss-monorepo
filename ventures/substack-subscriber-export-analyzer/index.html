@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Substack Subscriber Export Analyzer — Conversion, Churn and Revenue</title>
+  <meta name="description" content="Free analyzer for Substack writers: drop in your subscribers export CSV and see paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan, annual renewals due and growth. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Substack Subscriber Export Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="How many free readers become paid, how long paid subscribers stay, and what Substack's fees leave you. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Substack Subscriber Export Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Substack subscribers export CSV into paid, free and former counts, free-to-paid conversion, paid retention, monthly revenue by plan, renewals coming due, growth by month and fee estimates. Runs entirely in your browser; the file is never uploaded.", "featureList": "Paid, free, comp and former counts, conversion rate, paid survival, MRR by plan, annual renewals due, signup and upgrade growth, time to first payment, engaged free subscribers, fee estimate, net to publisher"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see how many paid subscribers my Substack is losing?", "acceptedAnswer": {"@type": "Answer", "text": "Export your subscribers from Substack (Subscribers, then Export) and drop the CSV here. The tool separates paid, free, complimentary and former paid subscribers, works out monthly revenue from your plan mix and the prices you enter, and shows how many paid subscribers stay one, three, six and twelve months. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "What is my free-to-paid conversion rate?", "acceptedAnswer": {"@type": "Answer", "text": "Subscribers who have ever paid divided by everyone who is not complimentary. Substack's export marks paid subscribers and gives the date of the first payment, so the tool also shows how long readers take to upgrade after signing up."}}, {"@type": "Question", "name": "Why do I have to type my prices?", "acceptedAnswer": {"@type": "Answer", "text": "The Substack export shows a plan (monthly, yearly, founding) but not what you charge, and prices change over time. Enter your current monthly, annual and founding prices and the fee percentages; every revenue figure is an estimate built from them."}}, {"@type": "Question", "name": "Are the fee figures exact?", "acceptedAnswer": {"@type": "Answer", "text": "No. They apply the percentages you enter (defaults: 10% Substack fee and 2.9% plus $0.30 Stripe processing per charge) to monthly-equivalent revenue. Currency conversion, taxes, refunds, discounts and payout timing change the real figure, so check it against your own payout statement."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Substack subscriber exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers email, created_at, active_subscription, plan, expiry and first_payment_at always works."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to your file and the assumptions you enter. It is independent of Substack and is not affiliated with or endorsed by Substack, Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">SUBSTACK SUBSCRIBER EXPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many of your Substack readers pay, and how long do they stay?</h1>
+    <p>Drop in your <strong>Substack subscribers export CSV</strong> and get <strong>paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan</strong>, the <strong>annual renewals coming due</strong>, growth by month, and what the fees leave you.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; subscriber emails are not shown or kept. Independent of Substack: not affiliated with or endorsed by Substack, Inc. Column names are matched by alias from memory of Substack exports; if yours is not read, the page tells you which rows were skipped and why. Substack's export has no prices, so revenue uses the prices you type below.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your subscribers export</h2>
+    <p class="note">Needs an <strong>email</strong> column and at least one of <strong>created_at</strong>, <strong>active_subscription</strong> or <strong>plan</strong>. Used when present: <strong>first_payment_at</strong>, <strong>expiry</strong>, <strong>email_disabled</strong> and <strong>activity_rating</strong>. Everything else is ignored.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="email,active_subscription,expiry,plan,email_disabled,created_at,first_payment_at,activity_rating"></textarea>
+    <div class="grid">
+      <div><label for="asof">Measure as of (optional)</label><input type="date" id="asof"></div>
+    </div>
+    <p class="note">Left blank, the latest signup or first-payment date in the file is used, so an old export is measured at the time it was taken.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your prices and fees (edit these)</h2>
+    <p class="note">Assumptions, not Substack's terms. Defaults: $8 a month, $80 a year, $200 founding, a 10% Substack fee and 2.9% plus $0.30 Stripe processing per charge. Founding is treated as a yearly payment. Check the fees against your own payout statement.</p>
+    <div class="grid">
+      <div><label for="pmonthly">Monthly price ($)</label><input type="number" id="pmonthly" min="0" step="any" value="8"></div>
+      <div><label for="pannual">Annual price ($)</label><input type="number" id="pannual" min="0" step="any" value="80"></div>
+      <div><label for="pfounding">Founding price ($ per year)</label><input type="number" id="pfounding" min="0" step="any" value="200"></div>
+      <div><label for="platformpct">Substack fee %</label><input type="number" id="platformpct" min="0" max="100" step="any" value="10"></div>
+      <div><label for="procpct">Processing fee %</label><input type="number" id="procpct" min="0" max="100" step="any" value="2.9"></div>
+      <div><label for="procfixed">Processing fee per charge ($)</label><input type="number" id="procfixed" min="0" step="any" value="0.30"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Revenue by plan (monthly estimate)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Plan</th><th class="n" scope="col">Paid subscribers</th><th class="n" scope="col">Monthly revenue</th></tr></thead><tbody id="by-plan"></tbody></table></div>
+    <h3>Paid retention</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Paid for at least</th><th class="n" scope="col">First paid that long ago</th><th class="n" scope="col">Still there</th><th class="n" scope="col">Kept</th></tr></thead><tbody id="survival"></tbody></table></div>
+    <h3>Annual and founding renewals due</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Expiring within</th><th class="n" scope="col">Subscribers</th><th class="n" scope="col">Revenue up for renewal</th></tr></thead><tbody id="renewals"></tbody></table></div>
+    <h3>Time from signup to first payment</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Took</th><th class="n" scope="col">Paid subscribers</th></tr></thead><tbody id="lag"></tbody></table></div>
+    <h3>Growth by month (last 12 months in the file)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">New subscribers</th><th class="n" scope="col">Became paid</th></tr></thead><tbody id="growth"></tbody></table></div>
+    <h3>Free subscribers by activity rating</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Rating</th><th class="n" scope="col">Free subscribers</th></tr></thead><tbody id="activity"></tbody></table></div>
+    <h3>Fees and net to you (monthly estimate)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="fees"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download growth table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Paid</strong> means a subscriber who has paid (a first-payment date, a paid plan or a paid type) and whose subscription is still active. <strong>Former</strong> is a paid subscriber whose subscription is no longer active. <strong>Comp</strong> subscriptions and gifts are counted but never as revenue or in conversion. Everyone else is <strong>free</strong>.</li>
+      <li><strong>Reconciles.</strong> The plan rows add up to total monthly revenue, and revenue minus estimated fees equals net to you.</li>
+      <li><strong>Revenue</strong> multiplies each plan's subscribers by the price you enter, with yearly and founding plans divided by 12. Discounts, coupons, grandfathered prices and price changes are not in the export and are not modelled.</li>
+      <li><strong>Conversion</strong> is subscribers who have ever paid over everyone who is not complimentary. <strong>Paid retention</strong> counts only subscribers who first paid long enough ago to be measured, and groups under five are shown but not used for suggestions.</li>
+      <li><strong>Renewals</strong> use the expiry date of active yearly and founding plans; monthly plans renew continuously and are not listed.</li>
+      <li><strong>Engaged free subscribers</strong> are those at or above 60% of the highest activity rating found among free subscribers in the file.</li>
+      <li><strong>Not modelled:</strong> taxes, currency conversion, refunds, chargebacks, payout fees, pauses and re-subscriptions (a current export shows each subscriber's latest state only), and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see how many paid subscribers my Substack is losing?</h3>
+    <p>Export your subscribers from Substack (Subscribers, then Export) and drop the CSV here. The tool separates paid, free, complimentary and former paid subscribers, works out monthly revenue from your plan mix and the prices you enter, and shows how many paid subscribers stay one, three, six and twelve months. The file is read in your browser and never uploaded.</p>
+    <h3>What is my free-to-paid conversion rate?</h3>
+    <p>Subscribers who have ever paid divided by everyone who is not complimentary. Substack's export marks paid subscribers and gives the date of the first payment, so the tool also shows how long readers take to upgrade after signing up.</p>
+    <h3>Why do I have to type my prices?</h3>
+    <p>The Substack export shows a plan (monthly, yearly, founding) but not what you charge, and prices change over time. Enter your current monthly, annual and founding prices and the fee percentages; every revenue figure is an estimate built from them.</p>
+    <h3>Are the fee figures exact?</h3>
+    <p>No. They apply the percentages you enter (defaults: 10% Substack fee and 2.9% plus $0.30 Stripe processing per charge) to monthly-equivalent revenue. Currency conversion, taxes, refunds, discounts and payout timing change the real figure, so check it against your own payout statement.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Substack subscriber exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers email, created_at, active_subscription, plan, expiry and first_payment_at always works.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to your file and the assumptions you enter. It is independent of Substack and is not affiliated with or endorsed by Substack, Inc.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Not affiliated with Substack.</strong> Substack is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Substack, Inc. or any other platform in any way. Column names are matched by alias from memory of Substack exports and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Moving the list to another platform? The <a href="../email-list-csv-check/">email list CSV check</a> finds invalid, duplicate and typo addresses and Excel damage before you import it.</p>
+    <p>Selling sponsorships as well? See the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rows = (id, html, cols) => { $(id).innerHTML = html || `<tr><td colspan="${cols}">Nothing to show.</td></tr>`; };
+    const days = (d) => (d === null ? "–" : Math.round(d) + " days");
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const v = (id) => $(id).value;
+      const r = analyze(n.members, { monthlyPrice: v("#pmonthly"), annualPrice: v("#pannual"), foundingPrice: v("#pfounding"), platformPct: v("#platformpct"), processingPct: v("#procpct"), processingFixed: v("#procfixed"), asOf: v("#asof") ? Date.parse(v("#asof") + "T00:00:00Z") : undefined });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, c = s.counts;
+      $("#report-stats").innerHTML = `As of ${dateStr(s.asOf)}: <strong>${c.total} subscribers</strong>: ${c.paid} paid, ${c.free} free, ${c.comp} comp, ${c.former} former paid. <strong>Monthly revenue ${money(s.mrr)}</strong> (${money(s.arr)} a year), ${money(s.arpu)} per paid subscriber. Free-to-paid conversion ${pct(s.conversion)}; ${pct(s.churnRate)} of everyone who ever paid has left. Median time to first payment: ${days(s.medianLagDays)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const small = (ok) => (ok ? "" : " (few)");
+      rows("#by-plan", r.byPlan.map((p) => `<tr><th scope="row">${esc(p.plan)}</th><td class="n">${p.subscribers}</td><td class="n">${money(p.mrr)}</td></tr>`).join(""), 3);
+      rows("#survival", r.survival.map((d) => `<tr><th scope="row">${d.months} month(s)</th><td class="n">${d.eligible}</td><td class="n">${d.kept}</td><td class="n">${pct(d.rate)}${small(d.enough)}</td></tr>`).join(""), 4);
+      rows("#renewals", r.renewals.map((d) => `<tr><th scope="row">${d.days} days</th><td class="n">${d.count}</td><td class="n">${money(d.amount)}</td></tr>`).join(""), 3);
+      rows("#lag", r.lagBuckets.map((d) => `<tr><th scope="row">${esc(d.label)}</th><td class="n">${d.count}</td></tr>`).join(""), 2);
+      rows("#growth", r.growth.map((d) => `<tr><th scope="row">${esc(d.month)}</th><td class="n">${d.joined}</td><td class="n">${d.upgraded}</td></tr>`).join(""), 3);
+      rows("#activity", r.activityDist.map((d) => `<tr><th scope="row">${d.rating}</th><td class="n">${d.count}</td></tr>`).join(""), 2);
+      const f = r.fees;
+      rows("#fees", [["Gross monthly revenue (paid subscribers)", s.mrr], [`Substack fee (${f.assumptions.platformPct}%)`, -f.platform], [`Processing (${f.assumptions.processingPct}% + ${money(f.assumptions.processingFixed)} per charge)`, -f.processing], ["Net to you, before tax and payout costs", r.net]].map(([k, x]) => `<tr><th scope="row">${k}</th><td class="n">${money(x)}</td></tr>`).join(""), 2);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.members.length} subscribers.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: 400 synthetic subscribers, not a real publication."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const out = ["month,new_subscribers,became_paid"].concat(last.growth.map((g) => [g.month, g.joined, g.upgraded].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([out.join("\n")], { type: "text/csv" }));
+      a.download = "substack-growth-by-month.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

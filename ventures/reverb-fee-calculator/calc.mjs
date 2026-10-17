@@ -18,6 +18,7 @@ export const INPUT_FIELDS = [
   'itemCost',
   'otherCost',
   'marketplaceRate',
+  'marketplaceFeeCap',
   'paymentRate',
   'paymentFixed',
   'givesRate',
@@ -41,6 +42,18 @@ export const INPUT_FIELDS = [
 // quote replaces it.
 export const ILLUSTRATED_SAFE_SHIPPING_PREMIUM = 15;
 
+// Reverb caps its own selling (marketplace) fee at $500 per sale, for both
+// standard and Preferred sellers — confirmed against Reverb's own help
+// centre ("What fees will I pay for selling on Reverb?" / "What are my fees
+// as a Reverb Preferred Seller?"), 2026-09. A flat marketplaceRate% with no
+// cap overstates the fee — and understates net cash — on anything that
+// clears roughly $10,000 at a 5% rate, which is an ordinary price for a
+// vintage or boutique instrument on this marketplace, not an edge case. Kept
+// as an input rather than hard-coded, per the "every rate is an input"
+// answer in the FAQ: Reverb could change the cap, and a stored number that
+// has drifted is worse than none. 0 means "never caps."
+export const DEFAULT_MARKETPLACE_FEE_CAP = 500;
+
 export const REVERB_DEFAULTS = {
   price: 800,
   offerPrice: 720,
@@ -52,13 +65,14 @@ export const REVERB_DEFAULTS = {
   itemCost: 450,
   otherCost: 10,
   marketplaceRate: 5,
+  marketplaceFeeCap: DEFAULT_MARKETPLACE_FEE_CAP,
   paymentRate: 3.19,
   paymentFixed: 0.49,
   givesRate: 0,
   bumpFee: 0,
   meetupCost: 0,
-  ebayFinalValueRate: 13.25,
-  ebayFixedFee: 0.3,
+  ebayFinalValueRate: 13.6,
+  ebayFixedFee: 0.4,
   shopSalePrice: 800,
   consignmentRate: 30,
   shopCashOffer: 520,
@@ -83,6 +97,7 @@ function saleInputs(input, salePrice) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const marketplaceFeeCap = number(input.marketplaceFeeCap, 'Reverb marketplace fee cap', DEFAULT_MARKETPLACE_FEE_CAP);
   const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
   const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
@@ -97,6 +112,7 @@ function saleInputs(input, salePrice) {
     itemCost,
     otherCost,
     marketplaceRate,
+    marketplaceFeeCap,
     paymentRate,
     paymentFixed,
     givesRate,
@@ -108,7 +124,10 @@ export function calculateReverbSale(input, salePrice = input?.price) {
   const price = number(salePrice, 'Sale price');
   const fields = saleInputs(input, price);
   const revenue = fields.salePrice + fields.shippingCharged;
-  const marketplaceFee = fields.salePrice * fields.marketplaceRate / 100;
+  const rawMarketplaceFee = fields.salePrice * fields.marketplaceRate / 100;
+  const marketplaceFee = fields.marketplaceFeeCap > 0
+    ? Math.min(rawMarketplaceFee, fields.marketplaceFeeCap)
+    : rawMarketplaceFee;
   const givesFee = fields.salePrice * fields.givesRate / 100;
   const paymentFee = revenue * fields.paymentRate / 100 + fields.paymentFixed;
   const fees = marketplaceFee + givesFee + paymentFee + fields.bumpFee;
@@ -132,8 +151,8 @@ export function calculateEbaySale(input, salePrice = input?.price) {
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
-  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.25);
-  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.3);
+  const finalValueRate = number(input.ebayFinalValueRate, 'eBay final value rate', 13.6);
+  const fixedFee = number(input.ebayFixedFee, 'eBay fixed fee', 0.4);
   if (finalValueRate >= 100) throw new Error('eBay final value rate must be below 100%');
   const revenue = price + shippingCharged;
   const finalValueFee = revenue * finalValueRate / 100;
@@ -175,30 +194,53 @@ export function compareReverbToEbay(input, salePrice = input?.price) {
   };
 }
 
-// Reverb offer that leaves the same cash as selling this item on eBay at the
-// list price. Solved from the same arithmetic as calculateReverbSale — not a
-// recommended walk-away, just the crossover the seller can check.
-export function offerThatMatchesEbayList(input) {
-  const ebay = calculateEbaySale(input, number(input.price, 'List price'));
+// Solves for the Reverb sale price whose profit equals `targetProfit`, given
+// every Reverb fee input except the price itself. Reverb's own selling fee
+// caps at marketplaceFeeCap (see DEFAULT_MARKETPLACE_FEE_CAP), so profit is
+// linear in price only piecewise: below the price where the marketplace fee
+// first reaches the cap, and again above it, on a flatter line, not across
+// one line the whole way up. Below the threshold the uncapped algebra is
+// exact; at or above it the marketplace fee is a constant rather than a
+// percentage, so this re-solves on that second line. A cap of 0, or a 0%
+// marketplace rate, never binds and the uncapped solve is exact everywhere.
+function solvePriceForReverbProfit(input, targetProfit) {
   const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const marketplaceFeeCap = number(input.marketplaceFeeCap, 'Reverb marketplace fee cap', DEFAULT_MARKETPLACE_FEE_CAP);
   const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
   const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
-  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
-  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
-  const needed = ebay.profit
-    - shippingCharged * (1 - paymentRate / 100)
-    + paymentFixed
-    + shippingCost
-    + itemCost
-    + otherCost
-    + bumpFee;
-  const offerPrice = needed / keepRate;
+
+  const fixedCost = paymentFixed + bumpFee + shippingCost + itemCost + otherCost;
+  const shippingTerm = shippingCharged * (1 - paymentRate / 100);
+
+  const keepRateUncapped = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRateUncapped <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  const uncappedPrice = (targetProfit - shippingTerm + fixedCost) / keepRateUncapped;
+
+  const capThresholdPrice = marketplaceFeeCap > 0 && marketplaceRate > 0
+    ? marketplaceFeeCap / (marketplaceRate / 100)
+    : Infinity;
+  if (uncappedPrice <= capThresholdPrice) return uncappedPrice;
+
+  // The crossover sits above the price where the marketplace fee flattens,
+  // so re-solve with that fee held constant at the cap instead of scaling.
+  const keepRateCapped = 1 - paymentRate / 100 - givesRate / 100;
+  if (keepRateCapped <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  const cappedPrice = (targetProfit - shippingTerm + fixedCost + marketplaceFeeCap) / keepRateCapped;
+  return cappedPrice >= capThresholdPrice ? cappedPrice : uncappedPrice;
+}
+
+// Reverb offer that leaves the same cash as selling this item on eBay at the
+// list price. Solved from the same arithmetic as calculateReverbSale — not a
+// recommended walk-away, just the crossover the seller can check.
+export function offerThatMatchesEbayList(input) {
+  const ebay = calculateEbaySale(input, number(input.price, 'List price'));
+  const offerPrice = solvePriceForReverbProfit(input, ebay.profit);
   if (!Number.isFinite(offerPrice) || offerPrice < 0) {
     throw new Error('No non-negative Reverb offer matches that eBay list cash');
   }
@@ -277,18 +319,9 @@ export function compareShippingPaths(input, salePrice = input?.price) {
 }
 
 function includedListThatMatchesBuyerPays(input, targetProfit) {
-  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
-  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
-  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
-  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
-  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
-  const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
-  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
-  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
-  const needed = targetProfit + paymentFixed + shippingCost + itemCost + otherCost + bumpFee;
-  const listPrice = needed / keepRate;
+  // shippingCharged is 0 on this path (postage is folded into the item), so
+  // solvePriceForReverbProfit's shipping term drops out on its own.
+  const listPrice = solvePriceForReverbProfit({ ...input, shippingCharged: 0 }, targetProfit);
   if (!Number.isFinite(listPrice) || listPrice < 0) {
     throw new Error('No non-negative included list matches that buyer-pays cash');
   }

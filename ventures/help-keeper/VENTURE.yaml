@@ -1,0 +1,49 @@
+name: help-keeper
+description: >-
+  Self-hosted help center (Help Scout Docs / Document360 / Intercom Articles
+  alternative): Markdown articles in collections, ranked full-text search with
+  typo tolerance, "was this helpful" votes, and a content-gap report of
+  searches that found nothing. Zero-dependency server, embeddable, one-click
+  Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-16. Paid market proven: Help Scout Docs, Document360,
+# Intercom Articles, Zendesk Guide, HelpDocs and GitBook charge $20-150 a month
+# for a searchable help site. Open-source options (Docusaurus, MkDocs) are static
+# sites with no search analytics or feedback. The gap is a one-process help
+# center that tells the owner which questions customers asked and nobody
+# answered. Pairs with support-desk. duplicate_check: grep of ventures/ on
+# 2026-10-16 found no knowledge-base server.
+#
+# First visitor: r/selfhosted, r/SaaS, Indie Hackers: "help center for my
+# SaaS", "self hosted knowledge base", "help scout docs alternative".
+# Path to revenue (payments stay off): free MIT lead magnet; done-for-you setup
+# and sponsors; hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Small SaaS owners will adopt a self-hosted help center when it shows them
+      the searches that returned nothing, because that list tells them what to
+      write next and cuts support email.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of the page being reachable from the published site.
+  - A report of script injection through article content, a draft article shown publicly, or an admin action accepted without the key.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/help-keeper/
+  analytics: null

@@ -1,0 +1,39 @@
+name: square-catalog-csv-check
+description: >-
+  Free browser tool that checks a Square item library import CSV before it is uploaded: header
+  typos, repeated or Excel-damaged Tokens, repeated SKUs, variations with the same name or option
+  values, price and sale-price formats, Y/N flags, GTIN check digits, quantities, permalinks and
+  semicolon-separated files, each with its line number, plus a safe-fixes pass that cleans the
+  mechanical faults and never edits an item name, variation name, description, SKU, token,
+  barcode, quantity or category. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Siblings in ventures/ cover Shopify,
+# WooCommerce and BigCommerce product CSVs; none reads Square's item library layout (Token-keyed
+# variations, per-location quantity columns, Tax - columns, Y/N flags). Square is the default
+# point-of-sale for a very large number of small retailers, cafes and market sellers, and they
+# move catalogues by CSV when migrating from another POS, loading a supplier sheet, or bulk
+# editing prices. The import either rejects the file with a terse summary or succeeds and
+# silently creates duplicate items because a Token was blank or rewritten by Excel.
+#
+# First visitor: sellers and bookkeepers searching the literal symptoms ("Square item library
+# import error", "Square CSV import created duplicate items", "Square import variations all
+# Regular", "Excel scientific notation SKU Square"), Square Community threads and r/SquareUp.
+# Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it understands the library's item model (rows grouped
+# by Item Name, Token as the match key, variation names and option pairs), so the findings are
+# the ones Square sellers actually hit; it recovers from the Excel round trip (scientific
+# notation, semicolons, decimal commas, currency symbols, yes/no in Y/N columns); and the
+# repair step is deliberately narrow and lists every change.
+#
+# Privacy is the liability boundary: item libraries and costs can be commercially sensitive,
+# so the file never leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the small-retail POS audience,
+# cross-linked to the Shopify, WooCommerce and BigCommerce checkers. A paid version, if usage
+# appears, is bulk checks across exports and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Square clause, trademark used nominatively.

@@ -2,6 +2,8 @@
 
 Payment processor reconciliation for small businesses should not require a $50/month accounting add-on. This free, local-first browser tool matches payout CSV exports from Stripe, Square, PayPal, or similar processors to bank-deposit CSV exports, then produces a review queue for the exceptions.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/payment-reconciliation-workbench/
+
 **After using this, you can now** identify which processor payouts have reached the bank and export the deposits that still need review, **which used to take** manually comparing two spreadsheets.
 
 ## Use it

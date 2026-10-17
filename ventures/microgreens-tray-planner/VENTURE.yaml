@@ -1,0 +1,44 @@
+name: microgreens-tray-planner
+description: 'Free, zero-network browser planner for microgreens growers: enter crops (days to harvest, oz per tray, price, seed cost), your harvest days, loss and rack size, and get the seeding calendar that lands each cut on a harvest day, the rack spaces the busiest weekday needs, what each crop earns per tray per rack-day, and the best-earning mix when the rack is the limit. Arithmetic and a greedy scheduler on the numbers the user types, not agronomic, food-safety or tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Planner archetype, earn-more: small growers plan trays by feel, sell the crop with the highest price per ounce and run out of rack on the day seeding and cutting overlap.
+# Checked 2026-10-06: no microgreens or indoor-growing venture exists in ventures/ (duplicate_check.py top match 0.16); not in screened-out.md; nearest are farmers-market-booth-calculator and backyard-honey-profit-calculator.
+#
+# First visitor: searches "how many trays of microgreens per week", "microgreens business plan", "microgreens profit per tray", "how much to charge for microgreens";
+# r/microgreens, r/urbanfarming, Facebook microgreens-business groups, farmers-market and restaurant-supplier growers. Volume not measured with an external tool.
+# Not a calculator of one number: the scheduler and the rack-day ranking are the depth competitors' spreadsheets lack.
+# A hosted version that remembers crops and customers, prints seeding sheets and tracks trays by batch is the natural paid upgrade (payment rails stay off).
+#
+# Unverified: the default days, yields, prices and seed costs are invented round numbers, not agronomic data; the cut is modelled as freeing
+# the rack on the morning of the harvest day; demand is the user's own ceiling.
+hypotheses:
+  - claim: A small grower will enter their own days and yields, see that the highest-priced crop earns the least per rack-day, and change the crop mix or add a harvest day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for how many trays per week at least as often as for profit per tray.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No grower reports changing a crop mix, a harvest day or a price because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/microgreens-tray-planner/
+  analytics: null

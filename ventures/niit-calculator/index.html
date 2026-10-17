@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NIIT Calculator: 3.8% Net Investment Income Tax and How to Cut It — Free</title>
+  <meta name="description" content="Free net investment income tax (NIIT) calculator: your Form 8960 lines, how far you are over the $200,000 / $250,000 threshold, what an extra gain costs and whether splitting it across two years saves tax. Nothing uploaded.">
+  <meta property="og:title" content="NIIT calculator">
+  <meta property="og:description" content="Do you owe the 3.8% net investment income tax, and what moves it? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NIIT Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Net investment income tax (3.8% surtax, Form 8960) calculator with threshold headroom, what-if for extra gains, two-year gain splitting and MAGI levers. Runs in your browser.", "featureList": "Form 8960 lines, headroom, extra-gain what-if, split-gain comparison, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the net investment income tax (NIIT)?", "acceptedAnswer": {"@type": "Answer", "text": "A 3.8% federal surtax on the lesser of your net investment income or the amount your modified adjusted gross income exceeds a threshold: $200,000 for single and head of household, $250,000 for married filing jointly, $125,000 for married filing separately. It is reported on Form 8960 and added to your Form 1040 tax."}}, {"@type": "Question", "name": "Is the $200,000 threshold indexed for inflation?", "acceptedAnswer": {"@type": "Answer", "text": "No. The thresholds are written into the statute and have never been adjusted, so each year more households cross them as wages and asset prices rise."}}, {"@type": "Question", "name": "What counts as net investment income?", "acceptedAnswer": {"@type": "Answer", "text": "Interest, dividends, capital gains, passive rental and royalty income, annuity income and income from passive businesses or trading in financial instruments, less deductions properly allocable to them. Wages, active business income, Social Security, tax-exempt interest and qualified retirement plan distributions are not NII."}}, {"@type": "Question", "name": "Do retirement withdrawals and Roth conversions trigger it?", "acceptedAnswer": {"@type": "Answer", "text": "The withdrawal or conversion itself is not net investment income, but it raises your MAGI. That can push you over the threshold so that your existing investment income becomes taxable at 3.8%. Enter it in the wages box to see the effect."}}, {"@type": "Question", "name": "How can I reduce the NIIT?", "acceptedAnswer": {"@type": "Answer", "text": "You can lower MAGI (pre-tax retirement or HSA contributions, qualified charitable distributions), spread a large gain over two tax years, harvest losses, or hold income in tax-exempt bonds or retirement accounts. The splitting and lever sections of the result put numbers on these for your figures."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. Figures such as the gain on a home sale exclusion, passive-activity status, and estimated-tax safe harbors need a professional. Verify with Form 8960 instructions and IRS Topic 559."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">NIIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will the 3.8% investment surtax hit you, and what moves it?</h1>
+    <p>Type your income and investment income. The tool fills in Form 8960, shows how far your MAGI is over the threshold, prices an extra gain, compares realizing it in one year against two, and shows what a $10,000 cut in MAGI is worth.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not your return; the thresholds are statutory and not inflation-indexed.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Income that is not investment income</h2>
+      <div class="grid">
+        <div><label for="wages">Wages and other non-investment income ($)</label><input id="wages" type="number" step="any" value="0"></div>
+        <div><label for="businessIncome">Active business income ($)</label><input id="businessIncome" type="number" step="any" value="0"></div>
+        <div><label for="otherMagiAdjust">Other MAGI changes ($, negative for deductions)</label><input id="otherMagiAdjust" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Investment income</h2>
+      <div class="grid">
+        <div><label for="interest">Taxable interest ($)</label><input id="interest" type="number" step="any" value="0"></div>
+        <div><label for="dividends">Ordinary dividends ($)</label><input id="dividends" type="number" step="any" value="0"></div>
+        <div><label for="shortTermGains">Short-term gains ($)</label><input id="shortTermGains" type="number" step="any" value="0"></div>
+        <div><label for="longTermGains">Long-term gains ($)</label><input id="longTermGains" type="number" step="any" value="0"></div>
+        <div><label for="rentalIncome">Passive rental and royalty income ($)</label><input id="rentalIncome" type="number" step="any" value="0"></div>
+        <div><label for="annuityIncome">Annuity income ($)</label><input id="annuityIncome" type="number" step="any" value="0"></div>
+        <div><label for="otherNii">Other net investment income ($)</label><input id="otherNii" type="number" step="any" value="0"></div>
+        <div><label for="investmentExpenses">Allocable investment expenses ($)</label><input id="investmentExpenses" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Filing status and what-if</h2>
+      <div class="grid">
+        <div><label for="filingStatus">Filing status</label><select id="filingStatus"><option value="single">Single</option><option value="hoh">Head of household</option><option value="mfj">Married filing jointly</option><option value="qss">Qualifying surviving spouse</option><option value="mfs">Married filing separately</option></select></div>
+        <div><label for="threshold">MAGI threshold ($)</label><input id="threshold" type="number" step="any" value="0"></div>
+        <div><label for="extraGain">What if I realize an extra gain of ($)</label><input id="extraGain" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out my NIIT</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the net investment income tax (NIIT)?</h3>
+      <p>A 3.8% federal surtax on the lesser of your net investment income or the amount your modified adjusted gross income exceeds a threshold: $200,000 for single and head of household, $250,000 for married filing jointly, $125,000 for married filing separately. It is reported on Form 8960 and added to your Form 1040 tax.</p>
+      <h3>Is the $200,000 threshold indexed for inflation?</h3>
+      <p>No. The thresholds are written into the statute and have never been adjusted, so each year more households cross them as wages and asset prices rise.</p>
+      <h3>What counts as net investment income?</h3>
+      <p>Interest, dividends, capital gains, passive rental and royalty income, annuity income and income from passive businesses or trading in financial instruments, less deductions properly allocable to them. Wages, active business income, Social Security, tax-exempt interest and qualified retirement plan distributions are not NII.</p>
+      <h3>Do retirement withdrawals and Roth conversions trigger it?</h3>
+      <p>The withdrawal or conversion itself is not net investment income, but it raises your MAGI. That can push you over the threshold so that your existing investment income becomes taxable at 3.8%. Enter it in the wages box to see the effect.</p>
+      <h3>How can I reduce the NIIT?</h3>
+      <p>You can lower MAGI (pre-tax retirement or HSA contributions, qualified charitable distributions), spread a large gain over two tax years, harvest losses, or hold income in tax-exempt bonds or retirement accounts. The splitting and lever sections of the result put numbers on these for your figures.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type. Figures such as the gain on a home sale exclusion, passive-activity status, and estimated-tax safe harbors need a professional. Verify with Form 8960 instructions and IRS Topic 559.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your rental or business income is passive, the home-sale exclusion, trader status, estates and trusts (different thresholds), state taxes, the interaction with the additional 0.9% Medicare tax on wages, estimated-tax safe harbors, and whether a given strategy is right for your whole return. Rates and thresholds can change by law.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a>, the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> and the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the IRS Form 8960 instructions and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, THRESHOLDS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { if (k === "filingStatus") { o[k] = $(k).value; continue; } o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    $("filingStatus").addEventListener("change", () => { $("threshold").value = THRESHOLDS[$("filingStatus").value]; });
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      if (r.tax === 0) h += `<div class="finding"><h4>No net investment income tax on these figures</h4><p>${a.belowThreshold ? `MAGI of ${money(r.magi)} is ${money(a.headroom)} under the ${money(a.opts.threshold)} threshold: that much more income, of any kind, can be added before the tax starts.` : "Your net investment income is zero, so there is nothing to tax."}</p></div>`;
+      else h += `<div class="finding"><h4>NIIT of ${money(r.tax)}</h4><p>3.8% of ${money(r.base)}, the smaller of net investment income (${money(r.nii)}) and MAGI over the threshold (${money(r.over)}). ${r.limitedBy === "magi" ? "The excess over the threshold is the limit, so lowering MAGI by up to " + money(r.over) + " would remove the tax." : "Your investment income is the limit, so lowering MAGI will not help unless it drops below the threshold; only less investment income will."}</p></div>`;
+      h += `<div class="finding"><h4>Levers</h4><p>A $10,000 cut in MAGI (a pre-tax retirement or HSA contribution, a qualified charitable distribution) changes the tax by ${money(a.tenKMagiLever)}. $10,000 less gain (a harvested loss) changes it by ${money(a.tenKGainLever)}.</p></div>`;
+      h += `<div class="finding"><h4>What an extra ${money(a.opts.extraGain)} of gain costs</h4>${table(["Extra gain", "Added NIIT", "Rate on the extra"], a.grid.map((g) => [money(g.extra), money(g.added), pct(g.effective)]))}<p>Taking ${money(a.opts.extraGain)} in one year adds ${money(a.oneYear)}; half in each of two years like this one adds ${money(a.twoYears)}${a.splitSaves > 0 ? ", saving " + money(a.splitSaves) + " of NIIT" : ""}. Income tax rates and your own plans may point the other way.</p></div>`;
+      h += `<div class="finding"><h4>Form 8960, filled in</h4>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "niit-form-8960.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

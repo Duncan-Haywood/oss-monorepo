@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "module-entry"
+version = "0.1.0"
+description = "Admitting new modules into a Hedge/LMSR routing pool: the entry-share Kraft identity, uniform entry as the minimax rule, and the exact price of entry"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

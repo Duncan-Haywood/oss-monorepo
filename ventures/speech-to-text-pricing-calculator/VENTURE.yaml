@@ -1,0 +1,42 @@
+name: speech-to-text-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices speech-to-text (OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure, self-hosted faster-whisper on a rented GPU) for monthly audio hours with optional real-time streaming and speaker-label needs from editable approximate price tables, projects 12 months of spend as volume grows, and finds the hours where the cheapest option changes (the self-host crossover); has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of llm-api-pricing-calculator and video-hosting-pricing-calculator.
+# Vendor pages show one rate card each; none compares them at one monthly volume with streaming and
+# speaker-label needs and shows where self-hosting Whisper starts to win, which is the wedge. Where the
+# first real visitor would come from: "whisper api vs deepgram pricing", "cheapest speech to text api",
+# "self host whisper vs api cost", r/LocalLLaMA and r/selfhosted threads. The reader is a developer or
+# founder building a transcription, meeting-notes or voice feature. A hosted price-change monitor is the
+# natural paid path later.
+hypotheses:
+  - claim: A developer choosing a transcription API will search for a price comparison at their monthly audio hours, enter hours and needs, and use the crossover table to decide between an API and self-hosting Whisper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will add the CLI to CI as a budget gate on transcription spend because it needs no account or network.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/speech-to-text-pricing-calculator/
+  analytics: null

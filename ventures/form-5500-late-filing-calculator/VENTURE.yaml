@@ -1,0 +1,70 @@
+name: form-5500-late-filing-calculator
+description: >-
+  Free browser tool for small-business retirement-plan sponsors who missed or may miss the
+  Form 5500 deadline: the due date with the Form 5558 extension and weekend or holiday
+  rollover, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure,
+  with the one-participant-plan exemption and the steps to file. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Small employers with a 401(k) or profit
+# sharing plan get a Form 5500 reminder from a provider once a year, and many miss July 31.
+# Existing answers are provider blog posts, law-firm articles and the DOL's own DFVC page; the
+# DOL has an online penalty calculator that runs inside the filing flow, but nothing free
+# shows the due date, the extension, the IRS and DOL exposure and the DFVC cost on one page
+# before the sponsor decides what to do.
+#
+# First visitor: a plan sponsor or bookkeeper searching "Form 5500 late filing penalty",
+# "DFVC program cost", "when is Form 5500 due", "Form 5558 extension". Volume not measured
+# with an external tool.
+#
+# What makes it more than a date lookup: the multi-year case (each unfiled year with its own due
+# date, per-report and per-plan caps), the rolled due date, a one-participant-plan branch that
+# says when no return is due, and a plain statement that the IRS and DOL figures are ceilings,
+# not predictions, and that DFVC resolves the DOL penalty only.
+#
+# Path to revenue (payment rails stay off): lead magnet for plan providers and bookkeeping
+# firms. A paid version, if usage appears, is a client list with due dates per plan behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on dates and editable figures, no estimate of whether any agency would
+# assess anything, not tax, legal or retirement-plan advice, no warranty, independent of the
+# IRS, the DOL and every provider clause.
+#
+# Unverified: every penalty figure (DFVC $10 a day and caps, IRS $250 a day to $150,000, the DOL
+# per-day maximum, the $250,000 one-participant line) and the Form 5558 extension rule are from
+# memory of the published programme and statute. The DOL maximum is inflation-adjusted yearly and
+# the constant here may be stale. The first correction from a plan adviser is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A plan sponsor who has just realised the Form 5500 deadline passed will use a no-login page
+      that prices the late filing, because the alternative is a provider fee quote or a law-firm
+      article that does not give a number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the DFVC cost next to the penalty ceilings moves the sponsor from avoiding the problem
+      to filing, which is the reason to share the page with the next sponsor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a corrected figure) engage with the tool within 90 days of it being reachable from the published site.
+  - A plan adviser reports a penalty figure or the due-date rule on the page is wrong and it is not corrected within 14 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/
+  analytics: null

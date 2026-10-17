@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ad Spend Saturation Optimizer — marginal ROAS by channel</title>
+  <meta name="description" content="Free ad budget optimizer for multi-channel advertisers. Upload weekly spend and revenue per channel to see each channel's diminishing-returns curve, the marginal return on the next dollar, the best split of the same budget, and a back-test of the fit. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Ad Spend Saturation Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Fit a diminishing-returns curve to each ad channel, find where the next dollar still pays, and move budget with a back-test you can check.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ad Spend Saturation Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload weekly or daily ad spend and revenue per channel and get a fitted diminishing-returns curve for each channel, the marginal return on the next dollar, the split of the same budget that earns most, where extra spend stops paying at your margin, and a back-test of the fit against your own recent weeks. Runs entirely in your browser.", "featureList": "marginal ROAS calculator, ad budget allocation across channels, diminishing returns curve fitting, Hill curve, saturation point, media mix model in the browser, budget reallocation, forecast back-test, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is marginal ROAS and why does it matter more than average ROAS?", "acceptedAnswer": {"@type": "Answer", "text": "Average ROAS is total revenue divided by total spend. Marginal ROAS is what the next dollar earns. Because ad channels saturate, the marginal figure is always lower than the average and is the one that tells you where to put more money. A channel with a 3.0 average ROAS can have a marginal ROAS under 1.0 if it is already spending near its ceiling."}}, {"@type": "Question", "name": "How does the tool find the best split of my budget?", "acceptedAnswer": {"@type": "Answer", "text": "For each channel it fits a diminishing-returns curve to your own weekly spend and revenue, then searches every split of the same total budget with an exact dynamic programme and keeps the one with the highest total fitted revenue. Each channel is limited to between a quarter and double its current spend, and never beyond 1.25 times its highest week, so the advice stays near spend you have actually tried."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per date and channel with the date, the channel name, the spend and the revenue credited to that channel. Daily or weekly rows both work; daily rows are added up into weeks. Each channel needs at least eight weeks, and spend has to have varied. A channel whose spend never changed cannot show what happens when it does."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tests itself. It refits on your data up to some weeks before the end, predicts revenue in the final weeks from the spend that really happened, and compares that with a flat ROAS line. If the curve does not beat the flat line, or the error is large, something other than spend, such as seasonality or promotions, is driving your revenue and the split should be tried on a small share of budget first. The resampled ranges show noise in the fit, not whether the curve shape is right."}}, {"@type": "Question", "name": "What is it not good at?", "acceptedAnswer": {"@type": "Answer", "text": "It models carry-over from one week to the next as a single decay rate, and ignores seasonality, promotions, price changes, overlap between channels and brand effects. It uses whatever revenue your file credits to each channel, which is often platform-reported and overstated and is not proof that the ad caused the sale. It cannot see what happens at spend levels you have never run."}}, {"@type": "Question", "name": "What does the profit view mean?", "acceptedAnswer": {"@type": "Answer", "text": "You enter your gross margin. Contribution is margin times fitted revenue minus ad spend. The tool reports the weekly total where that peaks along the fitted curves. It ignores everything except attributed revenue and ad spend, and the peak is usually flat, so treat it as a range to test rather than a target."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AD SPEND SATURATION OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where does the next ad dollar still pay?</h1>
+    <p>Drop in weekly spend and revenue by channel. The tool fits a <strong>diminishing-returns curve</strong> to each channel's own history, shows the <strong>marginal return at today's spend</strong> (what the next dollar earns, not the average), finds the <strong>split of the same budget that earns most</strong>, and <strong>back-tests itself</strong> on your last weeks so you can see how far to trust it.</p>
+    <p class="note">Your numbers never leave this browser tab. Statistical fit of data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your spend and revenue</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header: date, channel, spend, revenue)</label>
+    <textarea id="rows" spellcheck="false" placeholder="week,channel,spend,revenue&#10;2025-01-06,Search,4200,13800&#10;2025-01-06,Social,3100,6400"></textarea>
+    <div class="grid">
+      <div><label for="margin">Gross margin on revenue (%)</label><input id="margin" inputmode="decimal" value="60"></div>
+    </div>
+    <p class="note">Margin sets the break-even: a channel needs a marginal return of 100 divided by your margin, so 1.67 per dollar at 60%. Daily rows are added up into Monday weeks. Use one currency, and the revenue you credit to each channel.</p>
+    <button type="button" id="analyze">Fit the curves</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your data, then click Fit the curves.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Channels: today versus the recommended split</h3>
+    <div class="scroll"><table id="channels"><thead><tr><th>Channel</th><th class="n">Weekly spend now</th><th class="n">Average ROAS</th><th class="n">Marginal ROAS now</th><th class="n">Range (10th-90th)</th><th class="n">Of ceiling</th><th class="n">Recommended spend</th><th class="n">Change</th></tr></thead><tbody></tbody></table></div>
+    <h3>Fitted curves</h3>
+    <p class="note legend"><span>Dots: your weeks</span><span>Line: fitted curve</span><span>Ring: spend now</span><span>Diamond: recommended spend</span></p>
+    <div class="row2" id="charts"></div>
+    <h3>Back-test: predicted vs actual revenue in your last weeks</h3>
+    <div id="bt-note" class="note"></div>
+    <div class="scroll"><table id="bt"><thead><tr><th>Channel</th><th class="n">Predicted (curve)</th><th class="n">Predicted (flat ROAS)</th><th class="n">Actual</th><th class="n">Typical weekly error, curve</th><th class="n">Flat ROAS</th></tr></thead><tbody></tbody></table></div>
+    <h3>Fitted models</h3>
+    <p class="note" id="params"></p>
+    <button type="button" id="download">Download channel table CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Curves:</strong> each channel's weekly points (spend, revenue) are fitted by least squares with two shapes: a saturating exponential, <code>a(1 - e^(-s/k))</code>, and an S-shaped Hill curve, <code>a s^h / (k^h + s^h)</code>, where the first dollars do less than the later ones. The S-shape is used only when it improves small-sample AIC by more than 2. <strong>Marginal return</strong> is the slope of the curve at the average of the last eight weeks' spend. <strong>Best split:</strong> an exact dynamic programme over a 400-step grid of the same total, so S-shaped curves are handled correctly; each channel stays between 0.25x and 2x its current spend and under 1.25x its highest week. <strong>Ranges:</strong> 100 seeded resamples of your own weeks. <strong>Profit view:</strong> margin times fitted revenue minus spend, along the fitted frontier.</p>
+    <p><strong>Not modelled:</strong> carry-over beyond one decay rate per channel (a single geometric rate is fitted when it clearly helps), seasonality, promotions and price changes, overlap or halo between channels, attribution error (revenue is whatever your file credits to a channel, often platform-reported and overstated), incrementality, and any channel with under eight weeks or almost constant spend, which is left where it is. The resampled ranges cover noise in the fit, not a wrong curve shape. <strong>Unverified:</strong> checked against simulated data with known curves, an analytic optimum and a brute-force search in unit tests, not against a published marketing dataset.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is marginal ROAS and why does it matter more than average ROAS?</h3>
+    <p>Average ROAS is total revenue divided by total spend. Marginal ROAS is what the next dollar earns. Because ad channels saturate, the marginal figure is always lower than the average and is the one that tells you where to put more money. A channel with a 3.0 average ROAS can have a marginal ROAS under 1.0 if it is already spending near its ceiling.</p>
+    <h3>How does the tool find the best split of my budget?</h3>
+    <p>For each channel it fits a diminishing-returns curve to your own weekly spend and revenue, then searches every split of the same total budget with an exact dynamic programme and keeps the one with the highest total fitted revenue. Each channel is limited to between a quarter and double its current spend, and never beyond 1.25 times its highest week, so the advice stays near spend you have actually tried.</p>
+    <h3>What data do I need?</h3>
+    <p>One row per date and channel with the date, the channel name, the spend and the revenue credited to that channel. Daily or weekly rows both work; daily rows are added up into weeks. Each channel needs at least eight weeks, and spend has to have varied. A channel whose spend never changed cannot show what happens when it does.</p>
+    <h3>How accurate is it?</h3>
+    <p>The tool tests itself. It refits on your data up to some weeks before the end, predicts revenue in the final weeks from the spend that really happened, and compares that with a flat ROAS line. If the curve does not beat the flat line, or the error is large, something other than spend, such as seasonality or promotions, is driving your revenue and the split should be tried on a small share of budget first. The resampled ranges show noise in the fit, not whether the curve shape is right.</p>
+    <h3>What is it not good at?</h3>
+    <p>It models carry-over from one week to the next as a single decay rate, and ignores seasonality, promotions, price changes, overlap between channels and brand effects. It uses whatever revenue your file credits to each channel, which is often platform-reported and overstated and is not proof that the ad caused the sale. It cannot see what happens at spend levels you have never run.</p>
+    <h3>What does the profit view mean?</h3>
+    <p>You enter your gross margin. Contribution is margin times fitted revenue minus ad spend. The tool reports the weekly total where that peaks along the fitted curves. It ignores everything except attributed revenue and ad spend, and the peak is usually flat, so treat it as a range to test rather than a target.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified analyst. Results are statistical fits of the numbers you supply; they do not guarantee what a channel will return at a different spend. You are responsible for reviewing and verifying its output before relying on it, and for any budget decision you make.</p>
+    <p><strong>Independent.</strong> Not affiliated with any ad platform, analytics vendor or agency, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your spend and revenue are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Read: <a href="marginal-roas-vs-average-roas.html">marginal ROAS vs average ROAS</a>, worked on the built-in example.</p>
+    <p>Related tools: the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>, the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSpend, analyze, reportCsv, sampleText, money, pct, dayToIso, curveValue } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(c) {
+      const W = 320, H = 200, L = 44, R = 10, T = 10, B = 28;
+      const xmax = Math.max(c.maxSpend, c.recommended, c.current) * 1.15;
+      const ymax = Math.max(...(c.fitPts || c.pts).map((p) => p.r), curveValue(c.fit, xmax), c.recRevenue) * 1.08;
+      const x = (v) => L + (v / xmax) * (W - L - R), y = (v) => H - B - (v / ymax) * (H - B - T);
+      let d = "";
+      for (let i = 0; i <= 60; i++) { const s = (xmax * i) / 60; d += `${i ? "L" : "M"}${x(s).toFixed(1)},${y(curveValue(c.fit, s)).toFixed(1)}`; }
+      const dots = (c.fitPts || c.pts).map((p) => `<circle cx="${x(p.s).toFixed(1)}" cy="${y(p.r).toFixed(1)}" r="2.4" fill="#6c8896"/>`).join("");
+      const cx = x(c.current), cy = y(c.fitted), rx = x(c.recommended), ry = y(c.recRevenue);
+      return `<figure style="margin:0"><figcaption><strong>${esc(c.name)}</strong></figcaption><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(c.name)}: revenue against weekly spend, fitted curve, spend now ${esc(money(c.current))}, recommended ${esc(money(c.recommended))}">
+        <line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#4c5a68"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="#4c5a68"/>
+        <text x="${L}" y="${H - 8}" font-size="10" fill="#4c5a68">$0</text><text x="${W - R}" y="${H - 8}" font-size="10" text-anchor="end" fill="#4c5a68">${esc(money(xmax))} spend a week</text>
+        <text x="${L - 4}" y="${T + 8}" font-size="10" text-anchor="end" fill="#4c5a68">${esc(money(ymax))}</text><text x="${L - 4}" y="${H - B}" font-size="10" text-anchor="end" fill="#4c5a68">$0</text>
+        ${dots}<path d="${d}" fill="none" stroke="#1f5f86" stroke-width="2"/>
+        <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="none" stroke="#1b1f2a" stroke-width="2"/>
+        <path d="M${rx.toFixed(1)},${(ry - 7).toFixed(1)} l7,7 l-7,7 l-7,-7 z" fill="#b5541b" stroke="#1b1f2a"/></svg></figure>`;
+    }
+
+    function run() {
+      const parsed = parseSpend($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { margin: Number($("#margin").value) / 100 });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      $("#big").innerHTML = [
+        [money(s.budget), "Weekly budget across modelled channels"],
+        [money(s.gain), `Extra weekly revenue from the recommended split (${money(s.gainLo)} to ${money(s.gainHi)})`],
+        [pct(s.pGain, 0), "Of resamples in which the move helps"],
+        [money(r.optimum.weeklySpend), "Weekly total where contribution peaks at your margin"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#channels tbody").innerHTML = r.channels.map((c) => c.modelled
+        ? `<tr><td>${esc(c.name)}</td><td class="n">${esc(money(c.current))}</td><td class="n">${c.roas.toFixed(2)}</td><td class="n">${c.mroas.toFixed(2)}</td><td class="n">${c.mroasLo.toFixed(2)} - ${c.mroasHi.toFixed(2)}</td><td class="n">${pct(c.saturation, 0)}</td><td class="n">${esc(money(c.recommended))}</td><td class="n">${c.recommended >= c.current ? "+" : ""}${esc(money(c.recommended - c.current))}</td></tr>`
+        : `<tr><td>${esc(c.name)}</td><td class="n">${esc(money(c.current))}</td><td class="n">${Number.isFinite(c.roas) ? c.roas.toFixed(2) : "n/a"}</td><td colspan="5">Not modelled: ${esc(c.reason)}. Left as it is.</td></tr>`).join("");
+      $("#charts").innerHTML = r.modelled.map(chart).join("");
+      const t = r.backtestTotal;
+      $("#bt-note").textContent = t ? `Fitted on the weeks before the last ${t.holdout}, then asked to predict revenue in those weeks from the spend that happened. Total predicted ${money(t.curve)}, actual ${money(t.actual)}.` : "Not enough weeks to hold out a test period.";
+      $("#bt tbody").innerHTML = r.backtest.map((b) => `<tr><td>${esc(b.name)}</td><td class="n">${esc(money(b.curve))}</td><td class="n">${esc(money(b.linear))}</td><td class="n">${esc(money(b.actual))}</td><td class="n">${pct(b.wapeCurve, 0)}</td><td class="n">${pct(b.wapeLinear, 0)}</td></tr>`).join("");
+      $("#params").textContent = r.modelled.map((c) => c.fit.type === "hill"
+        ? `${c.name}: S-shaped, ceiling ${money(c.fit.p[0])} a week, half-way at ${money(c.fit.p[1])}, steepness ${c.fit.p[2].toFixed(2)}, R2 ${c.fit.r2.toFixed(2)}`
+        : `${c.name}: saturating, ceiling ${money(c.fit.p[0])} a week, scale ${money(c.fit.p[1])}, R2 ${c.fit.r2.toFixed(2)}`).join(". ") + `. Data: ${s.rows.toLocaleString("en-US")} rows, ${dayToIso(s.firstWeek)} to ${dayToIso(s.lastWeek + 6)}, ${Math.round(s.weeks)} weeks.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: four invented channels over 78 weeks, not a real account."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Fit the curves.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your data, then click Fit the curves."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "ad-spend-saturation.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

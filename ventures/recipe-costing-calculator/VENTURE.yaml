@@ -1,0 +1,61 @@
+name: recipe-costing-calculator
+description: >-
+  Free browser tool for bakers, cafes, caterers, food trucks and cottage-food sellers: type
+  pantry prices (pack size, price, usable yield) and recipes, get cost per portion and per
+  batch, food cost percentage and the menu price that hits a target. Converts cups to grams
+  with per-ingredient density, charges for trim and waste, rolls sub-recipes (frosting, sauce)
+  into the dish, adds labor and packaging, ranks cost drivers and exports CSV. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "recipe costing
+# with ingredient yield trim waste sub-recipes and menu price at target food cost" scored 0.24
+# against the nearest venture (menu-engineering-calculator, which classifies dishes by
+# popularity and margin and takes a cost per dish as input rather than computing it).
+#
+# Why this niche: "recipe costing", "recipe cost calculator", "how to cost a recipe" and
+# "food cost percentage" are evergreen, high-intent searches by people who need a menu or
+# market price today. Paid tools (MarketMan, meez, Galley, Craftable) are built for multi-unit
+# kitchens and need accounts; free spreadsheet templates break on unit conversion (cup of
+# flour vs cup of sugar) and ignore trim yield. A text-in, private, no-signup version that
+# does the conversions honestly is the gap.
+#
+# First visitor: home bakers and cottage-food sellers pricing for a market (r/Baking,
+# r/cottagefood, r/smallbusiness "how do I price this" threads), food-truck and cafe owners
+# (r/foodtrucks, r/KitchenConfidential) and anyone searching "recipe cost calculator". Volume
+# not measured.
+#
+# Liability boundary: arithmetic on user-typed prices and quantities; no accounting, tax,
+# labeling or food-safety rules; example prices are placeholders; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later invoice-CSV
+# import for pantry prices and a menu-engineering handoff (not built).
+
+hypotheses:
+  - claim: >-
+      Small food sellers will paste their pantry and recipes into a private text-based
+      costing tool and return when supplier prices change, because spreadsheet templates
+      ignore trim yield and weight-versus-volume conversion and paid recipe-costing apps need
+      an account and a per-seat fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A professional cook or baker reports that a worked cost disagrees with their own hand calculation.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/recipe-costing-calculator/
+  analytics: null

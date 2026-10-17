@@ -1,0 +1,54 @@
+name: chiropractor-new-patient-roi-calculator
+description: >-
+  Free browser calculator for chiropractic, physical therapy and wellness clinics: enter marketing spend, leads and
+  booking and show rates plus patient types (share, visits, collected and cost per visit) and get cost to acquire a
+  patient, patient value by segment, return, payback in visits, and the most you can pay per lead. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Grep of ventures/ found no chiropractor or physical-therapy
+# acquisition tool (nearest are massage-therapist-profit-calculator, private-practice-payer-mix-calculator and
+# appointment-no-show-analyzer, none of which relate spend to patient value). Cash and insurance clinics spend
+# materially on paid leads and rarely see cost per new patient against what a patient is worth. Real analogues are
+# clinic-marketing agencies and practice-management suites (ChiroTouch, Jane, Prosper) that bundle this behind
+# contracts; a free no-signup check an owner can open before renewing an ad contract is the gap.
+#
+# First visitor: chiropractors and clinic managers in practice-owner and marketing communities asking what a patient
+# acquisition should cost; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors only. If usage appears the paid layer is
+# what a browser page cannot do: saved funnels, import from a lead or booking export, channel-by-channel tracking,
+# referral modelling. Not built.
+#
+# Liability: arithmetic on typed numbers; the page lists what it omits, says margin is never a reason to recommend a
+# number of visits, and is not accounting, tax, legal or medical advice.
+#
+# Unverified: the funnel (leads x booking x show) and the flat per-segment visits, collected and cost model were
+# written without review by a clinic owner. The first user report that it misses a cost they carry is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Clinic owners will use a no-signup new-patient ROI calculator to sanity-check marketing spend before renewing
+      ad or agency contracts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports the model omits a cost every clinic carries, at which point the model needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/chiropractor-new-patient-roi-calculator/
+  analytics: null

@@ -1,0 +1,45 @@
+Plant x' = 1.1 x + u + w (w~N(0,1)), logged under u = -0.6 x + e, e~N(0,tau^2): logged closed-loop pole 0.50.
+The twin is the least-squares fit of x_{t+1} on (x_t,u_t). A new gain k2 has real pole 1.1 - k2 (k2=0.05: 1.05, unstable).
+
+== 0. sd of the twin's predicted pole under gain k2: closed form vs simulation (n=500, 2000 fits) ==
+tau   k2    mean pole  real pole  sd formula  sd simulated
+0.5   0.6   0.4977     0.5000     0.0346      0.0344
+0.5   0.3   0.7995     0.8000     0.0438      0.0434
+0.5   0.05  1.0500     1.0500     0.0602      0.0616
+0.1   0.6   0.4973     0.5000     0.0385      0.0391
+0.1   0.3   0.7969     0.8000     0.1396      0.1420
+0.1   0.05  1.0444     1.0500     0.2490      0.2552
+
+== 1. Held-out validation is blind to the dither (n=500, 300 fits; tau=0 is the minimum-norm fit) ==
+Held-out = one-step MSE of the fitted twin on 20000 fresh transitions of the SAME logging controller, divided by sigma^2=1.
+tau    heldout MSE  mean b_hat  mean pole(k2=0.05)  sd pole(k2=0.05)  P(pole<1)
+1      1.0037       0.999       1.045               0.037             0.107
+0.3    1.0027       1.009       1.055               0.090             0.267
+0.1    1.0046       1.031       1.061               0.245             0.407
+0.03   1.0035       0.956       1.023               0.819             0.470
+0      1.0021       -0.219      0.377               0.031             1.000
+min-norm closed form at tau=0: a_hat=rho/(1+k^2)=0.368, b_hat=-k rho/(1+k^2)=-0.221 (true b=1), predicted pole at k2=0.05: 0.379
+
+== 2. False certification of the new gain k2=0.05 (real pole 1.05, unstable), and power at k2=0.2 (real pole 0.9) ==
+Point rule: certify if twin pole < 1. Bound rule: certify if OLS one-sided 95% upper bound on the pole < 1. 1500 fits per cell.
+n      tau    P(point cert | bad)  P(bound cert | bad)  bound coverage  P(bound cert | good, k2=0.2)  P(point cert | good)
+200    1      0.199                0.006                0.955           0.601                        0.987
+200    0.3    0.391                0.030                0.942           0.257                        0.831
+200    0.1    0.440                0.040                0.953           0.093                        0.651
+200    0.03   0.483                0.041                0.957           0.055                        0.538
+1000   1      0.029                0.001                0.955           0.997                        1.000
+1000   0.3    0.211                0.006                0.947           0.637                        0.978
+1000   0.1    0.389                0.019                0.965           0.185                        0.782
+1000   0.03   0.485                0.047                0.946           0.085                        0.607
+
+== 3. Dither needed for a predicted-pole sd of 0.05 at gain k2 (sigma=1, exact solve of the closed form) ==
+n      k2     |k-k2|  tau needed   extra logged Var x (x)   simulated sd (1000 fits)
+200    0.5    0.10    0.7456       1.556                    0.0516
+200    0.3    0.30    0.9400       1.884                    0.0497
+200    0.05   0.55    1.2274       2.507                    0.0519
+1000   0.5    0.10    0.0755       1.006                    0.0490
+1000   0.3    0.30    0.2245       1.050                    0.0501
+1000   0.05   0.55    0.4038       1.163                    0.0503
+5000   0.5    0.10    0.0292       1.001                    0.0517
+5000   0.3    0.30    0.0875       1.008                    0.0502
+5000   0.05   0.55    0.1603       1.026                    0.0494

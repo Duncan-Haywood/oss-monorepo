@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Patreon Members Churn Analyzer — Churn, MRR and Fees from Your Export</title>
+  <meta name="description" content="Free analyzer for Patreon creators: drop in your Members export CSV and see active, declined and former patrons, MRR by tier, churn by tenure cohort, at-risk declined payments, concentration and the fee take. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Patreon Members Churn Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Who is leaving, how much income is at risk from declined cards, and what Patreon's fees leave you. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Patreon Members Churn Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Patreon Members export CSV into active, declined and former patron counts, monthly recurring income by tier, churn by tenure cohort, at-risk declined payments, patron concentration and an estimate of Patreon's fee take. Runs entirely in your browser; the file is never uploaded.", "featureList": "Active, declined and former counts, MRR, MRR by tier, tenure distribution, churn by cohort, survival, declined-payment at-risk income, concentration, fee estimate, net to creator"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I see how many Patreon patrons I am losing?", "acceptedAnswer": {"@type": "Answer", "text": "Export your Members list from Patreon (the Audience or Members page has an Export option) and drop the CSV here. The tool counts active, declined and former patrons, works out monthly recurring income from the active pledges, and shows how many patrons joined in each period and how many of them have left. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "What is a declined patron and can the money be recovered?", "acceptedAnswer": {"@type": "Answer", "text": "A declined patron is one whose latest card charge failed. They are still a member, so their pledge is shown as at-risk monthly income rather than lost. Patreon retries the charge and emails the patron; a short personal note asking them to update the card is often what recovers it. The tool lists these patrons and adds up what is at stake."}}, {"@type": "Question", "name": "How is churn measured here?", "acceptedAnswer": {"@type": "Answer", "text": "Former patrons divided by everyone who ever paid, overall and for patrons grouped by how long ago they joined. It also shows survival: of the patrons who joined at least 1, 3, 6 or 12 months before the file's latest date, how many paid for that long. Groups under five patrons are shown but not used for suggestions."}}, {"@type": "Question", "name": "Are the fee figures exact?", "acceptedAnswer": {"@type": "Answer", "text": "No. They apply the percentages you enter (defaults: 10% platform fee, 2.9% plus $0.30 processing per charge) to monthly-equivalent pledges. Your plan, country, currency conversion, taxes, payout method and chargebacks change the real figure, so check it against your own payout statement."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Patreon Members exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Patron Status, Tier, Pledge and Patronage Since Date always works."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to your file and the assumptions you enter. It is independent of Patreon and is not affiliated with or endorsed by Patreon, Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">PATREON MEMBERS CHURN ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who is leaving your Patreon, and what is it costing you?</h1>
+    <p>Drop in your <strong>Patreon Members export CSV</strong> and get <strong>active, declined and former patrons, monthly income by tier, churn by tenure cohort</strong>, the <strong>income at risk from declined payments</strong>, how concentrated it is, and what Patreon's fees leave you.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Patreon: not affiliated with or endorsed by Patreon, Inc. Column names are matched by alias from memory of Patreon exports; if yours is not read, the page tells you which rows were skipped and why. Patron names and emails in your file are not shown in the results except declined patrons you may want to contact.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Members export</h2>
+    <p class="note">Needs a <strong>Patron Status</strong> (or a <strong>Pledge</strong> amount) and ideally <strong>Patronage Since Date</strong>. Used when present: <strong>Tier</strong>, <strong>Pledge</strong>, <strong>Currently Paying $</strong>, <strong>Lifetime $</strong>, <strong>Last Charge Date</strong>, <strong>Last Charge Status</strong>, <strong>Charge Frequency</strong>, <strong>Name</strong>. Other columns (Email, Twitter, Country and so on) are ignored. US and day-first dates, comma, tab and semicolon files, quoted fields and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Name,Email,Patron Status,Tier,Pledge,Patronage Since Date,Last Charge Date,Last Charge Status,Charge Frequency"></textarea>
+    <div class="grid">
+      <div><label for="asof">Measure as of (optional)</label><input type="date" id="asof"></div>
+    </div>
+    <p class="note">Left blank, the latest date found in the file is used, so an old export is measured at the time it was taken.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Fee assumptions (edit these)</h2>
+    <p class="note">Assumptions, not Patreon's terms. Defaults: 10% platform fee (the standard plan for newer pages; legacy Lite, Pro and Premium pages differ) and 2.9% plus $0.30 payment processing per charge. Check them against your own plan and payout statement.</p>
+    <div class="grid">
+      <div><label for="platformpct">Platform fee %</label><input type="number" id="platformpct" min="0" max="100" step="any" value="10"></div>
+      <div><label for="procpct">Processing fee %</label><input type="number" id="procpct" min="0" max="100" step="any" value="2.9"></div>
+      <div><label for="procfixed">Processing fee per charge ($)</label><input type="number" id="procfixed" min="0" step="any" value="0.30"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By tier</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Tier</th><th class="n" scope="col">Active</th><th class="n" scope="col">Declined</th><th class="n" scope="col">Former</th><th class="n" scope="col">MRR</th><th class="n" scope="col">Share of MRR</th><th class="n" scope="col">Churn</th></tr></thead><tbody id="by-tier"></tbody></table></div>
+    <h3>Tenure distribution</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Tenure</th><th class="n" scope="col">Active</th><th class="n" scope="col">Declined</th><th class="n" scope="col">Former</th></tr></thead><tbody id="tenure"></tbody></table></div>
+    <h3>Churn by join cohort</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Joined this long ago</th><th class="n" scope="col">Patrons</th><th class="n" scope="col">Left</th><th class="n" scope="col">Churn</th></tr></thead><tbody id="cohorts"></tbody></table></div>
+    <h3>Survival</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Paid for at least</th><th class="n" scope="col">Joined that long ago</th><th class="n" scope="col">Still there</th><th class="n" scope="col">Kept</th></tr></thead><tbody id="survival"></tbody></table></div>
+    <h3>Declined payments to chase</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Patron</th><th scope="col">Tier</th><th class="n" scope="col">Monthly</th><th scope="col">Last charge</th></tr></thead><tbody id="declined"></tbody></table></div>
+    <h3>Fees and net to you (monthly estimate)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="fees"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download tier table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Active, declined, former</strong> come from the Patron Status column. Without one, status is inferred: a failed last charge is declined, a pledge above zero is active, otherwise former. Free members and unrecognised statuses are counted separately and left out of every paying figure.</li>
+      <li><strong>Reconciles.</strong> The tier rows add up to total MRR, and MRR minus estimated fees equals net to you.</li>
+      <li><strong>MRR</strong> is the sum of active patrons' pledges, with annual pledges divided by 12. Per-creation pledges depend on what you post and are left out. Declined patrons are shown as at-risk income, not MRR.</li>
+      <li><strong>Tenure</strong> runs from Patronage Since Date to the as-of date for active and declined patrons, and to the last charge date for former patrons. Patrons with no usable date are left out of tenure figures.</li>
+      <li><strong>Churn</strong> is former patrons over everyone who ever paid. Cohort churn groups patrons by how long ago they joined. Survival counts only patrons who joined long enough ago to have been measured. Groups under five are shown but not used for suggestions.</li>
+      <li><strong>Fees</strong> apply your platform percentage to monthly-equivalent pledges, and your processing percentage plus a fixed amount per charge (once a year for annual pledges).</li>
+      <li><strong>Not modelled:</strong> taxes, currency conversion, payout fees, chargebacks and refunds, paused pledges, patron pledge changes over time, add-ons and shipping, and anything not in the file. An export shows each patron's current state only, so tier changes and re-joins are not visible.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I see how many Patreon patrons I am losing?</h3>
+    <p>Export your Members list from Patreon (the Audience or Members page has an Export option) and drop the CSV here. The tool counts active, declined and former patrons, works out monthly recurring income from the active pledges, and shows how many patrons joined in each period and how many of them have left. The file is read in your browser and never uploaded.</p>
+    <h3>What is a declined patron and can the money be recovered?</h3>
+    <p>A declined patron is one whose latest card charge failed. They are still a member, so their pledge is shown as at-risk monthly income rather than lost. Patreon retries the charge and emails the patron; a short personal note asking them to update the card is often what recovers it. The tool lists these patrons and adds up what is at stake.</p>
+    <h3>How is churn measured here?</h3>
+    <p>Former patrons divided by everyone who ever paid, overall and for patrons grouped by how long ago they joined. It also shows survival: of the patrons who joined at least 1, 3, 6 or 12 months before the file's latest date, how many paid for that long. Groups under five patrons are shown but not used for suggestions.</p>
+    <h3>Are the fee figures exact?</h3>
+    <p>No. They apply the percentages you enter (defaults: 10% platform fee, 2.9% plus $0.30 processing per charge) to monthly-equivalent pledges. Your plan, country, currency conversion, taxes, payout method and chargebacks change the real figure, so check it against your own payout statement.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Patreon Members exports, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Patron Status, Tier, Pledge and Patronage Since Date always works.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to your file and the assumptions you enter. It is independent of Patreon and is not affiliated with or endorsed by Patreon, Inc.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the assumptions you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Patreon.</strong> Patreon is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Patreon, Inc. or any other platform in any way. Column names are matched by alias from memory of Patreon exports and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Run a charity rather than a creator page? The <a href="../donor-retention-analyzer/">donor retention analyzer</a> does this retention arithmetic for a nonprofit's gift history and ranks its lapsed donors.</p>
+    <p>Just want the fee arithmetic on a few tiers? See the <a href="../patreon-fee-calculator/">Patreon fee calculator</a> for platform and processing fees, including per-creation billing.</p>
+    <p>Need the books side? The <a href="../patreon-payout-to-journal/">Patreon payout to journal converter</a> turns a Patreon earnings export into month-split Xero and QuickBooks journals, with platform and processing fees booked separately.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rows = (id, html, cols) => { $(id).innerHTML = html || `<tr><td colspan="${cols}">Nothing to show.</td></tr>`; };
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const v = (id) => $(id).value;
+      const r = analyze(n.members, { platformPct: v("#platformpct"), processingPct: v("#procpct"), processingFixed: v("#procfixed"), asOf: v("#asof") ? Date.parse(v("#asof") + "T00:00:00Z") : undefined });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, c = s.counts;
+      $("#report-stats").innerHTML = `As of ${dateStr(s.asOf)}: <strong>${c.active} active</strong>, ${c.declined} declined, ${c.former} former${c.other ? `, ${c.other} other` : ""}. <strong>MRR ${money(s.mrr)}</strong> (${money(s.arr)} a year), average ${money(s.arpp)} per active patron. Declined payments put ${money(s.atRisk)} a month at risk. Churn ${pct(s.churnRate)} of everyone who ever paid; median tenure ${s.medianActive === null ? "–" : s.medianActive.toFixed(1)} months for active and ${s.medianFormer === null ? "–" : s.medianFormer.toFixed(1)} for former. Estimated fees ${money(r.fees.total)} (${pct(r.fees.takePct)}), <strong>net to you ${money(r.net)}</strong> a month.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const small = (ok) => (ok ? "" : " (few)");
+      rows("#by-tier", r.byTier.map((t) => `<tr><th scope="row">${esc(t.tier)}</th><td class="n">${t.patrons}</td><td class="n">${t.declined}</td><td class="n">${t.former}</td><td class="n">${money(t.mrr)}</td><td class="n">${pct(t.share)}</td><td class="n">${pct(t.churn)}${small(t.enough)}</td></tr>`).join(""), 7);
+      rows("#tenure", r.distribution.map((d) => `<tr><th scope="row">${esc(d.label)}</th><td class="n">${d.active}</td><td class="n">${d.declined}</td><td class="n">${d.former}</td></tr>`).join(""), 4);
+      rows("#cohorts", r.cohorts.map((d) => `<tr><th scope="row">${esc(d.label)}</th><td class="n">${d.joined}</td><td class="n">${d.former}</td><td class="n">${pct(d.rate)}${small(d.enough)}</td></tr>`).join(""), 4);
+      rows("#survival", r.survival.map((d) => `<tr><th scope="row">${d.months} month(s)</th><td class="n">${d.eligible}</td><td class="n">${d.kept}</td><td class="n">${pct(d.rate)}${small(d.enough)}</td></tr>`).join(""), 4);
+      rows("#declined", r.atRiskMembers.map((m) => `<tr><td>${esc(m.name || "(no name)")}</td><td>${esc(m.tier)}</td><td class="n">${money(m.monthly)}</td><td>${m.lastCharge === null ? "–" : dateStr(m.lastCharge)}</td></tr>`).join(""), 4);
+      const f = r.fees;
+      rows("#fees", [["Gross MRR (active patrons)", s.mrr], [`Platform fee (${f.assumptions.platformPct}%)`, -f.platform], [`Processing (${f.assumptions.processingPct}% + ${money(f.assumptions.processingFixed)} per charge)`, -f.processing], ["Net to you, before tax and payout costs", r.net]].map(([k, x]) => `<tr><th scope="row">${k}</th><td class="n">${money(x)}</td></tr>`).join(""), 2);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (n.statusSource === "inferred") notes.push("The file has no Patron Status column, so status was inferred from the pledge and the last charge status.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.members.length} members.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: 120 synthetic patrons, not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const out = ["tier,active,declined,former,mrr,share_of_mrr,churn"].concat(last.byTier.map((t) => [q(t.tier), t.patrons, t.declined, t.former, t.mrr.toFixed(2), t.share.toFixed(3), t.churn === null ? "" : t.churn.toFixed(3)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([out.join("\n")], { type: "text/csv" }));
+      a.download = "patreon-mrr-by-tier.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

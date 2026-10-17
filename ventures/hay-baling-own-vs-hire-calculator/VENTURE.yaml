@@ -1,0 +1,57 @@
+name: hay-baling-own-vs-hire-calculator
+description: >-
+  Free browser tool for hay producers: acres, yield, bale weight, equipment cost,
+  labour and the custom price per bale in; own vs hire cost for the year, break-even
+  acres, cost per bale, the sale price that earns a margin, the value lost waiting
+  for a contractor, and a per-bale rate for baling for neighbours out. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture session asked for deeper tools with real
+# competitors. duplicate_check.py on "custom hay baling rate per bale own versus
+# hire": closest row custom-farm-rate-calculator 0.25, below the 0.45 line. That
+# tool prices one machine pass for an operator; this one answers the buyer's
+# question (does my acreage justify owning) and prices outside work.
+#
+# Why this niche: hay and small-livestock operations make a recurring five-figure
+# buy-or-hire decision on a baler and rely on university extension spreadsheets.
+# Searches such as "should I buy a baler or hire custom", "hay baler break even
+# acres", "custom baling rates per bale" recur in farm forums.
+#
+# First visitor: hobby-farm and small cattle/horse operators in r/farming,
+# r/homestead and regional hay-and-forage Facebook groups. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no tax, financing or
+# insurance advice; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# hosted multi-machine equipment comparison (not built).
+
+hypotheses:
+  - claim: >-
+      Small hay producers will use a private own-vs-hire baler calculator that
+      prices the value lost waiting on a contractor and the neighbour baling
+      rate, because extension spreadsheets give a machine cost per hour and stop
+      short of the buy decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A producer reports that the break-even arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hay-baling-own-vs-hire-calculator/
+  analytics: null

@@ -1,0 +1,12 @@
+exact peak von Mises = sigma_xx(0, a) = 3 sigma; exact radial slope there = -7.000 sigma/a (analytic -7)
+n_theta elements   h/a   centroid  err%   vertex   err%   exact@centroid  relL2(vm,centroid)  bias/(slope*h)
+    4       56  0.393    2.1835 -27.22   3.0206  0.688       2.2456         1.12e-02        0.297
+    8      208  0.196    2.5357 -15.48   3.0148  0.494       2.5497         2.87e-03        0.338
+   16      800  0.098    2.7495  -8.35   3.0048  0.160       2.7530         7.25e-04        0.365
+   32     3136  0.049    2.8696  -4.35   3.0013  0.044       2.8705         1.82e-04        0.380
+   64    12160  0.025    2.9321  -2.26   3.0003  0.011       2.9323         4.58e-05        0.395
+  128    48384  0.012    2.9657  -1.14   3.0001  0.003       2.9657         1.15e-05        0.400
+observed order, centroid peak error (halving h): 0.81, 0.89, 0.94, 0.94, 0.98
+observed order, vertex peak error (halving h): 0.48, 1.63, 1.87, 1.93, 1.97
+observed order, centroid-field relative L2 error: 1.96, 1.99, 2.00, 1.99, 2.00
+knock-down needed so that centroid peak x factor = exact peak (3 / centroid): 1.374, 1.183, 1.091, 1.045, 1.023, 1.012

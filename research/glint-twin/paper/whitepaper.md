@@ -1,0 +1,29 @@
+# A point-target radar twin of two unresolved scatterers has the right median and the wrong mean, and averaging looks does not converge where the twin says
+
+## Question
+A common simplification in radar simulators is to represent a closely spaced pair of scatterers (two engines, a wing and a tail, a vehicle and its corner reflector) as one point at the power centroid with Gaussian angle noise. The real monopulse angle estimate of an unresolved pair is not a noisy centroid. How wrong is the point-target twin once its noise variance has been matched to the real data, and does a tracker or estimator tuned on it behave as predicted?
+
+## Model
+Strong scatterer (amplitude 1) at `+d/2`, weak scatterer (amplitude `r ≤ 1`) at `−d/2`, relative phase `φ ~ U[0, 2π)` per look. Ideal linear monopulse estimates `Re(Δ/Σ)` with `Σ = 1 + r e^{jφ}` and `Δ ∝ (d/2)(1 − r e^{jφ})`, so the estimate is `(d/2)·Y`, `Y = (1−r²)/(1+r²+2r cos φ)` (units of `d/2`: `Y = 1` is the strong scatterer, `−1` the weak one). Twin: `Normal(μ_c, σ²)` with `μ_c = (1−r²)/(1+r²)` (power centroid) and `σ² = Var Y`. Everything below is derived from `∫ dφ/2π (a + b cos φ)^{-1} = (a²−b²)^{-1/2}` and `∫ dφ/2π (a + b cos φ)^{-2} = a (a²−b²)^{-3/2}`.
+
+Exact results (`r < 1`): `E[Y] = 1`; `Var Y = 2r²/(1−r²)`; `Y ∈ [(1−r)/(1+r), (1+r)/(1−r)]`; `Y` is monotone in `cos φ`, so the median is `Y(φ = π/2) = μ_c` and the `p`-quantile is `Y(φ = πp)`; `P(Y > y) = 1 − arccos(c(y))/π` with `c(y) = ((1−r²)/y − 1 − r²)/(2r)`, hence `P(Y > 1) = arccos(r)/π`; the density at the median is `(1+r²)²/(2πr(1−r²))`, so the sample median of `N` looks has asymptotic variance `π² r²(1−r²)²/(N(1+r²)⁴)`. The mean's bias against the centroid is `2r²/(1+r²)`.
+
+## Results
+(all numbers from `experiments/results.txt`; simulation 200 000 phase draws)
+1. **Mean vs median.** The exact mean is the strong scatterer (simulated 0.9999, 0.9996, 0.9998, 0.9969, 0.9973, 1.0223 for `r` = 0.1, 0.3, 0.5, 0.7, 0.9, 0.97; the last two are off by 0.003 and 0.022 because the variance (8.5 and 31.8) makes 200 000 draws insufficient). The simulated medians match the centroid (0.5988 vs 0.6000 at `r = 0.5`). A twin at the centroid therefore reproduces the median and misses the mean by 0.020, 0.165, 0.400, 0.658, 0.895, 0.970 (in `d/2`).
+2. **Outside the target span.** `P(Y > 1) = arccos(r)/π`: 0.468, 0.403, 0.333, 0.253, 0.144, 0.078 for the six `r` (simulation within 0.002). The variance-matched Gaussian twin gives 0.445, 0.355, 0.312, 0.318, 0.380, 0.432: close for `r ≤ 0.5`, 2.6× too many at `r = 0.9` and 5.5× at 0.97.
+3. **Gates.** Fraction of real looks above centroid `+ kσ` (twin Gaussian in brackets): `r = 0.5`: 0.244 (0.159) at `k = 1`, 0.133 (0.023) at `k = 2`, impossible at `k = 3` (the gate, 3.05, exceeds the maximum estimate 3.0); `r = 0.9`: 0.077 (0.159), 0.050 (0.023), 0.036 (0.00135); `r = 0.97`: 0.032 (0.159), 0.021 (0.023), 0.016 (0.00135). The twin is too loose in one tail and too tight in the next; with a 3σ gate it is 27× and 12× too optimistic at `r = 0.9` and 0.97.
+4. **Averaging looks.** RMS error against the centroid of the mean of `N = 1, 4, 16, 64, 256, 1024` looks at `r = 0.5`: 0.895, 0.568, 0.452, 0.413, 0.403, 0.401 (exact `√(bias²+var/N)`: 0.909, 0.572, 0.449, 0.413, 0.403, 0.401; Gaussian twin: 0.816, 0.408, 0.204, 0.102, 0.051, 0.026). At `r = 0.9`: real 3.147 … 0.899, twin 2.920 … 0.091. The sample median against the centroid goes 0.923 … 0.024 at `r = 0.5` and 3.015 … 0.005 at `r = 0.9`. The mean's error against the *strong scatterer* goes to 0 (0.025, 0.092 at `N = 1024`) and the median's does not (0.400, 0.895). Which estimator is "right" depends on whether the downstream quantity is the centroid or the strong scatterer; the twin cannot express that the two differ. The mean's bias exceeds its noise after `N* = var/bias² = 7.3, 4.2, 4.4, 10.6` looks for `r = 0.3, 0.5, 0.7, 0.9`.
+5. **Which estimator to pick.** The Gaussian twin ranks mean over median by π/2 everywhere. In the real glint the per-look variance of the median is lower than the mean's for `r ≥ 0.477` (ratio 0.853, 0.378, 0.133, 0.003 at `r` = 0.5, 0.6, 0.7, 0.9) and higher below it (4.6, 3.7, 2.6, 1.6 at 0.1–0.4). A twin-tuned choice of the mean can be worse on both bias and variance.
+
+## Limitations
+Stylised, no radar data. Noise-free ideal monopulse with a linear slope (valid for `d` well inside the beamwidth; estimates up to `(1+r)/(1−r)·d/2` can leave that region at large `r`), two scatterers, independent uniform phase across looks (real phase is correlated in time and with aspect), no receiver noise (the model is singular at `r = 1` and with noise the estimate near a Σ-null is dominated by it), no tracker dynamics. The Gaussian twin is one natural simplification; a twin that sampled the two-scatterer phase would reproduce everything here by construction. The median asymptotics were checked by simulation only at `r = 0.5`, `N = 99` in the unit tests, and the table entries for `N ≤ 16` are not in the asymptotic regime.
+
+## Next steps
+Add receiver noise and fit the Σ-null behaviour; temporally correlated phase; more than two scatterers (the extended-target glint distribution); an interacting multiple-model tracker tuned in each twin (`twin-certification` style); pair with `multipath-twin`, where the same phase mechanism acts on detection rather than angle.
+
+## References
+- Sherman, S. M. (1971). Complex indicated angles applied to unresolved radar targets and multipath. *IEEE Transactions on Aerospace and Electronic Systems* AES-7(1), 160–170.
+- Sherman, S. M. & Barton, D. K. (2011). *Monopulse Principles and Techniques*, 2nd ed. Artech House.
+- Skolnik, M. I. (2008). *Radar Handbook*, 3rd ed. McGraw-Hill.
+- Zhao, W., Queralta, J. P. & Westerlund, T. (2020). Sim-to-real transfer in deep reinforcement learning for robotics: a survey. *IEEE SSCI*.

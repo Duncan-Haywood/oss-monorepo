@@ -1,0 +1,37 @@
+name: uk-rent-a-room-relief-calculator
+description: >-
+  Free browser tool for UK homeowners letting a room: enter rent, expenses and other income to see if the 7,500 pound Rent a Room limit covers you and, above it, whether the relief or claiming expenses costs less tax in 2025/26 or 2026/27. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no Rent a Room tool in ventures/ (checked by name and content; uk-landlord-section-24-calculator and uk-trading-allowance-calculator cover other routes).
+#
+# First visitor: a UK homeowner with a lodger or an Airbnb room searching "rent a room relief calculator", "rent a room scheme 7500 expenses", "is airbnb income taxable uk". Evergreen, spikes with the cost-of-living push to take lodgers and around the January Self Assessment deadline; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the other UK tax tools; GitHub Sponsors. No paid incumbent to compete with; the edge is pricing both routes on the user's own income, which GOV.UK explains but does not calculate.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK and HS223 as the source to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide (Scottish bands, NI, property allowance, losses). Ethical risk is steering someone to the wrong route; mitigated by pricing both and naming what is unmodelled.
+hypotheses:
+  - claim: >-
+      UK people letting a room will use a free calculator to compare Rent a Room Relief with claiming expenses on their own income before filing Self Assessment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a limit, rate or rule differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-rent-a-room-relief-calculator/
+  analytics: null

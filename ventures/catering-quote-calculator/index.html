@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Catering Quote Calculator — Price Per Guest, Margin and Break-Even Headcount</title>
+  <meta name="description" content="Paste a catering cost sheet and get the per-guest price that hits your margin, food and labor percentages, the deposit, a guest-count tier table and the break-even guest count. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What should I charge per guest for this catering job?">
+  <meta property="og:description" content="Paste your costs, see the price per guest, tiers by headcount and the guest count below which you lose money. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Catering Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a catering cost sheet and see the per-guest price that hits your margin, food and labor percentages, the deposit, a guest-count tier table and the break-even guest count. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to a POS or accounting system?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the cost lines you paste and never contacts Square, Toast, QuickBooks or any supplier. Every figure is arithmetic on the lines you gave it, so nothing here leaves your device."}}, {"@type": "Question", "name": "How is the per-guest price calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Total cost divided by (1 minus your target margin minus your overhead share), then divided by the guest count. Per-guest lines scale with the guests, flat and staff lines do not, which is why a bigger event costs less per head."}}, {"@type": "Question", "name": "What are the three line types?", "acceptedAnswer": {"@type": "Answer", "text": "guest is a cost per person (food, plates), with a waste allowance added; flat is a cost for the whole event (van, rentals, permits); staff-hour is total staff hours times the hourly rate, with a payroll-burden allowance added."}}, {"@type": "Question", "name": "What is the break-even guest count?", "acceptedAnswer": {"@type": "Answer", "text": "The number of guests at which the price you name covers the fixed costs after overhead. Below it the event loses money, so it is the number to put in a minimum-guest clause."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  
+    tr.flag td { background: #fdf0ee; }
+    .bar { display: inline-block; height: .7em; background: #1a4560; border-radius: 3px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CATERING QUOTE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What should this catering job cost per guest — and how few guests can you take?</h1>
+    <p>Paste your costs for one event — food per guest, staff hours, rentals, fuel — and see <strong>the per-guest price that delivers your margin</strong>, <strong>food and labor as a share of the quote</strong>, <strong>the deposit</strong> and <strong>the guest count below which you lose money</strong>.</p>
+    <p class="note">Nothing is uploaded and no supplier or accounting tool is contacted. The text box is analysed in this browser and never leaves your device. The 35% food and labor warning levels, 30% margin and 10% overhead are common rules of thumb, not a standard, and you can change every one.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your cost lines</h2>
+    <label for="lines-input">One cost per line: name, basis (guest, flat or staff-hour), quantity, unit cost. A header row is read by name.</label>
+    <textarea id="lines-input" spellcheck="false" placeholder="Herb roast chicken entree,guest,1,5.40"></textarea>
+    <div class="inputs">
+      <div><label for="in-guests">Guests</label><input type="number" id="in-guests" min="1" step="1" value="50"></div>
+      <div><label for="in-margin">Target margin (%)</label><input type="number" id="in-margin" min="0" max="100" step="1" value="30"></div>
+      <div><label for="in-indirect-share">Overhead share of price (%)</label><input type="number" id="in-indirect-share" min="0" max="100" step="1" value="10"></div>
+      <div><label for="in-waste">Food waste allowance (%)</label><input type="number" id="in-waste" min="0" max="100" step="1" value="5"></div>
+      <div><label for="in-payroll-load">Payroll burden on staff (%)</label><input type="number" id="in-payroll-load" min="0" max="100" step="1" value="12"></div>
+      <div><label for="in-deposit">Deposit (% of quote)</label><input type="number" id="in-deposit" min="0" max="100" step="1" value="50"></div>
+      <div><label for="in-tax">Sales tax (%, shown separately)</label><input type="number" id="in-tax" min="0" max="100" step="0.1" value="0"></div>
+      <div><label for="in-price">Price per guest to test ($, optional)</label><input type="number" id="in-price" min="0" step="0.5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price it</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <p id="headline" class="note"></p>
+    <h3>Price by guest count</h3>
+    <table id="tier-table" hidden>
+      <thead><tr><th class="num">Guests</th><th class="num">Per guest</th><th class="num">Quote</th><th class="num">Your profit</th></tr></thead>
+      <tbody id="tier-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want to quote from a script?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs quote event.csv --guests 60
+cat event.csv | node cli.mjs quote - --guests 60 --margin 30
+node cli.mjs quote event.csv --guests 60 --price 28 --json --fail-on error</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. Exit code 1 on a losing price, so a script can refuse to send it. More: <a href="catering-pricing-guide.html">How to price catering per person, and what a minimum guest count is for</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Warning levels, margin and overhead are rules of thumb; sales tax and gratuity are shown separately and never counted as revenue; supplier price changes, no-shows below a guarantee and venue rules are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to a POS or accounting system?</h3>
+    <p>No. It reads the cost lines you paste and never contacts Square, Toast, QuickBooks or any supplier. Every figure is arithmetic on the lines you gave it, so nothing here leaves your device.</p>
+    <h3>How is the per-guest price calculated?</h3>
+    <p>Total cost divided by (1 minus your target margin minus your overhead share), then divided by the guest count. Per-guest lines scale with the guests, flat and staff lines do not, which is why a bigger event costs less per head.</p>
+    <h3>What are the three line types?</h3>
+    <p>guest is a cost per person (food, plates), with a waste allowance added; flat is a cost for the whole event (van, rentals, permits); staff-hour is total staff hours times the hourly rate, with a payroll-burden allowance added.</p>
+    <h3>What is the break-even guest count?</h3>
+    <p>The number of guests at which the price you name covers the fixed costs after overhead. Below it the event loses money, so it is the number to put in a minimum-guest clause.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, food-safety or business advice. It does arithmetic on the cost lines you paste; it is not a guarantee of profit, and licensing, insurance, health-code and sales-tax rules for catering vary by place and are yours to check. Square, Toast, QuickBooks and other product names are trademarks of their owners, used only to describe where numbers come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../food-truck-event-margin-calculator/">Food Truck Event Margin Calculator</a>, the <a href="../recipe-costing-calculator/">Recipe Costing Calculator</a>, the <a href="../menu-engineering-calculator/">Menu Engineering Calculator</a>, the <a href="../pour-cost-calculator/">Pour Cost Calculator</a> and the <a href="../photo-booth-event-quote/">Photo Booth Event Quote</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLines, analyze, summarize, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#lines-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"), headline: $("#headline"),
+      table: $("#results-table"), rows: $("#results-rows"), tierT: $("#tier-table"), tierR: $("#tier-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      guests: $("#in-guests"), margin: $("#in-margin"), overhead: $("#in-indirect-share"), waste: $("#in-waste"), burden: $("#in-payroll-load"), deposit: $("#in-deposit"), tax: $("#in-tax"), price: $("#in-price"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const num = (el) => (el.value.trim() === "" ? undefined : Number(el.value));
+    function options() {
+      const o = {};
+      const g = num(els.guests), p = num(els.price);
+      if (Number.isInteger(g) && g >= 1) o.guests = g;
+      if (p > 0) o.offeredPrice = p;
+      for (const [el, key] of [[els.margin, "targetMargin"], [els.overhead, "overheadPct"], [els.waste, "wastePct"], [els.burden, "burdenPct"], [els.deposit, "depositPct"], [els.tax, "taxPct"]]) {
+        const v = num(el);
+        if (v >= 0 && v <= 100) o[key] = v / 100;
+      }
+      return o;
+    }
+    const usd = (n) => {
+      const format = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some cost lines first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const report = analyze(parseLines(text), options());
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.headline.textContent = report.count && Number.isFinite(report.quote) ? `Total cost ${usd(report.totalCost)} (food ${usd(report.food)}, staff ${usd(report.labor)}). Food ${(report.foodPct * 100).toFixed(0)}% and staff ${(report.laborPct * 100).toFixed(0)}% of the quote. Deposit ${usd(report.deposit)}.${report.tax ? ` Sales tax ${usd(report.tax)} on top.` : ""}${report.offered ? ` At your $${report.offered.pricePerGuest.toFixed(2)} per guest: ${report.offered.profit < 0 ? "loss " + usd(-report.offered.profit) : "profit " + usd(report.offered.profit)}.` : ""}` : "";
+      els.tierT.hidden = !report.tiers.length;
+      els.tierR.innerHTML = report.tiers.map((t) => `<tr class="${t.guests === report.guests ? "best" : ""}"><td class="num">${t.guests}</td><td class="num">$${t.pricePerGuest.toFixed(2)}</td><td class="num">${usd(t.quote)}</td><td class="num">${usd(t.profit)}</td></tr>`).join("");
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${MODEL_NOTE}.` : "";
+      els.reportCard.hidden = false;
+      record("quote_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,basis,qty,unit
+Herb roast chicken entree,guest,1,5.40
+Seasonal vegetable side,guest,1,1.35
+Salad and dressing,guest,1,1.10
+Rolls and butter,guest,1,0.45
+Dessert bar,guest,1,1.80
+Disposable plates and cutlery,guest,1,0.55
+Lead cook,staff-hour,8,26
+Servers (3 x 6 hours),staff-hour,18,18
+Setup and breakdown helper,staff-hour,5,16
+Van fuel and mileage,flat,1,64
+Chafing dishes and sternos,flat,1,45
+Linen rental,flat,1,120`;
+    const EXAMPLE_SETTINGS = { guests: 60, price: 28 };
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      els.guests.value = EXAMPLE_SETTINGS.guests;
+      els.price.value = EXAMPLE_SETTINGS.price;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

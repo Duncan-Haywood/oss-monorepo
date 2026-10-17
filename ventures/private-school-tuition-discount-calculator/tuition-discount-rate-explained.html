@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tuition discount rate explained: a worked example</title>
+  <meta name="description" content="How a private school's tuition discount rate works: gross tuition, financial aid, net tuition per student, break-even enrollment and what a tuition increase adds, with a worked 300-student example.">
+  <meta property="og:title" content="Tuition discount rate explained: a worked example">
+  <meta property="og:description" content="How a private school's tuition discount rate works: gross tuition, financial aid, net tuition per student, break-even enrollment and what a tuition increase adds, with a worked 300-student example.">
+  <link rel="canonical" href="./tuition-discount-rate-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a tuition discount rate?","acceptedAnswer":{"@type":"Answer","text":"It is financial aid given as a share of gross tuition: total aid divided by sticker tuition times the number of students. A school with a $24,000 sticker price and $2,120,000 of aid across 300 students has a discount rate of 29.4%. It is a measure of how much of the sticker price the school actually collects."}},{"@type":"Question","name":"How do I calculate net tuition revenue?","acceptedAnswer":{"@type":"Answer","text":"Multiply sticker tuition by the number of students to get gross tuition, then subtract the aid awarded to every student. What remains is net tuition revenue. Divide by the number of students for net tuition per student."}},{"@type":"Question","name":"Should a school raise tuition or hold aid flat?","acceptedAnswer":{"@type":"Answer","text":"If aid stays the same in dollars, every dollar of a sticker increase on a paying family is kept and the discount rate falls. If aid grows with the sticker price, the discount rate stays the same and less of the increase is kept. The tool shows both side by side, with the number of families you expect to lose to the higher price."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Private School Tuition Discount Calculator</a></p>
+    <h1>Tuition discount rate: what the sticker price really collects</h1>
+    <p>The sticker price is what the brochure says. Net tuition is what reaches the bank after financial aid. The share given away is the discount rate, and it moves the budget more than most line items.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A school has 300 students and a $24,000 sticker price. 130 families pay in full. 60 receive an average $6,000, 50 receive $12,000, 40 receive $18,000 and 20 receive $22,000. Fixed costs are $4,300,000 a year and each extra student costs about $2,500.</p>
+    <p>Gross tuition is <strong>$7,200,000</strong>. Aid totals $2,120,000, so net tuition is $5,080,000 and the discount rate is 29.4%. Net per student is $16,933, which is the same money as 212 full-pay students.</p>
+    <p>After per-student costs and fixed costs the school is left with $30,000. At this aid mix it needs 298 students to break even, with 320 seats.</p>
+  </section>
+  <section class="card">
+    <h2>Raising the price: held aid or growing aid</h2>
+    <p>If awards stay the same in dollars, a higher sticker price adds its full amount on every student and the discount rate falls. If awards rise in step with the price, the discount rate stays put and the school keeps less. With 0.2% of students leaving for every 1% of increase:</p>
+    <div class="scroll"><table><thead><tr><th>Increase</th><th>Surplus, aid held</th><th>Discount rate</th><th>Surplus, aid grows</th><th>Discount rate</th></tr></thead><tbody>
+<tr><td>+4%</td><td>$281,056</td><td>28.3%</td><td>$196,934</td><td>29.4%</td></tr>
+<tr><td>+6%</td><td>$404,856</td><td>27.8%</td><td>$279,182</td><td>29.4%</td></tr>
+    </tbody></table></div>
+    <p>Holding awards flat is not free of consequence: it asks aided families to absorb the whole increase, which may cost the school the very students the aid exists for. The numbers show the trade; they do not decide it.</p>
+  </section>
+  <section class="card">
+    <h2>Does one more aided student pay?</h2>
+    <p>While a student's award is below sticker price minus the extra cost they bring (here $21,500), they add money to a school that would otherwise leave the seat empty, because fixed costs are paid either way. Three of the four aided groups clear that bar. The near-full-aid group, at $22,000, sits $500 a student above it: each of those students costs the school slightly more than they pay, which is a mission decision the discount rate alone will not show.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a tuition discount rate?</h3>
+    <p>It is financial aid given as a share of gross tuition: total aid divided by sticker tuition times the number of students. A school with a $24,000 sticker price and $2,120,000 of aid across 300 students has a discount rate of 29.4%. It is a measure of how much of the sticker price the school actually collects.</p>
+    <h3>How do I calculate net tuition revenue?</h3>
+    <p>Multiply sticker tuition by the number of students to get gross tuition, then subtract the aid awarded to every student. What remains is net tuition revenue. Divide by the number of students for net tuition per student.</p>
+    <h3>Should a school raise tuition or hold aid flat?</h3>
+    <p>If aid stays the same in dollars, every dollar of a sticker increase on a paying family is kept and the discount rate falls. If aid grows with the sticker price, the discount rate stays the same and less of the increase is kept. The tool shows both side by side, with the number of families you expect to lose to the higher price.</p>
+    <p><a href="./index.html">Run your own numbers in the calculator.</a></p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is arithmetic on invented numbers, not financial, accounting, legal or enrollment advice. <strong>Use at your own risk.</strong></p>
+    <p>Everything runs in your browser. The calculator never uploads what you type.</p>
+  </footer>
+</body>
+</html>

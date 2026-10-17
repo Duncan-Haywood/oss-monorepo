@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Writer Rate Calculator — Per-Word vs. Flat Fee, Free</title>
+  <meta name="description" content="Free calculator for freelance writers, copywriters, and ghostwriters comparing a per-word rate against a flat project fee for the same job -- computing the real effective hourly rate each pricing method pays once research and revision time are counted, and the price needed to hit an hourly income goal. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Freelance Writer Rate Calculator — per-word vs. flat fee, free">
+  <meta property="og:description" content="Compare a per-word rate against a flat project fee for the same writing job, by effective hourly rate -- not just the headline price. Entirely client-side.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-writer-rate-calculator/">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Writer Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares a freelance writer's per-word rate against a flat per-project fee for the same job by effective hourly rate, counting research and revision hours alongside writing time, and solves for the per-word rate or flat fee needed to hit a target hourly income. Entirely client-side; nothing is uploaded.","featureList":"Per-word vs. flat-fee effective hourly comparison, research and revision time modeling, entry-level rate floor flag, ghostwriting premium note, target-hourly-rate solver"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a per-word rate or a flat project fee better for a freelance writer?","acceptedAnswer":{"@type":"Answer","text":"It depends on the job. A per-word rate only pays for words written -- it does not separately compensate research, interviews, outlining, or revision rounds. A flat fee prices the whole job, including that non-writing time. When a job has heavy research or several revision rounds, a flat fee usually pays a higher effective hourly rate than an equivalent per-word rate; when a job is fast to write with little revision, a good per-word rate can pay more per hour."}},{"@type":"Question","name":"What counts as a low per-word rate in 2026?","acceptedAnswer":{"@type":"Answer","text":"2026 freelance rate surveys put entry-level content writing at roughly $0.05-$0.10 per word, intermediate-to-senior generalist work at $0.10-$0.50 per word, and specialist work (legal, medical, expert B2B/fintech) at $0.50-$2.00+ per word. A 500-writer survey put the across-the-board average at $0.42/word; a survey of established copywriters put their average at $0.70/word -- the two differ because they sample different populations, not because either is wrong."}},{"@type":"Question","name":"Do ghostwriters charge more than bylined writers?","acceptedAnswer":{"@type":"Answer","text":"Most freelance writers do not charge extra for ghostwriting (no byline). Of the writers who do add a premium, most add 16-20% over their bylined rate for the same word count, per 2026 rate-guide surveys. This tool shows that range as information only -- it is never added to the numbers automatically."}},{"@type":"Question","name":"Why does research and revision time matter to the price?","acceptedAnswer":{"@type":"Answer","text":"A per-word rate is calculated only against the words in the final piece. If a job needs four hours of research and two revision rounds before the words are final, that time still has to be paid for somehow -- and a pure per-word rate does not do it. Rate guides describe switching from per-word to flat per-project pricing as the single most reliable way an established writer raises their real income, without ever raising the per-word figure they quote."}},{"@type":"Question","name":"Is this a rate card or a guarantee of what to charge?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies the hours and prices you enter to compute an effective hourly rate for the job as you describe it -- it does not know your market, your niche, or your client's budget, and it is not a substitute for your own judgment or a professional rate-card resource."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; font-weight: 600; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREELANCE WRITER RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Per-word rate or flat fee — which actually pays more per hour?</h1>
+    <p>A per-word rate only pays for the words in the final piece. Research,
+    interviews, outlining, and revision rounds are real hours the job costs
+    you — and a pure per-word rate does not compensate any of them. This
+    tool turns both pricing options into an <strong>effective hourly
+    rate</strong> for the same job, so you can see which one actually pays
+    more, not just which headline number looks bigger.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The job</h2>
+    <div class="grid">
+      <div>
+        <label for="word-count">Word count</label>
+        <input type="number" id="word-count" min="0" step="50" value="1500" placeholder="e.g. 1500">
+      </div>
+      <div>
+        <label for="writing-speed">Your writing speed (words per hour)</label>
+        <input type="number" id="writing-speed" min="0" step="10" value="500" placeholder="e.g. 500">
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="research-hours">Research / interviews / outlining (hours)</label>
+        <input type="number" id="research-hours" min="0" step="0.5" value="2" placeholder="e.g. 2">
+      </div>
+      <div>
+        <label for="revision-rounds">Revision rounds included in the fee</label>
+        <input type="number" id="revision-rounds" min="0" step="1" value="2" placeholder="e.g. 2">
+      </div>
+      <div>
+        <label for="hours-per-revision">Hours per revision round</label>
+        <input type="number" id="hours-per-revision" min="0" step="0.25" value="1" placeholder="e.g. 1">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="is-ghostwritten">
+      <label for="is-ghostwritten">This piece is ghostwritten (no byline)</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. The two prices on offer</h2>
+    <div class="grid">
+      <div>
+        <label for="per-word-rate">Per-word rate ($/word)</label>
+        <input type="number" id="per-word-rate" min="0" step="0.01" value="0.20" placeholder="e.g. 0.20">
+      </div>
+      <div>
+        <label for="flat-fee">Flat project fee ($)</label>
+        <input type="number" id="flat-fee" min="0" step="10" value="400" placeholder="e.g. 400">
+      </div>
+      <div>
+        <label for="target-hourly">Target hourly rate ($/hr, optional)</label>
+        <input type="number" id="target-hourly" min="0" step="5" value="" placeholder="e.g. 75">
+      </div>
+    </div>
+    <p class="note">Leave the target hourly rate blank to skip the solver.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in the job details and the two prices on offer, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a rate card.</strong> This does not know your market,
+      your niche, or a specific client's budget — it applies the hours and
+      prices you enter to the job as you describe it.</li>
+      <li><strong>Does not estimate your writing speed or research time for
+      you.</strong> You supply both directly; a first draft of an unfamiliar
+      topic routinely runs slower than a writer's own average.</li>
+      <li><strong>No taxes, platform fees, or overhead.</strong> If you are
+      also comparing what a job posted through Upwork or Fiverr nets after
+      that platform's cut, see the
+      <a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr fee calculator</a>.</li>
+      <li><strong>No client negotiation modeling.</strong> This does not
+      predict whether a client will accept a higher flat fee instead of a
+      per-word rate — it only compares the two prices you already have.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is a per-word rate or a flat project fee better for a freelance writer?</h3>
+    <p>It depends on the job. A per-word rate only pays for words written -- it does not separately compensate research, interviews, outlining, or revision rounds. A flat fee prices the whole job, including that non-writing time. When a job has heavy research or several revision rounds, a flat fee usually pays a higher effective hourly rate than an equivalent per-word rate; when a job is fast to write with little revision, a good per-word rate can pay more per hour.</p>
+    <h3>What counts as a low per-word rate in 2026?</h3>
+    <p>2026 freelance rate surveys put entry-level content writing at roughly $0.05-$0.10 per word, intermediate-to-senior generalist work at $0.10-$0.50 per word, and specialist work (legal, medical, expert B2B/fintech) at $0.50-$2.00+ per word. A 500-writer survey put the across-the-board average at $0.42/word; a survey of established copywriters put their average at $0.70/word -- the two differ because they sample different populations, not because either is wrong.</p>
+    <h3>Do ghostwriters charge more than bylined writers?</h3>
+    <p>Most freelance writers do not charge extra for ghostwriting (no byline). Of the writers who do add a premium, most add 16-20% over their bylined rate for the same word count, per 2026 rate-guide surveys. This tool shows that range as information only -- it is never added to the numbers automatically.</p>
+    <h3>Why does research and revision time matter to the price?</h3>
+    <p>A per-word rate is calculated only against the words in the final piece. If a job needs four hours of research and two revision rounds before the words are final, that time still has to be paid for somehow -- and a pure per-word rate does not do it. Rate guides describe switching from per-word to flat per-project pricing as the single most reliable way an established writer raises their real income, without ever raising the per-word figure they quote.</p>
+    <h3>Is this a rate card or a guarantee of what to charge?</h3>
+    <p>No. This tool applies the hours and prices you enter to compute an effective hourly rate for the job as you describe it -- it does not know your market, your niche, or your client's budget, and it is not a substitute for your own judgment or a professional rate-card resource.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or professional advice, and it does not replace your own judgment about your market or a client's budget. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing a one-off job instead of an ongoing retainer? The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> compares a monthly retainer against hourly billing for recurring client work — nothing uploaded. Comparing what the same job nets on Upwork vs. Fiverr after platform fees? See the <a href="../freelance-platform-fee-calculator/">Upwork vs. Fiverr fee calculator</a>.</p>
+    <p>Quoting an editing or proofreading job instead of writing? The <a href="../freelance-editor-quote-calculator/">freelance editor quote calculator</a> turns word count, edit level and your hourly target into a flat fee and per-word rate.</p>
+    <p>Quoting a whole book instead of an article? The <a href="../ghostwriter-book-quote-calculator/">ghostwriter book quote calculator</a> builds a flat fee from drafting, interview and revision hours and shows what a lower client budget really pays — nothing uploaded.</p>
+    <p>Already have a rate and wondering about raising it? The <a href="../freelance-rate-increase-calculator/">freelance rate increase calculator</a> shows how many clients you can lose after a raise and still earn the same.</p>
+    <p class="note">Just deciding by whether the number sounds fair? <a href="./vs-judging-a-quote-by-its-headline-number.html">See what judging a quote by its headline number alone misses</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { writerRateOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      wordCount: $("#word-count"), writingSpeed: $("#writing-speed"),
+      researchHours: $("#research-hours"), revisionRounds: $("#revision-rounds"),
+      hoursPerRevision: $("#hours-per-revision"), isGhostwritten: $("#is-ghostwritten"),
+      perWordRate: $("#per-word-rate"), flatFee: $("#flat-fee"), targetHourly: $("#target-hourly"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = writerRateOutcome({
+        wordCount: Number(els.wordCount.value) || 0,
+        perWordRate: Number(els.perWordRate.value) || 0,
+        flatFee: Number(els.flatFee.value) || 0,
+        writingWordsPerHour: Number(els.writingSpeed.value) || 0,
+        researchHours: Number(els.researchHours.value) || 0,
+        revisionRounds: Number(els.revisionRounds.value) || 0,
+        hoursPerRevision: Number(els.hoursPerRevision.value) || 0,
+        targetHourlyRate: Number(els.targetHourly.value) || 0,
+        isGhostwritten: els.isGhostwritten.checked,
+      });
+
+      const betterLabel = result.betterOption === "flat-fee" ? "the flat fee"
+        : result.betterOption === "per-word" ? "the per-word rate"
+        : "a tie";
+      els.stats.innerHTML = `Total hours on this job: <strong>${result.totalHours.toFixed(1)}</strong>. Better price for this job: <strong>${betterLabel}</strong>.`;
+
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">Writing hours</th><td>${result.writingHours.toFixed(1)}</td></tr>
+        <tr><th scope="row">Research + revision hours</th><td>${result.nonWritingHours.toFixed(1)}</td></tr>
+        <tr><th scope="row">Total hours</th><td>${result.totalHours.toFixed(1)}</td></tr>
+        <tr><th scope="row">Per-word rate pays</th><td>${money(result.perWordTotal)} total (${money(result.perWordHourly)}/hr)</td></tr>
+        <tr><th scope="row">Flat fee pays</th><td>${money(result.flatFee)} total (${money(result.flatFeeHourly)}/hr)</td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.wordCount.value = "1500";
+      els.writingSpeed.value = "500";
+      els.researchHours.value = "4";
+      els.revisionRounds.value = "2";
+      els.hoursPerRevision.value = "1";
+      els.isGhostwritten.checked = false;
+      els.perWordRate.value = "0.20";
+      els.flatFee.value = "500";
+      els.targetHourly.value = "75";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a 1,500-word article, 4 hours of research, two revision rounds at an hour each, priced at $0.20/word or a $500 flat fee.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.wordCount.value = "";
+      els.writingSpeed.value = "";
+      els.researchHours.value = "";
+      els.revisionRounds.value = "";
+      els.hoursPerRevision.value = "";
+      els.isGhostwritten.checked = false;
+      els.perWordRate.value = "";
+      els.flatFee.value = "";
+      els.targetHourly.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in the job details and the two prices on offer, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

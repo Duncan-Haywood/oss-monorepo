@@ -1,0 +1,44 @@
+name: eu-platform-work-directive-checker
+description: >-
+  Free browser tool for gig and app platforms and platform workers in the EU: answer yes/no questions about delivery, control and automated systems to see whether the platform is likely covered by the Platform Work Directive 2024/2831, how strong the employment presumption looks, which algorithmic-management rules apply, and the days to the 2 December 2026 transposition date. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py top score 0.18 (no platform-work tool in ventures/; the eu-* checkers cover other regulations;
+# freelance-contract-checker is a contract tool, not this directive).
+#
+# First visitor: founder or ops/legal lead at a delivery, ride, care, cleaning or freelance-marketplace startup searching "platform work directive compliance",
+# "presumption of employment gig workers EU", "platform worker directive algorithmic management"; and couriers/drivers' unions and workers reading what changes.
+# Transposition date 2 Dec 2026 drives search spikes. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into freelance-contract-checker and pay-transparency-directive-checker; GitHub Sponsors. Paid version, not built:
+# a worker-classification and algorithmic-decision audit log for platform operators, behind an env-var switch.
+#
+# Liability: first read of an EU directive whose triggering facts are national law; says plainly that the indicator count is a reading aid and not the legal test,
+# names a verify source on every result, carries no-warranty and not-legal-advice clauses. Rules were written from memory without network access and must be verified;
+# ethical risk is false comfort to a platform from a low indicator count, mitigated by the rebuttable-presumption and national-law findings on every result.
+
+hypotheses:
+  - claim: >-
+      Platform operators and workers facing the December 2026 transposition date will use a free checker to learn whether they are covered and what to prepare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a date or rule differs from the cited Directive on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-platform-work-directive-checker/
+  analytics: null

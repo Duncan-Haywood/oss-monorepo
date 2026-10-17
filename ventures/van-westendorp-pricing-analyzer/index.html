@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Van Westendorp Pricing Analyzer — Price Sensitivity Meter from Survey Data</title>
+  <meta name="description" content="Free Van Westendorp price sensitivity meter. Paste survey answers for too cheap, cheap, expensive and too expensive and get the acceptable price range, the optimal price point and the indifference price, with a chart and bootstrap bands. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Van Westendorp Pricing Analyzer — free, private, in your browser">
+  <meta property="og:description" content="Turn a four-question price survey into an acceptable price range, an optimal price point and confidence bands.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Van Westendorp Pricing Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste price survey responses and get the four Van Westendorp price points, the range of acceptable prices, a chart of the four curves and bootstrap confidence bands. Runs in your browser.", "featureList": "Van Westendorp price sensitivity meter, acceptable price range, optimal price point, indifference price, bootstrap confidence bands, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Van Westendorp price sensitivity meter?", "acceptedAnswer": {"@type": "Answer", "text": "A survey method from 1976. You ask each respondent four questions: at what price is this so cheap you would doubt its quality, a bargain, getting expensive, and too expensive to consider. Plotting the cumulative answers gives four curves, and where they cross marks a range of acceptable prices."}}, {"@type": "Question", "name": "What are the four price points?", "acceptedAnswer": {"@type": "Answer", "text": "The point of marginal cheapness (where too-cheap answers overtake bargain answers), the point of marginal expensiveness (where too-expensive answers overtake not-expensive answers), the optimal price point (where as many people call it too cheap as too expensive), and the indifference price (where as many call it a bargain as expensive). The range between the first two is the range of acceptable prices."}}, {"@type": "Question", "name": "How many survey responses do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Aim for at least 100 in the segment you sell to. This tool runs from 5 coherent responses and warns below 30, because the curves get noisy. It also shows a bootstrap band around each price point so you can see how much a small sample moves them."}}, {"@type": "Question", "name": "What input format does it need?", "acceptedAnswer": {"@type": "Answer", "text": "Four prices per respondent, one respondent per line, in the order too cheap, cheap, expensive, too expensive. Commas, tabs, semicolons or spaces separate them, currency symbols are ignored, an optional header row is skipped, and thousands separators are not supported. Rows where the prices do not rise in order are dropped and counted."}}, {"@type": "Question", "name": "Does it tell me what price maximises revenue?", "acceptedAnswer": {"@type": "Answer", "text": "No. It measures stated price perception, not willingness to pay or how many people would buy. Use the acceptable range to bound a test price, then run a real price test."}}, {"@type": "Question", "name": "What is the bootstrap band?", "acceptedAnswer": {"@type": "Answer", "text": "The tool resamples your respondents with replacement 300 times, recomputes each price point every time, and reports the 5th to 95th percentile. A wide band means the point moves a lot with who happened to answer. The resampling uses a fixed seed, so the same data gives the same bands."}}, {"@type": "Question", "name": "Is my survey data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you paste stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">VAN WESTENDORP PRICING ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What price range will your customers accept?</h1>
+    <p>Paste the answers from a four-question price survey. You get the <strong>range of acceptable prices</strong>, the <strong>optimal price point</strong>, the <strong>indifference price</strong>, a chart of the four curves and a <strong>bootstrap band</strong> that shows how much a small sample moves each one.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Illustrative analysis of stated opinions, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your survey responses</h2>
+    <label for="data">One respondent per line: too cheap, cheap, expensive, too expensive</label>
+    <textarea id="data" spellcheck="false" placeholder="too cheap,cheap,expensive,too expensive&#10;10,20,30,40&#10;12,22,32,44"></textarea>
+    <p class="note">The four questions: at what price would this be so cheap you doubt its quality; a bargain; getting expensive but still considered; too expensive to consider. Commas, tabs, semicolons or spaces separate the numbers. Currency symbols are ignored. No thousands separators. A header row is skipped. Rows whose prices do not rise in order are dropped and counted.</p>
+    <button type="button" id="analyze">Analyze</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste responses, then click Analyze.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+    <div id="report-findings"></div>
+    <div class="scroll"><table id="points"><thead><tr><th>Price point</th><th class="n">Estimate</th><th class="n">5th percentile</th><th class="n">95th percentile</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>For every price that appears in your data the tool counts, as a share of respondents, how many called that price too cheap or cheap (at or above it) and how many called it expensive or too expensive (at or below it). The curves cross where two groups are equal: marginal cheapness is too cheap against not cheap, marginal expensiveness is too expensive against not expensive, the optimal price point is too cheap against too expensive, and the indifference price is cheap against expensive. Crossings are linearly interpolated between the two nearest survey prices, and the first crossing from the left is used. Bands come from 300 resamples of your respondents with replacement, with a fixed random seed.</p>
+    <p><strong>Not modelled:</strong> purchase intent, demand, revenue, competitor prices, and segments. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Stated prices in a survey often differ from what people pay, so test any price before committing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the Van Westendorp price sensitivity meter?</h3>
+    <p>A survey method from 1976. You ask each respondent four questions: at what price is this so cheap you would doubt its quality, a bargain, getting expensive, and too expensive to consider. Plotting the cumulative answers gives four curves, and where they cross marks a range of acceptable prices.</p>
+    <h3>What are the four price points?</h3>
+    <p>The point of marginal cheapness (where too-cheap answers overtake bargain answers), the point of marginal expensiveness (where too-expensive answers overtake not-expensive answers), the optimal price point (where as many people call it too cheap as too expensive), and the indifference price (where as many call it a bargain as expensive). The range between the first two is the range of acceptable prices.</p>
+    <h3>How many survey responses do I need?</h3>
+    <p>Aim for at least 100 in the segment you sell to. This tool runs from 5 coherent responses and warns below 30, because the curves get noisy. It also shows a bootstrap band around each price point so you can see how much a small sample moves them.</p>
+    <h3>What input format does it need?</h3>
+    <p>Four prices per respondent, one respondent per line, in the order too cheap, cheap, expensive, too expensive. Commas, tabs, semicolons or spaces separate them, currency symbols are ignored, an optional header row is skipped, and thousands separators are not supported. Rows where the prices do not rise in order are dropped and counted.</p>
+    <h3>Does it tell me what price maximises revenue?</h3>
+    <p>No. It measures stated price perception, not willingness to pay or how many people would buy. Use the acceptable range to bound a test price, then run a real price test.</p>
+    <h3>What is the bootstrap band?</h3>
+    <p>The tool resamples your respondents with replacement 300 times, recomputes each price point every time, and reports the 5th to 95th percentile. A wide band means the point moves a lot with who happened to answer. The resampling uses a fixed seed, so the same data gives the same bands.</p>
+    <h3>Is my survey data uploaded anywhere?</h3>
+    <p>No. Everything you paste stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates of stated survey opinions; they do not predict what customers will pay. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any survey platform, pricing consultancy or research firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you paste, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your responses are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Setting a subscription price? See the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a> for the revenue-maximising price, the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
+    <p>Pricing a metered or API product? See the <a href="../usage-based-pricing-simulator/">usage-based pricing simulator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    const SERIES = [["tooCheap", "Too cheap", "#7a5c99"], ["cheap", "Cheap", "#2e7d4f"], ["expensive", "Expensive", "#c27a12"], ["tooExpensive", "Too expensive", "#b23a3a"]];
+
+    function chart(a) {
+      const W = 640, H = 300, L = 44, B = 30, T = 10, R = 12;
+      const xs = a.curves.map((c) => c.price), lo = xs[0], hi = xs[xs.length - 1];
+      const x = (p) => L + ((p - lo) / (hi - lo || 1)) * (W - L - R);
+      const y = (v) => T + (1 - v) * (H - T - B);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Four cumulative price curves with the acceptable range shaded">`;
+      if (a.points.pmc != null && a.points.pme != null) s += `<rect x="${x(a.points.pmc)}" y="${T}" width="${Math.max(0, x(a.points.pme) - x(a.points.pmc))}" height="${H - T - B}" fill="#e3f1e6"/>`;
+      for (const v of [0, .25, .5, .75, 1]) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#d9dfe6"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(v * 100)}%</text>`;
+      for (const [k, , color] of SERIES) s += `<polyline fill="none" stroke="${color}" stroke-width="2.2" points="${a.curves.map((c) => `${x(c.price).toFixed(1)},${y(c[k]).toFixed(1)}`).join(" ")}"/>`;
+      for (const [k, label] of [["pmc", "MC"], ["opp", "OPP"], ["ipp", "IPP"], ["pme", "ME"]]) if (a.points[k] != null) s += `<line x1="${x(a.points[k])}" x2="${x(a.points[k])}" y1="${T}" y2="${H - B}" stroke="#1f4a5d" stroke-dasharray="4 3"/><text x="${x(a.points[k])}" y="${H - B + 14}" font-size="11" text-anchor="middle" fill="#1f4a5d">${label} ${money(a.points[k])}</text>`;
+      return s + "</svg>";
+    }
+
+    function run() {
+      const a = analyze($("#data").value);
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const p = a.points, f = (v) => (v == null ? "n/a" : money(v));
+      $("#big").innerHTML = [[f(p.pmc) + " – " + f(p.pme), "Acceptable price range"], [f(p.opp), "Optimal price point"], [f(p.ipp), "Indifference price"], [String(a.n) + " of " + a.total, "Coherent responses used"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#chart").innerHTML = chart(a);
+      $("#legend").innerHTML = SERIES.map(([, l, c]) => `<span><b style="color:${c}">━</b> ${l}</span>`).join("") + "<span>Shaded: acceptable range</span>";
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#points tbody").innerHTML = [["pmc", "Marginal cheapness"], ["opp", "Optimal price point"], ["ipp", "Indifference price"], ["pme", "Marginal expensiveness"]].map(([k, l]) => `<tr><td>${l}</td><td class="n">${f(p[k])}</td><td class="n">${a.bands[k] ? money(a.bands[k].low) : "n/a"}</td><td class="n">${a.bands[k] ? money(a.bands[k].high) : "n/a"}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#data").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 60 invented respondents, not a real survey."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#data").value = ""; report.hidden = true; last = null; status.textContent = "Paste responses, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "van-westendorp-price-points.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

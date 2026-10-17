@@ -1,0 +1,46 @@
+name: dog-grooming-price-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for independent salon and mobile dog groomers: enter each breed class with a base price and plain-groom minutes, optional matting and de-shedding extras, drive time, supplies and your no-show rate, and get each class''s effective hourly, the price needed to hit your target hourly and a walk-away price; paste past appointments (breed class, price, minutes) and see which classes underpay and by how much per dog. Numbers are the ones the user supplies, not market rates or advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a groomer earns per table hour by exposing the breed classes whose price does not cover their minutes, matting and de-shed extras, drive time and no-shows.
+# Checked 2026-10-03: ventures/ has dog-grooming-profit-calculator (service profit, booth rent vs commission), dog-grooming-day-planner
+# (best dogs for a day, quote by table hour) and pet-grooming-bid-calculator (a quote from size, coat and add-ons); none audits past
+# appointments by breed class against a target hourly, none models drive time plus no-shows per class, and none shows matting and
+# de-shed extras against the surcharge. duplicate_check.py "dog groomer pricing by breed and time": top 0.31
+# (dog-boarding-daycare-pricing, dog-walking-route-pricing: different trades), nothing >= 0.45. Real overlap with the three grooming
+# tools above is partial and is the main risk to this venture's distinct value. Not in screened-out.md.
+#
+# First visitor: searches "how much to charge for dog grooming", "dog grooming price by breed", "mobile dog grooming pricing";
+# groomer forums and groups. Volume not measured with an external tool. A hosted version that reads scheduler exports is the
+# natural paid upgrade.
+hypotheses:
+  - claim: A groomer will enter their classes, see which ones earn under their target hourly, and raise a price or a matting surcharge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A groomer will paste past appointments, see which breed classes underpaid, and change a price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only typed or pasted values in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No groomer reports changing a price or surcharge because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dog-grooming-price-calculator/
+  analytics: null

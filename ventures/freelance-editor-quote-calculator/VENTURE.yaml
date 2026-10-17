@@ -1,0 +1,49 @@
+name: freelance-editor-quote-calculator
+description: >-
+  Free browser tool for freelance editors and proofreaders: enter manuscript word count, level of edit (proofread,
+  copyedit, line, developmental), manuscript condition and an hourly target, and see the flat fee, per-word and per-page
+  equivalents, billable hours, working days needed, a rush surcharge, and what the flat fee pays per hour if the edit
+  runs slower than planned. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Not in ventures/ (translator-project-quote, court-reporter and
+# brand-deal-rate-calculator are neighbours, none covers editors), not in screened-out.md. Searches by working editors
+# and proofreaders: "editing rates calculator", "how much to charge to copyedit a book", "proofreading quote calculator".
+# Incumbents: the Editorial Freelancers Association rate chart (static ranges), a few blog calculators that only
+# multiply words by a rate and never check pace risk.
+#
+# Who: freelance book, academic and business editors and proofreaders, including new ones pricing a first job.
+# First visitor: an editor with an enquiry in their inbox and no quote template.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A branded proposal PDF and
+# contract template pack is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; carries the no-warranty and not-advice clauses
+# and lists what is not decided.
+#
+# Unverified: default paces (2000/1000/600/350 words per hour) and condition factors (0.85/1/1.3) are rule-of-thumb
+# defaults, not a published standard; they are editable inputs. No market rate is claimed.
+
+hypotheses:
+  - claim: >-
+      A freelance editor with a quote request will enter word count, level and hourly target to get a flat fee and
+      per-word rate before replying, because the existing rate charts give ranges and not a fee that protects their
+      hourly rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the fee arithmetic differs from the stated rules on the same inputs.

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" role="img" aria-label="Power of MMD and C2ST tests against sample size for four wrong pendulum twins">
+<rect width="920" height="320" fill="#fff"/>
+<text x="460.0" y="20" text-anchor="middle" font-family="sans-serif" font-size="14">Power at 5% level vs n per class (stylised pendulum twins)</text>
+<rect x="40" y="50" width="200" height="200" fill="none" stroke="#999"/>
+<text x="140.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="12">coul-10%</text>
+<line x1="40" x2="240" y1="250" y2="250" stroke="#ddd"/>
+<text x="36" y="254" text-anchor="end" font-family="sans-serif" font-size="10">0</text>
+<line x1="40" x2="240" y1="150.0" y2="150.0" stroke="#ddd"/>
+<text x="36" y="154.0" text-anchor="end" font-family="sans-serif" font-size="10">0.5</text>
+<line x1="40" x2="240" y1="50" y2="50" stroke="#ddd"/>
+<text x="36" y="54" text-anchor="end" font-family="sans-serif" font-size="10">1</text>
+<text x="50.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">100</text>
+<text x="140.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">200</text>
+<text x="230.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">400</text>
+<polyline points="50.0,240.0 140.0,239.0 230.0,240.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="50.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="140.0" cy="239.0" r="3" fill="#1f6fb2"/>
+<circle cx="230.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<polyline points="50.0,240.0 140.0,240.0 230.0,240.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="50.0" cy="240.0" r="3" fill="#2e8b57"/>
+<circle cx="140.0" cy="240.0" r="3" fill="#2e8b57"/>
+<circle cx="230.0" cy="240.0" r="3" fill="#2e8b57"/>
+<polyline points="50.0,200.0 140.0,183.3 230.0,50.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="50.0" cy="200.0" r="3" fill="#c0392b"/>
+<circle cx="140.0" cy="183.3" r="3" fill="#c0392b"/>
+<circle cx="230.0" cy="50.0" r="3" fill="#c0392b"/>
+<rect x="260" y="50" width="200" height="200" fill="none" stroke="#999"/>
+<text x="360.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="12">coul-20%</text>
+<line x1="260" x2="460" y1="250" y2="250" stroke="#ddd"/>
+<line x1="260" x2="460" y1="150.0" y2="150.0" stroke="#ddd"/>
+<line x1="260" x2="460" y1="50" y2="50" stroke="#ddd"/>
+<text x="270.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">100</text>
+<text x="360.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">200</text>
+<text x="450.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">400</text>
+<polyline points="270.0,240.0 360.0,239.0 450.0,239.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="270.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="360.0" cy="239.0" r="3" fill="#1f6fb2"/>
+<circle cx="450.0" cy="239.0" r="3" fill="#1f6fb2"/>
+<polyline points="270.0,240.0 360.0,240.0 450.0,240.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="270.0" cy="240.0" r="3" fill="#2e8b57"/>
+<circle cx="360.0" cy="240.0" r="3" fill="#2e8b57"/>
+<circle cx="450.0" cy="240.0" r="3" fill="#2e8b57"/>
+<polyline points="270.0,158.3 360.0,50.0 450.0,50.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="270.0" cy="158.3" r="3" fill="#c0392b"/>
+<circle cx="360.0" cy="50.0" r="3" fill="#c0392b"/>
+<circle cx="450.0" cy="50.0" r="3" fill="#c0392b"/>
+<rect x="480" y="50" width="200" height="200" fill="none" stroke="#999"/>
+<text x="580.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="12">gauss-noise</text>
+<line x1="480" x2="680" y1="250" y2="250" stroke="#ddd"/>
+<line x1="480" x2="680" y1="150.0" y2="150.0" stroke="#ddd"/>
+<line x1="480" x2="680" y1="50" y2="50" stroke="#ddd"/>
+<text x="490.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">100</text>
+<text x="580.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">200</text>
+<text x="670.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">400</text>
+<polyline points="490.0,240.0 580.0,240.0 670.0,240.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="490.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="580.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="670.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<polyline points="490.0,240.0 580.0,229.0 670.0,221.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="490.0" cy="240.0" r="3" fill="#2e8b57"/>
+<circle cx="580.0" cy="229.0" r="3" fill="#2e8b57"/>
+<circle cx="670.0" cy="221.0" r="3" fill="#2e8b57"/>
+<polyline points="490.0,241.7 580.0,208.3 670.0,100.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="490.0" cy="241.7" r="3" fill="#c0392b"/>
+<circle cx="580.0" cy="208.3" r="3" fill="#c0392b"/>
+<circle cx="670.0" cy="100.0" r="3" fill="#c0392b"/>
+<rect x="700" y="50" width="200" height="200" fill="none" stroke="#999"/>
+<text x="800.0" y="42" text-anchor="middle" font-family="sans-serif" font-size="12">noise-sd+25%</text>
+<line x1="700" x2="900" y1="250" y2="250" stroke="#ddd"/>
+<line x1="700" x2="900" y1="150.0" y2="150.0" stroke="#ddd"/>
+<line x1="700" x2="900" y1="50" y2="50" stroke="#ddd"/>
+<text x="710.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">100</text>
+<text x="800.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">200</text>
+<text x="890.0" y="264" text-anchor="middle" font-family="sans-serif" font-size="10">400</text>
+<polyline points="710.0,240.0 800.0,240.0 890.0,240.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="710.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="800.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<circle cx="890.0" cy="240.0" r="3" fill="#1f6fb2"/>
+<polyline points="710.0,56.0 800.0,50.0 890.0,50.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="710.0" cy="56.0" r="3" fill="#2e8b57"/>
+<circle cx="800.0" cy="50.0" r="3" fill="#2e8b57"/>
+<circle cx="890.0" cy="50.0" r="3" fill="#2e8b57"/>
+<polyline points="710.0,233.3 800.0,225.0 890.0,200.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="710.0" cy="233.3" r="3" fill="#c0392b"/>
+<circle cx="800.0" cy="225.0" r="3" fill="#c0392b"/>
+<circle cx="890.0" cy="200.0" r="3" fill="#c0392b"/>
+<line x1="40" x2="58" y1="308" y2="308" stroke="#1f6fb2" stroke-width="2"/><text x="64" y="312" font-family="sans-serif" font-size="11">mmd/raw</text>
+<line x1="190" x2="208" y1="308" y2="308" stroke="#2e8b57" stroke-width="2"/><text x="214" y="312" font-family="sans-serif" font-size="11">mmd/resid</text>
+<line x1="340" x2="358" y1="308" y2="308" stroke="#c0392b" stroke-width="2"/><text x="364" y="312" font-family="sans-serif" font-size="11">c2st/raw</text>
+</svg>

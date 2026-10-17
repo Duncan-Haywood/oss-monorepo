@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01BTvEt1P6ieH2YyMY7hs6Nm",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "extend",
+  "projects": [
+    "robofab-graspmove"
+  ],
+  "pr": null,
+  "commits": [
+    "1670b43e52cb6cfa2c86bbb63f792f4d36c7d085"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 7,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "python3 vs pip mismatch again (pip for 3.11); used python3 -m pip",
+    "first moving-grasp sim reported no holding force at any force: MuJoCo friction lag (solref 0.004) and a qpos/dof index slip in my driver; fixed and documented"
+  ],
+  "integrity_issues": [],
+  "notes": "No open PRs; branches chip-systolic-batch/robofab-selfparts/ambient-pipeline remain stale duplicates with no PRs. Citations copied from robofab-grasp, not re-checked online.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

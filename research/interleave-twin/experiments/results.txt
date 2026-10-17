@@ -1,0 +1,55 @@
+Interleave twin: real = stationary two-state loss chain (marginal p, lag-1 correlation lam); twin = independent loss, same p
+p = 0.2; a copy is lost if its slot is lost; all copies of an update lost = update lost
+
+== 1. Twin design: copies back to back (g=1) for residual <= 0.001 ==
+  twin needs r = 5 copies, latency 4, claims residual 0.00032
+  lam    real residual of the twin's design    ratio to twin    real copies needed at g=1 (latency)
+  0.0    0.00032                                  1.0x          5 (4)
+  0.3    0.0075                                  23.4x          8 (7)
+  0.5    0.0259                                  81.0x          12 (11)
+  0.7    0.0667                                 208.5x          21 (20)
+  0.8    0.0996                                 311.2x          32 (31)
+  0.9    0.143                                  447.7x          65 (64)
+
+== 2. Two copies: real/twin ratio 1 + lam^g (1-p)/p vs spacing g ==
+  g     lam=0.5   lam=0.8   lam=0.9
+  1        3.000     4.200     4.600
+  2        2.000     3.560     4.240
+  3        1.500     3.048     3.916
+  5        1.125     2.311     3.362
+  8        1.016     1.671     2.722
+  12       1.001     1.275     2.130
+  20       1.000     1.046     1.486
+  40       1.000     1.001     1.059
+  spacing for the 2-copy residual to be within 10% of the twin: g >= ln(0.1 p/(1-p)) / ln(lam)
+   lam=0.5: g = 6 (ratio 1.062)
+   lam=0.8: g = 17 (ratio 1.090)
+   lam=0.9: g = 36 (ratio 1.090)
+
+== 3. Real min-latency design (r, g) for residual <= 0.001, r <= r_max ==
+  lam    r_max=2: latency (g)     r_max=3: latency (r,g)     r_max=4: latency (r,g)    r_max=8: latency (r,g)    twin latency
+  0.50   infeasible             infeasible                 infeasible               12 (7,2)                 4
+  0.80   infeasible             infeasible                 infeasible               35 (8,5)                 4
+  0.90   infeasible             infeasible                 infeasible               77 (8,11)                4
+  0.95   infeasible             infeasible                 infeasible               154 (8,22)               4
+
+== 4. Fixed deadline D: best residual of r copies spaced D/(r-1) (real) vs twin back-to-back p^r ==
+  lam = 0.8   D    r=2 (g=D)    r=3 (g=D/2)    r=4 (g=D/3)    consecutive r=D+1    twin r=D+1
+              3    0.122        0.141          0.119          0.119               0.0016
+              6    0.0819       0.0743         0.0722         0.0703              1.28e-05
+              12   0.051        0.0336         0.0294         0.0247              8.19e-10
+              24   0.0408       0.013          0.00747        0.00305             3.36e-18
+              48   0.04         0.00831        0.0022         4.64e-05            5.63e-35
+  lam = 0.9   D    r=2 (g=D)    r=3 (g=D/2)    r=4 (g=D/3)    consecutive r=D+1    twin r=D+1
+              3    0.157        0.169          0.156          0.156               0.0016
+              6    0.125        0.123          0.122          0.121               1.28e-05
+              12   0.0852       0.0782         0.0762         0.0735              8.19e-10
+              24   0.0528       0.0363         0.0323         0.027               3.36e-18
+              48   0.041        0.0139         0.00845        0.00365             5.63e-35
+
+== 5. Monte Carlo check of p q_g^(r-1) (200,000 chains per row, seed 7) ==
+  lam   r  g    exact       Monte Carlo   |diff|/se
+  0.8   2  1    0.168000    0.169430      1.71
+  0.8   3  1    0.141120    0.142720      2.06
+  0.8   3  4    0.055689    0.055500      0.37
+  0.9   2  10   0.095789    0.095390      0.61

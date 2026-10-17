@@ -1,0 +1,76 @@
+name: bai2-statement-reader
+description: >-
+  Free browser tool that reads a BAI2 bank statement file into accounts, opening and
+  closing balances and a transaction table with a CSV download, and checks the account,
+  group and file control totals, record counts (88 continuations included), closing
+  slashes, whole-cent amounts, dates and the balance roll-forward, each with its line
+  number, plus a rebuild of the 49, 98 and 99 trailers. The file is read locally and never
+  uploaded; account numbers are masked in the report and exports.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Sibling of nacha-file-validator and
+# sepa-payment-file-validator (payment files going out); this is the file coming back in.
+# Bookkeepers, AR clerks and treasury analysts download BAI2 prior-day reporting from the
+# bank and load it into accounting or ERP software; when an import fails the error is
+# terse, and the file itself is a wall of commas. Existing answers are developer libraries
+# (Python, Ruby, JS parsers), paid converters, and viewers inside treasury platforms.
+# Nothing is a free page that shows the file as a table, explains each control-total
+# fault with its line, and exports CSV without uploading bank data.
+#
+# First visitor: bookkeepers searching "BAI2 file viewer", "BAI2 to CSV", "BAI2 format
+# explained", "BAI2 control total". Volume not measured with an external tool.
+#
+# What makes it more than a parser: the 49 control total is checked against the four
+# sums banks use and the report says which one the file follows; record counts include 88
+# lines; the roll-forward flags a missing or edited transaction; a trailer rebuild fixes
+# the truncation/edit case without touching a transaction.
+#
+# Privacy is the liability boundary: bank files carry account numbers and balances, so the
+# file never leaves the browser (a test asserts no network calls) and account numbers are
+# masked in output.
+#
+# Path to revenue (payment rails stay off): lead magnet for reconciliation and bookkeeping
+# audiences. A paid version, if usage appears, is multi-file merge, saved bank profiles and
+# a rule-based mapping of type codes to GL accounts behind an env-var switch; not built.
+#
+# Liability: arithmetic and layout checks on the user's own file, model and omissions stated
+# on the page, no banking or accounting advice, no warranty, independent-of-BAI clause,
+# payment data note.
+#
+# Unverified: the record layouts, the type-code names and the four control-total
+# conventions are from memory of the public BAI2 format; no bank file or validator was
+# available. The first report of a real file that passes here and fails an import, or the
+# reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper whose accounting software rejected a BAI2 file will paste it into a
+      no-login page, because the alternative is a terse import error and a support call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the file as a table and exporting a CSV leads the same person to open the next
+      bank file here before importing it, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real BAI2 file that this tool reads differently from the bank or the importing system, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bai2-statement-reader/
+  analytics: null

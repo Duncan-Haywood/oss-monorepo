@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose Object Storage by Egress</title>
+  <meta name="description" content="Why object-storage bills are really egress bills, how R2, Backblaze B2, Wasabi, Spaces, Hetzner and S3 differ, and what to check before switching.">
+  <link rel="canonical" href="./how-to-choose-object-storage-by-egress.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does the same data cost so differently across object-storage providers?", "acceptedAnswer": {"@type": "Answer", "text": "Hyperscalers such as Amazon S3 charge a low-looking per-GB storage rate and then bill every GB you download at several cents, so serving data can cost many times what storing it does. Cloudflare R2 charges nothing for egress, Backblaze B2 and Wasabi bundle free egress up to a multiple of what you store, and Spaces and Hetzner sell a flat base fee with storage and transfer included. At 5 TB stored and 8 TB served a month, the cheapest and most expensive list prices in the calculator differ by roughly $800 a month."}}, {"@type": "Question", "name": "What matters more than the per-GB price?", "acceptedAnswer": {"@type": "Answer", "text": "Your access pattern. Egress-heavy workloads (public downloads, video, model weights, backups restored often) favour zero-egress or bundled-egress providers, while rarely-read archives favour the lowest storage rate. Request fees, minimum retention, and where your compute runs also matter: moving data out of S3 to a compute provider elsewhere is itself egress."}}, {"@type": "Question", "name": "When should I move to a different provider?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration: copying the data out (which is egress from the old provider), changing endpoints and credentials, and checking S3-API compatibility for the features you use such as presigned URLs, lifecycle rules and versioning. Run the calculator with your own volumes and growth before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Object Storage Pricing Calculator</a></p>
+  <h1>How to choose object storage by egress</h1>
+  <p>Put your GB stored, GB egress per month and growth rate into the <a href="./">calculator</a> to price Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner Object Storage side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why does the same data cost so differently across object-storage providers?</h2>
+  <p>Hyperscalers such as Amazon S3 charge a low-looking per-GB storage rate and then bill every GB you download at several cents, so serving data can cost many times what storing it does. Cloudflare R2 charges nothing for egress, Backblaze B2 and Wasabi bundle free egress up to a multiple of what you store, and Spaces and Hetzner sell a flat base fee with storage and transfer included. At 5 TB stored and 8 TB served a month, the cheapest and most expensive list prices in the calculator differ by roughly $800 a month.</p>
+  <h2>What matters more than the per-GB price?</h2>
+  <p>Your access pattern. Egress-heavy workloads (public downloads, video, model weights, backups restored often) favour zero-egress or bundled-egress providers, while rarely-read archives favour the lowest storage rate. Request fees, minimum retention, and where your compute runs also matter: moving data out of S3 to a compute provider elsewhere is itself egress.</p>
+  <h2>When should I move to a different provider?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: copying the data out (which is egress from the old provider), changing endpoints and credentials, and checking S3-API compatibility for the features you use such as presigned URLs, lifecycle rules and versioning. Run the calculator with your own volumes and growth before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

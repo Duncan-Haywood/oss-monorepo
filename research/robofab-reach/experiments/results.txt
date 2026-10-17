@@ -1,0 +1,29 @@
+# robofab-reach: smallest arm (link l1, mm) that can place all 6 free parts of the toy gripper
+# l2 = ratio*l1; base position free on the table (grid 10 mm); l1 grid 10 mm; wrist point only
+
+## 1. Tray gap (fixture edge to tray row) x shoulder height; ratio 1, no extra joint limits
+  gap H=50   H=100  H=200  H=300 
+   40 50.0   60.0   110.0  150.0 
+  120 60.0   80.0   110.0  160.0 
+  240 90.0   100.0  130.0  170.0 
+  400 130.0  140.0  160.0  200.0 
+
+## 2. Elbow bend limit |q2| <= limit (gap 120, H=100, ratio 1)
+elbow<=180 deg  l1=80.0
+elbow<=150 deg  l1=80.0
+elbow<=120 deg  l1=80.0
+elbow<= 90 deg  l1=180.0
+elbow<= 60 deg  l1=None
+
+## 3. Link ratio l2/l1 (gap 120, H=100)
+ratio=0.5   l1=100.0  l2=50.0  total=150.0
+ratio=0.75  l1=90.0  l2=67.5  total=157.5
+ratio=1.0   l1=80.0  l2=80.0  total=160.0
+ratio=1.5   l1=60.0  l2=90.0  total=150.0
+ratio=2.0   l1=50.0  l2=100.0  total=150.0
+
+## 4. Shoulder elevation limited to [0, 90] deg (no reaching below the shoulder), gap 120
+H= 50  l1=70.0
+H=100  l1=100.0
+H=200  l1=200.0
+H=300  l1=300.0

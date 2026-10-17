@@ -462,6 +462,9 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
   const entries = dated.slice(0, FEED_MAX_ENTRIES);
   const updated = feedUpdatedAt(dated, launched);
 
+  // `<published>` is not emitted: it was byte-for-byte the same date as the required `<updated>` (a tool has one launch date
+  // and no edit history here), 60 bytes x 30 entries in the `portfolio-front-html` ConfigMap that was 200 bytes over the etcd test
+  // budget on 2026-10-04 with one more venture merged. Atom requires `<updated>` and makes `<published>` optional.
   const entryXml = (tool) => {
     const date = `${launched[tool.slug]}T00:00:00Z`;
     const summary = String(tool.description ?? '').replace(/\s+/g, ' ').trim();
@@ -469,7 +472,6 @@ export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
     <title>${escapeHtml(tool.title)}</title>
     <link rel="alternate" type="text/html" href="${escapeHtml(`${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`)}"/>
     <id>${escapeHtml(feedEntryId(tool.slug))}</id>
-    <published>${date}</published>
     <updated>${date}</updated>
     <category term="${escapeHtml(categoryFor(tool.slug).title)}"/>${
       summary ? `\n    <summary type="text">${escapeHtml(summary)}</summary>` : ''
@@ -544,8 +546,48 @@ export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 /** The well-known path a model fetches without having to discover it first. */
 export const LLMS_FILE = 'llms.txt';
 
-/** Where `--write` puts it, beside the page it describes. */
-export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+/**
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
+ *
+ * `catalogStoredKey`'s own doc comment named `sitemap.xml` (113,830 bytes the
+ * day `catalog.json` was compressed) as the next key over the etcd threshold,
+ * and its own comment then named `llms.txt` (106,635 bytes that same day) as
+ * the one after that — both left plain deliberately, "one at a time and
+ * against a measurement" rather than pre-emptively. `sitemap.xml` joined on
+ * 2026-09-23; this is that day for `llms.txt`. Measured on 2026-09-24: adding
+ * `skill-manifest-check` to a `main` that was already 109 bytes over the
+ * 943,718-byte budget on its own (three sibling comparison pages having
+ * landed since `sitemap.xml` bought its headroom back) took
+ * `portfolio-front-html` to 945,297 bytes — over by 1,579, the same failure
+ * shape `catalogStoredKey` and `sitemapStoredKey` both record, one key
+ * further down the list they named. This was never really about one venture:
+ * `main` itself was already over budget before this session's page existed.
+ *
+ * Applied the identical mechanism the two keys before it use: gzip the file,
+ * store it under a `.gz` key, serve it via `gzip_static always; gunzip on;`
+ * (no `try_files`, which stats the now-absent uncompressed name and would
+ * 404 before `gzip_static` ever ran), sweep the stale plain sibling, and add
+ * the matching test coverage mirroring what guards `sitemap.xml.gz`.
+ *
+ * The *URL* is unchanged and stays `/llms.txt` — `LLMS_FILE` is what the
+ * front page and the About page link, and a well-known path
+ * (llmstxt.org) is not something to move to save bytes. Only the stored key
+ * changes.
+ */
+export const llmsStoredKey = () => `${LLMS_FILE}${COMPRESSED_SUFFIX}`;
+
+/**
+ * Where `--write` puts it, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, for
+ * the same reason `SITEMAP_OUTPUT_FILE` spells it out: `COMPRESSED_SUFFIX` is
+ * declared several hundred lines below this, and a `const` is hoisted into
+ * the temporal dead zone, not initialised, so a forward reference here would
+ * throw at module load rather than read as a stale copy. `llmsStoredKey()`
+ * above is the accessor that does use the constant, and `front-door.test.mjs`
+ * asserts the two agree so this literal cannot drift.
+ */
+export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', `${LLMS_FILE}.gz`);
 
 /** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
 export const CATALOG_FILE = 'catalog.json';
@@ -975,7 +1017,7 @@ ${optional}`;
  * front door that introduced a second name for it — a project codename, or
  * the bare domain — would be the first place a visitor met the discrepancy.
  */
-export const SITE_NAME = 'Free small-business calculators';
+export const SITE_NAME = 'Open Tools and Research';
 
 /**
  * What the share card actually shows, for a reader whose client announces the
@@ -1072,9 +1114,30 @@ export const categoryAnchor = (id) => `open-${id}`;
  */
 export const categoryPageKey = (id) => `c__${id}.html`;
 
+/**
+ * The ConfigMap key one category page is actually stored under, gzipped.
+ *
+ * **Stored gzipped since 2026-09-24**, same reason and same mechanism as
+ * `compareStoredKey`/`compareProductStoredKey`: these ten pages were the
+ * largest still-plain keys in `portfolio-front-html` and the ones every new
+ * trades venture grows fastest (`c__trades.html` alone carries one card per
+ * mirrored trades tool), and on that day they took the built object to
+ * 943,895 bytes against the 943,718-byte budget in
+ * `gitops/tests/test_manifests.py` — over by 177 bytes, on a commit that
+ * added no category and touched none of these pages by hand; the flurry of
+ * comparison pages and new ventures merged that hour did it by itself.
+ *
+ * `categoryPageKey` above stays the *plain* name: it is still what the nginx
+ * rewrite target names (`gzip_static` appends `.gz` to `$uri` itself, the
+ * same trap `COMPRESSED_SUFFIX` documents for `compare.html`) and what the
+ * "served vs. generator" test in `front-door.test.mjs` compares the sitemap
+ * path against. This function is the other half — the name actually on disk.
+ */
+export const categoryPageStoredKey = (id) => `${categoryPageKey(id)}${COMPRESSED_SUFFIX}`;
+
 /** Where `--write` puts one rendered category page. */
 export const categoryOutputFile = (id) =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', categoryPageKey(id));
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', categoryPageStoredKey(id));
 
 /**
  * A category page's URL *on this host*.
@@ -1733,9 +1796,32 @@ export const PRIVACY_LOG_FIELDS = ['$remote_addr', '$http_user_agent', '$http_re
  */
 export const ABOUT_KEY = 'about.html';
 
+/**
+ * The ConfigMap key the About page is actually stored under, gzipped — see
+ * `COMPRESSED_SUFFIX`.
+ *
+ * Compressed since 2026-09-24, for the same reason `catalogStoredKey` and
+ * `sitemapStoredKey` were: `depop-fee-calculator` and `hidden-unicode-check`
+ * graduating in the same window took `portfolio-front-html` to 945,123 bytes
+ * against the 943,718-byte test budget in `gitops/tests/test_manifests.py` —
+ * and the object was already 109 bytes over that budget on `main` before
+ * either merged, from ordinary catalogue growth since the last time this
+ * ceiling was addressed. `about.html` was the right key to compress rather
+ * than `llms.txt` (146 KB, but a well-known path with a dozen other tests
+ * pinned to its plain form) or a category page (a `c__<id>.html` compresses
+ * about as well but is a data file this ConfigMap needs a fast, self-
+ * contained fix for, not a rewrite of the largest remaining plain key):
+ * at ~15 KB plain it does not grow with the catalogue the way `llms.txt` and
+ * the category pages do, so compressing it buys headroom without picking a
+ * key that will need compressing again in a few dozen ventures. The *URL* is
+ * unchanged and stays `/about/` — `ABOUT_KEY` is still what the front page,
+ * the sitemap and `ABOUT_PATH` name; only the stored key changes.
+ */
+export const aboutStoredKey = () => `${ABOUT_KEY}${COMPRESSED_SUFFIX}`;
+
 /** Where `--write` puts the rendered About page. */
 export const aboutOutputFile = () =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ABOUT_KEY);
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', aboutStoredKey());
 
 /** The About page's URL on this host. */
 export const apexAboutUrl = () => `${FRONT_DOOR_URL}${ABOUT_PATH}`;
@@ -2540,9 +2626,10 @@ ${group.tools
     // Emitted only when it has something to add — see `extraTokens`. Most
     // slugs are the title in kebab case and contribute nothing.
     const alt = extra ? ` data-alt="${escapeHtml(extra)}"` : '';
-    return `        <li class="card" data-cat="${escapeHtml(group.id)}"${alt}>
-          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
-        </li>`;
+    // One line, unindented: this list is 656 cards and the whitespace around
+    // each was ~34 bytes -- 22 KB of the `portfolio-front-html` object that was
+    // sitting 512 bytes over the etcd test budget on 2026-10-03.
+    return `<li class="card" data-cat="${escapeHtml(group.id)}"${alt}><h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3></li>`;
   })
   .join('\n')}
   </ul>`,
@@ -2873,9 +2960,15 @@ if (isMain) {
     console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
-    // documents disagreeing about what this host serves.
-    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
-    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+    // documents disagreeing about what this host serves. Gzipped, unlike the
+    // feed write above it: this is the key `catalogStoredKey` and
+    // `sitemapStoredKey` both named as next over the etcd budget, and it is
+    // what took the object over on 2026-09-24. See `llmsStoredKey`.
+    const storedLlms = compress(llms);
+    await fs.writeFile(LLMS_OUTPUT_FILE, storedLlms);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${storedLlms.length} bytes, ${llms.length} uncompressed)`,
+    );
     // And once more, with one extra edge: `llms.txt` now *links* this file, so
     // a run that wrote the one without the other would publish a document
     // pointing a model at a path this host answers with the front page.
@@ -2918,25 +3011,55 @@ if (isMain) {
     // mirrored tool stops being rendered, and its page would otherwise stay in
     // git, stay in the ConfigMap, and stay in nobody's sitemap while still
     // answering its URL with a list of tools this host no longer serves.
-    const wanted = new Set(categoryPages.map((page) => categoryPageKey(page.id)));
+    //
+    // Matches both `.html` and `.html.gz` so this sweep also carries the
+    // 2026-09-24 migration to gzip: every plain `c__*.html` predates
+    // `categoryPageStoredKey` and is stale the first time this runs, exactly
+    // like the plain `compare.html`/`vs__*.html` siblings the compression
+    // note on `COMPRESSED_SUFFIX` describes sweeping the same way.
+    const wanted = new Set(categoryPages.map((page) => categoryPageStoredKey(page.id)));
     for (const name of await fs.readdir(path.dirname(OUTPUT_FILE))) {
-      if (name.startsWith('c__') && name.endsWith('.html') && !wanted.has(name)) {
+      if (
+        name.startsWith('c__') &&
+        (name.endsWith('.html') || name.endsWith(`.html${COMPRESSED_SUFFIX}`)) &&
+        !wanted.has(name)
+      ) {
         await fs.rm(path.join(path.dirname(OUTPUT_FILE), name));
         console.log(`removed ${name} (no mirrored tools in that category)`);
       }
     }
     for (const page of categoryPages) {
       const file = categoryOutputFile(page.id);
-      await fs.writeFile(file, page.html);
-      console.log(`wrote ${path.relative(REPO_ROOT, file)} (${page.html.length} bytes)`);
+      const stored = compress(page.html);
+      await fs.writeFile(file, stored);
+      console.log(
+        `wrote ${path.relative(REPO_ROOT, file)} (${stored.length} bytes, ${page.html.length} uncompressed)`,
+      );
     }
     // Same run as the sitemap that lists it and the front page that links to
     // it, for the reason every other artifact here is written together: a page
     // referenced by two files it was not committed beside is a 404 that only
     // shows up in production.
+    // Gzipped, unlike the write above it: this is the key that took the
+    // object over budget on 2026-09-24. See `aboutStoredKey`. The URL is
+    // still `/about/`.
     const aboutFile = aboutOutputFile();
-    await fs.writeFile(aboutFile, about);
-    console.log(`wrote ${path.relative(REPO_ROOT, aboutFile)} (${about.length} bytes)`);
+    const storedAbout = compress(about);
+    await fs.writeFile(aboutFile, storedAbout);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, aboutFile)} (${storedAbout.length} bytes, ${about.length} uncompressed)`,
+    );
+    // Stale-sibling sweep, same reason as the category-page sweep above: a
+    // plain `about.html` left beside its `.gz` would go on being served by
+    // `location = /about.html`'s `root`-resolved fallback nowhere -- there is
+    // no such fallback here, but a plain file on disk is still a frozen copy
+    // nothing points at and a trap for the next reader wondering which one is
+    // live.
+    const stalePlainAbout = path.join(path.dirname(OUTPUT_FILE), ABOUT_KEY);
+    if (await fs.stat(stalePlainAbout).then(() => true, () => false)) {
+      await fs.rm(stalePlainAbout);
+      console.log(`removed ${ABOUT_KEY} (superseded by ${path.basename(aboutFile)})`);
+    }
     // The comparison index, on the same terms as the category pages above: it
     // is written when there is something to list and swept when there is not,
     // so it can never stay in git, in the ConfigMap and in nobody's sitemap
@@ -2965,10 +3088,13 @@ if (isMain) {
     // `location = /catalog.json` block's own `root`, so a regeneration that
     // stopped writing the compressed copy would go on serving a frozen
     // catalogue -- 200s, valid JSON, quietly describing a catalogue that has
-    // moved on. `SITEMAP_FILE` joins on 2026-09-23 for the identical reason,
+    // moved on. `SITEMAP_FILE` joined on 2026-09-23 for the identical reason,
     // one key over: a plain `sitemap.xml` left beside the new `.gz` would
     // keep answering `/sitemap.xml` with a sitemap that stopped growing.
-    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+    // `LLMS_FILE` joins on 2026-09-24, one key further still, for the
+    // identical reason again: a plain `llms.txt` left beside the new `.gz`
+    // would keep answering `/llms.txt` with a document that stopped growing.
+    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, LLMS_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
         await fs.rm(file);

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. curl -I and reading the headers yourself | Cookie Security Checker</title>
+<meta name="description" content="curl -I shows you the raw Set-Cookie text. It doesn't tell you that SameSite=None without Secure makes a compliant browser reject the header outright, or that joining repeated Set-Cookie headers into one string and re-splitting on commas corrupts any cookie with an Expires date. This free tool applies both rules for you, from one real request.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cookie-security-check/vs-curl-and-reading-headers-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. curl -I and reading the headers yourself">
+<meta property="og:description" content="curl shows the raw Set-Cookie text. It doesn't tell you which attribute combinations a browser actively rejects, or that naively re-splitting multiple Set-Cookie headers on commas corrupts any cookie with an Expires date. This checker applies both rules for you.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't curl -I enough to see a site's Set-Cookie headers?",
+      "acceptedAnswer": { "@type": "Answer", "text": "curl -I shows you the raw header text, which is the easy part. What it doesn't tell you is which attribute combinations a compliant browser actively rejects rather than merely tolerates weakened -- SameSite=None without Secure, or a __Host-/__Secure- prefix whose attribute rules aren't met. Reading three attribute names off a terminal doesn't carry that judgment with it; you have to already know the rejection rules to apply them by eye." }
+    },
+    {
+      "@type": "Question",
+      "name": "What goes wrong if I script this myself against curl's output?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The common shortcut is joining every Set-Cookie header into one string and splitting it on commas, the way most other repeated response headers can be handled. Set-Cookie can't: an Expires attribute contains its own comma (\"Expires=Wed, 21 Oct 2026 07:28:00 GMT\"), so that join-then-split silently breaks into the wrong number of fragments and corrupts the cookie's attributes the moment one of them carries an Expires date." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you show a real example of the corruption?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two Set-Cookie headers: a session cookie with Path, Expires, Secure, and HttpOnly, and a csrf cookie with SameSite=None. Correctly read as two separate header values, that's two cookies. Joined with \", \" and split on every comma instead, the Expires date's own comma splits the session cookie's attributes away from its name mid-value, producing three fragments instead of two -- one of which is just \"21 Oct 2026 07:28:00 GMT; Secure; HttpOnly\" with no cookie name attached to it at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my target URL or its cookies uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The CLI (check.mjs) sends its one request straight from your machine to the URL you name -- never through this site. The browser page only parses JSON you paste into it yourself, locally. The only thing stored is an anonymous local count of which features were used and the day, with no target URLs and no Set-Cookie values in it." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { overflow-wrap: anywhere; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Cookie Security Checker</a></p>
+
+<h1>This checker vs. curl -I and reading the headers yourself</h1>
+
+<p>
+  <code>curl -I https://example.com/</code> gets you the raw <code>Set-Cookie</code> header text
+  in seconds, and for a quick look that's often all you need. The value this tool adds isn't
+  reading the attribute names -- curl already shows you those. It's two things a manual read (or a
+  naive script built on top of curl's output) gets wrong.
+</p>
+<p>
+  First, <strong>knowing which attribute combinations a browser actively rejects</strong> rather
+  than merely tolerates weakened. <code>SameSite=None</code> without <code>Secure</code>, and a
+  <code>__Host-</code> or <code>__Secure-</code> prefixed cookie that violates the attribute rules
+  those prefixes require, aren't read as "less secure" by Chrome, Firefox, and Safari -- they're
+  rejected outright, and the cookie is never stored at all. Nothing about the raw header text tells
+  you that; you have to already know the rejection rules and apply them yourself, attribute
+  combination by attribute combination.
+</p>
+<p>
+  Second, <strong>parsing repeated <code>Set-Cookie</code> headers correctly.</strong> Most response
+  headers that repeat can be joined into one string and split on commas. <code>Set-Cookie</code>
+  cannot: an <code>Expires</code> attribute carries a comma of its own
+  (<code>Expires=Wed, 21 Oct 2026 07:28:00 GMT</code>), so that join-then-split silently corrupts
+  any cookie that sets one. This tool reads each <code>Set-Cookie</code> header as its own separate
+  value -- the way Node's own HTTP client already hands them back -- and never rejoins or re-splits
+  them.
+</p>
+
+<h2>A worked example of the corruption</h2>
+<p>
+  Two real <code>Set-Cookie</code> headers from one response:
+</p>
+<table>
+  <thead><tr><th scope="col">#</th><th scope="col">Header value</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>session=abc123; Path=/; Expires=Wed, 21 Oct 2026 07:28:00 GMT; Secure; HttpOnly</code></td></tr>
+    <tr><td>2</td><td><code>csrf=xyz789; SameSite=None</code></td></tr>
+  </tbody>
+</table>
+<table>
+  <thead><tr><th scope="col">Read correctly (this checker)</th><th scope="col">Joined and split on commas (the naive shortcut)</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>2 cookies: <code>session</code> (Path, Expires, Secure, HttpOnly) and <code>csrf</code> (SameSite=None, flagged <code>samesite-none-without-secure</code>).</td>
+      <td>3 fragments: <code>session=abc123; Path=/; Expires=Wed</code>, then <code>21 Oct 2026 07:28:00 GMT; Secure; HttpOnly</code> with no cookie name attached at all, then <code>csrf=xyz789; SameSite=None</code>.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  The <code>Expires</code> attribute's own comma splits the <code>session</code> cookie's value
+  away from its trailing attributes mid-string, turning two real cookies into three fragments and
+  leaving one of them with no name at all. A tool built on the join-then-split shortcut either
+  drops that fragment or misreports it -- either way, it never reaches the actual attributes it was
+  supposed to check.
+</p>
+
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I just want to eyeball whether a cookie has Secure or HttpOnly set at all.</td>
+      <td><code>curl -I</code> -- that's exactly its job, and this tool checks the same attributes as a stricter, automated pass.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether an attribute combination is one a browser actively rejects, not just weaker.</td>
+      <td>This checker -- applies the SameSite=None/Secure rule and the __Host-/__Secure- prefix contract for you, instead of leaving you to know and re-check both by eye.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically in CI against my own staging environment.</td>
+      <td><code>node check.mjs &lt;url&gt;</code> -- exit code 1 on a danger-severity finding, no reading required.</td>
+    </tr>
+    <tr>
+      <td>I'm scripting my own parser on top of curl's output and it needs to handle multiple Set-Cookie headers.</td>
+      <td>This checker's <code>parseSetCookieHeader</code> -- or at minimum, don't join repeated headers into one string before splitting on commas.</td>
+    </tr>
+  </tbody>
+</table>
+
+<section>
+  <h2>Common questions</h2>
+  <h3>Isn't curl -I enough to see a site's Set-Cookie headers?</h3>
+  <p>curl -I shows you the raw header text, which is the easy part. What it doesn't tell you is which attribute combinations a compliant browser actively rejects rather than merely tolerates weakened -- SameSite=None without Secure, or a __Host-/__Secure- prefix whose attribute rules aren't met. Reading three attribute names off a terminal doesn't carry that judgment with it; you have to already know the rejection rules to apply them by eye.</p>
+  <h3>What goes wrong if I script this myself against curl's output?</h3>
+  <p>The common shortcut is joining every Set-Cookie header into one string and splitting it on commas, the way most other repeated response headers can be handled. Set-Cookie can't: an Expires attribute contains its own comma ("Expires=Wed, 21 Oct 2026 07:28:00 GMT"), so that join-then-split silently breaks into the wrong number of fragments and corrupts the cookie's attributes the moment one of them carries an Expires date.</p>
+  <h3>Can you show a real example of the corruption?</h3>
+  <p>Two Set-Cookie headers: a session cookie with Path, Expires, Secure, and HttpOnly, and a csrf cookie with SameSite=None. Correctly read as two separate header values, that's two cookies. Joined with ", " and split on every comma instead, the Expires date's own comma splits the session cookie's attributes away from its name mid-value, producing three fragments instead of two -- one of which is just "21 Oct 2026 07:28:00 GMT; Secure; HttpOnly" with no cookie name attached to it at all.</p>
+  <h3>Is my target URL or its cookies uploaded anywhere?</h3>
+  <p>No. The CLI (check.mjs) sends its one request straight from your machine to the URL you name -- never through this site. The browser page only parses JSON you paste into it yourself, locally. The only thing stored is an anonymous local count of which features were used and the day, with no target URLs and no Set-Cookie values in it.</p>
+  <p class="note">Want the fuller explanation of why the SameSite/prefix rejections read as functional bugs before they read as security ones? Read <a href="samesite-none-cookie-rejected.html">why a SameSite=None cookie disappears instead of just weakening</a>.</p>
+</section>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at a specific,
+  well-documented set of Set-Cookie attribute patterns from one response. It is not a full
+  security assessment, does not crawl other pages on the site, and cannot see a pattern its
+  checks don't happen to cover. A clean report describes what this one request found, not a
+  guarantee the site's cookies are secure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page only parses JSON you paste into it
+  locally -- nothing typed here is uploaded or fetched by this site.</p>
+  <p>This page is not affiliated with, endorsed by, or sponsored by the curl project. curl is
+  named here only to describe the well-known command-line tool and how this checker differs from
+  it.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

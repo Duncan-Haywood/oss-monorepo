@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>COBRA vs Marketplace Calculator — which costs less after a job loss</title>
+  <meta name="description" content="Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="COBRA or a marketplace plan after a job loss: what each really costs">
+  <meta property="og:description" content="Premiums plus deductible and out-of-pocket, with the amount you already paid this year carried over on COBRA. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "COBRA vs Marketplace Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare COBRA continuation coverage with an ACA marketplace plan after losing job-based coverage: premiums plus out-of-pocket cost at five levels of care, the break-even, and COBRA election and special-enrollment deadlines."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this insurance or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It adds premiums and expected out-of-pocket cost for the numbers you type and computes deadlines from the dates you give. It cannot see your network, drugs, state law or plan documents. Confirm deadlines with your plan administrator or the marketplace."}}, {"@type": "Question", "name": "Where do I get the marketplace premium?", "acceptedAnswer": {"@type": "Answer", "text": "From a healthcare.gov or state-exchange quote for the months you need. Enter the monthly premium after your premium tax credit; this tool deliberately holds no subsidy tables, so it cannot go out of date on that."}}, {"@type": "Question", "name": "Why does COBRA sometimes win even though it costs more every month?", "acceptedAnswer": {"@type": "Answer", "text": "COBRA keeps the same plan, so the deductible and out-of-pocket maximum you already paid this plan year carry over. A marketplace plan starts both at zero. If you have already met much of the deductible and expect real care, that head start can outweigh a premium gap."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local arguments and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <p class="note">COBRA VS MARKETPLACE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Lost your job-based health insurance: is COBRA or a marketplace plan cheaper?</h1>
+    <p>Enter the <strong>COBRA premium</strong> from your election notice, a <strong>marketplace quote</strong> and each plan's deductible and out-of-pocket maximum. See the <strong>total cost over the months you need coverage</strong> at five levels of medical care, the <strong>break-even</strong>, and your <strong>election and enrollment deadlines</strong>. COBRA carries over what you already paid toward this year's deductible; a new plan does not. That is often the whole answer.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter. It is not insurance or legal advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your two options</h2>
+    <div class="grid">
+      <div><h3>COBRA (your old plan)</h3>
+        <label for="cp">Full monthly premium (USD)</label><input type="number" id="cp" min="0" step="any" value="0">
+        <label for="cd">Deductible (USD)</label><input type="number" id="cd" min="0" step="any" value="0">
+        <label for="cdm">Deductible already met this plan year (USD)</label><input type="number" id="cdm" min="0" step="any" value="0">
+        <label for="co">Out-of-pocket maximum (USD)</label><input type="number" id="co" min="0" step="any" value="0">
+        <label for="com">Out-of-pocket already spent this plan year (USD)</label><input type="number" id="com" min="0" step="any" value="0">
+        <label for="cc">Your coinsurance after deductible (%)</label><input type="number" id="cc" min="0" max="100" step="any" value="20">
+      </div>
+      <div><h3>Marketplace plan</h3>
+        <label for="mp">Monthly premium after tax credit (USD)</label><input type="number" id="mp" min="0" step="any" value="0">
+        <label for="md">Deductible (USD)</label><input type="number" id="md" min="0" step="any" value="0">
+        <label for="mo">Out-of-pocket maximum (USD)</label><input type="number" id="mo" min="0" step="any" value="0">
+        <label for="mc">Your coinsurance after deductible (%)</label><input type="number" id="mc" min="0" max="100" step="any" value="20">
+        <h3>Your situation</h3>
+        <label for="mo2">Months you need coverage (1 to 18)</label><input type="number" id="mo2" min="1" max="18" step="1" value="6">
+        <label for="es">Your own estimate of care, allowed charges (USD, optional)</label><input type="number" id="es" min="0" step="any">
+      </div>
+    </div>
+    <div class="grid">
+      <div><label for="ld">Date your job coverage ends (optional, for deadlines)</label><input type="date" id="ld"></div>
+      <div><label for="nd">Date the COBRA election notice was sent (optional)</label><input type="date" id="nd"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Total cost over the months you need coverage</h2>
+    <p id="summary"></p>
+    <div style="overflow-x:auto"><table><thead><tr><th>If you need</th><th>Allowed charges</th><th>COBRA total</th><th>Marketplace total</th><th>Cheaper</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note">Total = premiums for every month plus what you pay out of pocket. Allowed charges are insurer contract prices, not hospital list prices, and the levels are illustrations.</p>
+    <div id="notes"></div>
+    <div id="dates"></div>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <pre class="cmd">node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31
+node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 8000 --market-oop-max 9200 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="cobra-election-deadlines-explained.html">COBRA election deadlines explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+<h3>Is this insurance or legal advice?</h3><p>No. It adds premiums and expected out-of-pocket cost for the numbers you type and computes deadlines from the dates you give. It cannot see your network, drugs, state law or plan documents. Confirm deadlines with your plan administrator or the marketplace.</p><h3>Where do I get the marketplace premium?</h3><p>From a healthcare.gov or state-exchange quote for the months you need. Enter the monthly premium after your premium tax credit; this tool deliberately holds no subsidy tables, so it cannot go out of date on that.</p><h3>Why does COBRA sometimes win even though it costs more every month?</h3><p>COBRA keeps the same plan, so the deductible and out-of-pocket maximum you already paid this plan year carry over. A marketplace plan starts both at zero. If you have already met much of the deductible and expect real care, that head start can outweigh a premium gap.</p><h3>Is my data uploaded anywhere?</h3><p>No. The page calculates in your browser and sends nothing. The CLI reads local arguments and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not insurance, legal, tax or financial advice. It adds the premiums and out-of-pocket amounts you type and ignores provider networks, formularies, cost-sharing reductions, copays, state continuation laws and plan-specific rules; it is not a guarantee of what any plan will pay. Confirm deadlines and benefits with your plan administrator or the marketplace before you decide.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../aca-subsidy-cliff-calculator/">ACA Subsidy Cliff Calculator</a>, <a href="../insurance-denial-appeal-builder/">Insurance Denial Appeal Builder</a>, <a href="../s-corp-reasonable-compensation-calculator/">S-Corp Reasonable Compensation Calculator</a>, <a href="../quarterly-estimated-tax-calendar/">Quarterly Estimated Tax Calendar</a>, <a href="../severance-package-calculator/">Severance Package Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { RULES_AS_OF, compute, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = { cobraPremium: "cp", cobraDeductible: "cd", cobraDedMet: "cdm", cobraOopMax: "co", cobraOopMet: "com", cobraCoinsurancePct: "cc", marketPremium: "mp", marketDeductible: "md", marketOopMax: "mo", marketCoinsurancePct: "mc", months: "mo2", expectedSpend: "es", lossDate: "ld", noticeDate: "nd" };
+    const read = () => Object.fromEntries(Object.entries(IDS).map(([k, id]) => [k, $("#" + id).value]));
+
+    function render() {
+      const r = compute(read());
+      if (r.status === "error") { $("#status").innerHTML = `<span class="error">${escapeHtml(r.text)}</span>`; return; }
+      if (r.dates && r.dates.error) { $("#status").innerHTML = `<span class="error">${escapeHtml(r.dates.error)}</span>`; return; }
+      $("#status").textContent = "";
+      $("#summary").innerHTML = `<span class="ok">${escapeHtml(r.text)}</span>`;
+      $("#rows").innerHTML = r.scenarios.map((s) => `<tr><td>${escapeHtml(s.label)}</td><td>${fmt(s.spend)}</td><td>${fmt(s.cobraTotal)}</td><td>${fmt(s.marketTotal)}</td><td>${s.cheaper === "tie" ? "about equal" : s.cheaper === "cobra" ? "COBRA" : "Marketplace"}</td></tr>`).join("");
+      const notes = [...r.notes, ...r.warnings];
+      $("#notes").innerHTML = "<ul>" + notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("") + "</ul>";
+      const d = r.dates;
+      $("#dates").innerHTML = d ? `<h3>Your deadlines</h3><ul><li>Elect COBRA by <strong>${d.electionDeadline}</strong> (60 days from ${escapeHtml(d.electionNoticeBasis)}); first premium due by <strong>${d.firstPremiumDue}</strong>.</li><li>Marketplace special enrollment ends <strong>${d.marketplaceWindowEnds}</strong>. Pick a plan by <strong>${d.marketplaceNoGapPickBy}</strong> to start <strong>${d.marketplaceStartsIfPickedByThen}</strong>.</li><li>COBRA for a job loss runs at most to <strong>${d.maxCobraEnds}</strong>.</li></ul>` : "";
+      $("#estimate").textContent = RULES_AS_OF + ". Your numbers; not insurance or legal advice.";
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { cobraPremium: 780, cobraDeductible: 3000, cobraDedMet: 2400, cobraOopMax: 8000, cobraOopMet: 2600, marketPremium: 210, marketDeductible: 5500, marketOopMax: 9200, months: 6, lossDate: "2026-10-31" };
+    $("#load-example").addEventListener("click", () => {
+      for (const [k, v] of Object.entries(EXAMPLE)) $("#" + IDS[k]).value = v;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = k === "months" ? 6 : k.endsWith("CoinsurancePct") ? 20 : k === "expectedSpend" || k.endsWith("Date") ? "" : 0;
+      $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

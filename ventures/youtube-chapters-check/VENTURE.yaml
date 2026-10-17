@@ -1,0 +1,25 @@
+name: youtube-chapters-check
+description: >-
+  Free browser tool that checks a YouTube chapter list against the rules that decide whether chapters show
+  (first timestamp 0:00, at least three timestamps in ascending order, each chapter at least 10 seconds),
+  with a line number for every problem, and fixes ordering and format. It also converts Premiere Pro,
+  DaVinci or Audacity marker exports into a description-ready list, a podcast chapters.json, ffmpeg
+  chapter metadata or a WebVTT chapters track. The text is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (duplicate_check.py: nearest existing venture
+# caption-quality-check at 0.30, podcast-feed-check 0.10 -- neither covers chapters). First visitor: a
+# creator whose chapters "don't show up" or who exports markers from an editor; search phrases like
+# "youtube chapters not showing", "youtube timestamp generator", "premiere markers to youtube chapters",
+# "audacity labels to chapters". Volume not measured with an external tool.
+#
+# Deliberately deterministic: it does not watch or transcribe the video, so it never invents titles. That
+# keeps it free to run and honest about what it cannot see.
+#
+# Path to revenue (payment rails stay off): lead magnet for creator-tool audiences; a paid version, if
+# usage appears, is a batch/CLI check over a channel's video descriptions behind an env-var switch (read
+# via the YouTube Data API with the owner's own key); none built.
+#
+# Liability: format checks on the user's own text, no warranty, independent-of-every-platform clause,
+# trademarks used nominatively, no promise YouTube will show chapters.

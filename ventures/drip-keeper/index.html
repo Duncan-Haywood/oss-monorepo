@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Drip Keeper — Free Self-Hosted Lifecycle Email</title>
+  <meta name="description" content="A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.">
+  <meta property="og:title" content="Drip Keeper — self-hosted lifecycle email">
+  <meta property="og:description" content="Event-triggered email sequences with exit-on-goal, skip rules, unsubscribe and bounce handling. MIT, one Node process, your list, your sending account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Drip Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source lifecycle email for SaaS: event-triggered sequences, exit on a goal event, skip rules, send windows, one-click unsubscribe and suppression. Runs on your own server with your own Resend account."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not use Customer.io, Loops, Userlist or Mailchimp automations?", "acceptedAnswer": {"@type": "Answer", "text": "Hosted tools are polished and the right call if you want a visual editor and a team inbox. They price by contact count, and your customer list and event stream live on their platform. Drip Keeper is MIT, keeps contacts and sequences in one JSON file you control, and sends through your own Resend account. If a hosted tool already works for you, keep it."}}, {"@type": "Question", "name": "What does it do when someone upgrades halfway through a sequence?", "acceptedAnswer": {"@type": "Answer", "text": "Your app posts an upgraded event. Any sequence that lists upgraded in exitOn stops for that person immediately, and the stats show which email they had last received, so you can see which email precedes conversions."}}, {"@type": "Question", "name": "Can it send a duplicate or flood someone after an outage?", "acceptedAnswer": {"@type": "Answer", "text": "It marks a message sent and saves before calling the email provider, so a crash can lose one email but never send it twice. After downtime it sends at most one message per person per pass and keeps at least an hour between messages, so a long outage cannot dump a whole sequence into an inbox."}}, {"@type": "Question", "name": "Does it handle unsubscribes and bounces?", "acceptedAnswer": {"@type": "Answer", "text": "Every email carries a signed unsubscribe link and List-Unsubscribe headers with one-click support. A GET shows a confirm page so mail scanners cannot unsubscribe people by prefetching. Point a Resend webhook at the server and spam complaints and permanent bounces stop all mail to that address automatically (signature-verified); an admin endpoint covers everything else."}}, {"@type": "Question", "name": "Do I need to worry about email law?", "acceptedAnswer": {"@type": "Answer", "text": "You are the sender, so yes: consent rules, a physical postal address in marketing email (CAN-SPAM), and honouring unsubscribes. Drip Keeper adds the unsubscribe link and your postal address to every message and warns on start if the address is missing, but compliance is yours."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2433; background: #f5f7fb; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1f45c4; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444; }
+    .card { background: #fff; border: 1px solid #dce1ee; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aab3d0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 190px; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f45c4; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6e8f4; vertical-align: top; }
+    tr.event td { background: #eef1fa; }
+    tr.skipped td { color: #777; }
+    details pre, pre { background: #eef1fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .err { color: #a11; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Lifecycle email that stops when the customer converts.</h1>
+  <p>Drip Keeper is an open-source alternative to Customer.io and Loops for small SaaS teams. Your app posts events (<code>signed_up</code>, <code>created_project</code>, <code>upgraded</code>); sequences send the onboarding, trial and win-back emails; a goal event ends the rest; every email carries an unsubscribe link. Try your sequences first: the page runs the same engine as the server, in your browser, and uploads nothing.</p>
+
+  <section class="card" aria-labelledby="sim">
+    <h2 id="sim">1. Preview what one person would receive, and when</h2>
+    <label for="seqs">Sequences (JSON)</label>
+    <textarea id="seqs" spellcheck="false">[
+  {
+    "id": "onboarding",
+    "name": "Onboarding: get new signups to their first result",
+    "trigger": "signed_up",
+    "exitOn": ["upgraded"],
+    "sendHoursUTC": [13, 21],
+    "steps": [
+      { "waitHours": 0, "subject": "Welcome, {{name|there}}", "text": "Hi {{name|there}},\n\nThanks for signing up. The fastest way to see value is to create your first project:\nhttps://app.example.com/new\n\nReply to this email if you get stuck; a person reads it." },
+      { "waitHours": 48, "subject": "Did you get your first project going?", "text": "Hi {{name|there}},\n\nMost people who stick around create a project in their first two days. If something got in the way, tell me what and I will help.", "skipIf": "created_project" },
+      { "waitHours": 72, "subject": "Three things teams do next", "text": "Hi {{name|there}},\n\n1. Invite a teammate.\n2. Connect your data.\n3. Set up a weekly report.\n\nhttps://app.example.com/next" },
+      { "waitHours": 96, "subject": "Your trial: what you have used so far", "text": "Hi {{name|there}},\n\nYour trial ends soon. Upgrading keeps your projects and history:\nhttps://app.example.com/upgrade", "skipIf": "upgraded" }
+    ]
+  },
+  {
+    "id": "win-back",
+    "name": "Win-back: lapsed users",
+    "trigger": "went_inactive",
+    "exitOn": ["logged_in", "upgraded"],
+    "reenroll": true,
+    "steps": [
+      { "waitHours": 0, "subject": "We have not seen you in a while", "text": "Hi {{name|there}},\n\nSomething change? Reply with one line and I will read it.\n\nPick up where you left off: https://app.example.com" },
+      { "waitHours": 168, "subject": "What we shipped since you left", "text": "Hi {{name|there}},\n\nA short list of what is new: https://app.example.com/changelog" }
+    ]
+  }
+]</textarea>
+    <label for="evs">What the person does (one per line: <code>0h</code> or <code>3d</code>, then the event name)</label>
+    <textarea id="evs" spellcheck="false" style="min-height:90px">0h signed_up
+60h created_project
+200h upgraded</textarea>
+    <label for="nm">Their name (fills {{name}})</label>
+    <input id="nm" value="Ada">
+    <label for="days">Days to simulate</label>
+    <input id="days" type="number" min="1" max="120" value="30">
+    <button id="run" type="button">Show the timeline</button>
+    <p class="note" id="sum" role="status" aria-live="polite"></p>
+    <table><thead><tr><th scope="col">When</th><th scope="col">What</th><th scope="col">Detail</th></tr></thead><tbody id="rows"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>2. Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/drip-keeper
+ADMIN_KEY=$(openssl rand -hex 16) SEQUENCES_FILE=examples/sequences.json \
+BASE_URL=https://mail.example.com PRODUCT_NAME=Acme node server.mjs      # DRY_RUN=true until you change it
+
+curl -X POST $BASE_URL/v1/events -H "Authorization: Bearer $ADMIN_KEY" \
+  -d '{"email":"ada@example.com","name":"Ada","event":"signed_up"}'</pre>
+    <p class="note">Dry run records events and shows what would send at <code>POST /v1/admin/tick</code> without sending anything. Add <code>RESEND_API_KEY</code>, <code>MAIL_FROM</code>, <code>POSTAL_ADDRESS</code> and set <code>DRY_RUN=false</code> to go live. One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not use Customer.io, Loops, Userlist or Mailchimp automations?</h3>
+    <p>Hosted tools are polished and the right call if you want a visual editor and a team inbox. They price by contact count, and your customer list and event stream live on their platform. Drip Keeper is MIT, keeps contacts and sequences in one JSON file you control, and sends through your own Resend account. If a hosted tool already works for you, keep it.</p>
+    <h3>What does it do when someone upgrades halfway through a sequence?</h3>
+    <p>Your app posts an upgraded event. Any sequence that lists upgraded in exitOn stops for that person immediately, and the stats show which email they had last received, so you can see which email precedes conversions.</p>
+    <h3>Can it send a duplicate or flood someone after an outage?</h3>
+    <p>It marks a message sent and saves before calling the email provider, so a crash can lose one email but never send it twice. After downtime it sends at most one message per person per pass and keeps at least an hour between messages, so a long outage cannot dump a whole sequence into an inbox.</p>
+    <h3>Does it handle unsubscribes and bounces?</h3>
+    <p>Every email carries a signed unsubscribe link and List-Unsubscribe headers with one-click support. A GET shows a confirm page so mail scanners cannot unsubscribe people by prefetching. Point a Resend webhook at the server and spam complaints and permanent bounces stop all mail to that address automatically (signature-verified); an admin endpoint covers everything else.</p>
+    <h3>Do I need to worry about email law?</h3>
+    <p>You are the sender, so yes: consent rules, a physical postal address in marketing email (CAN-SPAM), and honouring unsubscribes. Drip Keeper adds the unsubscribe link and your postal address to every message and warns on start if the address is missing, but compliance is yours.</p>
+  </section>
+
+  <footer>
+    <p>Same buyer, other jobs: <a href="../waitlist-keeper/">Waitlist Keeper</a> runs a pre-launch referral waitlist, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../trial-converter/">Trial Converter</a> works the trial-to-paid step, <a href="../dunning-engine/">Dunning Engine</a> recovers failed payments, <a href="../link-keeper/">Link Keeper</a> shortens links with click stats, <a href="../status-keeper/">Status Keeper</a> runs an uptime page <a href="../flag-keeper/">Flag Keeper</a> rolls features out to a percentage of users, <a href="../help-keeper/">Help Keeper</a> hosts the help center your emails link to <a href="../slot-keeper/">Slot Keeper</a> lets people book a call from a page you host and <a href="../changelog-keeper/">Changelog Keeper</a> publishes the release notes your emails point to.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the sender of every email it sends: you are responsible for consent, the privacy notice, anti-spam rules where you and your recipients live, and the content of your messages. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { simulate } from "./engine.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const when = (h) => (h % 24 === 0 ? `day ${h / 24}` : `day ${Math.floor(h / 24)} +${h % 24}h`);
+    const add = (cls, cells, detail) => {
+      const tr = document.createElement("tr"); tr.className = cls;
+      cells.forEach((c) => { const td = document.createElement("td"); td.textContent = c; tr.append(td); });
+      if (detail) { const td = tr.lastChild, d = document.createElement("details"), s = document.createElement("summary"), p = document.createElement("pre"); s.textContent = "Show the email"; p.textContent = detail; d.append(s, p); td.append(d); }
+      $("rows").append(tr);
+    };
+    $("run").addEventListener("click", () => {
+      $("rows").innerHTML = ""; $("sum").className = "note";
+      try {
+        const seqs = JSON.parse($("seqs").value);
+        const events = $("evs").value.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+          const m = l.match(/^(\d+(?:\.\d+)?)\s*([hd])\s+(\S+)$/i);
+          if (!m) throw new Error(`Cannot read "${l}". Use e.g. 0h signed_up or 3d upgraded.`);
+          return { atHours: Math.round(Number(m[1]) * (m[2].toLowerCase() === "d" ? 24 : 1)), event: m[3] };
+        });
+        const days = Math.min(120, Math.max(1, Number($("days").value) || 30));
+        const tl = simulate(seqs, events, { days, props: { name: $("nm").value } });
+        let mails = 0, skips = 0;
+        for (const x of tl) {
+          if (x.kind === "event") add("event", [when(x.atHours), `Event: ${x.event}`, [x.enrolled.length ? `starts ${x.enrolled.join(", ")}` : "", x.exited.length ? `stops ${x.exited.join(", ")}` : ""].filter(Boolean).join("; ")]);
+          else if (x.kind === "skipped") { skips++; add("skipped", [when(x.atHours), `Skipped ${x.seq} #${x.step}`, `already did ${x.why}`]); }
+          else { mails++; add("mail", [when(x.atHours), `Email: ${x.subject}`, `${x.seq} step ${x.step}`], x.text); }
+        }
+        $("sum").textContent = `${mails} email${mails === 1 ? "" : "s"} sent, ${skips} skipped, over ${days} days.`;
+        record("simulate");
+      } catch (e) { $("sum").className = "err"; $("sum").textContent = e.message; }
+    });
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

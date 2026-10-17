@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Supplier Price Creep Checker</title>
+  <meta name="description" content="Free supplier price creep checker for restaurants, cafes and shops: paste invoice lines, see which items crept up, which invoice was a one-off overcharge, what it costs a year, and a credit-request email. Private, runs in your browser.">
+  <meta property="og:title" content="Find the supplier price creep hiding in your invoices — free, private">
+  <meta property="og:description" content="Paste your invoice lines. See what crept up, what was overcharged and what it costs a year. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Supplier Price Creep Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if my supplier is raising prices?", "acceptedAnswer": {"@type": "Answer", "text": "Compare what you paid for the same item on each invoice. Paste your invoice lines (date, item, quantity, unit price) and this page lines up every purchase of each item, shows the first price, the latest price and the percentage move, and sorts items by what the move costs you over a year."}}, {"@type": "Question", "name": "What is the difference between price creep and a one-off overcharge?", "acceptedAnswer": {"@type": "Answer", "text": "Creep is a price that steps up and stays up. A one-off is a single invoice priced well above the invoices on either side of it, which is more often a keying error or a surcharge that should be credited. The page separates the two and drafts a credit request for the second kind."}}, {"@type": "Question", "name": "How is the annual cost worked out?", "acceptedAnswer": {"@type": "Answer", "text": "The gap between the latest and the first price, times the quantity you bought per year at the pace in your data. It needs at least 28 days between the first and last invoice; with less, it shows no annual figure rather than a guess."}}, {"@type": "Question", "name": "Can it check against my contract or quoted price?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add a contract price column and every line priced above it is listed as an overcharge with the dollar difference, and a credit request email is drafted for each supplier."}}, {"@type": "Question", "name": "Are my invoices uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. They are read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SUPPLIER PRICE CREEP CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which supplier prices quietly went up, and what does it cost you?</h1>
+    <p>Paste the lines from your supplier invoices: <strong>date, item, quantity, unit price</strong>. The page lines up every purchase of each item, flags the ones that <strong>crept up</strong>, finds the invoices that were a <strong>one-off overcharge</strong>, checks any <strong>contract price</strong> you give it, and totals what the move costs you <strong>over a year</strong>. It writes a credit-request email for each supplier.</p>
+    <p class="note">Your invoices are read in this browser tab and never leave your device. It compares prices you give it; it cannot tell whether a price rise was justified or whether you are owed a credit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your invoice lines</h2>
+    <p class="note">A CSV or a pasted spreadsheet range with a header row. Required columns: date, item, qty, and unit price (or total plus qty). Optional: supplier, unit (case, lb), SKU, contract price. Export line items from your accounting software or type them in; two or more purchases of an item are needed to see a change.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the lines</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Date,Supplier,Item,Unit,Qty,Unit price,Contract price&#10;2026-07-06,Harbor Foods,Chicken thigh,case,20,38.40,38.40"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. What counts as a problem</h2>
+    <div class="grid">
+      <div><label for="creep">Flag creep at or above (percent)</label><input id="creep" inputmode="decimal" value="5"></div>
+      <div><label for="spike">Flag a one-off above neighbours by (percent)</label><input id="spike" inputmode="decimal" value="8"></div>
+      <div><label for="business">Your business name for the emails (optional)</label><input id="business" value=""></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check the invoices</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the lines, then click Check the invoices.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Supplier</th><th scope="col" class="n">First</th><th scope="col" class="n">Latest</th><th scope="col" class="n">Change</th><th scope="col" class="n">Per year</th><th scope="col">Flag</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>By supplier</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Supplier</th><th scope="col" class="n">Items compared</th><th scope="col" class="n">Price index</th></tr></thead><tbody id="suppliers"></tbody></table></div>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-claims">Download credit requests (text)</button> <button type="button" class="secondary" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Creep:</strong> an item whose latest price is at or above your threshold over its first price, bought at least twice. The annual cost is that gap times the quantity bought per year at the pace in your data, shown only with 28 or more days between first and last invoice.</li>
+      <li><strong>One-off:</strong> a single purchase priced above both its neighbours by your threshold, where the neighbours agree within half of it. Likely an error or surcharge worth a credit request; it is left out of the annual figure.</li>
+      <li><strong>Contract:</strong> any line priced above the contract price you gave, by quantity.</li>
+      <li><strong>Price index:</strong> for each supplier, what a typical order of the compared items costs at the latest prices against the first prices.</li>
+      <li><strong>Not decided:</strong> whether a rise was justified by a notice or contract term, pack-size or unit changes (items are matched by supplier and item name or SKU; different unit labels are flagged), tax and delivery fees, rebates, or whether a credit is owed. Prices are as you typed them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I know if my supplier is raising prices?</h3>
+    <p>Compare what you paid for the same item on each invoice. Paste your invoice lines (date, item, quantity, unit price) and this page lines up every purchase of each item, shows the first price, the latest price and the percentage move, and sorts items by what the move costs you over a year.</p>
+    <h3>What is the difference between price creep and a one-off overcharge?</h3>
+    <p>Creep is a price that steps up and stays up. A one-off is a single invoice priced well above the invoices on either side of it, which is more often a keying error or a surcharge that should be credited. The page separates the two and drafts a credit request for the second kind.</p>
+    <h3>How is the annual cost worked out?</h3>
+    <p>The gap between the latest and the first price, times the quantity you bought per year at the pace in your data. It needs at least 28 days between the first and last invoice; with less, it shows no annual figure rather than a guess.</p>
+    <h3>Can it check against my contract or quoted price?</h3>
+    <p>Yes. Add a contract price column and every line priced above it is listed as an overcharge with the dollar difference, and a credit request email is drafted for each supplier.</p>
+    <h3>Are my invoices uploaded anywhere?</h3>
+    <p>No. They are read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your supplier agreement, your bookkeeper, or your own judgment. A credit request it writes is a draft for you to check against the invoices.</p>
+    <p><strong>Not affiliated with any supplier.</strong> This tool is independent; it is not sponsored, endorsed or connected to any food distributor, accounting software or supplier.</p>
+    <p><strong>Business data.</strong> Invoices show what you pay and to whom. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your lines. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your invoices are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>invoices_checked</code>, <code>example_loaded</code>, <code>claims_downloaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pour-cost-calculator/">pour cost calculator</a> and the <a href="../subscription-audit-from-statement/">subscription audit from a statement</a> look at other costs that drift.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { check, sampleList, SAMPLE_SETTINGS, claimText, reportCsv, flagOf, money, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const opts = () => ({ creepPct: parseFloat($("#creep").value) || 5, spikePct: parseFloat($("#spike").value) || 8 });
+    const PILL = { "over contract": "high", "one-off spike": "high", "creeping up": "medium", cheaper: "ok", steady: "info", "one purchase": "info" };
+
+    function run(text) {
+      const r = check(text, opts());
+      last = r;
+      const s = r.summary;
+      if (r.errors.length && !r.items.length) {
+        status.textContent = r.errors[0];
+      }
+      $("#report-stats").innerHTML = `<strong>${s.creeping} item${s.creeping === 1 ? "" : "s"} creeping</strong>, ${s.spikes} one-off spike${s.spikes === 1 ? "" : "s"}, ${s.contractBreaches} over contract · ${s.annualReliable ? dollars(s.annualImpact) + " a year from price creep" : "annual cost needs 28+ days of invoices"} · ${dollars(s.overchargeTotal)} over contract so far`;
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} row${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : `${s.lines} lines, ${s.items} items, ${s.spanDays} days.`;
+      $("#rows").innerHTML = r.items.map((i) => {
+        const f = flagOf(i);
+        const mix = i.unitMixup ? ` <span class="pill medium">units differ: ${esc(i.units.join(" / "))}</span>` : "";
+        return `<tr><td>${esc(i.label)}${mix}</td><td>${esc(i.supplier)}</td><td class="n">${money(i.baselinePrice)}</td><td class="n">${money(i.latestPrice)}</td><td class="n">${i.changePct.toFixed(1)}%</td><td class="n">${i.annualImpact ? dollars(i.annualImpact) : ""}</td><td><span class="pill ${PILL[f]}">${f}</span></td></tr>`;
+      }).join("");
+      $("#suppliers").innerHTML = r.suppliers.map((x) => `<tr><td>${esc(x.supplier)}</td><td class="n">${x.items}</td><td class="n">${x.indexPct >= 0 ? "+" : ""}${x.indexPct.toFixed(1)}%</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.items.flatMap((i) => [
+        ...i.overcharges.map((x) => `<div class="finding"><h4><span class="pill high">over contract</span>${esc(i.label)} on ${x.date}</h4><p>Invoiced ${money(x.price)}, agreed ${money(x.contract)}, ${x.qty} units: ${dollars(x.excess)} too much.</p></div>`),
+        ...i.spikes.map((x) => `<div class="finding"><h4><span class="pill high">one-off</span>${esc(i.label)} on ${x.date}</h4><p>Invoiced ${money(x.price)}; the invoices either side were about ${money(x.reference)}: ${dollars(x.excess)} more than usual (${x.pct.toFixed(0)}%).</p></div>`),
+      ]).join("");
+      report.hidden = false;
+      status.textContent = `${s.items} items checked.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the lines first."; return; }
+      run(text); record("invoices_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleList(); $("#file").value = ""; $("#business").value = SAMPLE_SETTINGS.business;
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up suppliers and prices; chicken is over its contract, fryer oil has one bad invoice, tomatoes crept up a third.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the lines, then click Check the invoices."; });
+    $("#dl-claims").addEventListener("click", () => { if (last) { record("claims_downloaded"); download("supplier-credit-requests.txt", claimText(last, { business: $("#business").value.trim() }), "text/plain"); } });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("supplier-price-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

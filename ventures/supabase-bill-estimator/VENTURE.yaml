@@ -1,0 +1,48 @@
+name: supabase-bill-estimator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that estimates a monthly Supabase Pro bill from the user''s own dashboard usage numbers (Pro organizations, compute add-ons, database disk, egress, file storage, monthly active users, Edge Function invocations, Realtime messages) at editable approximate list prices and allowances, and ranks the changes that cut it most (compute rightsizing, egress trimming, database cleanup, storage cleanup, Edge Function caching, Realtime batching, fake sign-up blocking) with a dollar saving each; accepts a product,usage CSV and a --budget CI gate. A deterministic calculator over the user''s inputs, not a bill reader and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of datadog-bill-estimator and vercel-bill-estimator, not a trade-bid
+# calculator. duplicate_check.py (run 2026-10-03) scored the closest ventures:
+# vercel-bill-estimator 0.29, datadog-bill-estimator 0.17 -- nothing prices
+# Supabase or ranks its savings levers. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "supabase bill
+# too high", "reduce supabase costs", "supabase pricing calculator", "supabase egress cost";
+# r/Supabase, r/webdev and Hacker News threads titled "my
+# Supabase bill was $X this month". The reader is a founder or lead dev on Pro
+# whose usage-based overage just surprised them. Supabase's own pricing page is a
+# rate card and its dashboard shows usage after the fact; this takes the usage
+# numbers, ranks what to change first and fits a CI budget gate -- that is the
+# wedge. A hosted usage-trend monitor is the natural paid upgrade path later.
+hypotheses:
+  - claim: A developer whose Supabase invoice just jumped will search for how to cut it, enter their usage, and learn which lever saves the most dollars.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so a usage change that pushes the estimate over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/supabase-bill-estimator/
+  analytics: null

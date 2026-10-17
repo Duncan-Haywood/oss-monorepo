@@ -1,0 +1,57 @@
+A robot infers which of two goals a human heads to from noisy cues (cue points at the true goal w.p. p).
+It commits when the lead |S| reaches h. Twin: cue accuracy p_s; real human: p. Target error alpha in the twin.
+
+== 0. closed forms vs simulation (60000 trials per row) ==
+p     h   err exact  err sim   E[T] exact  E[T] sim
+0.7   4   0.03263    0.03293   9.347       9.357
+0.7   6   0.00616    0.00680   14.815      14.767
+0.6   8   0.03755    0.03800   36.996      36.959
+0.9   3   0.00137    0.00138   3.740       3.744
+0.5   5   0.50000    0.49822   25.000      24.987
+
+== 1. designed in a twin, run on the real human (alpha = 1e-3) ==
+p_s   h   twin err  |  real p  real err  real err/alpha  alpha^theta  real E[T]  twin E[T]
+0.9   4   1.52e-04  |  0.95   7.67e-06  0.01            9.55e-05     4.44       5.00
+0.9   4   1.52e-04  |  0.8    3.89e-03  3.89            1.28e-02     6.61       5.00
+0.9   4   1.52e-04  |  0.7    3.26e-02  32.63           6.97e-02     9.35       5.00
+0.9   4   1.52e-04  |  0.6    1.65e-01  164.95          2.80e-01     13.40      5.00
+0.8   5   9.76e-04  |  0.95   4.04e-07  0.00            4.25e-07     5.56       8.32
+0.8   5   9.76e-04  |  0.8    9.76e-04  0.98            1.00e-03     8.32       8.32
+0.8   5   9.76e-04  |  0.7    1.43e-02  14.25           1.47e-02     12.14      8.32
+0.8   5   9.76e-04  |  0.6    1.16e-01  116.36          1.33e-01     19.18      8.32
+0.7   9   4.88e-04  |  0.95   3.10e-12  0.00            3.76e-11     10.00      22.48
+0.7   9   4.88e-04  |  0.8    3.81e-06  0.00            1.23e-05     15.00      22.48
+0.7   9   4.88e-04  |  0.7    4.88e-04  0.49            1.00e-03     22.48      22.48
+0.7   9   4.88e-04  |  0.6    2.54e-02  25.35           3.67e-02     42.72      22.48
+
+== 2. same, checked by simulation (p_s=0.9, alpha=1e-3, 200000 trials) ==
+h=4 real p=0.7: exact err 0.03263, simulated 0.03313; exact E[T] 9.35, simulated 9.34
+h=4 real p=0.6: exact err 0.16495, simulated 0.16370; exact E[T] 13.40, simulated 13.41
+
+== 3. a twin that is too irrational is safe but slow (p_s=0.6, alpha=1e-3) ==
+h = 18 in the twin (E[T] there 89.9)
+real p=0.7: real err 2.38e-07, E[T] 45.0 vs best integer h for real p: h=9, E[T] 22.5 (2.0x slower)
+real p=0.8: real err 1.46e-11, E[T] 30.0 vs best integer h for real p: h=5, E[T] 8.3 (3.6x slower)
+real p=0.9: real err 6.66e-18, E[T] 22.5 vs best integer h for real p: h=4, E[T] 5.0 (4.5x slower)
+
+== 4. a population of humans, Beta(a,b) cue accuracy, twin uses the mean (alpha = 0.05) ==
+Population error floor as h -> infinity is P(p < 1/2) (those humans mislead the robot).
+a,b        mean  sd     P(p<.5)  h_twin  twin err  pop err  h_pop  pop E[T] at h_pop  E[T] twin-mean human at h_twin
+160,40     0.80  0.028  0.0000   3       0.0154    0.0171   3      4.9                4.8
+48 ,12     0.80  0.051  0.0000   3       0.0154    0.0214   3      4.9                4.8
+21 ,9      0.70  0.082  0.0121   4       0.0326    0.0703   6      16.4               9.3
+14 ,6      0.70  0.100  0.0318   4       0.0326    0.0881   8      24.2               9.3
+
+== 5. calibrating the twin from n real cues (p=0.7, alpha = 0.01; exact over Binomial(n,0.7)) ==
+Target design h for known p: h=6 (err 0.0062). Rows: point estimate (z=0) vs lower confidence bound (z=1.645).
+n      z      mean real err  P(real err > alpha)  mean h  mean real E[T]
+10     0      0.01725        0.3828               36.3    90.5
+10     1.645  0.00098        0.0282               135.6   339.0
+20     0      0.01295        0.4164               17.4    43.2
+20     1.645  0.00090        0.0355               104.9   262.1
+50     0      0.00992        0.3279               7.7     19.0
+50     1.645  0.00127        0.0402               42.3    105.6
+200    0      0.00778        0.2972               6.2     15.2
+200    1.645  0.00183        0.0169               8.8     21.8
+1000   0      0.00691        0.1422               6.0     14.7
+1000   1.645  0.00363        0.0036               6.8     16.9

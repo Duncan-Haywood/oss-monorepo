@@ -1,0 +1,28 @@
+E1 contraction of Phi in one step (Monte Carlo vs closed form)
+ n=   8 pair mc=0.8620 exact=0.8571 | matching mc=0.4198 exact=0.4286
+ n=  32 pair mc=0.9673 exact=0.9677 | matching mc=0.4824 exact=0.4839
+ n= 128 pair mc=0.9922 exact=0.9921 | matching mc=0.4958 exact=0.4961
+E2 rounds of matching gossip to shrink E[Phi] by 1e-6 (all-reduce: 1 round)
+ n=       8 rounds=17
+ n=      64 rounds=20
+ n=    1024 rounds=20
+ n= 1000000 rounds=20
+E3 steady-state disagreement Phi with per-round noise s2=1
+ n=   8 sim=5.21 formula=5.25
+ n=  32 sim=29.07 formula=29.06
+ n= 128 sim=124.85 formula=125.02
+E4 one stubborn node at c=50, n=16, honest start N(0,1); honest-mean shift after t steps
+ t=  100 unclipped mean shift= 17.30 predicted= 17.07 (disagreement/node 37.222)
+          clip tau=0.5: shift=  0.21 bound=  0.21 (disagreement/node 0.020)
+          clip tau=2.0: shift=  0.85 bound=  0.83 (disagreement/node 0.131)
+ t=  500 unclipped mean shift= 43.79 predicted= 43.80 (disagreement/node 1.400)
+          clip tau=0.5: shift=  1.05 bound=  1.04 (disagreement/node 0.008)
+          clip tau=2.0: shift=  4.16 bound=  4.17 (disagreement/node 0.132)
+ t= 2000 unclipped mean shift= 49.99 predicted= 49.99 (disagreement/node 0.000)
+          clip tau=0.5: shift=  4.14 bound=  4.17 (disagreement/node 0.008)
+          clip tau=2.0: shift= 16.60 bound= 16.67 (disagreement/node 0.127)
+E5 price of clipping with no attacker: honest disagreement/node after 300 steps, n=16, start N(0,10^2)
+ tau=None: 5.29e-08
+ tau=20.0: 6.02e-08
+ tau=5.0: 6.12e-07
+ tau=1.0: 2.28e+00

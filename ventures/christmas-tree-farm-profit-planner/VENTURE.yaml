@@ -1,0 +1,43 @@
+name: christmas-tree-farm-profit-planner
+description: >-
+  Free browser tool for Christmas tree growers. Enter acres per year, survival, prices and costs; get year-by-year
+  cash flow across planting blocks, payback year, deepest cash hole, NPV, break-even price per tree, survival and
+  price sensitivity, and wholesale vs choose-and-cut. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. No Christmas tree venture exists in ventures/; not in screened-out.md.
+# Who: people planting or expanding a choose-and-cut or wholesale Christmas tree plantation, and landowners weighing it
+# against other uses. First visitor: searches like "is a christmas tree farm profitable", "christmas tree farm cost per
+# acre", "how long to grow christmas trees"; grower association forums and extension-style Q&A. Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, no-warranty and not-advice clauses.
+# Species, pests, regulation, insurance and tax are explicitly out of scope on the page.
+#
+# Unverified: no grower has used it. Defaults are placeholders. Path to revenue (payment rails stay off): lead magnet and
+# donations; if usage appears, saved plans and a printable lender/landowner summary, then a paid tier behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Prospective and expanding tree growers will use a private multi-year cash-flow model because the 7-10 year wait
+      makes simple per-tree arithmetic hide the cash hole and the survival rate that decide whether it pays.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/christmas-tree-farm-profit-planner/
+  analytics: null

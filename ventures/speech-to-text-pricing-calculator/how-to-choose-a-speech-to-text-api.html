@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Speech-to-Text API</title>
+  <meta name="description" content="When self-hosting Whisper beats the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS or Azure on price, what streaming and speaker labels add, and why accuracy on your own audio matters more than cents per hour.">
+  <link rel="canonical" href="./how-to-choose-a-speech-to-text-api.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is self-hosting Whisper only worth it at high volume?", "acceptedAnswer": {"@type": "Answer", "text": "A rented 24 GB GPU costs a few hundred dollars a month whether it is busy or idle, while hosted APIs charge by the audio hour. At roughly 15 to 36 cents an hour for the cheap hosted APIs, the flat GPU box only wins past a couple of thousand hours a month, and only if you also count the engineering time to run, scale and monitor it. Below that, a pay-as-you-go API is almost always cheaper."}}, {"@type": "Question", "name": "Do I need streaming or speaker labels, and does it change the price?", "acceptedAnswer": {"@type": "Answer", "text": "Real-time streaming and speaker labels (diarization) narrow the field and raise the rate. Some APIs bill speaker labels as an add-on per hour, others include them, and the Whisper API itself does not offer streaming on whisper-1. Turn each switch on in the calculator only if the product needs it: batch transcription of recordings is the cheapest shape."}}, {"@type": "Question", "name": "Is the cheapest speech-to-text API the best one?", "acceptedAnswer": {"@type": "Answer", "text": "Not necessarily. Accuracy on your own audio, languages, accents, noise and domain vocabulary vary a lot between models, and a cheaper API that needs more manual correction costs more overall. Use this tool to shortlist by price, then run a sample of your real audio through two or three vendors and count the errors."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Speech-to-Text Pricing Calculator</a></p>
+  <h1>How to choose a speech-to-text API</h1>
+  <p>Put your monthly audio hours and your streaming and speaker-label needs into the <a href="./">calculator</a> to price the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted Whisper GPU side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why is self-hosting Whisper only worth it at high volume?</h2>
+  <p>A rented 24 GB GPU costs a few hundred dollars a month whether it is busy or idle, while hosted APIs charge by the audio hour. At roughly 15 to 36 cents an hour for the cheap hosted APIs, the flat GPU box only wins past a couple of thousand hours a month, and only if you also count the engineering time to run, scale and monitor it. Below that, a pay-as-you-go API is almost always cheaper.</p>
+  <h2>Do I need streaming or speaker labels, and does it change the price?</h2>
+  <p>Real-time streaming and speaker labels (diarization) narrow the field and raise the rate. Some APIs bill speaker labels as an add-on per hour, others include them, and the Whisper API itself does not offer streaming on whisper-1. Turn each switch on in the calculator only if the product needs it: batch transcription of recordings is the cheapest shape.</p>
+  <h2>Is the cheapest speech-to-text API the best one?</h2>
+  <p>Not necessarily. Accuracy on your own audio, languages, accents, noise and domain vocabulary vary a lot between models, and a cheaper API that needs more manual correction costs more overall. Use this tool to shortlist by price, then run a sample of your real audio through two or three vendors and count the errors.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

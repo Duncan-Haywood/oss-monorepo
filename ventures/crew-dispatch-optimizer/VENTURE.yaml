@@ -1,0 +1,70 @@
+name: crew-dispatch-optimizer
+description: >-
+  Free browser tool for plumbers, HVAC, electrical, cleaning and other
+  small service businesses: paste the day's jobs (location, hours, skill
+  needed, optional value) and your crews (start point, hours, hourly cost,
+  skills) and get which crew takes each job and the order of each crew's stops
+  at the lowest labor-plus-driving cost. Exact for up to 12 jobs (Held-Karp plus
+  a subset DP), a seeded local search beyond that. Shows what it saves against
+  sending each job to the nearest crew, what losing a crew costs, what an extra
+  crew saves, and what jobs running 10-30% long does to the day. Exports the
+  dispatch list as CSV. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "assign technicians or crews to jobs to minimize total drive time and cost for
+# small field service business": closest is locksmith-bid-calculator at 0.22
+# (prices a job; does not dispatch), far below the read-this-first bar. No venture
+# here plans routes or assigns jobs to crews; pool-route-pricing and
+# propane-delivery-route-margin price an account or a route's margin, they do not
+# choose the route. Alternatives: a whiteboard or map and gut feel, and paid
+# field-service suites (Jobber, Housecall Pro, ServiceTitan) whose route
+# optimisation sits in higher tiers and needs the whole customer database in their
+# cloud; general VRP solvers exist but need code or a cloud key.
+#
+# First visitor: owners and dispatchers of 2-10 vehicle service businesses
+# searching "route optimizer for plumbers", "how to schedule technicians by
+# location", "dispatch planner free", "job assignment to crews drive time";
+# r/HVAC, r/Plumbing and r/smallbusiness owner threads, trade Facebook groups.
+# Volume not measured with an external tool. Feeds from the trade bid calculators
+# in this catalogue (price the job, then plan who goes).
+#
+# Privacy is the liability boundary: customer locations never leave the browser
+# (tests assert no network calls). No vendor is ranked; drive times are straight-
+# line estimates, so the page tells users to tune speed and road factor.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved multi-day plan with real road distances and
+# time windows; not built.
+# Liability: sizes a plan, does not dispatch anyone or assert that a route is safe,
+# licensed or legal; the page says time windows, traffic and overtime are not
+# modelled. Unverified: tested against brute force and invented data, not a real
+# operator's routes.
+
+hypotheses:
+  - claim: >-
+      Owners of small service fleets who dispatch by hand will use a private,
+      no-signup planner that turns the day's jobs into crew routes and shows what
+      a crew being out costs, and will come back on busy days.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that exceeds a crew's stated hours, ignores a required skill, or a cost the stated inputs do not reproduce.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/crew-dispatch-optimizer/
+  analytics: null

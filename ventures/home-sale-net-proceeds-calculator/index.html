@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Sale Net Proceeds Calculator — seller net sheet, capital gains and list price to net</title>
+  <meta name="description" content="Free home sale net proceeds calculator. See cash at closing after commissions, fees and payoff, estimate capital gains tax, find the list price that nets a target, and compare offers with concessions. Private, in your browser.">
+  <meta property="og:title" content="Home Sale Net Proceeds Calculator — what you really walk away with">
+  <meta property="og:description" content="Seller net sheet, capital gains estimate, list price needed to net a target, and offer comparison. Free, private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Sale Net Proceeds Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free home sale net proceeds calculator. Shows cash at closing, estimated capital gains tax, the list price needed to net a target amount, and compares offers with different concessions. Runs in your browser; nothing is uploaded.","featureList":"home sale net proceeds calculator, seller net sheet, list price to net target, capital gains home sale exclusion, compare offers net proceeds, cost of selling a house"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much will I net from selling my house?","acceptedAnswer":{"@type":"Answer","text":"Start with the sale price and subtract agent commissions, title and escrow fees, transfer taxes, any seller concessions, your mortgage payoff and prorated property taxes. What is left is the cash at closing. Then subtract any tax on the gain. Enter your numbers above to see each line."}},{"@type":"Question","name":"What price do I need to list at to walk away with a target amount?","acceptedAnswer":{"@type":"Answer","text":"Enter the cash you want in the target field and the tool runs the math backwards, because every cost scales with the price. It shows the sale price that leaves you exactly that amount, either as cash at closing or after estimated tax."}},{"@type":"Question","name":"Do I owe capital gains tax when I sell my home?","acceptedAnswer":{"@type":"Answer","text":"Often not. If you owned and lived in the home for at least two of the last five years, the first 250,000 dollars of gain (500,000 for married couples filing jointly) is excluded from federal tax. Gain above that, and any depreciation you took on a rental or home office, can be taxed. The tool estimates both."}},{"@type":"Question","name":"How much does it cost to sell a house?","acceptedAnswer":{"@type":"Answer","text":"Typical selling costs run about 6 to 10 percent of the price once commissions, closing fees, transfer taxes, concessions and prep are counted. Your own number depends on your market and contract, so the tool shows your cost of selling as a percentage of the price."}},{"@type":"Question","name":"Do home improvements reduce capital gains tax?","acceptedAnswer":{"@type":"Answer","text":"Capital improvements such as a new roof, an addition or a remodel add to your tax basis and shrink the gain. Routine repairs and maintenance do not. Enter improvements in the tax section and the tool adjusts the basis."}},{"@type":"Question","name":"How do I compare offers with different concessions?","acceptedAnswer":{"@type":"Answer","text":"Enter up to three offers with their prices and seller concessions. The tool computes net proceeds for each, so a higher headline price with a large concession can be compared fairly against a lower clean offer."}},{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server."}},{"@type":"Question","name":"Is this tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type, using tax year 2026 federal figures and a flat state rate you provide. Your closing disclosure and a tax professional decide what you actually owe."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .tabs { display:flex; gap:8px; margin:6px 0 0; } .tabs label { font-weight:600; display:flex; gap:6px; align-items:center; margin:0 }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME SALE NET PROCEEDS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much will you really walk away with when you sell your home?</h1>
+    <p>A seller net sheet that goes further: it shows <strong>cash at closing</strong> after commissions, fees and your payoff, estimates the <strong>capital gains tax</strong> including the home sale exclusion, works backwards to the <strong>list price that nets your target</strong>, and compares offers with different seller concessions.</p>
+    <p class="note">New to this? <a href="./how-to-calculate-net-proceeds-from-selling-a-house.html">How net proceeds are calculated, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The sale</h2>
+    <div class="row3">
+      <div><label for="price">Expected sale price ($)</label><input type="number" id="price" min="1" step="1" max="10000000" value="450000"></div>
+      <div><label for="payoff">Mortgage and lien payoff ($)</label><input type="number" id="payoff" min="0" step="1" max="10000000" value="212000"></div>
+      <div><label for="listc">Listing agent commission (%)</label><input type="number" id="listc" min="0" step="0.05" max="10000000" value="2.5"></div>
+      <div><label for="buyc">Buyer agent commission (%)</label><input type="number" id="buyc" min="0" step="0.05" max="10000000" value="2.5"></div>
+      <div><label for="conc">Seller concessions and repair credits ($)</label><input type="number" id="conc" min="0" step="1" max="10000000" value="0"></div>
+      <div><label for="title">Title, escrow and attorney fees (% of price)</label><input type="number" id="title" min="0" step="0.05" max="10000000" value="1"></div>
+      <div><label for="transfer">Transfer or recording tax (% of price)</label><input type="number" id="transfer" min="0" step="0.01" max="10000000" value="0.5"></div>
+      <div><label for="prorated">Prorated property tax and dues owed at closing ($)</label><input type="number" id="prorated" min="0" step="1" max="10000000" value="1800"></div>
+      <div><label for="other">Other selling costs: warranty, payoff fees ($)</label><input type="number" id="other" min="0" step="1" max="10000000" value="500"></div>
+      <div><label for="prep">Prep and repairs you pay before listing ($)</label><input type="number" id="prep" min="0" step="1" max="10000000" value="3500"></div>
+    </div>
+
+    <h2 style="margin-top:20px">2. Your tax picture</h2>
+    <div class="row3">
+      <div><label for="bought">What you paid for the home ($, 0 to skip tax)</label><input type="number" id="bought" min="0" step="1" max="10000000" value="120000"></div>
+      <div><label for="buycost">Closing costs when you bought ($)</label><input type="number" id="buycost" min="0" step="1" max="10000000" value="4000"></div>
+      <div><label for="improv">Capital improvements since ($)</label><input type="number" id="improv" min="0" step="1" max="10000000" value="25000"></div>
+      <div><label for="depr">Depreciation taken, rental or home office ($)</label><input type="number" id="depr" min="0" step="1" max="10000000" value="0"></div>
+      <div><label for="income">Other taxable income this year ($)</label><input type="number" id="income" min="0" step="1" max="10000000" value="95000"></div>
+      <div><label for="state">State income tax rate on the gain (%)</label><input type="number" id="state" min="0" step="0.1" max="10000000" value="4"></div>
+      <div><label for="filing">Filing status</label><select id="filing"><option value="single">Single or head of household</option><option value="mfj">Married filing jointly</option></select></div>
+      <div><label for="excl">Home sale exclusion</label><select id="excl"><option value="full">Full: lived in it 2 of the last 5 years</option><option value="partial">Partial: moved early for work, health or similar</option><option value="none">None: investment or second home</option></select></div>
+      <div id="pm-wrap" hidden><label for="pmonths">Qualifying months of the 24 (partial)</label><input type="number" id="pmonths" min="0" step="1" max="24" value="12"></div>
+    </div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" id="held" checked style="width:auto"> I have owned the home for more than one year</label>
+
+    <h2 style="margin-top:20px">3. Work backwards from a target</h2>
+    <div class="row3">
+      <div><label for="target">Cash I want to end up with ($)</label><input type="number" id="target" min="0" step="1" max="10000000" value="250000"></div>
+      <div><label for="tbasis">That target is</label><select id="tbasis"><option value="closing">Cash at closing</option><option value="aftertax">Cash after estimated tax and prep</option></select></div>
+    </div>
+
+    <h2 style="margin-top:20px">4. Compare offers (optional)</h2>
+    <div class="scroll"><table id="offer-in"><thead><tr><th>Name</th><th>Price ($)</th><th>Seller concessions ($)</th></tr></thead><tbody>
+      <tr><td><input type="text" id="o1l" aria-label="Offer 1 name" value="Offer A"></td><td><input type="number" id="o1p" aria-label="Offer 1 price" min="0" step="1" max="10000000" value="450000"></td><td><input type="number" id="o1c" aria-label="Offer 1 concessions" min="0" step="1" max="10000000" value="0"></td></tr>
+      <tr><td><input type="text" id="o2l" aria-label="Offer 2 name" value="Offer B"></td><td><input type="number" id="o2p" aria-label="Offer 2 price" min="0" step="1" max="10000000" value="462000"></td><td><input type="number" id="o2c" aria-label="Offer 2 concessions" min="0" step="1" max="10000000" value="9000"></td></tr>
+      <tr><td><input type="text" id="o3l" aria-label="Offer 3 name" value="Offer C"></td><td><input type="number" id="o3p" aria-label="Offer 3 price" min="0" step="1" max="10000000" value="441000"></td><td><input type="number" id="o3c" aria-label="Offer 3 concessions" min="0" step="1" max="10000000" value="0"></td></tr>
+    </tbody></table></div>
+    <p class="note">Leave a price at 0 to skip that offer. Offers use the costs and tax picture above.</p>
+    <button type="button" id="solve">Calculate my net</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved estimate</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved estimate file">
+    <p id="form-status" role="status" class="note">Fill in the sale, then click Calculate my net.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>What you walk away with</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Amount</th></tr></thead><tbody></tbody></table></div>
+    <h3>Tax on the sale (estimate)</h3>
+    <div class="scroll"><table id="taxt"><thead><tr><th>Line</th><th class="num">Amount</th></tr></thead><tbody></tbody></table></div>
+    <h3>List price needed for your target</h3>
+    <p id="targetline" class="note"></p>
+    <h3>What each lever is worth</h3>
+    <p class="note" id="levers"></p>
+    <h3>If the price moves</h3>
+    <div class="scroll"><table id="grid"><thead><tr><th>Sale price</th><th class="num">Change</th><th class="num">Cash at closing</th><th class="num">After tax</th></tr></thead><tbody></tbody></table></div>
+    <div id="offers-wrap" hidden>
+      <h3>Offers compared</h3>
+      <div class="scroll"><table id="offers"><thead><tr><th>Offer</th><th class="num">Price</th><th class="num">Concessions</th><th class="num">Cash at closing</th><th class="num">After tax</th><th class="num">Behind best</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save estimate</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Cash at closing:</strong> sale price minus both agent commissions, title and escrow, transfer tax, seller concessions, other selling costs, your payoff and prorated taxes. Prep money you spend before listing is subtracted in the after-tax figure.</p>
+    <p><strong>Tax:</strong> gain is the sale price minus selling costs minus your basis (purchase price, buying costs and improvements, less depreciation). The home sale exclusion removes up to 250,000 dollars (500,000 for joint filers), prorated for a partial exclusion. Depreciation is taxed up to 25 percent. Remaining gain is taxed at the 0, 15 or 20 percent long-term rates stacked on top of your other income, plus the 3.8 percent net investment income tax when your income is high enough, plus your state rate. Federal figures are for tax year 2026. A loss on a personal home is not deductible.</p>
+    <p><strong>List price for a target:</strong> net proceeds only ever go up as the price goes up, so the tool searches for the exact price that lands on your target, and the test suite checks that it does across hundreds of random homes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much will I net from selling my house?</h3>
+    <p>Start with the sale price and subtract agent commissions, title and escrow fees, transfer taxes, any seller concessions, your mortgage payoff and prorated property taxes. What is left is the cash at closing. Then subtract any tax on the gain. Enter your numbers above to see each line.</p>
+    <h3>What price do I need to list at to walk away with a target amount?</h3>
+    <p>Enter the cash you want in the target field and the tool runs the math backwards, because every cost scales with the price. It shows the sale price that leaves you exactly that amount, either as cash at closing or after estimated tax.</p>
+    <h3>Do I owe capital gains tax when I sell my home?</h3>
+    <p>Often not. If you owned and lived in the home for at least two of the last five years, the first 250,000 dollars of gain (500,000 for married couples filing jointly) is excluded from federal tax. Gain above that, and any depreciation you took on a rental or home office, can be taxed. The tool estimates both.</p>
+    <h3>How much does it cost to sell a house?</h3>
+    <p>Typical selling costs run about 6 to 10 percent of the price once commissions, closing fees, transfer taxes, concessions and prep are counted. Your own number depends on your market and contract, so the tool shows your cost of selling as a percentage of the price.</p>
+    <h3>Do home improvements reduce capital gains tax?</h3>
+    <p>Capital improvements such as a new roof, an addition or a remodel add to your tax basis and shrink the gain. Routine repairs and maintenance do not. Enter improvements in the tax section and the tool adjusts the basis.</p>
+    <h3>How do I compare offers with different concessions?</h3>
+    <p>Enter up to three offers with their prices and seller concessions. The tool computes net proceeds for each, so a higher headline price with a large concession can be compared fairly against a lower clean offer.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type, using tax year 2026 federal figures and a flat state rate you provide. Your closing disclosure and a tax professional decide what you actually owe.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not financial, legal, tax or real estate advice. <strong>Your closing disclosure and a tax professional decide what you actually net and owe.</strong> Commission, fee and tax rules vary by state, and the numbers here are estimates.</p>
+    <p><strong>Independent.</strong> Not affiliated with any brokerage, agent, title company, lender or listing site, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is stored on our side.</p>
+    <p>Everything runs in your browser. Prices and figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted only in your own browser's local storage and you can turn that off below.</p>
+    <p>Related tools: the <a href="../seller-net-sheet/">seller net sheet</a>, the <a href="../estate-sale-net-proceeds-calculator/">estate sale net proceeds calculator</a> and the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy break-even calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solve, money, resultText, resultCsv, serializeState, parseState, sampleInput } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = { salePrice: "price", mortgagePayoff: "payoff", listCommissionPct: "listc", buyerCommissionPct: "buyc", concessions: "conc", titleEscrowPct: "title", transferTaxPct: "transfer", proratedTaxes: "prorated", otherCosts: "other", prepCosts: "prep", purchasePrice: "bought", buyingCosts: "buycost", improvements: "improv", depreciation: "depr", otherIncome: "income", stateRatePct: "state", filing: "filing", exclusion: "excl", partialMonths: "pmonths", targetNet: "target", targetBasis: "tbasis" };
+    let R = null, INPUT = null;
+
+    function syncExcl() { $("#pm-wrap").hidden = $("#excl").value !== "partial"; }
+
+    function read() {
+      const o = { heldOverYear: $("#held").checked, offers: [] };
+      for (const [k, id] of Object.entries(IDS)) o[k] = $("#" + id).value;
+      for (const n of [1, 2, 3]) o.offers.push({ label: $("#o" + n + "l").value, price: $("#o" + n + "p").value, concessions: $("#o" + n + "c").value });
+      return o;
+    }
+
+    function fill(s) {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = s[k] ?? "";
+      $("#held").checked = s.heldOverYear !== false;
+      (s.offers || []).slice(0, 3).forEach((o, idx) => { const n = idx + 1; $("#o" + n + "l").value = o.label ?? ""; $("#o" + n + "p").value = o.price ?? ""; $("#o" + n + "c").value = o.concessions ?? ""; });
+      syncExcl();
+    }
+
+    function run() {
+      INPUT = read();
+      const res = solve(INPUT);
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res;
+      status.textContent = "Done. Scroll down.";
+      render();
+      return true;
+    }
+
+    const row = (a, b, strong) => "<tr><td>" + a + '</td><td class="num">' + (strong ? "<strong>" + b + "</strong>" : b) + "</td></tr>";
+    const neg = (x) => "-" + money(x);
+
+    function render() {
+      const r = R.r;
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[money(r.closingNet), "cash at closing"], [money(r.afterTax), "after tax and prep"], [r.costPct.toFixed(1) + "%", "selling costs, share of price"], [money(r.tax), "estimated tax"]].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + b + "</div>").join("");
+      $("#out tbody").innerHTML =
+        row("Sale price", money(r.price)) + row("Listing agent", neg(r.listC)) + row("Buyer agent", neg(r.buyC)) +
+        row("Title, escrow and attorney", neg(r.title)) + row("Transfer or recording tax", neg(r.transfer)) +
+        row("Seller concessions", neg(r.concessions)) + row("Other selling costs", neg(r.other)) +
+        row("Mortgage and lien payoff", neg(r.payoff)) + row("Prorated taxes and dues", neg(r.prorated)) +
+        row("Cash at closing", money(r.closingNet), true) + row("Prep and repairs paid beforehand", neg(r.prep)) +
+        row("Estimated tax on the sale", neg(r.tax)) + row("Net after tax and prep", money(r.afterTax), true);
+      $("#taxt tbody").innerHTML =
+        row("Amount realized (price less selling costs)", money(r.realized)) + row("Adjusted basis", money(r.basis)) +
+        row("Gain", money(r.gain)) + row("Excluded by the home sale exclusion", money(r.exclusion)) +
+        row("Depreciation recapture", money(r.recapture)) + row("Long-term gain taxed", money(r.ltcgGain)) +
+        row("Federal tax", money(r.federal)) + row("Net investment income tax (3.8%)", money(r.niit)) +
+        row("State tax", money(r.state)) + row("Total tax", money(r.tax), true);
+      $("#targetline").textContent = R.target
+        ? "To end up with " + money(R.input.targetNet) + (R.input.targetBasis === "aftertax" ? " after tax and prep" : " at closing") + ", the sale price has to be " + money(R.target) + ", which is " + (R.target >= r.price ? money(R.target - r.price) + " above" : money(r.price - R.target) + " below") + " the price you entered."
+        : "Enter a target above to see the price that gets you there.";
+      $("#levers").textContent = "Each extra $10,000 of sale price adds about " + money(R.levers.per10k) + " to your closing cash. Each half point off a commission is worth " + money(R.levers.perHalfPointCommission) + ". A 1% higher price adds about " + money(R.levers.perPointPrice) + ".";
+      $("#grid tbody").innerHTML = R.grid.map((g) => "<tr><td>" + money(g.price) + '</td><td class="num">' + (g.delta > 0 ? "+" : "") + g.delta.toFixed(1) + '%</td><td class="num">' + money(g.closingNet) + '</td><td class="num">' + money(g.afterTax) + "</td></tr>").join("");
+      $("#offers-wrap").hidden = R.offers.length === 0;
+      $("#offers tbody").innerHTML = R.offers.map((o) => "<tr><td>" + esc(o.label) + (o.best ? " (best)" : "") + '</td><td class="num">' + money(o.price) + '</td><td class="num">' + money(o.concessions) + '</td><td class="num">' + money(o.closingNet) + '</td><td class="num">' + (o.best ? "<strong>" + money(o.afterTax) + "</strong>" : money(o.afterTax)) + '</td><td class="num">' + (o.best ? "—" : money(o.behind)) + "</td></tr>").join("");
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#excl").addEventListener("change", syncExcl);
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("check_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example with invented numbers. Enter your own sale above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!R) return;
+      try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("home-sale-net.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("home-sale-estimate.json", serializeState(INPUT), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      fill(out.state);
+      run();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    syncExcl();
+  </script>
+</body>
+</html>

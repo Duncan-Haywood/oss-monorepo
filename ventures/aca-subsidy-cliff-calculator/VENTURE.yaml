@@ -1,0 +1,58 @@
+name: aca-subsidy-cliff-calculator
+description: >-
+  Free browser calculator for the 2026 ACA premium tax credit. Takes household
+  size, region, expected MAGI and the benchmark premium, and shows the credit,
+  the distance to the 400%-of-poverty cliff where the whole credit vanishes, the
+  credit lost by crossing it, how much deduction (HSA, solo 401(k), SEP) would
+  bring a self-employed filer back under, and a table of credit at nearby
+  incomes. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.13 (unrelated). The enhanced premium credits expired after 2025, so
+# the 400% FPL cliff is back for 2026 coverage: a real rule change with a lot of
+# self-employed people newly exposed to it and only marketplace/KFF-style
+# calculators that do not show cliff distance or deduction room.
+#
+# First visitor: searches like "ACA subsidy cliff 2026", "400% FPL 2026",
+# "how much to reduce MAGI to keep ACA subsidy", r/ACA and r/selfemployed.
+# Search volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet linking to the HSA and
+# solo 401(k) calculators. A later paid tier, if usage appears, could be
+# multi-scenario planning across a year; not built.
+#
+# Liability: applies published figures to user-typed numbers; not tax advice;
+# benchmark premium supplied by the user, never fetched; no Medicaid/employer
+# modelling, stated on the page.
+#
+# Unverified: applicable percentage interpolation follows the IRS table's
+# stated endpoints; not cross-checked against Form 8962 output for real returns.
+
+hypotheses:
+  - claim: >-
+      Self-employed people near 400% of poverty will use a no-signup tool that
+      shows cliff distance and deduction room, and come back when they revise
+      their income estimate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a credit that differs from their Form 8962 by more than rounding, at which point the table or interpolation needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aca-subsidy-cliff-calculator/
+  analytics: null

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Launch Revenue Calculator — what will your launch really earn?</title>
+  <meta name="description" content="Course launch revenue calculator. Enter your email list, conversion rates, price, refunds, platform and processor fees, affiliate commissions and ad spend. See net profit, the break-even list size and what a weaker launch costs. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Course Launch Revenue Calculator — free, private, in your browser">
+  <meta property="og:description" content="How many email subscribers do you need to break even on a course launch? Net profit after refunds, fees, affiliates and ads. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Course Launch Revenue Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your email list, page visit and conversion rates, price, refunds, platform and processor fees, affiliate commissions and ad spend. See the net profit of an online course launch, the break-even list size and what a weaker launch costs. Runs entirely in your browser; nothing is uploaded.", "featureList": "launch net profit, refund-aware fees, affiliate commissions, ad return, break-even list size, conversion scenarios, price table, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many email subscribers do I need to launch an online course?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on three rates you can measure from your own list: the share who visit the sales page, the share of visitors who buy, and your price. At 10% visiting and 2% buying, a list of 1,000 makes about 2 sales. Divide the sales you need to cover your costs by 0.2% to get the list size. The tool does that division for your own figures and shows the list size where your launch breaks even."}}, {"@type": "Question", "name": "What is a normal conversion rate for a course launch?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single figure and this tool does not claim one. Rates vary widely with price, how warm the list is and the offer. Use your own past launches, webinar or waitlist numbers if you have them, and run the lower scenarios in the table to see how much a weak launch costs you."}}, {"@type": "Question", "name": "How are refunds handled?", "acceptedAnswer": {"@type": "Answer", "text": "The refund share of buyers gets the course price back. Processor fees are treated as not returned, which is how many processors work, while the platform fee and any affiliate commission are charged on kept sales only. Check your own processor and platform terms and change the percentages to match."}}, {"@type": "Question", "name": "When do ads pay for themselves on a course launch?", "acceptedAnswer": {"@type": "Answer", "text": "Ads pay back on the first sale when the net kept per buyer divided by your cost per sale is above 1. The tool shows that as return on ad spend: buyers from ads times net kept per buyer, divided by ad spend. A figure under 1 can still make sense if buyers go on to buy again, but the launch alone does not cover the spend."}}, {"@type": "Question", "name": "Should I raise or lower the price of my course?", "acceptedAnswer": {"@type": "Answer", "text": "The price table shows net profit and the number of buyers you would need at each price to match today's profit. A higher price needs fewer buyers to match. Whether you can keep your conversion rate at a higher price is the real question, and only a test on your audience can answer it."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Taxes and sales tax, currency conversion, payment plans and failed instalments, upsells and bundles, the time you spend, support cost per student, and the effect of price on conversion. It is arithmetic on figures you type, not business, legal or tax advice."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COURSE LAUNCH REVENUE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will your course launch actually earn after refunds, fees and ads?</h1>
+    <p>Enter your <strong>list size, conversion rates and price</strong>, plus <strong>refunds, platform and processor fees, affiliate commissions and ad spend</strong>. See the <strong>net profit</strong>, the <strong>break-even list size</strong> and what a weaker launch would cost.</p>
+    <p class="note">Arithmetic on figures you supply. Not business, legal or tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your launch</h2>
+    <div class="row3">
+      <div><label for="listSize">Email list size</label><input id="listSize" inputmode="decimal" value="1000"></div>
+      <div><label for="visitPct">Share of the list who visit the sales page (%)</label><input id="visitPct" inputmode="decimal" value="10"></div>
+      <div><label for="convPct">Share of those visitors who buy (%)</label><input id="convPct" inputmode="decimal" value="2"></div>
+      <div><label for="price">Course price ($)</label><input id="price" inputmode="decimal" value=""></div>
+      <div><label for="refundPct">Refund rate (% of buyers)</label><input id="refundPct" inputmode="decimal" value="5"></div>
+      <div><label for="adSpend">Ad spend ($)</label><input id="adSpend" inputmode="decimal" value="0"></div>
+      <div><label for="cpc">Cost per visit to the sales page, from ads ($)</label><input id="cpc" inputmode="decimal" value="0"></div>
+      <div><label for="paidConvPct">Share of ad visitors who buy (%)</label><input id="paidConvPct" inputmode="decimal" value="1"></div>
+      <div><label for="processorPct">Payment processor fee (%)</label><input id="processorPct" inputmode="decimal" value="2.9"></div>
+      <div><label for="processorFixed">Processor fixed fee per sale ($)</label><input id="processorFixed" inputmode="decimal" value="0.30"></div>
+      <div><label for="platformPct">Course platform fee (% of kept sales)</label><input id="platformPct" inputmode="decimal" value="0"></div>
+      <div><label for="affiliateSalesPct">Share of sales that come through affiliates (%)</label><input id="affiliateSalesPct" inputmode="decimal" value="0"></div>
+      <div><label for="affiliateCommissionPct">Affiliate commission (%)</label><input id="affiliateCommissionPct" inputmode="decimal" value="30"></div>
+      <div><label for="fixedCosts">Fixed launch costs: tools, design, webinar, ($)</label><input id="fixedCosts" inputmode="decimal" value="0"></div>
+    </div>
+    <p class="note">Use rates from your own past launches, waitlist or webinar. Leave ad spend at 0 for a list-only launch. Affiliate share is the portion of all sales that an affiliate referred.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your launch figures, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><table id="wt"><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+    <h3>If conversion comes in lower or higher</h3>
+    <div class="scroll"><table id="ct"><thead><tr><th class="n">Conversion</th><th class="n">Buyers</th><th class="n">Gross revenue</th><th class="n">Net profit</th></tr></thead><tbody></tbody></table></div>
+    <h3>The same launch at other prices</h3>
+    <div class="scroll"><table id="pt"><thead><tr><th class="n">Price</th><th class="n">Net kept per buyer</th><th class="n">Net profit at your conversion</th><th class="n">Buyers needed to match today's profit</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">The price table holds your conversion rate fixed, which a real price change would not. Use the last column to judge how much conversion you could lose.</p>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Buyers:</strong> list size × visit share × conversion, plus ad spend ÷ cost per visit × ad conversion. <strong>Net kept per buyer:</strong> price − expected refund − processor fee (percentage plus fixed, kept even on a refund) − platform fee and affiliate commission (kept sales only). <strong>Net profit:</strong> buyers × net kept per buyer − ad spend − fixed launch costs. <strong>Break-even buyers:</strong> (ad spend + fixed costs) ÷ net kept per buyer. <strong>Break-even list size:</strong> the organic buyers still needed after paid buyers, divided by visit share × conversion. <strong>Return on ad spend:</strong> ad buyers × net kept per buyer ÷ ad spend. <strong>Scenarios:</strong> conversion scaled from 25% to 150% of what you typed.</p>
+    <p><strong>Not modelled:</strong> taxes and sales tax, currency conversion, payment plans and failed instalments, upsells, support cost, your own time, and how price changes conversion. Unverified: tested on hand-calculated examples, not on a real launch's books. It computes arithmetic; it does not predict what your audience will do.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many email subscribers do I need to launch an online course?</h3>
+    <p>It depends on three rates you can measure from your own list: the share who visit the sales page, the share of visitors who buy, and your price. At 10% visiting and 2% buying, a list of 1,000 makes about 2 sales. Divide the sales you need to cover your costs by 0.2% to get the list size. The tool does that division for your own figures and shows the list size where your launch breaks even.</p>
+    <h3>What is a normal conversion rate for a course launch?</h3>
+    <p>There is no single figure and this tool does not claim one. Rates vary widely with price, how warm the list is and the offer. Use your own past launches, webinar or waitlist numbers if you have them, and run the lower scenarios in the table to see how much a weak launch costs you.</p>
+    <h3>How are refunds handled?</h3>
+    <p>The refund share of buyers gets the course price back. Processor fees are treated as not returned, which is how many processors work, while the platform fee and any affiliate commission are charged on kept sales only. Check your own processor and platform terms and change the percentages to match.</p>
+    <h3>When do ads pay for themselves on a course launch?</h3>
+    <p>Ads pay back on the first sale when the net kept per buyer divided by your cost per sale is above 1. The tool shows that as return on ad spend: buyers from ads times net kept per buyer, divided by ad spend. A figure under 1 can still make sense if buyers go on to buy again, but the launch alone does not cover the spend.</p>
+    <h3>Should I raise or lower the price of my course?</h3>
+    <p>The price table shows net profit and the number of buyers you would need at each price to match today's profit. A higher price needs fewer buyers to match. Whether you can keep your conversion rate at a higher price is the real question, and only a test on your audience can answer it.</p>
+    <h3>What does this leave out?</h3>
+    <p>Taxes and sales tax, currency conversion, payment plans and failed instalments, upsells and bundles, the time you spend, support cost per student, and the effect of price on conversion. It is arithmetic on figures you type, not business, legal or tax advice.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, legal or tax advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any course platform, payment processor or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../breakeven-roas-calculator/">break-even ROAS calculator</a>, the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../patreon-fee-calculator/">Patreon fee calculator</a> the <a href="../freelance-rate-increase-calculator/">freelance rate increase calculator</a> and, for a live event, the <a href="../retreat-profit-pricing-calculator/">retreat and workshop profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleJob, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["listSize", "visitPct", "convPct", "price", "refundPct", "adSpend", "cpc", "paidConvPct", "processorPct", "processorFixed", "platformPct", "affiliateSalesPct", "affiliateCommissionPct", "fixedCosts"];
+    const IDLE = "Fill in your launch figures, then click Calculate.";
+    let last = null;
+
+    function run() {
+      const s = {};
+      for (const k of FIELDS) s[k] = $("#" + k).value;
+      const r = analyze(s);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const t = r.totals;
+      const big = [
+        [money(t.net), "Net profit after every cost"],
+        [t.buyers.toFixed(1), "Expected buyers"],
+        [t.beListSize === null ? "n/a" : Math.round(t.beListSize).toLocaleString("en-US"), "List size where this launch breaks even"],
+        [t.roas === null ? "n/a" : t.roas.toFixed(2) + "×", "Return on ad spend, first sale only"],
+      ];
+      $("#big").innerHTML = big.map(([v, x]) => `<div><strong>${esc(v)}</strong>${esc(x)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      const w = [["Gross revenue", t.grossRevenue], ["Refunds", -t.refunds], ["Processor fees", -t.processor], ["Platform fees", -t.platform], ["Affiliate commissions", -t.affiliate], ["Ad spend", -t.adSpend], ["Fixed launch costs", -t.fixedCosts], ["Net profit", t.net]];
+      $("#wt tbody").innerHTML = w.map(([l, v]) => `<tr><td>${esc(l)}</td><td class="n">${money(v)}</td></tr>`).join("");
+      $("#ct tbody").innerHTML = r.conv.map((c) => `<tr><td class="n">${pct(c.convPct, 2)}</td><td class="n">${c.buyers.toFixed(1)}</td><td class="n">${money(c.grossRevenue)}</td><td class="n">${money(c.net)}</td></tr>`).join("");
+      $("#pt tbody").innerHTML = r.prices.map((p) => `<tr><td class="n">${money2(p.price)}</td><td class="n">${money2(p.netPerBuyer)}</td><td class="n">${money(p.net)}</td><td class="n">${p.buyersToMatch === null ? "n/a" : p.buyersToMatch.toFixed(1)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleJob().settings;
+      for (const k of FIELDS) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented launch, not a real one."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const k of FIELDS) $("#" + k).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "course-launch-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

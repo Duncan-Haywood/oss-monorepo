@@ -1,0 +1,61 @@
+name: tire-shop-ticket-margin-calculator
+description: >-
+  Free browser tool for independent tire shop owners and managers: enter ticket
+  lines (tires, alignment, road hazard coverage, sensor service, fees) with price,
+  parts cost, labor minutes and attach rate, and see net per average ticket after
+  card fees, parts and labor, what more attach on each upsell is worth, the extra
+  tickets a discount must win back, break-even tickets for overhead, and bay
+  capacity. No customer data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). `ls ventures | grep` found no tire shop venture; the
+# adjacent auto-repair-effective-labor-rate and shop-rate-calculator price labor
+# hours, not a mixed tire-plus-upsell ticket. Food truck, mobile detailing,
+# pressure washing and dog grooming already have ventures, so this was the
+# remaining gap among the candidate niches. screened-out.md rows not hit.
+#
+# Why this niche: independent tire shops run on thin tire margins and make the
+# difference on alignments, coverage, sensor service and fees, yet price
+# matching against online sellers is constant. Owners rarely have a neutral way
+# to see what an attach point on each upsell is worth against what a tire
+# discount costs, or whether the bays could even handle the volume a discount
+# is meant to win.
+#
+# First visitor: owners and managers searching "tire shop profit per ticket",
+# "tire shop upsell attach rate", "should I match online tire prices". Volume
+# not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices, labor
+# rates or attach rates asserted; no tax advice; says what it does not model.
+# No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted multi-location ticket-mix tracker.
+
+hypotheses:
+  - claim: >-
+      Independent tire shop owners will use a private, no-signup ticket margin
+      calculator when deciding whether to price-match or push upsells.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tire-shop-ticket-margin-calculator/
+  analytics: null

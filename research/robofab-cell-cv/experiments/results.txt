@@ -1,0 +1,48 @@
+Types as robofab-cell-mva. Real semantics (printer held from load start to unload end). Rates in good parts/h.
+Sim: 24 h horizon, 4 h warm-up, 20 seeds, mean +/- s.e. err = (prediction - sim)/sim. wip = P+2.
+
+1. Variability sweep: lognormal service times with coefficient of variation cv (cv=0 is deterministic).
+   P= 4 wip 6: MVA   4.77  bound   4.94
+      cv 0.0 sim   4.43+/-0.07  err MVA  +7.8%  bound +11.5%  stall  0.6%
+      cv 0.3 sim   4.45+/-0.07  err MVA  +7.2%  bound +10.9%  stall  1.4%
+      cv 0.6 sim   4.53+/-0.08  err MVA  +5.3%  bound  +8.9%  stall  1.7%
+      cv 1.0 sim   4.32+/-0.10  err MVA +10.5%  bound +14.4%  stall  1.8%
+      cv 1.5 sim   4.38+/-0.15  err MVA  +8.9%  bound +12.7%  stall  2.5%
+      cv 2.0 sim   4.42+/-0.17  err MVA  +8.1%  bound +11.8%  stall  2.8%
+   P= 8 wip 10: MVA   8.62  bound   9.87
+      cv 0.0 sim   8.79+/-0.10  err MVA  -2.0%  bound +12.3%  stall  2.9%
+      cv 0.3 sim   8.41+/-0.10  err MVA  +2.5%  bound +17.4%  stall  4.4%
+      cv 0.6 sim   8.68+/-0.11  err MVA  -0.7%  bound +13.8%  stall  5.2%
+      cv 1.0 sim   8.31+/-0.12  err MVA  +3.7%  bound +18.8%  stall  5.6%
+      cv 1.5 sim   8.12+/-0.16  err MVA  +6.1%  bound +21.6%  stall  7.4%
+      cv 2.0 sim   7.92+/-0.16  err MVA  +8.9%  bound +24.7%  stall  7.5%
+   P=12 wip 14: MVA  11.02  bound  12.71
+      cv 0.0 sim  11.75+/-0.09  err MVA  -6.2%  bound  +8.2%  stall  8.5%
+      cv 0.3 sim  11.62+/-0.10  err MVA  -5.2%  bound  +9.3%  stall  9.8%
+      cv 0.6 sim  11.36+/-0.11  err MVA  -3.1%  bound +11.8%  stall  9.8%
+      cv 1.0 sim  11.08+/-0.10  err MVA  -0.6%  bound +14.6%  stall 10.0%
+      cv 1.5 sim  10.52+/-0.13  err MVA  +4.7%  bound +20.8%  stall 12.1%
+      cv 2.0 sim  10.17+/-0.23  err MVA  +8.4%  bound +25.0%  stall 13.0%
+   P=16 wip 18: MVA  12.13  bound  12.71
+      cv 0.0 sim  12.66+/-0.09  err MVA  -4.2%  bound  +0.3%  stall 17.6%
+      cv 0.3 sim  12.61+/-0.09  err MVA  -3.8%  bound  +0.8%  stall 17.2%
+      cv 0.6 sim  12.61+/-0.12  err MVA  -3.8%  bound  +0.7%  stall 17.2%
+      cv 1.0 sim  12.27+/-0.13  err MVA  -1.1%  bound  +3.6%  stall 16.6%
+      cv 1.5 sim  11.76+/-0.18  err MVA  +3.1%  bound  +8.0%  stall 15.4%
+      cv 2.0 sim  11.23+/-0.22  err MVA  +8.0%  bound +13.2%  stall 15.7%
+
+2. Stall share (printer-time spent finished and waiting for the arm to unload) against work in process, P=8, cv 0.3.
+   wip  2 sim   2.09+/-0.05  MVA   2.09  stall  0.1% +/- 0.0
+   wip  4 sim   4.19+/-0.07  MVA   4.07  stall  0.3% +/- 0.0
+   wip  6 sim   6.26+/-0.09  MVA   5.92  stall  1.0% +/- 0.0
+   wip  8 sim   8.07+/-0.08  MVA   7.58  stall  2.1% +/- 0.1
+   wip 10 sim   8.41+/-0.10  MVA   8.62  stall  4.4% +/- 0.2
+   wip 14 sim   8.33+/-0.10  MVA   9.46  stall  4.6% +/- 0.1
+   wip 20 sim   8.56+/-0.09  MVA   9.79  stall  4.6% +/- 0.2
+
+3. Capacity accounting at wip 20 (saturated), cv 0.3, hold semantics. Held-capacity = 60*P / (printer demand incl. load+unload);
+   times (1 - stall) is what is left once stalls are also removed. Compared with the simulated rate.
+   P= 4 sim   4.35+/-0.05  print-only cap   4.94  held cap   4.50  held*(1-stall)   4.44  arm cap  12.71
+   P= 8 sim   8.56+/-0.09  print-only cap   9.87  held cap   9.00  held*(1-stall)   8.59  arm cap  12.71
+   P=12 sim  11.54+/-0.09  print-only cap  14.81  held cap  13.50  held*(1-stall)  11.82  arm cap  12.71
+   P=16 sim  12.70+/-0.11  print-only cap  19.75  held cap  18.00  held*(1-stall)  13.91  arm cap  12.71

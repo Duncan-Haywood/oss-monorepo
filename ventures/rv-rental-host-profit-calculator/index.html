@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RV Rental Host Profit Calculator</title>
+  <meta name="description" content="Free profit calculator for people who rent out an RV, camper or trailer: nightly rate, nights booked, platform fee, cleaning, wear, loan, insurance, storage and depreciation become a cash result, break-even nights and the rate you need. Private, runs in your browser.">
+  <meta property="og:title" content="RV rental profit calculator: is renting out your camper worth it? Free, private">
+  <meta property="og:description" content="Rate, nights, platform fee, loan, insurance and depreciation in; cash result, break-even nights and target rate out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RV Rental Host Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is renting out my RV or camper worth it?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on whether the nights you actually rent pay for the fixed costs of owning it: loan payment, insurance, storage and registration, plus what the rig loses in value each year. Enter your rate and the nights you expect to be booked and the page shows the cash result, the result after depreciation, and the break-even number of nights."}}, {"@type": "Question", "name": "How many nights do I need to rent to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Divide your yearly fixed costs by what one rented night earns after the platform cut, cleaning and wear. The page does that twice, once for cash costs only and once including depreciation."}}, {"@type": "Question", "name": "What nightly rate should I charge?", "acceptedAnswer": {"@type": "Answer", "text": "The page works backwards from the profit you want after depreciation at the number of nights you expect, and shows the rate that gets there. Compare it with similar rigs near you before you list."}}, {"@type": "Question", "name": "Does it know what Outdoorsy, RVshare or other sites charge?", "acceptedAnswer": {"@type": "Answer", "text": "No. The platform fee is a number you type in, taken from the terms you were shown. The page does not hold any site's actual rates."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RV RENTAL HOST PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is renting out your RV worth it? Break-even nights, cash result and the rate you need</h1>
+    <p>Enter your nightly rate, how many nights you expect to be rented, the platform fee, cleaning, wear and your yearly costs of owning the rig. You get the <strong>cash result</strong>, the result after depreciation, the <strong>break-even number of nights</strong> and the nightly rate that pays the profit you want.</p>
+    <p class="note">It does not know what other owners charge or what any listing site takes: those are your inputs.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your rig and season</h2>
+    <div class="grid">
+      <div><label for="rate">Nightly rental rate, dollars</label><input id="rate" inputmode="decimal" value="" placeholder="195"></div>
+      <div><label for="nights">Nights rented per year</label><input id="nights" inputmode="decimal" value="" placeholder="70"></div>
+      <div><label for="available">Nights available to rent (blank = 365)</label><input id="available" inputmode="decimal" value="" placeholder="200"></div>
+      <div><label for="avgtrip">Average trip length, nights</label><input id="avgtrip" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="cleanfee">Cleaning fee you charge per trip, dollars</label><input id="cleanfee" inputmode="decimal" value="" placeholder="80"></div>
+      <div><label for="cleancost">Your cleaning and turnover cost per trip, dollars</label><input id="cleancost" inputmode="decimal" value="" placeholder="60"></div>
+      <div><label for="wear">Wear and consumables per rented night, dollars</label><input id="wear" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="feepct">Platform fee, % of what renters pay</label><input id="feepct" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="insurance">Insurance per year, dollars</label><input id="insurance" inputmode="decimal" value="" placeholder="1800"></div>
+      <div><label for="storage">Storage per month, dollars</label><input id="storage" inputmode="decimal" value="" placeholder="100"></div>
+      <div><label for="loan">Loan payment per month, dollars</label><input id="loan" inputmode="decimal" value="" placeholder="450"></div>
+      <div><label for="otherfixed">Registration, maintenance reserve and other yearly costs, dollars</label><input id="otherfixed" inputmode="decimal" value="" placeholder="600"></div>
+      <div><label for="depr">Depreciation per year, dollars</label><input id="depr" inputmode="decimal" value="" placeholder="3500"></div>
+      <div><label for="target">Profit you want after depreciation per year, dollars</label><input id="target" inputmode="decimal" value="" placeholder="3000"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the profit</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the rig and season, then click Work out the profit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Result at different numbers of rented nights</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Nights rented</th><th scope="col" class="n">Occupancy</th><th scope="col" class="n">Cash result</th><th scope="col" class="n">After depreciation</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download volumes (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> trips = nights / average trip length; per rented night = rate x (1 - platform fee) + (cleaning fee x (1 - platform fee) - cleaning cost) / trip length - wear; cash result = per rented night x nights - (insurance + 12 x storage + 12 x loan payment + other yearly costs); result after depreciation = cash result - depreciation. Break-even nights = costs / per rented night.</li>
+      <li><strong>Not decided:</strong> what renters will pay, which listing site to use or what it really charges, insurance and damage-claim terms, income tax and deductions, sales or lodging tax, whether the loan lender permits rental use, local storage and parking rules, and the rig's actual resale value.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Is renting out my RV or camper worth it?</h3>
+    <p>It depends on whether the nights you actually rent pay for the fixed costs of owning it: loan payment, insurance, storage and registration, plus what the rig loses in value each year. Enter your rate and the nights you expect to be booked and the page shows the cash result, the result after depreciation, and the break-even number of nights.</p>
+    <h3>How many nights do I need to rent to break even?</h3>
+    <p>Divide your yearly fixed costs by what one rented night earns after the platform cut, cleaning and wear. The page does that twice, once for cash costs only and once including depreciation.</p>
+    <h3>What nightly rate should I charge?</h3>
+    <p>The page works backwards from the profit you want after depreciation at the number of nights you expect, and shows the rate that gets there. Compare it with similar rigs near you before you list.</p>
+    <h3>Does it know what Outdoorsy, RVshare or other sites charge?</h3>
+    <p>No. The platform fee is a number you type in, taken from the terms you were shown. The page does not hold any site's actual rates.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before you list or buy. Treat it as a worksheet to check, not a recommendation to buy, sell or list a rig.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../turo-host-payout-calculator/">Turo host payout calculator</a> and the <a href="../str-cleaning-fee-pricing-calculator/">short-term rental cleaning fee calculator</a> and the <a href="../campground-site-profit-calculator/">campground site profit calculator</a>.</p>
+    <p>Renting out a boat by the trip instead? The <a href="../fishing-charter-trip-pricing-calculator/">fishing charter trip pricing calculator</a> prices a trip after fuel, crew and slow days.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { rate: "rate", nights: "nights", available: "available", avgtrip: "avgTrip", cleanfee: "cleanFeeCharged", cleancost: "cleanCost", wear: "wearPerNight", feepct: "feePct", insurance: "insurance", storage: "storageMonth", loan: "loanMonth", otherfixed: "otherFixed", depr: "depreciation", target: "target" };
+    const IDLE = "Fill in the rig and season, then click Work out the profit.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Cash result: ${dollars(r.cash)} a year. After depreciation: ${dollars(r.afterDepreciation)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.nights}</td><td class="n">${(x.occupancy * 100).toFixed(0)}%</td><td class="n">${dollars(x.cash)}</td><td class="n">${dollars(x.afterDepreciation)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $195 a night, 70 nights rented of 200 available, 20% platform fee, $450 a month loan.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("rv-rental-profit.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("rv-rental-nights.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

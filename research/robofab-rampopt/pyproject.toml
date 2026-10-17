@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-rampopt"
+version = "0.1.0"
+description = "Golden-section search of the trapezoid ramp fraction, and its effect on the time-optimal edge in the carry (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,45 @@
+name: fuel-surcharge-schedule-calculator
+description: >-
+  Free browser calculator for owner-operators, small carriers, dispatchers and brokers: enter a trip, the published diesel price and one
+  or more fuel surcharge programs (peg, mpg basis, step, loaded or all miles, cents per mile or percent of linehaul) and see the
+  surcharge each pays, the extra fuel the truck really burned, and the gap that comes out of linehaul. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest ventures low (0.26 fleet-ev-vs-diesel, 0.23
+# freight-accessorial-auditor, 0.57 truck-detention-pay-calculator which is detention time, not fuel). None computes a fuel surcharge
+# schedule against actual fuel burn.
+#
+# First visitor: owner-operators and dispatchers searching "fuel surcharge calculator", "DOE fuel surcharge chart", "how is fuel
+# surcharge calculated per mile", and the r/Truckers, r/FreightBrokers and r/Dispatchers threads that ask whether a broker's FSC is fair.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not legal, tax or financial advice; says what is not
+# modelled (regional indexes, caps, minimums, index lag, contract-specific mileage) and carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a dispatch-software or fuel-card referral would need owner approval.
+
+hypotheses:
+  - claim: >-
+      Owner-operators and small carriers will type a broker's fuel surcharge terms into a no-signup calculator to see how much of the
+      fuel they really burned above the peg the surcharge pays back, because programs quote a peg and a step and never the gap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fuel-surcharge-schedule-calculator/
+  analytics: null

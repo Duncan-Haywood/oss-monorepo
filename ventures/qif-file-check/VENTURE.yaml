@@ -1,0 +1,30 @@
+name: qif-file-check
+description: >-
+  Free browser tool that checks a QIF (Quicken Interchange Format) bank or card export before it goes
+  into Quicken, QuickBooks, Xero, YNAB, GnuCash or Banktivity, and says why an import fails or posts
+  wrong: no !Type header, a last record with no closing ^, dates whose day/month order the file cannot
+  prove (or that mix both), amounts written 1.234,56 or (18.00), split lines that do not add up to the
+  total, and rows downloaded twice (QIF has no transaction ID). It gives a line number for each and
+  writes a repaired file, optionally with dates rewritten to a four-digit year in the order you
+  confirm. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. A sibling session shipped ofx-file-check (OFX/QFX/QBO)
+# minutes earlier, and this branch's own OFX checker was dropped as a duplicate of it; what that venture does
+# not read is QIF, the older format with no transaction ID and no declared date order, which is where the
+# "dates import as the wrong month" and "imported twice" failures come from. Nearest existing ventures:
+# ofx-file-check and bank-csv-to-qbo-converter (which writes QIF but does not check one). First visitor: a
+# small-business owner or bookkeeper with an old bank's .qif download, or someone moving off Quicken; search
+# phrases like "qif import wrong dates", "qif file format error", "qif duplicate transactions", "qif date
+# format day month". Volume not measured with an external tool.
+#
+# Deterministic and local: no bank login, no aggregator, no upload, so no credential or data-protection
+# exposure and no cost per user.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeper and personal-finance audiences, paired
+# with ofx-file-check and bank-csv-to-qbo-converter; a paid version, if usage appears, is a batch check over a
+# client folder behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-product clause,
+# trademarks used nominatively, no promise any importer will accept the file.

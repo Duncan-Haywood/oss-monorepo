@@ -1,0 +1,39 @@
+name: uk-self-assessment-late-penalty-calculator
+description: >-
+  Free browser tool for UK sole traders, landlords and freelancers who missed the Self Assessment deadline: enter the tax year, tax owed and the dates you filed and paid to see late filing penalties, late payment penalties, interest and what each extra month of delay adds. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was form-5500-late-filing-calculator (0.35), a US pension form; no UK Self Assessment penalty tool in ventures/. Sibling in the UK Self Assessment cluster.
+#
+# First visitor: UK sole trader or landlord who missed 31 January, searching "self assessment late filing penalty", "how much is the penalty for filing self assessment late", "self assessment late payment interest".
+# Audience is the several hundred thousand filers who miss the deadline every year; the spike is each February and again around the 30 April, 31 July and 31 January penalty steps. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a deadline reminder and tax-pot tracker behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (reasonable-excuse appeals, withholding-information penalties, paper returns, time to pay, interest on penalties, the MTD points regime). The interest rate is entered by the user, never hard-coded. Ethical risk is a too-small penalty figure; mitigated by saying it is an estimate and what is excluded.
+hypotheses:
+  - claim: >-
+      UK Self Assessment filers who missed the deadline will use a free calculator to see the penalty and the cost of delay before filing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, percentage or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-self-assessment-late-penalty-calculator/
+  analytics: null

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project Staffing Margin Optimizer: Who Works on What — Free</title>
+  <meta name="description" content="Free staffing optimizer for agencies, consultancies and freelance teams: enter each person's cost, hours and skills and each project's bill rate and hours. Get the exact split of hours that earns the most margin, who is the bottleneck, and which work to turn away. Nothing uploaded.">
+  <meta property="og:title" content="Project staffing margin optimizer">
+  <meta property="og:description" content="The exact people-to-projects split that earns the most margin, with the value of one more hour per person. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Project Staffing Margin Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find which people should work on which client projects to earn the most margin, with the value of one more hour per person. Runs in your browser.","featureList":"Exact margin-maximising staffing plan, skill matching, minimum margin filter, value of an extra hour per person, work to turn away, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide which consultant or freelancer works on which client project?","acceptedAnswer":{"@type":"Answer","text":"List each person with their loaded cost per hour, the hours they have free and their skills, and each project with its bill rate, hours to staff and the skill it needs. The tool finds the split of hours that earns the most total margin. It is exact, not a rule of thumb: no other split of the same hours earns more."}},{"@type":"Question","name":"Why not just give each project to the cheapest qualified person?","acceptedAnswer":{"@type":"Answer","text":"Because people are shared. The cheapest person is often the only one who can do two different projects, and every hour they spend on the lower-paying one is an hour not spent on the higher-paying one. The tool weighs all of the projects against all of the people at once."}},{"@type":"Question","name":"What does the value of one more hour mean?","acceptedAnswer":{"@type":"Answer","text":"For each person it is the extra margin a further hour of their time would earn right now. A high figure on someone who is fully booked is the clearest sign you are turning away money, and a case for overtime, a contractor or a hire. Zero means they already have spare hours."}},{"@type":"Question","name":"Is this business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the rates and hours you type. Holidays, learning curves, client preferences, continuity on a project and how people feel about their work are yours to weigh, which is why you can read the plan and change the inputs."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PROJECT STAFFING MARGIN OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who should work on which project to earn the most margin?</h1>
+    <p>List your people with what they cost an hour, the hours they have and their skills, then your projects with what you bill an hour, the hours to staff and the skill each needs. The tool returns the split of hours that earns the most, who is the bottleneck, and which work is not worth taking.</p>
+    <p class="note">Arithmetic on figures you type. Not business, legal or employment advice. The example people and projects are placeholders, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-g">
+      <h2 id="h-g">Settings</h2>
+      <div class="grid">
+        <div><label for="minMarginPct">Minimum margin to accept a pairing (%)</label><input id="minMarginPct" type="number" step="any" value="0"><p class="note">A person is only put on a project if the bill rate clears their cost by at least this share of the bill rate. 0 allows anything that makes money.</p></div>
+        <div><label for="extraHours">Extra hours to test (for the value of one more hour)</label><input id="extraHours" type="number" step="any" value="10"><p class="note">Each person is given this many more hours in turn and the gain is divided back to a figure per hour.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">People (up to 20)</h2>
+      <p class="note">Cost per hour is what an hour of this person really costs you: pay plus the burden, or the contractor rate. Hours is what they can bill over the period you are planning. Skills are separated by commas.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Cost / hour</th><th>Hours available</th><th>Skills</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="p0_name" type="text" aria-label="Person 1 name" value=""></td><td><input id="p0_cost" type="text" inputmode="decimal" aria-label="Person 1 cost per hour" value=""></td><td><input id="p0_hours" type="text" inputmode="decimal" aria-label="Person 1 hours available" value=""></td><td><input id="p0_skills" type="text" aria-label="Person 1 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="p1_name" type="text" aria-label="Person 2 name" value=""></td><td><input id="p1_cost" type="text" inputmode="decimal" aria-label="Person 2 cost per hour" value=""></td><td><input id="p1_hours" type="text" inputmode="decimal" aria-label="Person 2 hours available" value=""></td><td><input id="p1_skills" type="text" aria-label="Person 2 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="p2_name" type="text" aria-label="Person 3 name" value=""></td><td><input id="p2_cost" type="text" inputmode="decimal" aria-label="Person 3 cost per hour" value=""></td><td><input id="p2_hours" type="text" inputmode="decimal" aria-label="Person 3 hours available" value=""></td><td><input id="p2_skills" type="text" aria-label="Person 3 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="p3_name" type="text" aria-label="Person 4 name" value=""></td><td><input id="p3_cost" type="text" inputmode="decimal" aria-label="Person 4 cost per hour" value=""></td><td><input id="p3_hours" type="text" inputmode="decimal" aria-label="Person 4 hours available" value=""></td><td><input id="p3_skills" type="text" aria-label="Person 4 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="p4_name" type="text" aria-label="Person 5 name" value=""></td><td><input id="p4_cost" type="text" inputmode="decimal" aria-label="Person 5 cost per hour" value=""></td><td><input id="p4_hours" type="text" inputmode="decimal" aria-label="Person 5 hours available" value=""></td><td><input id="p4_skills" type="text" aria-label="Person 5 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="p5_name" type="text" aria-label="Person 6 name" value=""></td><td><input id="p5_cost" type="text" inputmode="decimal" aria-label="Person 6 cost per hour" value=""></td><td><input id="p5_hours" type="text" inputmode="decimal" aria-label="Person 6 hours available" value=""></td><td><input id="p5_skills" type="text" aria-label="Person 6 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">7</th><td><input id="p6_name" type="text" aria-label="Person 7 name" value=""></td><td><input id="p6_cost" type="text" inputmode="decimal" aria-label="Person 7 cost per hour" value=""></td><td><input id="p6_hours" type="text" inputmode="decimal" aria-label="Person 7 hours available" value=""></td><td><input id="p6_skills" type="text" aria-label="Person 7 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">8</th><td><input id="p7_name" type="text" aria-label="Person 8 name" value=""></td><td><input id="p7_cost" type="text" inputmode="decimal" aria-label="Person 8 cost per hour" value=""></td><td><input id="p7_hours" type="text" inputmode="decimal" aria-label="Person 8 hours available" value=""></td><td><input id="p7_skills" type="text" aria-label="Person 8 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">9</th><td><input id="p8_name" type="text" aria-label="Person 9 name" value=""></td><td><input id="p8_cost" type="text" inputmode="decimal" aria-label="Person 9 cost per hour" value=""></td><td><input id="p8_hours" type="text" inputmode="decimal" aria-label="Person 9 hours available" value=""></td><td><input id="p8_skills" type="text" aria-label="Person 9 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">10</th><td><input id="p9_name" type="text" aria-label="Person 10 name" value=""></td><td><input id="p9_cost" type="text" inputmode="decimal" aria-label="Person 10 cost per hour" value=""></td><td><input id="p9_hours" type="text" inputmode="decimal" aria-label="Person 10 hours available" value=""></td><td><input id="p9_skills" type="text" aria-label="Person 10 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">11</th><td><input id="p10_name" type="text" aria-label="Person 11 name" value=""></td><td><input id="p10_cost" type="text" inputmode="decimal" aria-label="Person 11 cost per hour" value=""></td><td><input id="p10_hours" type="text" inputmode="decimal" aria-label="Person 11 hours available" value=""></td><td><input id="p10_skills" type="text" aria-label="Person 11 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">12</th><td><input id="p11_name" type="text" aria-label="Person 12 name" value=""></td><td><input id="p11_cost" type="text" inputmode="decimal" aria-label="Person 12 cost per hour" value=""></td><td><input id="p11_hours" type="text" inputmode="decimal" aria-label="Person 12 hours available" value=""></td><td><input id="p11_skills" type="text" aria-label="Person 12 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">13</th><td><input id="p12_name" type="text" aria-label="Person 13 name" value=""></td><td><input id="p12_cost" type="text" inputmode="decimal" aria-label="Person 13 cost per hour" value=""></td><td><input id="p12_hours" type="text" inputmode="decimal" aria-label="Person 13 hours available" value=""></td><td><input id="p12_skills" type="text" aria-label="Person 13 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">14</th><td><input id="p13_name" type="text" aria-label="Person 14 name" value=""></td><td><input id="p13_cost" type="text" inputmode="decimal" aria-label="Person 14 cost per hour" value=""></td><td><input id="p13_hours" type="text" inputmode="decimal" aria-label="Person 14 hours available" value=""></td><td><input id="p13_skills" type="text" aria-label="Person 14 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">15</th><td><input id="p14_name" type="text" aria-label="Person 15 name" value=""></td><td><input id="p14_cost" type="text" inputmode="decimal" aria-label="Person 15 cost per hour" value=""></td><td><input id="p14_hours" type="text" inputmode="decimal" aria-label="Person 15 hours available" value=""></td><td><input id="p14_skills" type="text" aria-label="Person 15 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">16</th><td><input id="p15_name" type="text" aria-label="Person 16 name" value=""></td><td><input id="p15_cost" type="text" inputmode="decimal" aria-label="Person 16 cost per hour" value=""></td><td><input id="p15_hours" type="text" inputmode="decimal" aria-label="Person 16 hours available" value=""></td><td><input id="p15_skills" type="text" aria-label="Person 16 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">17</th><td><input id="p16_name" type="text" aria-label="Person 17 name" value=""></td><td><input id="p16_cost" type="text" inputmode="decimal" aria-label="Person 17 cost per hour" value=""></td><td><input id="p16_hours" type="text" inputmode="decimal" aria-label="Person 17 hours available" value=""></td><td><input id="p16_skills" type="text" aria-label="Person 17 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">18</th><td><input id="p17_name" type="text" aria-label="Person 18 name" value=""></td><td><input id="p17_cost" type="text" inputmode="decimal" aria-label="Person 18 cost per hour" value=""></td><td><input id="p17_hours" type="text" inputmode="decimal" aria-label="Person 18 hours available" value=""></td><td><input id="p17_skills" type="text" aria-label="Person 18 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">19</th><td><input id="p18_name" type="text" aria-label="Person 19 name" value=""></td><td><input id="p18_cost" type="text" inputmode="decimal" aria-label="Person 19 cost per hour" value=""></td><td><input id="p18_hours" type="text" inputmode="decimal" aria-label="Person 19 hours available" value=""></td><td><input id="p18_skills" type="text" aria-label="Person 19 skills, separated by commas" value=""></td></tr>
+<tr><th scope="row">20</th><td><input id="p19_name" type="text" aria-label="Person 20 name" value=""></td><td><input id="p19_cost" type="text" inputmode="decimal" aria-label="Person 20 cost per hour" value=""></td><td><input id="p19_hours" type="text" inputmode="decimal" aria-label="Person 20 hours available" value=""></td><td><input id="p19_skills" type="text" aria-label="Person 20 skills, separated by commas" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card" aria-labelledby="h-j">
+      <h2 id="h-j">Projects (up to 20)</h2>
+      <p class="note">Bill rate is what the client pays per hour of this work. A project that needs two kinds of person can be listed twice, once per skill. Anyone with a matching skill can be put on it; a project may list several skills separated by commas and any one will do.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Project</th><th>Bill rate / hour</th><th>Hours to staff</th><th>Skill needed</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="j0_name" type="text" aria-label="Project 1 name" value=""></td><td><input id="j0_rate" type="text" inputmode="decimal" aria-label="Project 1 bill rate per hour" value=""></td><td><input id="j0_hours" type="text" inputmode="decimal" aria-label="Project 1 hours to staff" value=""></td><td><input id="j0_skill" type="text" aria-label="Project 1 skill needed" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="j1_name" type="text" aria-label="Project 2 name" value=""></td><td><input id="j1_rate" type="text" inputmode="decimal" aria-label="Project 2 bill rate per hour" value=""></td><td><input id="j1_hours" type="text" inputmode="decimal" aria-label="Project 2 hours to staff" value=""></td><td><input id="j1_skill" type="text" aria-label="Project 2 skill needed" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="j2_name" type="text" aria-label="Project 3 name" value=""></td><td><input id="j2_rate" type="text" inputmode="decimal" aria-label="Project 3 bill rate per hour" value=""></td><td><input id="j2_hours" type="text" inputmode="decimal" aria-label="Project 3 hours to staff" value=""></td><td><input id="j2_skill" type="text" aria-label="Project 3 skill needed" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="j3_name" type="text" aria-label="Project 4 name" value=""></td><td><input id="j3_rate" type="text" inputmode="decimal" aria-label="Project 4 bill rate per hour" value=""></td><td><input id="j3_hours" type="text" inputmode="decimal" aria-label="Project 4 hours to staff" value=""></td><td><input id="j3_skill" type="text" aria-label="Project 4 skill needed" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="j4_name" type="text" aria-label="Project 5 name" value=""></td><td><input id="j4_rate" type="text" inputmode="decimal" aria-label="Project 5 bill rate per hour" value=""></td><td><input id="j4_hours" type="text" inputmode="decimal" aria-label="Project 5 hours to staff" value=""></td><td><input id="j4_skill" type="text" aria-label="Project 5 skill needed" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="j5_name" type="text" aria-label="Project 6 name" value=""></td><td><input id="j5_rate" type="text" inputmode="decimal" aria-label="Project 6 bill rate per hour" value=""></td><td><input id="j5_hours" type="text" inputmode="decimal" aria-label="Project 6 hours to staff" value=""></td><td><input id="j5_skill" type="text" aria-label="Project 6 skill needed" value=""></td></tr>
+<tr><th scope="row">7</th><td><input id="j6_name" type="text" aria-label="Project 7 name" value=""></td><td><input id="j6_rate" type="text" inputmode="decimal" aria-label="Project 7 bill rate per hour" value=""></td><td><input id="j6_hours" type="text" inputmode="decimal" aria-label="Project 7 hours to staff" value=""></td><td><input id="j6_skill" type="text" aria-label="Project 7 skill needed" value=""></td></tr>
+<tr><th scope="row">8</th><td><input id="j7_name" type="text" aria-label="Project 8 name" value=""></td><td><input id="j7_rate" type="text" inputmode="decimal" aria-label="Project 8 bill rate per hour" value=""></td><td><input id="j7_hours" type="text" inputmode="decimal" aria-label="Project 8 hours to staff" value=""></td><td><input id="j7_skill" type="text" aria-label="Project 8 skill needed" value=""></td></tr>
+<tr><th scope="row">9</th><td><input id="j8_name" type="text" aria-label="Project 9 name" value=""></td><td><input id="j8_rate" type="text" inputmode="decimal" aria-label="Project 9 bill rate per hour" value=""></td><td><input id="j8_hours" type="text" inputmode="decimal" aria-label="Project 9 hours to staff" value=""></td><td><input id="j8_skill" type="text" aria-label="Project 9 skill needed" value=""></td></tr>
+<tr><th scope="row">10</th><td><input id="j9_name" type="text" aria-label="Project 10 name" value=""></td><td><input id="j9_rate" type="text" inputmode="decimal" aria-label="Project 10 bill rate per hour" value=""></td><td><input id="j9_hours" type="text" inputmode="decimal" aria-label="Project 10 hours to staff" value=""></td><td><input id="j9_skill" type="text" aria-label="Project 10 skill needed" value=""></td></tr>
+<tr><th scope="row">11</th><td><input id="j10_name" type="text" aria-label="Project 11 name" value=""></td><td><input id="j10_rate" type="text" inputmode="decimal" aria-label="Project 11 bill rate per hour" value=""></td><td><input id="j10_hours" type="text" inputmode="decimal" aria-label="Project 11 hours to staff" value=""></td><td><input id="j10_skill" type="text" aria-label="Project 11 skill needed" value=""></td></tr>
+<tr><th scope="row">12</th><td><input id="j11_name" type="text" aria-label="Project 12 name" value=""></td><td><input id="j11_rate" type="text" inputmode="decimal" aria-label="Project 12 bill rate per hour" value=""></td><td><input id="j11_hours" type="text" inputmode="decimal" aria-label="Project 12 hours to staff" value=""></td><td><input id="j11_skill" type="text" aria-label="Project 12 skill needed" value=""></td></tr>
+<tr><th scope="row">13</th><td><input id="j12_name" type="text" aria-label="Project 13 name" value=""></td><td><input id="j12_rate" type="text" inputmode="decimal" aria-label="Project 13 bill rate per hour" value=""></td><td><input id="j12_hours" type="text" inputmode="decimal" aria-label="Project 13 hours to staff" value=""></td><td><input id="j12_skill" type="text" aria-label="Project 13 skill needed" value=""></td></tr>
+<tr><th scope="row">14</th><td><input id="j13_name" type="text" aria-label="Project 14 name" value=""></td><td><input id="j13_rate" type="text" inputmode="decimal" aria-label="Project 14 bill rate per hour" value=""></td><td><input id="j13_hours" type="text" inputmode="decimal" aria-label="Project 14 hours to staff" value=""></td><td><input id="j13_skill" type="text" aria-label="Project 14 skill needed" value=""></td></tr>
+<tr><th scope="row">15</th><td><input id="j14_name" type="text" aria-label="Project 15 name" value=""></td><td><input id="j14_rate" type="text" inputmode="decimal" aria-label="Project 15 bill rate per hour" value=""></td><td><input id="j14_hours" type="text" inputmode="decimal" aria-label="Project 15 hours to staff" value=""></td><td><input id="j14_skill" type="text" aria-label="Project 15 skill needed" value=""></td></tr>
+<tr><th scope="row">16</th><td><input id="j15_name" type="text" aria-label="Project 16 name" value=""></td><td><input id="j15_rate" type="text" inputmode="decimal" aria-label="Project 16 bill rate per hour" value=""></td><td><input id="j15_hours" type="text" inputmode="decimal" aria-label="Project 16 hours to staff" value=""></td><td><input id="j15_skill" type="text" aria-label="Project 16 skill needed" value=""></td></tr>
+<tr><th scope="row">17</th><td><input id="j16_name" type="text" aria-label="Project 17 name" value=""></td><td><input id="j16_rate" type="text" inputmode="decimal" aria-label="Project 17 bill rate per hour" value=""></td><td><input id="j16_hours" type="text" inputmode="decimal" aria-label="Project 17 hours to staff" value=""></td><td><input id="j16_skill" type="text" aria-label="Project 17 skill needed" value=""></td></tr>
+<tr><th scope="row">18</th><td><input id="j17_name" type="text" aria-label="Project 18 name" value=""></td><td><input id="j17_rate" type="text" inputmode="decimal" aria-label="Project 18 bill rate per hour" value=""></td><td><input id="j17_hours" type="text" inputmode="decimal" aria-label="Project 18 hours to staff" value=""></td><td><input id="j17_skill" type="text" aria-label="Project 18 skill needed" value=""></td></tr>
+<tr><th scope="row">19</th><td><input id="j18_name" type="text" aria-label="Project 19 name" value=""></td><td><input id="j18_rate" type="text" inputmode="decimal" aria-label="Project 19 bill rate per hour" value=""></td><td><input id="j18_hours" type="text" inputmode="decimal" aria-label="Project 19 hours to staff" value=""></td><td><input id="j18_skill" type="text" aria-label="Project 19 skill needed" value=""></td></tr>
+<tr><th scope="row">20</th><td><input id="j19_name" type="text" aria-label="Project 20 name" value=""></td><td><input id="j19_rate" type="text" inputmode="decimal" aria-label="Project 20 bill rate per hour" value=""></td><td><input id="j19_hours" type="text" inputmode="decimal" aria-label="Project 20 hours to staff" value=""></td><td><input id="j19_skill" type="text" aria-label="Project 20 skill needed" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best staffing</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">Needs at least one person and one project with every field filled in.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions teams ask</h2>
+      <h3>How do I decide which consultant or freelancer works on which client project?</h3>
+      <p>List each person with their loaded cost per hour, the hours they have free and their skills, and each project with its bill rate, hours to staff and the skill it needs. The tool finds the split of hours that earns the most total margin. It is exact, not a rule of thumb: no other split of the same hours earns more.</p>
+      <h3>Why not just give each project to the cheapest qualified person?</h3>
+      <p>Because people are shared. The cheapest person is often the only one who can do two different projects, and every hour they spend on the lower-paying one is an hour not spent on the higher-paying one. The tool weighs all of the projects against all of the people at once.</p>
+      <h3>What does the value of one more hour mean?</h3>
+      <p>For each person it is the extra margin a further hour of their time would earn right now. A high figure on someone who is fully booked is the clearest sign you are turning away money, and a case for overtime, a contractor or a hire. Zero means they already have spare hours.</p>
+      <h3>Is this business advice?</h3>
+      <p>No. It is arithmetic on the rates and hours you type. Holidays, learning curves, client preferences, continuity on a project and how people feel about their work are yours to weigh, which is why you can read the plan and change the inputs.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether to hire or subcontract, whether to drop a client, holidays and ramp-up time, how much continuity on a project is worth, learning a new skill, how work is split between a lead and a junior on one project, and how each person feels about it. The plan is a starting point to argue with.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> and the <a href="../crew-dispatch-optimizer/">crew dispatch optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Names, rates and hours stay on your device. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, PERSON_DEFAULTS, PROJECT_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_PEOPLE, EXAMPLE_PROJECTS, money, hoursFmt, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const NP = 20, NJ = 20, SK = Object.keys(SHARED_DEFAULTS), PK = Object.keys(PERSON_DEFAULTS), JK = Object.keys(PROJECT_DEFAULTS);
+    const fill = () => {
+      for (const k of SK) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < NP; i++) for (const k of PK) $("p" + i + "_" + k).value = (EXAMPLE_PEOPLE[i] || PERSON_DEFAULTS)[k];
+      for (let i = 0; i < NJ; i++) for (const k of JK) $("j" + i + "_" + k).value = (EXAMPLE_PROJECTS[i] || PROJECT_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SK) shared[k] = $(k).value;
+      const people = [], projects = [];
+      for (let i = 0; i < NP; i++) { const t = {}; for (const k of PK) t[k] = $("p" + i + "_" + k).value; people.push(t); }
+      for (let i = 0; i < NJ; i++) { const t = {}; for (const k of JK) t[k] = $("j" + i + "_" + k).value; projects.push(t); }
+      return { shared, people, projects };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const input = readAll();
+      const a = analyze(input.people, input.projects, input.shared);
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += '<div class="finding"><h4>Best margin: ' + money(a.margin) + " on " + money(a.revenue) + " billed (" + Math.round(a.marginPct * 100) + "%)</h4><p>" + hoursFmt(a.hoursStaffed) + " staffed, " + hoursFmt(a.hoursOpen) + " of project hours left unstaffed and " + hoursFmt(a.idleHours) + " of people's time unused. No other split of these hours earns more under the rules you set.</p></div>";
+      h += '<div class="finding"><h4>Who does what</h4>' + table(["Person", "Project", "Hours", "Bill / cost per hour", "Margin"], a.assignments.map((r) => [esc(r.person), esc(r.project), hoursFmt(r.hours), money(r.rate) + " / " + money(r.cost), money(r.margin)])) + "</div>";
+      h += '<div class="finding"><h4>Your people: who is the bottleneck</h4><p class="note">The last column is the extra margin one more hour of that person would earn. A big figure on someone fully booked is money you are turning away.</p>' + table(["Person", "Booked", "Idle", "Value of one more hour"], a.perPerson.map((p) => [esc(p.name), Math.round(p.utilisation * 100) + "%", hoursFmt(p.idle), money(p.extraHourValue)])) + "</div>";
+      const open = a.perProject.filter((p) => p.unfilled > 1e-9);
+      h += open.length ? '<div class="finding"><h4>Work left unstaffed</h4>' + table(["Project", "Hours open", "Why"], open.map((p) => [esc(p.name), hoursFmt(p.unfilled), esc(p.why)])) + "</div>" : '<div class="finding"><h4>Every project is fully staffed</h4></div>';
+      h += '<p><button type="button" class="secondary" id="csv">Download plan (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "staffing-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

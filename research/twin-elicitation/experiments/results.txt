@@ -1,0 +1,47 @@
+plant a=0.9 q=1.0 r=0.1; posterior on b: N(1, tau^2) truncated at 3 tau; nominal gain k*(1)=0.8233
+
+== 1. What each payment elicits from a provider whose posterior on b has mean 1 and sd tau ==
+tau    var      Brier-paid report   cost-paid gain   cost-paid parameter b_dec   shading b_dec-1   small-var law k
+0.05   0.0024   1.0000              0.8221           1.0019                      +0.0019            0.8221
+0.10   0.0097   1.0000              0.8182           1.0075                      +0.0075            0.8182
+0.20   0.0389   1.0000              0.8031           1.0299                      +0.0299            0.8027
+0.30   0.0876   1.0000              0.7784           1.0684                      +0.0684            0.7769
+
+== 2. Certainty-equivalent loss: deploying k*(mean report) instead of the Bayes gain ==
+tau    excess expected cost   ratio to previous (tau doubles -> ~16 if quartic)   quadratic form (J_kk/2)(dk)^2
+0.05   1.976e-06             -                                                  1.962e-06
+0.10   3.231e-05             16.4                                                  3.139e-05
+0.20   5.691e-04             17.6                                                  5.023e-04
+0.30   3.547e-03             6.2                                                  2.543e-03
+
+== 3. Same Brier score, different decisions: true b = 1, provider reports 1-d or 1+d (equal squared error d^2) ==
+d     regret if report 1-d   regret if report 1+d   ratio
+0.1   0.0066               0.0049               1.33
+0.2   0.0314               0.0175               1.79
+0.3   0.0870               0.0353               2.46
+0.5   0.4339               0.0808               5.37
+0.7   3.1755               0.1338               23.73
+and the reverse when the plant is really 1+-0.5: regret of report 1-d / 1+d at b=1.5 and b=0.6 (d=0.3)
+  b=0.6: 0.0086 / 0.2213
+  b=1.5: 1.4053 / 0.0156
+  b=2.0: inf / 0.2345
+
+== 4. Payment cap M when a rare state sits past the cliff: b = 0.6 w.p. 0.99, b = 2.4 w.p. 0.01 ==
+Bayes gain without the rare state k*(0.6)=1.2146; the b=2.4 plant is stable only for k < 0.7917
+cap M     cost-paid gain   b_dec    expected capped cost
+closed-form switching cap M* = 19.32
+inf       0.7369          1.1384   1.3635
+10000     0.7369          1.1384   1.3635
+100       0.7369          1.1384   1.3635
+20.2821   0.7369          1.1384   1.3635
+18.3505   1.2146          0.6000   1.3539
+10        1.2146          0.6000   1.2704
+unbounded (Gaussian) tail: every k>0 has infinite uncapped expected cost, so the uncapped payment elicits nothing
+
+== 5. Brier pays a provider for information by variance removed; the twin's decision value is J_bb/2 per unit variance ==
+b0    J_bb(b0,k*(b0))   decision value / tau^2 at tau=0.05   at tau=0.2*b0  (Brier value of resolving tau is tau^2 -> ratio 1)
+0.5   5.831              2.889                               3.067
+0.8   2.297              1.125                               1.201
+1.0   1.500              0.733                               0.781
+1.5   0.689              0.336                               0.357
+2.0   0.394              0.192                               0.204

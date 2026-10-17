@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Scrap Gold Buy Price Calculator: What to Offer and Still Profit — Free</title>
+  <meta name="description" content="Free scrap gold buying calculator for pawn shops and estate buyers: type the karat and weight of each piece and your refiner's terms to see the highest offer that still pays after assay loss, fees, shipping and a gold price drop. Nothing uploaded.">
+  <meta property="og:title" content="Scrap gold buy price calculator for buyers">
+  <meta property="og:description" content="What can you pay a seller for scrap gold and still profit after the refiner? Break-even offer, price-drop risk, offer ladder. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Scrap Gold Buy Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out the highest offer for a lot of scrap gold that still pays after assay loss, refiner payout and fees, shipping, the wait for settlement and a gold price move. Runs in your browser.", "featureList": "Karat and weight lot builder, break-even offer, target-margin offer, offer ladder, gold price move scenarios, loss probability, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I pay for scrap gold?", "acceptedAnswer": {"@type": "Answer", "text": "Work back from what the refiner will send you. Fine gold in the lot, times the gold price, times the refiner's payout percentage, less the assay loss, refiner fee, shipping and your own costs, divided by one plus the profit you want. This tool does that and shows the highest offer in dollars and as a share of melt value."}}, {"@type": "Question", "name": "What percent of melt do gold buyers pay?", "acceptedAnswer": {"@type": "Answer", "text": "It varies with the buyer's costs and competition. A buyer who pays 80% of melt and gets 96% back from a refiner keeps about 16 points before fees, assay loss, shipping and the wait. Small lots can lose money to the flat fees, so the tool shows the offer that breaks even for your own numbers."}}, {"@type": "Question", "name": "What is assay loss?", "acceptedAnswer": {"@type": "Answer", "text": "The refiner melts and assays the lot, and often finds less fine gold than you tested: gemstones and solder weigh something, and some pieces are stamped higher than they test. Enter the percentage you usually lose; the tool takes it off the fine gold before applying the payout."}}, {"@type": "Question", "name": "Why does the wait for payment matter?", "acceptedAnswer": {"@type": "Answer", "text": "Until the refiner pays, the gold price can move against you and your cash is tied up. The tool charges your cost of money for the days, shows the profit at several gold price moves, and estimates the chance of a loss from the typical swing. Locking the price when you buy removes the price risk."}}, {"@type": "Question", "name": "Is this financial or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Many places require licences, ID checks and holding periods for scrap and secondhand purchases; check yours. Use a qualified professional for tax and compliance."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SCRAP GOLD BUY PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What can you pay for this scrap gold and still profit?</h1>
+    <p>Type each piece's karat and weight, today's gold price and your refiner's terms. The tool finds the fine gold, the melt value, what the refiner will really send after assay loss, payout share and fees, the cost of waiting for payment, and the highest offer that still leaves the profit you want. It also shows an offer ladder and what a fall in the gold price does to the lot.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, legal, tax or licensing advice. The example figures are placeholders, not today's price or a refiner's quote.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The lot</h2>
+      <div class="grid">
+        <div><label for="i1Karat">Item 1: karat</label><input id="i1Karat" type="number" step="any" value="0"><p class="note">Stamp on the piece: 10, 14, 18, 22 or 24. Test it.</p></div>
+        <div><label for="i1Weight">Item 1: weight</label><input id="i1Weight" type="number" step="any" value="0"><p class="note">Leave 0 if unused. Weigh without stones where you can.</p></div>
+        <div><label for="i2Karat">Item 2: karat</label><input id="i2Karat" type="number" step="any" value="0"><p class="note">Stamp on the piece: 10, 14, 18, 22 or 24. Test it.</p></div>
+        <div><label for="i2Weight">Item 2: weight</label><input id="i2Weight" type="number" step="any" value="0"><p class="note">Leave 0 if unused. Weigh without stones where you can.</p></div>
+        <div><label for="i3Karat">Item 3: karat</label><input id="i3Karat" type="number" step="any" value="0"><p class="note">Stamp on the piece: 10, 14, 18, 22 or 24. Test it.</p></div>
+        <div><label for="i3Weight">Item 3: weight</label><input id="i3Weight" type="number" step="any" value="0"><p class="note">Leave 0 if unused. Weigh without stones where you can.</p></div>
+        <div><label for="i4Karat">Item 4: karat</label><input id="i4Karat" type="number" step="any" value="0"><p class="note">Stamp on the piece: 10, 14, 18, 22 or 24. Test it.</p></div>
+        <div><label for="i4Weight">Item 4: weight</label><input id="i4Weight" type="number" step="any" value="0"><p class="note">Leave 0 if unused. Weigh without stones where you can.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Price, weight unit and your offer</h2>
+      <div class="grid">
+        <div><label for="spot">Gold price ($ per troy ounce)</label><input id="spot" type="number" step="any" value="0"><p class="note">Fine gold, live price. The example figure is a placeholder.</p></div>
+        <div><label for="unit">Weight unit</label><select id="unit"><option value="1">Grams</option><option value="1.55517384">Pennyweights (dwt)</option></select></div>
+        <div><label for="weightLossPct">Weight the refiner finds missing (%)</label><input id="weightLossPct" type="number" step="any" value="0"><p class="note">Stones, solder, a generous stamp. Check your past refiner reports.</p></div>
+        <div><label for="offerPct">Your offer to the seller (% of melt)</label><input id="offerPct" type="number" step="any" value="0"><p class="note">Melt = fine gold at today's price.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Refiner, costs and risk</h2>
+      <div class="grid">
+        <div><label for="payoutPct">Refiner payout (% of recovered fine gold)</label><input id="payoutPct" type="number" step="any" value="0"><p class="note">From the refiner's rate sheet.</p></div>
+        <div><label for="refineFee">Refiner fee per lot ($)</label><input id="refineFee" type="number" step="any" value="0"></div>
+        <div><label for="shipInsure">Shipping and insurance per lot ($)</label><input id="shipInsure" type="number" step="any" value="0"></div>
+        <div><label for="handling">Your handling per lot ($)</label><input id="handling" type="number" step="any" value="0"><p class="note">Testing, labour, paperwork.</p></div>
+        <div><label for="daysToSettle">Days until the refiner pays you</label><input id="daysToSettle" type="number" step="any" value="0"></div>
+        <div><label for="hedged">Price locked when you buy? (1 yes, 0 no)</label><input id="hedged" type="number" step="any" value="0"><p class="note">1 if you hedge or the refiner locks the price on receipt.</p></div>
+        <div><label for="annualVolPct">Typical yearly swing in the gold price (%)</label><input id="annualVolPct" type="number" step="any" value="0"><p class="note">Used for the risk estimate.</p></div>
+        <div><label for="capitalRatePct">Cost of your money (% a year)</label><input id="capitalRatePct" type="number" step="any" value="0"></div>
+        <div><label for="wantPct">Profit you want (% of money paid out)</label><input id="wantPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Work out my offer</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions gold buyers ask</h2>
+      <h3>How much should I pay for scrap gold?</h3>
+      <p>Work back from what the refiner will send you. Fine gold in the lot, times the gold price, times the refiner's payout percentage, less the assay loss, refiner fee, shipping and your own costs, divided by one plus the profit you want. This tool does that and shows the highest offer in dollars and as a share of melt value.</p>
+      <h3>What percent of melt do gold buyers pay?</h3>
+      <p>It varies with the buyer's costs and competition. A buyer who pays 80% of melt and gets 96% back from a refiner keeps about 16 points before fees, assay loss, shipping and the wait. Small lots can lose money to the flat fees, so the tool shows the offer that breaks even for your own numbers.</p>
+      <h3>What is assay loss?</h3>
+      <p>The refiner melts and assays the lot, and often finds less fine gold than you tested: gemstones and solder weigh something, and some pieces are stamped higher than they test. Enter the percentage you usually lose; the tool takes it off the fine gold before applying the payout.</p>
+      <h3>Why does the wait for payment matter?</h3>
+      <p>Until the refiner pays, the gold price can move against you and your cash is tied up. The tool charges your cost of money for the days, shows the profit at several gold price moves, and estimates the chance of a loss from the typical swing. Locking the price when you buy removes the price risk.</p>
+      <h3>Is this financial or legal advice?</h3>
+      <p>No. It is arithmetic on figures you type. Many places require licences, ID checks and holding periods for scrap and secondhand purchases; check yours. Use a qualified professional for tax and compliance.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a piece is genuine, its true karat (test it), licensing, ID and holding-period rules where you buy, sales and income tax, refiner rate sheets that change with lot size or gold price, and bullion premiums. The gold price is assumed to move once, between buying and settlement, with a normal spread; real prices jump and trend. Fees are per lot.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../estate-sale-net-proceeds-calculator/">estate sale net proceeds calculator</a>, the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a> and the <a href="../auction-car-flip-calculator/">auction car flip calculator</a>. Buy scrap cars instead? The <a href="../junk-car-buyer-offer-calculator/">junk car buyer offer calculator</a> prices a car by hulk weight, converter and parts. Lend against jewelry instead? The <a href="../pawn-loan-profit-calculator/">pawn loan profit calculator</a> shows what a loan book earns.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you buy or sell anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, b = r.base, o = a.opts;
+      h += `<div class="finding"><h4>${b.profit >= 0 ? "Profit" : "Loss"} of ${money(Math.abs(b.profit))} at an offer of ${money(b.paid)} (${pct(o.offerPct)} of melt)</h4><p>The lot holds ${b.fineG.toFixed(1)} g of fine gold worth ${money(b.melt)} at melt. To keep ${pct(o.wantPct)} on the money you pay out, offer at most <strong>${money(r.target.dollars)} (${pct(r.target.pct)} of melt)</strong>. You break even at ${money(r.breakEven.dollars)} (${pct(r.breakEven.pct)}).</p></div>`;
+      h += `<div class="finding"><h4>Where the money goes</h4>${table(["Line", "Amount"], [["Melt value of the lot", money(b.melt)], ["Fine gold the refiner recovers (g)", b.recoveredG.toFixed(2)], ["Refiner payout before fees", money(b.refinerGross)], ["Refiner net after its fee and shipping", money(b.refinerNet)], ["Paid to the seller", money(b.paid)], ["Your handling", money(o.handling)], ["Cost of your money while you wait", money2(b.carry)], ["Profit", money(b.profit)], ["Margin on money paid to the seller", pct(b.margin)], ["Paid per gram of piece weight", money2(b.paidPerGram)]])}</div>`;
+      h += `<div class="finding"><h4>Each piece</h4>${table(["Item", "Karat", "Weight (g)", "Fine gold (g)", "Melt value"], b.lines.map((l) => ["Item " + l.n, l.karat, l.grams.toFixed(2), l.fineG.toFixed(2), money(l.melt)]))}</div>`;
+      h += `<div class="finding"><h4>If you offer more or less</h4>${table(["Offer (% of melt)", "Paid to seller", "Profit", "Margin"], a.ladder.map((x) => [x.offerPct + "%", money(x.paid), money(x.profit), pct(x.margin)]))}</div>`;
+      const rk = r.risk;
+      h += `<div class="finding"><h4>If the gold price moves before you are paid</h4>${o.hedged ? "<p>You said the price is locked when you buy, so a move does not change the profit.</p>" : `<p>A typical swing over ${o.daysToSettle} days is about ${pct(rk.sigma)} (${money(rk.swing)} of profit). A drop of ${pct(Math.abs(rk.breakEvenMove))} wipes out this lot's profit; on the swing you entered the chance of a loss is about ${pct(rk.pLoss)}.</p>`}${table(["Gold price move", "Profit at your offer"], a.moves.map((x) => [(x.move > 0 ? "+" : "") + x.move + "%", money(x.profit)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "scrap-gold-offer.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

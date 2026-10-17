@@ -79,8 +79,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = comparePromotedStandard({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -91,16 +91,16 @@ test('default inputs on the page match the worked example', () => {
     promotedStandardExtraOrders: 1,
     monthlyPromotedListings: 20,
   });
-  assert.ok(Math.abs(comparison.skip.expectedProfit - 18.3445) < 1e-6, 'default skip');
-  assert.ok(Math.abs(comparison.promote.expectedProfit - 32.549) < 1e-6, 'default Standard');
-  assert.ok(Math.abs(comparison.breakEvenExtraOrders - (18.3445 / 16.2745 - 1)) < 1e-6, 'default extra-sale floor');
-  assert.match(html, /\$18\.34/);
-  assert.match(html, /\$32\.55/);
-  assert.match(html, /\$14\.20/);
-  assert.match(html, /\$284\.09/);
+  assert.ok(Math.abs(comparison.skip.expectedProfit - 18.1096) < 1e-6, 'default skip');
+  assert.ok(Math.abs(comparison.promote.expectedProfit - 32.0792) < 1e-6, 'default Standard');
+  assert.ok(Math.abs(comparison.breakEvenExtraOrders - (18.1096 / 16.0396 - 1)) < 1e-6, 'default extra-sale floor');
+  assert.match(html, /\$18\.11/);
+  assert.match(html, /\$32\.08/);
+  assert.match(html, /\$13\.97/);
+  assert.match(html, /\$279\.39/);
   assert.match(html, /0\.13/);
-  assert.match(html, /22\.16%/);
-  assert.match(html, /\$16\.27/);
+  assert.match(html, /21\.87%/);
+  assert.match(html, /\$16\.04/);
   assert.match(html, /\$2\.07/);
   assert.match(html, /\$2\.30/);
 });

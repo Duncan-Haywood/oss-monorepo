@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>App Review Insights — Free App Store and Google Play Review Analyzer</title>
+  <meta name="description" content="Free app review analyzer: drop in your Google Play or App Store review CSV and see which release dropped your rating, which complaints cost the most stars, and which unhappy reviews you have not answered. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="App Review Insights — free, private, CSV in your browser">
+  <meta property="og:description" content="Release regressions, costly complaint themes and an unanswered low-star queue from your review export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "App Review Insights", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an App Store or Google Play review export into a report: which release dropped your rating, which complaint themes cost the most stars, the phrases unique to unhappy reviews, and the low-star reviews still without a reply. Runs in your browser; the file is never uploaded.", "featureList": "Release regression finder, complaint themes with star cost, unhappy-review phrases, unanswered low-star queue, rating by month"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I export my app reviews?", "acceptedAnswer": {"@type": "Answer", "text": "In Google Play Console open Quality, then Ratings and reviews, and use the download reviews option to get a CSV. For the App Store, Apple\u2019s review pages do not offer a full download everywhere, so paste or export your reviews from App Store Connect or from a review-export tool you already use. Any CSV with a rating column and a review text column works."}}, {"@type": "Question", "name": "What does the tool find?", "acceptedAnswer": {"@type": "Answer", "text": "Four things: which release made your rating drop, which complaint themes cost you the most stars, which words and phrases show up in unhappy reviews and not happy ones, and which low-star reviews you have not replied to."}}, {"@type": "Question", "name": "How are themes detected?", "acceptedAnswer": {"@type": "Answer", "text": "With plain keyword lists, for example crash, freeze and force close for the crashes theme. It is simple on purpose so you can see why a review matched. It will miss some reviews and sometimes match the wrong one, so read the reviews behind any number you act on."}}, {"@type": "Question", "name": "What does the star cost figure mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is a what-if. If the reviews that mention a theme had rated like every other review in the file, the overall average would be that much higher. It is not a forecast and it does not prove the theme caused the low rating."}}, {"@type": "Question", "name": "Is my review file uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. There are no accounts or analytics vendors."}}, {"@type": "Question", "name": "Is this advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies counting and averages to the file you provide."}}]}</script>
+  
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style></head>
+<body>
+  <header>
+    <p class="note">APP REVIEW INSIGHTS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which release, and which complaint, is costing your app stars?</h1>
+    <p>Drop in the review export from Google Play Console or App Store Connect and see <strong>which version dropped your rating</strong>, <strong>which complaint themes cost the most stars</strong>, the phrases only unhappy reviewers use, and the <strong>low-star reviews you have not replied to yet</strong>, without handing your reviews to a paid review-monitoring service.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your reviews export</h2>
+    <p class="note">Needs a rating column and a review text column. A date, an app version and a developer reply column unlock the month, release and reply views.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Review Submit Date and Time,App Version Name,Star Rating,Review Title,Review Text,Developer Reply Text"></textarea>
+    <div class="grid">
+      <div><label for="low">Count as unhappy at or below (stars)</label><input type="number" id="low" min="1" max="4" step="1" value="2"></div>
+      <div><label for="drop">Flag a release that loses (stars)</label><input type="number" id="drop" min="0.1" max="4" step="0.1" value="0.5"></div>
+      <div><label for="days">Rising window (days)</label><input type="number" id="days" min="7" max="180" step="1" value="30"></div>
+      <div><label for="support">Support email for draft replies</label><input type="text" id="support" placeholder="support@yourapp.com"></div>
+      <div><label for="minv">Minimum reviews per version</label><input type="number" id="minv" min="2" max="500" step="1" value="5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Complaint themes, by stars they cost</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Theme</th><th class="n" scope="col">Reviews</th><th class="n" scope="col">Share</th><th class="n" scope="col">Their average</th><th class="n" scope="col">Overall average if fixed</th></tr></thead><tbody id="themes"></tbody></table></div>
+    <h3>By version</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Version</th><th class="n" scope="col">Reviews</th><th class="n" scope="col">Average</th><th class="n" scope="col">Unhappy share</th></tr></thead><tbody id="by-version"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Reviews</th><th class="n" scope="col">Average</th><th class="n" scope="col">Unhappy share</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <h3>Words and phrases that mark unhappy reviews</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Phrase</th><th class="n" scope="col">In unhappy reviews</th><th class="n" scope="col">In 4–5 star reviews</th></tr></thead><tbody id="terms"></tbody></table></div>
+    <h3>Unhappy reviews with no reply, oldest first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Stars</th><th scope="col">Version</th><th scope="col">Review</th><th scope="col">Draft reply (edit before sending)</th></tr></thead><tbody id="queue"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the reply queue as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Release drop</strong> compares each version’s average rating with the previous version that has enough reviews. Versions are ordered by their first review date, or by file order when there are no dates.</li>
+      <li><strong>Themes</strong> are keyword lists, so you can see why a review matched. A review can match several. The “overall average if fixed” column is a what-if: those reviews rated like the rest of the file.</li>
+      <li><strong>Phrases</strong> are single words and two-word phrases that appear in a larger share of unhappy reviews than of 4–5 star reviews, counted once per review.</li>
+      <li><strong>Reply queue</strong> needs a developer reply column; without one it is left out rather than guessed.</li>
+      <li><strong>Reconciles.</strong> Ratings, months and versions each add up to the same review count, and a test asserts it.</li>
+      <li><strong>Not modelled:</strong> meaning. Sarcasm, other languages, reviews that mention a bug in other words, and whether a theme actually caused a rating. Read the reviews behind any number you act on.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I export my app reviews?</h3>
+    <p>In Google Play Console open Quality, then Ratings and reviews, and use the download reviews option to get a CSV. For the App Store, Apple’s review pages do not offer a full download everywhere, so paste or export your reviews from App Store Connect or from a review-export tool you already use. Any CSV with a rating column and a review text column works.</p>
+    <h3>What does the tool find?</h3>
+    <p>Four things: which release made your rating drop, which complaint themes cost you the most stars, which words and phrases show up in unhappy reviews and not happy ones, and which low-star reviews you have not replied to.</p>
+    <h3>How are themes detected?</h3>
+    <p>With plain keyword lists, for example crash, freeze and force close for the crashes theme. It is simple on purpose so you can see why a review matched. It will miss some reviews and sometimes match the wrong one, so read the reviews behind any number you act on.</p>
+    <h3>What does the star cost figure mean?</h3>
+    <p>It is a what-if. If the reviews that mention a theme had rated like every other review in the file, the overall average would be that much higher. It is not a forecast and it does not prove the theme caused the low rating.</p>
+    <h3>Is my review file uploaded?</h3>
+    <p>No. The file is read in your browser tab and never leaves your device. There are no accounts or analytics vendors.</p>
+    <h3>Is this advice?</h3>
+    <p>No. It applies counting and averages to the file you provide.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Shipping an app? See the <a href="../app-listing-metadata-check/">app listing metadata check</a>, the <a href="../app-store-screenshot-check/">app store screenshot check</a> and the <a href="../app-subscription-proceeds-calculator/">app subscription proceeds calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, stars, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id, d) => { const v = Number($(id).value); return Number.isFinite(v) && $(id).value !== "" ? v : d; };
+    const day = (d) => (d ? d.toISOString().slice(0, 10) : "–");
+    let lastQueue = [];
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.reviews, {
+        lowStar: Math.min(4, Math.max(1, Math.round(num("#low", 2)))), regressionDrop: Math.max(0.1, num("#drop", 0.5)),
+        minVersionReviews: Math.max(2, Math.round(num("#minv", 5))),
+        recentDays: Math.max(7, Math.round(num("#days", 30))), support: $("#support").value.trim() || "your support email",
+      });
+      const s = r.summary;
+      lastQueue = r.unanswered;
+      $("#report-stats").innerHTML = `${s.reviews} reviews${s.from ? ` from ${s.from} to ${s.to}` : ""}: average <strong>${stars(s.avg)}</strong> stars, ${pct(s.lowShare)} unhappy. ` + r.dist.map((d) => `${d.stars}★ ${d.count}`).join(" · ");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#themes").innerHTML = r.themes.length ? r.themes.map((t) => `<tr><th scope="row">${esc(t.label)}</th><td class="n">${t.mentions}</td><td class="n">${pct(t.share)}</td><td class="n">${stars(t.avg)}</td><td class="n">${stars(s.avg + t.uplift)}</td></tr>`).join("") : '<tr><td colspan="5">No theme keywords matched.</td></tr>';
+      $("#by-version").innerHTML = r.byVersion.length ? r.byVersion.map((v) => `<tr><th scope="row">${esc(v.key)}</th><td class="n">${v.reviews}</td><td class="n">${stars(v.avg)}</td><td class="n">${pct(v.lowShare)}</td></tr>`).join("") : '<tr><td colspan="4">No version column in the file.</td></tr>';
+      $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((v) => `<tr><th scope="row">${v.key}</th><td class="n">${v.reviews}</td><td class="n">${stars(v.avg)}</td><td class="n">${pct(v.lowShare)}</td></tr>`).join("") : '<tr><td colspan="4">No date column in the file.</td></tr>';
+      $("#terms").innerHTML = r.terms.length ? r.terms.map((t) => `<tr><th scope="row">${esc(t.term)}</th><td class="n">${t.low}</td><td class="n">${t.high}</td></tr>`).join("") : '<tr><td colspan="3">Not enough unhappy reviews to say.</td></tr>';
+      $("#queue").innerHTML = !r.hasReply ? '<tr><td colspan="5">No developer reply column in the file, so this list is left out.</td></tr>' : r.unanswered.length ? r.unanswered.slice(0, 50).map((x) => `<tr><td>${day(x.date)}</td><td class="n">${x.rating}</td><td>${esc(x.version || "–")}</td><td>${esc(x.text.slice(0, 240))}</td><td class="note">${esc(x.draft)}</td></tr>`).join("") : '<tr><td colspan="5">Every unhappy review has a reply.</td></tr>';
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (r.unanswered.length > 50) notes.push(`Showing the oldest 50 of ${r.unanswered.length} unanswered; the download has all of them.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.reviews.length} reviews.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic reviews for an imaginary app. Not real users."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastQueue = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+      const rows = ["date,stars,version,review"].concat(lastQueue.map((x) => [day(x.date), x.rating, q(x.version), q(x.text)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "unanswered-low-star-reviews.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

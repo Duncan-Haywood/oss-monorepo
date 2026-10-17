@@ -30,9 +30,10 @@ test('discovery finds every generator in this directory, not a hardcoded list', 
     found.includes('front-door.mjs'),
     `discoverGenerators() missed front-door.mjs — got ${JSON.stringify(found)}`,
   );
+  // front-door-tools.mjs is retired on purpose (P024): its output is no longer committed.
   assert.ok(
-    found.includes('front-door-tools.mjs'),
-    `discoverGenerators() missed front-door-tools.mjs — got ${JSON.stringify(found)}`,
+    !found.includes('front-door-tools.mjs'),
+    `discoverGenerators() ran retired front-door-tools.mjs — got ${JSON.stringify(found)}`,
   );
 
   // And it must not be *only* those two if someone adds a third: walk the
@@ -42,7 +43,7 @@ test('discovery finds every generator in this directory, not a hardcoded list', 
     if (!entry.isFile() || !entry.name.endsWith('.mjs')) continue;
     if (entry.name.endsWith('.test.mjs') || entry.name === 'regen.mjs') continue;
     const source = await fs.readFile(path.join(HERE, entry.name), 'utf8');
-    if (!source.includes('--write')) continue;
+    if (!source.includes('--write') || entry.name === 'front-door-tools.mjs') continue;
     assert.ok(
       found.includes(entry.name),
       `${entry.name} has a --write mode but regen.mjs would not run it. ` +

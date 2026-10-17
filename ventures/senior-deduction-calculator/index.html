@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Senior Deduction Calculator — Free OBBBA $6,000 65+ Estimator</title>
+  <meta name="description" content="Free calculator for the new federal 'senior bonus' deduction (One Big Beautiful Bill Act, tax years 2025-2028): up to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify), the 6%-per-dollar MAGI phase-out above $75,000 single/HOH/QSS or $150,000 joint, and the married-filing-separately exclusion. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Senior Deduction Calculator — free OBBBA $6,000 estimator">
+  <meta property="og:description" content="Estimate the new federal senior bonus deduction for taxpayers 65 and older, including the income phase-out and the married-filing-separately exclusion. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Senior Deduction Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the new federal 'senior bonus' deduction enacted by the One Big Beautiful Bill Act for tax years 2025-2028: up to $6,000 per qualifying taxpayer age 65 or older ($12,000 on a joint return when both spouses qualify), phased out at 6 cents per dollar of MAGI over $75,000 (single, head of household, or qualifying surviving spouse) or $150,000 (married filing jointly), stacking on top of the standard deduction whether or not the filer itemizes, and excluding married filing separately entirely -- the opposite MFS treatment from this portfolio's own auto-loan-interest-deduction-calculator. Entirely client-side; nothing is uploaded.","featureList":"Senior bonus deduction with $6,000-per-person amount and MAGI phase-out, per-spouse qualification on joint returns, married-filing-separately exclusion clearly flagged, plain-English findings explaining every reduction, rough tax-savings estimate at a chosen marginal rate"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much is the new senior tax deduction?","acceptedAnswer":{"@type":"Answer","text":"Up to $6,000 per qualifying taxpayer age 65 or older, for tax years 2025 through 2028. On a joint return where both spouses are 65 or older, that is up to $12,000 combined. It phases out at higher incomes -- see the phase-out question below."}},{"@type":"Question","name":"Can I claim this if I file married filing separately?","acceptedAnswer":{"@type":"Answer","text":"No. Married filing separately is excluded entirely, at any income and regardless of age -- a married couple must file a joint return for either spouse to claim it. This is the SAME direction as this portfolio's own no-tax-on-tips-overtime-calculator, and the OPPOSITE of its auto-loan-interest-deduction-calculator, where MFS is explicitly eligible."}},{"@type":"Question","name":"What is the income phase-out?","acceptedAnswer":{"@type":"Answer","text":"Each qualifying person's $6,000 is reduced by 6 cents for every dollar that modified adjusted gross income (MAGI) exceeds $75,000 (single, head of household, or qualifying surviving spouse) or $150,000 (married filing jointly). It reaches exactly $0 at $175,000 MAGI (single/HoH/QSS) or $250,000 MAGI (joint) -- the same joint zero-crossing point whether one or two spouses qualify, since each person's $6,000 phases out independently against the same household MAGI."}},{"@type":"Question","name":"Do I have to itemize to claim it?","acceptedAnswer":{"@type":"Answer","text":"No. This deduction stacks on top of the standard deduction (and the existing extra standard deduction for age) whether you itemize or not -- it is not an itemized deduction."}},{"@type":"Question","name":"Is this permanent?","acceptedAnswer":{"@type":"Answer","text":"No. Under current law it applies to tax years 2025, 2026, 2027, and 2028 only, and expires afterward unless a future law extends it."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory amount, phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, it does not verify your age or Social Security number, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
+    .checkrow input { width: auto; margin-top: 4px; flex: 0 0 auto; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    #spouse-block[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SENIOR DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's the new $6,000 senior deduction worth?</h1>
+    <p>A new federal deduction applies to tax years 2025 through 2028: up to
+    <strong>$6,000</strong> for each taxpayer on the return who is
+    <strong>age 65 or older</strong> — up to <strong>$12,000</strong> on a
+    joint return when both spouses qualify — but it shrinks once modified
+    adjusted gross income (MAGI) clears $75,000 (single/HoH/qualifying
+    surviving spouse) or $150,000 (joint), and it is <strong>not available
+    at all</strong> to married filing separately. This applies the phase-out
+    and the MFS rule and estimates the deduction.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status &amp; income</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="qss">Qualifying surviving spouse</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">Estimated MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1000" placeholder="e.g. 82000">
+      </div>
+      <div>
+        <label for="marginal-rate">Your marginal federal tax rate</label>
+        <select id="marginal-rate">
+          <option value="10">10%</option>
+          <option value="12" selected>12%</option>
+          <option value="22">22%</option>
+          <option value="24">24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+      </div>
+    </div>
+    <p class="note" id="mfs-warning" hidden>Married filing separately cannot
+    claim this deduction at all, regardless of age or income — see the
+    result below.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Who on this return is 65 or older?</h2>
+    <div class="checkrow">
+      <input type="checkbox" id="self-qualifies">
+      <label for="self-qualifies">I am (or will be, by December 31 of the tax year) age 65 or older, and have a work-eligible Social Security number</label>
+    </div>
+    <div class="checkrow" id="spouse-block">
+      <input type="checkbox" id="spouse-qualifies">
+      <label for="spouse-qualifies">My spouse is (or will be, by December 31 of the tax year) age 65 or older, and has a work-eligible Social Security number</label>
+    </div>
+    <p class="note">The spouse checkbox only applies on a joint return —
+    it's ignored for every other filing status. Each qualifying person is
+    worth up to $6,000; on a joint return with both boxes checked, that's up
+    to $12,000 combined.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in filing status and MAGI, check who on the return is 65 or older, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates one
+      deduction only — not your total tax liability, other deductions or
+      credits, or state tax.</li>
+      <li><strong>Age and Social Security number are self-reported</strong>
+      — this tool does not verify either.</li>
+      <li><strong>Not the existing "extra standard deduction for age"</strong>
+      that has applied for years — this is a separate, additional, temporary
+      deduction on top of it.</li>
+      <li><strong>Federal only.</strong> Most states still tax the same
+      income in full unless that state separately conforms, and this does
+      not change Social Security's own taxation rules or payroll (FICA/SECA)
+      tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>2025 federal marginal tax brackets (reference)</h2>
+    <p class="note">For choosing the rate above. Sourced from the IRS's
+    published 2025 brackets; verify current-year brackets before filing, and
+    remember your marginal rate is the rate on your <em>last</em> dollar of
+    income, not your average rate.</p>
+    <table>
+      <thead><tr><th>Rate</th><th>Single</th><th>Married filing jointly</th></tr></thead>
+      <tbody>
+        <tr><td>10%</td><td>$0 – $11,925</td><td>$0 – $23,850</td></tr>
+        <tr><td>12%</td><td>$11,925 – $48,475</td><td>$23,850 – $96,950</td></tr>
+        <tr><td>22%</td><td>$48,475 – $103,350</td><td>$96,950 – $206,700</td></tr>
+        <tr><td>24%</td><td>$103,350 – $197,300</td><td>$206,700 – $394,600</td></tr>
+        <tr><td>32%</td><td>$197,300 – $250,525</td><td>$394,600 – $501,050</td></tr>
+        <tr><td>35%</td><td>$250,525 – $626,350</td><td>$501,050 – $751,600</td></tr>
+        <tr><td>37%</td><td>over $626,350</td><td>over $751,600</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the new senior tax deduction?</h3>
+    <p>Up to $6,000 per qualifying taxpayer age 65 or older, for tax years 2025 through 2028. On a joint return where both spouses are 65 or older, that is up to $12,000 combined. It phases out at higher incomes -- see the phase-out question below.</p>
+    <h3>Can I claim this if I file married filing separately?</h3>
+    <p>No. Married filing separately is excluded entirely, at any income and regardless of age -- a married couple must file a joint return for either spouse to claim it. This is the SAME direction as this portfolio's own no-tax-on-tips-overtime-calculator, and the OPPOSITE of its auto-loan-interest-deduction-calculator, where MFS is explicitly eligible.</p>
+    <h3>What is the income phase-out?</h3>
+    <p>Each qualifying person's $6,000 is reduced by 6 cents for every dollar that modified adjusted gross income (MAGI) exceeds $75,000 (single, head of household, or qualifying surviving spouse) or $150,000 (married filing jointly). It reaches exactly $0 at $175,000 MAGI (single/HoH/QSS) or $250,000 MAGI (joint) -- the same joint zero-crossing point whether one or two spouses qualify, since each person's $6,000 phases out independently against the same household MAGI.</p>
+    <h3>Do I have to itemize to claim it?</h3>
+    <p>No. This deduction stacks on top of the standard deduction (and the existing extra standard deduction for age) whether you itemize or not -- it is not an itemized deduction.</p>
+    <h3>Is this permanent?</h3>
+    <p>No. Under current law it applies to tax years 2025, 2026, 2027, and 2028 only, and expires afterward unless a future law extends it.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory amount, phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, it does not verify your age or Social Security number, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own age, Social Security number status, and MAGI before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also planning around a new car loan or claiming "no tax on tips/overtime"? See the <a href="../auto-loan-interest-deduction-calculator/">auto loan interest deduction calculator</a> (note it treats married filing separately the OPPOSITE way this one does) and the <a href="../no-tax-on-tips-overtime-calculator/">tips &amp; overtime deduction calculator</a> (MFS excluded there too, same as here). Still have 401(k) after-tax headroom to use? See the <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a> — a separate, stackable move from this deduction. Itemizing in a high-tax state instead? See the <a href="../salt-cap-calculator/">SALT deduction cap calculator</a> — another new 2025 MAGI-based phase-out, but one that floors at a fixed dollar amount rather than phasing fully to zero like this one.</p>
+    <p>Estimating this by hand instead? See <a href="./vs-estimating-the-deduction-by-hand.html">where a hand calculation of this deduction usually goes wrong</a>. Wondering at what income this stops helping at all? See <a href="./why-does-the-senior-deduction-phase-out-completely.html">at what income does the senior deduction phase out completely?</a></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeSeniorDeduction, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), magi: $("#magi"), marginalRate: $("#marginal-rate"),
+      selfQualifies: $("#self-qualifies"), spouseQualifies: $("#spouse-qualifies"),
+      spouseBlock: $("#spouse-block"), mfsWarning: $("#mfs-warning"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), findings: $("#report-findings"),
+    };
+
+    function updateVisibility() {
+      const status = els.filingStatus.value;
+      els.spouseBlock.hidden = status !== "joint";
+      els.mfsWarning.hidden = status !== "mfs";
+    }
+    els.filingStatus.addEventListener("change", updateVisibility);
+    updateVisibility();
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const filingStatus = els.filingStatus.value;
+      const magi = Number(els.magi.value) || 0;
+      const result = computeSeniorDeduction({
+        filingStatus,
+        magi,
+        selfQualifies: els.selfQualifies.checked,
+        spouseQualifies: els.spouseQualifies.checked,
+        marginalRatePercent: Number(els.marginalRate.value),
+      });
+
+      els.stats.innerHTML = `Estimated deduction: <strong><span class="price">${money(result.deduction)}</span></strong> — roughly <strong>${money(result.estimatedSavings)}</strong> less federal income tax at your selected marginal rate.`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "joint";
+      updateVisibility();
+      els.magi.value = "160000";
+      els.marginalRate.value = "22";
+      els.selfQualifies.checked = true;
+      els.spouseQualifies.checked = true;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a married couple filing jointly, both 65+, $160,000 MAGI.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.magi.value = "";
+      els.selfQualifies.checked = false;
+      els.spouseQualifies.checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Fill in filing status and MAGI, check who on the return is 65 or older, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

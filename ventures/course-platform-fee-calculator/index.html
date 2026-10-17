@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Course Platform Fee Calculator — Gumroad vs Podia vs Teachable</title>
+  <meta name="description" content="Free calculator comparing what a course or digital-product creator keeps on Gumroad, Podia, Teachable, Thinkific, Kajabi and Udemy at their own price and volume, with the sales-per-month crossover where the cheapest platform changes. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Course Platform Fee Calculator — free">
+  <meta property="og:description" content="What you keep per month on each course platform at your price and volume, and where the cheapest one changes. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Course Platform Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator comparing what a course or digital-product creator keeps on Gumroad, Podia, Teachable, Thinkific, Kajabi and Udemy at their own price and volume, with the sales-per-month crossover where the cheapest platform changes. Entirely client-side, nothing uploaded.", "featureList": "Side-by-side net payout, editable fee schedules, processor fees, refunds, volume ladder, crossover point"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which course platform has the lowest fees?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your volume. A percentage-only platform such as Gumroad is cheapest when you sell a few units a month; a flat-fee plan with no transaction fee wins once your monthly sales are large enough that the percentage would exceed the plan price. This calculator finds that crossover for your price and your platforms."}}, {"@type": "Question", "name": "Do course platforms charge payment processing fees on top?", "acceptedAnswer": {"@type": "Answer", "text": "Many do. Several charge their own plan or transaction fee and leave the card processor's percentage and flat fee on top, usually around 3% plus 30 cents per sale in the US, while others bundle processing into one number. Each row here has a switch for it."}}, {"@type": "Question", "name": "What happens to fees when a sale is refunded?", "acceptedAnswer": {"@type": "Answer", "text": "Usually the processor keeps its fee and the platform's rule varies. This tool takes the cautious reading: the buyer gets the price back and the fees on that sale are not returned."}}, {"@type": "Question", "name": "Are the preset prices current?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate starting points, not verified numbers. Platforms change pricing often, so check each platform's own pricing page and edit the figures before relying on the result."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the fees you enter. It does not check them against any platform's terms, and it does not cover tax, VAT or sales-tax collection."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    </style>
+  <style>.plat { border-top: 1px solid #ece7f2; margin-top: 10px; padding-top: 4px; } .plat .grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); } .num { text-align: right; }</style>
+</head>
+<body>
+  <header>
+    <p class="note">COURSE PLATFORM FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which course platform leaves you the most?</h1>
+    <p>Enter your price and how many you sell a month. You get what you keep on each platform after its plan fee,
+    transaction fee and card processing, and the <strong>sales-per-month crossover</strong> where a flat-fee plan starts to
+    beat a percentage cut. Every platform's pricing page quotes only its own bundle; this puts them side by side.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your product</h2>
+    <div class="grid">
+      <div><label for="price">Price per sale ($)</label><input type="number" id="price" min="0" step="1" placeholder="e.g. 197"></div>
+      <div><label for="sales">Sales per month</label><input type="number" id="sales" min="0" step="1" placeholder="e.g. 20"></div>
+      <div><label for="refund">Refund rate (%)</label><input type="number" id="refund" min="0" max="100" step="0.5" value="5"></div>
+      <div><label for="procPct">Card processing (%)</label><input type="number" id="procPct" min="0" step="0.1" value="2.9"></div>
+      <div><label for="procFlat">Card processing flat ($)</label><input type="number" id="procFlat" min="0" step="0.05" value="0.30"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Platforms and their fees</h2>
+    <p class="note">These are approximate starting points, <strong>not verified</strong>. Platforms change pricing often: check each platform's pricing page and edit any number.</p>
+    <div id="platforms"></div>
+    <button type="button" class="secondary" id="add-platform">Add a platform</button>
+    <button type="button" class="secondary" id="reset-platforms">Reset to presets</button>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare platforms</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+  </p>
+  <p class="note" id="form-status">Enter a price and monthly sales, then click Compare.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table>
+      <thead><tr><th scope="col">Platform</th><th scope="col" class="num">Fees + plan</th><th scope="col" class="num">Cost % of sales</th><th scope="col" class="num">You keep / month</th></tr></thead>
+      <tbody id="result-table"></tbody>
+    </table>
+    <div id="report-findings"></div>
+    <h2 style="margin-top:22px">Cheapest by volume</h2>
+    <table>
+      <thead><tr><th scope="col">Sales / month</th><th scope="col">Best platform</th><th scope="col" class="num">You keep</th></tr></thead>
+      <tbody id="ladder-table"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Prices in USD only.</strong> No currency conversion, and no sales tax, VAT or merchant-of-record handling.</li>
+      <li><strong>Features are not compared.</strong> A cheaper platform may lack the email, community or checkout features you need.</li>
+      <li><strong>Plan details.</strong> Annual discounts, free trials, upsell fees and affiliate payouts are not modelled; edit the monthly fee to approximate them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which course platform has the lowest fees?</h3>
+    <p>It depends on your volume. A percentage-only platform such as Gumroad is cheapest when you sell a few units a month; a flat-fee plan with no transaction fee wins once your monthly sales are large enough that the percentage would exceed the plan price. This calculator finds that crossover for your price and your platforms.</p>
+    <h3>Do course platforms charge payment processing fees on top?</h3>
+    <p>Many do. Several charge their own plan or transaction fee and leave the card processor's percentage and flat fee on top, usually around 3% plus 30 cents per sale in the US, while others bundle processing into one number. Each row here has a switch for it.</p>
+    <h3>What happens to fees when a sale is refunded?</h3>
+    <p>Usually the processor keeps its fee and the platform's rule varies. This tool takes the cautious reading: the buyer gets the price back and the fees on that sale are not returned.</p>
+    <h3>Are the preset prices current?</h3>
+    <p>They are approximate starting points, not verified numbers. Platforms change pricing often, so check each platform's own pricing page and edit the figures before relying on the result.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It does arithmetic on the fees you enter. It does not check them against any platform's terms, and it does not cover tax, VAT or sales-tax collection.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every platform fee, which may have changed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>fees_compared</code>, <code>example_loaded</code>, <code>platform_added</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling on a video platform instead? The <a href="../freelance-platform-fee-calculator/">freelance platform fee calculator</a> compares Upwork and Fiverr the same way.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareCoursePlatforms, PRESETS, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report"), host = $("#platforms");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let seq = 0;
+
+    function addRow(p) {
+      const n = ++seq;
+      const d = document.createElement("div");
+      d.className = "plat";
+      d.dataset.row = n;
+      d.innerHTML = `<div class="grid">
+        <div><label for="pn${n}">Name</label><input type="text" id="pn${n}" value="${esc(p.name)}"></div>
+        <div><label for="pm${n}">Monthly fee ($)</label><input type="number" id="pm${n}" min="0" step="1" value="${p.monthlyFee}"></div>
+        <div><label for="pp${n}">Transaction fee (%)</label><input type="number" id="pp${n}" min="0" max="100" step="0.1" value="${p.txPercent}"></div>
+        <div><label for="pf${n}">Flat per sale ($)</label><input type="number" id="pf${n}" min="0" step="0.05" value="${p.txFlat}"></div>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" id="po${n}" ${p.processorOnTop ? "checked" : ""}><label for="po${n}">Card processing is charged on top</label>
+      <button type="button" class="secondary" data-remove="${n}">Remove</button></div>
+      ${p.note ? `<p class="note">${esc(p.note)}</p>` : ""}`;
+      host.appendChild(d);
+    }
+    function resetRows() { host.innerHTML = ""; PRESETS.forEach(addRow); }
+    function readRows() {
+      return [...host.querySelectorAll(".plat")].map((d) => {
+        const n = d.dataset.row, v = (k) => document.getElementById(k + n);
+        return { name: v("pn").value, monthlyFee: v("pm").value, txPercent: v("pp").value, txFlat: v("pf").value, processorOnTop: v("po").checked };
+      });
+    }
+
+    function runCalculate() {
+      const r = compareCoursePlatforms({
+        price: $("#price").value, salesPerMonth: $("#sales").value, refundRatePercent: $("#refund").value,
+        processorPercent: $("#procPct").value, processorFlat: $("#procFlat").value, platforms: readRows(),
+      });
+      if (r.error) { report.hidden = true; status.textContent = r.error; return; }
+      $("#report-stats").innerHTML = `At <strong>${money(r.price)}</strong> and <strong>${r.sales}</strong> sale(s) a month, <strong>${esc(r.best.name)}</strong> leaves you the most: <strong>${money(r.best.net)}</strong> a month.`;
+      $("#result-table").innerHTML = r.rows.map((x) =>
+        `<tr><th scope="row">${esc(x.name)}</th><td class="num">${money(x.totalCost)}</td><td class="num">${x.costPercentOfGross === null ? "—" : x.costPercentOfGross.toFixed(1) + "%"}</td><td class="num">${money(x.net)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) =>
+        `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#ladder-table").innerHTML = r.ladder.map((l) => `<tr><td>${l.sales}</td><td>${esc(l.winner)}</td><td class="num">${money(l.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("fees_compared");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    resetRows();
+    $("#calculate").addEventListener("click", runCalculate);
+    $("#add-platform").addEventListener("click", () => { addRow({ name: "My platform", monthlyFee: 0, txPercent: 0, txFlat: 0, processorOnTop: true }); record("platform_added"); });
+    $("#reset-platforms").addEventListener("click", resetRows);
+    host.addEventListener("click", (e) => {
+      const n = e.target.dataset && e.target.dataset.remove;
+      if (n) host.querySelector(`[data-row="${n}"]`).remove();
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#price").value = "197"; $("#sales").value = "20"; $("#refund").value = "5";
+      resetRows(); runCalculate(); record("example_loaded");
+      status.textContent = "Worked example: a $197 course selling 20 a month with 5% refunds.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

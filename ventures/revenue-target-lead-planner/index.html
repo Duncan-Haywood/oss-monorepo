@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Revenue Target Lead Planner — how many leads you need to hit your number</title>
+  <meta name="description" content="Free revenue target lead planner for freelancers, agencies and small sales teams. Paste your past weeks or months of leads, deals won and revenue to see your real conversion rate, the chance of hitting a target, and how many leads give you an 80% chance. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Revenue Target Lead Planner — free, private, in your browser">
+  <meta property="og:description" content="Turn your own sales history into a lead plan: the chance of hitting your revenue target and the leads needed for 50%, 80% and 90%.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Revenue Target Lead Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your past weeks or months of leads, deals won and revenue. Shows your real conversion rate and average deal with ranges, the chance of hitting a revenue target at a planned lead count, and how many leads give you a 50%, 80% or 90% chance. Backtests itself on your recent periods. Runs entirely in your browser.", "featureList": "how many leads do I need, lead to customer conversion rate calculator, sales target planner, pipeline coverage, revenue target probability, Monte Carlo simulation, bootstrap range, back-test, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many leads do I need to hit my revenue target?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your own conversion rate and average deal, and on how much your results swing from month to month. This tool reads your past periods (leads, deals won, revenue won), simulates the next period thousands of times, and shows the chance of reaching your target at a given lead count and how many leads give you a 50%, 80% or 90% chance. The last number is the planning number: a 50% plan misses half the time."}}, {"@type": "Question", "name": "What is a good lead-to-customer conversion rate?", "acceptedAnswer": {"@type": "Answer", "text": "Published averages differ by industry and by what counts as a lead, so they say little about you. The useful number is your own: deals won divided by leads over many periods, shown here with a range. Compare it with your recent periods to see whether it is drifting."}}, {"@type": "Question", "name": "Why not just divide my target by my average deal and my conversion rate?", "acceptedAnswer": {"@type": "Answer", "text": "That gives the 50% answer: half the time you land below it. Wins arrive in whole deals and conversion swings between periods, so the lead count that reaches a target 8 times out of 10 is noticeably higher. The tool shows both so you can see the gap."}}, {"@type": "Question", "name": "How many past periods do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 6 weeks or months, 60 leads and 10 deals won in total. Fewer cannot show how much your results swing, so the tool refuses rather than guessing. More history gives a narrower range; 9 or more periods also lets it back-test itself."}}, {"@type": "Question", "name": "What is the back-test?", "acceptedAnswer": {"@type": "Answer", "text": "For each of your last few periods, the tool pretends it had only the earlier periods, predicts the number of deals that period would win, and checks whether the real number fell in its 80% range. If it misses too often, the tool warns you that your results swing more than the history suggested."}}, {"@type": "Question", "name": "What does it leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales-cycle lag (leads that close in a later period), seasonality, lead quality by source, capacity limits and price changes. Use periods longer than your typical sales cycle, or treat the result as a rough guide. It also assumes the next period looks like the past ones."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The numbers are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REVENUE TARGET LEAD PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many leads do you need to hit your number?</h1>
+    <p>Paste or upload your past weeks or months: <strong>leads, deals won, and revenue won</strong>. Enter the revenue you want next period. The tool shows your <strong>real conversion rate and average deal</strong>, the <strong>chance of hitting the target</strong> at a planned lead count, and the <strong>leads needed for a 50%, 80% or 90% chance</strong>, with ranges. It back-tests itself on your recent periods and refuses when your history is too thin.</p>
+    <p class="note">Your numbers never leave this browser tab. Statistical estimate from data you supply, not advice. It assumes the next period looks like the ones you pasted.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your past periods</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste one row per period, oldest first (header optional: period, leads, won, revenue)</label>
+    <textarea id="rows" spellcheck="false" placeholder="period,leads,won,revenue&#10;2025-01,52,6,14400&#10;2025-02,47,4,9800"></textarea>
+    <div class="row3">
+      <div><label for="target">Target for next period (revenue, or deals if you gave no revenue)</label><input id="target" inputmode="decimal" placeholder="e.g. 15000"></div>
+      <div><label for="planned">Leads you expect to get (optional)</label><input id="planned" inputmode="decimal" placeholder="blank uses your average"></div>
+    </div>
+    <p class="note">Use periods longer than your usual sales cycle, or wins that close after the period they started in will look like luck. At least 6 periods, 60 leads and 10 deals won in total.</p>
+    <button type="button" id="analyze">Plan</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your history, enter a target, then click Plan.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Back-test on your recent periods</h3>
+    <p class="note">For each recent period, the tool used only the periods before it and predicted the deals won. "Inside" means the real number fell in its 80% range.</p>
+    <div class="scroll"><table id="bt"><thead><tr><th>Period</th><th class="n">Leads</th><th class="n">Predicted (80% range)</th><th class="n">Actual</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download plan CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> deals won next period are Binomial(leads, conversion). Conversion is your pooled deals won ÷ leads; its uncertainty comes from 400 seeded bootstrap resamples of whole periods, plus extra period-to-period spread fitted to how much your own results swung (over-dispersion), so a lumpy history gets a wider range. Revenue is wins × your average deal, plus deal-size noise estimated from how far each period's average deal sat from the pooled one. The chance is the share of 1,500 simulated periods at or above your target; the lead counts are the smallest leads that reach 50%, 80% or 90% of simulated periods. Everything is seeded, so the same history always gives the same answer.</p>
+    <p><strong>Not modelled:</strong> sales-cycle lag, seasonality, lead source or quality, capacity limits, price changes and churn. <strong>Unverified:</strong> checked against simulated histories with known conversion in unit tests and by the back-test on your own data, not against a published dataset. Treat the 80% lead count as a planning number to test against next period, not a promise.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many leads do I need to hit my revenue target?</h3>
+    <p>It depends on your own conversion rate and average deal, and on how much your results swing from month to month. This tool reads your past periods (leads, deals won, revenue won), simulates the next period thousands of times, and shows the chance of reaching your target at a given lead count and how many leads give you a 50%, 80% or 90% chance. The last number is the planning number: a 50% plan misses half the time.</p>
+    <h3>What is a good lead-to-customer conversion rate?</h3>
+    <p>Published averages differ by industry and by what counts as a lead, so they say little about you. The useful number is your own: deals won divided by leads over many periods, shown here with a range. Compare it with your recent periods to see whether it is drifting.</p>
+    <h3>Why not just divide my target by my average deal and my conversion rate?</h3>
+    <p>That gives the 50% answer: half the time you land below it. Wins arrive in whole deals and conversion swings between periods, so the lead count that reaches a target 8 times out of 10 is noticeably higher. The tool shows both so you can see the gap.</p>
+    <h3>How many past periods do I need?</h3>
+    <p>At least 6 weeks or months, 60 leads and 10 deals won in total. Fewer cannot show how much your results swing, so the tool refuses rather than guessing. More history gives a narrower range; 9 or more periods also lets it back-test itself.</p>
+    <h3>What is the back-test?</h3>
+    <p>For each of your last few periods, the tool pretends it had only the earlier periods, predicts the number of deals that period would win, and checks whether the real number fell in its 80% range. If it misses too often, the tool warns you that your results swing more than the history suggested.</p>
+    <h3>What does it leave out?</h3>
+    <p>Sales-cycle lag (leads that close in a later period), seasonality, lead quality by source, capacity limits and price changes. Use periods longer than your typical sales cycle, or treat the result as a rough guide. It also assumes the next period looks like the past ones.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The numbers are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the numbers you supply; they do not guarantee any sales outcome.</p>
+    <p><strong>Independent.</strong> Not affiliated with any CRM or sales-software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../trade-show-roi-calculator/">trade show ROI calculator</a> (does a booth pay back, and which shows to buy), the <a href="../quote-follow-up-timing/">quote follow-up timing</a> tool, the <a href="../bid-win-rate-optimizer/">bid win-rate optimizer</a> and the <a href="../cash-runway-planner/">cash runway planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value.replace(/[$,\s]/g, "")));
+    const n0 = (v) => (Number.isFinite(v) ? Math.round(v).toLocaleString("en-US") : "n/a");
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { target: val("#target"), plannedLeads: val("#planned") });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const fmt = (v) => (r.metric === "revenue" ? money(v) : v.toFixed(0) + " deals");
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [pct(r.probHit, 0), `Chance of reaching ${fmt(r.target)} with ${n0(r.plannedLeads)} leads. Typical outcome ${fmt(r.median)} (80% of simulated periods: ${fmt(r.range80[0])} to ${fmt(r.range80[1])}).`],
+        [n0(r.leadsFor80), `Leads for an 80% chance. A 50% chance needs ${r.leadsFor50 === null ? "more than the tool will search" : n0(r.leadsFor50)}; 90% needs ${r.leadsFor90 === null ? "more than the tool will search" : n0(r.leadsFor90)}.`],
+        [pct(r.conversion, 1), `Lead to customer conversion over ${r.periods} periods (80% range ${pct(r.conversionRange80[0], 1)} to ${pct(r.conversionRange80[1], 1)}). Your last few periods: ${pct(r.recentConversion, 1)}.`],
+      ];
+      if (r.avgDeal !== null) big.push([money(r.avgDeal), `Average deal (80% range ${money(r.avgDealRange80[0])} to ${money(r.avgDealRange80[1])}).`]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : ["medium", "weak evidence"];
+      $("#trust").innerHTML = `<div class="warn"><span class="pill ${pill[0]}">${pill[1]}</span>${r.verdict === "usable" ? "Enough periods and wins for a steady estimate, and the back-test held. Still a description of the past: check it against next period." : "Few periods or wins, a wide range, or a back-test miss, so read the numbers as rough and collect more history."}</div>`;
+      $("#bt tbody").innerHTML = r.backtest.length ? r.backtest.map((b) => `<tr><td>${esc(b.label)}</td><td class="n">${n0(b.leads)}</td><td class="n">${b.median.toFixed(0)} (${b.lo.toFixed(0)} to ${b.hi.toFixed(0)})</td><td class="n">${b.actual}</td><td>${b.actual >= b.lo && b.actual <= b.hi ? "inside" : "outside"}</td></tr>`).join("") : `<tr><td colspan="5">Not enough periods to back-test.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#target").value = "30000"; $("#planned").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 12 invented months, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Enter a target and click Plan.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your history, enter a target, then click Plan."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "lead-plan.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+name: h1b-weighted-lottery-odds-calculator
+description: >-
+  Free browser tool for employers, founders and H-1B candidates: list candidates with the wage level (I-IV) their offered
+  salary meets and whether they hold a US master's or higher, enter your estimate of the registration pool, and see each
+  person's chance of selection under the weighted lottery versus the old flat one, the chance at least one is selected,
+  and what one wage level higher is worth in points of probability. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.18 (appointment-
+# overbooking-optimizer, unrelated). No venture models the H-1B cap draw.
+# Search phrases: "h1b lottery odds by wage level", "h-1b weighted selection calculator", "h1b selection probability
+# level 4", "h1b master's cap odds".
+# Volume not measured with an external tool. Demand peaks every February-March (registration window) and again in
+# the summer when the season's counts are discussed.
+#
+# Who: HR leads and founders at small and mid-size employers deciding which candidates to register and whether a
+# raise to the next wage level changes the odds enough to matter; and candidates judging their own chances.
+# The paying buyer, if there is one, is an immigration law firm or HR platform that wants the model inside client tools.
+#
+# Path to revenue (payment rails stay off): lead magnet for immigration-attorney and HR audiences. A paid version, if
+# usage appears, is saved cohorts, season-by-season pool history and a firm-branded report behind an env-var switch; not built.
+#
+# Liability: it reads the user's own list, shows its model and assumptions, labels the default pool as illustrative,
+# never says anyone will or will not be selected, carries the no-warranty and not-legal-advice clauses, and lists
+# wage-level determination and eligibility as not decided.
+#
+# Unverified: weights and caps were read from the published rule by the author, not a lawyer; the continuous
+# approximation is not a USCIS simulation; the default pool is made up. The first report of a wrong rule is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An employer deciding salaries before the registration window will paste a candidate list into a no-upload page
+      to see what one wage level higher does to each person's odds, because no public tool turns the weighted rule into
+      per-candidate probabilities.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-04-15, after the 2027 registration window it is built for.
+  - A user reports a weight, cap or draw order that differs from the published rule, at which point the model needs revisiting before the next season.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/h1b-weighted-lottery-odds-calculator/
+  analytics: null

@@ -1,0 +1,63 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+
+test("index page carries the disclaimer, privacy line, and sponsor link", () => {
+  const html = page("index.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  assert.match(html, /Everything on this page runs in your browser/);
+  assert.match(html, /no uptime or delivery guarantee/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<script type="application\/ld\+json">/);
+});
+
+test("every form control has a label and the page makes no network requests", () => {
+  const html = page("index.html");
+  for (const id of ["deals", "target", "days"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+});
+
+test("the page imports modules that exist and never a Node-only one", () => {
+  const html = page("index.html");
+  const mods = [...html.matchAll(/from "\.\/([a-z]+\.mjs)"/g)].map((m) => m[1]);
+  assert.ok(mods.includes("engine.mjs") && mods.includes("usage.mjs"));
+  for (const m of mods) { assert.doesNotThrow(() => page(m), m); assert.doesNotMatch(page(m), /from "node:/, `${m} must run in a browser`); }
+});
+
+test("the in-page FAQ matches the structured data", () => {
+  const html = page("index.html");
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const faq = ld.find((x) => x["@type"] === "FAQPage");
+  assert.ok(faq.mainEntity.length >= 4);
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+  for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${esc(q.name)}</h3>`), q.name);
+});
+
+test("the page never shows synthetic data as real", () => {
+  assert.match(page("index.html"), /not real customers/);
+});
+
+test("robots and sitemap let crawlers find the page", () => {
+  assert.match(page("robots.txt"), /Allow: \//);
+  assert.match(page("sitemap.xml"), /index\.html/);
+});
+
+test("index links one hop to its siblings and each sibling exists", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/pql-radar\/"/);
+  for (const m of html.matchAll(/href="\.\.\/([a-z-]+)\/"/g)) assert.doesNotThrow(() => readFileSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
+});
+
+test("the deploy files do not ship secrets and every runtime file is copied into the image", () => {
+  const docker = page("Dockerfile");
+  for (const f of ["engine.mjs", "sdk.mjs", "server.mjs"]) assert.match(docker, new RegExp(f.replace(".", "\\.")));
+  for (const f of ["render.yaml", "docker-compose.yml", "fly.toml"]) assert.doesNotMatch(page(f), /(sk_live|whsec_|ghp_)/);
+  assert.match(page("render.yaml"), /generateValue: true/);
+});
+
+test("links to ICP Lens, its sibling", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/icp-lens\/"/);
+});

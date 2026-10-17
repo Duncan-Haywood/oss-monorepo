@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlos-twin"
+version = "0.1.0"
+description = "Range-based localisation twins with Gaussian range noise versus real non-line-of-sight bias: exact least-squares bias, false position-safety certification, and a robust trimmed-residual fix"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

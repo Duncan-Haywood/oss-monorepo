@@ -514,25 +514,1236 @@ const RELATIVE_SELF = relative(
 // (`ventures/source-map-leak-check/usage.mjs`) and no deletions. That
 // branch only ever knew its own predecessor's number (309, before
 // `osha-trir-dart-calculator`, `supabase-rls-check`,
-// `mercari-fee-calculator`, `voiceover-project-rate-calculator`,
-// `turo-host-payout-calculator`, and `podcast-feed-check` landed) until
-// this merge -- the same ordinary collision shape recorded throughout
-// this list. Total re-derived here by `sync_tree_counts.py` against the
-// fully merged tree rather than by hand.
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Total
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
 //
-// 317 -> 318: `git-exposure-check` also graduated, concurrently, adding
-// one `usage.mjs` following the same opt-out pattern as its siblings
+// 316 -> 317: `graphql-introspection-exposure-check` also graduated,
+// concurrently, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings, keyed under
+// its own `graphql-introspection-exposure-check-usage` storage name. This
+// branch only ever knew its own predecessor's number (313) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs`
+// (`ventures/graphql-introspection-exposure-check/usage.mjs`) and no
+// deletions.
+//
+// 317 -> 318: `podcast-feed-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings. That
+// branch's own comment read this as a no-op against its own predecessor
+// number, which was wrong once merged with this branch's own addition --
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// (and its regenerated mirror) rather than trusted from either branch's
+// arithmetic.
+//
+// 318 -> 319: `git-exposure-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its siblings, keyed under its own
+// `git-exposure-check-usage` storage name. This branch only ever knew its
+// own predecessor's number (313, before `firebase-rules-check`,
+// `source-map-leak-check`, and `podcast-feed-check` landed) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Total re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+//
+// 319 -> 320: `dotenv-exposure-check` graduated (this branch), adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
-// `git-exposure-check-usage` storage name). Verified the way this file's
-// error message prescribes: exactly one added `usage.mjs`
-// (`ventures/git-exposure-check/usage.mjs`) and no deletions. This branch
-// only ever knew its own predecessor's number (313, before
-// `firebase-rules-check`, `source-map-leak-check`, and
-// `podcast-feed-check` landed) until this merge -- the same ordinary
+// `dotenv-exposure-check-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/dotenv-exposure-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (317, before
+// `graphql-introspection-exposure-check`, `podcast-feed-check`, and
+// `git-exposure-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list. Total re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by
 // hand.
-const SWITCHES_IN_THE_CATALOGUE = 318;
+//
+// 320 -> 321: `subdomain-takeover-check` graduated (this branch), adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `subdomain-takeover-check-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/subdomain-takeover-check/usage.mjs`) and no deletions.
+// 321 -> 322 on 2026-09-24, when `slopsquatting-check` graduated with a
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// its siblings (`dependency-confusion-check`, `npm-lifecycle-script-check`),
+// keyed under its own `slopsquatting-check-usage` storage name. Exactly one
+// added `usage.mjs` (`ventures/slopsquatting-check/usage.mjs`), no deletions.
+//
+// 322 -> 323 on 2026-09-24: `cloud-bucket-exposure-check` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `cloud-bucket-exposure-check-usage`
+// storage name). This branch only ever knew its own predecessor's number
+// (322, before `slopsquatting-check` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
+// no deletions.
+//
+// 323 -> 324 on 2026-09-24: `window-tinting-bid-calculator` graduated,
+// adding one `usage.mjs` following the same `usageAllowed`/`toggleUsage`
+// opt-out pattern as its siblings (`land-survey-bid-calculator`,
+// `biohazard-cleanup-bid-calculator`), keyed under its own
+// `window-tinting-bid-calculator-usage` storage name. Exactly one added
+// `usage.mjs` (`ventures/window-tinting-bid-calculator/usage.mjs`), no
+// deletions.
+//
+// 324 -> 325 on 2026-09-24: `backup-file-exposure-check` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `backup-file-exposure-check-usage`
+// storage name). This branch only ever knew its own predecessor's number
+// (323, before `window-tinting-bid-calculator` landed) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+// Verified the way this file's error message prescribes: exactly one
+// added `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`)
+// beyond the merge base, no deletions.
+//
+// 325 -> 326 on 2026-09-24: `employee-cost-calculator` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `employee-cost-usage` storage name).
+// This branch only ever knew its own predecessor's number (325, before
+// `backup-file-exposure-check` landed on this side) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+// Exactly one added `usage.mjs`
+// (`ventures/employee-cost-calculator/usage.mjs`), no deletions.
+//
+// 326 -> 327 on this merge: `str-occupancy-tax-calculator` also
+// graduated, concurrently on `main`, adding one `usage.mjs` following the
+// same opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `str-occupancy-tax-usage` storage
+// name). This branch only ever knew its own predecessor's number (324,
+// before `backup-file-exposure-check` and `employee-cost-calculator` each
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list, two-wide this time. Exactly one added
+// `usage.mjs` (`ventures/str-occupancy-tax-calculator/usage.mjs`), no
+// deletions.
+//
+// 327 -> 328 on this merge: `llm-api-pricing-calculator` also graduated,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed
+// under its own `llm-api-pricing-calculator:usage` storage name). Exactly
+// one added `usage.mjs` (`ventures/llm-api-pricing-calculator/usage.mjs`),
+// no deletions.
+//
+// 328 -> 329 on this merge: `mcp-config-risk-check` also graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `mcp-config-risk-check:usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/mcp-config-risk-check/usage.mjs`), no deletions.
+//
+// 329 -> 330: `kickstarter-fee-calculator` also graduated, concurrently
+// on `main` -- adding one `usage.mjs` following the same opt-out pattern
+// as its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
+// under its own `kickstarter-fee-calculator-usage` storage name). This
+// branch only ever knew its own predecessor's number (328, before
+// `mcp-config-risk-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/kickstarter-fee-calculator/usage.mjs`), no
+// deletions.
+//
+// 330 -> 331: `auto-glass-bid-calculator` also graduated -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
+// (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
+//
+// 331 -> 332: `depop-fee-calculator` graduated -- adding one `usage.mjs`
+// following the same opt-out pattern as its siblings (`readOptOut`/
+// `writeOptOut` gating `recordUsage`, keyed under its own
+// `depop-fee-calculator-usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/depop-fee-calculator/usage.mjs`), no deletions.
+//
+// 332 -> 333: `hidden-unicode-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `hidden-unicode-check:usage` storage name). This
+// branch only ever knew its own predecessor's number (331, before
+// `depop-fee-calculator` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
+//
+// 333 -> 334: `skill-manifest-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `skill-manifest-check:usage` storage name). This
+// branch only ever knew its own predecessor's number (332, before
+// `hidden-unicode-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/skill-manifest-check/usage.mjs`), no deletions --
+// the same-commit link added to `mcp-config-risk-check`'s footer reuses
+// that venture's own existing switch rather than adding a new one.
+//
+// 334 -> 335: `salary-range-posting-check` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
+//
+// 335 -> 336: `k8s-resource-limits-check` also graduates -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `k8s-resource-limits-check-usage` storage name). This branch only ever
+// knew its own predecessor's number (331, before any of the four merges
+// above landed) until this merge -- the same ordinary collision shape
+// recorded throughout this list. Exactly one added `usage.mjs`
+// (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
+//
+// 336 -> 337: `auto-loan-interest-deduction-calculator` graduates -- adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `auto-loan-interest-deduction-calculator-usage` storage name). Exactly
+// one added `usage.mjs`, no deletions.
+//
+// 337 -> 338: `tip-pool-compliance-calculator` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/tip-pool-compliance-calculator/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (336, before
+// `auto-loan-interest-deduction-calculator` landed) until this merge -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both sides claiming the same next number.
+//
+// 338 -> 339: `caa-record-check` graduates -- adding one `usage.mjs`
+// following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `recordUsage`, keyed under its
+// own `caa-record-check-usage` storage name). Exactly one added
+// `usage.mjs`, no deletions.
+//
+// 339 -> 340: `claude-code-settings-check` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/claude-code-settings-check/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (338, before
+// `caa-record-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list.
+// `mega-backdoor-roth-calculator`'s own `vs-doing-the-math-by-hand.html`
+// comparison page adds no switch of its own -- a static comparison page,
+// not a `usage.mjs` -- so it does not move this count.
+//
+// 340 -> 341: `claude-code-subagent-check` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name). Exactly
+// one added `usage.mjs`, no deletions.
+//
+// 341 -> 342: `claude-skill-scaffold-generator` also graduated,
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/claude-skill-scaffold-generator/usage.mjs`) following the same
+// opt-out pattern as its AI-agent-tooling siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its own
+// `claude-skill-scaffold-generator:usage` storage name), no deletions.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
+//
+// 340 -> 341: `claude-code-subagent-check` also graduated, independently on
+// `main` at the same 339 predecessor -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name), no
+// deletions. Both this venture and `claude-skill-scaffold-generator` above
+// claimed the same next number (340) from the same 339 predecessor -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both additions real and neither superseding the other.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
+//
+// 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Two
+// separate concurrent sessions each recorded their own half of this
+// transition independently, one landing on 341 (only seeing
+// claude-skill-scaffold-generator) and the other on 341 by a different path
+// (only seeing claude-code-subagent-check) -- neither could see the other's
+// addition. All three additions are real.
+//
+// 342 -> 343: `facebook-marketplace-fee-calculator` also graduated -- adding
+// one more `usage.mjs`
+// (`ventures/facebook-marketplace-fee-calculator/usage.mjs`) following the
+// same opt-out pattern as its resale-marketplace siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `facebook-marketplace-fee-calculator-usage` storage name), no deletions.
+// This branch only ever knew its own predecessor's number (341, from its
+// own earlier merge of `senior-deduction-calculator`) until this merge
+// revealed two further concurrent graduations
+// (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it had
+// never observed -- the same ordinary collision shape recorded throughout
+// this list, one merge later. `senior-deduction-calculator` was
+// independently recorded again by a fourth concurrent session at this same
+// 343; the addition is the same one already counted above, not a second.
+//
+// 343 -> 344: `caa-record-check` also graduated, concurrently on `main` --
+// adding one more `usage.mjs` (`ventures/caa-record-check/usage.mjs`), no
+// deletions.
+//
+// 344 -> 345: `trump-account-calculator` also graduated -- adding one more
+// `usage.mjs` (`ventures/trump-account-calculator/usage.mjs`) following the
+// same opt-in/opt-out toggle shape as its
+// `auto-loan-interest-deduction-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `trump-account-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+// Re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+//
+// 346 on this merge: this branch's own `npm-provenance-check` also
+// graduated, concurrently and invisibly to the `trump-account-calculator`
+// branch above -- adding one more `usage.mjs`
+// (`ventures/npm-provenance-check/usage.mjs`) following the same opt-out
+// pattern as its dev-tool-checker siblings (`usageOptedOut`/
+// `setUsageOptOut` gating `record`, keyed under its own
+// `npm-provenance-check-usage` storage name), no deletions. Both
+// additions are real, taking 344 to 346.
+//
+// 346 -> 347: `claude-code-hooks-security-check` also graduated -- adding
+// one more `usage.mjs`
+// (`ventures/claude-code-hooks-security-check/usage.mjs`) following the
+// same opt-out pattern as its AI-agent-tooling-checker siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `claude-code-hooks-security-check:usage` storage name), no
+// deletions. Re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+//
+// 348 -> 349 on this merge: `section-174a-catchup-calculator` also
+// graduated -- adding one more `usage.mjs`
+// (`ventures/section-174a-catchup-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `trump-account-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `section-174a-catchup-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions. Re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by hand.
+//
+// 349 -> 350: `mrr-waterfall-calculator` graduated -- adding one more
+// `usage.mjs` (`ventures/mrr-waterfall-calculator/usage.mjs`) following the
+// same opt-out toggle shape as `subscription-price-impact`'s
+// (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage writes,
+// keyed under its own `mrr-waterfall-calculator-usage-v1` storage name).
+//
+// 350 -> 351 on that merge: `patreon-fee-calculator` also graduated,
+// concurrently and invisibly to the `mrr-waterfall-calculator` branch
+// above -- adding one more `usage.mjs`
+// (`ventures/patreon-fee-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `twitch-payout-calculator` sibling
+// (`recordEvent`/`toggleUsage`/`usageAllowed` gating localStorage writes,
+// keyed under its own `patreon-fee-calculator-usage` storage name). Both
+// additions are real, taking 349 to 351.
+//
+// 351 -> 352 on this merge: `bonus-depreciation-calculator` also
+// graduated, concurrently and invisibly to both branches above -- adding
+// one more `usage.mjs` (`ventures/bonus-depreciation-calculator/usage.mjs`)
+// following the same opt-out toggle shape as its
+// `section-174a-catchup-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `bonus-depreciation-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions. Re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by hand.
+//
+// 352 -> 353: `salt-cap-calculator` also graduated -- adding one more
+// `usage.mjs` (`ventures/salt-cap-calculator/usage.mjs`) following the
+// same opt-out toggle shape as its `bonus-depreciation-calculator`
+// sibling (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage
+// writes, keyed under its own `salt-cap-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+//
+// 353 -> 354: `charitable-deduction-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/charitable-deduction-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `salt-cap-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `charitable-deduction-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 354 -> 355: `gambling-loss-deduction-calculator` also graduated,
+// concurrently with and invisibly to the five ventures below -- adding
+// one more `usage.mjs` (`ventures/gambling-loss-deduction-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `gambling-loss-deduction-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 355 -> 356: `estate-tax-exemption-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/estate-tax-exemption-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `estate-tax-exemption-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 356 -> 357: `excess-business-loss-calculator` also graduated,
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/excess-business-loss-calculator/usage.mjs`) following the
+// same opt-out toggle shape as its `charitable-deduction-calculator`
+// sibling (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage
+// writes, keyed under its own `excess-business-loss-calculator-usage`
+// storage name). Exactly one added `usage.mjs`, no deletions.
+//
+// 357 -> 358: `qsbs-exclusion-calculator` also graduated, also
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/qsbs-exclusion-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `excess-business-loss-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `qsbs-exclusion-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+//
+// 358 -> 359: `referrer-permissions-policy-check` also graduated,
+// concurrently and invisibly to the entries above -- adding one
+// more `usage.mjs` (`ventures/referrer-permissions-policy-check/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `cache-control-check` sibling (`recordUsage`/`readOptOut`/
+// `writeOptOut` gating localStorage writes, keyed under its own
+// `referrer-permissions-policy-check-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 359 -> 360: `exempt-salary-threshold-checker` also graduated,
+// concurrently and invisibly to the entries above -- adding one more
+// `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
+// same boilerplate opt-out toggle copied from `salt-cap-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `exempt-salary-threshold-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions. (This entry and the
+// one above it were originally both mis-recorded as "358 -> 359" from two
+// branches that each fetched `main` before the other's merge landed --
+// corrected here to chain sequentially.)
+//
+// 360 -> 361: `final-paycheck-deadline-calculator` also joined,
+// concurrently and invisibly to the entry above -- the same opt-out
+// `usage.mjs` shape (`record`/`setUsageOptOut`/`usageOptedOut` gating
+// localStorage writes, keyed under its own
+// `final-paycheck-deadline-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. (A later merge of this same
+// conflict pattern also separately re-recorded
+// `gambling-loss-deduction-calculator`'s switch -- already counted
+// earlier, at 354 -> 355 -- as if it were a second, new addition; that
+// duplicate is not repeated here.)
+//
+// 361 -> 362: `boi-reporting-exemption-checker` also graduated,
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/boi-reporting-exemption-checker/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `exempt-salary-threshold-checker`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `boi-reporting-exemption-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 362 -> 363: `child-tax-credit-calculator` also graduated, concurrently
+// and invisibly to both entries above -- adding one more `usage.mjs`
+// (`ventures/child-tax-credit-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `senior-deduction-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `child-tax-credit-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+//
+// 363 -> 364: `eitc-calculator` also graduated -- adding one more
+// `usage.mjs` (`ventures/eitc-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `child-tax-credit-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `eitc-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 364 -> 365: `freelance-writer-rate-calculator` also graduated,
+// concurrently -- adding one more `usage.mjs`, the same opt-out toggle
+// shape as the siblings above (`record`/`setUsageOptOut`/`usageOptedOut`
+// gating localStorage writes, keyed under its own
+// `freelance-writer-rate-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. `boi-reporting-exemption-checker` is
+// NOT re-added here -- already counted above, at 361 -> 362; a sibling
+// merge of this same conflict independently re-narrated it as new, which
+// this resolution does not repeat.
+//
+// 365 -> 366: `hsa-contribution-limit-calculator` also graduated,
+// concurrently on `origin/main` -- adding one more `usage.mjs`, the same
+// boilerplate opt-out toggle copied from `boi-reporting-exemption-checker`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `hsa-contribution-limit-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 366 -> 367: `solo-401k-contribution-calculator` also graduated -- adding
+// one more `usage.mjs`, the same boilerplate opt-out toggle shape as the
+// siblings above (`record`/`setUsageOptOut`/`usageOptedOut` gating
+// localStorage writes, keyed under its own
+// `solo-401k-contribution-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. Total re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by
+// hand.
+//
+// 367 -> 368: `mileage-deduction-method-calculator` graduated -- one more
+// boilerplate `usage.mjs` opt-out toggle, keyed under its own
+// `mileage-deduction-method-calculator-usage` storage name. Exactly one
+// added `usage.mjs`, no deletions. Re-derived by `sync_tree_counts.py`.
+//
+// 368 -> 369: `home-office-deduction-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `home-office-deduction-calculator-usage`.
+//
+// 369 -> 370: `str-tax-loophole-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `str-tax-loophole-calculator-usage`.
+//
+// 370 -> 371: `estimated-tax-penalty-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `estimated-tax-penalty-calculator-usage`.
+//
+// 371 -> 372: `self-employment-tax-calculator` also graduated -- one more
+// `usage.mjs`, keyed under its own `self-employment-tax-calculator-usage`.
+//
+// 372 -> 373: `backdoor-roth-pro-rata-calculator` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name. Re-derived by
+// `sync_tree_counts.py`.
+// 376 -> 377: `dependabot-config-check` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name. Re-derived by `sync_tree_counts.py`.
+// 379 -> 380: `roth-conversion-bracket-fill-calculator` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 382 -> 383: `etsy-statement-profit-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 383 -> 384: `google-ads-wasted-spend-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 384 -> 385: `shopify-discount-leakage-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 385 -> 386: `mileage-log` graduated -- one more boilerplate `usage.mjs` under
+// its own storage name.
+// 386 -> 387: `airbnb-earnings-report-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 388 -> 389: `ebay-transaction-report-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 389 -> 390: `shopify-payments-fee-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 390 -> 391: `gig-driver-earnings-report-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 392 -> 393: `meta-ads-fatigue-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// 393 -> 394: `youtube-revenue-rpm-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// 394 -> 395: `amazon-ppc-search-term-analyzer` graduated too.
+// +1: `turo-earnings-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `fiverr-earnings-fee-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `kdp-royalty-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `patreon-members-churn-analyzer` graduated.
+// +1: `whatnot-sales-report-analyzer` graduated.
+// +1: `tiktok-shop-settlement-analyzer` graduated -- one more boilerplate
+// `usage.mjs` under its own storage name.
+// +1: `substack-subscriber-export-analyzer` graduated.
+// +1: `app-store-sales-report-analyzer` graduated.
+// +1: `bandcamp-sales-report-analyzer` graduated.
+// +1: `google-play-earnings-report-analyzer` graduated.
+// +1: `indie-game-payout-calculator` graduated.
+// +1: `home-service-lead-roi-analyzer` graduated.
+// +1: `fba-reimbursement-claim-finder` graduated.
+// +1: `rent-roll-delinquency-analyzer` graduated.
+// +1: `fba-aged-inventory-fee-analyzer` graduated.
+// +1: `client-profitability-time-analyzer` graduated.
+// +1: `ghost-members-export-analyzer` graduated.
+// +1: `restaurant-pos-menu-mix-analyzer` graduated.
+// +1: `rental-property-schedule-e-categorizer` graduated.
+// +1: `property-tax-appeal-calculator` graduated.
+// +1: `subscription-audit-from-statement` graduated.
+// +1: `restaurant-labor-cost-daypart-analyzer` graduated.
+// +1: `appointment-no-show-analyzer` graduated.
+// +1: `freelancer-schedule-c-categorizer` graduated.
+// +1: `self-employed-schedule-c-categorizer` graduated.
+// +1: `late-invoice-collections-kit` graduated.
+// +1: `print-on-demand-profit-calculator` graduated.
+// +1: `service-hourly-yield-analyzer` graduated.
+// +1: `medical-bill-error-checker` graduated.
+// +1: `mortgage-escrow-analysis-checker` graduated.
+// +1: `shopify-inventory-reorder-planner` graduated.
+// +1: `like-kind-exchange-1031-calculator` graduated.
+// +1: `aca-subsidy-cliff-calculator` graduated.
+// +1: `parcel-late-delivery-refund-finder` graduated.
+// +1: `social-security-claiming-age-calculator` graduated.
+// +1: `wage-garnishment-limit-calculator` graduated.
+// +1: `medicare-irmaa-cliff-calculator` graduated.
+// +1: `rmd-calculator` graduated.
+// +1: `rsu-withholding-gap-calculator` graduated.
+// +1: `travel-nurse-contract-comparison-calculator` graduated.
+// +1: `iso-exercise-amt-calculator` graduated.
+// +1: `espp-tax-calculator` graduated.
+// +1: `job-offer-total-comp-calculator` graduated.
+// +1: `cash-balance-plan-calculator` graduated.
+// +1: `cost-segregation-study-calculator` graduated.
+// +1: `llm-usage-log-analyzer` graduated.
+// +1: `agent-brokerage-split-calculator` graduated.
+// +1: `home-sale-exclusion-calculator` graduated.
+// +1: `tax-loss-harvesting-calculator` graduated.
+// +1: `solar-payback-calculator` graduated.
+// +1: `safe-dilution-calculator` graduated.
+// +1: `rental-dscr-calculator` graduated.
+// +1: `self-employed-health-insurance-deduction-calculator` graduated.
+// +1: `rd-tax-credit-calculator` graduated.
+// +1: `heat-pump-vs-furnace-calculator` graduated.
+// +1: `physician-wrvu-compensation-calculator` graduated.
+// +1: `dental-associate-pay-calculator` graduated.
+// +1: `section-83b-election-calculator` graduated.
+// +1: `startup-option-value-calculator` graduated.
+// +1: `pslf-vs-refinance-calculator` graduated.
+// +1: `dependent-care-fsa-vs-credit-calculator` graduated.
+// +1: `van-westendorp-pricing-analyzer` graduated.
+// +1: `augusta-rule-calculator` graduated.
+// +1: `gabor-granger-price-analyzer` graduated.
+// +1: `sales-commission-plan-comparison-calculator` graduated.
+// +1: `merchant-cash-advance-true-cost-calculator` graduated.
+// +1: `usage-based-pricing-simulator` graduated.
+// +1: `rule-72t-sepp-calculator` graduated.
+// +1: `locum-tenens-vs-employed-calculator` graduated.
+// +1: `startup-exit-waterfall-calculator` graduated.
+// +1: `insurance-agency-book-valuation-calculator` graduated.
+// +1: `ab-test-significance-calculator` graduated.
+// +1: `online-business-valuation-calculator` graduated.
+// +1: `fix-and-flip-deal-analyzer` graduated.
+// +1: `aws-commitment-breakeven-calculator` graduated.
+// +1: `customer-lifetime-value-predictor` graduated.
+// +1: `commercial-lease-effective-rent-calculator` graduated.
+// +1: `sales-seasonality-forecaster` graduated.
+// +1: `clearance-markdown-planner` graduated.
+// +1: `price-elasticity-estimator` graduated.
+// +1: `bid-win-rate-optimizer` graduated.
+// +1: `liquidation-pallet-bid-calculator` graduated.
+// +1: `ad-incrementality-test-analyzer` graduated.
+// +1: `seasonal-buy-quantity-optimizer` graduated.
+// +1: `appointment-overbooking-optimizer` graduated.
+// +1: `shift-cover-optimizer` graduated.
+// +1: `client-rebooking-predictor` graduated.
+// +1: `crew-dispatch-optimizer` graduated.
+// +1: `bundle-discount-optimizer` graduated.
+// +1: `service-van-stock-optimizer` graduated.
+// +1: `renewal-rent-optimizer` graduated.
+// +1: `trial-conversion-timing-analyzer` graduated.
+// +1: `str-nightly-rate-optimizer` graduated.
+// +1: `quote-follow-up-timing` graduated.
+// +1: `rental-rent-optimizer` graduated.
+// +1: `mechanics-lien-deadline-calculator` graduated.
+// +1: `route-account-pruner` graduated.
+// +1: `donor-retention-analyzer` graduated.
+// +1: `lead-response-time-analyzer` graduated.
+// +1: `revenue-target-lead-planner` graduated.
+// +1: `studio-class-slot-optimizer` graduated.
+// +1: `workers-comp-premium-calculator` graduated.
+// +1: `market-garden-bed-planner` graduated.
+// +1: `private-practice-payer-mix-calculator` graduated.
+// +1: `landlord-repair-or-replace-planner` graduated.
+// +1: `cottage-food-pricing-calculator` graduated.
+// +1: `contractor-wip-schedule` graduated.
+// +1: `freelance-retainer-vs-hourly-calculator` graduated.
+// +1: `payroll-tax-deposit-penalty-calculator` graduated.
+// +1: `home-care-agency-margin-calculator` graduated.
+// +1: `family-child-care-time-space-calculator` graduated.
+// +1: `adu-payback-calculator` graduated.
+// +1: `dog-grooming-profit-calculator` graduated.
+// +1: `laundromat-machine-payback-calculator` graduated.
+// +1: `tire-shop-ticket-margin-calculator` graduated.
+// +1: `handyman-minimum-job-calculator` graduated.
+// +1: `tattoo-piece-profit-calculator` graduated.
+// +1: `candle-batch-cost-calculator` graduated.
+// +1: `house-cleaning-quote-calculator` graduated.
+// +1: `auction-car-flip-calculator` graduated.
+// +1: `massage-therapist-profit-calculator` graduated.
+// +1: `dj-gig-profit-calculator` graduated.
+// +1: `wedding-photographer-profit-calculator` graduated.
+// +1: `shipping-box-size-optimizer` graduated.
+// +1: `container-load-planner` graduated.
+// +1: `production-mix-optimizer` graduated.
+// +1: `crypto-cost-basis-calculator` graduated.
+// +1: `rental-fleet-size-optimizer` graduated.
+// +1: `tile-layout-planner` graduated.
+// +1: `event-seating-chart-optimizer` graduated.
+// +1: `league-schedule-generator` graduated.
+// +1: `state-residency-day-counter` graduated.
+// +1: `shift-roster-builder` graduated.
+// +1: `time-off-request-planner` graduated.
+// +1: `cheap-meal-plan-optimizer` graduated.
+// +1: `aid-award-letter-comparator` graduated.
+// +1: `retirement-withdrawal-sequencer` graduated.
+// +1: `coffee-roaster-margin-calculator` graduated.
+// +1: `business-loan-offer-comparator` graduated.
+// +1: `nsa-idr-offer-calculator` graduated.
+// +1: `freight-broker-load-margin-calculator` graduated.
+// +1: `breakeven-roas-calculator` graduated.
+// +1: `driving-instructor-lesson-pricing-calculator` graduated.
+// +1: `car-wash-membership-calculator` graduated.
+// +1: `license-compat-check` graduated.
+// +1: `llm-call-cost-scan` graduated.
+// +1: `regex-redos-check` graduated.
+// +1: `freelance-rate-increase-calculator` graduated.
+// +1: `course-launch-revenue-calculator` graduated.
+// +1: `postgres-explain-analyzer` graduated.
+// +1: `prometheus-cardinality-cost` graduated.
+// +1: `slo-burn-rate-alerts` graduated.
+// +1: `lambda-memory-rightsizer` graduated.
+// +1: `dynamodb-capacity-mode-advisor` graduated.
+// +1: `s3-storage-class-advisor` graduated.
+// +1: `s3-storage-class-savings` graduated.
+// +1: `ebs-volume-cost-advisor` graduated.
+// +1: `nat-gateway-cost-advisor` graduated.
+// +1: `cloudwatch-logs-cost-advisor` graduated.
+// +1: `bigquery-query-cost-advisor` graduated.
+// +1: `snowflake-warehouse-cost-advisor` graduated.
+// +1: `databricks-cluster-cost-advisor` graduated.
+// +1: `k8s-requests-rightsizer` graduated.
+// +1: `lambda-vs-fargate-cost-breakeven` graduated.
+// +1: `rds-instance-cost-advisor` graduated.
+// +1: `booking-request-chooser` graduated.
+// +1: `rds-instance-rightsizer` graduated.
+// +1: `free-shipping-threshold-optimizer` graduated.
+// +1: `client-concentration-risk-analyzer` graduated.
+// +1: `returns-policy-cost-analyzer` graduated.
+// +1: `ticket-resale-profit-calculator` graduated.
+// +1: `catering-quote-calculator` graduated.
+// +1: `freelance-project-picker` graduated.
+// +1: `market-event-picker` graduated.
+// +1: `lot-split-calculator` graduated.
+// +1: `trade-show-roi-calculator` graduated.
+// +1: `csa-share-pricing-calculator` graduated.
+// +1: `support-staffing-planner` graduated.
+// +1: `consignment-markdown-planner` graduated.
+// +1: `dog-grooming-day-planner` graduated.
+// +1: `insurance-denial-appeal-builder` graduated.
+// +1: `str-turnover-crew-planner` graduated.
+// +1: `mobile-signing-agent-day-picker` graduated.
+// +1: `saas-renewal-planner` graduated.
+// +1: `process-server-day-picker` graduated.
+// +1: `card-grading-submission-picker` graduated.
+// +1: `appraisal-assignment-picker` graduated.
+// +1: `thrift-haul-buy-picker` graduated.
+// +1: `owner-operator-load-chain-planner` graduated.
+// +1: `translation-job-picker` graduated.
+// +1: `bookkeeping-client-fee-calculator` graduated.
+// +1: `tax-season-client-picker` graduated.
+// +1: `interior-design-fee-calculator` graduated.
+// +1: `snow-plow-contract-calculator` graduated.
+// +1: `pool-service-route-calculator` graduated.
+// +1: `nail-tech-booth-rent-calculator` graduated.
+// +1: `grant-indirect-cost-calculator` graduated.
+// +1: `upwork-connects-roi-calculator` graduated.
+// +1: `docker-compose-security-check` graduated.
+// +1: `dog-grooming-price-calculator` graduated.
+// +1: `thumbtack-lead-roi-calculator` graduated.
+// +1: `app-subscription-proceeds-calculator` graduated.
+// +1: `k8s-pod-security-check` graduated.
+// +1: `terraform-plan-cost-estimate` graduated.
+// +1: `aws-bill-change-explainer` graduated.
+// +1: `lockfile-license-check` graduated.
+// +1: `backyard-egg-profit-calculator` graduated.
+// +1: `feie-physical-presence-calculator` graduated.
+// +1: `ci-test-shard-balancer` graduated.
+// +1: `backyard-honey-profit-calculator` graduated.
+// +1: `requirements-pin-check` graduated.
+// +1: `datadog-bill-estimator` graduated.
+// +1: `webhook-signature-debugger` graduated.
+// +1: `hvac-repair-tier-price-calculator` graduated.
+// +1: `vercel-bill-estimator` graduated.
+// +1: `supabase-bill-estimator` graduated.
+// +1: `neon-bill-estimator` graduated.
+// +1: `auth-mau-pricing-calculator` graduated.
+// +1: `email-api-pricing-calculator` graduated.
+// +1: `git-timesheet` graduated.
+// +1: `cloudflare-bill-estimator` graduated.
+// +1: `upstash-redis-bill-estimator` graduated.
+// +1: `error-tracking-pricing-calculator` graduated.
+// +1: `product-analytics-pricing-calculator` graduated.
+// +1: `scope-creep-change-order-calculator` graduated.
+// +1: `ci-minutes-pricing-calculator` graduated.
+// +1: `log-management-pricing-calculator` graduated.
+// +1: `cdn-bandwidth-pricing-calculator` graduated.
+// +1: `merchant-of-record-fee-calculator` graduated.
+// +1: `app-store-commission-calculator` graduated.
+// +1: `llm-output-regression-diff` graduated.
+// +1: `object-storage-pricing-calculator` graduated.
+// +1: `video-hosting-pricing-calculator` graduated.
+// +1: `uptime-monitoring-pricing-calculator` graduated.
+// +1: `search-api-pricing-calculator` graduated.
+// +1: `speech-to-text-pricing-calculator` graduated.
+// +1: `training-gpu-pricing-calculator` graduated.
+// +1: `business-vehicle-depreciation-calculator` graduated.
+// +1: `era-835-underpayment-finder` graduated.
+// +1: `nacha-file-validator` graduated.
+// +1: `sepa-payment-file-validator` graduated.
+// +1: `cobra-vs-marketplace-calculator` graduated.
+// +1: `sepa-pain001-validator` graduated.
+// +1: `form-5500-late-filing-calculator` graduated.
+// +1: `bai2-statement-reader` graduated.
+// +1: `eu-bank-statement-reader` graduated.
+// +1: `sepa-pain002-status-reader` graduated.
+// +1: `sepa-pain001-validator` graduated.
+// +1: `eu-vat-oss-calculator` graduated.
+// +1: `edi-x12-order-checker` graduated.
+// +1: `woocommerce-product-csv-check` graduated.
+// +1: `irs-iris-1099-csv-check` graduated.
+// +1: `xero-invoice-csv-check` graduated.
+// +1: `bigcommerce-product-csv-check` graduated.
+// +1: `square-catalog-csv-check` graduated.
+// +1: `quickbooks-chart-of-accounts-csv-check` graduated.
+// +1: `xero-contacts-csv-check` graduated.
+// +1: `etsy-listing-csv-check` graduated.
+// +1: `wix-product-csv-check` graduated.
+// +1: `hubspot-contacts-csv-check` graduated.
+// +1: `pipedrive-import-csv-check` graduated.
+// +1: `zoho-crm-import-csv-check` graduated.
+// +1: `activecampaign-import-csv-check` graduated.
+// +1: `klaviyo-profile-csv-check` graduated.
+// +1: `mailchimp-audience-csv-check` graduated.
+// +1: `payroll-hours-csv-check` graduated.
+// +1: `shopify-customer-csv-check` graduated.
+// +1: `shopify-inventory-csv-check` graduated.
+// +1: `teachers-pay-teachers-earnings-analyzer` graduated.
+// +1: `amazon-inventory-loader-check` graduated.
+// +1: `gbp-bulk-location-check` graduated.
+// +1: `redirect-map-check` graduated.
+// +1: `google-ads-editor-csv-check` graduated.
+// +1: `owner-operator-per-diem-calculator` graduated.
+// +1: `meta-catalog-csv-check` graduated.
+// +1: `gtin-list-check` graduated.
+// +1: `iban-list-check` graduated.
+// +1: `ics-calendar-check` graduated.
+// +1: `vcard-contacts-check` graduated.
+// +1: `ofx-file-check` graduated.
+// +1: `youtube-chapters-check` graduated.
+// +1: `google-contacts-csv-check` graduated.
+// +1: `gpx-track-check` graduated.
+// +1: `qif-file-check` graduated.
+// +1: `mt940-statement-check` graduated.
+// +1: `law-firm-realization-rate-calculator` graduated.
+// +1: `xero-bank-statement-csv-check` graduated.
+// +1: `quickbooks-iif-file-check` graduated.
+// +1: `camt053-statement-check` graduated.
+// +1: `bank-statement-pdf-to-csv` graduated.
+// +1: `coi-expiry-gap-checker` graduated.
+// +1: `bai2-to-ofx-converter` graduated.
+// +1: `amazon-settlement-to-journal` graduated.
+// +1: `stripe-payout-to-journal` graduated.
+// +1: `etsy-statement-to-journal` graduated.
+// +1: `paypal-activity-to-journal` graduated.
+// +1: `square-sales-to-journal` graduated.
+// +1: `payroll-register-to-journal` graduated.
+// +1: `pickleball-facility-pro-forma` graduated.
+// +1: `sales-export-to-journal` graduated.
+// +1: `airbnb-payout-to-journal` graduated.
+// +1: `lemonsqueezy-payout-to-journal` graduated.
+// +1: `paddle-payout-to-journal` graduated.
+// +1: `sep-ira-vs-solo-401k-calculator` graduated.
+// +1: `truck-detention-pay-calculator` graduated.
+// +1: `childcare-center-break-even-calculator` graduated.
+// +1: `course-platform-fee-calculator` graduated.
+// +1: `ko-fi-payout-to-journal` graduated.
+// +1: `buymeacoffee-payout-to-journal` graduated.
+// +1: `teachable-payout-to-journal` graduated.
+// +1: `upwork-earnings-to-journal` graduated.
+// +1: `fiverr-earnings-to-journal` graduated.
+// +1: `kdp-royalty-to-journal` graduated.
+// +1: `distrokid-royalty-to-journal` graduated.
+// +1: `music-distribution-fee-calculator` graduated.
+// +1: `microgreens-tray-planner` graduated.
+// +1: `wise-statement-to-journal` graduated.
+// +1: `revolut-business-statement-to-journal` graduated.
+// +1: `payoneer-statement-to-journal` graduated.
+// +1: `wedding-videographer-profit-calculator` graduated.
+// +1: `syndication-waterfall-calculator` graduated.
+// +1: `youtube-adsense-payout-to-journal` graduated.
+// +1: `med-spa-treatment-profit-calculator` graduated.
+// +1: `chiropractor-new-patient-roi-calculator` graduated.
+// +1: `grant-writer-proposal-price-calculator` graduated.
+// +1: `donor-acknowledgment-letter-generator` graduated.
+// +1: `exemption-certificate-audit-check` graduated.
+// +1: `rent-increase-notice-checker` graduated.
+// +1: `pay-application-generator` graduated.
+// +1: `nua-employer-stock-calculator` graduated.
+// +1: `medicaid-lookback-penalty-calculator` graduated.
+// +1: `freelance-contract-checker` graduated.
+// +1: `injury-settlement-net-proceeds-calculator` graduated.
+// +1: `supplier-price-creep-checker` graduated.
+// +1: `lien-waiver-checker` graduated.
+// +1: `employment-contract-checker` graduated.
+// +1: `aba-authorization-tracker` graduated.
+// +1: `restaurant-tip-pool-calculator` graduated.
+// +1: `str-turnover-scheduler` graduated.
+// +1: `mobile-detailing-day-planner` graduated.
+// +1: `shared-kitchen-rate-planner` graduated.
+// +1: `bakery-production-scheduler` graduated.
+// +1: `greenhouse-bench-planner` graduated.
+// +1: `mushroom-fruiting-room-planner` graduated.
+// +1: `midterm-rental-calculator` graduated.
+// +1: `freelance-editor-quote-calculator` graduated.
+// +1: `cash-flow-risk-forecaster` graduated.
+// +1: `social-security-benefits-tax-calculator` graduated.
+// +1: `installment-sale-tax-calculator` graduated.
+// +1: `app-listing-metadata-check` graduated.
+// +1: `mobile-mechanic-visit-pricing-calculator` graduated.
+// +1: `invoice-maker` graduated.
+// +1: `wedding-officiant-fee-calculator` graduated.
+// +1: `cdl-school-payback-calculator` graduated.
+// +1: `wholesale-line-sheet-maker` graduated.
+// +1: `estimate-maker` graduated.
+// +1: `time-tracker` graduated.
+// +1: `expense-tracker` graduated.
+// +1: `freelance-dashboard` graduated.
+// +1: `freelancer-tax-pack` graduated.
+// +1: `freelance-contract-maker` graduated.
+// +1: `freelance-proposal-maker` graduated (its own PR left this out; counted here).
+// +1: `rental-ledger` graduated.
+// +1: `freelance-lead-tracker` graduated.
+// +1: `craft-brewery-batch-margin-calculator` graduated.
+// +1: `maple-syrup-sugarbush-profit-calculator` graduated.
+// +1: `fishing-crew-share-settlement-calculator` graduated.
+// +1: `u-pick-farm-profit-planner` graduated.
+// +1: `solar-panel-cleaning-quote-planner` graduated.
+// +1: `apiary-profit-planner` graduated.
+// +1: `christmas-tree-farm-profit-planner` graduated.
+// +1: `sba-loan-capacity-calculator` graduated.
+// +1: `sheep-goat-flock-profit-planner` graduated.
+// +1: `pastured-poultry-profit-planner` graduated.
+// +1: `pottery-piece-pricing-calculator` graduated.
+// +1: `ball-python-morph-pairing-planner` graduated.
+// +1: `stump-grinding-price-calculator` graduated.
+// +1: `hay-baling-own-vs-hire-calculator` graduated.
+// +1: `escape-room-pricing-capacity-planner` graduated.
+// +1: `waterfront-rental-season-planner` graduated.
+// +1: `boutique-fitness-studio-pricing-planner` graduated.
+// +1: `property-management-profit-calculator` graduated.
+// +1: `mobile-welding-job-price-calculator` graduated.
+// +1: `sauna-cold-plunge-install-bid-calculator` graduated.
+// +1: `good-faith-estimate-generator` graduated.
+// +1: `collision-shop-drp-profit-calculator` graduated.
+// +1: `volunteer-shift-scheduler` graduated.
+// +1: `fleet-ev-vs-diesel-tco-calculator` graduated.
+// +1: `franchise-unit-economics-calculator` graduated.
+// +1: `appointment-no-show-cost-calculator` graduated.
+// +1: `home-inspection-report-builder` graduated.
+// +1: `pte-tax-election-calculator` graduated.
+// +1: `container-demurrage-detention-calculator` graduated.
+// +1: `roofing-insurance-supplement-finder` graduated.
+// +1: `bonus-take-home-gross-up-calculator` graduated.
+// +1: `farmland-lease-cash-rent-vs-crop-share-calculator` graduated.
+// +1: `tip-fica-credit-calculator` graduated.
+// +1: `crop-insurance-coverage-calculator` graduated.
+// +1: `contract-vs-fte-rate-calculator` graduated.
+// +1: `mobile-home-park-valuation-calculator` graduated.
+// +1: `cell-tower-lease-buyout-calculator` graduated.
+// +1: `tax-lien-certificate-yield-calculator` graduated.
+// +1: `oil-gas-mineral-rights-offer-calculator` graduated.
+// +1: `pension-lump-sum-vs-annuity-calculator` graduated.
+// +1: `structured-settlement-buyout-calculator` graduated.
+// +1: `section-1256-futures-tax-calculator` graduated.
+// +1: `mortgage-points-break-even-calculator` graduated.
+// +1: `heloc-vs-cash-out-refinance-calculator` graduated.
+// +1: `tax-lot-sale-optimizer` graduated.
+// +1: `mortgage-extra-payment-vs-invest-calculator` graduated.
+// +1: `covered-call-wheel-calculator` graduated.
+// +1: `charity-bunching-planner` graduated.
+// +1: `hsa-shoebox-reimbursement-planner` graduated.
+// +1: `cd-treasury-ladder-planner` graduated.
+// +1: `cron-heartbeat` graduated.
+// +1: `sbir-budget-builder` graduated.
+// +1: `birth-doula-package-pricing-calculator` graduated.
+// +1: `pet-sitting-platform-fee-calculator` graduated.
+// +1: `ghostwriter-book-quote-calculator` graduated.
+// +1: `hard-money-loan-cost-calculator` graduated.
+// +1: `dmarc-report-reader` graduated.
+// +1: `scrap-gold-buy-price-calculator` graduated.
+// +1: `medical-billing-pricing-calculator` graduated.
+// +1: `pawn-loan-profit-calculator` graduated.
+// +1: `grape-grower-sell-vs-bottle-calculator` graduated.
+// +1: `mosquito-control-program-pricing-calculator` graduated.
+// +1: `card-bonus-planner` graduated.
+// +1: `water-well-drilling-bid-calculator` graduated.
+// +1: `junk-car-buyer-offer-calculator` graduated.
+// +1: `adjunct-course-offer-calculator` graduated.
+// +1: `lash-studio-service-profit-calculator` graduated.
+// +1: `self-storage-unit-mix-optimizer` graduated.
+// +1: `wedding-venue-date-pricing-optimizer` graduated.
+// +1: `farm-crop-mix-optimizer` graduated.
+// +1: `ev-charging-site-roi-calculator` graduated.
+// +1: `food-truck-prep-mix-optimizer` graduated.
+// +1: `class-price-and-minimum-optimizer` graduated.
+// +1: `tutor-weekly-schedule-optimizer` graduated.
+// +1: `capex-budget-prioritizer` graduated.
+// +1: `surety-bond-capacity-calculator` graduated.
+// +1: `rush-job-sequencer` graduated.
+// +1: `warehouse-slotting-optimizer` graduated.
+// +1: `early-pay-discount-picker` graduated.
+// +1: `ghost-kitchen-brand-picker` graduated.
+// +1: `childcare-enrollment-mix-optimizer` graduated.
+// +1: `dining-room-table-mix-optimizer` graduated.
+// +1: `vending-machine-planogram-optimizer` graduated.
+// +1: `project-staffing-margin-optimizer` graduated.
+// +1: `auto-detailing-service-menu-picker` graduated.
+// +1: `proposal-maker` graduated (landed from a stranded branch).
+// +1: `tile-layout-optimizer` graduated (landed from a stranded branch).
+// +1: `mileage-deduction-calculator` graduated (landed from a stranded branch).
+// +1: `wedding-flower-order-optimizer` graduated.
+// +1: `saas-tier-price-optimizer` graduated.
+// +1: `saas-feature-packaging-optimizer` graduated.
+// +1: `pto-accrual-liability-calculator` graduated.
+// +1: `car-hauler-load-planner` graduated.
+// +1: `wholesale-real-estate-offer-calculator` graduated.
+// +1: `commercial-solar-ppa-lease-buy-calculator` graduated.
+// +1: `cafe-drink-margin-calculator` graduated.
+// +1: `fers-retirement-planner` graduated.
+// +1: `optical-dispensary-margin-calculator` graduated.
+// +1: `fitness-studio-membership-calculator` graduated.
+// +1: `hearing-aid-dispensing-margin-calculator` graduated.
+// +1: `therapy-8-minute-rule-calculator` graduated.
+// +1: `provider-credentialing-delay-cost-calculator` graduated.
+// +1: `veterinary-wellness-plan-pricing-calculator` graduated.
+// +1: `demand-charge-interval-analyzer` graduated.
+// +1: `independent-pharmacy-rx-margin-calculator` graduated.
+// +1: `dental-patient-financing-fee-calculator` graduated.
+// +1: `app-review-insights` graduated.
+// +1: `postgres-index-auditor` graduated.
+// +1: `pg-stat-statements-analyzer` graduated.
+// +1: `oncall-load-analyzer` graduated.
+// +1: `bid-leveling-worksheet` graduated.
+// +1: `mobile-vet-house-call-fee-calculator` graduated.
+// +1: `fixed-bid-overrun-forecaster` graduated.
+// +1: `soc2-readiness-checker` graduated.
+// +1: `timber-sale-offer-checker` graduated.
+// +1: `hunting-lease-income-calculator` graduated.
+// +1: `pollination-contract-checker` graduated.
+// +1: `grazing-lease-rate-calculator` graduated.
+// +1: `solar-land-lease-offer-calculator` graduated.
+// +1: `oyster-farm-growout-planner` graduated.
+// +1: `hay-sale-price-calculator` graduated.
+// +1: `coffee-cart-event-quote-calculator` graduated.
+// +1: `vineyard-grape-vs-wine-calculator` graduated.
+// +1: `house-hack-calculator` graduated.
+// +1: `screen-print-job-quote-calculator` graduated.
+// +1: `winery-excise-tax-calculator` graduated.
+// +1: `form-2290-hvut-calculator` graduated.
+// +1: `eu-pay-gap-report-calculator` graduated.
+// +1: `401k-plan-fee-calculator` graduated.
+// +1: `stocker-cattle-margin-calculator` graduated.
+// +1: `payment-processor-fee-comparison-calculator` graduated.
+// +1: `clergy-housing-allowance-calculator` graduated.
+// +1: `fuel-surcharge-schedule-calculator` graduated.
+// +1: `cake-pricing-calculator` graduated.
+// +1: `construction-delay-claim-calculator` graduated.
+// +1: `lumper-fee-reimbursement-calculator` graduated.
+// +1: `powder-coating-job-price-calculator` graduated.
+// +1: `grease-trap-pumping-price-calculator` graduated.
+// +1: `laser-cutting-engraving-job-price-calculator` graduated.
+// +1: `bed-bug-heat-treatment-price-calculator` graduated.
+// +1: `pool-opening-closing-price-calculator` graduated.
+// +1: `hoarding-cleanout-bid-calculator` graduated.
+// +1: `standby-generator-install-price-calculator` graduated.
+// +1: `ppf-ceramic-coating-price-calculator` graduated.
+// +1: `paintless-dent-repair-quote-calculator` graduated.
+// +1: `fundraising-event-net-calculator` graduated.
+// +1: `private-chef-service-price-calculator` graduated.
+// +1: `tournament-pairing-manager` graduated.
+// +1: `fair-workweek-schedule-checker` graduated.
+// +1: `vegetable-garden-planting-calendar` graduated.
+// +1: `secret-santa-draw` graduated.
+// +1: `json-ld-rich-result-validator` graduated.
+// +1: `roommate-rent-splitter` graduated.
+// +1: `car-lease-deal-checker` graduated.
+// +1: `grain-store-or-sell-calculator` graduated.
+// +1: `home-sale-net-proceeds-calculator` graduated.
+// +1: `tax-deed-auction-max-bid-planner` graduated.
+// +1: `courier-van-route-profit-calculator` graduated.
+// +1: `investor-update-builder` graduated.
+// +1: `private-school-tuition-discount-calculator` graduated.
+// +1: `amusement-route-location-calculator` graduated.
+// +1: `laundromat-acquisition-offer-calculator` graduated.
+// +1: `franchise-item-19-reality-check` graduated.
+// +1: `pilot-car-escort-run-profit-calculator` graduated.
+// +1: `kids-birthday-party-package-profit-calculator` graduated.
+// +1: `event-rental-inventory-payback-calculator` graduated.
+// +1: `golf-simulator-bay-profit-calculator` graduated.
+// +1: `weekly-staff-schedule-maker` graduated.
+// +1: `ebike-rental-fleet-profit-calculator` graduated.
+// +1: `trampoline-park-profit-calculator` graduated.
+// +1: `axe-throwing-bar-profit-calculator` graduated.
+// +1: `band-tour-profit-planner` graduated.
+// +1: `climbing-gym-profit-calculator` graduated.
+// +1: `percentage-rent-audit-checker` graduated.
+// +1: `release-notes-generator` graduated.
+// +1: `bail-bond-agency-exposure-calculator` graduated.
+// +1: `shift-rotation-schedule-generator` graduated.
+// +1: `funeral-price-list-checker` graduated.
+// +1: `cannabis-280e-tax-calculator` graduated.
+// +1: `sales-quota-capacity-planner` graduated.
+// +1: `ppp-pricing-table-generator` graduated.
+// +1: `3pl-invoice-audit-checker` graduated.
+// +1: `glamping-unit-payback-calculator` graduated.
+// +1: `str-arbitrage-lease-calculator` graduated.
+// +1: `npm-lockfile-duplicates-check` graduated.
+// +1: `subscription-proration-calculator` graduated.
+// +1: `mini-golf-course-profit-calculator` graduated.
+// +1: `rv-boat-storage-lot-calculator` graduated.
+// +1: `self-serve-dog-wash-profit-calculator` graduated.
+// +1: `coworking-space-profit-calculator` graduated.
+// +1: `arcade-game-payback-calculator` graduated.
+// +1: `hydroponic-farm-profit-calculator` graduated.
+// +1: `kombucha-brewery-profit-calculator` graduated.
+// +1: `npm-audit-triage` graduated.
+// +1: `pet-boarding-daycare-profit-calculator` graduated.
+// +1: `ice-cream-shop-seasonal-profit-calculator` graduated.
+// +1: `boba-tea-shop-profit-calculator` graduated.
+// +1: `convenience-store-gas-station-profit-calculator` graduated.
+// +1: `pip-audit-triage` graduated.
+// +1: `cargo-audit-triage` graduated.
+// +1: `nis2-scope-checker` graduated.
+// +1: `dry-cleaner-profit-calculator` graduated.
+// +1: `eu-ai-act-risk-checker` graduated.
+// +1: `eudr-scope-checker` graduated.
+// +1: `cbam-cost-estimator` graduated.
+// +1: `eaa-accessibility-act-checker` graduated.
+// +1: `indoor-play-center-profit-calculator` graduated.
+// +1: `gpsr-product-safety-checker` graduated.
+// +1: `eu-battery-regulation-checker` graduated.
+// +1: `padel-club-profit-calculator` graduated.
+// +1: `eu-data-act-checker` graduated.
+// +1: `eu-packaging-regulation-checker` graduated.
+// +1: `bowling-center-profit-calculator` graduated.
+// +1: `pay-transparency-directive-checker` graduated.
+// +1: `eu-whistleblower-channel-checker` graduated.
+// +1: `eu-einvoicing-mandate-checker` graduated.
+// +1: `eu-green-claims-checker` graduated.
+// +1: `eu-product-liability-directive-checker` graduated.
+// +1: `dac7-seller-reporting-checker` graduated.
+// +1: `eu-platform-work-directive-checker` graduated.
+// +1: `eu-price-reduction-claim-checker` graduated.
+// +1: `eu-green-claims-copy-scanner` graduated.
+// +1: `eu-dora-readiness-checker` graduated.
+// +1: `ugc-creator-rate-calculator` graduated.
+// +1: `eu-csrd-scope-checker` graduated.
+// +1: `uk-sole-trader-vs-limited-company-calculator` graduated.
+// +1: `eu-espr-readiness-checker` graduated.
+// +1: `employer-payroll-tax-cost-calculator` graduated.
+// +1: `commercial-property-cap-rate-calculator` graduated.
+// +1: `uk-statutory-sick-pay-calculator` graduated.
+// +1: `retirement-plan-startup-credit-calculator` graduated.
+// +1: `au-gst-registration-checker` graduated.
+// +1: `tfsa-over-contribution-checker` graduated.
+// +1: `social-security-survivor-spousal-benefit-calculator` graduated.
+// +1: `au-redundancy-pay-calculator` graduated.
+// +1: `iolta-three-way-reconciliation-checker` graduated.
+// +1: `uk-cis-deduction-refund-calculator` graduated.
+// +1: `nz-gst-registration-checker` graduated.
+// +1: `uk-trading-allowance-calculator` graduated.
+// +1: `uk-ir35-inside-outside-calculator` graduated.
+// +1: `uk-self-assessment-late-penalty-calculator` graduated.
+// +1: `uk-child-benefit-charge-calculator` graduated.
+// +1: `uk-student-loan-repayment-calculator` graduated.
+// +1: `uk-100k-tax-trap-calculator` graduated.
+// +1: `uk-landlord-section-24-calculator` graduated.
+// +1: `uk-stamp-duty-calculator` graduated.
+// +1: `uk-pension-annual-allowance-calculator` graduated.
+// +1: `uk-marriage-allowance-calculator` graduated.
+// +1: `uk-redundancy-pay-calculator` graduated.
+// +1: `uk-statutory-maternity-pay-calculator` graduated.
+// +1: `uk-holiday-pay-calculator` graduated.
+// +1: `uk-employer-hiring-cost-calculator` graduated.
+// +1: `uk-scottish-income-tax-calculator` graduated.
+// +1: `uk-self-assessment-tax-calculator` graduated.
+// +1: `uk-money-tools-finder` graduated.
+// +1: `uk-salary-sacrifice-calculator` graduated.
+// +1: `uk-company-car-tax-calculator` graduated.
+// +1: `uk-minimum-wage-checker` graduated.
+// +1: `uk-tax-code-checker` graduated.
+// +1: `uk-state-pension-ni-years-checker` graduated.
+// +1: `uk-rent-a-room-relief-calculator` graduated.
+// +1: `uk-late-payment-interest-calculator` graduated.
+// +1: `uk-tax-free-childcare-calculator` graduated.
+// +1: `uk-simplified-expenses-calculator` graduated.
+// +1: `uk-vat-flat-rate-scheme-calculator` graduated.
+// +1: `uk-capital-allowances-calculator` graduated.
+// +1: `uk-directors-loan-s455-calculator` graduated.
+// +1: `uk-savings-interest-tax-calculator` graduated.
+// +1: `uk-rd-tax-relief-calculator` graduated.
+// +1: `uk-emi-share-option-tax-calculator` graduated.
+// +1: `uk-gift-aid-higher-rate-relief-calculator` graduated.
+// +1: `uk-lifetime-isa-vs-pension-calculator` graduated.
+// +1: `uk-eis-seis-relief-calculator` graduated.
+// +1: `uk-shared-parental-pay-planner` graduated.
+// +1: `uk-mortgage-overpayment-calculator` graduated.
+// +1: `uk-working-from-home-tax-relief-calculator` graduated.
+// +1: `uk-bonus-tax-calculator` graduated.
+// +1: `uk-mileage-allowance-calculator` graduated.
+// +1: `uk-unfair-dismissal-compensation-calculator` graduated.
+// +1: `ca-self-employed-tax-set-aside-calculator` graduated.
+// +1: `au-sole-trader-tax-set-aside-calculator` graduated.
+// +1: `ie-self-employed-tax-set-aside-calculator` graduated.
+// +1: `nl-zzp-tax-set-aside-calculator` graduated.
+// +1: `de-freiberufler-tax-set-aside-calculator` graduated.
+// +1: `za-freelancer-provisional-tax-set-aside-calculator` graduated.
+// +1: `sg-freelancer-tax-set-aside-calculator` graduated.
+// +1: `in-freelancer-advance-tax-set-aside-calculator` graduated.
+// +1: `us-freelancer-tax-set-aside-calculator` graduated.
+// +1: `tenant-security-deposit-deadline-checker` graduated.
+// +1: `rfp-compliance-matrix` graduated.
+// +1: `security-questionnaire-matcher` graduated.
+// +1: `job-application-tracker` graduated.
+// +1: `youtube-sponsorship-rate-calculator` graduated.
+// +1: `dunning-engine` graduated.
+// +1: `cancel-flow` graduated.
+// +1: `webhook-relay` graduated.
+// +1: `visit-keeper` graduated.
+// +1: `rev-rec` graduated.
+// +1: `trial-converter` graduated.
+// +1: `form-inbox` graduated.
+// +1: `meter-keeper` graduated.
+// +1: `link-keeper` graduated.
+// +1: `support-desk` graduated.
+// +1: `slot-keeper` graduated.
+// +1: `help-keeper` graduated.
+// +1: `churn-radar` graduated.
+// +1: `pql-radar` graduated.
+// +1: `deal-keeper` graduated.
+// +1: `changelog-keeper` graduated.
+// +1: `error-keeper` graduated.
+// +1: `workflow-audit` graduated.
+// +1: `reseller-books` graduated.
+// +1: `review-reply-desk` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1250;
+// +1: `llm-spend-guard` graduated.
+// +1: `liability-audit` graduated.
+// +1: `equipment-lease-vs-buy-calculator` graduated.
+// +1: `patent-maintenance-fee-planner` graduated.
+// +1: `retreat-profit-pricing-calculator` graduated.
+// +1: `sms-segment-cost-calculator` graduated.
+// +1: `tow-truck-rate-calculator` graduated.
+// +1: `saas-efficiency-metrics-calculator` graduated.
+// +1: `sports-official-game-fee-calculator` graduated.
+// +1: `embroidery-shop-quote-calculator` graduated.
+// +1: `feature-flag-pricing-calculator` graduated.
+// +1: `fishing-charter-trip-pricing-calculator` graduated.
+// +1: `farrier-visit-pricing-calculator` graduated.
+// +1: `rv-rental-host-profit-calculator` graduated.
+// +1: `horse-boarding-stall-profit-calculator` graduated.
+// +1: `pet-waste-removal-route-calculator` graduated.
+// +1: `campground-site-profit-calculator` graduated.
+// +1: `worker-classification-checker` graduated.
+// +1: `ad-slot-sell-through-planner` graduated.
+// +1: `ag-spray-drone-quote-calculator` graduated.
+// +1: `lcl-vs-fcl-container-calculator` graduated.
+// +1: `ski-snowboard-tune-shop-profit-calculator` graduated.
+// +1: `bike-shop-repair-profit-calculator` graduated.
+// +1: `tailor-alterations-shop-profit-calculator` graduated.
+// +1: `shoe-repair-shop-profit-calculator` graduated.
+// +1: `phone-repair-shop-profit-calculator` graduated.
+// +1: `barbershop-chair-profit-calculator` graduated.
+// +1: `braiding-studio-profit-calculator` graduated.
+// +1: `esthetician-studio-profit-calculator` graduated.
+// +1: `swim-lesson-pool-rental-profit-calculator` graduated.
+// +1: `upholstery-shop-job-profit-calculator` graduated.
+// +1: `hydroseeding-job-bid-calculator` graduated.
+// +1: `home-inspection-business-profit-calculator` graduated.
+// +1: `driving-school-profit-calculator` graduated.
+// +1: `yoga-pilates-studio-class-profit-calculator` graduated.
+// +1: `wedding-day-timeline-builder` graduated.
+// +1: `ca-meal-rest-break-premium-checker` graduated.
+// +1: `flsa-regular-rate-overtime-audit` graduated.
+// +1: `json-to-types-generator` graduated.
+// +1: `prop-firm-challenge-calculator` graduated.
+// +1: `csv-to-sql-generator` graduated.
+// +1: `eu-dsa-obligations-checker` graduated.
+// +1: `uk-mtd-income-tax-checker` graduated.
 
 let counter = 0;
 function fixture(source) {

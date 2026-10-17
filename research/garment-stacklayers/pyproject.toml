@@ -1,0 +1,13 @@
+[project]
+name = "garment-stacklayers"
+version = "0.1.0"
+description = "Does adding layers reduce the angle shift of a structural-colour thin-film stack at fixed chroma and oxide-mass limits?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-stackopt/src", "../garment-thincolor/src", "../garment-stackpareto/src"]

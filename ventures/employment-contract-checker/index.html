@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Employment Contract Checker</title>
+  <meta name="description" content="Free employment contract and job offer checker: paste the offer letter or agreement and see the non-compete, invention assignment, signing-bonus repayment, equity buyback, forfeited bonus, arbitration and salary-mismatch red flags, each with the change to ask for. Private, runs in your browser.">
+  <meta property="og:title" content="Check a job offer or employment agreement before you sign — free, private">
+  <meta property="og:description" content="Paste the offer letter or contract. Get the red flags and the exact change to ask for before you sign.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Employment Contract Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should I check in a job offer before signing?", "acceptedAnswer": {"@type": "Answer", "text": "The written salary against what you were promised, any bonus terms, equity vesting and exercise terms, whether a non-compete or non-solicit applies after you leave, who owns what you create, whether you must repay a bonus if you leave, and how disputes are handled. This page checks the text for each of those."}}, {"@type": "Question", "name": "Is a non-compete enforceable?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your state, your pay, your role and how narrow the clause is. Some states void most employee non-competes, others limit them by pay level or require notice and time to review. This page flags the clause and points at states commonly cited, but it does not decide enforceability; check the current law or ask an employment attorney."}}, {"@type": "Question", "name": "Can my employer claim my side projects?", "acceptedAnswer": {"@type": "Answer", "text": "Only as far as the agreement and state law allow. An invention assignment with no carve-out for work done on your own time, without company resources and unrelated to the business is the wording to watch. Ask for a carve-out and list your prior inventions in an exhibit."}}, {"@type": "Question", "name": "Do I have to repay a signing bonus if I leave?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the document says so. Many offers require repayment if you leave within a year or two. Ask for repayment to shrink each month, and to be waived if you are laid off or leave for good reason."}}, {"@type": "Question", "name": "Is this legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a text checker with fixed, visible rules. A clean result means those rules found nothing, not that a contract is fair or enforceable. Have an employment attorney review anything that matters."}}, {"@type": "Question", "name": "Is the contract text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f1f4f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f4e79; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #45546a; }
+    .card { background: #fff; border: 1px solid #cfd8e3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b6c6; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #14283d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e1e8f0; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #45546a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283d; }
+    .finding { border-bottom: 1px solid #e1e8f0; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e1e8f0; color: #14283d; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283d; }
+    footer { margin-top: 28px; border-top: 1px solid #cfd8e3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #a9b6c6; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #f8fafc; border: 1px solid #cfd8e3; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EMPLOYMENT CONTRACT CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Read the offer letter before it reads you.</h1>
+    <p>Paste your job offer or employment agreement. The page checks the text for the <strong>clauses that most often cost the person signing</strong>: a <strong>non-compete</strong> or non-solicit, an <strong>invention assignment</strong> that reaches your side projects, a <strong>signing bonus you must repay</strong>, a <strong>bonus or commission you forfeit</strong> by leaving, equity the company can <strong>buy back</strong>, a short option exercise window, forced <strong>arbitration</strong>, and a salary that does not match what you were told. For each one it tells you what to ask for.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. It reads wording with fixed rules; it is not a lawyer and does not decide whether a clause is enforceable where you live.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>1. The offer or agreement</h2>
+    <label for="file">Choose a text file</label>
+    <input type="file" id="file" accept=".txt,.md,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Paste the full offer letter or employment agreement here"></textarea>
+    <h2 style="margin-top:20px">2. What you were promised</h2>
+    <p class="note">All optional, and each one lets the checker catch more. Leave blank what you do not know.</p>
+    <div class="grid">
+      <div><label for="salary">Base salary you were promised, dollars per year</label><input id="salary" inputmode="decimal" placeholder="175000"></div>
+      <div><label for="signing">Signing bonus you were promised, dollars</label><input id="signing" inputmode="decimal" placeholder="20000"></div>
+      <div><label for="state">State where you will work (optional)</label><select id="state"><option value="">Not listed</option><option value="CA">California</option><option value="ND">North Dakota</option><option value="OK">Oklahoma</option><option value="MN">Minnesota</option><option value="CO">Colorado</option><option value="WA">Washington</option><option value="IL">Illinois</option><option value="MA">Massachusetts</option><option value="DC">Washington DC</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check the contract</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste the text, then click Check the contract.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="verdict"></p>
+    <p class="note" id="facts"></p>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download checklist (text)</button> <button type="button" class="secondary" id="dl-csv">Download findings (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it checks, and what it leaves to you</h2>
+    <ul>
+      <li><strong>After you leave:</strong> non-compete length and scope, whether it survives a layoff, non-solicitation of customers or staff.</li>
+      <li><strong>What you own:</strong> invention assignment with no carve-out for your own time, no list of prior inventions, outside-work consent.</li>
+      <li><strong>Money you could lose:</strong> signing bonus or relocation repayment, bonus lost if you are gone on the payout date, commissions forfeited, an unattached commission plan.</li>
+      <li><strong>Equity:</strong> buyback or cancellation of vested equity, a short post-termination exercise window, missing vesting terms.</li>
+      <li><strong>Rights and exits:</strong> mandatory arbitration and waivers, out-of-state governing law, long resignation notice, terms the employer can change alone, confidentiality or non-disparagement with no carve-out.</li>
+      <li><strong>Does it match what you were told:</strong> the salary and signing bonus against the figures in the text.</li>
+      <li><strong>Not decided:</strong> whether any clause is enforceable in your state, whether the deal is good, tax treatment of equity, and whether you should sign. It reads text and cannot see your other documents.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What should I check in a job offer before signing?</h3>
+    <p>The written salary against what you were promised, any bonus terms, equity vesting and exercise terms, whether a non-compete or non-solicit applies after you leave, who owns what you create, whether you must repay a bonus if you leave, and how disputes are handled. This page checks the text for each of those.</p>
+    <h3>Is a non-compete enforceable?</h3>
+    <p>It depends on your state, your pay, your role and how narrow the clause is. Some states void most employee non-competes, others limit them by pay level or require notice and time to review. This page flags the clause and points at states commonly cited, but it does not decide enforceability; check the current law or ask an employment attorney.</p>
+    <h3>Can my employer claim my side projects?</h3>
+    <p>Only as far as the agreement and state law allow. An invention assignment with no carve-out for work done on your own time, without company resources and unrelated to the business is the wording to watch. Ask for a carve-out and list your prior inventions in an exhibit.</p>
+    <h3>Do I have to repay a signing bonus if I leave?</h3>
+    <p>Only if the document says so. Many offers require repayment if you leave within a year or two. Ask for repayment to shrink each month, and to be waived if you are laid off or leave for good reason.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. It is a text checker with fixed, visible rules. A clean result means those rules found nothing, not that a contract is fair or enforceable. Have an employment attorney review anything that matters.</p>
+    <h3>Is the contract text uploaded anywhere?</h3>
+    <p>No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace an attorney. A clean result means these rules found nothing, not that a contract is fair or enforceable; have an employment attorney review anything that matters.</p>
+    <p><strong>Contract data.</strong> A contract can name pay, equity and parties that are personal and sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your text is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>contract_checked</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a> to put a number on the offer.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summaryText, findingsCsv, sampleContract, SAMPLE_SETTINGS, VERDICT_TEXT, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const settings = () => ({ expectedSalary: $("#salary").value, signingBonus: $("#signing").value, state: $("#state").value });
+
+    function run(text) {
+      const s = settings();
+      const r = analyze(text, s);
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = { r, s };
+      $("#verdict").textContent = VERDICT_TEXT[r.verdict];
+      const x = r.extracted;
+      $("#facts").textContent = `Dollar figures found: ${x.amounts.length ? [...new Set(x.amounts)].slice(0, 8).map(dollars).join(", ") : "none"}.${x.noncompeteMonths ? ` Non-compete length found: about ${Math.round(x.noncompeteMonths)} months.` : ""}`;
+      $("#report-findings").innerHTML = r.findings.length
+        ? r.findings.map((g) => `<div class="finding"><span class="pill ${g.severity}">${g.severity}</span><strong>${esc(g.title)}</strong><br>${esc(g.why)}<br><em>Ask for:</em> ${esc(g.ask)}</div>`).join("")
+        : '<div class="finding">Nothing flagged by these rules. They read wording only and cannot tell you the contract is fair or enforceable.</div>';
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Paste the contract text first."; return; }
+      if (run(text)) record("contract_checked");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleContract(); $("#file").value = "";
+      $("#salary").value = SAMPLE_SETTINGS.expectedSalary; $("#signing").value = SAMPLE_SETTINGS.signingBonus; $("#state").value = SAMPLE_SETTINGS.state;
+      run($("#paste").value); record("example_loaded");
+      status.textContent = "Worked example: a made-up offer with several problems at once.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste the text, then click Check the contract."; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("employment-contract-check.txt", summaryText(last.r, last.s), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("employment-contract-findings.csv", findingsCsv(last.r), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

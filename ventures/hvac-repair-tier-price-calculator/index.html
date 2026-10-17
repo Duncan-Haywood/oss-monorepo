@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HVAC Repair Price Calculator — Good, Better, Best Options and a Price Book</title>
+  <meta name="description" content="Free calculator for independent HVAC contractors and small shops: your true cost per billable hour, a diagnostic fee, Good, Better and Best repair prices with tiered parts and equipment markup and a callback reserve, what an average call earns at your mix of choices, and a price-book builder you can export as CSV. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What should Good, Better and Best HVAC repair options cost?">
+  <meta property="og:description" content="True cost per hour, a diagnostic fee, three repair prices with tiered parts markup and what an average call earns at your mix. Your numbers, not advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"HVAC Repair Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for independent HVAC contractors and small shops: your true cost per billable hour, a diagnostic fee, Good, Better and Best repair prices with tiered parts and equipment markup and a callback reserve, what an average call earns at your mix of choices, and a price-book builder you can export as CSV. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price Good, Better and Best HVAC repair options?","acceptedAnswer":{"@type":"Answer","text":"Price each option the same way: your true cost per billable hour times its hours including the drive, divided by one minus your target margin, plus parts or equipment at a tiered markup, grossed up for a callback reserve and rounded up. On the default numbers that gives $745.00 for Good, $1,480.00 for Better and $8,890.00 for Best. Enter your own figures; the defaults are invented."}},{"@type":"Question","name":"What is my true cost per hour as an HVAC contractor?","acceptedAnswer":{"@type":"Answer","text":"Your loaded wage spread over the hours you can actually bill, plus van, insurance, tools and overhead over the same hours. On the defaults that is $78.00 for wages and burden plus $35.00 for van, insurance, tools and overhead, $113.00 for every billable hour, because only 1,200 of 2,080 paid hours are sold."}},{"@type":"Question","name":"What should an HVAC diagnostic fee cover?","acceptedAnswer":{"@type":"Answer","text":"At least the drive and the time on site to find the fault, at true cost and your margin. On the defaults that is 1.5 hours, $169.50 of cost and a $265.00 fee, which many shops credit against the repair the customer approves."}},{"@type":"Question","name":"How much does offering three options add to an average call?","acceptedAnswer":{"@type":"Answer","text":"On the defaults, with 50, 35 and 15 percent of approvals choosing Good, Better and Best and 20 percent of calls ending at the diagnostic fee, an average call earns $580.14 against $249.82 when only the Good repair is offered, a gain of $330.32. Your mix and decline rate are assumptions to replace with your own ticket counts."}},{"@type":"Question","name":"Is this advice or a price guide?","acceptedAnswer":{"@type":"Answer","text":"No. It does arithmetic on the numbers you type. Prices, costs and hours are yours to check, nothing is uploaded, and it is not business, tax, legal or licensing advice. Check your local licensing, refrigerant-handling and written-estimate rules."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number], input[type=text] { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; }
+    td input[type=number] { width: 5.5em; }
+    td input[type=text] { width: 100%; min-width: 10em; box-sizing: border-box; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tier { border: 1px solid #d5dbe3; border-radius: 10px; padding: 12px 14px; background: #f8fafc; }
+    .tier h3 { margin: 0 0 4px; }
+    .hero { font-size: 2.2rem; font-weight: 800; color: #17324a; margin: 4px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HVAC REPAIR PRICE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What should Good, Better and Best repair options cost on this HVAC call?</h1>
+    <p>Enter what a year of running your van and shop costs, the hours you really bill, and the three options you would put in front of a customer. You get your <strong>true cost per billable hour</strong>, a <strong>diagnostic fee</strong>, a <strong>price for each option</strong> with tiered parts and equipment markup and a callback reserve, and <strong>what an average call earns</strong> at your mix of choices and your decline rate, against quoting only the cheap repair. Then build a price book of call types and export it as CSV.</p>
+    <p class="note"><strong>Your numbers, not advice.</strong> Prices, costs, times and the customer mix are yours to check; every value is editable. Nothing is uploaded: inputs are used in this browser tab only. The starting numbers are invented examples, not market rates.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your true hourly cost</h2>
+    <p>
+      <label for="wage">Hourly wage ($)</label><input type="number" id="wage" value="36" min="0" step="1">
+      <label for="burdenpct">Burden: payroll tax, comp, benefits (%)</label><input type="number" id="burdenpct" value="25" min="0" step="1">
+      <label for="paidhours">Paid hours per year</label><input type="number" id="paidhours" value="2080" min="0" step="10">
+      <label for="billablehours">Billable hours per year</label><input type="number" id="billablehours" value="1200" min="0" step="10">
+      <label for="truckyear">Van per year ($)</label><input type="number" id="truckyear" value="17000" min="0" step="500">
+      <label for="insuranceyear">Insurance per year ($)</label><input type="number" id="insuranceyear" value="7000" min="0" step="500">
+      <label for="toolsyear">Tools, gauges, consumables per year ($)</label><input type="number" id="toolsyear" value="5000" min="0" step="250">
+      <label for="overheadyear">Phone, software, licence, office, marketing per year ($)</label><input type="number" id="overheadyear" value="13000" min="0" step="500">
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>2. Parts and equipment markup tiers</h2>
+    <p class="note">Marginal, like tax brackets: each slice of a ticket's parts and equipment cost earns its own markup. The last tier has no ceiling.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Cost up to ($)</th><th>Markup (%)</th></tr></thead>
+      <tbody>
+        <tr><td><input type="number" id="tier1up" value="100" min="0" step="10" aria-label="Tier 1 ceiling"></td><td><input type="number" id="tier1pct" value="100" min="0" step="5" aria-label="Tier 1 markup"></td></tr>
+        <tr><td><input type="number" id="tier2up" value="500" min="0" step="50" aria-label="Tier 2 ceiling"></td><td><input type="number" id="tier2pct" value="60" min="0" step="5" aria-label="Tier 2 markup"></td></tr>
+        <tr><td><input type="number" id="tier3up" value="2000" min="0" step="100" aria-label="Tier 3 ceiling"></td><td><input type="number" id="tier3pct" value="40" min="0" step="5" aria-label="Tier 3 markup"></td></tr>
+        <tr><td>Above that</td><td><input type="number" id="tier4pct" value="30" min="0" step="5" aria-label="Tier 4 markup"></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>3. One service call</h2>
+    <p>
+      <label for="travelhours">Travel and supply-house hours</label><input type="number" id="travelhours" value="0.75" min="0" step="0.25">
+      <label for="diaghours">Diagnostic hours on site</label><input type="number" id="diaghours" value="0.75" min="0" step="0.25">
+      <label for="targetmarginpct">Target margin on time (%)</label><input type="number" id="targetmarginpct" value="35" min="0" step="1" max="99">
+      <label for="reservepct">Callback reserve (% of price)</label><input type="number" id="reservepct" value="3" min="0" step="0.5" max="50">
+      <label for="roundto">Round prices up to ($)</label><input type="number" id="roundto" value="5" min="0" step="1">
+    </p>
+    <div class="tiers">
+      <div class="tier"><h3>Good: repair</h3><p>
+      <label for="goodhours">On-site hours</label><input type="number" id="goodhours" value="1.5" min="0" step="0.25">
+      <label for="goodparts">Parts cost ($)</label><input type="number" id="goodparts" value="180" min="0" step="10">
+      </p></div>
+      <div class="tier"><h3>Better: repair plus</h3><p>
+      <label for="betterhours">On-site hours</label><input type="number" id="betterhours" value="2.5" min="0" step="0.25">
+      <label for="betterparts">Parts cost ($)</label><input type="number" id="betterparts" value="520" min="0" step="10">
+      </p></div>
+      <div class="tier"><h3>Best: replace</h3><p>
+      <label for="besthours">On-site hours</label><input type="number" id="besthours" value="8" min="0" step="0.25">
+      <label for="bestparts">Equipment and materials cost ($)</label><input type="number" id="bestparts" value="5200" min="0" step="100">
+      </p></div>
+    </div>
+    <p class="note">Who chooses what. Of customers who approve work, the shares below must add up to 100. These are your assumptions: replace them with counts from a month of your own tickets.</p>
+    <p>
+      <label for="mixgood">Choose Good (%)</label><input type="number" id="mixgood" value="50" min="0" step="5">
+      <label for="mixbetter">Choose Better (%)</label><input type="number" id="mixbetter" value="35" min="0" step="5">
+      <label for="mixbest">Choose Best (%)</label><input type="number" id="mixbest" value="15" min="0" step="5">
+      <label for="declinepct">Calls ending at the diagnostic fee (%)</label><input type="number" id="declinepct" value="20" min="0" step="5" max="100">
+    </p>
+    <p>
+      <button type="button" id="go">Price the call</button>
+      <button type="button" class="secondary" id="load-example">Load a no-cooling call with a mostly Good mix</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+      <button type="button" class="secondary" id="copylink">Copy share link</button>
+    </p>
+    <p class="note" id="status" role="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>Your three options</h2>
+    <div class="hero" id="hero"></div>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Good</th><th>Better</th><th>Best</th></tr></thead>
+      <tbody id="tier-rows"></tbody>
+    </table></div>
+    <h3>Cost, diagnostic fee and the average call</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Value</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>If more customers choose Best</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Choose Best</th><th>Choose Good</th><th>Average ticket</th><th>Average profit per call</th><th>Profit per hour of your time</th></tr></thead>
+      <tbody id="mix-rows"></tbody>
+    </table></div>
+    <h3>If more customers decline</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Calls ending at the diagnostic fee</th><th>Average ticket</th><th>Average profit per call</th></tr></thead>
+      <tbody id="decline-rows"></tbody>
+    </table></div>
+    <h3>Parts and equipment markup, slice by slice (Best)</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Cost slice</th><th>Amount</th><th>Markup</th><th>Markup $</th></tr></thead>
+      <tbody id="slice-rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>4. Price-book builder</h2>
+    <p class="note">Each row is a call type priced at all three options with the shop numbers and markup tiers above. The starting rows are invented examples; replace them with your own call types and hours.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Call type</th><th>Good h</th><th>Good parts $</th><th>Better h</th><th>Better parts $</th><th>Best h</th><th>Best parts $</th><th>Good</th><th>Better</th><th>Best</th><th></th></tr></thead>
+      <tbody id="book-rows"></tbody>
+    </table></div>
+    <p>
+      <button type="button" class="secondary" id="addjob">Add a call type</button>
+      <button type="button" id="exportcsv">Download price book (CSV)</button>
+      <button type="button" class="secondary" id="copycsv">Copy CSV</button>
+    </p>
+    <p class="note" id="book-status" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="how-to-price-hvac-good-better-best-repairs.html">How to price Good, Better and Best HVAC repairs</a> and <a href="vs-quoting-one-repair-price.html">this calculator vs. quoting one repair price</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price Good, Better and Best HVAC repair options?</h3>
+    <p>Price each option the same way: your true cost per billable hour times its hours including the drive, divided by one minus your target margin, plus parts or equipment at a tiered markup, grossed up for a callback reserve and rounded up. On the default numbers that gives $745.00 for Good, $1,480.00 for Better and $8,890.00 for Best. Enter your own figures; the defaults are invented.</p>
+    <h3>What is my true cost per hour as an HVAC contractor?</h3>
+    <p>Your loaded wage spread over the hours you can actually bill, plus van, insurance, tools and overhead over the same hours. On the defaults that is $78.00 for wages and burden plus $35.00 for van, insurance, tools and overhead, $113.00 for every billable hour, because only 1,200 of 2,080 paid hours are sold.</p>
+    <h3>What should an HVAC diagnostic fee cover?</h3>
+    <p>At least the drive and the time on site to find the fault, at true cost and your margin. On the defaults that is 1.5 hours, $169.50 of cost and a $265.00 fee, which many shops credit against the repair the customer approves.</p>
+    <h3>How much does offering three options add to an average call?</h3>
+    <p>On the defaults, with 50, 35 and 15 percent of approvals choosing Good, Better and Best and 20 percent of calls ending at the diagnostic fee, an average call earns $580.14 against $249.82 when only the Good repair is offered, a gain of $330.32. Your mix and decline rate are assumptions to replace with your own ticket counts.</p>
+    <h3>Is this advice or a price guide?</h3>
+    <p>No. It does arithmetic on the numbers you type. Prices, costs and hours are yours to check, nothing is uploaded, and it is not business, tax, legal or licensing advice. Check your local licensing, refrigerant-handling and written-estimate rules.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, tax, legal, licensing or mechanical-code advice, it is not a market price or a price guide, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the accuracy of the numbers you enter, and for meeting any licensing, refrigerant-handling, estimate or consumer-pricing rule that applies to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any HVAC trade association, licensing board, equipment manufacturer, supplier or software vendor; names are used only to say what the tool is about.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. Export your price book as CSV if you want to keep it.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. The share link puts your inputs in the address fragment, which is not sent to any server. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>, <code>pricebook_exported</code>, <code>share_link_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../hvac-maintenance-contract-calculator/">HVAC Maintenance Contract Calculator</a>, <a href="../appliance-repair-quote-calculator/">Appliance Repair Quote Calculator</a>, <a href="../plumber-flat-rate-price-calculator/">Plumber Flat-Rate Price Calculator</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULTS, DEFAULT_TIERS, TIER_KEYS, TIER_NAMES, priceCall, priceBook, toCsv, summarize, money, pct, INPUT_NOTES, encodeShare, decodeShare } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    // field id on the page -> engine option name
+    const FIELDS = {
+      wage: "wage", burdenpct: "burdenPct", paidhours: "paidHours", billablehours: "billableHours", truckyear: "truckYear",
+      insuranceyear: "insuranceYear", toolsyear: "toolsYear", overheadyear: "overheadYear", travelhours: "travelHours",
+      diaghours: "diagHours", targetmarginpct: "targetMarginPct", reservepct: "reservePct", roundto: "roundTo",
+      goodhours: "goodHours", goodparts: "goodParts", betterhours: "betterHours", betterparts: "betterParts",
+      besthours: "bestHours", bestparts: "bestParts", mixgood: "mixGood", mixbetter: "mixBetter", mixbest: "mixBest", declinepct: "declinePct",
+    };
+    const options = () => Object.fromEntries(Object.entries(FIELDS).map(([id, key]) => [key, $("#" + id).value]));
+    const tiers = () => [
+      { upTo: $("#tier1up").value, markupPct: $("#tier1pct").value },
+      { upTo: $("#tier2up").value, markupPct: $("#tier2pct").value },
+      { upTo: $("#tier3up").value, markupPct: $("#tier3pct").value },
+      { upTo: null, markupPct: $("#tier4pct").value },
+    ];
+    const setTiers = (t) => {
+      ["1", "2", "3"].forEach((n, i) => { $("#tier" + n + "up").value = t[i].upTo; $("#tier" + n + "pct").value = t[i].markupPct; });
+      $("#tier4pct").value = t[3].markupPct;
+    };
+    const round2 = (v) => Math.round(v * 100) / 100;
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = priceCall(options(), tiers());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#hero").textContent = TIER_KEYS.map((k) => money(r.tiers[k].price)).join(" · ");
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      const row = (label, f) => `<tr><td>${escapeHtml(label)}</td>${TIER_KEYS.map((k) => `<td>${f(r.tiers[k])}</td>`).join("")}</tr>`;
+      $("#tier-rows").innerHTML = [
+        row("Hours (on site plus travel)", (t) => String(t.hours)),
+        row("Time cost", (t) => money(t.timeCost)),
+        row("Time charge at your margin", (t) => money(t.timeCharge)),
+        row("Parts or equipment cost", (t) => money(t.partsCost)),
+        row("Markup (effective)", (t) => `${money(t.markup.markup)} (${pct(t.markup.effectivePct)})`),
+        row("Price before the reserve and rounding", (t) => money(t.exact)),
+        row("Price (rounded up)", (t) => `<strong>${money(t.price)}</strong>`),
+        row("Due after the diagnostic fee is credited", (t) => money(t.netDue)),
+        row("Your cost", (t) => money(t.cost)),
+        row("Callback reserve", (t) => money(t.reserve)),
+        row("Profit after the reserve", (t) => money(t.profit)),
+        row("Margin on the price", (t) => pct(t.marginPct)),
+        row("Profit per hour of your time", (t) => money(t.profitPerHour)),
+        row("Hours at which the labour is no longer covered", (t) => String(round2(t.breakEvenHours))),
+      ].join("");
+      $("#totals-rows").innerHTML = [
+        ["True cost per billable hour", money(r.hourly.perHour)],
+        ["Wages and burden per billable hour", money(r.hourly.labourPerHour)],
+        ["Van, insurance, tools and overhead per billable hour", money(r.hourly.overheadPerHour)],
+        ["Diagnostic visit (" + r.diag.hours + " hours) cost", money(r.diag.cost)],
+        ["Diagnostic fee", money(r.diag.fee)],
+        ["Average ticket per call", money(r.expected.ticket)],
+        ["Average profit per call", money(r.expected.profit)],
+        ["Average profit per call, Good only", money(r.goodOnly.profit)],
+        ["Gained by offering three options", money(r.liftVsGoodOnly)],
+        ["Added by each 10 points of approvals moving from Good to Best", money(r.shiftTenToBest)],
+      ].map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${v}</td></tr>`).join("");
+      $("#mix-rows").innerHTML = r.sensitivity.map((x) => `<tr><td>${x.bestShare}%</td><td>${x.goodShare}%</td><td>${money(x.ticket)}</td><td>${money(x.profit)}</td><td>${money(x.profitPerHour)}</td></tr>`).join("");
+      $("#decline-rows").innerHTML = r.declineSens.map((x) => `<tr><td>${x.declinePct}%</td><td>${money(x.ticket)}</td><td>${money(x.profit)}</td></tr>`).join("");
+      const sl = r.tiers.best.markup.slices;
+      $("#slice-rows").innerHTML = sl.length
+        ? sl.map((x) => `<tr><td>${money(x.from)} to ${money(x.to)}</td><td>${money(x.amount)}</td><td>${x.markupPct}%</td><td>${money(x.markup)}</td></tr>`).join("")
+        : `<tr><td colspan="4">No equipment on the Best option.</td></tr>`;
+      $("#result-card").hidden = false;
+      renderBook();
+      record("calculate_run");
+    }
+
+    // Price book
+    const seed = [
+      { name: "No cooling", goodHours: 1.5, goodParts: 180, betterHours: 2.5, betterParts: 520, bestHours: 8, bestParts: 5200 },
+      { name: "Furnace will not ignite", goodHours: 1, goodParts: 90, betterHours: 2, betterParts: 380, bestHours: 7, bestParts: 3400 },
+      { name: "Frozen evaporator coil", goodHours: 2, goodParts: 60, betterHours: 4, betterParts: 900, bestHours: 8, bestParts: 5200 },
+    ];
+    const F = ["goodHours", "goodParts", "betterHours", "betterParts", "bestHours", "bestParts"];
+    const rowHtml = (j) => `<tr data-job><td><input type="text" data-f="name" value="${escapeHtml(j.name)}" aria-label="Call type"></td>${F.map((f) => `<td><input type="number" data-f="${f}" value="${escapeHtml(j[f])}" min="0" step="${/Hours/.test(f) ? "0.25" : "10"}" aria-label="${escapeHtml(f.replace(/([A-Z])/g, " $1").toLowerCase())}"></td>`).join("")}<td data-p="good"></td><td data-p="better"></td><td data-p="best"></td><td><button type="button" class="secondary" data-remove>Remove</button></td></tr>`;
+    $("#book-rows").innerHTML = seed.map(rowHtml).join("");
+    const readJobs = () => [...document.querySelectorAll("#book-rows tr[data-job]")].map((tr) => Object.fromEntries([...tr.querySelectorAll("input")].map((i) => [i.dataset.f, i.value])));
+    function renderBook() {
+      const trs = [...document.querySelectorAll("#book-rows tr[data-job]")];
+      const b = $("#book-status");
+      try {
+        const rows = priceBook(readJobs(), options(), tiers());
+        trs.forEach((tr, i) => TIER_KEYS.forEach((k) => { tr.querySelector(`[data-p="${k}"]`).textContent = money(rows[i][k + "Price"]); }));
+        b.textContent = "";
+        return rows;
+      } catch (e) {
+        b.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return null;
+      }
+    }
+    $("#book-rows").addEventListener("input", renderBook);
+    $("#book-rows").addEventListener("click", (e) => {
+      if (e.target.matches("[data-remove]")) { e.target.closest("tr").remove(); renderBook(); }
+    });
+    $("#addjob").addEventListener("click", () => {
+      $("#book-rows").insertAdjacentHTML("beforeend", rowHtml({ name: "", goodHours: 1, goodParts: 0, betterHours: 2, betterParts: 0, bestHours: 6, bestParts: 0 }));
+      renderBook();
+    });
+    $("#exportcsv").addEventListener("click", () => {
+      const rows = renderBook();
+      if (!rows) return;
+      const blob = new Blob([toCsv(rows)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "hvac-price-book.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      record("pricebook_exported");
+    });
+    $("#copycsv").addEventListener("click", async () => {
+      const rows = renderBook();
+      if (!rows) return;
+      try { await navigator.clipboard.writeText(toCsv(rows)); $("#book-status").textContent = "CSV copied."; record("pricebook_exported"); } catch { $("#book-status").textContent = "Could not copy; use the download button."; }
+    });
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#goodhours").value = 1.5; $("#goodparts").value = 180; $("#mixgood").value = 70; $("#mixbetter").value = 25; $("#mixbest").value = 5;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#copylink").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(options(), tiers());
+      try { await navigator.clipboard.writeText(url); $("#status").textContent = "Share link copied. Your inputs are in the link after the #, which is not sent to any server."; record("share_link_copied"); } catch { $("#status").textContent = "Could not copy the link."; }
+    });
+    // Restore a shared link: only the numeric fields this page declares are read.
+    (() => {
+      const d = decodeShare(location.hash);
+      for (const [id, key] of Object.entries(FIELDS)) if (d.inputs[key] !== undefined) $("#" + id).value = d.inputs[key];
+      if (d.tiers) setTiers(d.tiers);
+      if (Object.keys(d.inputs).length || d.tiers) render();
+    })();
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+    renderBook();
+  </script>
+</body>
+</html>

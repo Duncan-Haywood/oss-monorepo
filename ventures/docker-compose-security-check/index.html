@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Compose Security Check — Find privileged, docker.sock and Exposed Ports</title>
+  <meta name="description" content="Paste your docker-compose.yml and find risky settings: privileged: true, docker.sock mounts, network_mode host, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets, :latest images. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="What is your docker-compose.yml handing to the host?">
+  <meta property="og:description" content="Paste your compose file and get every risky setting with its line, the risk and the exact fix.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Docker Compose Security Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A heuristic line scan of a docker-compose.yml for risky settings: privileged containers, the Docker socket mounted, host networking, dangerous capabilities, databases published on every interface, literal secrets, unpinned images and unconfined security options. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What makes a docker-compose.yml risky?","acceptedAnswer":{"@type":"Answer","text":"Settings that hand a container the host or leak a credential: privileged: true, the Docker socket mounted in, network_mode: host, cap_add ALL or SYS_ADMIN, host paths such as / or /etc bind-mounted, seccomp or AppArmor switched off, shared host pid or ipc namespaces, a database port published on every interface, and passwords written as literal environment values. Any one of them can turn a bug in one container into control of the machine."}},{"@type":"Question","name":"Why is mounting /var/run/docker.sock dangerous?","acceptedAnswer":{"@type":"Answer","text":"Anything that can talk to the Docker socket can start a new privileged container with the host filesystem mounted, which is root on the host. Mounting it read-only does not help, because the API is still fully usable. If a tool needs Docker, put a socket proxy that allows only the endpoints it needs in front of it."}},{"@type":"Question","name":"Why does a database port published on 0.0.0.0 matter?","acceptedAnswer":{"@type":"Answer","text":"A ports entry such as \"5432:5432\" binds the host's every interface, so the database is reachable from the whole network, and Docker's own firewall rules bypass ufw and similar tools. Bind it to loopback with \"127.0.0.1:5432:5432\", or publish nothing and let other services reach it by service name."}},{"@type":"Question","name":"Does this tool send my compose file anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. The file you paste is scanned in this page and never leaves your device, and secret values are never printed in the results."}},{"@type":"Question","name":"Does a clean scan mean my stack is safe?","acceptedAnswer":{"@type":"Answer","text":"No. This is a heuristic line scan, not a security audit. It reads only the patterns listed here, does not expand anchors, extends, includes or variables, and cannot judge your images, host, firewall or secrets handling. Have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill { background: #fde8e8; color: #9a3412; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOCKER COMPOSE SECURITY CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>What is your docker-compose.yml handing to the host?</h1>
+    <p>One <code>privileged: true</code>, a mounted <code>docker.sock</code>, <code>network_mode: host</code> or a database published on <code>0.0.0.0</code> can turn a bug in one container into control of the machine. Paste your own compose file below and this page lists each risky setting with its line, the risk, and the exact fix.</p>
+    <p class="note">Nothing is uploaded. The file you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a heuristic line scan, not a security audit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your compose file</h2>
+    <p class="note">Paste the contents of your own <code>docker-compose.yml</code> or <code>compose.yaml</code>. Add more blocks for override files. Give each block its real file name so findings point at the right file.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one compose file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Risk</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                       # scan compose files under the current directory
+python3 check.py compose.yaml deploy/  # scan specific files or directories
+python3 check.py --format json         # machine-readable
+python3 check.py --fail-on-risk        # exit 2 on any medium or high finding</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. It finds <code>docker-compose*.yml</code> and <code>compose*.yaml</code> files and skips <code>node_modules</code>, <code>vendor</code>, <code>.git</code> and build folders.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What makes a docker-compose.yml risky?</h3>
+    <p>Settings that hand a container the host or leak a credential: privileged: true, the Docker socket mounted in, network_mode: host, cap_add ALL or SYS_ADMIN, host paths such as / or /etc bind-mounted, seccomp or AppArmor switched off, shared host pid or ipc namespaces, a database port published on every interface, and passwords written as literal environment values. Any one of them can turn a bug in one container into control of the machine.</p>
+    <h3>Why is mounting /var/run/docker.sock dangerous?</h3>
+    <p>Anything that can talk to the Docker socket can start a new privileged container with the host filesystem mounted, which is root on the host. Mounting it read-only does not help, because the API is still fully usable. If a tool needs Docker, put a socket proxy that allows only the endpoints it needs in front of it.</p>
+    <h3>Why does a database port published on 0.0.0.0 matter?</h3>
+    <p>A ports entry such as "5432:5432" binds the host's every interface, so the database is reachable from the whole network, and Docker's own firewall rules bypass ufw and similar tools. Bind it to loopback with "127.0.0.1:5432:5432", or publish nothing and let other services reach it by service name.</p>
+    <h3>Does this tool send my compose file anywhere?</h3>
+    <p>No. It makes no network calls at all. The file you paste is scanned in this page and never leaves your device, and secret values are never printed in the results.</p>
+    <h3>Does a clean scan mean my stack is safe?</h3>
+    <p>No. This is a heuristic line scan, not a security audit. It reads only the patterns listed here, does not expand anchors, extends, includes or variables, and cannot judge your images, host, firewall or secrets handling. Have a qualified person review anything that protects valuable data.</p>
+    <p>More: <a href="what-is-docker-compose-security.html">what makes a docker-compose.yml risky, and how do you fix each setting?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a heuristic line scan, not a security audit, a penetration test or a guarantee that your containers are isolated, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The file you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same stack: <a href="../docker-build-secrets-check/">Docker Build Secrets Check</a> finds secrets baked into image builds, <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> finds unpinned base images in Dockerfiles, and <a href="../k8s-resource-limits-check/">Kubernetes Resource Limits Check</a> covers the same kind of settings for Kubernetes manifests.</p>
+    <p>Want this check and 21 others in one pass? <a href="../devsec-toolkit/">devsec-toolkit</a> runs it alongside the rest of the portfolio's devsec checks (GitHub Actions, Docker, Compose, Kubernetes, supply chain, code, AI-agent configs) over a whole repository, with one report, SARIF for code scanning and a baseline so CI fails only on new findings.</p>
+    <p class="support">Free and open source. If this caught an exposed database or a mounted docker socket before an attacker did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "docker-compose.yml",
+        text: `services:
+  web:
+    image: myorg/web:latest
+    privileged: true
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SESSION_SECRET=changeme
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: example
+    restart: unless-stopped
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder="docker-compose.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the compose file here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `docker-compose${i ? i + 1 : ''}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => {
+        return `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill">${f.type}</span> <span class="note">${f.severity}</span></td>
+          <td>${escapeHtml(f.detail ?? "")}</td>
+          <td>${escapeHtml(f.remediation ?? "")}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one compose file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a web service that is privileged, mounts the Docker socket, uses :latest and carries a placeholder secret, and a Postgres service published on every interface with a literal password.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one compose file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

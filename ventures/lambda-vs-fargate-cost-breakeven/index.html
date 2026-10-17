@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lambda vs Fargate Cost Break-Even — When Containers Beat Pay-Per-Request</title>
+  <meta name="description" content="Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where always-on containers become cheaper. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Lambda or Fargate? Find your cost break-even">
+  <meta property="og:description" content="Compare Lambda, Cloud Run, Fargate and EC2 for your workload and see where pay-per-request stops being cheap. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lambda vs Fargate Cost Break-Even", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2 for one workload and find the request volume where always-on containers beat pay-per-request. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS or Google Cloud account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the numbers you type and never contacts a cloud or any server. It cannot see your real invoice, free tier, savings plans or discounts, so every figure is arithmetic on list prices you can edit. This is an estimate, not a bill."}}, {"@type": "Question", "name": "Why does the break-even move so much between workloads?", "acceptedAnswer": {"@type": "Answer", "text": "Pay-per-request platforms charge for every request-second, so cost grows in a straight line with traffic. Always-on platforms charge for a floor of capacity, so cost is flat until traffic outgrows it. Duration, memory and how many requests one container handles at once decide where the lines cross."}}, {"@type": "Question", "name": "What does concurrency mean here?", "acceptedAnswer": {"@type": "Answer", "text": "How many requests one container or task serves at the same time. Lambda runs one request per environment. Cloud Run and Fargate containers usually handle 10 to 80, which is the main reason they get cheaper than Lambda at steady volume."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Free tiers, committed-use and Savings Plans discounts, data transfer, load balancer and NAT costs, cold starts and latency, provisioned concurrency, autoscaling lag, ops time and region differences. Treat the result as a first filter, then check your own bill."}}, {"@type": "Question", "name": "Is what I type uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page does the arithmetic in your browser and never sends the numbers anywhere. The CLI reads local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LAMBDA VS FARGATE COST BREAK-EVEN · RUNS IN YOUR BROWSER</p>
+    <h1>Lambda, Cloud Run, Fargate or EC2: which is cheapest for your traffic?</h1>
+    <p>Enter your <strong>monthly requests</strong>, <strong>average duration</strong>, <strong>memory</strong>, <strong>vCPU</strong> and <strong>concurrency</strong>. Get the monthly cost on each platform, the <strong>cheapest option</strong>, the <strong>request volume where always-on containers beat pay-per-request</strong>, and how the answer shifts at 0.1x to 10x your traffic.</p>
+    <p class="note">Nothing is uploaded and no cloud account is contacted. The numbers are used in this browser and never leave your device. This is an estimate, not a bill.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Describe the workload</h2>
+    <div class="row">
+      <div><label for="req">Requests / month</label><input type="text" id="req" value="10M"></div>
+      <div><label for="dur">Avg duration (ms)</label><input type="number" id="dur" min="0" value="120"></div>
+      <div><label for="mem">Memory (GiB)</label><input type="number" id="mem" min="0" step="0.125" value="0.5"></div>
+      <div><label for="vcpu">vCPU</label><input type="number" id="vcpu" min="0" step="0.25" value="0.25"></div>
+      <div><label for="conc">Concurrency per container</label><input type="number" id="conc" min="1" value="10"></div>
+      <div><label for="peak">Peak / average</label><input type="number" id="peak" min="1" step="0.5" value="4"></div>
+      <div><label for="minT">Always-on floor (tasks)</label><input type="number" id="minT" min="0" value="2"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+    <label for="input">Or paste a workload (key: value lines or JSON)</label>
+    <textarea id="input" spellcheck="false" placeholder="requests: 40M&#10;duration-ms: 180&#10;memory-gib: 0.5&#10;vcpu: 0.25&#10;concurrency: 10"></textarea>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Monthly cost by platform</h3>
+    <table><thead><tr><th>Platform</th><th>$/month</th></tr></thead><tbody id="cost-rows"></tbody></table>
+    <h3>Break-even</h3>
+    <p id="breakeven"></p>
+    <h3>If traffic changes</h3>
+    <div style="overflow-x:auto"><table><thead><tr><th>Traffic</th><th>Requests/month</th><th>Cheapest</th><th>Lambda</th><th>Fargate</th></tr></thead><tbody id="sens-rows"></tbody></table></div>
+    <h3>Findings</h3>
+    <table id="results-table" hidden><thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead><tbody id="results-rows"></tbody></table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prices, editable</h2>
+    <div class="row">
+      <div><label for="p-lmr">Lambda $/M requests</label><input type="number" id="p-lmr" min="0" step="0.01" value="0.2"></div>
+      <div><label for="p-lgs">Lambda $/GiB-second</label><input type="number" id="p-lgs" min="0" step="0.0000001" value="0.0000166667"></div>
+      <div><label for="p-cmr">Cloud Run $/M requests</label><input type="number" id="p-cmr" min="0" step="0.01" value="0.4"></div>
+      <div><label for="p-cvs">Cloud Run $/vCPU-second</label><input type="number" id="p-cvs" min="0" step="0.000001" value="0.000024"></div>
+      <div><label for="p-cgs">Cloud Run $/GiB-second</label><input type="number" id="p-cgs" min="0" step="0.0000001" value="0.0000025"></div>
+      <div><label for="p-fvh">Fargate $/vCPU-hour</label><input type="number" id="p-fvh" min="0" step="0.001" value="0.04048"></div>
+      <div><label for="p-fgh">Fargate $/GiB-hour</label><input type="number" id="p-fgh" min="0" step="0.0001" value="0.004445"></div>
+      <div><label for="p-evh">EC2 $/vCPU-hour</label><input type="number" id="p-evh" min="0" step="0.001" value="0.048"></div>
+    </div>
+    <p class="note">Re-run Compare after editing. Free tiers, Savings Plans, committed-use discounts, data transfer, load balancers and NAT are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command:</p>
+    <pre class="cmd">node cli.mjs compare --requests 20M --duration-ms 120 --memory 0.5 --vcpu 0.25 --concurrency 10
+node cli.mjs compare workload.txt --json
+node cli.mjs breakeven --duration-ms 300 --memory 1 --concurrency 1
+node cli.mjs compare workload.txt --expect fargate     # exit 1 when another platform is cheapest</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="lambda-vs-fargate-vs-cloud-run-cost.html">Lambda vs Fargate vs Cloud Run: what each actually costs</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table><thead><tr><th>Input</th><th>Handling</th></tr></thead><tbody id="patterns-rows"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my AWS or Google Cloud account?</h3>
+    <p>No. It reads the numbers you type and never contacts a cloud or any server. It cannot see your real invoice, free tier, savings plans or discounts, so every figure is arithmetic on list prices you can edit. This is an estimate, not a bill.</p>
+    <h3>Why does the break-even move so much between workloads?</h3>
+    <p>Pay-per-request platforms charge for every request-second, so cost grows in a straight line with traffic. Always-on platforms charge for a floor of capacity, so cost is flat until traffic outgrows it. Duration, memory and how many requests one container handles at once decide where the lines cross.</p>
+    <h3>What does concurrency mean here?</h3>
+    <p>How many requests one container or task serves at the same time. Lambda runs one request per environment. Cloud Run and Fargate containers usually handle 10 to 80, which is the main reason they get cheaper than Lambda at steady volume.</p>
+    <h3>What does this leave out?</h3>
+    <p>Free tiers, committed-use and Savings Plans discounts, data transfer, load balancer and NAT costs, cold starts and latency, provisioned concurrency, autoscaling lag, ops time and region differences. Treat the result as a first filter, then check your own bill.</p>
+    <h3>Is what I type uploaded anywhere?</h3>
+    <p>No. The page does the arithmetic in your browser and never sends the numbers anywhere. The CLI reads local files and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It does arithmetic on numbers you type and list prices that change; it is an estimate, not a bill, and not a guarantee of what any cloud will charge. Free tiers, discounts, data transfer, latency and cold starts are not modelled, and you are responsible for checking its output against your own bill before moving a workload. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. AWS, Lambda, Fargate, EC2, Google Cloud and Cloud Run are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../lambda-memory-rightsizer/">Lambda Memory Rightsizer</a> picks the cheapest Lambda memory size, <a href="../k8s-requests-rightsizer/">Kubernetes Requests Rightsizer</a> right-sizes container requests, and <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, breakEven, sensitivity, findings, summarize, parseInput, fmtUsd, fmtVolume, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const FIELDS = { requestsPerMonth: "#req", durationMs: "#dur", memoryGib: "#mem", vcpu: "#vcpu", concurrency: "#conc", peakRatio: "#peak", minTasks: "#minT" };
+    const PRICE_FIELDS = { lambdaPerMReq: "#p-lmr", lambdaPerGibSec: "#p-lgs", cloudRunPerMReq: "#p-cmr", cloudRunPerVcpuSec: "#p-cvs", cloudRunPerGibSec: "#p-cgs", fargatePerVcpuHour: "#p-fvh", fargatePerGibHour: "#p-fgh", ec2PerVcpuHour: "#p-evh" };
+
+    function volume(text) {
+      const m = /^\s*([0-9.,_]+)\s*(k|m|b)?\s*$/i.exec(text);
+      if (!m) return NaN;
+      return Number(m[1].replace(/[,_]/g, "")) * ({ k: 1e3, m: 1e6, b: 1e9 }[(m[2] || "").toLowerCase()] || 1);
+    }
+
+    function applyPasted() {
+      const parsed = parseInput($("#input").value);
+      for (const [k, sel] of Object.entries(FIELDS)) if (parsed[k] !== undefined) $(sel).value = k === "requestsPerMonth" ? String(parsed[k]) : parsed[k];
+    }
+
+    function renderReport() {
+      if ($("#input").value.trim()) applyPasted();
+      const input = {};
+      const req = volume($("#req").value);
+      if (!Number.isFinite(req) || req < 0) { $("#status").innerHTML = `<span class="error">Enter requests per month as a number, e.g. 10M or 250000.</span>`; return; }
+      input.requestsPerMonth = req;
+      for (const [k, sel] of Object.entries(FIELDS)) if (k !== "requestsPerMonth") input[k] = Number($(sel).value);
+      const prices = {};
+      for (const [k, sel] of Object.entries(PRICE_FIELDS)) prices[k] = Number($(sel).value);
+      $("#status").textContent = "";
+      const report = compare(input, prices);
+      const { status, text } = summarize(report);
+      $("#summary").innerHTML = `<span class="${status === "ok" ? "ok" : "error"}">${escapeHtml(text)}</span>`;
+      $("#cost-rows").innerHTML = report.ranked.map((r) => `<tr><td>${r.name}${r.name === report.cheapest ? ' <span class="pill info">cheapest</span>' : ""}</td><td>${fmtUsd(r.total)}</td></tr>`).join("");
+      const be = breakEven(input, prices);
+      $("#breakeven").textContent = be.volume ? `Fargate becomes cheaper than Lambda at about ${fmtVolume(be.volume)} requests per month with these settings.` : be.note;
+      $("#sens-rows").innerHTML = sensitivity(input, prices).map((s) => `<tr><td>${s.multiplier}x</td><td>${fmtVolume(s.requestsPerMonth)}</td><td>${s.cheapest}</td><td>${fmtUsd(s.totals.lambda)}</td><td>${fmtUsd(s.totals.fargate)}</td></tr>`).join("");
+      const fs = findings(report);
+      $("#results-table").hidden = fs.length === 0;
+      $("#results-rows").innerHTML = fs.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      $("#estimate").textContent = `An estimate, not a bill. ${PRICES_AS_OF}.`;
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `requests: 400M
+duration-ms: 180
+memory-gib: 0.5
+vcpu: 0.25
+concurrency: 20
+peak-ratio: 4
+min-tasks: 2`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#input").value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

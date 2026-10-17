@@ -1,0 +1,57 @@
+name: home-sale-net-proceeds-calculator
+description: >-
+  Free browser tool for people selling a home: a seller net sheet with cash at
+  closing, an estimated capital gains tax with the home sale exclusion, the
+  list price needed to net a target, and a net-proceeds comparison of offers
+  with different concessions. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: nearest
+# neighbour estate-sale-net-proceeds-calculator (0.36, different seller: estate
+# liquidation), no home-sale net sheet venture and no screened-out row.
+#
+# Why this niche: "net proceeds from selling a house", "seller net sheet" and
+# "how much will I make selling my house" are high-intent searches by people
+# with a five or six figure decision. Agent net sheets are lead capture forms
+# and rarely include the capital gains estimate or run backwards from a target
+# (search volume not measured with an external tool; competitor coverage not
+# verified exhaustively). Since the 2024 commission rule changes sellers
+# negotiate buyer-agent pay, which makes the cost side newly worth modelling.
+#
+# First visitor: personal-finance and home-selling communities, and anyone
+# comparing offers where concessions muddy the headline price.
+#
+# Liability boundary: arithmetic on user-typed numbers, tax year 2026 federal
+# figures, flat state rate typed by the user. No advice, no brokerage or lender
+# data. Says so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# front end for a referral or a tax-prep checklist later.
+
+hypotheses:
+  - claim: >-
+      Home sellers will enter a real or draft offer into a no-signup tool to
+      see net proceeds including tax, and will share or save the result when
+      the list-price-for-target figure or an offer comparison changes a decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a closing-cash figure that disagrees with their closing disclosure by more than the costs they left blank.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-sale-net-proceeds-calculator/
+  analytics: null

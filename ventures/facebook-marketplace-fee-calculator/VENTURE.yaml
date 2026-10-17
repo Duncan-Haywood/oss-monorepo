@@ -1,0 +1,36 @@
+name: facebook-marketplace-fee-calculator
+description: A private browser calculator for Facebook Marketplace sellers that prices one sale against the current, corroborated fee schedule -- 10% of the buyer-paid total (item price, buyer-paid shipping, and any sales tax Facebook collected) on a shipped checkout order, with an $0.80 minimum fee, and $0 for a local pickup sale -- plus the flat $20 chargeback penalty a disputed shipped order can carry, profit after item and shipping-label cost, and the item price needed to hit a target profit. Correctly handles the minimum-fee floor, where the relationship between price and fee stops being a flat percentage below an $8 buyer-paid total.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Facebook Marketplace sellers will use a calculator that keeps the shipped-order 10% rate, its $0.80 minimum, and the $0 local-pickup fee explicit and current, because the rate has changed more than once in the last two years and a lot of what is written about it online is already stale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers who assume a flat percentage with no floor will be surprised by the $0.80 minimum on a small shipped sale, and will return to a tool that flags when the minimum -- not the percentage -- is the binding fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The search phrases "facebook marketplace fee calculator", "facebook marketplace seller fees", and "does facebook marketplace charge a fee", plus r/FacebookMarketplace and general reselling subreddits, are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap. Several independent third-party sites already rank for these terms with inconsistent rates, which is itself evidence of real, unmet search demand.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Facebook Marketplace sellers run a real sale twice within 90 days of the tool being discoverable.
+  - Facebook changes its published fee schedule again and the calculator's fixed constants no longer match a real payout statement.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/
+  analytics: null

@@ -233,3 +233,18 @@ test('index links one hop to the ai-engineering-academy electronics tools', () =
     'index must link ../ai-engineering-academy/ so crawlers reach the electronics calculators in one hop',
   );
 });
+
+// Reciprocal sibling link with `studio-class-slot-optimizer`, which would
+// otherwise be a crawlable orphan (platform/pages/siblings.mjs).
+test('index links one hop to the studio class slot optimizer', () => {
+  assert.match(html, /href="\.\.\/studio-class-slot-optimizer\/"/);
+});
+
+test('G-code import is wired: labelled file input, local parser, counted, never uploaded', () => {
+  assert.match(html, /import \{ parseGcode \} from '\.\/gcode\.mjs'/);
+  assert.match(html, /<label>Import grams and print time[^<]*<input id="gcodeFile" type="file"/);
+  assert.match(html, /id="gcodeStatus" class="note" role="status" aria-live="polite"/);
+  assert.match(html, /recordEvent\('gcode_imported'\)/);
+  assert.match(html, /<code>gcode_imported<\/code>/);
+  assert.match(html, /the file is never uploaded/);
+});

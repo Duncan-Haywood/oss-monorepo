@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chiropractor New Patient ROI Calculator — Cost per Patient & Lifetime Value, Free</title>
+  <meta name="description" content="Free chiropractor new patient ROI calculator: cost to acquire a patient, patient lifetime value by segment, payback in visits, and the most you can spend per lead. Works for physical therapy and wellness clinics. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Chiropractor New Patient ROI Calculator — free">
+  <meta property="og:description" content="What does a new patient cost you, and what are they worth? Marketing spend and leads in, cost per patient, lifetime value and payback out. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Chiropractor New Patient ROI Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for chiropractic, physical therapy and wellness clinics: cost per new patient, lifetime value by patient segment, ROI on marketing spend, payback in visits and the maximum cost per lead. Entirely client-side; nothing is uploaded.", "featureList": "cost per new patient, patient lifetime value, marketing ROI, payback visits, maximum cost per lead, monthly profit"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good cost to acquire a new chiropractic patient?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what a patient is worth. Multiply the visits a new patient completes by what you collect per visit, subtract the cost of delivering those visits, and that margin is the most you can spend. Many clinics aim to spend no more than a quarter to a third of it; the calculator shows the ceiling for the return you choose."}}, {"@type": "Question", "name": "How do I calculate chiropractic patient lifetime value?", "acceptedAnswer": {"@type": "Answer", "text": "Take the visits in a typical episode of care, multiply by the amount actually collected per visit after insurance write-offs and unpaid balances, add the new-patient exam, then subtract the per-visit cost of delivering care. Do it per patient type, since cash care-plan, insurance and injury patients differ."}}, {"@type": "Question", "name": "What is a good show rate for new chiropractic patients?", "acceptedAnswer": {"@type": "Answer", "text": "Show rate is the share of booked first visits that attend. Below about 70 percent, reminders and a confirmation call usually cost less than the marketing needed to replace the missed visits, because attended patients lower acquisition cost without extra spend."}}, {"@type": "Question", "name": "Does this work for physical therapy, acupuncture or massage clinics?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Any practice that wins new patients through paid or organic leads, sees them for a course of visits and collects a per-visit amount can use the same segments: name, share of new patients, visits, collected per visit and cost per visit."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you enter. It is not accounting, tax, legal or medical advice, and it does not tell you how to treat or what to charge a patient."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .rank td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHIROPRACTOR NEW PATIENT ROI CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a new patient cost you, and what are they worth?</h1>
+    <p>Enter your monthly marketing spend and lead funnel, then describe your patient types: how many visits they complete and what you collect per visit.
+    You get the <strong>cost to acquire a patient</strong>, the <strong>value of a patient</strong>, the <strong>return on your spend</strong>, <strong>payback in visits</strong> and <strong>the most you can pay per lead</strong>.</p>
+    <p class="note">Built for chiropractors, and equally usable for physical therapy, acupuncture and massage clinics. Nothing is uploaded; your numbers never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your funnel</h2>
+    <div class="grid">
+      <div><label for="spend">Monthly marketing spend ($)</label>
+        <input type="number" id="spend" min="0" step="1" placeholder="e.g. 3000"></div>
+      <div><label for="leads">Leads per month (calls, forms, messages)</label>
+        <input type="number" id="leads" min="0" step="1" placeholder="e.g. 100"></div>
+      <div><label for="booked">Leads who book a first visit (%)</label>
+        <input type="number" id="booked" min="0" max="100" step="1" value="60" placeholder="60"></div>
+      <div><label for="show">Booked patients who show up (%)</label>
+        <input type="number" id="show" min="0" max="100" step="1" value="80" placeholder="80"></div>
+      <div><label for="extra">New-patient exam and X-ray collected, extra ($)</label>
+        <input type="number" id="extra" min="0" step="1" value="0" placeholder="e.g. 100"></div>
+      <div><label for="target-roi">Target return on each patient (%)</label>
+        <input type="number" id="target-roi" min="0" step="10" value="300" placeholder="300"></div>
+      <div><label for="fixed">Other monthly marketing or staff cost (optional, $)</label>
+        <input type="number" id="fixed" min="0" step="1" placeholder="e.g. 1500"></div>
+    </div>
+    <p class="note">Spend includes ads, agency fees, directory listings and the cost of anything you pay to generate leads. Collected means money actually received after insurance write-offs and unpaid balances.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your patient types</h2>
+    <label for="segments">One per line: name, share of new patients (%), visits per patient, collected per visit, cost per visit</label>
+    <textarea id="segments" rows="6" placeholder="Cash care plan, 50, 24, 55, 18&#10;Insurance, 35, 12, 45, 18&#10;Injury claim, 15, 20, 110, 25"></textarea>
+    <p class="note">Cost per visit is what delivering one visit costs you: provider time, supplies and room share. Shares are relative, so 50, 35, 15 and 5, 3.5, 1.5 give the same answer. You can paste rows from a spreadsheet (tab separated).</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your funnel and at least one patient type, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <h3>Per patient type</h3>
+    <table><thead><tr><th>Patient type</th><th>Share</th><th>Revenue</th><th>Delivery cost</th><th>Margin</th></tr></thead><tbody id="segment-table" class="rank"></tbody></table>
+    <h3>Funnel and return</h3>
+    <table><tbody id="month-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Referrals and word of mouth.</strong> Patients who arrive free lower your true cost; enter only paid leads to see the paid channel on its own.</li>
+      <li><strong>Reactivations and maintenance plans</strong> beyond the visits you enter per patient.</li>
+      <li><strong>Insurance denials and timing.</strong> Enter the amount you actually collect, not the billed amount.</li>
+      <li><strong>Clinical appropriateness.</strong> Margin is never a reason to recommend a number of visits. Care plans belong to the treating clinician and the patient.</li>
+      <li><strong>Taxes and owner pay.</strong> Everything is before income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good cost to acquire a new chiropractic patient?</h3>
+    <p>It depends on what a patient is worth. Multiply the visits a new patient completes by what you collect per visit, subtract the cost of delivering those visits, and that margin is the most you can spend. Many clinics aim to spend no more than a quarter to a third of it; the calculator shows the ceiling for the return you choose.</p>
+    <h3>How do I calculate chiropractic patient lifetime value?</h3>
+    <p>Take the visits in a typical episode of care, multiply by the amount actually collected per visit after insurance write-offs and unpaid balances, add the new-patient exam, then subtract the per-visit cost of delivering care. Do it per patient type, since cash care-plan, insurance and injury patients differ.</p>
+    <h3>What is a good show rate for new chiropractic patients?</h3>
+    <p>Show rate is the share of booked first visits that attend. Below about 70 percent, reminders and a confirmation call usually cost less than the marketing needed to replace the missed visits, because attended patients lower acquisition cost without extra spend.</p>
+    <h3>Does this work for physical therapy, acupuncture or massage clinics?</h3>
+    <p>Yes. Any practice that wins new patients through paid or organic leads, sees them for a course of visits and collects a per-visit amount can use the same segments: name, share of new patients, visits, collected per visit and cost per visit.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It does arithmetic on the numbers you enter. It is not accounting, tax, legal or medical advice, and it does not tell you how to treat or what to charge a patient.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not medical advice or a substitute for your accountant. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>patients_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Booking and no-shows? The <a href="../appointment-no-show-analyzer/">no-show analyzer</a> and <a href="../appointment-deposit-calculator/">deposit calculator</a> cover the schedule side.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const IDS = ["segments", "spend", "leads", "fixed"];
+    const DEFAULTS = { "booked": "60", "show": "80", "extra": "0", "target-roi": "300" };
+    const els = { status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      segmentTable: $("#segment-table"), monthTable: $("#month-table"), findings: $("#report-findings") };
+    const num = (id) => Number($("#" + id).value) || 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const a = analyse({
+        segments: $("#segments").value, spend: num("spend"), leads: num("leads"), bookedPct: num("booked"),
+        showPct: num("show"), newPatientExtra: num("extra"), targetRoi: num("target-roi"), fixedPerMonth: num("fixed"),
+      });
+      renderFindings(els.findings, a.findings);
+      els.report.hidden = false;
+      if (!a.result) {
+        els.stats.textContent = "";
+        els.segmentTable.innerHTML = els.monthTable.innerHTML = "";
+        return;
+      }
+      const r = a.result;
+      els.stats.innerHTML = r.cac === null
+        ? `A new patient is worth <strong>${money(r.blended.margin)}</strong> in margin. Add leads and spend to see what one costs you.`
+        : `A new patient costs you <strong>${money(r.cac)}</strong> and returns <strong>${money(r.blended.margin)}</strong> in margin: a <strong>${pct(r.roi)}</strong> return, paid back in <strong>${r.paybackVisits === null ? "n/a" : r.paybackVisits.toFixed(1)}</strong> visits.`;
+      els.segmentTable.innerHTML = r.segs.map((s) => `<tr><td>${esc(s.name)}</td><td>${pct(s.weight)}</td><td>${money(s.revenue)}</td><td>${money(s.cost)}</td><td>${money(s.margin)}</td></tr>`).join("");
+      const rows = [
+        ["New patients per month", r.newPatients.toFixed(1)],
+        ["Cost per lead", r.costPerLead === null ? "n/a" : money(r.costPerLead)],
+        ["Cost to acquire a patient", r.cac === null ? "n/a" : money(r.cac)],
+        ["Blended margin per patient", money(r.blended.margin)],
+        ["Return per patient on acquisition cost", pct(r.roi)],
+        ["Most you can pay per patient at your target", money(r.maxCac)],
+        ["Most you can pay per lead at your target", money(r.maxCostPerLead)],
+        ["Monthly margin from new patients", money(r.monthlyMargin)],
+        ["Monthly profit after spend and other cost", money(r.monthlyProfit)],
+      ];
+      els.monthTable.innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      els.status.textContent = "";
+      record("patients_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "spend": "3000", "leads": "100", "booked": "60", "show": "80", "extra": "100", "target-roi": "300", "fixed": "0",
+        "segments": "Cash care plan, 50, 24, 55, 18\nInsurance, 35, 12, 45, 18\nInjury claim, 15, 20, 110, 25" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example with invented numbers: $3,000 of marketing, 100 leads, 60% booking, 80% show rate and three patient types.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of IDS) $("#" + id).value = "";
+      for (const [id, v] of Object.entries(DEFAULTS)) $("#" + id).value = v;
+      els.report.hidden = true;
+      els.status.textContent = "Enter your funnel and at least one patient type, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

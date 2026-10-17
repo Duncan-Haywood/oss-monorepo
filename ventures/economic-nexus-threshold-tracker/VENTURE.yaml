@@ -1,0 +1,150 @@
+name: economic-nexus-threshold-tracker
+description: Free browser tracker for online and multi-channel sellers (Shopify/WooCommerce storefronts plus Amazon, Etsy, eBay, and similar marketplace sellers) that flags which US states' economic-nexus sales-tax-registration thresholds they've crossed, per state, against each state's own published revenue figure ($100k/$250k/$500k) and, where the state pairs one on, its transaction-count test (AND or OR). Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-24. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.11 -- the closest match was the sibling
+# pipeline candidate str-occupancy-tax-calculator (a different tax
+# entirely: per-stay lodging tax remittance, not a sales-volume
+# registration threshold). A grep for "nexus" and "sales tax" across
+# ventures/ and portfolio/pipeline/ found no existing venture on this
+# question; the closest sibling by shape is 1099-k-threshold-checker
+# (a different threshold -- IRS payment-reporting, not state tax
+# registration -- but the same "which of my thresholds have I crossed,
+# per source" mechanism, deliberately reused here).
+#
+# Niche test (PRODUCT_PLAYBOOK.md 1):
+#   Who exactly: independent online sellers (Etsy/Shopify/Amazon/eBay/DTC)
+#     who sell into more than a handful of states and are not yet paying
+#     for an ongoing nexus-monitoring subscription.
+#   What they search: "economic nexus threshold calculator", "when do I
+#     need to register for sales tax in [state]", "economic nexus by
+#     state 2026" -- demonstrated real volume by nine independent
+#     competitor/publisher pages (Avalara, Numeral, TaxCloud, NexusFlag,
+#     TaxesLedger, My Sales Tax Firm, nexusbystate.com, Wikipedia, and
+#     others) all targeting this exact phrase, found via WebSearch
+#     2026-09-24.
+#   What it costs them: a state can assess back tax, penalties, and
+#     interest from the date nexus was established rather than from
+#     discovery, and several states allow personal liability for a
+#     responsible officer on unremitted sales tax -- a missed threshold
+#     is real, retroactive money, not an annoyance.
+#   Why no vendor has solved it for this segment: Avalara and TaxJar solve
+#     the ongoing, connected, filing version of this problem, priced as a
+#     recurring subscription -- overkill for a seller who wants a one-time
+#     "where do I stand today" answer before that ongoing cost is
+#     justified. Their own marketing content targeting "economic nexus
+#     calculator" (found in the same WebSearch) is a static reference
+#     table, not an interactive per-seller tracker; this tool is the
+#     interactive middle step neither serves.
+#
+# Data sourcing and its limits (see also the top-of-file comment in
+# calc.mjs): all 51 jurisdictions' figures were pulled via WebFetch
+# 2026-09-24 from Numeral's 2026 economic-nexus handbook
+# (https://www.numeral.com/blog/economic-nexus), and the aggregate shape
+# (41 states/DC at $100k, CA/NY/TX at $500k, AL/MS at $250k, ~16
+# jurisdictions keeping a transaction-count test) was independently
+# cross-checked against TaxCloud's 2026 nexus guide via WebSearch before
+# the per-state table was written. This is secondary-source compiled
+# data, not an independent fifty-state statute review -- both the product
+# pages and this file say so, and the product frames every result as a
+# starting point for the seller's own verification, never a
+# determination, matching the portfolio's standing "evidence, not
+# advice-of-record" positioning (PRODUCT_PLAYBOOK.md, "Non-negotiable
+# positioning").
+#
+# Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
+# bold must clear 5):
+#   ai_leverage: 1 (deterministic threshold arithmetic; no model involved)
+#   autonomous_ops: 10 (static page, no queue, no human step)
+#   time_to_revenue: 1 (donations-only; no paid tier)
+#   gross_margin: 10 (GitHub Pages hosting, zero per-user cost)
+#   defensibility: 2 (a copy of the table is easy to reproduce -- typical
+#     for this portfolio's calculator/tracker shape; the free/no-account
+#     angle against paid incumbents is the only edge)
+#   distribution: 6 (real, demonstrated search volume for "economic nexus
+#     threshold/calculator" -- nine independent pages competing for the
+#     phrase is evidence of the query existing, not evidence this page
+#     will rank; no paid acquisition, discoverability checklist in place)
+#   **liability_containment: 7** (numbers a seller supplies, compared to
+#     public statutory figures pulled from a named, dated, cited source;
+#     output is a per-state "crossed / not crossed / needs more info"
+#     observation, never a filing, a registration, or a calculated tax
+#     liability; disclaimer states the data is secondary-sourced and not
+#     an independent 50-state review, on every page, and directs the user
+#     to the state's own department of revenue before relying on a
+#     boundary case -- the same shape and score class as the portfolio's
+#     other threshold-checker siblings, e.g. 1099-k-threshold-checker)
+#   **ethical_robustness: 8** (the tool gets more useful as it scales --
+#     nothing about a seller acting on it makes the next seller's
+#     experience worse -- and its only effect is prompting a seller
+#     toward voluntary compliance they might otherwise miss, never toward
+#     evading an obligation; no personal or scraped data, no advice
+#     framed as a determination)
+#   Composite: 5.6; floor 1 (ai_leverage/time_to_revenue, same floor class
+#     as most of this portfolio's zero-marginal-cost calculators)
+#
+# Distribution channel evidence (DIRECTION.md North star point 2):
+# r/ecommerce, r/Etsysellers, r/AmazonSeller, r/FulfillmentByAmazon, and
+# r/smallbusiness all carry recurring threads asking versions of "do I
+# need to register for sales tax in another state" -- a perennial
+# question for any seller crossing from single-state to multi-state
+# volume, and one every existing paid-platform blog post found above is
+# itself written to capture. The free, no-signup, no-integration angle is
+# the differentiator against those same publishers' own gated tools.
+
+hypotheses:
+  - claim: >-
+      Multi-state online sellers, uncertain which of the states they sell
+      into they've crossed a registration threshold in, will search plain-
+      language phrases ("economic nexus calculator", "when do I need to
+      collect sales tax in another state", "sales tax nexus by state
+      2026") and return to a free, no-signup tracker that gives a per-
+      state answer against each state's own figure, rather than piecing
+      it together from a paid platform's gated reference page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A seller who sells into more than one state will return periodically
+      (quarterly or at year-end) to re-check their running totals against
+      every state they sell into, because the threshold is evaluated per
+      state and a seller's mix of states changes as their business grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A seller close to a threshold in an AND state (Connecticut or New
+      York) will find the explicit "needs a transaction count to know for
+      sure" result more useful than a silent guess, because it names the
+      exact missing input rather than defaulting to either a false
+      "crossed" or a false "not crossed".
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January filing season (the first full quarterly/annual
+    sales cycle after this tool's 2026-09-24 launch that a seller would
+    plausibly check their running totals against).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that same window.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/economic-nexus-threshold-tracker/
+  analytics: null

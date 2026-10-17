@@ -1,0 +1,49 @@
+name: therapy-8-minute-rule-calculator
+description: >-
+  Free browser tool for physical, occupational and speech therapy clinics: paste each visit's timed CPT minutes and get billable
+  units under the Medicare 8-minute rule, which code gets each unit, the per-code count for payers that use it, visits a few
+  minutes short of the next unit, and the revenue at your rates. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nothing scored >= 0.45; no therapy-billing venture exists
+# (private-practice-payer-mix-calculator is the nearest neighbour: payer mix, not visit-level units).
+#
+# Why this niche: ~40,000 US outpatient PT/OT clinics bill timed CPT codes in 15-minute units, and the 8-minute rule decides
+# every visit's units. Front desks and therapists work it out by hand or in spreadsheets; the EMR often does it silently and
+# wrongly for some payers. Per-code counting where CMS counting is required is an overbilling/audit risk; the reverse leaves
+# units unbilled. A clinic with 30 visits a day that loses one unit on 10% of them is thousands of dollars a month.
+#
+# First visitor: searches "8 minute rule calculator", "PT billing units calculator", "CMS 8 minute rule chart";
+# r/physicaltherapy, r/OccupationalTherapy, PT billing forums. High search intent, volume not measured.
+#
+# Liability boundary: arithmetic on typed minutes; placeholder rates labelled as such; no patient identifiers (the page says so);
+# "Not decided" section; no-advice footer. Nothing stored or sent. It never tells anyone to bill time not spent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid batch tool that reads an EMR
+# visit export and flags per-payer unit discrepancies -- needs an owner decision on payment and on PHI handling.
+
+hypotheses:
+  - claim: >-
+      Therapy clinic owners, billers and therapists will paste visit minutes into a free tool to check units under the 8-minute rule and spot visits that were a few minutes short of a unit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a unit count that differs from the published CMS table for the same total timed minutes.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/therapy-8-minute-rule-calculator/
+  analytics: null

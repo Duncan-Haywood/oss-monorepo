@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01A5XmECvD893MCZWMNCHKHi",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/actions-checkout-credentials-check"
+  ],
+  "pr": 7040,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "partial",
+  "errors": [
+    "CI: validate (231 VENTURE.yaml problems in other ventures) and build (secondary-schema test, job-application-tracker pages) red; neither names this venture"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "CLAUDE.md checklist: run_workflow_locally.py --for-changes and gitops pytest take far longer than the 120s default shell timeout and print nothing until the end"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "instruction": "run the local checklist",
+      "did": "CLI-only scope; checklist run timed out",
+      "why": "Skipped browser page and the full local checklist (run_workflow_locally --for-changes exceeded 2 min and never reported); CLI-only scope, CI classified as non-starved",
+      "result": "CI red only on other ventures"
+    }
+  ],
+  "goal": null,
+  "notes": "shipped actions-checkout-credentials-check CLI (persist-credentials scanner) with 8 tests; CI red only on pre-existing failures in other ventures. Explore idea: persist-credentials/artipacked scanner; ran on this repo's workflows: 4 with-upload, ~900 other findings (most CI workflows here lack persist-credentials: false). Next: browser page, fix own workflows.",
+  "corrections": [],
+  "redteam": null
+}

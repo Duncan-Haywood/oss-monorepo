@@ -1,0 +1,73 @@
+name: sepa-payment-file-validator
+description: >-
+  Free browser tool that checks a SEPA credit transfer file (ISO 20022 pain.001 XML) before
+  it goes to the bank: well-formed XML, IBAN check digits and country lengths, transaction
+  counts and control sums at group and block level, execution dates on weekends and TARGET2
+  closing days, euro amount format, SEPA character set and field lengths, each with its line
+  number, plus a rebuild of the counts and control sums after a hand edit. The file is read
+  locally and never uploaded; IBANs are masked in the report.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.24
+# (nacha-file-validator, the US sibling), nothing near the 0.45 bar. European small
+# businesses, bookkeepers and accounting-software integrators export pain.001 files from
+# ERP, payroll or AP tools and edit them by hand when a payee changes. Online banking
+# either accepts the upload or returns a terse schema error. Existing answers are
+# bank-portal validators that run only after upload, XSD validators that know nothing of
+# IBANs or control sums, developer libraries, and paid desktop utilities.
+#
+# First visitor: bookkeepers and finance admins searching "SEPA XML file rejected",
+# "pain.001 validator", "CtrlSum does not match", "IBAN check". Volume not measured.
+#
+# What makes it more than a schema check: IBAN mod-97 with country length and the
+# check digits that would pass; counts and sums recomputed in integer cents at both levels;
+# TARGET2 closing days with the next banking day; and a repair step that rewrites only
+# NbOfTxs and CtrlSum, never a payment, so it cannot redirect money.
+#
+# Privacy is the liability boundary: SEPA files carry IBANs and payee names, so the file
+# never leaves the browser (a test asserts no network calls) and IBANs are masked.
+#
+# Path to revenue (payment rails stay off): lead magnet for payment-automation audiences.
+# A paid version, if usage appears, is bulk validation and a saved per-bank rule set
+# (accepted schema versions, limits, character handling) behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own file, model and omissions stated on the page, no
+# banking or compliance advice, no warranty, independent-of-EPC-and-banks clause.
+#
+# Unverified: the element layout of pain.001.001.03 and .09, the SEPA character set, the
+# country IBAN lengths, the TARGET2 closing days and the amount range are from memory of
+# public documents; no bank validator or XSD was available. The first report of a file that
+# passes here and is rejected by a bank, or the reverse, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper or finance admin whose bank rejected a SEPA XML file will paste it into a
+      no-login page, because the alternative is a terse schema error and a support call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the exact line and cause, and getting a corrected file, leads the same person
+      to validate the next file before uploading, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sepa-payment-file-validator/
+  analytics: null

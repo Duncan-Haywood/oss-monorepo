@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "interval-scores"
+version = "0.1.0"
+description = "Winkler interval score for drift-tolerance intervals: exact regret in closed form, optimal score 4 s phi(z)/alpha, asymmetric scale misreport costs, heavy-tail payments with bounded paired differences"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

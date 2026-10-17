@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Private School Tuition Discount Calculator — discount rate and net tuition revenue</title>
+  <meta name="description" content="Free tuition discount calculator for independent schools. Enter sticker tuition and your financial aid groups; it shows the discount rate, net tuition per student, break-even enrollment and what a tuition increase really adds. Private, in your browser.">
+  <meta property="og:title" content="Private School Tuition Discount Calculator — discount rate and net tuition revenue">
+  <meta property="og:description" content="Free tuition discount calculator for independent schools. Enter sticker tuition and your financial aid groups; it shows the discount rate, net tuition per student, break-even enrollment and what a tuition increase really adds. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Private School Tuition Discount Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for independent school business offices: discount rate, net tuition revenue, break-even enrollment and tuition-increase scenarios with aid held or scaled. Runs in your browser; nothing is uploaded.","featureList":"tuition discount rate calculator, net tuition revenue calculator, independent school financial aid budget, break-even enrollment, tuition increase scenario"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a tuition discount rate?","acceptedAnswer":{"@type":"Answer","text":"It is financial aid given as a share of gross tuition: total aid divided by sticker tuition times the number of students. A school with a $24,000 sticker price and $2,120,000 of aid across 300 students has a discount rate of 29.4%. It is a measure of how much of the sticker price the school actually collects."}},{"@type":"Question","name":"How do I calculate net tuition revenue?","acceptedAnswer":{"@type":"Answer","text":"Multiply sticker tuition by the number of students to get gross tuition, then subtract the aid awarded to every student. What remains is net tuition revenue. Divide by the number of students for net tuition per student."}},{"@type":"Question","name":"Should a school raise tuition or hold aid flat?","acceptedAnswer":{"@type":"Answer","text":"If aid stays the same in dollars, every dollar of a sticker increase on a paying family is kept and the discount rate falls. If aid grows with the sticker price, the discount rate stays the same and less of the increase is kept. The tool shows both side by side, with the number of families you expect to lose to the higher price."}},{"@type":"Question","name":"Does an extra student with financial aid still help the budget?","acceptedAnswer":{"@type":"Answer","text":"Yes, while the award is smaller than the sticker price minus the extra cost of that student, because fixed costs are paid either way. A seat that stays empty brings in nothing. The tool shows the highest award that still adds money."}},{"@type":"Question","name":"Is my school's data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this financial or enrollment advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Families react to price in ways a single number cannot predict, and aid decisions carry fairness and mission questions. Talk to your head of school, board finance committee or auditor."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRIVATE SCHOOL TUITION DISCOUNT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your sticker price really collect? Discount rate and net tuition</h1>
+    <p>Enter your sticker tuition and the students in each financial-aid group. The tool shows your <strong>discount rate, net tuition per student and break-even enrollment</strong>, whether a student with a given award still adds money, and what a <strong>tuition increase</strong> really brings in when aid is held flat or grows with the price.</p>
+    <p class="note">The method with a worked example: <a href="./tuition-discount-rate-explained.html">tuition discount rate explained</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The school</h2>
+    <div class="row3">
+      <div><label for="sticker">Sticker tuition per student ($ a year)</label><input type="number" id="sticker" min="1" step="any" max="1000000" value="24000"></div>
+      <div><label for="cap">Seats the school can hold</label><input type="number" id="cap" min="1" step="1" max="100000" value="320"></div>
+      <div><label for="fixed">Fixed costs ($ a year): salaries, facility, admin</label><input type="number" id="fixed" min="0" step="1000" max="1000000000" value="4300000"></div>
+      <div><label for="vc">Extra cost of each additional student ($ a year)</label><input type="number" id="vc" min="0" step="100" max="1000000" value="2500"></div>
+      <div><label for="target">Surplus you need after all costs ($)</label><input type="number" id="target" step="1000" value="150000"></div>
+      <div><label for="loss">Students lost per 1% sticker increase (%)</label><input type="number" id="loss" min="0" step="0.05" max="10" value="0.2"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Students by financial-aid group</h2>
+    <p class="note">One row per group of similar awards. Full-pay families are a group with an award of zero. Up to eight.</p>
+    <div class="scroll"><table id="bands"><thead><tr><th>Group</th><th>Students</th><th>Average award ($)</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-band">Add a group</button>
+    <button type="button" id="solve">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Calculate.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>By group</h3>
+    <div class="scroll"><table id="groups"><thead><tr><th>Group</th><th class="num">Students</th><th class="num">Award</th><th class="num">Award % of sticker</th><th class="num">Net per student</th><th class="num">Adds per student</th><th class="num">Share of aid</th></tr></thead><tbody></tbody></table></div>
+    <h3>If you raise the sticker price</h3>
+    <div class="scroll"><table id="scen"><thead><tr><th>Increase</th><th>Aid</th><th class="num">Students</th><th class="num">Net tuition</th><th class="num">Discount rate</th><th class="num">Surplus</th><th class="num">vs today</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Net tuition:</strong> students times sticker price, less the average award of each group times its students. The discount rate is total aid divided by gross tuition.</p>
+    <p><strong>Break-even enrollment:</strong> fixed costs divided by what each student adds after their extra cost, at your current aid mix. <strong>Highest useful award:</strong> sticker price minus the extra cost of a student; below it, one more student adds money.</p>
+    <p><strong>Increases:</strong> each scenario raises the sticker price and either holds every award at today's dollars or scales awards with the price, then removes the share of families you expect to lose. The test suite checks that these figures tie to the plain arithmetic.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a tuition discount rate?</h3>
+    <p>It is financial aid given as a share of gross tuition: total aid divided by sticker tuition times the number of students. A school with a $24,000 sticker price and $2,120,000 of aid across 300 students has a discount rate of 29.4%. It is a measure of how much of the sticker price the school actually collects.</p>
+    <h3>How do I calculate net tuition revenue?</h3>
+    <p>Multiply sticker tuition by the number of students to get gross tuition, then subtract the aid awarded to every student. What remains is net tuition revenue. Divide by the number of students for net tuition per student.</p>
+    <h3>Should a school raise tuition or hold aid flat?</h3>
+    <p>If aid stays the same in dollars, every dollar of a sticker increase on a paying family is kept and the discount rate falls. If aid grows with the sticker price, the discount rate stays the same and less of the increase is kept. The tool shows both side by side, with the number of families you expect to lose to the higher price.</p>
+    <h3>Does an extra student with financial aid still help the budget?</h3>
+    <p>Yes, while the award is smaller than the sticker price minus the extra cost of that student, because fixed costs are paid either way. A seat that stays empty brings in nothing. The tool shows the highest award that still adds money.</p>
+    <h3>Is my school's data uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this financial or enrollment advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Families react to price in ways a single number cannot predict, and aid decisions carry fairness and mission questions. Talk to your head of school, board finance committee or auditor.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not financial, accounting, legal or enrollment advice. <strong>Use at your own risk.</strong> Families respond to price and aid in ways a model cannot predict; check any decision with your head of school, board finance committee or auditor.</p>
+    <p><strong>Independent.</strong> Not affiliated with any school association, accreditor, financial-aid assessment service or tuition-management company, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../childcare-center-break-even-calculator/">childcare center break-even calculator</a> and the <a href="../childcare-tuition-calculator/">childcare tuition calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, pctText, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_BANDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let R = null;
+    function bandRow(b) {
+      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Group name"></td><td><input type="number" class="bs" min="0" step="1" value="' + esc(b.students) + '" aria-label="Students in this group"></td><td><input type="number" class="ba" min="0" step="100" value="' + esc(b.aid) + '" aria-label="Average award for this group"></td><td><button type="button" class="secondary rm" aria-label="Remove this group">Remove</button></td></tr>';
+    }
+    function setBands(bands) { $("#bands tbody").innerHTML = bands.map(bandRow).join(""); }
+    function read() {
+      return {
+        sticker: Number($("#sticker").value), capacity: Number($("#cap").value), fixedCosts: Number($("#fixed").value), variableCost: Number($("#vc").value),
+        targetSurplus: Number($("#target").value), lossPer1Pct: Number($("#loss").value),
+        bands: [...document.querySelectorAll("#bands tbody tr")].map((r) => ({ label: r.querySelector(".bl").value.trim(), students: Number(r.querySelector(".bs").value), aid: Number(r.querySelector(".ba").value) })),
+      };
+    }
+    function fill(s) {
+      $("#sticker").value = s.sticker; $("#cap").value = s.capacity; $("#fixed").value = s.fixedCosts; $("#vc").value = s.variableCost; $("#target").value = s.targetSurplus; $("#loss").value = s.lossPer1Pct;
+      setBands(s.bands);
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    const n0 = (x) => Math.round(x).toLocaleString("en-US");
+    const sgn = (x) => (x >= 0 ? "+" : "") + money(x);
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[pctText(R.discountRate), "discount rate"], [money(R.net), "net tuition revenue"], [money(R.netPerStudent), "net per student"], [money(R.surplus), "surplus after all costs"], [R.breakEvenStudents === null ? "not reachable" : n0(Math.ceil(R.breakEvenStudents)), "break-even students at this mix"], [pctText(R.fullPayShare, 0), "full-pay share of students"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      $("#groups tbody").innerHTML = R.groups.map((g) => "<tr><td>" + esc(g.label) + '</td><td class="num">' + n0(g.students) + '</td><td class="num">' + money(g.aid) + '</td><td class="num">' + pctText(g.aidPct, 0) + '</td><td class="num">' + money(g.net) + '</td><td class="num">' + sgn(g.contribution) + '</td><td class="num">' + pctText(g.shareOfAid, 0) + "</td></tr>").join("");
+      $("#scen tbody").innerHTML = R.scenarios.map((s) => "<tr><td>" + (s.pct === 0 ? "None (today)" : "+" + s.pct + "%") + "</td><td>" + (s.pct === 0 ? "—" : s.policy === "hold" ? "Held in dollars" : "Grows with price") + '</td><td class="num">' + n0(s.students) + '</td><td class="num">' + money(s.net) + '</td><td class="num">' + pctText(s.discountRate) + '</td><td class="num">' + money(s.surplus) + '</td><td class="num">' + (s.pct === 0 ? "—" : sgn(s.change)) + "</td></tr>").filter((_, k) => R.scenarios[k].pct !== 0 || R.scenarios[k].policy === "hold").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setBands(sampleInput().bands);
+    $("#add-band").addEventListener("click", () => { const n = document.querySelectorAll("#bands tbody tr").length; if (n >= MAX_BANDS) { status.textContent = "Up to " + MAX_BANDS + " groups."; return; } $("#bands tbody").insertAdjacentHTML("beforeend", bandRow({ label: "", students: 0, aid: 0 })); });
+    $("#bands").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a 300-student school, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("tuition-discount.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("tuition-scenario.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

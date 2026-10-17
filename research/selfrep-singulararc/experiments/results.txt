@@ -1,0 +1,29 @@
+assumed inputs: a=1; market capacity c swept; W=50.0 h per copy from selfrep-growth; horizon T=600 h; fleet starts at 1 unit
+closed form = Pontryagin candidate (see src/selfrep_singulararc/model.py); DP and Euler J use step 1 h as in selfrep-satmarket
+Jc = continuous-time value of the closed-form path; Je = same path in the Euler model; Jdp = simulated DP policy; Jbb = best bang-bang
+
+table 1: market capacity c, no failures (k = 0.0200 /h, 1/k = 50 h)
+c=1e+06      t1= 547.1 te= 550.0 | DP leaves u=1 at  547, reaches u=0 at  550 | Je/Jdp= 0.9999  Jc/Jdp= 1.1111  Jbb/Jdp= 0.9999  Jdp=   2616775.3
+c=100000     t1= 526.5 te= 550.0 | DP leaves u=1 at  528, reaches u=0 at  549 | Je/Jdp= 1.0000  Jc/Jdp= 1.0893  Jbb/Jdp= 0.9940  Jdp=   2153656.5
+c=10000      t1= 452.8 te= 550.0 | DP leaves u=1 at  457, reaches u=0 at  547 | Je/Jdp= 0.9996  Jc/Jdp= 1.0442  Jbb/Jdp= 0.9550  Jdp=    930880.4
+c=3000       t1= 397.9 te= 550.0 | DP leaves u=1 at  403, reaches u=0 at  544 | Je/Jdp= 0.9996  Jc/Jdp= 1.0282  Jbb/Jdp= 0.9391  Jdp=    443855.0
+c=1000       t1= 344.6 te= 550.0 | DP leaves u=1 at  348, reaches u=0 at  542 | Je/Jdp= 0.9997  Jc/Jdp= 1.0191  Jbb/Jdp= 0.9335  Jdp=    201596.4
+c=300        t1= 284.9 te= 550.0 | DP leaves u=1 at  288, reaches u=0 at  539 | Je/Jdp= 0.9999  Jc/Jdp= 1.0127  Jbb/Jdp= 0.9330  Jdp=     78521.1
+c=100        t1= 230.2 te= 550.0 | DP leaves u=1 at  234, reaches u=0 at  536 | Je/Jdp= 1.0000  Jc/Jdp= 1.0088  Jbb/Jdp= 0.9351  Jdp=     31702.4
+
+table 2: failure share at c = 1000 (k = (1 - fail)/W)
+fail=0.0     t1= 344.6 te= 550.0 | DP leaves u=1 at  348, reaches u=0 at  542 | Je/Jdp= 0.9997  Jc/Jdp= 1.0191  Jbb/Jdp= 0.9335  Jdp=    201596.4
+fail=0.2     t1= 421.2 te= 537.5 | DP leaves u=1 at  425, reaches u=0 at  533 | Je/Jdp= 0.9999  Jc/Jdp= 1.0274  Jbb/Jdp= 0.9559  Jdp=    113228.7
+fail=0.4     t1= 483.3 te= 516.7 | DP leaves u=1 at  484, reaches u=0 at  516 | Je/Jdp= 1.0000  Jc/Jdp= 1.0299  Jbb/Jdp= 0.9950  Jdp=     32415.3
+fail=0.6     t1= 469.5 te= 475.0 | DP leaves u=1 at  469, reaches u=0 at  475 | Je/Jdp= 1.0000  Jc/Jdp= 1.0148  Jbb/Jdp= 0.9999  Jdp=      5386.5
+
+table 3: u(t) along the closed form and the DP policy, c = 1000, no failures
+t= 300 h  closed-form u= 1.00 (n=   407.5)  DP u= 1.00
+t= 340 h  closed-form u= 1.00 (n=   906.9)  DP u= 1.00
+t= 350 h  closed-form u= 0.89 (n=  1100.3)  DP u= 0.95
+t= 400 h  closed-form u= 0.46 (n=  2068.5)  DP u= 0.46
+t= 450 h  closed-form u= 0.29 (n=  2982.1)  DP u= 0.30
+t= 500 h  closed-form u= 0.17 (n=  3747.2)  DP u= 0.15
+t= 540 h  closed-form u= 0.04 (n=  4091.8)  DP u= 0.05
+t= 550 h  closed-form u= 0.00 (n=  4108.8)  DP u= 0.00
+t= 560 h  closed-form u= 0.00 (n=  4108.8)  DP u= 0.00

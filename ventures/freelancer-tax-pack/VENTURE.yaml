@@ -1,0 +1,73 @@
+name: freelancer-tax-pack
+description: >-
+  Free year-end tax pack for freelancers that runs in the browser with no
+  account: reads the invoices, expenses and business mileage already kept on the
+  device by Invoice Maker, Expense Tracker and Mileage Log, then shows Schedule C
+  net profit by line, self-employment tax, a 2026 federal income tax estimate
+  (standard deduction, simple QBI, single or joint), the quarterly estimated
+  payments still due against the 90 percent and prior-year safe harbors, the
+  clients to expect a 1099-NEC from, and record-gap warnings. Printable worksheet
+  and CSV. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the fifth piece of the
+# freelancer loop: estimate-maker -> time-tracker -> invoice-maker ->
+# expense-tracker -> freelancer-tax-pack. The first four make records; nothing
+# turned them into the one answer a freelancer asks four times a year: "what do I
+# owe and what do I send the IRS now?" self-employment-tax-calculator and
+# quarterly-estimated-tax-calendar answer it from typed numbers; this reads the
+# numbers the other tools already hold.
+#
+# Paid market is real: QuickBooks Self-Employed / Solopreneur (about $20 a month,
+# the quarterly tax estimate is the headline feature), Keeper Tax, Bonsai Taxes,
+# Found, Collective. The wedge is private, no signup, no bank connection, and it
+# works from a tool set the user already trusts.
+#
+# First visitor: freelancers searching "quarterly tax estimate for freelancers",
+# "how much should I set aside for taxes freelance", "schedule c calculator",
+# "1099 income tax estimator". Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: federal only, single or joint, no itemised
+# deductions, state tax, credits, depreciation, home office or retirement
+# deductions; QBI only below the phase-in; 2026 figures from Rev. Proc. 2025-32.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for the whole
+# freelancer suite; donations via GitHub Sponsors. Natural next steps if it earns
+# repeat visitors: state tax tables for the no-income-tax and flat-tax states, a
+# PWA/Android wrapper with a quarterly reminder, solo 401(k)/SEP/HSA what-if
+# sliders, an accountant-export bundle (one JSON with all three boxes), and
+# optional BYO-key plain-English explanation of the numbers.
+
+hypotheses:
+  - claim: >-
+      Freelancers who already log invoices and expenses here will open the pack
+      before each quarterly deadline because it answers "what do I pay now"
+      without retyping anything.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The cross-tool read (no retyping) is what brings users back, more than the
+      estimate itself, which standalone calculators already give.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong net profit, SE tax or quarterly figure, at which point the maths or the 2026 constants need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelancer-tax-pack/
+  analytics: null

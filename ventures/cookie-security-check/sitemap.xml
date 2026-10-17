@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/cookie-security-check/</loc></url>
 <url><loc>https://example.invalid/cookie-security-check/samesite-none-cookie-rejected.html</loc></url>
 <url><loc>https://example.invalid/cookie-security-check/vs-cookiebot.html</loc></url>
+<url><loc>https://example.invalid/cookie-security-check/vs-curl-and-reading-headers-yourself.html</loc></url>
 </urlset>

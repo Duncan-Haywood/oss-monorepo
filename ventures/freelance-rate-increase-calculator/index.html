@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Rate Increase Calculator — how many clients can you lose?</title>
+  <meta name="description" content="Freelance rate increase calculator. List your clients, hours and rates, say how likely each is to leave, and see how many clients you can lose after a raise and still earn the same, the hours it frees and which clients make it a bad bet. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Freelance Rate Increase Calculator — free, private, in your browser">
+  <meta property="og:description" content="Raise your rate 15% and lose a client: do you come out ahead? Break-even client loss, hours freed and per-client risk. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Rate Increase Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your clients, hours, rates and the chance each leaves if you raise your rate. See the income change, the hours freed, the break-even loss and which clients make the raise a bad bet. Runs entirely in your browser; nothing is uploaded.", "featureList": "break-even client loss for a rate increase, per-client leave chance, hours freed, refill share, raise ladder, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much can I lose after raising my freelance rate and still earn the same?", "acceptedAnswer": {"@type": "Answer", "text": "If you raise your rate by r, you can lose a share r ÷ (1 + r) of your billable hours before income falls. A 10% raise breaks even at 9.1% fewer hours, 20% at 16.7%, and 30% at 23.1%. If you can refill some of the freed hours at the new rate, the break-even share is higher. The tool computes this for your own mix of clients."}}, {"@type": "Question", "name": "Why does a rate increase usually beat taking on more clients?", "acceptedAnswer": {"@type": "Answer", "text": "A raise applies to hours you already work, so there is no extra selling, onboarding or context-switching. Losing a few low-paying clients also frees hours you can sell again or keep. The tool shows the hours freed next to the income change so you can see both."}}, {"@type": "Question", "name": "How do I estimate the chance a client leaves?", "acceptedAnswer": {"@type": "Answer", "text": "Use your own history: how long they have stayed, how often they push back on invoices, whether they have alternatives, and how much of their work is core to them. Be honest, since an optimistic zero makes every raise look free. The tool treats the figure as your guess, not a prediction."}}, {"@type": "Question", "name": "Should I raise everyone at once?", "acceptedAnswer": {"@type": "Answer", "text": "Not necessarily. The tool flags clients whose leave chance is above the break-even point for the raise you typed. Those are the ones to raise later, raise by less, or leave alone while you raise the others. Run it with different percentages to compare."}}, {"@type": "Question", "name": "What does the refill share mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is the share of hours lost to departing clients that you expect to refill at the new rate. Zero is the cautious setting: freed hours stay empty. Fifty means half of the lost hours are replaced. It does not model how long that takes."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Taxes, ramp-up time to find new clients, contract terms and notice periods, scope changes, and how a raise changes the odds a client leaves. Each client's leave chance is held fixed in the ladder table even though bigger raises usually raise it. It is arithmetic on figures you type, not business, legal or tax advice."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREELANCE RATE INCREASE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>If you raise your rate and lose a client, do you come out ahead?</h1>
+    <p>List your <strong>clients, monthly hours and current rates</strong>, add the <strong>chance each leaves</strong> if you raise, and see the <strong>income change</strong>, the <strong>hours it frees</strong> and the <strong>break-even client loss</strong> for that raise.</p>
+    <p class="note">Arithmetic on figures you supply. Not business, legal or tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="row3">
+      <div><label for="raisePct">Raise you are considering (%)</label><input id="raisePct" inputmode="decimal" value=""></div>
+      <div><label for="refillPct">Share of lost hours you expect to refill at the new rate (%)</label><input id="refillPct" inputmode="decimal" value="0"></div>
+    </div>
+    <h2 style="margin-top:18px">Your clients</h2>
+    <label for="clients">Client, hours per month, current rate per hour, chance they leave if raised % (one per line; the chance may be blank)</label>
+    <textarea id="clients" spellcheck="false" placeholder="Agency A,60,70,5&#10;Startup B,30,70,15"></textarea>
+    <p class="note">Hours are billable hours per month. For one overall figure enter a single line called All clients. The leave chance is your own honest guess for each client.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your numbers and clients, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>By client</h3>
+    <div class="scroll"><table id="jt"><thead><tr><th>Client</th><th class="n">Hours / month</th><th class="n">Old rate</th><th class="n">New rate</th><th class="n">Leave chance</th><th class="n">Revenue before</th><th class="n">Expected after</th><th class="n">Change</th><th>Raise pays?</th></tr></thead><tbody></tbody></table></div>
+    <h3>The same clients at other raises</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th class="n">Raise</th><th class="n">Hours you can lose and break even</th><th class="n">Expected monthly revenue</th><th class="n">Change per month</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Break-even loss:</strong> a raise of r keeps income equal when the share of hours lost is r ÷ (1 + r), or r ÷ ((1 + r) × (1 − refill)) if you refill part of the lost hours. <strong>Expected hours after:</strong> hours × (1 − leave chance × (1 − refill share)). <strong>Expected revenue after:</strong> expected hours × new rate, where new rate is old rate × (1 + raise). <strong>Change:</strong> expected revenue after − revenue before. <strong>Raise pays?</strong> yes when that client's leave chance is at or below the break-even loss. <strong>Hours freed:</strong> hours before minus expected hours after. <strong>Revenue per hour:</strong> revenue divided by hours worked. <strong>Ladder:</strong> the same book at other raises with each leave chance held where you typed it.</p>
+    <p><strong>Not modelled:</strong> taxes, the time to find replacement clients, contract terms and notice periods, scope changes, and how a bigger raise raises the odds that a client leaves. Unverified: tested on hand-calculated examples, not on a real freelance business's books. It computes arithmetic; it does not tell you what clients will accept.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much can I lose after raising my freelance rate and still earn the same?</h3>
+    <p>If you raise your rate by r, you can lose a share r ÷ (1 + r) of your billable hours before income falls. A 10% raise breaks even at 9.1% fewer hours, 20% at 16.7%, and 30% at 23.1%. If you can refill some of the freed hours at the new rate, the break-even share is higher. The tool computes this for your own mix of clients.</p>
+    <h3>Why does a rate increase usually beat taking on more clients?</h3>
+    <p>A raise applies to hours you already work, so there is no extra selling, onboarding or context-switching. Losing a few low-paying clients also frees hours you can sell again or keep. The tool shows the hours freed next to the income change so you can see both.</p>
+    <h3>How do I estimate the chance a client leaves?</h3>
+    <p>Use your own history: how long they have stayed, how often they push back on invoices, whether they have alternatives, and how much of their work is core to them. Be honest, since an optimistic zero makes every raise look free. The tool treats the figure as your guess, not a prediction.</p>
+    <h3>Should I raise everyone at once?</h3>
+    <p>Not necessarily. The tool flags clients whose leave chance is above the break-even point for the raise you typed. Those are the ones to raise later, raise by less, or leave alone while you raise the others. Run it with different percentages to compare.</p>
+    <h3>What does the refill share mean?</h3>
+    <p>It is the share of hours lost to departing clients that you expect to refill at the new rate. Zero is the cautious setting: freed hours stay empty. Fifty means half of the lost hours are replaced. It does not model how long that takes.</p>
+    <h3>What does this leave out?</h3>
+    <p>Taxes, ramp-up time to find new clients, contract terms and notice periods, scope changes, and how a raise changes the odds a client leaves. Each client's leave chance is held fixed in the ladder table even though bigger raises usually raise it. It is arithmetic on figures you type, not business, legal or tax advice.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, legal or tax advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any freelance marketplace, invoicing product or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>, the <a href="../freelance-project-picker/">freelance project picker</a> (which offers to take when hours are short), the <a href="../freelance-writer-rate-calculator/">freelance writer rate calculator</a>, the <a href="../client-profitability-time-analyzer/">client profitability time analyzer</a> and the <a href="../self-storage-rate-increase-calculator/">self-storage rate increase calculator</a>; for a shop with a price list instead of a client list, the <a href="../price-increase-breakeven-calculator/">price increase break-even calculator</a>.</p>
+    <p>Raising prices? The <a href="../price-increase-breakeven-calculator/">price increase break-even calculator</a> shows how many units you can lose per item before a raise stops paying.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseClients, analyze, reportCsv, sampleJob, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["raisePct", "refillPct"];
+    const IDLE = "Fill in your numbers and clients, then click Calculate.";
+    let last = null;
+
+    function run() {
+      const pp = parseClients($("#clients").value);
+      if (pp.error) { status.textContent = pp.error; report.hidden = true; return false; }
+      const s = {};
+      for (const k of FIELDS) s[k] = $("#" + k).value;
+      const r = analyze(s, pp.rows);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...pp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const t = r.totals;
+      const big = [
+        [pct(r.breakEvenLeavePct), "Share of hours you can lose and still earn the same"],
+        [money(t.delta) + " / mo", "Expected change in monthly revenue"],
+        [t.hoursFreed.toFixed(1) + " h", "Expected hours freed per month"],
+        [money2(t.hourlyBefore) + " → " + money2(t.hourlyAfter), "Revenue per hour worked, before → after"],
+      ];
+      $("#big").innerHTML = big.map(([v, x]) => `<div><strong>${esc(v)}</strong>${esc(x)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#jt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${l.hours}</td><td class="n">${money2(l.rate)}</td><td class="n">${money2(l.newRate)}</td><td class="n">${pct(l.leavePct, 0)}</td><td class="n">${money(l.before)}</td><td class="n">${money(l.after)}</td><td class="n">${money(l.delta)}</td><td><span class="pill ${l.safe ? "good" : "high"}">${l.safe ? "yes" : "risky"}</span></td></tr>`).join("");
+      $("#lt tbody").innerHTML = r.ladder.map((x) => `<tr><td class="n">${x.raisePct}%</td><td class="n">${pct(x.breakEvenLeavePct)}</td><td class="n">${money(x.monthly)}</td><td class="n">${money(x.delta)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleJob();
+      for (const k of FIELDS) $("#" + k).value = s.settings[k];
+      $("#clients").value = s.clients;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented freelancer, not a real one."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#clients").value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "freelance-rate-increase-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>eBay Transaction Report Analyzer — Free Fee and Profit-per-Item Tool</title>
+  <meta name="description" content="Free eBay profit analyzer: drop in your Seller Hub Transaction report CSV and get a fee waterfall, profit per item, Promoted Listings, shipping-gap and refund findings. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="eBay Transaction Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Fee waterfall and profit per item from your eBay Transaction report. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "eBay Transaction Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an eBay Seller Hub Transaction report CSV into a fee waterfall, profit per item, Promoted Listings, shipping and refund findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "Fee waterfall, profit per item after fees and cost of goods, Promoted Listings and shipping-gap findings, refund findings, monthly table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see profit per item from my eBay Transaction report without paying for a tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Seller Hub go to Reports \u2192 Downloads, create a Transaction report for the period you want, download the CSV and drop it in here. Type what each item cost you and the tool splits every order's sale, fees, label, refund and Promoted Listings charge across the items in it. Nothing is uploaded."}}, {"@type": "Question", "name": "Why is my eBay fee rate higher than the category percentage?", "acceptedAnswer": {"@type": "Answer", "text": "eBay charges its final value fee on the item price plus shipping (and sales tax in states where eBay collects it), then adds a fixed per-order fee of $0.30 or $0.40. Promoted Listings, international fees and any performance fees stack on top. The tool adds them up from your own rows and shows each as a share of what buyers paid."}}, {"@type": "Question", "name": "Where does the tool get the cost of what I sold?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The Transaction report has no purchase cost. Type a unit cost next to each item, or paste lines like the item title, a custom label or an item number followed by a comma and the cost. Items without a cost are left out of profit rather than counted as free."}}, {"@type": "Question", "name": "How does it treat shipping labels?", "acceptedAnswer": {"@type": "Answer", "text": "Buyers pay shipping and you spend it on labels, so labels are kept out of the fee rate. The report compares shipping charged to label cost and flags a gap, because free or under-charged shipping is one of the quiet ways a listing turns unprofitable."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Your time, sourcing costs you have not entered, packaging, income tax, labels bought outside eBay, currency conversion differences and sales elsewhere. Rows it does not recognise go to an \u201cother\u201d line so they stay visible."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #9c3a12; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #5a2410; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a2410; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a241010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c9a898; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c9a898; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9c3a12; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f6e6dd; color: #5a2410; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #5a2410; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #c9a898; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EBAY TRANSACTION REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your eBay items actually make money?</h1>
+    <p>Drop in your Seller Hub <strong>Transaction report</strong> and get the <strong>fee waterfall</strong> (final value fees, Promoted Listings, international, listing, refunds, shipping labels) and <strong>profit per item</strong> once you enter what each one cost you. Then see which fees, ads, refunds and under-charged shipping are eating the margin.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Order numbers and item titles in it are not sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Transaction report</h2>
+    <p class="note">Seller Hub → Reports → Downloads → Transaction report (choose the period, download the CSV). The few lines of report metadata above the column headings are fine; the tool finds the header row itself.</p>
+    <label for="report-file">Transaction report CSV</label>
+    <input type="file" id="report-file" accept=".csv,text/csv">
+    <label for="report-paste">…or paste the report text</label>
+    <textarea id="report-paste" spellcheck="false" placeholder='Transaction creation date,Type,Order number,…,Net amount,…,Item title,…'></textarea>
+    <label for="costs">Unit cost per item (optional): one <code>item title (or custom label, or item number),cost</code> per line</label>
+    <textarea id="costs" spellcheck="false" placeholder="Carhartt Detroit Jacket J001 Size L,22.00"></textarea>
+    <div class="checkbox-row"><input type="checkbox" id="resell" checked><label for="resell">Fully refunded orders go back into stock (their cost is not lost)</label></div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a report file or paste its text, then click Analyze. You can type costs in the table afterwards.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of buyer-paid</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Profit by item</h3>
+    <p class="note">Sorted by what buyers paid. Type a unit cost to fill in profit; figures update as you type. Item net includes that order's fees, label, Promoted Listings charge and refund; charges with no order number (listing and subscription fees) are shown in the waterfall.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th class="n" scope="col">Units</th><th class="n" scope="col">Refunded</th><th class="n" scope="col">Buyers paid</th><th class="n" scope="col">You kept</th><th class="n" scope="col">Unit cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="items"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Buyers paid</th><th class="n" scope="col">Fees and ads</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Net</th></tr></thead><tbody id="months"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the item table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Every row lands in one bucket</strong>: sales (item price and shipping the buyer paid), refunds, final value fees, international, performance fees, Promoted Listings, listing and subscription fees, disputes, shipping labels, credits, other. Payouts and transfers are money already counted, so they are excluded. Anything the fee columns do not explain (seller-collected tax, rounding) is shown as “adjustments” so the total always ties to your Net amount column.</li>
+      <li><strong>Per item</strong>, each order's net (sale, fees, label, ads, refund) is split across its items by what the buyer paid for each, joined on the order number.</li>
+      <li><strong>Profit</strong> is that amount minus unit cost × units, except that a fully refunded order returns its units to stock if the box is ticked.</li>
+      <li><strong>The take rate</strong> excludes shipping labels and disputes, because the buyer's shipping payment is what pays for labels.</li>
+      <li><strong>Not modelled:</strong> your time, costs you have not entered, packaging, income tax, labels bought outside eBay, currency conversion differences and sales on other channels.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see profit per item from my eBay Transaction report without paying for a tool?</h3>
+    <p>Yes. In Seller Hub go to Reports → Downloads, create a Transaction report for the period you want, download the CSV and drop it in here. Type what each item cost you and the tool splits every order's sale, fees, label, refund and Promoted Listings charge across the items in it. Nothing is uploaded.</p>
+    <h3>Why is my eBay fee rate higher than the category percentage?</h3>
+    <p>eBay charges its final value fee on the item price plus shipping (and sales tax in states where eBay collects it), then adds a fixed per-order fee of $0.30 or $0.40. Promoted Listings, international fees and any performance fees stack on top. The tool adds them up from your own rows and shows each as a share of what buyers paid.</p>
+    <h3>Where does the tool get the cost of what I sold?</h3>
+    <p>From you. The Transaction report has no purchase cost. Type a unit cost next to each item, or paste lines like the item title, a custom label or an item number followed by a comma and the cost. Items without a cost are left out of profit rather than counted as free.</p>
+    <h3>How does it treat shipping labels?</h3>
+    <p>Buyers pay shipping and you spend it on labels, so labels are kept out of the fee rate. The report compares shipping charged to label cost and flags a gap, because free or under-charged shipping is one of the quiet ways a listing turns unprofitable.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Your time, sourcing costs you have not entered, packaging, income tax, labels bought outside eBay, currency conversion differences and sales elsewhere. Rows it does not recognise go to an “other” line so they stay visible.</p>
+    <h3>Is this financial or tax advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own records or a qualified accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make with it.</p>
+    <p>eBay is a trademark of eBay Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by eBay.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also selling on eBay? See the <a href="../ebay-fee-calculator/">eBay fee calculator</a> for a single sale the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>, and the <a href="../ebay-payout-to-journal/">eBay payout to journal converter</a> to book the same report in Xero or QuickBooks.</p>
+    <p>Sell on more than one marketplace? <a href="../reseller-books/">Reseller Books</a> reads this report together with the others into one monthly profit and loss.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeReport, analyze, parseCosts, sampleData, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let rows = [], skipped = [], last = null, costs = {};
+
+    function render() {
+      const r = last = analyze(rows, { costs, returnsResellable: $("#resell").checked });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: buyers paid <strong>${money(s.sales)}</strong> across ${s.orderCount} orders. After fees, ads, labels and refunds you kept <strong>${money(s.operating)}</strong>`
+        + (s.profit !== null ? `; after your unit costs${s.allCosted ? "" : " (costed items only)"} that leaves <strong>${money(s.profit)}</strong> (${s.sales ? pct(s.profit / s.sales) : "–"} of what buyers paid).` : ".");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const b = s.feeBuckets;
+      const line = (label, v, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td class="n${v < 0 ? " neg" : ""}">${bold ? "<strong>" + money(v) + "</strong>" : money(v)}</td><td class="n">${s.sales ? pct(v / s.sales) : "–"}</td></tr>`;
+      const opt = (label, v) => (Math.abs(v) >= 0.005 ? line(label, v) : "");
+      $("#waterfall").innerHTML = [
+        line("Item price", s.itemSales), opt("Shipping paid by buyers", s.shippingCharged),
+        opt("Refunds", s.refunds),
+        opt("Final value fees", b.fvf), opt("International fees", b.international), opt("Performance fees", b.penalty),
+        opt("Promoted Listings", b.ads), opt("Listing and insertion fees", b.listing), opt("Store subscription", b.subscription),
+        opt("Other fees", b.otherfee), opt("Disputes and claims", b.disputes),
+        opt("Shipping labels bought through eBay", b.labels), opt("Fee credits", b.credit), opt("Other rows", b.other),
+        opt("Adjustments (seller-collected tax, rounding)", s.adjustments),
+        line("You kept (before cost of goods)", s.operating, true),
+        s.anyCosted ? line("Cost of goods (entered)", -s.cogsTotal) : "",
+        s.profit !== null ? line("Profit", s.profit, true) : "",
+      ].join("");
+      $("#items").innerHTML = r.items.length ? r.items.map((k) => {
+        const v = costs[k.name] ?? costs[k.label] ?? costs[k.itemId];
+        return `<tr><th scope="row">${esc(k.name)}</th><td class="n">${k.units}</td><td class="n">${k.unitsRefunded}${k.units ? " (" + pct(k.refundRate, 0) + ")" : ""}</td><td class="n">${money(k.gross)}</td><td class="n">${money(k.net)}</td>`
+          + `<td class="n"><input class="cost" data-name="${esc(k.name)}" inputmode="decimal" aria-label="Unit cost for ${esc(k.name)}" value="${v === undefined ? "" : v}"></td>`
+          + `<td class="n${k.profit !== null && k.profit < 0 ? " neg" : ""}">${k.profit === null ? "–" : money(k.profit)}</td><td class="n">${k.margin === null ? "–" : pct(k.margin)}</td></tr>`;
+      }).join("") : `<tr><td colspan="8">No order rows with item details were found.</td></tr>`;
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${money(m.sales)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((k) => `line ${k.line} (${k.reason})`).join("; ") + (skipped.length > 5 ? "…" : "") : "";
+      report.hidden = false;
+      return true;
+    }
+
+    function run(text) {
+      const n = normalizeReport(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      rows = n.rows; skipped = n.skipped;
+      const c = parseCosts($("#costs").value);
+      costs = c.costs;
+      if (!render()) return false;
+      status.textContent = `Read ${rows.length} transaction rows.` + (c.bad.length ? ` Ignored cost line(s): ${c.bad.join(", ")}.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#report-file").files[0];
+      const text = f ? await f.text() : $("#report-paste").value;
+      if (!text.trim()) { status.textContent = "Choose a report file or paste its text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const d = sampleData();
+      $("#report-paste").value = d.report; $("#costs").value = d.costs; $("#report-file").value = "";
+      if (run(d.report)) { record("example_loaded"); status.textContent = "Worked example: a synthetic four-item store over four months. Replace it with your own report."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#report-paste", "#costs"]) $(id).value = ""; $("#report-file").value = ""; report.hidden = true; rows = []; costs = {}; status.textContent = "Cleared."; });
+    $("#resell").addEventListener("change", () => { if (rows.length) render(); });
+    $("#items").addEventListener("change", (e) => {
+      const el = e.target.closest("input.cost");
+      if (!el) return;
+      const t = el.value.trim();
+      const v = t === "" ? undefined : parseFloat(t.replace(/[^0-9.]/g, ""));
+      if (v === undefined || Number.isNaN(v)) delete costs[el.dataset.name]; else costs[el.dataset.name] = v;
+      render();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const head = "item,item_id,units,units_in_refunded_orders,buyers_paid,you_kept,unit_cost,profit";
+      const body = last.items.map((k) => [q(k.name), q(k.itemId), k.units, k.unitsRefunded, k.gross.toFixed(2), k.net.toFixed(2), costs[k.name] ?? "", k.profit === null ? "" : k.profit.toFixed(2)].join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([[head].concat(body).join("\n")], { type: "text/csv" }));
+      a.download = "profit-by-item.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

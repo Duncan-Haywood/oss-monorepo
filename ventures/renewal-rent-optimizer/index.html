@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Renewal Rent Optimizer — how much to raise rent before tenants leave</title>
+  <meta name="description" content="Free lease renewal rent calculator for small landlords. Paste your past renewal offers (current rent, offered rent, renewed or left) to see how your tenants' chance of staying falls as the increase rises, what a move-out really costs, and the rent increase with the highest expected income. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Renewal Rent Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own past lease renewals into a renewal-chance curve and the rent increase that earns the most after vacancy and turnover, with honest uncertainty.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Renewal Rent Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your past lease renewal offers with the result. Fits how your tenants' chance of staying falls as the rent increase rises, prices a move-out from your vacancy days and turnover cost, finds the increase with the highest expected income over the next lease inside the range you have offered, and back-tests whether the size of the increase explains who stayed at all. Runs entirely in your browser.", "featureList": "lease renewal rent increase calculator, renewal probability by rent increase, optimal rent increase, tenant turnover cost, logistic regression, bootstrap range, landlord pricing, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a lease renewal rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is the share of tenants who sign a new lease when their lease ends. If 40 tenants get a renewal offer and 34 sign, your renewal rate is 85%. The useful question is how that rate changes with the size of the rent increase you offer, and this tool measures that from your own past renewals."}}, {"@type": "Question", "name": "How much should I raise rent at renewal?", "acceptedAnswer": {"@type": "Answer", "text": "Raise it until the extra rent from tenants who stay is outweighed by the cost of the ones you lose. A tenant who leaves costs you vacancy, cleaning and repairs, and the re-leasing work. This tool fits how your renewal chance falls as the increase rises, prices a move-out from the vacancy days and turnover cost you enter, and finds the increase with the highest expected income over the next lease, searching only inside the increases you have actually offered."}}, {"@type": "Question", "name": "How many past renewals do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 25 renewal offers with a result, at least 6 tenants who renewed and 6 who left, and offers that vary: four or more distinct increase levels with a typical spread of about one point or more. If you always offer the same increase, nothing in your history can say what would happen at another, so the tool refuses instead of guessing. Pool every unit you have managed; more is better."}}, {"@type": "Question", "name": "What does a tenant turning over really cost?", "acceptedAnswer": {"@type": "Answer", "text": "Lost rent while the unit sits empty, cleaning and repainting, repairs beyond the deposit, advertising and leasing fees, and sometimes a concession for the next tenant. Enter your own vacancy days and turnover bill. The result is very sensitive to them, which is why the tool shows the cost of one move-out as its own number."}}, {"@type": "Question", "name": "Why might the result be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Rent increases are not random. If you raised rent most in hot buildings or on tenants who had been there for years, the curve mixes that with the size of the increase and can even slope the wrong way; the tool flags that. It cannot see the local market, how you treated the tenant, or rent control limits. Treat the answer as a hypothesis for a small, reversible change in your renewal offers, not a number to bet the portfolio on."}}, {"@type": "Question", "name": "Does it know my local rent control or notice rules?", "acceptedAnswer": {"@type": "Answer", "text": "No. Many places cap annual increases or require specific notice. The tool does not know your jurisdiction and will happily suggest an increase that is illegal where you are. Check the rules that apply to your unit before sending any offer."}}, {"@type": "Question", "name": "Is my rent roll uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your tenants' data. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RENEWAL RENT OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are you raising rent too little, or too much?</h1>
+    <p>Paste or upload your past lease renewals: <strong>current rent, the rent you offered, and whether the tenant renewed</strong>. Tell it what a move-out costs you. The tool fits a <strong>renewal-chance curve</strong> (logistic regression) of how often tenants stay at each size of increase, finds the <strong>increase with the highest expected income over the next lease inside the range you have actually offered</strong>, shows what a point more or less would do, and <strong>back-tests whether the size of the increase explains who stayed at all</strong>. If your offers never varied, it says so instead of guessing.</p>
+    <p class="note">Your rent roll never leaves this browser tab. Statistical estimate from data you supply, not advice, and it does not know your local rent rules. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your past renewals</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: current rent, offered rent, renewed)</label>
+    <textarea id="rows" spellcheck="false" placeholder="current_rent,offered_rent,renewed&#10;1450,1520,1&#10;1800,1960,0"></textarea>
+    <h2 style="margin-top:18px">The unit you are pricing</h2>
+    <div class="row3">
+      <div><label for="rentnow">Its current monthly rent</label><input id="rentnow" inputmode="decimal" placeholder="defaults to the median in your history"></div>
+      <div><label for="market">What a new tenant would pay</label><input id="market" inputmode="decimal" placeholder="defaults to its current rent"></div>
+      <div><label for="vacancy">Vacant days if they leave</label><input id="vacancy" inputmode="decimal" value="30"></div>
+      <div><label for="turnover">Turnover cost if they leave ($)</label><input id="turnover" inputmode="decimal" value="1000"></div>
+      <div><label for="term">Next lease length (months)</label><input id="term" inputmode="decimal" value="12"></div>
+      <div><label for="usual">Your usual increase % (optional)</label><input id="usual" inputmode="decimal" placeholder="defaults to your median offer"></div>
+    </div>
+    <p class="note">Renewed can be 1/0, renewed/left, yes/no, stayed/moved out. Leave out tenants whose lease has not ended. Turnover cost is cleaning, painting, repairs beyond the deposit, advertising and leasing fees; lost rent is added from the vacant days. Rows are read in the order given (oldest first) so the back-test can score your most recent renewals. At least 25 offers with 6 renewals and 6 departures, at four or more different increases.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your renewals, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Renewal chance by size of increase</h3>
+    <div class="legend note"><span>Bars: share who renewed in each quarter of your offers</span><span>Dots: what the fitted curve says for that quarter</span></div>
+    <div id="chart"></div>
+    <h3>What a different increase would do</h3>
+    <p class="note">Around your usual increase, from the fitted curve. Expected income is over the next lease term, counting vacancy and turnover if the tenant leaves. Rows marked "outside" are beyond the increases you have offered: read them as a guess, not a result.</p>
+    <div class="scroll"><table id="sc"><thead><tr><th>Increase</th><th class="n">Offered rent</th><th class="n">Renewal chance</th><th class="n">Expected income over the lease</th><th></th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download scenarios CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> P(renew) = 1 ÷ (1 + e^−(a + b × x)), where x is ln(offered rent ÷ current rent). Fitted by Newton-Raphson on the log-likelihood with a tiny ridge so perfectly separated data cannot push the slope to infinity; the 95% interval uses the inverse Hessian. <strong>Expected income over the lease:</strong> P(renew) × offered rent × months, plus (1 − P) × the value of a departure, which is the new tenant's rent for the months after the vacancy, less your turnover cost. The best increase is searched on a fine grid only between the lowest and highest increase in your data. The 80% ranges and the chance the best increase beats your usual one come from 300 seeded bootstrap resamples (stayers and leavers resampled separately), so a result is reproducible. <strong>Back-test:</strong> the first 75% of rows fit the model, the last 25% are scored by log-loss against simply assuming your overall renewal rate.</p>
+    <p><strong>Not modelled:</strong> the local market, rent control and notice rules, how long the tenant has lived there, how you have treated them, repairs owed, the state of the unit, and what a longer or shorter lease is worth. Increases are not random, so this is correlation, not an experiment. <strong>Unverified:</strong> checked against simulated renewals with known curves in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a lease renewal rate?</h3>
+    <p>It is the share of tenants who sign a new lease when their lease ends. If 40 tenants get a renewal offer and 34 sign, your renewal rate is 85%. The useful question is how that rate changes with the size of the rent increase you offer, and this tool measures that from your own past renewals.</p>
+    <h3>How much should I raise rent at renewal?</h3>
+    <p>Raise it until the extra rent from tenants who stay is outweighed by the cost of the ones you lose. A tenant who leaves costs you vacancy, cleaning and repairs, and the re-leasing work. This tool fits how your renewal chance falls as the increase rises, prices a move-out from the vacancy days and turnover cost you enter, and finds the increase with the highest expected income over the next lease, searching only inside the increases you have actually offered.</p>
+    <h3>How many past renewals do I need?</h3>
+    <p>At least 25 renewal offers with a result, at least 6 tenants who renewed and 6 who left, and offers that vary: four or more distinct increase levels with a typical spread of about one point or more. If you always offer the same increase, nothing in your history can say what would happen at another, so the tool refuses instead of guessing. Pool every unit you have managed; more is better.</p>
+    <h3>What does a tenant turning over really cost?</h3>
+    <p>Lost rent while the unit sits empty, cleaning and repainting, repairs beyond the deposit, advertising and leasing fees, and sometimes a concession for the next tenant. Enter your own vacancy days and turnover bill. The result is very sensitive to them, which is why the tool shows the cost of one move-out as its own number.</p>
+    <h3>Why might the result be wrong?</h3>
+    <p>Rent increases are not random. If you raised rent most in hot buildings or on tenants who had been there for years, the curve mixes that with the size of the increase and can even slope the wrong way; the tool flags that. It cannot see the local market, how you treated the tenant, or rent control limits. Treat the answer as a hypothesis for a small, reversible change in your renewal offers, not a number to bet the portfolio on.</p>
+    <h3>Does it know my local rent control or notice rules?</h3>
+    <p>No. Many places cap annual increases or require specific notice. The tool does not know your jurisdiction and will happily suggest an increase that is illegal where you are. Check the rules that apply to your unit before sending any offer.</p>
+    <h3>Is my rent roll uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your tenants' data. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the renewals you supply; they do not guarantee what will happen when you change an offer, and they do not check any rent-control or notice law that applies to you. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any property-management, listing or rent-pricing vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your renewals are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../self-storage-rate-increase-calculator/">self-storage rate increase calculator</a>, the <a href="../rental-dscr-calculator/">rental DSCR calculator</a> the <a href="../price-elasticity-estimator/">price elasticity estimator</a> and, if you manage other owners' doors for a fee, the <a href="../property-management-profit-calculator/">property management company profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Sending a rent increase? The <a href="../rent-increase-notice-checker/">rent increase notice checker</a> tests each proposed rent against the state cap and notice period and writes the notice &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function chart(r) {
+      const W = 900, H = 260, L = 48, R = 12, T = 12, B = 44;
+      const n = r.bands.length, slot = (W - L - R) / n, bw = slot * 0.5;
+      const y = (v) => T + (H - T - B) * (1 - v);
+      const label = (b) => (b.from * 100).toFixed(1) + " to " + (b.to * 100).toFixed(1) + "% increase";
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of tenants who renewed in each quarter of offers, with the fitted renewal chance">` +
+        [0, 0.25, 0.5, 0.75, 1].map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(t * 100)}%</text>`).join("") +
+        r.bands.map((b, i) => {
+          const cx = L + slot * i + slot / 2;
+          return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${y(b.observed).toFixed(1)}" width="${bw.toFixed(1)}" height="${(H - B - y(b.observed)).toFixed(1)}" fill="#1f5f86" fill-opacity=".85"/>` +
+            `<circle cx="${cx.toFixed(1)}" cy="${y(b.fitted).toFixed(1)}" r="5" fill="#b5533c"/>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 26}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(label(b))}</text>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 11}" font-size="11" text-anchor="middle" fill="#4c5a68">${b.n} offers, ${esc(pct(b.observed, 0))} renewed</text>`;
+        }).join("") + `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const usual = val("#usual");
+      const r = analyze(parsed.rows, {
+        rentNow: val("#rentnow"), marketRent: val("#market"), vacancyDays: val("#vacancy"),
+        turnoverCost: val("#turnover"), termMonths: val("#term"), usualIncrease: usual === undefined ? undefined : usual / 100,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const o = r.optimum;
+      const big = [
+        [pct(r.renewRate, 0), `Overall renewal rate (${r.stayed} renewed of ${r.n})`],
+        [money(r.turnoverCost), `What one move-out costs you against a tenant who stays at today's rent (${money(r.eco.rentNow)} a month)`],
+        [`${pct(r.sens.base, 0)} → ${pct(r.sens.plus1, 0)}`, `Renewal chance at your usual ${pct(r.usualInc, 1)} increase, then one point higher (95% slope interval ${r.ci95[0].toFixed(0)} to ${r.ci95[1].toFixed(0)})`],
+        [pct(o.increase, 1) + " increase", `Best in your tested range, about ${money(o.offer)} a month; 80% of resamples: ${pct(o.increaseRange80[0], 1)} to ${pct(o.increaseRange80[1], 1)}`],
+        [money(o.gain), `Expected gain over the lease vs your usual increase (80%: ${money(o.gainRange80[0])} to ${money(o.gainRange80[1])}; better in ${pct(o.pGain, 0)} of resamples)`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "unidentified"];
+      const msg = r.verdict === "usable" ? "Bigger increases clearly lost more tenants, and the increase helped predict held-out renewals. Still a hypothesis: try a small change in your offers before relying on it, and check your local rent rules." : r.verdict === "weak" ? "The data leans toward bigger increases losing more tenants, but the interval is wide or the hold-out did not confirm it. Collect more renewals or vary your offers more before acting." : "The data does not show a believable renewal curve. Do not set offers from this result.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#chart").innerHTML = chart(r);
+      $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${pct(s.increase, 1)}</td><td class="n">${money(s.offer)}</td><td class="n">${pct(s.renewChance, 0)}</td><td class="n">${money(s.expectedValue)}</td><td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
+      $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} offers, scored on the last ${r.holdout.test}. Average log-loss ${r.holdout.logLossModel.toFixed(3)} with the increase, ${r.holdout.logLossBase.toFixed(3)} assuming only your overall renewal rate (lower is better). ${r.holdout.helps ? "Knowing the increase helped." : "Knowing the increase did not help, so do not read much into the curve."}` : "Not enough offers to hold out a test period.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#rentnow").value = "1800"; $("#market").value = "1850"; $("#vacancy").value = "40"; $("#turnover").value = "2500"; $("#usual").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 80 invented renewals, not a real landlord."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your renewals, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "rent-increase-scenarios.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

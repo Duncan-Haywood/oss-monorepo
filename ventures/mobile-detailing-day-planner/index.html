@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mobile Detailing Day Planner — Which Jobs to Take, Free &amp; Private</title>
+  <meta name="description" content="Free day planner for mobile car detailers. List the jobs with price, time on site, drive and supplies; it picks the most profitable set that fits your hours, shows take-home per hour and names jobs that need a higher price. Nothing uploaded.">
+  <meta property="og:title" content="Which detailing jobs should you take today? Free day planner">
+  <meta property="og:description" content="Price, time, drive and supplies in; best set of jobs, take-home per hour and the price each job needs out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 20l3-7h14l3 7v5h-3v-2H9v2H6zm5-5l-1.5 3.5h13L21 15z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mobile Detailing Day Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "List a day's mobile detailing jobs with price, time on site, drive and supplies. It picks the most profitable set that fits your hours, shows take-home per hour, and names the jobs that need a higher price. Runs in your browser; nothing is uploaded.", "featureList": "Best set of jobs for the day, take-home per hour, price needed per job, far-job drag, declined-job list"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a mobile detailer charge per hour?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the market, but the number to aim for is take-home per hour worked, not revenue per hour: price minus supplies and vehicle cost, divided by on-site time plus the drive. Many detailers quote by package and never see that the drive is unpaid time."}}, {"@type": "Question", "name": "How does this tool plan the day?", "acceptedAnswer": {"@type": "Answer", "text": "It tries every combination of the jobs you list (up to 14), drops the ones that do not fit your hours, and picks the set with the most take-home profit. Drive is estimated as a round trip to the farthest job in the set."}}, {"@type": "Question", "name": "Why is the drive estimate only an estimate?", "acceptedAnswer": {"@type": "Answer", "text": "It treats all jobs as sitting along one road out from your shop. A day that zigzags takes longer, and two jobs on one street take less. Use the extra-drive box to add a cushion."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type in and the assumptions listed on the page. Check the output against your own costs before you change a price or turn down a customer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d3def5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14307d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1e9fb; color: #14307d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eaf8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dfe8fb; color: #14307d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3def5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MOBILE DETAILING DAY PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which detailing jobs should you take today?</h1>
+    <p>List the jobs people want booked, one per line: price, hours on site, how many minutes out from your shop, and supplies. You get the most profitable set that fits your day, your take-home per hour including the drive, and the price each job would need to earn what you want per hour.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="h-jobs">
+      <h2 id="h-jobs">1. The jobs</h2>
+      <label for="jobs">One job per line: label, price, hours on site, drive minutes from the shop, supplies cost (optional)</label>
+      <textarea id="jobs" spellcheck="false" placeholder="SUV full detail, 280, 3.5, 25, 18&#10;Sedan interior, 140, 1.5, 12, 8"></textarea>
+      <div id="parse-errors" class="error" role="alert"></div>
+      <div class="grid">
+        <div><label for="hours">Hours you can work</label><input id="hours" type="number" min="1" max="16" step="0.5" value="8"></div>
+        <div><label for="target">Take-home you want per hour ($)</label><input id="target" type="number" min="0" step="1" value="35"></div>
+        <div><label for="vehicle">Vehicle cost per drive hour ($)</label><input id="vehicle" type="number" min="0" step="1" value="22"></div>
+        <div><label for="fixed">Daily fixed cost ($)</label><input id="fixed" type="number" min="0" step="1" value="0"></div>
+        <div><label for="extra">Extra drive cushion (minutes)</label><input id="extra" type="number" min="0" step="5" value="0"></div>
+      </div>
+      <button type="button" id="run">Plan the day</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+      <button type="button" class="secondary" id="reset">Clear</button>
+    </section>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How much should a mobile detailer charge per hour?</h3>
+      <p>It depends on the market, but the number to aim for is take-home per hour worked, not revenue per hour: price minus supplies and vehicle cost, divided by on-site time plus the drive. Many detailers quote by package and never see that the drive is unpaid time.</p>
+      <h3>How does this tool plan the day?</h3>
+      <p>It tries every combination of the jobs you list (up to 14), drops the ones that do not fit your hours, and picks the set with the most take-home profit. Drive is estimated as a round trip to the farthest job in the set.</p>
+      <h3>Why is the drive estimate only an estimate?</h3>
+      <p>It treats all jobs as sitting along one road out from your shop. A day that zigzags takes longer, and two jobs on one street take less. Use the extra-drive box to add a cushion.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in and the assumptions listed on the page. Check the output against your own costs before you change a price or turn down a customer.</p>
+    </section>
+
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Customer value and repeat business, appointment windows and traffic, water and power access on site, weather, insurance, tax, and whether a low job is worth taking to win a regular customer. The drive model assumes jobs along one road out from your shop and counts one trip out and one back for the day.</p>
+      <p>Need a price for one job first? The <a href="../mobile-detailing-bid-calculator/">mobile detailing bid calculator</a> builds a minimum quote from labor, travel, supplies and margin.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { parseJobs, planDay, diagnose, num, money, hours } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const EXAMPLE = "SUV full detail, 280, 3.5, 25, 18\nSedan interior, 140, 1.5, 12, 8\nTruck exterior + ceramic spray, 190, 2, 18, 22\nMinivan pet-hair deep clean, 230, 3, 20, 14\nRural sedan wash, 90, 1.5, 55, 6\nBoat wash (small), 260, 4, 70, 20";
+    const LABEL = { high: "Act", medium: "Watch", info: "Note" };
+
+    function run() {
+      const { jobs, errors } = parseJobs($("jobs").value);
+      $("parse-errors").innerHTML = errors.map(esc).join("<br>");
+      if (!jobs.length) { $("out").hidden = true; return; }
+      const plan = planDay(jobs, {
+        hoursAvailable: num($("hours").value) > 0 ? num($("hours").value) : 8,
+        targetHourly: num($("target").value) >= 0 ? num($("target").value) : 0,
+        vehicleCostPerHour: num($("vehicle").value) >= 0 ? num($("vehicle").value) : 0,
+        dailyFixed: num($("fixed").value) >= 0 ? num($("fixed").value) : 0,
+        extraDriveMin: num($("extra").value) >= 0 ? num($("extra").value) : 0,
+      });
+      let h = "";
+      if (!plan.none) {
+        const b = plan.best;
+        h += `<div class="finding"><h4>Take these ${b.jobs} job${b.jobs === 1 ? "" : "s"}</h4><p class="stats">${money(b.profit)} take-home over ${hours(b.hoursUsed)} (${hours(b.onsite)} on site + ${hours(b.driveHours)} driving) · ${money(b.perHour)} an hour · ${money(b.revenue)} billed, ${money(b.supplies)} supplies, ${money(b.vehicle)} vehicle</p>`
+          + `<div class="scroll"><table><thead><tr><th>Job</th><th class="n">Price</th><th class="n">Added time</th><th class="n">Adds</th><th class="n">Per hour</th><th class="n">Price for your target</th></tr></thead><tbody>`
+          + plan.perJob.map((p) => `<tr><td>${esc(p.job.label)}</td><td class="n">${money(p.job.price)}</td><td class="n">${hours(p.marginalHours)}</td><td class="n">${money(p.contribution)}</td><td class="n">${money(p.perHour)}</td><td class="n">${money(p.priceToHitTarget)}</td></tr>`).join("")
+          + `</tbody></table></div></div>`;
+        if (plan.bestHourly && plan.bestHourly.set.length !== b.set.length) {
+          const bh = plan.bestHourly;
+          h += `<div class="finding"><h4>If you would rather stop early</h4><p>${bh.set.map((j) => esc(j.label)).join(", ")} pays ${money(bh.perHour)} an hour (${money(bh.profit)} over ${hours(bh.hoursUsed)}), against ${money(b.perHour)} an hour for the full set.</p></div>`;
+        }
+      }
+      for (const f of diagnose(plan)) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { $("jobs").value = EXAMPLE; record("example_loaded"); run(); });
+    $("reset").addEventListener("click", () => { $("jobs").value = ""; $("out").hidden = true; $("parse-errors").textContent = ""; });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

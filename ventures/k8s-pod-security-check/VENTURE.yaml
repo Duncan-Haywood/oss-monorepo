@@ -1,0 +1,53 @@
+name: k8s-pod-security-check
+description: 'Free, read-only heuristic scanner that reads your own Kubernetes Pod, Deployment, StatefulSet, DaemonSet, Job and CronJob manifests for risky pod and container security settings -- privileged containers, host namespaces, hostPath volumes such as docker.sock, SYS_ADMIN or ALL capabilities, running as root, privilege escalation, missing securityContext, :latest images, literal secrets in env -- printing each with its line, the resource and container, the risk and the exact YAML fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest match was 0.28.
+# The existing k8s-* ventures read other things: k8s-deprecated-api-check
+# (removed API versions), k8s-resource-limits-check (requests/limits),
+# k8s-rollout-safety-check (probes, strategy, PDBs) and k8s-requests-rightsizer
+# (cost). None reads securityContext, host namespaces, hostPath or capabilities.
+# Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a mechanical, read-only line scanner over the user's own manifests
+# with no advice-of-record, no probing of anyone else's cluster, no data
+# leaving the device, no scraping. Labelled a heuristic line scan, not a YAML
+# parser, not a full audit and not a compliance claim, with no warranty; a
+# clean scan is never described as secure.
+#
+# First visitor channel: search for "kubernetes privileged true risk",
+# "allowPrivilegeEscalation false", "hostPath docker.sock kubernetes" and
+# "runAsNonRoot securityContext example" (docs, forum and blog results with no
+# checker attached), and developers reviewing a manifest before a cluster
+# admission policy or a security questionnaire asks.
+hypotheses:
+  - claim: 'A developer will paste a Deployment here and find a privileged container, a hostPath mount or a literal password they would otherwise have missed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI so a new privileged or root workload does not merge.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/
+  analytics: null

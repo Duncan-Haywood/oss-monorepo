@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Grant Indirect Cost Calculator — MTDC and the Indirect You Can Charge</title>
+  <meta name="description" content="Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder's total award cap. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="How much indirect cost can you charge on your grant budget?">
+  <meta property="og:description" content="MTDC with the subaward and equipment exclusions applied, indirect at 15% de minimis or your rate, and the direct budget that fits under a funder's cap. Your numbers, not grant advice. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Grant Indirect Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder's total award cap. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is MTDC and why is it not just my direct costs?", "acceptedAnswer": {"@type": "Answer", "text": "Modified total direct costs are your direct costs minus items the federal Uniform Guidance excludes from the indirect-cost base: equipment of $10,000 or more per unit, tuition remission, participant support costs, rental costs, patient care charges, scholarships and fellowships, and the part of each subaward above the first $50,000. Indirect is a percent of that smaller base, so your effective rate on total direct costs is lower than the nominal rate."}}, {"@type": "Question", "name": "What is the de minimis indirect cost rate?", "acceptedAnswer": {"@type": "Answer", "text": "An organisation that has never had a negotiated indirect cost rate agreement may elect a de minimis rate of up to 15 percent of MTDC under 2 CFR 200.414 (raised from 10 percent for awards on or after October 1, 2024). Funders such as foundations often set their own, lower caps."}}, {"@type": "Question", "name": "Does the $50,000 subaward limit apply to each subaward or the total?", "acceptedAnswer": {"@type": "Answer", "text": "Each subaward. The first $50,000 of every subaward is in the MTDC base for the life of the award; only the excess is excluded. Two $80,000 subawards put $100,000 in the base, not $50,000."}}, {"@type": "Question", "name": "Does this give grant or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on the numbers you type using the federal definition, with every threshold editable. Your funder's notice of funding, your negotiated rate agreement and your institution's grants office decide what is allowed. Nothing is uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GRANT INDIRECT COST CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>How much indirect cost can you charge on this grant budget?</h1>
+    <p>Enter your direct costs. The calculator finds your <strong>modified total direct costs (MTDC)</strong> with the first-$50,000-of-each-subaward and $10,000-equipment rules applied, the <strong>indirect cost</strong> at the 15% de minimis rate or your own, the <strong>effective rate you really get on direct costs</strong>, and, if the funder caps the total request, <strong>how much direct budget fits under the cap</strong>.</p>
+    <p class="note"><strong>Your numbers, not grant or accounting advice.</strong> It applies the U.S. federal Uniform Guidance definition (2 CFR 200.1 and 200.414) to amounts you type; every threshold is editable because foundations, states and agencies set their own. Your funder's notice and your grants office decide what is allowed. Nothing is uploaded: the inputs are used in this browser tab only.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Direct costs for the whole award ($)</h2>
+    <p>
+      <label for="salaries">Salaries and wages</label><input type="number" id="salaries" value="120000" min="0" step="100">
+      <label for="fringe">Fringe benefits</label><input type="number" id="fringe" value="33600" min="0" step="100">
+      <label for="supplies">Materials and supplies</label><input type="number" id="supplies" value="6000" min="0" step="100">
+      <label for="travel">Travel</label><input type="number" id="travel" value="8000" min="0" step="100">
+      <label for="services">Services and consultants</label><input type="number" id="services" value="12000" min="0" step="100">
+      <label for="otherdirect">Other direct costs</label><input type="number" id="otherdirect" value="4000" min="0" step="100">
+    </p>
+    <p class="note">Usually excluded from MTDC:</p>
+    <p>
+      <label for="tuition">Tuition remission, scholarships</label><input type="number" id="tuition" value="0" min="0" step="100">
+      <label for="participant">Participant support costs</label><input type="number" id="participant" value="0" min="0" step="100">
+      <label for="rental">Rental costs</label><input type="number" id="rental" value="0" min="0" step="100">
+      <label for="patient">Patient care charges</label><input type="number" id="patient" value="0" min="0" step="100">
+    </p>
+    <p>
+      <label for="equipment">Equipment, one price per line</label><br>
+      <textarea id="equipment" spellcheck="false" style="min-height:70px" placeholder="12500&#10;4200"></textarea><br>
+      <label for="subawards">Subawards, one total amount per line</label><br>
+      <textarea id="subawards" spellcheck="false" style="min-height:70px" placeholder="80000&#10;30000"></textarea>
+    </p>
+    <h2>2. Rate, base and limits</h2>
+    <p>
+      <label for="rate">Indirect rate (%)</label><input type="number" id="rate" value="15" min="0" step="0.5">
+      <label for="base">Rate applies to</label><select id="base"><option value="mtdc" selected>MTDC</option><option value="tdc">Total direct costs</option></select>
+      <label for="eqthreshold">Equipment threshold per unit ($)</label><input type="number" id="eqthreshold" value="10000" min="0" step="100">
+      <label for="subcap">Subaward amount in the base ($)</label><input type="number" id="subcap" value="50000" min="0" step="100">
+      <label for="awardcap">Funder's total award cap ($, optional)</label><input type="number" id="awardcap" value="0" min="0" step="1000">
+    </p>
+    <p>
+      <button type="button" id="go">Calculate indirect</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear results</button>
+      <button type="button" class="secondary" id="copy">Copy summary</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="result-card" hidden aria-live="polite">
+    <h2>The budget</h2>
+    <p id="summary"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>In the base</th><th>Amount</th></tr></thead>
+      <tbody id="included-rows"></tbody>
+    </table></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Excluded from MTDC</th><th>Amount</th></tr></thead>
+      <tbody id="excluded-rows"></tbody>
+    </table></div>
+    <h3>Totals</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+      <tbody id="totals-rows"></tbody>
+    </table></div>
+    <h3>At other rates</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rate</th><th>Indirect</th><th>Total request</th><th>Share of direct</th></tr></thead>
+      <tbody id="scenario-rows"></tbody>
+    </table></div>
+    <p class="note">The rows are arithmetic on what you typed. Rates above 15% need a negotiated rate agreement with your cognizant agency; check the notice of funding for any lower cap.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">More: <a href="what-is-modified-total-direct-costs.html">What is MTDC, and how to calculate indirect costs on a grant budget</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is MTDC and why is it not just my direct costs?</h3>
+    <p>Modified total direct costs are your direct costs minus items the federal Uniform Guidance excludes from the indirect-cost base: equipment of $10,000 or more per unit, tuition remission, participant support costs, rental costs, patient care charges, scholarships and fellowships, and the part of each subaward above the first $50,000. Indirect is a percent of that smaller base, so your effective rate on total direct costs is lower than the nominal rate.</p>
+    <h3>What is the de minimis indirect cost rate?</h3>
+    <p>An organisation that has never had a negotiated indirect cost rate agreement may elect a de minimis rate of up to 15 percent of MTDC under 2 CFR 200.414 (raised from 10 percent for awards on or after October 1, 2024). Funders such as foundations often set their own, lower caps.</p>
+    <h3>Does the $50,000 subaward limit apply to each subaward or the total?</h3>
+    <p>Each subaward. The first $50,000 of every subaward is in the MTDC base for the life of the award; only the excess is excluded. Two $80,000 subawards put $100,000 in the base, not $50,000.</p>
+    <h3>Does this give grant or accounting advice?</h3>
+    <p>No. It does arithmetic on the numbers you type using the federal definition, with every threshold editable. Your funder's notice of funding, your negotiated rate agreement and your institution's grants office decide what is allowed. Nothing is uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not grant, accounting, financial, tax or legal advice, it is not a market rate, and it does not replace your grants office or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter and for your funder's rules. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with, endorsed by or sponsored by any government agency, funder or university; no names are used to imply otherwise.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. The numbers you enter are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../invoice-payment-terms-calculator/">Invoice Payment Terms Calculator</a> and <a href="../freelance-retainer-calculator/">Freelance Retainer Calculator</a>. Writing proposals for clients? <a href="../grant-writer-proposal-price-calculator/">Grant Writer Proposal Price Calculator</a>. Applying to SBIR or STTR? <a href="../sbir-budget-builder/">SBIR / STTR Budget Builder</a>. Tracking report deadlines after the award? <a href="../grant-deadline-tracker/">Grant Deadline Tracker</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeBudget, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const options = () => ({
+      salaries: $("#salaries").value, fringe: $("#fringe").value, supplies: $("#supplies").value, travel: $("#travel").value,
+      services: $("#services").value, otherDirect: $("#otherdirect").value, tuition: $("#tuition").value,
+      participantSupport: $("#participant").value, rental: $("#rental").value, patientCare: $("#patient").value,
+      equipment: $("#equipment").value, subawards: $("#subawards").value, ratePct: $("#rate").value, base: $("#base").value,
+      equipmentThreshold: $("#eqthreshold").value, subawardCap: $("#subcap").value, awardCap: $("#awardcap").value,
+    });
+
+    let lastText = "";
+    function render() {
+      const status = $("#status");
+      let r;
+      try {
+        r = computeBudget(options());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(r);
+      lastText = s.text;
+      $("#summary").innerHTML = `<span class="${s.status === "ok" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      const rows = (lines) => lines.length ? lines.map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${money(v)}</td></tr>`).join("") : `<tr><td colspan="2">None</td></tr>`;
+      $("#included-rows").innerHTML = rows(r.includedLines);
+      $("#excluded-rows").innerHTML = rows(r.excludedLines);
+      $("#totals-rows").innerHTML = [
+        ["Total direct costs", money(r.direct)], ["MTDC", money(r.mtdc)], [`Indirect at ${r.ratePct}%`, money(r.indirect)],
+        ["Total request", money(r.total)], ["Effective indirect rate on direct costs", pct(r.effectiveOnDirect)],
+        ["Indirect as a share of the total request", pct(r.effectiveOnTotal)],
+      ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+      $("#scenario-rows").innerHTML = r.scenarios.map((x) => `<tr><td>${x.ratePct}%${x.current ? " (yours)" : ""}</td><td>${money(x.indirect)}</td><td>${money(x.total)}</td><td>${pct(x.effectiveOnDirect)}</td></tr>`).join("");
+      $("#result-card").hidden = false;
+      record("calculate_run");
+    }
+
+    $("#go").addEventListener("click", render);
+    $("#load-example").addEventListener("click", () => {
+      $("#tuition").value = 18000; $("#equipment").value = "12500\n4200"; $("#subawards").value = "80000\n30000"; $("#awardcap").value = 350000;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => { $("#status").textContent = ""; $("#result-card").hidden = true; });
+    $("#copy").addEventListener("click", async () => {
+      if (!lastText) render();
+      try { await navigator.clipboard.writeText(lastText); $("#status").textContent = "Summary copied."; } catch { $("#status").textContent = "Could not copy; select the summary text instead."; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

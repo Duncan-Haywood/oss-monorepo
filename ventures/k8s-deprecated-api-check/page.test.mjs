@@ -17,7 +17,12 @@ test("docs page links back to the tool", async () => {
 });
 
 test("all pages carry the no-warranty clause", async () => {
-  for (const file of ["index.html", "why-a-manifest-fails-a-kubernetes-upgrade.html", "vs-pluto.html"]) {
+  for (const file of [
+    "index.html",
+    "why-a-manifest-fails-a-kubernetes-upgrade.html",
+    "vs-pluto.html",
+    "vs-checking-the-migration-guide-by-hand.html",
+  ]) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), "utf8");
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
@@ -71,9 +76,33 @@ test("index links one hop to the helm-values-schema-check sibling", async () => 
   );
 });
 
-test("sitemap lists all three published pages", async () => {
+test("index links one hop to the k8s-resource-limits-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/k8s-resource-limits-check\/"/,
+    "index must link ../k8s-resource-limits-check/ so crawlers reach this new sibling in one hop -- it ships with no inbound link otherwise, per platform/pages/siblings-budget.json's orphanBudget: 0",
+  );
+});
+
+test("sitemap lists all published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  for (const loc of ["index.html", "why-a-manifest-fails-a-kubernetes-upgrade.html", "vs-pluto.html"]) {
+  for (const loc of [
+    "index.html",
+    "why-a-manifest-fails-a-kubernetes-upgrade.html",
+    "vs-pluto.html",
+    "vs-checking-the-migration-guide-by-hand.html",
+  ]) {
     assert.match(sitemap, new RegExp(loc.replace(/\./g, "\\.")));
   }
+});
+
+test("index links to the vs-checking-the-migration-guide-by-hand comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="vs-checking-the-migration-guide-by-hand\.html"/);
+});
+
+test("vs-checking-the-migration-guide-by-hand page links back to the tool", async () => {
+  const page = await readFile(new URL("./vs-checking-the-migration-guide-by-hand.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/);
 });

@@ -1,0 +1,59 @@
+name: percentage-rent-audit-checker
+description: >-
+  Free browser tool for retail and restaurant tenants who just received a landlord's percentage-rent statement: type the lease rate and
+  breakpoint, the landlord's sales figure and your own, and the sales lines your lease excludes, and see in dollars how much of the bill
+  does not follow (a wrong sales figure, refunds and gift-card sales left in, billing arithmetic, a cap), the record that would prove
+  each line, and an editable review note. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first scheduled session. A commercial-lease CAM audit was the first idea but cam-reconciliation-check
+# already exists, so the niche moved to the other recurring lease statement. duplicate_check.py: closest venture 0.25 (rent-roll-delinquency-
+# analyzer, a landlord-side tool); nothing recomputes a tenant's percentage-rent bill. Sibling of commercial-lease-effective-rent-calculator,
+# commercial-lease-abstract-reader and cam-reconciliation-check.
+#
+# Why this niche: a restaurant or shop on a percentage-rent lease pays a year-end overage that is a few thousand dollars on one multiplication,
+# and it is rarely checked. The same errors recur: sales counted before refunds or gift-card exclusions, the wrong breakpoint, a cap ignored.
+# Accountants do not price it for a small tenant and no neutral free tool does.
+#
+# First visitor: a tenant searching "percentage rent calculator", "natural breakpoint percentage rent", "audit landlord percentage rent
+# statement". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a lease-year sales-log export behind an env-var switch. Not built.
+#
+# Liability: the one risk is a wrong number or a dispute that fails. Mitigations: no lease text or rate table is shipped (the user types the
+# terms), the arithmetic is hand-counted in unit tests and the lines are tested to add up to the overcharge, bad input throws instead of
+# clamping, and the page states that it is not legal, tax or financial advice, does not read the lease, does not decide who is right and that
+# the lease and the landlord's statement control. It files nothing and contacts no one.
+
+hypotheses:
+  - claim: >-
+      A tenant with a percentage-rent statement will use a free no-upload tool that recomputes the bill from the lease terms and the tenant's own
+      sales, because the check is one multiplication that nobody has set up.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Pricing each excluded sales line and naming the proving record (POS report, sales-tax return, lease definition) is what makes the tenant send
+      a review request instead of paying the statement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's figure instead of their lease, landlord statement or a licensed professional, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/percentage-rent-audit-checker/
+  analytics: null

@@ -5,6 +5,8 @@ whether a platform (eBay, Etsy, Poshmark, Venmo, PayPal, Cash App, StockX,
 and others) is likely to issue a Form 1099-K, per platform and per tax
 year.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/
+
 Open `index.html` in a browser. The calculation is local and works without
 an account, network request, or API key. It is arithmetic against the
 threshold history below, not a lookup of what any specific platform

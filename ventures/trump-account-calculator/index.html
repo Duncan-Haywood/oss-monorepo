@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trump Account Calculator — Growth &amp; Withdrawal Tax Estimator, Free</title>
+  <meta name="description" content="Free calculator for the federal Trump Account child savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A): projects the $1,000 federal seed deposit plus family and employer contributions to age 18 or later, and applies the IRA-style pro-rata withdrawal rule -- the mechanic every 529-plan comparison misses. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Trump Account Calculator — free growth and withdrawal estimator">
+  <meta property="og:description" content="Project a Trump Account's balance to age 18 and beyond, and see exactly how much of a withdrawal is tax-free versus taxable under the pro-rata basis rule -- the detail most savers assume works like a 529 plan and get backwards. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trump Account Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Projects a federal Trump Account's balance (26 U.S.C. 530A, One Big Beautiful Bill Act) from the one-time $1,000 federal pilot deposit for a US citizen born 2025-2028 plus up to $5,000/year in combined family and employer contributions (employer capped at $2,500/year, counted inside the $5,000 total), invested until a chosen withdrawal age of 18 or later. Applies the IRA-style pro-rata basis rule on withdrawal: only individual (family) contributions are basis and come out tax-free, while the seed deposit, employer contributions, and all investment growth are taxed as ordinary income, plus a 10% early-withdrawal penalty before age 59.5 unless the withdrawal is for a recognized use (qualified education, a first home, disability, and similar). Entirely client-side; nothing is uploaded.","featureList":"Balance projection with the federal $1,000 seed deposit and the $5,000/$2,500 annual contribution caps, IRA-style pro-rata tax-free/taxable withdrawal split, 10% early-withdrawal penalty logic with the recognized-use exception, rough income-tax estimate at a chosen marginal rate"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a Trump Account?","acceptedAnswer":{"@type":"Answer","text":"A federal, tax-advantaged savings account for a US citizen under 18, created by the One Big Beautiful Bill Act (26 U.S.C. 530A). A US citizen born 2025-2028 gets a one-time $1,000 federal pilot deposit; anyone can then contribute up to $5,000/year combined (2026-2027, indexed from 2028), invested in a fund tracking a broad US-company index. No distributions of any kind are allowed before the account owner turns 18."}},{"@type":"Question","name":"Is the $1,000 seed deposit taxed the same as money I contribute myself?","acceptedAnswer":{"@type":"Answer","text":"No -- and this is the detail a 529-plan comparison gets backwards. Money YOU (or another individual) contribute is basis and comes out tax-free. The $1,000 federal seed deposit and any employer contribution create NO basis: every dollar of those, plus ALL investment growth on the whole account, is taxed as ordinary income when withdrawn."}},{"@type":"Question","name":"Can I withdraw just my own contributions tax-free and leave the taxable part in the account?","acceptedAnswer":{"@type":"Answer","text":"No. Withdrawals follow the IRA pro-rata rule: every withdrawal is part tax-free and part taxable, in the same ratio as your basis is to the total account value. You cannot choose to take out your own contributions first."}},{"@type":"Question","name":"How much can an employer contribute, and does it count against the $5,000 limit?","acceptedAnswer":{"@type":"Answer","text":"An employer can exclude up to $2,500/year per employee from that employee's federal taxable income (still generally subject to payroll tax), and that $2,500 counts INSIDE the shared $5,000 annual cap, not on top of it -- so a $2,500 employer contribution leaves only $2,500 of room for everyone else that year."}},{"@type":"Question","name":"What happens if I withdraw before age 18, or before 59.5?","acceptedAnswer":{"@type":"Answer","text":"No distribution of any kind is permitted before the account owner turns 18. From 18 on, the account is taxed like a traditional IRA: a 10% penalty applies to the taxable portion of any withdrawal before age 59.5, unless the withdrawal is for a use the traditional-IRA penalty exceptions already recognize -- qualified higher education expenses, a first home purchase, certain disability, and similar."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal contribution caps, seed-deposit rule, and pro-rata withdrawal formula to the numbers you enter. It is not a full tax return, it does not verify your child's citizenship or birth year, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
+    .checkrow input { width: auto; margin-top: 4px; flex: 0 0 auto; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TRUMP ACCOUNT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will a Trump Account be worth, and how much of it is actually yours?</h1>
+    <p>A Trump Account is the new federal child savings account created by the
+    One Big Beautiful Bill Act: a one-time <strong>$1,000</strong> seed
+    deposit for a US citizen born 2025-2028, plus up to
+    <strong>$5,000/year</strong> in combined family and employer money. This
+    projects the balance to age 18 or later, and shows the withdrawal split
+    almost every 529-plan comparison gets wrong: only <strong>your own
+    contributions</strong> come out tax-free — the seed money, employer
+    contributions, and every dollar of growth do not.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The child's account</h2>
+    <div class="grid">
+      <div>
+        <label for="current-age">Age to start this projection from</label>
+        <input type="number" id="current-age" min="0" max="18" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="withdrawal-age">Age you plan to withdraw at</label>
+        <input type="number" id="withdrawal-age" min="18" step="1" placeholder="e.g. 18">
+      </div>
+      <div>
+        <label for="annual-return">Assumed annual return</label>
+        <select id="annual-return">
+          <option value="4">4% (conservative)</option>
+          <option value="6" selected>6%</option>
+          <option value="8">8%</option>
+          <option value="10">10% (optimistic)</option>
+        </select>
+      </div>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="seed-eligible" checked>
+      <label for="seed-eligible">The child is a US citizen born 2025-2028 (eligible for the one-time $1,000 federal seed deposit)</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Annual contributions</h2>
+    <div class="grid">
+      <div>
+        <label for="family-contribution">Family contributions this year ($)</label>
+        <input type="number" id="family-contribution" min="0" step="100" placeholder="e.g. 2500">
+      </div>
+      <div>
+        <label for="employer-contribution">Employer contributions this year ($)</label>
+        <input type="number" id="employer-contribution" min="0" step="100" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">Family and employer money together cannot exceed
+    $5,000/year (the 2026-2027 figure), and the employer portion alone cannot
+    exceed $2,500/year — this projection applies both caps and this same
+    dollar amount every year until the withdrawal age above.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Withdrawal</h2>
+    <div class="grid">
+      <div>
+        <label for="marginal-rate">Your marginal federal tax rate at withdrawal</label>
+        <select id="marginal-rate">
+          <option value="10">10%</option>
+          <option value="12" selected>12%</option>
+          <option value="22">22%</option>
+          <option value="24">24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+      </div>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="qualified-use">
+      <label for="qualified-use">The withdrawal is for a recognized use (qualified higher education, a first home purchase, certain disability, birth/adoption expenses, or similar) — waives the 10% early-withdrawal penalty</label>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in the account and contribution details, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Projection</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates one
+      account's federal tax treatment only — not your total tax liability,
+      other deductions or credits, or state tax (most states have not yet
+      ruled on their own treatment of a Trump Account).</li>
+      <li><strong>Citizenship and birth year are self-reported</strong> —
+      confirmed by you, not verified here.</li>
+      <li><strong>The $5,000 annual cap is applied flat to every projected
+      year.</strong> By statute it is indexed upward in $100 increments
+      starting 2028, so this understates the room available in later years —
+      never overstates it.</li>
+      <li><strong>Assumes a single, full withdrawal</strong> at the chosen
+      age. A series of partial withdrawals uses the same pro-rata percentage
+      on each one, applied to a shrinking balance.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a Trump Account?</h3>
+    <p>A federal, tax-advantaged savings account for a US citizen under 18, created by the One Big Beautiful Bill Act (26 U.S.C. 530A). A US citizen born 2025-2028 gets a one-time $1,000 federal pilot deposit; anyone can then contribute up to $5,000/year combined (2026-2027, indexed from 2028), invested in a fund tracking a broad US-company index. No distributions of any kind are allowed before the account owner turns 18.</p>
+    <h3>Is the $1,000 seed deposit taxed the same as money I contribute myself?</h3>
+    <p>No -- and this is the detail a 529-plan comparison gets backwards. Money YOU (or another individual) contribute is basis and comes out tax-free. The $1,000 federal seed deposit and any employer contribution create NO basis: every dollar of those, plus ALL investment growth on the whole account, is taxed as ordinary income when withdrawn.</p>
+    <h3>Can I withdraw just my own contributions tax-free and leave the taxable part in the account?</h3>
+    <p>No. Withdrawals follow the IRA pro-rata rule: every withdrawal is part tax-free and part taxable, in the same ratio as your basis is to the total account value. You cannot choose to take out your own contributions first.</p>
+    <h3>How much can an employer contribute, and does it count against the $5,000 limit?</h3>
+    <p>An employer can exclude up to $2,500/year per employee from that employee's federal taxable income (still generally subject to payroll tax), and that $2,500 counts INSIDE the shared $5,000 annual cap, not on top of it -- so a $2,500 employer contribution leaves only $2,500 of room for everyone else that year.</p>
+    <h3>What happens if I withdraw before age 18, or before 59.5?</h3>
+    <p>No distribution of any kind is permitted before the account owner turns 18. From 18 on, the account is taxed like a traditional IRA: a 10% penalty applies to the taxable portion of any withdrawal before age 59.5, unless the withdrawal is for a use the traditional-IRA penalty exceptions already recognize -- qualified higher education expenses, a first home purchase, certain disability, and similar.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published federal contribution caps, seed-deposit rule, and pro-rata withdrawal formula to the numbers you enter. It is not a full tax return, it does not verify your child's citizenship or birth year, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your child's citizenship, birth year, and your own numbers before acting on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also tracking a 401(k) after-tax contribution strategy? See the <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth 401(k) calculator</a> — it uses a similar IRS dollar-limit-and-headroom shape, for a very different account.</p>
+    <p>Running a small business weighing a 2025 R&amp;D expensing election instead? See the <a href="../section-174a-catchup-calculator/">Section 174A catch-up calculator</a> — a different brand-new 2025-2026 OBBBA provision, same "no signup, run the numbers yourself" shape.</p>
+    <p>Planning a larger estate instead of a single child's account? See the <a href="../estate-tax-exemption-calculator/">estate tax exemption calculator</a> — another brand-new federal OBBBA wealth-transfer provision, this one the permanent $15,000,000 lifetime estate and gift exclusion rather than a $1,000 seed deposit.</p>
+    <p>Want the annual, spendable side of raising that same child? See the <a href="../child-tax-credit-calculator/">Child Tax Credit calculator</a> — a permanent, recurring $2,200-per-child federal tax credit claimed every year, not a one-time savings account seed.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of a Trump Account usually goes wrong</a>.</p>
+    <p>Want to see the pro-rata withdrawal math worked all the way through? See <a href="./how-is-a-trump-account-taxed-when-you-withdraw.html">how a Trump Account is taxed when you withdraw money</a>, including why routing money through an employer instead of a family member cuts the tax-free share in half.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { projectTrumpAccount, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      currentAge: $("#current-age"), withdrawalAge: $("#withdrawal-age"), annualReturn: $("#annual-return"),
+      seedEligible: $("#seed-eligible"), familyContribution: $("#family-contribution"),
+      employerContribution: $("#employer-contribution"), marginalRate: $("#marginal-rate"),
+      qualifiedUse: $("#qualified-use"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = projectTrumpAccount({
+        currentAge: Number(els.currentAge.value) || 0,
+        withdrawalAge: Number(els.withdrawalAge.value) || 18,
+        annualReturnPercent: Number(els.annualReturn.value),
+        seedEligible: els.seedEligible.checked,
+        annualFamilyContribution: Number(els.familyContribution.value) || 0,
+        annualEmployerContribution: Number(els.employerContribution.value) || 0,
+        marginalTaxRatePercent: Number(els.marginalRate.value),
+        qualifiedUse: els.qualifiedUse.checked,
+      });
+
+      els.stats.innerHTML = `Projected balance at age ${result.withdrawalAgeUsed}: <strong><span class="price">${money(result.balance)}</span></strong> — of which <strong>${money(result.taxFreeAmount)}</strong> is tax-free basis and <strong>${money(result.taxableAmount)}</strong> is taxable. Estimated net after tax${result.penalty > 0 ? " and penalty" : ""}: <strong>${money(result.netAfterTax)}</strong>.`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.currentAge.value = "0";
+      els.withdrawalAge.value = "18";
+      els.annualReturn.value = "6";
+      els.seedEligible.checked = true;
+      els.familyContribution.value = "2500";
+      els.employerContribution.value = "0";
+      els.marginalRate.value = "12";
+      els.qualifiedUse.checked = false;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a child born 2025-2028, $2,500/year in family contributions from birth to 18, 6% assumed return.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.currentAge.value = "";
+      els.withdrawalAge.value = "";
+      els.familyContribution.value = "";
+      els.employerContribution.value = "";
+      els.qualifiedUse.checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Fill in the account and contribution details, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "appeal-panels"
+version = "0.1.0"
+description = "Escalating appeal panels for decentralised dispute resolution: error is a product over tiers when fees deter frivolous appeals; the fee window, its cost, and the shared-bias floor"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

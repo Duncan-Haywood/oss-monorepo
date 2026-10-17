@@ -1,0 +1,45 @@
+Roundtrip twin: out-and-back leg D = 1 at airspeed v (units of V0), along-track wind w (headwind out, tailwind back), P(v) = (v^3 + 1/v)/2
+
+== 1. Closed form vs time-stepped simulation (dt = 1e-4) ==
+v=1.4 w=0.5: simulated 2.83164 closed form 2.83135
+v=1.0 w=0.3: simulated 2.19790 closed form 2.19780
+v=2.0 w=1.0: simulated 5.66737 closed form 5.66667
+
+== 2. Real / zero-wind-twin energy = 1/(1-(w/v)^2) (same for headwind out or back: wind does not cancel) ==
+w/v    ratio   (extra energy, and battery margin needed for the twin's plan)
+0.10   1.010   +1.0%
+0.20   1.042   +4.2%
+0.30   1.099   +9.9%
+0.50   1.333   +33.3%
+0.70   1.961   +96.1%
+0.90   5.263   +426.3%
+0.99   50.251  +4925.1%
+At v = 1.5 (a cruise 50% above V0), w = 0.75 = half the airspeed: real/twin = 1.333; at w >= v the vehicle never returns.
+
+== 3. Optimal airspeed: twin says v = 1 for every wind; real u* = v^2 = w^2 + sqrt(w^4+1) ==
+w      v*_real  E(v*)    E(1)     regret of flying the twin optimum
+0.00   1.0000   2.0000   2.0000   0.00%
+0.20   1.0202   2.0816   2.0833   0.08%
+0.40   1.0829   2.3454   2.3810   1.51%
+0.60   1.1928   2.8457   3.1250   9.82%
+0.80   1.3518   3.6545   5.5556   52.02%
+0.95   1.4998   4.4991   20.5128  355.93%
+Twin's claimed energy at v=1 is 2.000 for every w; real at w=0.8 is 5.556 (2.78x). At w >= 1 the twin-optimal v=1 cannot return at all.
+
+== 4. A twin calibrated on ONE leg (effective wind w_c = +w headwind leg, -w tailwind leg), assuming the return is the same ==
+v = 1.5; real round-trip energy vs one-leg-twin prediction
+w     real     headwind-leg twin     tailwind-leg twin
+0.10  2.7065   2.8869   (+6.7%)    2.5260   (-6.7%)
+0.30  2.8067   3.3681   (+20.0%)    2.2454   (-20.0%)
+0.50  3.0312   4.0417   (+33.3%)    2.0208   (-33.3%)
+0.75  3.5926   5.3889   (+50.0%)    1.7963   (-50.0%)
+1.00  4.8500   8.0833   (+66.7%)    1.6167   (-66.7%)
+1.30  10.8259  20.2083  (+86.7%)    1.4435   (-86.7%)
+Exactly: one-leg prediction / real = 1 + w/v (headwind leg) and 1 - w/v (tailwind leg); the zero-wind twin is off by the factor 1 - (w/v)^2, second order.
+
+== 5. Stall boundary: fraction of uniform winds w ~ U[-a, a] for which the plan at airspeed v fails to return ==
+v=1.0 a=0.5: P(|w| >= v) = 0.000
+v=1.0 a=1.0: P(|w| >= v) = 0.000
+v=1.0 a=1.5: P(|w| >= v) = 0.333
+v=1.5 a=1.5: P(|w| >= v) = 0.000
+v=1.5 a=2.0: P(|w| >= v) = 0.250

@@ -1,0 +1,614 @@
+{
+ "versions": {
+  "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+  "nextpnr": "\"yowasp-nextpnr-ice40\" -- Next Generation Place and Route (Version nextpnr-0.11.1)"
+ },
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "freq_target_mhz": 60,
+ "rows": [
+  {
+   "H": 8,
+   "wbits": 2,
+   "rtl_match": "3/3",
+   "rom_kbit": 1.3,
+   "test_acc_trained": 0.2796628964293635,
+   "cycles": 651,
+   "up5k": {
+    "synth_lc": 559,
+    "synth_ff": 217,
+    "synth_carry": 127,
+    "synth_ebr": 1,
+    "pnr_lc": 734,
+    "pnr_ebr": 1,
+    "fits": true,
+    "fmax": 17.28,
+    "fmax_all": [
+     17.88,
+     17.28,
+     16.86
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 559,
+    "synth_ff": 217,
+    "synth_carry": 127,
+    "synth_ebr": 1,
+    "pnr_lc": 734,
+    "pnr_ebr": 1,
+    "fits": true,
+    "fmax": 47.0,
+    "fmax_all": [
+     47.0,
+     47.79,
+     45.39
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 8,
+   "wbits": 4,
+   "rtl_match": "3/3",
+   "rom_kbit": 2.6,
+   "test_acc_trained": 0.48761735787683885,
+   "cycles": 651,
+   "up5k": {
+    "synth_lc": 664,
+    "synth_ff": 220,
+    "synth_carry": 121,
+    "synth_ebr": 1,
+    "pnr_lc": 837,
+    "pnr_ebr": 1,
+    "fits": true,
+    "fmax": 15.75,
+    "fmax_all": [
+     16.02,
+     15.68,
+     15.75
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 664,
+    "synth_ff": 220,
+    "synth_carry": 121,
+    "synth_ebr": 1,
+    "pnr_lc": 837,
+    "pnr_ebr": 1,
+    "fits": true,
+    "fmax": 42.31,
+    "fmax_all": [
+     40.27,
+     43.16,
+     42.31
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 8,
+   "wbits": 8,
+   "rtl_match": "3/3",
+   "rom_kbit": 5.2,
+   "test_acc_trained": 0.5049900199600798,
+   "cycles": 651,
+   "up5k": {
+    "synth_lc": 969,
+    "synth_ff": 224,
+    "synth_carry": 114,
+    "synth_ebr": 2,
+    "pnr_lc": 1138,
+    "pnr_ebr": 2,
+    "fits": true,
+    "fmax": 15.43,
+    "fmax_all": [
+     15.25,
+     15.65,
+     15.43
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 969,
+    "synth_ff": 224,
+    "synth_carry": 114,
+    "synth_ebr": 2,
+    "pnr_lc": 1138,
+    "pnr_ebr": 2,
+    "fits": true,
+    "fmax": 42.35,
+    "fmax_all": [
+     42.35,
+     40.49,
+     42.59
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 16,
+   "wbits": 2,
+   "rtl_match": "3/3",
+   "rom_kbit": 2.6,
+   "test_acc_trained": 0.3602424780069491,
+   "cycles": 1299,
+   "up5k": {
+    "synth_lc": 538,
+    "synth_ff": 163,
+    "synth_carry": 130,
+    "synth_ebr": 2,
+    "pnr_lc": 655,
+    "pnr_ebr": 2,
+    "fits": true,
+    "fmax": 20.61,
+    "fmax_all": [
+     20.61,
+     21.01,
+     20.59
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 538,
+    "synth_ff": 163,
+    "synth_carry": 130,
+    "synth_ebr": 2,
+    "pnr_lc": 655,
+    "pnr_ebr": 2,
+    "fits": true,
+    "fmax": 49.5,
+    "fmax_all": [
+     51.02,
+     49.48,
+     49.5
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 16,
+   "wbits": 4,
+   "rtl_match": "3/3",
+   "rom_kbit": 5.2,
+   "test_acc_trained": 0.5852738966511422,
+   "cycles": 1299,
+   "up5k": {
+    "synth_lc": 685,
+    "synth_ff": 165,
+    "synth_carry": 124,
+    "synth_ebr": 3,
+    "pnr_lc": 801,
+    "pnr_ebr": 3,
+    "fits": true,
+    "fmax": 17.52,
+    "fmax_all": [
+     17.5,
+     17.55,
+     17.52
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 685,
+    "synth_ff": 165,
+    "synth_carry": 124,
+    "synth_ebr": 3,
+    "pnr_lc": 801,
+    "pnr_ebr": 3,
+    "fits": true,
+    "fmax": 43.82,
+    "fmax_all": [
+     43.82,
+     42.49,
+     44.11
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 16,
+   "wbits": 8,
+   "rtl_match": "3/3",
+   "rom_kbit": 10.4,
+   "test_acc_trained": 0.6124048199896504,
+   "cycles": 1299,
+   "up5k": {
+    "synth_lc": 880,
+    "synth_ff": 163,
+    "synth_carry": 116,
+    "synth_ebr": 5,
+    "pnr_lc": 991,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 16.11,
+    "fmax_all": [
+     15.9,
+     16.39,
+     16.11
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 880,
+    "synth_ff": 163,
+    "synth_carry": 116,
+    "synth_ebr": 5,
+    "pnr_lc": 991,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 39.99,
+    "fmax_all": [
+     38.98,
+     39.99,
+     40.6
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 32,
+   "wbits": 2,
+   "rtl_match": "3/3",
+   "rom_kbit": 5.2,
+   "test_acc_trained": 0.36127744510978044,
+   "cycles": 2595,
+   "up5k": {
+    "synth_lc": 613,
+    "synth_ff": 167,
+    "synth_carry": 133,
+    "synth_ebr": 3,
+    "pnr_lc": 733,
+    "pnr_ebr": 3,
+    "fits": true,
+    "fmax": 21.75,
+    "fmax_all": [
+     20.94,
+     22.0,
+     21.75
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 613,
+    "synth_ff": 167,
+    "synth_carry": 133,
+    "synth_ebr": 3,
+    "pnr_lc": 733,
+    "pnr_ebr": 3,
+    "fits": true,
+    "fmax": 53.93,
+    "fmax_all": [
+     53.93,
+     53.83,
+     56.23
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 32,
+   "wbits": 4,
+   "rtl_match": "3/3",
+   "rom_kbit": 10.4,
+   "test_acc_trained": 0.6847785909662156,
+   "cycles": 2595,
+   "up5k": {
+    "synth_lc": 666,
+    "synth_ff": 166,
+    "synth_carry": 126,
+    "synth_ebr": 5,
+    "pnr_lc": 785,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 17.39,
+    "fmax_all": [
+     17.36,
+     17.53,
+     17.39
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 666,
+    "synth_ff": 166,
+    "synth_carry": 126,
+    "synth_ebr": 5,
+    "pnr_lc": 785,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 42.92,
+    "fmax_all": [
+     42.92,
+     42.53,
+     45.79
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 32,
+   "wbits": 8,
+   "rtl_match": "3/3",
+   "rom_kbit": 20.7,
+   "test_acc_trained": 0.690544836253419,
+   "cycles": 2595,
+   "up5k": {
+    "synth_lc": 901,
+    "synth_ff": 167,
+    "synth_carry": 119,
+    "synth_ebr": 7,
+    "pnr_lc": 1016,
+    "pnr_ebr": 7,
+    "fits": true,
+    "fmax": 16.2,
+    "fmax_all": [
+     15.91,
+     16.2,
+     16.48
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 901,
+    "synth_ff": 167,
+    "synth_carry": 119,
+    "synth_ebr": 7,
+    "pnr_lc": 1016,
+    "pnr_ebr": 7,
+    "fits": true,
+    "fmax": 40.16,
+    "fmax_all": [
+     40.16,
+     38.85,
+     40.5
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 64,
+   "wbits": 2,
+   "rtl_match": "3/3",
+   "rom_kbit": 10.4,
+   "test_acc_trained": 0.4976713240186294,
+   "cycles": 5187,
+   "up5k": {
+    "synth_lc": 569,
+    "synth_ff": 168,
+    "synth_carry": 136,
+    "synth_ebr": 5,
+    "pnr_lc": 694,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 20.73,
+    "fmax_all": [
+     20.54,
+     21.01,
+     20.73
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 569,
+    "synth_ff": 168,
+    "synth_carry": 136,
+    "synth_ebr": 5,
+    "pnr_lc": 694,
+    "pnr_ebr": 5,
+    "fits": true,
+    "fmax": 50.68,
+    "fmax_all": [
+     51.33,
+     50.16,
+     50.68
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 64,
+   "wbits": 4,
+   "rtl_match": "3/3",
+   "rom_kbit": 20.7,
+   "test_acc_trained": 0.7224070377762993,
+   "cycles": 5187,
+   "up5k": {
+    "synth_lc": 709,
+    "synth_ff": 170,
+    "synth_carry": 129,
+    "synth_ebr": 7,
+    "pnr_lc": 831,
+    "pnr_ebr": 7,
+    "fits": true,
+    "fmax": 17.53,
+    "fmax_all": [
+     17.42,
+     17.64,
+     17.53
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 709,
+    "synth_ff": 170,
+    "synth_carry": 129,
+    "synth_ebr": 7,
+    "pnr_lc": 831,
+    "pnr_ebr": 7,
+    "fits": true,
+    "fmax": 43.43,
+    "fmax_all": [
+     44.19,
+     42.94,
+     43.43
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 64,
+   "wbits": 8,
+   "rtl_match": "3/3",
+   "rom_kbit": 41.5,
+   "test_acc_trained": 0.7247726768684851,
+   "cycles": 5187,
+   "up5k": {
+    "synth_lc": 967,
+    "synth_ff": 171,
+    "synth_carry": 122,
+    "synth_ebr": 12,
+    "pnr_lc": 1087,
+    "pnr_ebr": 12,
+    "fits": true,
+    "fmax": 15.29,
+    "fmax_all": [
+     15.32,
+     14.88,
+     15.29
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 967,
+    "synth_ff": 171,
+    "synth_carry": 122,
+    "synth_ebr": 12,
+    "pnr_lc": 1087,
+    "pnr_ebr": 12,
+    "fits": true,
+    "fmax": 37.5,
+    "fmax_all": [
+     38.55,
+     35.04,
+     37.5
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 128,
+   "wbits": 2,
+   "rtl_match": "3/3",
+   "rom_kbit": 20.7,
+   "test_acc_trained": 0.6796776816736897,
+   "cycles": 10371,
+   "up5k": {
+    "synth_lc": 516,
+    "synth_ff": 163,
+    "synth_carry": 139,
+    "synth_ebr": 9,
+    "pnr_lc": 643,
+    "pnr_ebr": 9,
+    "fits": true,
+    "fmax": 20.35,
+    "fmax_all": [
+     20.24,
+     20.35,
+     20.81
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 516,
+    "synth_ff": 163,
+    "synth_carry": 139,
+    "synth_ebr": 9,
+    "pnr_lc": 643,
+    "pnr_ebr": 9,
+    "fits": true,
+    "fmax": 50.12,
+    "fmax_all": [
+     50.84,
+     48.13,
+     50.12
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 128,
+   "wbits": 4,
+   "rtl_match": "3/3",
+   "rom_kbit": 41.5,
+   "test_acc_trained": 0.7487247726768684,
+   "cycles": 10371,
+   "up5k": {
+    "synth_lc": 674,
+    "synth_ff": 164,
+    "synth_carry": 132,
+    "synth_ebr": 14,
+    "pnr_lc": 798,
+    "pnr_ebr": 14,
+    "fits": true,
+    "fmax": 16.86,
+    "fmax_all": [
+     16.83,
+     17.14,
+     16.86
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 674,
+    "synth_ff": 164,
+    "synth_carry": 132,
+    "synth_ebr": 14,
+    "pnr_lc": 798,
+    "pnr_ebr": 14,
+    "fits": true,
+    "fmax": 41.41,
+    "fmax_all": [
+     39.78,
+     41.41,
+     41.72
+    ],
+    "device_lc": 7680
+   }
+  },
+  {
+   "H": 128,
+   "wbits": 8,
+   "rtl_match": "3/3",
+   "rom_kbit": 82.9,
+   "test_acc_trained": 0.7481333629038219,
+   "cycles": 10371,
+   "up5k": {
+    "synth_lc": 930,
+    "synth_ff": 166,
+    "synth_carry": 125,
+    "synth_ebr": 24,
+    "pnr_lc": 1054,
+    "pnr_ebr": 24,
+    "fits": true,
+    "fmax": 14.92,
+    "fmax_all": [
+     14.97,
+     14.9,
+     14.92
+    ],
+    "device_lc": 5280
+   },
+   "hx8k": {
+    "synth_lc": 930,
+    "synth_ff": 166,
+    "synth_carry": 125,
+    "synth_ebr": 24,
+    "pnr_lc": 1054,
+    "pnr_ebr": 24,
+    "fits": true,
+    "fmax": 37.2,
+    "fmax_all": [
+     37.96,
+     36.77,
+     37.2
+    ],
+    "device_lc": 7680
+   }
+  }
+ ]
+}

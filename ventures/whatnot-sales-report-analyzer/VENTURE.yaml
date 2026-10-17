@@ -1,0 +1,75 @@
+name: whatnot-sales-report-analyzer
+description: >-
+  Free browser tool that turns a Whatnot seller orders CSV into profit per sale,
+  show, category and month after Whatnot's commission and payment processing,
+  the effective fee rate, low-price sales that barely pay, and the shows and
+  categories that lose money once what the seller paid is supplied. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Whatnot live-selling is a
+# fast-growing reseller channel (cards, sneakers, vintage, coins) with thin per-lot
+# margins, and the fee is not the headline 8%: processing applies to item plus
+# shipping plus tax plus a flat 30 cents. whatnot-seller-payout prices one lot;
+# nothing reads a seller's own order history. Existing answers are spreadsheets and
+# paid reseller-analytics tools that want account access. Linked both ways.
+#
+# First visitor: r/whatnot seller threads and reseller communities asking "am I
+# actually making money on shows"; search phrases "whatnot seller fees calculator",
+# "whatnot profit tracker", "whatnot sales report". Volume not measured.
+#
+# What makes it more than a total: profit cut by show and category, groups under
+# three costed sales are never named, small sales are shown with their real fee share,
+# the file's net earnings is trusted over derived figures with the gap shown, and
+# commission and processing rates are editable and labelled as assumptions.
+#
+# Privacy is the differentiator and the liability boundary: the file, which may hold
+# buyer details, never leaves the browser (a test asserts no network calls), so the
+# portfolio holds no seller or buyer data.
+#
+# Path to revenue (payment rails stay off): lead magnet feeding whatnot-seller-payout
+# and where-to-sell-calculator. A paid version, if usage appears, is multi-file
+# history and inventory cost import behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and stated assumptions, model and
+# omissions stated on the page, no tax or financial advice, no warranty,
+# independent-of-Whatnot clause, fee defaults flagged as assumptions.
+#
+# Unverified: column names are from memory of Whatnot's seller export and matched by
+# alias; no real export was available, so the first user report of an unread file is
+# the priority fix.
+
+hypotheses:
+  - claim: >-
+      Whatnot sellers will run a no-signup analysis of the orders export they
+      already hold to see which shows and categories make money before paying for
+      reseller analytics.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing low-price sales and losing categories leads at least one seller to
+      change starting bids or stop sourcing a category, which is the reason to
+      return with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/
+  analytics: null

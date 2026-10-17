@@ -1,0 +1,67 @@
+name: vegetable-garden-planting-calendar
+description: >-
+  Free browser tool for home and market gardeners: enter your average last spring
+  and first fall frost dates, tick your crops, and get a dated plan. When to start
+  seeds indoors, transplant or sow, how often to make succession plantings, when a
+  fall planting still matures, when to plant garlic and when the first harvest
+  arrives, as a month grid, a to-do list for the next 30 days, a phone calendar
+  file (.ics), CSV and plain text. Works for the southern hemisphere. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session asked for something deeper than a
+# calculator. duplicate_check.py: no row above 0.13 for the home-gardener planting
+# calendar; the nearest neighbours are market-garden-bed-planner (a market
+# grower's crop-mix linear program under bed, labor and demand limits: a different
+# question) and fertilizer-blend-optimizer. screened-out.md has no gardening row.
+#
+# Why this niche: tens of millions of home gardeners search "when to plant X" and
+# "when to start seeds indoors" every spring, and the answer is always the same
+# arithmetic on one input (the local average last frost). Existing answers are
+# static tables for one region, or planner apps that need an account and put the
+# calendar export behind a subscription. A private, no-signup tool that takes the
+# visitor's own frost dates and returns every sowing date as a calendar file is a
+# real gap and a strong lead magnet for a seed, tool or garden-box product.
+#
+# First visitor: search phrases "planting calendar", "when to start seeds indoors",
+# "last frost date planting schedule", "succession planting schedule", "fall garden
+# planting dates"; r/gardening, r/vegetablegardening, r/seedstarting each have a
+# weekly "when do I start my tomatoes" thread every spring. Volume not measured
+# with an external tool.
+#
+# Liability boundary: date arithmetic on user-typed frost dates. No payments, no
+# accounts, nothing stored or uploaded. General gardening guidance for a typical
+# year, not a forecast and not agronomic advice; the page says so. No frost-date
+# database is shipped (a wrong date in a table would be a claim this product
+# cannot back); the user supplies their own averages.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a seed-company, raised-bed or garden-supply referral later.
+
+hypotheses:
+  - claim: >-
+      Home gardeners will type their two frost dates into a private, no-signup tool
+      and export the dated plan to their phone calendar, and will return the next
+      season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that puts a frost-tender crop out before the entered last frost, or a planting that cannot mature before the entered first frost.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vegetable-garden-planting-calendar/
+  analytics: null

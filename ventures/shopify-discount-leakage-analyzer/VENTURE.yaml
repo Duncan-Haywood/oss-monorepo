@@ -1,0 +1,75 @@
+name: shopify-discount-leakage-analyzer
+description: >-
+  Free browser tool that turns a Shopify orders export into a discount report:
+  what each discount code gave away, the share of its orders that must be new
+  sales for the discount to break even, refund rate by code, discount depth
+  bands, and how much discount value went to customers who had already ordered.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Merchants discount to
+# grow and almost none can say whether a given code paid for itself; the paid
+# answer is an analytics app (Lifetimely, Triple Whale, Peel) that needs store
+# access and a subscription. The buyer already has the file: Orders -> Export.
+# duplicate_check.py top score 0.19 (shopify-fee-calculator models one typed
+# order; no venture reads a store's own orders export).
+#
+# First visitor: Shopify store owners and DTC operators on r/shopify,
+# r/ecommerce and Shopify community threads asking "are my discount codes
+# worth it", "influencer code profitable"; search phrases "shopify discount
+# code report", "shopify discount code profitability", "shopify discount
+# analysis". Volume not measured with an external tool.
+#
+# What makes it more than a pivot table: the break-even new-sales share
+# d(1-fee)/m says how many of a code's customers must be genuinely incremental
+# for the discount to pay, so a 40% influencer code is judged against margin
+# rather than against feelings; "never" is reported when the discount is deeper
+# than the margin. Derivation is tested (the two sides cancel at the share).
+# Repeat-customer give-away is matched by email inside the file only and the
+# page says the figure is a lower bound.
+#
+# Privacy is the differentiator and the liability boundary: the file, including
+# customer emails, never leaves the browser (a test asserts the page has no
+# network calls), so the portfolio holds no merchant or customer data and needs
+# no Shopify app review or API access.
+#
+# Path to revenue (payment rails stay off): lead magnet. The paid version, if
+# usage appears, is a recurring month-over-month discount audit and a Shopify
+# Admin API connected version behind an env-var switch; neither is built.
+#
+# Liability: arithmetic on the user's file, stated model and omissions on the
+# page, no advice, no warranty, independent-of-Shopify clause.
+
+hypotheses:
+  - claim: >-
+      Small Shopify merchants will run a no-signup, no-store-access analysis of
+      their orders export to judge a discount code before installing an analytics
+      app.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A break-even new-sales share per code is more actionable than a flat
+      discount total, which is the reason to come back after each export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong discount or break-even figure from a real Shopify export, at which point the model needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-discount-leakage-analyzer/
+  analytics: null

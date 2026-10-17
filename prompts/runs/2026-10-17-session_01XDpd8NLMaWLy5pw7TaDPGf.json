@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01XDpd8NLMaWLy5pw7TaDPGf",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T00:38:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P021-split-oversized-items.json",
+      "issue": "Change promised splitting P017 but only P014 was split; P017 stayed one row."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says merge via PR, but gh GraphQL is blocked; had to use MCP tools."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Backlog-only run: interim verify of P020 (999 branches vs 1,465) and P021 (27% partial, worse so far), split P017 into P030/P031. No product code shipped.",
+  "corrections": [],
+  "redteam": null
+}

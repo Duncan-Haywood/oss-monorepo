@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dotenv Exposure Checker — Is Your .env File Publicly Readable?</title>
+<meta name="description" content="Free tool: paste your site's URL and it sends real GET requests to .env, .env.local, .env.production, and two other well-known dotenv filenames, verifying the response body actually looks like a real KEY=VALUE file -- not just an HTTP status -- to name whether your deployment is publicly serving its own environment-variable secrets. Reports key NAMES only, never values. Nothing uploaded to us.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/dotenv-exposure-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dotenv Exposure Checker">
+<meta property="og:description" content="Paste your site's URL to see whether its .env file is publicly reachable. Reports which variable names are declared, never their values. Free, runs from your browser or a CLI, nothing uploaded.">
+<meta property="og:url" content="https://example.invalid/dotenv-exposure-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Dotenv Exposure Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser when the target allows a cross-origin read); a Node.js CLI is also included and has no such restriction",
+  "description": "Sends real GET requests to a site's own well-known dotenv paths (.env, .env.local, .env.production, .env.production.local, .env.development.local), verifies each response body against the real KEY=VALUE shape of a dotenv file, and names whether the deployment is publicly serving its own environment-variable secrets. Reports variable NAMES only, never values.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Checks .env, .env.local, .env.production, .env.production.local, and .env.development.local",
+    "Verifies the response body against the real KEY=VALUE line shape of a dotenv file -- not just an HTTP 200, so a generic soft-404 page is never misread as an exposure",
+    "Flags a likely-live-credential exposure at higher severity when an exposed variable's NAME matches a common secret pattern (SECRET, TOKEN, PASSWORD, API_KEY, and similar)",
+    "Never reads, stores, renders, or reports a variable's VALUE anywhere -- only variable names and counts",
+    "Never writes, submits, or modifies anything on the target -- every request is a plain GET",
+    "A Node.js CLI performs the identical check for CI, with no browser CORS restriction"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why would a production site be serving its own .env file?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Usually because a deploy step copies the whole project directory — .env included — to the web root instead of only the built output, or because a framework's static file server was pointed at the project root rather than a dedicated public/ directory. Node.js, Next.js, Laravel, Django, and Rails all read a project-root .env file by convention, so it commonly sits right next to the code the web server is meant to serve." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool show me the actual secret values?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, never. This tool reads a response body only to check its line SHAPE (is this KEY=VALUE formatted, like a real dotenv file) and to extract variable NAMES — it never displays, stores, or reports a value, not even a redacted or partial one. A variable name like STRIPE_SECRET_KEY being present is already enough to know a real credential is likely exposed, without this tool ever needing to show what that credential is." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from just typing the URL into my browser?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A browser tab shows you the raw response, but many servers return their normal 200 page (a single-page app's fallback route, a themed 404) for literally any path — which can look plausible enough to misread as an exposure, or a real one might be dismissed without checking the content. This tool verifies the body actually has the real KEY=VALUE line shape of a dotenv file before calling anything exposed, and checks five well-known filenames in one run instead of one at a time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to point this at a URL?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends only ordinary GET requests to the five paths under the URL you name — the same requests your own browser already makes when you type one of those URLs in by hand — and it never writes or submits anything. It does not upload the URL or anything it finds to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's server." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my deployment has no secrets exposed anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It means the five paths this run checked either returned a clean 401/403/404 or did not match the dotenv file shape expected for them. It does not check other common secret-exposure paths (a stray .git directory, a config.json, a backup archive), does not crawl the rest of the site, and only checks the one base URL you give it. Treat a clean report as evidence about what this run actually found, not a full audit of the deployment." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  input[type="text"] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; margin: 0.3rem 0 0.8rem; }
+  label { font-weight: 600; font-size: 0.9rem; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.critical { border-left-color: #8b0000; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; word-break: break-all; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; word-break: break-all; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Dotenv Exposure Checker</h1>
+<p>
+  Paste your site's URL. This sends a plain GET request to five well-known dotenv filenames
+  (<code>.env</code>, <code>.env.local</code>, <code>.env.production</code>,
+  <code>.env.production.local</code>, <code>.env.development.local</code>) and verifies each
+  response against the real <strong>KEY=VALUE</strong> line shape of a dotenv file — not just an
+  HTTP status — before calling anything exposed. <strong>Variable values are never read, stored, or
+  shown anywhere by this tool — only variable names.</strong> See
+  <a href="why-env-files-end-up-in-production.html">why .env files end up in production</a> for the
+  common causes and the fix for each. Only run this against a site you own or are authorised to
+  test.
+</p>
+
+<div class="card">
+  <h2>Run the check</h2>
+  <label for="siteUrl">Site URL</label>
+  <input type="text" id="siteUrl" placeholder="https://example.com/" autocomplete="off" spellcheck="false">
+  <p>
+    <button type="button" class="primary" id="run">Check this site</button>
+    <button type="button" id="load-example">Load worked example (exposed)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter a site URL, then click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Every path checked</h3>
+  <table id="path-table"><thead><tr><th>Path</th><th>Result</th></tr></thead><tbody></tbody></table>
+</section>
+
+<div class="card">
+  <h2>Prefer a CLI, or hit a CORS wall in the browser?</h2>
+  <p>
+    Most servers don't send permissive CORS headers on arbitrary static paths, so a browser tab
+    often <strong>cannot</strong> read a cross-origin response at all — you'll see a generic
+    network error with no HTTP status. The CLI has no such restriction and is the one path
+    guaranteed to complete:
+  </p>
+  <pre class="cmd"><code>node check.mjs https://example.com/ --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/dotenv-exposure-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
+    exit code 1 if any path is exposed, so you can gate a deploy on it.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why would a production site be serving its own .env file?</h3>
+  <p>Usually because a deploy step copies the whole project directory — <code>.env</code> included — to the web root instead of only the built output, or because a framework's static file server was pointed at the project root rather than a dedicated <code>public/</code> directory. Node.js, Next.js, Laravel, Django, and Rails all read a project-root <code>.env</code> file by convention, so it commonly sits right next to the code the web server is meant to serve.</p>
+  <h3>Does this tool show me the actual secret values?</h3>
+  <p><strong>No, never.</strong> This tool reads a response body only to check its line shape (is this KEY=VALUE formatted, like a real dotenv file) and to extract variable <em>names</em> — it never displays, stores, or reports a value, not even a redacted or partial one. A variable name like <code>STRIPE_SECRET_KEY</code> being present is already enough to know a real credential is likely exposed, without this tool ever needing to show what that credential is.</p>
+  <h3>How is this different from just typing the URL into my browser?</h3>
+  <p>A browser tab shows you the raw response, but many servers return their normal 200 page (a single-page app's fallback route, a themed 404) for literally any path — which can look plausible enough to misread as an exposure, or a real one might be dismissed without checking the content. This tool verifies the body actually has the real KEY=VALUE line shape of a dotenv file before calling anything exposed, and checks five well-known filenames in one run instead of one at a time. See <a href="vs-checking-by-hand.html">how this compares to checking by hand</a>.</p>
+  <h3>Is it safe to point this at a URL?</h3>
+  <p>This tool sends only ordinary GET requests to the five paths under the URL you name — the same requests your own browser already makes when you type one of those URLs in by hand — and it never writes or submits anything. It does not upload the URL or anything it finds to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's server.</p>
+  <h3>Does a clean report mean my deployment has no secrets exposed anywhere?</h3>
+  <p>It means the five paths this run checked either returned a clean 401/403/404 or did not match the dotenv file shape expected for them. It does not check other common secret-exposure paths (a stray <code>.git</code> directory, a <code>config.json</code>, a backup archive), does not crawl the rest of the site, and only checks the one base URL you give it. Treat a clean report as evidence about what this run actually found, not a full audit of the deployment.</p>
+</section>
+
+<script type="module">
+  import { checkSite } from './probe.mjs';
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    siteUrl: $('#siteUrl'), status: $('#status'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    pathTable: $('#path-table tbody'), run: $('#run'),
+  };
+
+  const EXAMPLE_REPORT = buildReport('https://demo-shop.invalid/', [
+    { path: '.env', ok: true, status: 200, text: 'DATABASE_URL=postgres://user:pass@localhost/db\nSTRIPE_SECRET_KEY=sk_live_abc123\nDEBUG=true\n', error: null, url: 'https://demo-shop.invalid/.env' },
+    { path: '.env.local', ok: false, status: 404, text: null, error: 'HTTP 404', url: 'https://demo-shop.invalid/.env.local' },
+    { path: '.env.production', ok: false, status: 404, text: null, error: 'HTTP 404', url: 'https://demo-shop.invalid/.env.production' },
+    { path: '.env.production.local', ok: false, status: 403, text: null, error: 'HTTP 403', url: 'https://demo-shop.invalid/.env.production.local' },
+    { path: '.env.development.local', ok: false, status: 404, text: null, error: 'HTTP 404', url: 'https://demo-shop.invalid/.env.development.local' },
+  ]);
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function rowFor(c) {
+    if (c.category === 'exposed') return 'EXPOSED';
+    if (c.category === 'blocked') return `not served (good) — HTTP ${c.status}`;
+    if (c.category === 'not-env') return 'HTTP 200 but not dotenv-shaped (likely a soft-404)';
+    return `error — ${c.error ?? 'request did not complete'}`;
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.exposedCount > 0) {
+      els.verdict.textContent = `${report.exposedCount} of ${report.pathsChecked} path(s) confirm a dotenv file is publicly exposed.`;
+    } else {
+      els.verdict.textContent = `No exposed dotenv file found (${report.pathsChecked} path(s) checked).`;
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No exposed paths found.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'critical' ? 'critical' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${escapeHtml(f.severity)})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.url)} — ${f.keyCount} variable(s): ${escapeHtml(f.sampleKeys.join(', '))}${f.keyCount > f.sampleKeys.length ? ', …' : ''}</p>
+        </div>`).join('');
+
+    els.pathTable.innerHTML = report.classified.map((c) =>
+      `<tr><td>${escapeHtml(c.path)}</td><td>${escapeHtml(rowFor(c))}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runLiveCheck() {
+    const siteUrl = els.siteUrl.value.trim();
+    if (!siteUrl) {
+      els.status.innerHTML = '<span class="error">Enter a site URL.</span>';
+      return;
+    }
+    els.status.textContent = 'Checking… this sends real requests to the URL above.';
+    els.run.disabled = true;
+    try {
+      const { results } = await checkSite(siteUrl);
+      const report = buildReport(siteUrl, results);
+      render(report);
+      if (report.errors.length > 0) {
+        els.status.innerHTML = `<span class="error">${report.errors.length} path(s) could not be checked — often a CORS block. Use the CLI for a guaranteed run.</span>`;
+      } else {
+        els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
+      }
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
+    } finally {
+      els.run.disabled = false;
+    }
+  }
+
+  els.run.addEventListener('click', runLiveCheck);
+
+  $('#load-example').addEventListener('click', () => {
+    render(EXAMPLE_REPORT);
+    els.status.textContent = 'Worked example: .env exposed with a live-looking secret key name; the four other paths are all blocked.';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.siteUrl.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter a site URL, then click Check.';
+  });
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks five well-known paths with one GET
+  request each. It never writes, submits, or modifies anything, never reads, stores, or shows a
+  variable's value (only its name), does not check other common secret-exposure paths (a stray
+  <code>.git</code> directory, a <code>config.json</code>, a backup archive), and cannot see an
+  exposure at a path it never checked. A clean report describes what this run found, not a
+  guarantee the site has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any site you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Every request goes straight from your browser
+  to the URL you name — never through this site, and never logged or stored by us. The only thing
+  stored is an anonymous local count of which features were used and the day — no site URLs, no
+  file contents, no variable names or values, no account, no tracking cookies, no analytics
+  vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your stack: <a href="../git-exposure-check/">Git Exposure checker</a>
+  covers a different static-file exposure class,
+  <a href="../subdomain-takeover-check/">Subdomain Takeover checker</a> covers a DNS-layer one, and
+  <a href="../source-map-leak-check/">Source Map Leak checker</a> and
+  <a href="../security-headers-check/">Security Headers checker</a> cover other
+  response-evidence classes in the same "read what's actually there, name the exact evidence"
+  shape as this tool.</p>
+</footer>
+</body>
+</html>

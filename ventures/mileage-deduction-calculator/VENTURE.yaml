@@ -1,0 +1,60 @@
+name: mileage-deduction-calculator
+description: >-
+  Free browser calculator for a self-employed filer's 2026 business vehicle
+  deduction: prices miles at the IRS's split-year standard rates (72.5 cents
+  for Jan 1 - Jun 30, 76 cents for Jul 1 - Dec 31), adds parking and tolls,
+  and compares the result against actual vehicle expenses at the
+  business-use share. Flags when the standard rate is not available.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (no build-now candidate
+# left; DIRECTION.md ranks a fresh gate-cleared niche ahead of a parity
+# feature). duplicate_check.py's top score was 0.18 (section-174a-catchup-
+# calculator) against a 0.45 review bar; no venture, screened-out row or
+# candidate mentions mileage or vehicle deductions.
+#
+# Why now: the IRS changed the business rate mid-year (Announcement
+# 2026-11: 72.5 -> 76 cents on July 1), so every single-rate mileage
+# calculator is wrong for a filer who drove in both halves. Q4 and
+# year-end tax prep drives "mileage deduction 2026" and "standard mileage
+# vs actual expenses" searches. Rates verified via WebSearch/WebFetch
+# against IRS.gov and the Journal of Accountancy. No search-volume tool was
+# queried (standing pipeline caveat).
+#
+# Liability: same shape as hsa-contribution-limit-calculator (published
+# federal figures applied to user numbers, explicit scope). Main failure
+# mode is choosing a method the filer is ineligible for, so the eligibility
+# limits are a standing finding on every result and in the page's scope
+# section. The depreciation component of the standard rate is deliberately
+# not modelled because it could not be verified against the Notice.
+
+hypotheses:
+  - claim: >-
+      Self-employed drivers (rideshare, delivery, contractors, agents) will
+      search for the 2026 mileage rate at tax time and return to a free
+      calculator that handles the mid-year rate change and compares actual
+      expenses, rather than multiplying by a single remembered rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: a fixed formula over numbers the user types.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the disclosure wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mileage-deduction-calculator/
+  analytics: null

@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 
 const DOCS_PAGE = 'why-security-txt-expires.html';
 const VS_PAGE = 'vs-securitytxt-org-generator.html';
-const ALL_PAGES = ['index.html', DOCS_PAGE, VS_PAGE];
+const GENERIC_VS_PAGE = 'vs-checking-it-by-eye.html';
+const ALL_PAGES = ['index.html', DOCS_PAGE, VS_PAGE, GENERIC_VS_PAGE];
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -48,7 +49,7 @@ test('the docs page carries valid FAQPage JSON-LD', async () => {
 // has shipped it before. Pin the two together here rather than trusting them
 // to stay in sync by hand.
 test('every FAQ answer in the JSON-LD also appears as visible copy', async () => {
-  for (const file of ['index.html', DOCS_PAGE]) {
+  for (const file of ['index.html', DOCS_PAGE, GENERIC_VS_PAGE]) {
     const html = await read(file);
     const faq = jsonLdBlocks(html).map((b) => JSON.parse(b)).find((b) => b['@type'] === 'FAQPage');
     for (const entry of faq.mainEntity) {
@@ -174,5 +175,29 @@ test('the worked example actually produces the findings the status line promises
   const ids = report.findings.map((f) => f.id);
   for (const expected of ['expires-past', 'contact-not-uri', 'field-misspelled', 'encryption-insecure', 'languages-invalid', 'field-missing-colon']) {
     assert.ok(ids.includes(expected), `the worked example no longer demonstrates ${expected} (found: ${ids.join(', ')})`);
+  }
+});
+
+test('index links to the generic-method comparison page, which links back and names no product', async () => {
+  assert.match(await read('index.html'), new RegExp(`href="${GENERIC_VS_PAGE.replace(/\./g, '\\.')}"`));
+  const vs = await read(GENERIC_VS_PAGE);
+  assert.match(vs, /href="\.\/"/, 'must link back to the tool');
+  assert.match(vs, /names no specific product or company/i, 'missing the generic-method disclaimer');
+});
+
+test('the generic-method comparison page carries valid FAQPage JSON-LD with at least 3 questions', async () => {
+  const blocks = jsonLdBlocks(await read(GENERIC_VS_PAGE)).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the generic-method comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+});
+
+// Pins the comparison page's table against the same worked example and the
+// same finding ids the index page's own worked-example test already checks,
+// so the two pages cannot drift out of sync with the engine independently.
+test('the generic-method comparison page names all six findings the worked example demonstrates', async () => {
+  const vs = await read(GENERIC_VS_PAGE);
+  for (const needle of ['Expires: 2025-06-01T00:00:00Z', 'Contact: security@example.com', 'Acknowledgements:', 'Encryption: http://example.com/pgp-key.txt', 'Preferred-Languages: English', 'Policy https://example.com/vulnerability-policy']) {
+    assert.ok(vs.includes(needle), `generic-method comparison page is missing the worked-example field: ${needle}`);
   }
 });

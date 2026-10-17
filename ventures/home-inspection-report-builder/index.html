@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Inspection Report Builder — Free</title>
+  <meta name="description" content="Free home inspection report builder: pick findings from a library of plain-language comments, edit them, add notes and your own repair cost ranges, and print a clean report sorted by severity. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Free home inspection report builder">
+  <meta property="og:description" content="A comment library, severity sorting and a printable report. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M16 6 5 16h3v10h6v-6h4v6h6V16h3z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Inspection Report Builder","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Build a home inspection report from a library of editable comments grouped by system, with severity sorting, notes, your own repair cost ranges, print to PDF and save-to-file. Runs in your browser; nothing is uploaded.","featureList":"Comment library, severity sorting, summary of safety and major items, cost range totals, print to PDF, save and load as a file"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is there a free alternative to paid home inspection report software?","acceptedAnswer":{"@type":"Answer","text":"This tool builds a printable report from a library of editable comments with no account and no subscription. It does not replace a full inspection platform with photos, scheduling and agreements, but it covers the core job of turning your findings into a clear, severity-sorted report."}},{"@type":"Question","name":"Where does my data go?","acceptedAnswer":{"@type":"Answer","text":"Nowhere. Everything stays in your browser. Save your report to a file on your own device and load it later; the page does not store it for you."}},{"@type":"Question","name":"Does the comment library follow a standard of practice?","acceptedAnswer":{"@type":"Answer","text":"No. The wording is generic and is a starting point for you to edit. It does not cite or apply any code, standard of practice or licensing rule. You decide what to report and how, and you are responsible for the final report."}},{"@type":"Question","name":"Can I add my own comments?","acceptedAnswer":{"@type":"Answer","text":"Yes. Add a custom finding with your own title, wording, severity and recommendation, or edit any library comment after adding it."}}]}</script>
+  <style>
+    .finding-row{border:1px solid #cbd5e1;border-radius:8px;padding:.75rem;margin:.6rem 0}
+    .finding-row textarea{width:100%;min-height:3.5rem}
+    .lib button{margin:.15rem}
+    #report{display:block}
+    #report[hidden]{display:none}
+    .item{border-left:4px solid #94a3b8;padding-left:.7rem;margin:.6rem 0}
+    .item.sev-safety{border-color:#b91c1c}.item.sev-major{border-color:#c2410c}.item.sev-minor{border-color:#a16207}
+    .meta th{text-align:left;padding-right:1rem}
+    #out[hidden]{display:none}
+    @media print{header,.noprint,footer,.card:not(#out){display:none!important}#out{display:block!important;border:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME INSPECTION REPORT BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Write a clear home inspection report in minutes</h1>
+    <p>Add findings from a library of plain-language comments, edit the wording, set severity, add your own notes and repair cost ranges, then print a report sorted with safety and major items first. Save your work to a file on your own device and load it later.</p>
+    <p class="note">A writing aid for working inspectors. You are responsible for every statement in the report.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The inspection</h2>
+      <div class="grid">
+        <div><label for="property">Property address</label><input id="property" type="text"></div>
+        <div><label for="client">Client</label><input id="client" type="text"></div>
+        <div><label for="date">Inspection date</label><input id="date" type="date"></div>
+        <div><label for="inspector">Inspector</label><input id="inspector" type="text"></div>
+        <div><label for="license">License or ID</label><input id="license" type="text"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Add findings from the library</h2>
+      <label for="system">System</label>
+      <select id="system"></select>
+      <div class="lib" id="lib"></div>
+      <p><button type="button" class="secondary" id="custom">Add a blank custom finding</button></p>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your findings</h2>
+      <p id="empty" class="note">No findings yet. Add some above.</p>
+      <div id="findings"></div>
+      <button type="button" id="build">Build the report</button>
+      <button type="button" class="secondary" id="save">Save to a file</button>
+      <label for="load" class="note">Load a saved file</label>
+      <input id="load" type="file" accept="application/json,.json">
+      <p id="msg" class="note" role="status"></p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <div id="report"></div>
+      <p class="noprint">
+        <button type="button" id="print">Print or save as PDF</button>
+        <button type="button" class="secondary" id="text">Download as text</button>
+      </p>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Is there a free alternative to paid home inspection report software?</h3>
+      <p>This tool builds a printable report from a library of editable comments with no account and no subscription. It does not replace a full inspection platform with photos, scheduling and agreements, but it covers the core job of turning your findings into a clear, severity-sorted report.</p>
+      <h3>Where does my data go?</h3>
+      <p>Nowhere. Everything stays in your browser. Save your report to a file on your own device and load it later; the page does not store it for you.</p>
+      <h3>Does the comment library follow a standard of practice?</h3>
+      <p>No. The wording is generic and is a starting point for you to edit. It does not cite or apply any code, standard of practice or licensing rule. You decide what to report and how, and you are responsible for the final report.</p>
+      <h3>Can I add my own comments?</h3>
+      <p>Yes. Add a custom finding with your own title, wording, severity and recommendation, or edit any library comment after adding it.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>What a home inspection must cover, which standard of practice or licensing rules apply where you work, what is a defect at a particular property, repair costs (the ranges are your own figures, not a measurement), and the legal wording of your inspection agreement. The library is generic starting text, not a statement of any standard.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../property-tax-appeal-calculator/">property tax appeal calculator</a>, the <a href="../security-deposit-return-calculator/">security deposit return calculator</a> and the <a href="../fix-and-flip-deal-analyzer/">fix and flip deal analyzer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any licensing, standard-of-practice, disclosure or contract obligation that applies to your inspection. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool; use the save-to-file button to keep your work.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>report_built</code>, <code>finding_added</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SEVERITIES, SYSTEMS, LIBRARY, newFinding, normalise, toHtml, toText, exportJson, parseImport } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const HEADER = ["property", "client", "date", "inspector", "license"];
+    let findings = [];
+    const header = () => Object.fromEntries(HEADER.map((k) => [k, $(k).value]));
+    const mk = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); for (const k of kids) e.append(k); return e; };
+    function drawLib() {
+      const sys = $("system").value;
+      $("lib").replaceChildren(...LIBRARY.filter((l) => l.system === sys).map((l) => mk("button", { type: "button", className: "secondary", textContent: "+ " + l.title, onclick: () => add(l.id) })));
+    }
+    function add(libId) { findings.push(newFinding(libId)); record("finding_added"); drawFindings(); }
+    function field(label, el) { const w = mk("div"); const l = mk("label", { textContent: label }); el.id = el.id || "x" + Math.random().toString(36).slice(2); l.htmlFor = el.id; w.append(l, el); return w; }
+    function drawFindings() {
+      $("empty").hidden = findings.length > 0;
+      $("findings").replaceChildren(...findings.map((f, i) => {
+        const row = mk("div", { className: "finding-row" });
+        const sys = mk("select", {}, [...SYSTEMS, "Other"].map((s) => mk("option", { value: s, textContent: s, selected: s === f.system })));
+        const sev = mk("select", {}, SEVERITIES.map((s) => mk("option", { value: s.id, textContent: s.label, selected: s.id === f.severity })));
+        const bind = (el, key) => { el.addEventListener("input", () => { f[key] = el.value; }); return el; };
+        const title = bind(mk("input", { type: "text", value: f.title }), "title");
+        const text = bind(mk("textarea", { value: f.text }), "text");
+        const rec = bind(mk("textarea", { value: f.recommend }), "recommend");
+        const note = bind(mk("textarea", { value: f.note }), "note");
+        const lo = bind(mk("input", { type: "number", min: "0", step: "any", value: f.costLow || "" }), "costLow");
+        const hi = bind(mk("input", { type: "number", min: "0", step: "any", value: f.costHigh || "" }), "costHigh");
+        bind(sys, "system"); bind(sev, "severity");
+        const rm = mk("button", { type: "button", className: "secondary", textContent: "Remove", onclick: () => { findings.splice(i, 1); drawFindings(); } });
+        row.append(field("Title", title), field("System", sys), field("Severity", sev), field("What was observed", text), field("Recommendation", rec), field("Your notes (location, extent)", note), field("Repair cost, low ($, your figure)", lo), field("Repair cost, high ($, your figure)", hi), rm);
+        return row;
+      }));
+    }
+    function build() {
+      const clean = findings.map(normalise).filter((f) => f.title);
+      if (!clean.length) { $("msg").textContent = "Add at least one finding with a title first."; return; }
+      $("msg").textContent = "";
+      $("report").innerHTML = toHtml(header(), clean);
+      $("out").hidden = false;
+      $("out").scrollIntoView();
+      record("report_built");
+    }
+    function download(name, type, body) {
+      const a = mk("a", { href: URL.createObjectURL(new Blob([body], { type })), download: name });
+      document.body.append(a); a.click(); a.remove();
+    }
+    $("system").replaceChildren(...SYSTEMS.map((s) => mk("option", { value: s, textContent: s })));
+    $("system").addEventListener("change", drawLib);
+    $("custom").addEventListener("click", () => { findings.push(newFinding(null)); drawFindings(); });
+    $("build").addEventListener("click", build);
+    $("print").addEventListener("click", () => window.print());
+    $("text").addEventListener("click", () => download("inspection-report.txt", "text/plain", toText(header(), findings)));
+    $("save").addEventListener("click", () => download("inspection-report.json", "application/json", exportJson(header(), findings)));
+    $("load").addEventListener("change", async () => {
+      const file = $("load").files[0]; if (!file) return;
+      const r = parseImport(await file.text());
+      if (r.error) { $("msg").textContent = r.error; return; }
+      for (const k of HEADER) $(k).value = r.header[k];
+      findings = r.findings; drawFindings(); $("msg").textContent = "Loaded " + findings.length + " finding(s).";
+    });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    drawLib(); drawFindings();
+  </script>
+</body>
+</html>

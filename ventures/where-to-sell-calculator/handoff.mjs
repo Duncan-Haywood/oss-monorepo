@@ -86,6 +86,28 @@ export const HANDOFFS = [
     },
   },
   {
+    channel: 'mercari',
+    slug: 'mercari-fee-calculator',
+    label: 'Mercari fee calculator',
+    // What it adds: the pre-January 6, 2025 legacy schedule compared
+    // side-by-side with the current one, the note that buyer-paid shipping
+    // sits inside the current fee base, and Mercari's separate Buyer
+    // Protection Fee, which is a buyer-side charge this page does not model.
+    //
+    // Mercari has no separate packaging input -- its own `otherCost` field is
+    // documented there as "packaging / prep cost" -- so packaging is folded
+    // in rather than dropped, the same rule `combine` follows for every
+    // other target with fewer inputs than this page.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'reverb',
     slug: 'reverb-fee-calculator',
     label: 'Reverb fee & profit calculator',
@@ -230,6 +252,41 @@ export const HANDOFFS = [
     // printed a *higher* profit than the comparison the seller had just read,
     // which is the silent-wrong-number failure this whole module exists to
     // prevent.
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'depop',
+    slug: 'depop-fee-calculator',
+    label: 'Depop fee calculator',
+    // What it adds: the UK and rest-of-world schedules this page does not
+    // price (the preset here is the US one), and Boosted Listings' extra 12%.
+    // `region` is deliberately not sent: the receiving page defaults to the US
+    // schedule, which is the one this page's preset prices, so the two agree.
+    // Depop has no packaging input; packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'facebook-marketplace',
+    slug: 'facebook-marketplace-fee-calculator',
+    label: 'Facebook Marketplace fee calculator',
+    // What it adds: the $0.80 minimum fee (only bites under $8), the $20
+    // dispute penalty, and the local-pickup case where the fee is zero.
+    // `channel` is not sent: it defaults to shipped checkout, the case this
+    // page's row prices. Packaging folds into `otherCost`.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
 ];

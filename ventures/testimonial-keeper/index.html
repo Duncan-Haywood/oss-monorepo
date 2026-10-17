@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Testimonial Keeper — Free Self-Hosted Testimonial Collector and Wall of Love</title>
+  <meta name="description" content="Collect customer testimonials with a link, approve the ones you want, and show them on your site with one script tag. Consent stored with every entry. Open source, MIT, one-click self-deploy, no monthly fee.">
+  <meta property="og:title" content="Testimonial Keeper — collect testimonials and show a wall of love, self-hosted">
+  <meta property="og:description" content="A form link, an approve/hide page, an embeddable wall. Your data in one file you own.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Testimonial Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Node.js 20+ server; any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source testimonial collection and embeddable wall. Consent stored with each entry, approve/hide moderation, zero dependencies, runs in your own account."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do customers have to agree before I publish?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The form has a required consent tick and the agreement is stored with each testimonial. Nothing is public until you approve it, and the text is never edited."}}, {"@type": "Question", "name": "Where does the data live?", "acceptedAnswer": {"@type": "Answer", "text": "In one JSON file on the server you deploy in your own account. The author runs nothing in between and never sees your customers."}}, {"@type": "Question", "name": "Can a testimonial hijack my page?", "acceptedAnswer": {"@type": "Answer", "text": "No. The embed renders inside a shadow root using textContent only, so a testimonial can never inject markup or restyle your page."}}, {"@type": "Question", "name": "Does it support video?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. It is text and an optional 1-5 rating, which keeps it small enough to read in an evening."}}, {"@type": "Question", "name": "Is it a review site?", "acceptedAnswer": {"@type": "Answer", "text": "No. It collects words from your own customers for your own site. Do not mark them up as independent third-party review ratings."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f7f5fc; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #6d28d9; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b1d7a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b1d7a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5563; }
+    .card { background: #fff; border: 1px solid #e0daf0; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece8f6; vertical-align: top; }
+    pre { background: #f1eef9; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    figure { margin: 0; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; background: #fff; }
+    .stars { color: #d97706; letter-spacing: 2px; } .who { font-weight: 700; margin-top: 10px; } .role { font-size: .85rem; opacity: .7; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #ede9fe; font-size: .8rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Ask your happy customers for a testimonial, and show the ones you approve</h1>
+  <p>Send one link. Customers write a few lines and tick a box agreeing that you may publish them. You approve or hide each one, and a single script tag shows the approved ones on your site. It runs on your own server with the data in one file, so there are no tiers, no seat fees and no testimonial caps. <a href="server.mjs">Read the source</a> or deploy it below.</p>
+
+  <section class="card" aria-labelledby="demo">
+    <h2 id="demo">The wall your visitors would see <span class="tag">sample data</span></h2>
+    <p class="note">These three are invented to show the layout. Nobody said them. Your wall only ever contains what your customers submitted and you approved.</p>
+    <div class="wall" id="wall"></div>
+  </section>
+
+  <section class="card">
+    <h2>Why use this instead of what you do today</h2>
+    <table>
+      <tr><th>Today</th><th>Catch</th><th>Testimonial Keeper</th></tr>
+      <tr><td>Testimonial.to, Senja, Shoutout and similar</td><td>Paid tiers cap testimonials, forms or the widget; the data lives with them</td><td>Unlimited, one JSON file you own, no fee</td></tr>
+      <tr><td>A Google Form and copy-paste</td><td>No approval flow, no consent record, no widget</td><td>Consent stored per entry, approve/hide, embeddable wall, CSV export</td></tr>
+      <tr><td>Screenshots of emails</td><td>No permission on record, awkward to update</td><td>Customer-written words shown only after you approve</td></tr>
+    </table>
+    <p class="note">Honest limits: text only (no video), one admin key, no import from review sites, and it cannot prove a submitter is a real customer.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/testimonial-keeper
+ADMIN_KEY=$(openssl rand -hex 16) PUBLIC_URL=https://proof.example.com COMPANY_NAME=Acme node server.mjs
+
+# share:   https://proof.example.com/t/default      (approve at /admin)
+# embed:   &lt;script src="https://proof.example.com/embed.js" data-form="default" defer&gt;&lt;/script&gt;</pre>
+    <p class="note">One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Grow with <a href="../cancel-flow/">Cancel Flow</a> to keep subscribers and <a href="../feedback-board/">Feedback Board</a> to collect feature requests, and <a href="../review-reply-desk/">Review Reply Desk</a> to answer the public reviews you get on Google.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Do customers have to agree before I publish?</h3>
+    <p>Yes. The form has a required consent tick and the agreement is stored with each testimonial. Nothing is public until you approve it, and the text is never edited.</p>
+    <h3>Where does the data live?</h3>
+    <p>In one JSON file on the server you deploy in your own account. The author runs nothing in between and never sees your customers.</p>
+    <h3>Can a testimonial hijack my page?</h3>
+    <p>No. The embed renders inside a shadow root using textContent only, so a testimonial can never inject markup or restyle your page.</p>
+    <h3>Does it support video?</h3>
+    <p>Not yet. It is text and an optional 1-5 rating, which keeps it small enough to read in an evening.</p>
+    <h3>Is it a review site?</h3>
+    <p>No. It collects words from your own customers for your own site. Do not mark them up as independent third-party review ratings.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator: publish only what people agreed to, never edit or invent testimonials, and follow the endorsement and consumer-protection rules where you sell. It is not legal, tax, or financial advice. The demo above runs in your browser: nothing you do is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const SAMPLE = [
+      { rating: 5, text: "Sample: setup took one afternoon and the first three testimonials came in that week.", name: "Sample Person A", role: "Founder", company: "Example Co" },
+      { rating: 4, text: "Sample: the approve step means I only show the ones I am proud of.", name: "Sample Person B", role: "Designer", company: "" },
+      { rating: 5, text: "Sample: my customers liked that they could say yes to publishing right on the form.", name: "Sample Person C", role: "Course creator", company: "Example Academy" },
+    ];
+    const wall = document.getElementById("wall");
+    for (const t of SAMPLE) {
+      const f = document.createElement("figure");
+      const s = document.createElement("div"); s.className = "stars"; s.textContent = "\u2605".repeat(t.rating) + "\u2606".repeat(5 - t.rating); f.append(s);
+      const q = document.createElement("blockquote"); q.style.margin = "8px 0 0"; q.textContent = t.text; f.append(q);
+      const n = document.createElement("div"); n.className = "who"; n.textContent = t.name; f.append(n);
+      const r = document.createElement("div"); r.className = "role"; r.textContent = [t.role, t.company].filter(Boolean).join(", "); f.append(r);
+      wall.append(f);
+    }
+    record("demo");
+    const o = document.getElementById("optout");
+    o.checked = usageOptedOut();
+    o.addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

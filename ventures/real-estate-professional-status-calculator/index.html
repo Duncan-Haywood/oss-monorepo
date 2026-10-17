@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Real Estate Professional Status Calculator — Free</title>
+  <meta name="description" content="Free calculator: do your hours pass the real estate professional 750-hour and more-than-half tests, are your rentals materially participated in, and what is turning a rental loss non-passive worth against the $25,000 allowance? Nothing uploaded.">
+  <meta property="og:title" content="Do I qualify as a real estate professional? Free calculator">
+  <meta property="og:description" content="Hours test, material participation gate, $25,000 allowance phase-out and what REPS is worth in today's dollars. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Real Estate Professional Status Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Check the 750-hour and more-than-half tests for real estate professional status, the material participation gate on your rentals, the $25,000 allowance phase-out, and what turning a rental loss non-passive is worth in today's dollars. Runs in your browser; nothing is uploaded.","featureList":"750-hour test, more-than-half test, hours short, material participation check, $25,000 allowance phase-out, suspended loss carryforward, present value of REPS, hours pass/fail grid"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Who qualifies as a real estate professional for tax purposes?","acceptedAnswer":{"@type":"Answer","text":"You must spend more than 750 hours a year in real property trades or businesses in which you materially participate, and those hours must be more than half of all the hours you work in any business or job. A full-time W-2 job almost always rules this out for you. On a joint return only one spouse has to meet both tests, but the 750 hours cannot be added across spouses."}},{"@type":"Question","name":"Does passing the 750-hour test make my rental loss deductible?","acceptedAnswer":{"@type":"Answer","text":"Not by itself. Each rental activity also needs material participation, for example 500 or more hours on it, unless you elected to group all your rentals as one activity. If you pass the hours test but not material participation, the loss is still passive. The calculator shows which gate you are failing."}},{"@type":"Question","name":"What happens to the loss if I do not qualify?","acceptedAnswer":{"@type":"Answer","text":"It is passive. Active participants can use up to $25,000 a year against other income, phased out between $100,000 and $150,000 of income. The rest is suspended and carried forward, then released against other income when you sell the property in a fully taxable sale. Status therefore changes when you get the deduction, and the multi-year table prices that timing."}},{"@type":"Question","name":"Is the short-term rental route different?","acceptedAnswer":{"@type":"Answer","text":"Yes. A rental with an average stay of seven days or less is not treated as a rental activity, so you only need to materially participate in it. That is a different test and is not modelled here."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Hours logs, grouping elections, the material participation tests, at-risk and basis limits and state rules decide your actual result, so confirm with a tax professional. Defaults are placeholders."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">REAL ESTATE PROFESSIONAL STATUS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do you qualify as a real estate professional, and what is it worth?</h1>
+    <p>Enter your hours, your rental loss and your income. It checks both hours tests and the material participation gate, shows how much of the loss the $25,000 allowance can use if you do not qualify, and prices the difference in today's dollars over your holding period.</p>
+    <p class="note">Planning arithmetic on your own numbers, not a determination of your status.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your hours for the year</h2>
+      <div class="grid">
+        <div><label for="reHours">Hours in real property trades or businesses you materially participate in (development, construction, rental, management, brokerage)</label><input id="reHours" type="number" step="any" value="0"></div>
+        <div><label for="otherHours">Hours in all other work (W-2 job, other business)</label><input id="otherHours" type="number" step="any" value="0"></div>
+        <div><label for="rentalHours">Hours you personally spend on your rental activities (the 500-hour material participation test)</label><input id="rentalHours" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Income and the loss</h2>
+      <div class="grid">
+        <div><label for="magi">Modified AGI before any passive loss ($)</label><input id="magi" type="number" step="any" value="0"></div>
+        <div><label for="activeParticipation">Do you actively participate in the rentals (set rent, approve tenants, approve repairs)? 1 = yes, 0 = no</label><select id="activeParticipation"><option value="1">1 — yes</option><option value="0">0 — no</option></select></div>
+        <div><label for="year1Loss">Rental loss in year 1 ($: depreciation, cost segregation and interest over rent)</label><input id="year1Loss" type="number" step="any" value="0"></div>
+        <div><label for="annualLoss">Rental loss each later year ($)</label><input id="annualLoss" type="number" step="any" value="0"></div>
+        <div><label for="yearsHeld">Years until you sell in a fully taxable sale</label><input id="yearsHeld" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Rates and rules</h2>
+      <div class="grid">
+        <div><label for="marginalRatePct">Marginal tax rate on the loss, federal plus state (%)</label><input id="marginalRatePct" type="number" step="any" value="0"></div>
+        <div><label for="discountPct">Discount rate for timing (%)</label><input id="discountPct" type="number" step="any" value="0"></div>
+        <div><label for="allowance">Special allowance for active participants ($)</label><input id="allowance" type="number" step="any" value="0"></div>
+        <div><label for="phaseoutStart">MAGI where the allowance starts to shrink ($)</label><input id="phaseoutStart" type="number" step="any" value="0"></div>
+        <div><label for="phaseoutRatePct">Allowance lost per dollar of MAGI over that (%)</label><input id="phaseoutRatePct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Check my status</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Who qualifies as a real estate professional for tax purposes?</h3>
+      <p>You must spend more than 750 hours a year in real property trades or businesses in which you materially participate, and those hours must be more than half of all the hours you work in any business or job. A full-time W-2 job almost always rules this out for you. On a joint return only one spouse has to meet both tests, but the 750 hours cannot be added across spouses.</p>
+      <h3>Does passing the 750-hour test make my rental loss deductible?</h3>
+      <p>Not by itself. Each rental activity also needs material participation, for example 500 or more hours on it, unless you elected to group all your rentals as one activity. If you pass the hours test but not material participation, the loss is still passive. The calculator shows which gate you are failing.</p>
+      <h3>What happens to the loss if I do not qualify?</h3>
+      <p>It is passive. Active participants can use up to $25,000 a year against other income, phased out between $100,000 and $150,000 of income. The rest is suspended and carried forward, then released against other income when you sell the property in a fully taxable sale. Status therefore changes when you get the deduction, and the multi-year table prices that timing.</p>
+      <h3>Is the short-term rental route different?</h3>
+      <p>Yes. A rental with an average stay of seven days or less is not treated as a rental activity, so you only need to materially participate in it. That is a different test and is not modelled here.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Hours logs, grouping elections, the material participation tests, at-risk and basis limits and state rules decide your actual result, so confirm with a tax professional. Defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your hours would survive an audit (a contemporaneous log is what examiners ask for), which activities count as real property trades or businesses, the other six material participation tests, a grouping election for all rentals, the short-term rental route, at-risk and basis limits, the net investment income tax, state treatment, alternative minimum tax, and whether a sale is fully taxable and large enough to absorb suspended losses. This prices timing with one flat rate and one discount rate. The $25,000 allowance and every other default are placeholders, not current law: check them for your year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../str-tax-loophole-calculator/">short-term rental tax loophole calculator</a>, the <a href="../cost-segregation-study-calculator/">cost segregation study calculator</a> and the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting every federal and state rule that applies to your hours, records and filings. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no taxpayer identifiers are asked for or needed. Anonymous feature events (<code>status_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, analyze, hoursGrid } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.reHours >= 0) || !(o.year1Loss + o.annualLoss > 0) || !(o.marginalRatePct > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter your hours, a rental loss and a marginal rate above zero.</div>'; $("out").hidden = false; return; }
+      const a = analyze(o);
+      const h = a.hours;
+      let s = "";
+      const why = a.nonPassive ? "Both gates pass, so the rental loss is not passive and offsets your other income as it arises." : !h.pass ? `The hours test fails: ${h.over750 ? "" : "you are at or under 750 hours. "}${h.overHalf ? "" : "your real estate hours are not more than half of all your work hours. "}You are ${Math.round(h.hoursShort).toLocaleString("en-US")} hours short of passing.` : "You pass the hours test, but you spend under 500 hours on the rentals themselves, so they are still passive unless you meet another material participation test or elect to group.";
+      s += `<div class="finding"><h4>${a.nonPassive ? "Your rental loss is non-passive" : "Your rental loss is passive"}</h4><p>${why}</p><p class="stats">Real estate hours are <strong>${(h.share * 100).toFixed(0)}%</strong> of ${Math.round(h.total).toLocaleString("en-US")} total work hours. Year 1: <strong>${money(a.firstYear.deducted)}</strong> of the ${money(a.firstYear.loss)} loss is deductible now (worth ${money(a.firstYear.taxValue)}); ${money(a.firstYear.suspended)} is suspended.</p></div>`;
+      s += `<div class="finding"><h4>What status is worth</h4><p>Your $25,000 allowance at this income is <strong>${money(a.allowance)}</strong> a year. Over ${a.years} year${a.years === 1 ? "" : "s"} and ${money(a.totalLoss)} of loss, passing both gates is worth <strong>${money(a.pvGainFromReps)}</strong> in today's dollars over staying passive, and moves ${money(a.year1Gain)} of tax saving into year 1. The loss itself is not lost when passive: ${money(a.releasedAtSale)} is released when you sell, if the sale is fully taxable.</p></div>`;
+      s += `<div class="finding"><h4>If passive: year by year</h4>${table(["Year", "Loss", "Deducted now", "Suspended at year end"], a.passiveRows.map((r) => [r.year, money(r.loss), money(r.deducted), money(r.suspended)]))}</div>`;
+      const g = hoursGrid();
+      s += `<div class="finding"><h4>Does the hours test pass?</h4>${table(["Real estate hours \\ Other work hours", ...g[0].cells.map((x) => x.other.toLocaleString("en-US"))], g.map((r) => [r.re.toLocaleString("en-US"), ...r.cells.map((x) => (x.pass ? "Pass" : "Fail"))]))}<p class="note">A full-time job leaves almost no room: real estate hours must beat all your other work hours.</p></div>`;
+      $("result").innerHTML = s;
+      $("out").hidden = false;
+      record("status_checked");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

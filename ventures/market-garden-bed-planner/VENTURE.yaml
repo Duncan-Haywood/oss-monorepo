@@ -1,0 +1,72 @@
+name: market-garden-bed-planner
+description: >-
+  Free browser tool for market gardeners and small diversified farms: enter
+  crops (yield per bed-foot, price, days in bed, cost, labor, what you can
+  sell) plus total bed-feet, season and labor hours, and get the crop mix that
+  earns the most, solved exactly as a linear program. Ranks crops by profit per
+  bed-foot-day, prices one more bed-foot, labor hour or unit of demand, shows
+  what a plan sorted by profit per bed-foot would earn under the same limits,
+  and gives a seeded simulated range. Your numbers never leave the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py on the farm-planning niche scored
+# 0.21 at most (custom-farm-rate-calculator, a pipeline candidate about custom
+# hire rates); the e-commerce reorder-planner, menu, rent and podcast niches
+# tried first all hit existing ventures (0.42 to 0.85) and were dropped.
+# Screened-out rows were not hit.
+#
+# Why this niche: there are tens of thousands of US market gardens and small
+# diversified vegetable and flower farms. Their own literature says to rank
+# crops by revenue per bed-foot, and the paid planners (Tend, Farmbrite, Croptracker,
+# Seed to Plate) sell crop planning with scheduling, with the profit tooling
+# mostly a report on past sales. The question a grower asks every winter, "with
+# this many beds and this much labor, what do I plant?", is a small optimisation
+# nobody gives them privately for free. The tool answers it exactly and says
+# which limit (beds, labor or buyers) is worth relaxing first.
+#
+# Alternatives: spreadsheets sorted by revenue or profit per bed-foot, the
+# paid planners above, extension-service enterprise budgets (averages for a
+# region, no combination logic), and farmer-to-farmer rules of thumb.
+#
+# First visitor: growers searching "market garden crop profitability per bed
+# foot", "which vegetables make the most money per square foot", "revenue per
+# bed foot spreadsheet", in market-gardening forums and farmer groups. Volume
+# not measured with an external tool.
+#
+# Liability: planning arithmetic on figures the user supplies, not advice, no
+# warranty, no vendor ranked. It states what it cannot see (planting windows,
+# rotation, weather, losses) and puts food-safety and licensing rules on the
+# user. Unverified: checked against hand-solved examples and exhaustive vertex
+# enumeration, not on a working farm.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only; a
+# natural lead magnet for a future hosted crop-calendar and CSA-share planner.
+
+hypotheses:
+  - claim: >-
+      Market gardeners with ten or more crops and a fixed bed count will use a
+      private, no-signup tool to see which limit binds and which crops to drop,
+      and will return each winter when planning.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A grower reports that the plan violates a limit they entered, or that the profit disagrees with a hand count of the same plan.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/market-garden-bed-planner/
+  analytics: null

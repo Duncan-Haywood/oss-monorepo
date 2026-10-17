@@ -1,0 +1,46 @@
+name: lambda-vs-fargate-cost-breakeven
+description: 'Free, zero-network, zero-dependency CLI + browser tool that compares the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2 for one workload (requests per month, duration, memory, vCPU, concurrency, peak ratio), names the cheapest, finds the request volume where always-on containers beat pay-per-request, and can gate CI (--expect). An estimate, not a bill: list prices, no free tier or discounts.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of lambda-memory-rightsizer (picks the cheapest memory size on one platform)
+# and k8s-requests-rightsizer; neither compares platforms against each other.
+#
+# Where the first real visitor would come from: the search phrases "lambda vs fargate cost",
+# "lambda vs ecs cost break even", "when is lambda more expensive than containers", "cloud run vs
+# lambda pricing"; r/aws, r/devops, r/googlecloud and Hacker News threads about a Lambda bill that
+# outgrew its usefulness. The reader is a backend engineer or CTO with a four- or five-figure monthly
+# serverless bill. Vendor calculators price one platform at a time; this puts all four side by side
+# with the break-even volume -- the wedge. A hosted version that reads Cost Explorer / billing exports
+# and names the functions worth moving is the natural paid upgrade.
+hypotheses:
+  - claim: An engineer weighing Lambda against containers will search for the break-even, enter their workload, and find the volume at which to move.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --expect so a workload that outgrew its platform is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool does arithmetic on typed numbers in the visitor's
+  # own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lambda-vs-fargate-cost-breakeven/
+  analytics: null

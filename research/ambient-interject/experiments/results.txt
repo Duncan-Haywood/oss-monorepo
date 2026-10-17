@@ -1,0 +1,56 @@
+world: prevalence=0.03 d'=2.0 p_wake(need)=0.15 p_wake(other)=0.002 p_kw=0.45/0.08 others=0.3 (cost x2.0); 20 seeds, train 20 h, test 200 h
+
+== 1. Fixed policies (test world = training world) ==
+wake word        precision 0.693 +- 0.018  recall 0.151 +- 0.007  false/h 0.724 +- 0.050  missed/h 9.208 +- 0.210
+keyword or wake  precision 0.167 +- 0.004  recall 0.531 +- 0.010  false/h 28.650 +- 0.266  missed/h 5.085 +- 0.172
+
+== 2. Closed form vs simulation for the threshold policy (2000 h) ==
+tau 0.5: P(speak|no need) sim 0.3091 theory 0.3099;  P(speak|need) sim 0.9443 theory 0.9432
+tau 1.0: P(speak|no need) sim 0.1601 theory 0.1603;  P(speak|need) sim 0.8701 theory 0.8651
+tau 1.5: P(speak|no need) sim 0.0692 theory 0.0687;  P(speak|need) sim 0.7420 theory 0.7377
+tau 2.0: P(speak|no need) sim 0.0249 theory 0.0247;  P(speak|need) sim 0.5793 theory 0.5750
+tau 3.0: P(speak|no need) sim 0.0034 theory 0.0033;  P(speak|need) sim 0.2853 theory 0.2849
+
+== 3. Equal-annoyance comparison: recall at a budget of false interruptions per hour ==
+(thresholds tuned on the training world; test on a fresh world with the same parameters)
+budget 0.5/h: threshold recall 0.153 +- 0.015 (false/h 0.727 +- 0.053);  learned recall 0.157 +- 0.030 (false/h 0.734 +- 0.072)
+budget 1.0/h: threshold recall 0.261 +- 0.039 (false/h 1.051 +- 0.218);  learned recall 0.326 +- 0.039 (false/h 1.117 +- 0.218)
+budget 2.0/h: threshold recall 0.365 +- 0.022 (false/h 2.045 +- 0.304);  learned recall 0.448 +- 0.024 (false/h 2.189 +- 0.313)
+budget 4.0/h: threshold recall 0.460 +- 0.015 (false/h 3.996 +- 0.368);  learned recall 0.546 +- 0.016 (false/h 4.242 +- 0.395)
+(keyword policy runs at 28.6 false/h, wake word at 0.72 false/h)
+
+== 4. Does the learned classifier beat a plain threshold? (utility = TP - annoyance, per hour; others talking cost x2) ==
+learned policy here speaks iff P(need) > c/(1+c) with c = cost of a false interruption (x2 when others talk)
+c_fp 0.5: threshold(best on train) 2.577 +- 0.173   expected-utility rule 3.546 +- 0.207
+c_fp 1.0: threshold(best on train) 1.505 +- 0.185   expected-utility rule 2.282 +- 0.205
+c_fp 3.0: threshold(best on train) -1.085 +- 0.540   expected-utility rule -0.474 +- 0.301
+
+== 5. Classifier quality: recall at 1 false interruption/hour vs d' (threshold policy, tuned on train) ==
+d' 0.5: recall 0.154 +- 0.008
+d' 1.0: recall 0.165 +- 0.011
+d' 1.5: recall 0.195 +- 0.021
+d' 2.0: recall 0.261 +- 0.039
+d' 3.0: recall 0.520 +- 0.078
+d' 4.0: recall 0.823 +- 0.071
+
+== 6. Twin gap: tune to 1 false/h in the simulator, deploy where the world differs ==
+(training world is the default; 'real' worlds change one thing at a time)
+same world                     threshold: false/h 1.051 +- 0.218 recall 0.261 +- 0.039 | learned: false/h 1.117 +- 0.218 recall 0.326 +- 0.039
+weaker classifier d'=1.0       threshold: false/h 1.051 +- 0.218 recall 0.165 +- 0.011 | learned: false/h 1.117 +- 0.218 recall 0.189 +- 0.017
+rarer needs (0.01)             threshold: false/h 1.070 +- 0.222 recall 0.267 +- 0.043 | learned: false/h 1.138 +- 0.222 recall 0.330 +- 0.045
+commoner needs (0.06)          threshold: false/h 1.023 +- 0.209 recall 0.259 +- 0.039 | learned: false/h 1.085 +- 0.208 recall 0.325 +- 0.039
+more keyword noise (0.20)      threshold: false/h 1.051 +- 0.218 recall 0.261 +- 0.039 | learned: false/h 1.510 +- 0.404 recall 0.326 +- 0.039
+more wake false alarms (0.01)  threshold: false/h 3.851 +- 0.259 recall 0.261 +- 0.039 | learned: false/h 3.916 +- 0.278 recall 0.326 +- 0.039
+noisier background (null sd 1.3) threshold: false/h 3.558 +- 1.113 recall 0.261 +- 0.039 | learned: false/h 3.075 +- 0.900 recall 0.326 +- 0.039
+
+== 7. Recalibrating on a few labelled hours from the shifted world (noisier background null sd 1.3; wake false alarms 0.01) ==
+null sd 1.3                labelled hours   0: false/h 3.558 +- 1.113 recall 0.261 +- 0.039
+null sd 1.3                labelled hours   1: false/h 1.628 +- 1.080 recall 0.187 +- 0.041
+null sd 1.3                labelled hours   4: false/h 1.465 +- 0.603 recall 0.185 +- 0.028
+null sd 1.3                labelled hours  16: false/h 1.111 +- 0.302 recall 0.171 +- 0.016
+null sd 1.3                labelled hours  64: false/h 1.021 +- 0.167 recall 0.167 +- 0.009
+wake false alarms 0.01     labelled hours   0: false/h 3.851 +- 0.259 recall 0.261 +- 0.039
+wake false alarms 0.01     labelled hours   1: false/h 3.602 +- 0.380 recall 0.162 +- 0.049
+wake false alarms 0.01     labelled hours   4: false/h 3.526 +- 0.132 recall 0.151 +- 0.007
+wake false alarms 0.01     labelled hours  16: false/h 3.526 +- 0.132 recall 0.151 +- 0.007
+wake false alarms 0.01     labelled hours  64: false/h 3.526 +- 0.132 recall 0.151 +- 0.007

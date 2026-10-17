@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_0111BGXXTV7ifuckbeHyoLR3",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "blur-twin",
+    "aliasing-twin"
+  ],
+  "pr": null,
+  "commits": [
+    "4e47cec7a3a5cdb7d886fb55217f4e4b0f379b3b"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "notes": "Figures only; usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl",
+  "errors": [],
+  "integrity_issues": []
+}

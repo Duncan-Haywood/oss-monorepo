@@ -1,0 +1,30 @@
+name: ics-calendar-check
+description: >-
+  Free browser tool that checks an iCalendar (.ics) file for what makes Google Calendar, Outlook and Apple
+  Calendar reject or mis-import it: missing UID, DTSTAMP, VERSION and PRODID, events that end before they
+  start, zero-length all-day events, recurrence rules with COUNT and UNTIL together or a mismatched UNTIL,
+  time zones named without a VTIMEZONE, duplicate UIDs, unfolded long lines and LF line endings, each with
+  its line number. It writes the file back with every provable fix applied and leaves the rest untouched.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (build-now pipeline empty, 739 ventures).
+# Archetype: paste-your-file pre-flight checker with a standards core (RFC 5545), not another CSV-for-one-
+# platform checker -- the portfolio's CSV-import checkers are saturated, and no venture covers calendar
+# files (`duplicate_check.py` top match 0.18). Fixes are limited to what is provable; ambiguous cases
+# (conflicting end times, time-zone rules, which duplicate to keep) are reported, never guessed.
+#
+# First visitor: someone whose .ics export from a booking tool, events plugin, school timetable or script
+# "won't import" into Google Calendar / Outlook; search phrases like "ics file import failed",
+# "invalid ics file", "outlook ics wrong time zone". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: calendars contain attendees and meeting titles, so the file never
+# leaves the browser (a test asserts no network calls). Acceptance by any app is out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for developers and ops people who generate
+# calendar feeds. A paid version, if usage appears, is a CI check / CLI that lints a published feed on
+# every deploy and a hosted feed monitor behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-calendar-vendor
+# clause, trademarks used nominatively, no acceptance promise.

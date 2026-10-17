@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. scoring every job out of ten | Which Job First?</title>
+<meta name="description" content="Scoring a list of jobs out of ten feels rigorous, and usually returns a handful of near-identical numbers you still have to break ties on by feel. This free tool skips the scores entirely: answer a run of this-or-that questions comparing two jobs at a time, and get back a complete order with nothing to weigh.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-scoring-every-job-out-of-ten.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. scoring every job out of ten">
+<meta property="og:description" content="A 1-10 score forces a number out of a feeling and usually clusters several jobs at the same score, so the tie still gets broken by gut feel. This tool never asks for a number -- only which of two jobs you would rather take.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is actually wrong with scoring each job out of ten?","acceptedAnswer":{"@type":"Answer","text":"Not the math -- the input. A score asks you to convert an intuition (\"I'd rather do this one\") into an absolute number with no anchor, and different jobs pull that number from different directions: urgency, pay, how much you dislike the client, drive time. Score twelve jobs and several will land on the same number, because a 1-10 scale has far fewer distinct values than a list of jobs usually has entries, so the ranking still isn't finished when the scoring is."}},{"@type":"Question","name":"So what does this tool ask instead?","acceptedAnswer":{"@type":"Answer","text":"Only which of two specific jobs you would rather take first. That is a comparison most people can answer instantly and consistently, where a 1-10 score is a judgement call you can second-guess every time you revisit it. The tool runs a merge sort over your list, asking roughly n log2(n) of these head-to-head questions, and returns a complete order with no ties left over."}},{"@type":"Question","name":"Is a pairwise comparison always better than a score?","acceptedAnswer":{"@type":"Answer","text":"No -- it assumes transitivity: if you prefer A to B and B to C, it never asks about A and C, and simply assumes you would also prefer A to C. A 1-10 score does not need that assumption, because every job is judged against the same fixed scale rather than against each other. For most short job lists transitivity holds well enough that the tradeoff favours fewer, easier questions; the tool's own guide says so rather than hiding the assumption."}},{"@type":"Question","name":"Is my list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The ranking runs entirely in your browser. Your job list, your answers, and the finished order are never uploaded, and the optional usage counter records only which features were used and the day -- never any job names or list contents."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2027; background: #f4f2ee; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1f6f5c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.03em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c6672; }
+  section { background: #fffefb; border: 1px solid #dcd7cd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a231812; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dcd7cd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c6672; }
+  .fine, .note { font-size: .88rem; color: #5c6672; }
+  footer { color: #5c6672; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Which Job First?</a></p>
+<header>
+<h1>This tool vs. scoring every job out of ten</h1>
+<p class="lede">Scoring a job list 1-10 feels rigorous, and usually comes back with three or four jobs clustered at the same number -- so the ranking still is not finished once the scoring is, and the tie gets broken by the same gut feel the scores were supposed to replace. This tool never asks for a number: it asks which of two jobs you would rather take, one pair at a time, and returns a complete order with nothing left to weigh.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>Scoring out of ten</strong> asks you to convert an intuition into
+  an absolute number with no fixed anchor, for every job on the list.
+  Different jobs pull that number from different directions at once &mdash;
+  urgency, pay, how much you dislike the client, drive time &mdash; and a
+  1-10 scale has far fewer distinct values than a typical job list has
+  entries. Score twelve jobs and several will land on the same number,
+  which means the hard part &mdash; deciding the order among the tied jobs
+  &mdash; is still ahead of you, done by feel, after the scoring exercise
+  that was supposed to replace feel.
+</p>
+<p>
+  <strong>This tool</strong> never asks for a score. It asks only which of
+  two specific jobs you would rather take first &mdash; a comparison most
+  people answer instantly and consistently &mdash; and runs a merge sort
+  over your list, asking roughly <em>n</em>&middot;log<sub>2</sub>(<em>n</em>)
+  of those head-to-head questions before stopping with a complete order and
+  no ties left over. The tradeoff it makes in exchange is assuming
+  transitivity: if you prefer A to B and B to C, it never asks about A and
+  C, and simply assumes you would also prefer A to C.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I scored my jobs and three of them tied at a 7.</td><td>This tool &mdash; a head-to-head question settles the tie in one click, no re-scoring.</td></tr>
+<tr><td>I want a number I can write on the job board next to each one.</td><td>Scoring out of ten &mdash; this tool gives an order, not a score for each job.</td></tr>
+<tr><td>I'm not sure my "urgency" score and my "pay" score should count the same.</td><td>This tool &mdash; a pairwise pick already weighs everything you care about in one answer, with nothing to separately combine.</td></tr>
+<tr><td>My jobs genuinely are not transitive (I'd take A over B, B over C, but C over A).</td><td>Scoring out of ten &mdash; it does not need transitivity, since every job is judged against the same fixed scale rather than against each other.</td></tr>
+<tr><td>Is my list uploaded anywhere?</td><td>No, either way for this tool &mdash; everything runs in your browser.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the ranking runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is actually wrong with scoring each job out of ten?</h3>
+<p>Not the math -- the input. A score asks you to convert an intuition ("I'd rather do this one") into an absolute number with no anchor, and different jobs pull that number from different directions: urgency, pay, how much you dislike the client, drive time. Score twelve jobs and several will land on the same number, because a 1-10 scale has far fewer distinct values than a list of jobs usually has entries, so the ranking still isn't finished when the scoring is.</p>
+<h3>So what does this tool ask instead?</h3>
+<p>Only which of two specific jobs you would rather take first. That is a comparison most people can answer instantly and consistently, where a 1-10 score is a judgement call you can second-guess every time you revisit it. The tool runs a merge sort over your list, asking roughly n log2(n) of these head-to-head questions, and returns a complete order with no ties left over.</p>
+<h3>Is a pairwise comparison always better than a score?</h3>
+<p>No -- it assumes transitivity: if you prefer A to B and B to C, it never asks about A and C, and simply assumes you would also prefer A to C. A 1-10 score does not need that assumption, because every job is judged against the same fixed scale rather than against each other. For most short job lists transitivity holds well enough that the tradeoff favours fewer, easier questions; the tool's own guide says so rather than hiding the assumption.</p>
+<h3>Is my list uploaded anywhere?</h3>
+<p>No. The ranking runs entirely in your browser. Your job list, your answers, and the finished order are never uploaded, and the optional usage counter records only which features were used and the day -- never any job names or list contents.</p>
+<p class="note">
+  Open <a href="index.html">Which Job First?</a> to rank your own list, or read the <a href="how-do-i-decide-which-job-to-take-first.html">decision walkthrough</a> for what actually drives the order.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not financial, legal, or business advice and does not replace your own judgement. A ranking here reflects only the answers you gave it; you are responsible for reviewing it before acting on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every job list, and every answer, stays on this device.</p>
+<p class="support">Free and open source. If it helped you settle what to tackle first, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

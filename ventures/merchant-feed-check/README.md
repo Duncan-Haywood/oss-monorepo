@@ -5,6 +5,8 @@ A free tool that checks a Google Merchant Center / Meta Catalog product feed
 reports exactly which items would be flagged and why — before the crawler
 finds it.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/
+
 **What it is not:** a compliance guarantee, a Shopping-policy reviewer, or a
 substitute for reading your own disapproval notices. It answers one narrow
 question per item — does this row conform to the documented data

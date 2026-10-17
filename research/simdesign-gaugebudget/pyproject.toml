@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-gaugebudget"
+version = "0.1.0"
+description = "Does a patch-averaged stress measure change the mass price of manufacturability of a bracket?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,42 @@
+E1 closed form pi'(1) = (1-k/n)(H_n-H_{n-k}) vs telescoped sum vs central difference of exact pi
+  n= 8 k= 1  sum 0.1093750000  closed 0.1093750000  finite-diff 0.1093750000
+  n= 8 k= 4  sum 0.3172619048  closed 0.3172619048  finite-diff 0.3172619052
+  n=32 k= 8  sum 0.2119027633  closed 0.2119027633  finite-diff 0.2119027633
+  n=32 k=24  sum 0.3351595131  closed 0.3351595131  finite-diff 0.3351595143
+  n=32 k=31  sum 0.0955779749  closed 0.0955779749  finite-diff 0.0955779766
+E2 the symmetric profile is a global best response (R=3, c=1, grid over deviation rate up to 6x)
+  n= 6 k= 1  m*=0.4167  payoff at m* 0.0833  best deviation payoff 0.0833 at rate 0.4169  (0 = stay/leave)
+  n= 6 k= 3  m*=0.9250  payoff at m* 0.5750  best deviation payoff 0.5750 at rate 0.9255  (0 = stay/leave)
+  n=10 k= 4  m*=0.8621  payoff at m* 0.3379  best deviation payoff 0.3379 at rate 0.8626  (0 = stay/leave)
+  n=10 k= 8  m*=0.8574  payoff at m* 1.5426  best deviation payoff 1.5426 at rate 0.8578  (0 = stay/leave)
+  n=24 k=12  m*=1.0091  payoff at m* 0.4909  best deviation payoff 0.4909 at rate 1.0096  (0 = stay/leave)
+E3 simulation: deviator at 1.5 m* among n=8, k=3 (R=2, c=1), 60000 races, seed 3
+  pi(1.5) exact 0.4932 sim 0.4958 ; round time at m*: exact 0.8000 sim 0.8026; formula n c/((n-k)R) = 0.8000
+E4 what k buys (n=32, R=1, c=1): equilibrium speed, round time, share of the prize pool burned on speed
+  k= 1  m*=0.0303  round time 1.0323  burned 0.969  worker rent 0.0010
+  k= 2  m*=0.0595  round time 1.0667  burned 0.953  worker rent 0.0030
+  k= 4  m*=0.1149  round time 1.1429  burned 0.919  worker rent 0.0101
+  k= 8  m*=0.2119  round time 1.3333  burned 0.848  worker rent 0.0381
+  k=16  m*=0.3389  round time 2.0000  burned 0.678  worker rent 0.1611
+  k=24  m*=0.3352  round time 4.0000  burned 0.447  worker rent 0.4148
+  k=30  m*=0.1599  round time 16.0000  burned 0.171  worker rent 0.7776
+  k=31  m*=0.0956  round time 32.0000  burned 0.099  worker rent 0.8732
+  k=32  m*=0.0000  round time inf  burned -0.000  worker rent 1.0000
+E5 fixed budget B=10, c=1, n=32: round time n c k/((n-k)B)
+  k= 1  prize R=10.000  round time 0.1032
+  k= 2  prize R=5.000  round time 0.2133
+  k= 4  prize R=2.500  round time 0.4571
+  k= 8  prize R=1.250  round time 1.0667
+  k=16  prize R=0.625  round time 3.2000
+  k=24  prize R=0.417  round time 9.6000
+  k=31  prize R=0.323  round time 99.2000
+E6 add accuracy (a=1, eta=0.2, sigma2=2, x0^2=1, n=32, c=1): optimal k under budget B, versus the pure-speed choice k=1
+  eps=0.20 (k_min=1.11)  B=2: k*=2 T=6.40   B=10: k*=2 T=1.28   B=50: k*=2 T=0.26
+  eps=0.10 (k_min=2.22)  B=2: k*=3 T=14.90   B=10: k*=3 T=2.98   B=50: k*=3 T=0.60
+  eps=0.05 (k_min=4.44)  B=2: k*=5 T=35.56   B=10: k*=5 T=7.11   B=50: k*=5 T=1.42
+  eps=0.03 (k_min=7.41)  B=2: k*=8 T=74.67   B=10: k*=8 T=14.93   B=50: k*=8 T=2.99
+E7 entry does not speed the race: fixed k, fixed prize R=1, c=1; round time n c/((n-k)R) falls only to c/R
+  k=1  n=2: T=2.000   n=8: T=1.143   n=32: T=1.032   n=128: T=1.008   n=1024: T=1.001
+  k=4  n=5: T=5.000   n=8: T=2.000   n=32: T=1.143   n=128: T=1.032   n=1024: T=1.004
+  fixed fraction k=n/2:  n=8: T=2.000   n=32: T=2.000   n=128: T=2.000   n=1024: T=2.000
+  total speed bought n m*, k=4, R=1: n=8: 2.538   n=32: 3.677   n=128: 3.921   n=1024: 3.990

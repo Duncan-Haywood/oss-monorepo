@@ -1,0 +1,35 @@
+E1. Exact unbiasedness by full enumeration of a 4-point distribution (sigma^2=609/100, mu4=767457/10000)
+  pair (variance)        m=2  E h = 609/100  target = 609/100  equal: True
+  mean^2                 m=2  E h = 121/100  target = 121/100  equal: True
+  variance^2             m=4  E h = 370881/10000  target = 370881/10000  equal: True
+  third central moment   m=3  E h = 1059/125  target = 1059/125  equal: True
+  expected pair score at the truth = Var h = 569169/10000 = 569169/10000 ; excess for report s2+d is exactly d^2: [True, True, True]
+  Var of sample variance, exact enumeration vs mu4/m-(m-3)s^4/(m(m-1)):
+    m=2: 569169/10000  vs  569169/10000
+    m=3: 255819/10000  vs  255819/10000
+    m=4: 64383/4000  vs  64383/4000
+
+E2. Relative sd of the sigma estimate from ONE pair, per distribution (payment noise per report)
+dist       kurtosis  variance-score  Gini-score   (MC check of both)
+Normal          3.0           0.707       0.756   MC: variance 0.703, Gini 0.754
+Laplace         6.0           0.935       0.882   MC: variance 0.946, Gini 0.882
+t(5)            9.0           1.118         n/a   MC: variance 1.178, Gini 0.860
+t(3)            inf             inf         n/a   MC: variance 3.242, Gini 1.062
+
+E3. Disjoint pairs needed to catch a verifier who under-reports sigma^2 by rho (alpha=.05, power .8), formula vs Monte Carlo power at that N
+  Normal   rho=0.5   N=49     power 0.703
+  Normal   rho=0.25  N=198    power 0.749
+  Normal   rho=0.1   N=1237   power 0.790
+  Laplace  rho=0.5   N=87     power 0.711
+  Laplace  rho=0.25  N=346    power 0.751
+  Laplace  rho=0.1   N=2164   power 0.752
+
+E4. Pooling: same M=20 audited draws, disjoint pairs vs all pairs (=sample variance); variance ratio
+  Normal   MC ratio 1.874   large-M limit (kappa+1)/(kappa-1) = 2.000
+  Laplace  MC ratio 1.370   large-M limit (kappa+1)/(kappa-1) = 1.400
+
+E5. Correlated 'independent' draws (shared seed/batch), coefficient rho: the pair score's minimiser is sigma^2 (1-rho)
+  rho=0.0: sigma^2=1 elicited as 1.00  -> the verifier can report 0% too small a variance and be exactly right
+  rho=0.1: sigma^2=1 elicited as 0.90  -> the verifier can report 10% too small a variance and be exactly right
+  rho=0.3: sigma^2=1 elicited as 0.70  -> the verifier can report 30% too small a variance and be exactly right
+  rho=0.6: sigma^2=1 elicited as 0.40  -> the verifier can report 60% too small a variance and be exactly right

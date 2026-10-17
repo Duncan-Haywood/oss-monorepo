@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Is India's Time Zone UTC+5:30, Not a Whole Number?</title>
+  <meta name="description" content="India spans roughly two hours of longitude but runs on a single clock, offset from UTC by a half hour. Here is why 5:30 was picked, and how the half-hour appears on this world clock.">
+  <meta property="og:title" content="Why is India's time zone UTC+5:30?">
+  <meta property="og:description" content="One clock for a country wide enough to need two — offset from UTC by exactly half an hour, not a whole one. Here's the reasoning and the arithmetic.">
+  <link rel="canonical" href="./why-is-indias-time-zone-utc-5-30.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does India use a half-hour offset instead of a whole one?","acceptedAnswer":{"@type":"Answer","text":"India Standard Time is fixed to 82.5°E longitude, roughly the meridian running through Mirzapur, near the geographic middle of the country. Solar noon there falls almost exactly 5 hours 30 minutes ahead of solar noon at Greenwich, so the government set the clock to UTC+5:30 rather than round to the nearest whole hour, which would have pushed one coast's solar time further from the clock than the other's."}},{"@type":"Question","name":"Why does a country spanning two hours of longitude use only one time zone?","acceptedAnswer":{"@type":"Answer","text":"India used two time zones, Bombay Time and Calcutta Time, until they were unified into a single Indian Standard Time in 1906, and the country has kept one zone since independence for administrative simplicity — one national timetable for trains, broadcasting and government offices. The tradeoff is real: solar noon in the far east (near the Myanmar border) arrives roughly two hours earlier than solar noon in the far west (near the Pakistan border), so a single clock reads noon well after sunrise in the east and well before it in the west."}},{"@type":"Question","name":"Is India the only country with a half-hour or unusual time zone offset?","acceptedAnswer":{"@type":"Answer","text":"No. Iran and Afghanistan use UTC+3:30 and UTC+4:30. Sri Lanka and Myanmar use UTC+5:30 and UTC+6:30. Nepal uses UTC+5:45, one of only two 45-minute offsets in the world. Newfoundland, Canada runs UTC-3:30. None of these are errors — each was chosen so the local clock tracks solar time more closely than the nearest whole-hour zone would."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 28px 18px 56px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 1.8em 0 10px; color: #17324a; }
+    p, li { line-height: 1.55; }
+    .note { font-size: .86rem; color: #55606f; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1em 0; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e6eaf0; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    a { color: #1a4560; }
+    .cta { display: inline-block; margin: 6px 0 0; padding: 10px 15px; border-radius: 8px; background: #1a4560; color: #fff; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2.4em; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← World Clock &amp; Daylight</a></p>
+  <h1>Why is India's time zone UTC+5:30, not a whole number?</h1>
+  <p>Most of the world rounds its clocks to the nearest whole hour from UTC. India doesn't: Indian Standard Time is exactly five and a half hours ahead. It isn't a rounding quirk or a historical accident that stuck — it's a deliberate choice, and this world clock renders it correctly wherever it shows up, including the "vs. you" column when you're comparing your own zone against it.</p>
+  <p><a class="cta" href="./?cities=mumbai%2Cnew-delhi">Open Mumbai and New Delhi on the world clock</a></p>
+
+  <h2>The reasoning behind 5:30</h2>
+  <p>India Standard Time is anchored to 82.5°E — the meridian passing near Mirzapur, close to the country's geographic centre. Solar noon on that line falls almost exactly 5 hours 30 minutes ahead of solar noon at Greenwich. Rounding to a flat UTC+5 or UTC+6 would have made the clock read noticeably early or late against the sun for whichever coast was rounded away from; UTC+5:30 was chosen to split that difference rather than accept it on one side.</p>
+
+  <h2>One clock for two hours of longitude</h2>
+  <p>India stretches from about 68°E to 97°E — roughly two hours of solar time from its western border to its eastern one. Before 1906 the country ran two zones, Bombay Time and Calcutta Time; they were merged into one Indian Standard Time that year, and the country has kept a single zone since independence for the sake of one national timetable — one clock for trains, broadcasting and government offices, rather than a traveller crossing an internal time boundary.</p>
+  <p>The tradeoff is real and it's visible on this tool's own city list, which carries both ends of the country. Mumbai, in the west, and New Delhi are close enough in longitude that the difference barely registers — but the far northeast, near the Myanmar border, sees the sun rise nearly two hours before it does in the west. A single national clock means the northeast starts its working day in bright daylight while clocks nationwide still read the same 5:30 offset.</p>
+  <table>
+    <thead><tr><th>City</th><th>Time zone</th><th>UTC offset</th></tr></thead>
+    <tbody>
+      <tr><td>Mumbai</td><td>Asia/Kolkata</td><td>UTC+5:30</td></tr>
+      <tr><td>New Delhi</td><td>Asia/Kolkata</td><td>UTC+5:30</td></tr>
+    </tbody>
+  </table>
+  <p>Both cities share the same IANA zone, <code>Asia/Kolkata</code>, and this world clock reads it straight from your browser's own time zone database — the same source used for every city on the list — so the half-hour offset, and the "vs. you" comparison against it, are exact rather than approximated.</p>
+
+  <h2>India isn't alone</h2>
+  <p>Half-hour and other fractional offsets show up wherever a government has favoured tracking the sun over rounding to a clean number:</p>
+  <table>
+    <thead><tr><th>Place</th><th>Offset</th></tr></thead>
+    <tbody>
+      <tr><td>Iran</td><td>UTC+3:30</td></tr>
+      <tr><td>Afghanistan</td><td>UTC+4:30</td></tr>
+      <tr><td>India, Sri Lanka</td><td>UTC+5:30</td></tr>
+      <tr><td>Myanmar</td><td>UTC+6:30</td></tr>
+      <tr><td>Nepal</td><td>UTC+5:45</td></tr>
+      <tr><td>Newfoundland, Canada</td><td>UTC-3:30</td></tr>
+    </tbody>
+  </table>
+  <p>Nepal's UTC+5:45 is one of only two 45-minute offsets used anywhere in the world. None of these are mistakes to round away — a tool that assumes every zone sits on a whole hour will misreport the local time in any of them.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why does India use a half-hour offset instead of a whole one?</h3>
+  <p>India Standard Time is fixed to 82.5°E longitude, roughly the meridian running through Mirzapur, near the geographic middle of the country. Solar noon there falls almost exactly 5 hours 30 minutes ahead of solar noon at Greenwich, so the government set the clock to UTC+5:30 rather than round to the nearest whole hour, which would have pushed one coast's solar time further from the clock than the other's.</p>
+  <h3>Why does a country spanning two hours of longitude use only one time zone?</h3>
+  <p>India used two time zones, Bombay Time and Calcutta Time, until they were unified into a single Indian Standard Time in 1906, and the country has kept one zone since independence for administrative simplicity — one national timetable for trains, broadcasting and government offices. The tradeoff is real: solar noon in the far east (near the Myanmar border) arrives roughly two hours earlier than solar noon in the far west (near the Pakistan border), so a single clock reads noon well after sunrise in the east and well before it in the west.</p>
+  <h3>Is India the only country with a half-hour or unusual time zone offset?</h3>
+  <p>No. Iran and Afghanistan use UTC+3:30 and UTC+4:30. Sri Lanka and Myanmar use UTC+5:30 and UTC+6:30. Nepal uses UTC+5:45, one of only two 45-minute offsets in the world. Newfoundland, Canada runs UTC-3:30. None of these are errors — each was chosen so the local clock tracks solar time more closely than the nearest whole-hour zone would.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. Historical and geographic details are believed accurate but are not a substitute for an authoritative source. <strong>You are responsible for reviewing and verifying its content before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p><a href="./">Open the world clock</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</body>
+</html>

@@ -10,6 +10,7 @@ import {
   compareSummary,
   comparisonText,
   loadItem,
+  priceForProfit,
   resolveChannels,
 } from "./calc.mjs";
 
@@ -60,7 +61,7 @@ test("referral rates follow the category, and differ per marketplace for the sam
   assert.equal(rate("walmart"), 20);
   // eBay and Etsy do not vary by category — that difference is the whole point
   // of running the comparison on a high-referral category.
-  assert.equal(rate("ebay"), 13.25);
+  assert.equal(rate("ebay"), 13.6);
   assert.equal(rate("etsy"), 9.5);
 });
 
@@ -76,7 +77,7 @@ test("an empty override falls back to the default instead of reading as zero", (
   for (const blank of ["", null, undefined]) {
     assert.equal(
       resolveChannels(item, { ebay: blank }).find((c) => c.id === "ebay").percentRate,
-      13.25,
+      13.6,
       `${JSON.stringify(blank)} must not be read as a 0% fee`,
     );
   }
@@ -85,12 +86,12 @@ test("an empty override falls back to the default instead of reading as zero", (
 test("eBay arithmetic matches the fee model by hand", () => {
   const item = loadItem(ITEM);
   const row = calculateChannel(resolveChannels(item).find((c) => c.id === "ebay"), item);
-  // 40 * 13.25% = 5.30, plus $0.30 fixed, no subscription.
-  assert.equal(row.percentFee.toFixed(2), "5.30");
-  assert.equal(row.channelFees.toFixed(2), "5.60");
+  // 40 * 13.6% = 5.44, plus $0.40 fixed, no subscription.
+  assert.equal(row.percentFee.toFixed(2), "5.44");
+  assert.equal(row.channelFees.toFixed(2), "5.84");
   assert.equal(row.cashInvested.toFixed(2), "18.00");
-  assert.equal(row.profit.toFixed(2), "16.40");
-  assert.equal(row.margin.toFixed(2), "41.00");
+  assert.equal(row.profit.toFixed(2), "16.16");
+  assert.equal(row.margin.toFixed(2), "40.40");
 });
 
 test("a subscription is spread over the seller's own volume, not ignored", () => {
@@ -108,8 +109,37 @@ test("a subscription is spread over the seller's own volume, not ignored", () =>
 test("marketplace fees stay out of invested cash so ROI stays comparable", () => {
   const item = loadItem(ITEM);
   for (const row of compareChannels(item)) {
-    assert.equal(row.cashInvested.toFixed(2), "18.00", `${row.label} moved the cash basis`);
+    // Poshmark's buyer buys the prepaid label, so the seller's $5 postage is not theirs.
+    const expected = row.id === "poshmark" ? "13.00" : "18.00";
+    assert.equal(row.cashInvested.toFixed(2), expected, `${row.label} moved the cash basis`);
   }
+});
+
+test("Poshmark: flat $2.95 under $15, 20% of the price from $15, postage ignored", () => {
+  const posh = (price, extra = {}) =>
+    compareChannels(loadItem({ ...ITEM, price, ...extra })).find((row) => row.id === "poshmark");
+  assert.equal(posh(10).channelFees.toFixed(2), "2.95");
+  assert.equal(posh(14.99).channelFees.toFixed(2), "2.95");
+  assert.equal(posh(15).channelFees.toFixed(2), "3.00");
+  assert.equal(posh(50).channelFees.toFixed(2), "10.00");
+  // Buyer-paid postage is not seller revenue and not commissioned.
+  assert.equal(posh(50, { shippingCharged: 9 }).channelFees.toFixed(2), "10.00");
+  assert.equal(posh(50, { shippingCharged: 9 }).revenue, 50);
+  // Never charge more than the price on a tiny sale.
+  assert.equal(posh(2).channelFees.toFixed(2), "2.00");
+});
+
+test("Poshmark break-even and parity prices land on the right side of the cliff", () => {
+  const poshChannel = CHANNELS.find((c) => c.id === "poshmark");
+  const item = loadItem({ ...ITEM, itemCost: 5, shippingCost: 0, otherCost: 0 });
+  // Needs 5 net: flat branch gives 7.95, under $15, so that is the answer.
+  assert.equal(priceForProfit(poshChannel, item, 0).toFixed(2), "7.95");
+  // Needs 12.10 net: flat gives 15.05 (over the cliff), percent gives 15.125.
+  assert.equal(priceForProfit(poshChannel, item, 7.1).toFixed(3), "15.125");
+  // Needs 12.00 net: flat 14.95 still nets exactly 12.00.
+  assert.equal(priceForProfit(poshChannel, item, 7).toFixed(2), "14.95");
+  // Needs 40 net: percent branch, 40 / 0.8 = 50.
+  assert.equal(priceForProfit(poshChannel, item, 35).toFixed(2), "50.00");
 });
 
 test("break-even price is the price at which that channel nets zero", () => {
@@ -143,7 +173,7 @@ test("identical channels tie in a stable order rather than swapping between runs
   // Force eBay and TikTok onto the same effective cost, then confirm repeated
   // comparisons agree — a table that reshuffles while a seller reads it is
   // worse than one that is merely approximate.
-  const overrides = { tiktok: 13.25 };
+  const overrides = { tiktok: 13.6 };
   const first = compareChannels(item, overrides).map((r) => r.id);
   const second = compareChannels(item, overrides).map((r) => r.id);
   assert.deepEqual(first, second);
@@ -164,6 +194,16 @@ test("a channel that sends no buyers always carries that caveat when it wins", (
   if (!rows[0].demandIncluded) {
     assert.match(compareSummary(rows), /no buyers/);
   }
+});
+
+test("only the own-store channel is flagged as sending no buyers", () => {
+  // Every marketplace brings its own shoppers; flipping one of them would
+  // silently drop it from the parity anchor and from the no-buyers caveat.
+  const noBuyers = CHANNELS.filter((channel) => !channel.demandIncluded).map((c) => c.id);
+  assert.deepEqual(noBuyers, ["shopify"]);
+  const rows = compareChannels(loadItem(ITEM));
+  assert.equal(rows.filter((row) => row.demandIncluded).length, CHANNELS.length - 1);
+  assert.ok(rows.find((row) => row.id === "walmart").demandIncluded);
 });
 
 test("a near-tie is reported as a tie rather than a ranking", () => {
@@ -228,4 +268,54 @@ test("category presets carry a rate for every category-driven channel", () => {
       );
     }
   }
+});
+
+test("parity price: charging it on a channel nets exactly the best demand channel's profit", () => {
+  const item = loadItem(ITEM);
+  const rows = compareChannels(item);
+  const anchor = rows.filter((r) => r.demandIncluded)[0];
+  for (const row of rows) {
+    assert.equal(row.parityAnchorLabel, anchor.label);
+    const channel = resolveChannels(item).find((c) => c.id === row.id);
+    const repriced = calculateChannel(channel, { ...item, price: row.parityPrice });
+    assert.ok(Math.abs(repriced.profit - anchor.profit) < 1e-9, row.id);
+  }
+  assert.ok(Math.abs(rows.find((r) => r.id === anchor.id).parityPrice - item.price) < 1e-9);
+});
+
+test("parity price ignores an own-store row that wins on fees but brings no buyers", () => {
+  const item = loadItem({ ...ITEM, monthlyOrders: 5000 });
+  const rows = compareChannels(item);
+  assert.ok(rows.every((r) => r.parityAnchorLabel !== "Your own Shopify store"));
+});
+
+test("priceForProfit nets out shipping the buyer paid and floors at zero", () => {
+  const item = loadItem({ ...ITEM, shippingCharged: 6 });
+  const channel = resolveChannels(item).find((c) => c.id === "ebay");
+  const price = priceForProfit(channel, item, 10);
+  assert.ok(Math.abs(calculateChannel(channel, { ...item, price }).profit - 10) < 1e-9);
+  assert.equal(priceForProfit(channel, loadItem({ price: 1, itemCost: 0, shippingCcharged: 50 }), -100), 0);
+});
+
+test("Depop (US) charges 3.3% plus $0.45 on item and buyer-paid shipping, nothing else", () => {
+  const item = loadItem({ price: 40, shippingCharged: 6, itemCost: 10 });
+  const row = compareChannels(item).find((r) => r.id === "depop");
+  assert.ok(row);
+  assert.ok(Math.abs(row.channelFees - (46 * 0.033 + 0.45)) < 1e-9);
+});
+
+test("Facebook Marketplace shipped fee is 10% but never below $0.80", () => {
+  const find = (price) =>
+    compareChannels(loadItem({ price, shippingCharged: 0, itemCost: 1 })).find((r) => r.id === "facebook");
+  assert.ok(Math.abs(find(50).channelFees - 5) < 1e-9);
+  assert.equal(find(5).channelFees, 0.8);
+  // Break-even sits on the floor branch for a cheap item: price = 0.80 + cost.
+  assert.ok(Math.abs(find(5).breakEvenPrice - 1.8) < 1e-9);
+});
+
+test("parity price honours a minimum-fee floor", () => {
+  const item = loadItem({ price: 5, itemCost: 1 });
+  const channel = resolveChannels(item).find((c) => c.id === "facebook");
+  const price = priceForProfit(channel, item, 0.5);
+  assert.ok(Math.abs(calculateChannel(channel, { ...item, price }).profit - 0.5) < 1e-9);
 });

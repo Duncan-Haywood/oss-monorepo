@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jitter-twin"
+version = "0.1.0"
+description = "Delay jitter a twin does not model: a twin with the mean sensor delay certifies gains that the real loop with random delay of the same mean makes mean-square unstable; exact second-moment threshold, effective constant delay, and stationary variance"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK EMI Share Option Tax Calculator (BADR, income tax, net proceeds)</title>
+  <meta name="description" content="Free UK EMI option tax calculator: income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, what you keep after a sale, and a comparison with an unapproved option. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EMI options tax calculator: what will I keep when I sell? Free, private">
+  <meta property="og:description" content="See the tax on your EMI options at exit, with and without Business Asset Disposal Relief.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK EMI Share Option Tax Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an EMI option?", "acceptedAnswer": {"@type": "Answer", "text": "A tax-advantaged UK share option for employees of qualifying small companies. If the exercise price is at least the market value at grant, there is no income tax or National Insurance when you exercise, and the gain is taxed as capital gain when you sell."}}, {"@type": "Question", "name": "What is Business Asset Disposal Relief on EMI shares?", "acceptedAnswer": {"@type": "Answer", "text": "A reduced Capital Gains Tax rate on the first \u00a31m of lifetime gains: 14% for 2025/26 and 18% from 6 April 2026, against 18% or 24% normally. For EMI shares the two-year holding period runs from the date the option was granted, not exercised."}}, {"@type": "Question", "name": "When is income tax due on EMI options?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the exercise price is below the market value at grant. That difference (the discount) is taxed as employment income when you exercise. Agreeing a valuation with HMRC before granting avoids it."}}, {"@type": "Question", "name": "What if I exercise after leaving or after a sale?", "acceptedAnswer": {"@type": "Answer", "text": "You usually have 90 days after a disqualifying event, such as the company being taken over or you leaving, to exercise and keep the tax advantage. After that the gain is taxed as income."}}, {"@type": "Question", "name": "How does an EMI option compare with an unapproved option?", "acceptedAnswer": {"@type": "Answer", "text": "An unapproved option taxes the whole gain at exercise as income, at up to 45%, and may attract National Insurance. The calculator shows the income tax difference on your numbers."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK EMI SHARE OPTION TAX CALCULATOR · 2025/26 AND 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much tax will I pay on my EMI options?</h1>
+    <p>Enter your option terms and the sale price. You get the income tax on any discount at exercise, the Capital Gains Tax with or without Business Asset Disposal Relief, the cash you keep, what waiting would change, and a comparison with an unapproved option.</p>
+    <p class="note">Check the figures on GOV.UK. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="options">Number of options you are exercising and selling</label><input id="options" type="number" step="1" min="0"></div>
+      <div><label for="strike">Exercise price per share (&pound;)</label><input id="strike" type="number" step="0.0001" min="0"></div>
+      <div><label for="grantValue">Market value per share when granted (&pound;)</label><input id="grantValue" type="number" step="0.0001" min="0"></div>
+      <div><label for="salePrice">Sale price per share (&pound;)</label><input id="salePrice" type="number" step="0.0001" min="0"></div>
+      <div><label for="income">Your other taxable income this tax year, e.g. salary (&pound;)</label><input id="income" type="number" step="0.01" min="0"></div>
+      <div><label for="months">Months from grant to sale</label><input id="months" type="number" step="1" min="0"></div>
+      <div><label for="badrUsed">Business Asset Disposal Relief gains already used in your lifetime (&pound;)</label><input id="badrUsed" type="number" step="0.01" min="0"></div>
+      <div><label for="aeaUsed">Annual exempt amount already used this year (&pound;)</label><input id="aeaUsed" type="number" step="0.01" min="0"></div>
+      <div><label for="year">Tax year of the sale</label><select id="year"><option value="2025">2025/26</option><option value="2026">2026/27</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my tax</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my tax.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The sale</h2>
+    <div class="scroll"><table><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>If the sale price were different</h2>
+    <div class="scroll"><table><thead><tr><th>Sale price</th><th class="n">Tax</th><th class="n">You keep</th></tr></thead><tbody id="scenarios"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> income tax on the discount between grant value and exercise price, Capital Gains Tax at 18% and 24% with the basic-rate band, the annual exempt amount, Business Asset Disposal Relief at 14% (2025/26) or 18% (2026/27) with the 24-month rule and the £1m lifetime limit, and an unapproved-option comparison.</li>
+      <li><strong>Gives:</strong> tax by type, the cash you keep after paying the exercise price, the effect of missing the two-year mark, and a table of outcomes at other sale prices.</li>
+      <li><strong>Not decided:</strong> whether your option qualifies as EMI, the company's eligibility, Scottish income tax rates, National Insurance, exercise and sale in different tax years, disqualifying events, share-for-share exchanges, earn-outs and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is an EMI option?</h3>
+    <p>A tax-advantaged UK share option for employees of qualifying small companies. If the exercise price is at least the market value at grant, there is no income tax or National Insurance when you exercise, and the gain is taxed as capital gain when you sell.</p>
+    <h3>What is Business Asset Disposal Relief on EMI shares?</h3>
+    <p>A reduced Capital Gains Tax rate on the first £1m of lifetime gains: 14% for 2025/26 and 18% from 6 April 2026, against 18% or 24% normally. For EMI shares the two-year holding period runs from the date the option was granted, not exercised.</p>
+    <h3>When is income tax due on EMI options?</h3>
+    <p>Only if the exercise price is below the market value at grant. That difference (the discount) is taxed as employment income when you exercise. Agreeing a valuation with HMRC before granting avoids it.</p>
+    <h3>What if I exercise after leaving or after a sale?</h3>
+    <p>You usually have 90 days after a disqualifying event, such as the company being taken over or you leaving, to exercise and keep the tax advantage. After that the gain is taxed as income.</p>
+    <h3>How does an EMI option compare with an unapproved option?</h3>
+    <p>An unapproved option taxes the whole gain at exercise as income, at up to 45%, and may attract National Insurance. The calculator shows the income tax difference on your numbers.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with a qualified accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-capital-gains-tax-calculator/">UK capital gains tax calculator</a>, the <a href="../uk-dividend-tax-calculator/">UK dividend tax calculator</a>, the <a href="../uk-100k-tax-trap-calculator/">UK £100k tax trap calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { options: "options", strike: "strike", grantValue: "grantValue", salePrice: "salePrice", income: "income", months: "months", badrUsed: "badrUsed", aeaUsed: "aeaUsed", year: "year" };
+    const IDLE = "Fill in the figures, then click Work out my tax.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `You keep about ${gbp(r.emi.net)} after ${gbp(r.emi.totalTax)} of tax (${(r.effective * 100).toFixed(1)}% of the gain). As an unapproved option you would keep ${gbp(r.unapprovedNet)}.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Sale proceeds", r.emi.proceeds], ["Less: cost to exercise", -r.emi.exerciseCost], ["Income tax on discount", -r.emi.itOnDiscount], ["Capital Gains Tax", -r.emi.cgt.tax]];
+      $("#schedule").innerHTML = rows.map(([l, n]) => `<tr><td>${esc(l)}</td><td class="n">${gbp(n)}</td></tr>`).join("") + `<tr class="total"><td>You keep</td><td class="n">${gbp(r.emi.net)}</td></tr>`;
+      $("#scenarios").innerHTML = r.scenarios.map((s) => `<tr><td>${gbp(s.price)} (${s.multiple}x)</td><td class="n">${gbp(s.tax)}</td><td class="n">${gbp(s.net)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before you act.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 10,000 options at 10p, granted at £1, sold at £5 three years later.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "year" ? "2025" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-summary").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(summaryText(last)); status.textContent = "Summary copied."; } catch { status.textContent = "Copy failed: select the text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("emi-option-tax.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

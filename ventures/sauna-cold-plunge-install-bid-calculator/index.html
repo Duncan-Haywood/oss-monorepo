@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sauna & Cold Plunge Install Bid Calculator — Free</title>
+  <meta name="description" content="Free sauna and cold plunge install bid calculator: build and prep hours, crew pay, equipment and materials, electrician subcontract, drive and target margin in; a bid price, distance table, overrun check and break-even installs per month out. Nothing uploaded.">
+  <meta property="og:title" content="What should I bid on a backyard sauna or cold plunge install? Free calculator">
+  <meta property="og:description" content="Hours, crew, equipment, electrician and margin in; a bid price, travel table and break-even installs out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Crect x='9' y='6' width='14' height='20' rx='2' fill='%23fff'/%3E%3Ccircle cx='20' cy='16' r='1.6' fill='%23b45309'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sauna & Cold Plunge Install Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Bid a backyard sauna or cold plunge install: build and prep hours, crew pay, tools, consumables, equipment and materials, electrician subcontract, drive, fixed costs, card fees and target margin give a bid price, a travel-distance table, an overrun check and break-even installs per month. Runs in your browser; nothing is uploaded.","featureList":"Bid price, cost breakdown, travel distance table, overrun impact, offered-price check, break-even installs per month"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a sauna or cold plunge install?","acceptedAnswer":{"@type":"Answer","text":"Add up the hours on site and the drive, crew pay, tools and consumables, the truck cost per mile, the heater or plunge unit, lumber and the electrician, and a share of your fixed monthly costs, then divide by what is left after the card fee and the margin you want. The calculator does that and shows each line so you can see what the customer is paying for."}},{"@type":"Question","name":"Should I charge for delivery and travel?","acceptedAnswer":{"@type":"Answer","text":"The drive costs you hours you cannot bill elsewhere plus truck cost per mile, so the calculator prices both and shows what share of the quote is the drive. The distance table shows how the price climbs from 0 to 80 miles out, which is where a flat delivery fee stops covering the trip."}},{"@type":"Question","name":"What does it cost me when an install runs over?","acceptedAnswer":{"@type":"Answer","text":"With the price fixed, extra hours on site are pure cost. The planner shows profit and margin if build, prep and helper time run over by the percentage you choose. The drive does not stretch, so only on-site time is affected."}},{"@type":"Question","name":"How many installs a month do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Each job leaves a contribution after variable costs and card fees. Fixed monthly costs divided by that contribution is the number of installs needed, and the planner also warns if your installs per month need more hours than you said you have."}},{"@type":"Question","name":"Is this a quote, a code or a legal document?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not decide electrical or building code, permits, clearances, inspection, licensing, insurance or tax treatment, and the defaults are placeholders, not market rates."}}]}</script>
+    </head>
+<body>
+  <header>
+    <p class="note">SAUNA & COLD PLUNGE INSTALL BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you bid on a sauna or cold plunge install?</h1>
+    <p>Enter the hours, the crew, the equipment and the electrician. It shows the price that earns your margin, what the job leaves if it runs long, how the price climbs with distance, and how many installs a month cover your fixed costs.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The install</h2>
+      <div class="grid">
+        <div><label for="buildHours">Build or install hours on site</label><input id="buildHours" type="number" step="any" value="0"></div>
+        <div><label for="prepHours">Site prep, hookup and cleanup hours on site</label><input id="prepHours" type="number" step="any" value="0"></div>
+        <div><label for="helperHours">Helper hours on site</label><input id="helperHours" type="number" step="any" value="0"></div>
+        <div><label for="materials">Heater or plunge unit, lumber, insulation and trim ($)</label><input id="materials" type="number" step="any" value="0"></div>
+        <div><label for="subcontract">Electrician or other subcontract you pay ($)</label><input id="subcontract" type="number" step="any" value="0"></div>
+        <div><label for="materialsMarkupPct">Markup you charge on equipment and subcontract (%)</label><input id="materialsMarkupPct" type="number" step="any" value="0"></div>
+        <div><label for="quotedPrice">A bid you were offered or plan to submit ($, optional)</label><input id="quotedPrice" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Getting there</h2>
+      <div class="grid">
+        <div><label for="milesOneWay">Miles one way from your shop or supplier</label><input id="milesOneWay" type="number" step="any" value="0"></div>
+        <div><label for="mph">Average driving speed (mph)</label><input id="mph" type="number" step="any" value="0"></div>
+        <div><label for="costPerMile">Truck and trailer cost per mile ($)</label><input id="costPerMile" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your costs</h2>
+      <div class="grid">
+        <div><label for="laborRate">Lead builder pay per hour, loaded ($)</label><input id="laborRate" type="number" step="any" value="0"></div>
+        <div><label for="helperRate">Helper pay per hour, loaded ($)</label><input id="helperRate" type="number" step="any" value="0"></div>
+        <div><label for="toolsPerHour">Tool and equipment wear per on-site hour ($)</label><input id="toolsPerHour" type="number" step="any" value="0"></div>
+        <div><label for="consumablesPerBuildHour">Screws, sealant, stain and blades per build hour ($)</label><input id="consumablesPerBuildHour" type="number" step="any" value="0"></div>
+        <div><label for="fixedMonthly">Fixed costs per month: insurance, truck payment, phone, software ($)</label><input id="fixedMonthly" type="number" step="any" value="0"></div>
+        <div><label for="billableHoursPerMonth">Hours per month you can really bill, drive included</label><input id="billableHoursPerMonth" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Pricing and the month</h2>
+      <div class="grid">
+        <div><label for="targetMarginPct">Profit margin you want on each install (%)</label><input id="targetMarginPct" type="number" step="any" value="0"></div>
+        <div><label for="cardFeePct">Card or payment fee (%)</label><input id="cardFeePct" type="number" step="any" value="0"></div>
+        <div><label for="minCallout">Minimum job price ($)</label><input id="minCallout" type="number" step="any" value="0"></div>
+        <div><label for="overrunPct">Test: install runs over on site by (%)</label><input id="overrunPct" type="number" step="any" value="0"></div>
+        <div><label for="jobsPerMonth">Installs you do per month</label><input id="jobsPerMonth" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Price the install</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I price a sauna or cold plunge install?</h3>
+      <p>Add up the hours on site and the drive, crew pay, tools and consumables, the truck cost per mile, the heater or plunge unit, lumber and the electrician, and a share of your fixed monthly costs, then divide by what is left after the card fee and the margin you want. The calculator does that and shows each line so you can see what the customer is paying for.</p>
+      <h3>Should I charge for delivery and travel?</h3>
+      <p>The drive costs you hours you cannot bill elsewhere plus truck cost per mile, so the calculator prices both and shows what share of the quote is the drive. The distance table shows how the price climbs from 0 to 80 miles out, which is where a flat delivery fee stops covering the trip.</p>
+      <h3>What does it cost me when an install runs over?</h3>
+      <p>With the price fixed, extra hours on site are pure cost. The planner shows profit and margin if build, prep and helper time run over by the percentage you choose. The drive does not stretch, so only on-site time is affected.</p>
+      <h3>How many installs a month do I need to break even?</h3>
+      <p>Each job leaves a contribution after variable costs and card fees. Fixed monthly costs divided by that contribution is the number of installs needed, and the planner also warns if your installs per month need more hours than you said you have.</p>
+      <h3>Is this a quote, a code or a legal document?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not decide electrical or building code, permits, clearances, inspection, licensing, insurance or tax treatment, and the defaults are placeholders, not market rates.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Electrical and building code, clearances, permits and inspection, whether the job needs an electrician or engineer, licensing and insurance, what customers in your area will pay, tax treatment, and how long an install really takes (an estimate you make, not a measurement). The defaults are placeholders, not market rates: check every figure against your own books.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../deck-bid-calculator/">deck bid calculator</a>, the <a href="../shed-install-bid-calculator/">shed install bid calculator</a> and the <a href="../pergola-bid-calculator/">pergola bid calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any code, permit, licence, insurance or inspection obligation that applies to your work. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you bid an install, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const pct = (x) => (x * 100).toFixed(0) + "%";
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const q = price(o);
+      if (!q.valid) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Your margin and card fee leave nothing to price against. Keep them well under 100% together.</div>'; $("out").hidden = false; return; }
+      if (!(q.totalHours > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No hours</span> Enter build, prep or driving time.</div>'; $("out").hidden = false; return; }
+      let h = "";
+      h += `<div class="finding"><h4>Bid this install at</h4><p class="stats"><strong>${money(q.price)}</strong>${q.minBinds ? " (your minimum job price; the cost-based price is only " + money(q.calc) + ")" : ""}. It covers ${q.totalHours.toFixed(1)} hours away (${q.onSite.toFixed(1)} on site, ${q.travelHours.toFixed(1)} driving), leaves <strong>${money(q.profit)}</strong> profit (${pct(q.margin)} margin) after costs and card fees, and pays about ${money(q.perHour)} for every hour away before your pay and fixed costs. The no-profit floor is ${money(lowestSafePrice(o))}; below that you pay to work.</p></div>`;
+      h += `<div class="finding"><h4>Where the money goes</h4>${table(["Line", "This job"], [["Lead builder time on site and driving", money(q.labor)], ["Helper", money(q.helper)], ["Tools and equipment wear", money(q.rig)], ["Screws, sealant, stain and blades", money(q.consumables)], ["Truck miles", money(q.travel)], ["Equipment, materials and electrician at cost", money(q.materials)], ["Share of fixed costs (" + money2(q.overheadPerHour) + " an hour)", money(q.overhead)], ["Card fee", money(q.fees)], ["Profit", money(q.profit)]])}<p class="note">Delivery and travel is about ${pct(q.travelShare)} of the price.</p></div>`;
+      const ov = overrunImpact(o, o.overrunPct);
+      if (ov) h += `<div class="finding"><h4>If it runs ${o.overrunPct}% long</h4><p>Held at ${money(ov.price)}, ${o.overrunPct}% more time on site adds ${money(ov.extraCost)} of cost, leaves ${money(ov.profit)} profit and a ${pct(ov.margin)} margin. ${ov.profit < 0 ? "You would lose money on this job. Bid a fixed price only when the scope and site are clear, or add a clause to bill extra time." : "That is " + money(ov.lostProfit) + " of your margin gone."}</p></div>`;
+      h += `<div class="finding"><h4>Price by distance</h4>${table(["Miles one way", "Drive hours", "Price", "Drive share of price"], distanceLadder(o).map((x) => [x.miles, x.travelHours.toFixed(1), money(x.price), pct(x.travelShare)]))}<p class="note">Same job, same margin, moved further out. Compare with the flat delivery fee you charge today.</p></div>`;
+      const c = checkPrice(o, o.quotedPrice);
+      if (c) h += `<div class="finding"><h4>The bid you entered: ${money(c.price)}</h4><p>It leaves ${money(c.profit)} profit (${isFinite(c.margin) ? pct(c.margin) : "n/a"} margin), ${c.gapToTarget >= 0 ? money(c.gapToTarget) + " above" : money(-c.gapToTarget) + " below"} the price that earns your target margin.</p></div>`;
+      const m = monthly(o);
+      if (m) h += `<div class="finding"><h4>The month</h4><p>Each install like this leaves ${money(m.contribution)} before fixed costs. At ${m.jobs} installs a month that is ${money(m.revenue)} of work and <strong>${money(m.profit)}</strong> after ${money(m.fixed)} of fixed costs. ` + (m.breakEvenJobs === null ? "At this price an install never covers fixed costs." : `You break even at about <strong>${m.breakEvenJobs.toFixed(1)} installs</strong>.`) + (m.overCapacity ? ` These installs need ${m.hours.toFixed(0)} hours a month, more than the ${o.billableHoursPerMonth} you said you can bill.` : "") + `</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("quote_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Time Tracker — Free Billable Hours Timer, No Signup, Invoices From Your Hours</title>
+  <meta name="description" content="Free time tracker for freelancers and contractors: start a timer or add hours by hand, set a rate per project, round up the way you bill, see unbilled money by client, and turn tracked hours into an Invoice Maker draft. No account, no limit, works offline.">
+  <meta property="og:title" content="Time Tracker — free billable hours timer, no signup">
+  <meta property="og:description" content="Track time by project, see what you have not billed yet, and turn hours into an invoice. No account, no subscription, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Time Tracker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free billable-time tracker that runs in your browser: timer and manual entries, rate per project, billing increments, unbilled totals by client, and one-click draft invoices. No account; data stays on your device."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this time tracker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"Does the timer keep running if I close the tab?","acceptedAnswer":{"@type":"Answer","text":"Yes. A running timer is saved with its start time, so reopening the page shows the correct elapsed time. If you forget to stop it, the page flags a timer that has run more than twelve hours so you can correct the entry."}},{"@type":"Question","name":"How does rounding to 6, 15 or 30 minutes work?","acceptedAnswer":{"@type":"Answer","text":"Each entry is rounded up to your increment before it is priced, and never rounded down to zero. Because the rounding happens per entry, the hours on an invoice line add up to the totals in the report. Tell clients your increment up front."}},{"@type":"Question","name":"How do I turn tracked hours into an invoice?","acceptedAnswer":{"@type":"Answer","text":"Give each project a client and a rate, then press Invoice unbilled on a client. A draft invoice with one line per project and rate is added to Invoice Maker on this device, and those entries are marked billed so you cannot charge them twice. If your browser blocks that, you get a file to restore instead."}},{"@type":"Question","name":"Can I mark time as non-billable?","acceptedAnswer":{"@type":"Answer","text":"Yes. Non-billable entries count toward your tracked hours and your billable share, but not toward money and never appear on an invoice."}},{"@type":"Question","name":"Where is my time data stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded."}},{"@type":"Question","name":"Is this a timesheet I can use for payroll or legal billing?","acceptedAnswer":{"@type":"Answer","text":"No advice is given. It adds up the times and rates you enter. Payroll rules, overtime and contract billing terms vary by place and agreement, so check them before you rely on a report for either."}},{"@type":"Question","name":"Can I give a client a timesheet to go with the invoice?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pick the client and the range under Report, then press Print / Save as PDF in the Printable timesheet panel. It lists each entry with the time you worked and the time you billed after your billing increment, plus totals that match the invoice, and prints without the rest of the page."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #sheet { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #sheet h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#timesheet-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #timesheet-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #timesheet-card .noprint { display: none !important; } #sheet { border: 0; padding: 0; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Time Tracker: free billable hours, then an invoice</h1>
+    <p>Start a <strong>timer</strong> or add hours by hand, set a <strong>rate per project</strong>, round up the way you bill, and see exactly how much you have <strong>tracked but not yet invoiced</strong>. When it is time to bill, one button turns a client's unbilled hours into a <strong>draft in Invoice Maker</strong>. No account, no subscription, no limit, and nothing leaves your device.</p>
+  </header>
+
+  <section class="card" id="timer-card" aria-label="Timer">
+    <h2>Timer</h2>
+    <div class="clock" id="clock" role="timer" aria-live="off">0:00:00</div>
+    <div class="grid">
+      <div><label for="t-project">Project</label><input id="t-project" list="projects-dl" autocomplete="off" placeholder="e.g. Website redesign"><datalist id="projects-dl"></datalist></div>
+      <div><label for="t-desc">What are you working on?</label><input id="t-desc" autocomplete="off" placeholder="Optional"></div>
+    </div>
+    <p>
+      <button type="button" id="start">Start timer</button>
+      <button type="button" class="stop" id="stop" hidden>Stop</button>
+    </p>
+    <ul class="issues" id="warn" aria-live="polite"></ul>
+  </section>
+
+  <section class="card" aria-label="Add time by hand">
+    <h2>Add time by hand</h2>
+    <div class="grid">
+      <div><label for="m-project">Project</label><input id="m-project" list="projects-dl" autocomplete="off"></div>
+      <div><label for="m-date">Date</label><input id="m-date" type="date"></div>
+      <div><label for="m-dur">Time spent</label><input id="m-dur" placeholder="1:30, 1h 30m, 45m or 1.5" inputmode="text"></div>
+      <div><label for="m-desc">Description</label><input id="m-desc" autocomplete="off"></div>
+    </div>
+    <p><label style="display:inline-flex;gap:8px;align-items:center;font-weight:600"><input id="m-bill" type="checkbox" checked style="width:auto"> Billable</label></p>
+    <p><button type="button" id="add">Add entry</button></p>
+    <p class="note" id="add-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" aria-label="Report" aria-live="polite">
+    <h2>Where your time and money went</h2>
+    <p>
+      <label for="r-range" style="display:inline">Show</label>
+      <select id="r-range" style="width:auto"><option value="week">This week</option><option value="month">This month</option><option value="lastmonth">Last month</option><option value="all">All time</option></select>
+    </p>
+    <div class="kpis" id="kpis"></div>
+    <div class="bars" id="bars" aria-hidden="true"></div>
+    <div class="barlabels" id="barlabels" aria-hidden="true"></div>
+    <p class="note" id="bars-note"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Client / project</th><th class="n" scope="col">Hours</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Unbilled</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="by-client"></tbody></table></div>
+    <p class="note" id="empty" hidden>No time tracked in this range yet. Start the timer, add an entry, or load the example.</p>
+    <p class="note" id="invoice-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="timesheet-card" aria-label="Timesheet">
+    <h2 class="noprint">Printable timesheet</h2>
+    <p class="note noprint">Give a client the hours behind an invoice. Uses the range chosen under Report above and your billing increment, so it matches what you charged. Print or save as PDF.</p>
+    <p class="noprint"><label for="ts-client" style="display:inline">Client</label> <select id="ts-client" style="width:auto"></select> <button type="button" id="print-sheet">Print / Save as PDF</button></p>
+    <div id="sheet"></div>
+  </section>
+
+  <section class="card" aria-label="Entries">
+    <h2>Entries</h2>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Project</th><th scope="col">Description</th><th class="n" scope="col">Time</th><th class="n" scope="col">Amount</th><th scope="col"><span class="sr">Actions</span></th></tr></thead><tbody id="entries"></tbody></table></div>
+  </section>
+
+  <section class="card" aria-label="Projects and billing settings">
+    <h2>Projects and billing</h2>
+    <p class="note">A project carries a client and an hourly rate. The rate on an entry beats the project's, and the project's beats the default.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Project</th><th scope="col">Client</th><th scope="col">Rate / hour</th><th scope="col"><span class="sr">Remove</span></th></tr></thead><tbody id="projects"></tbody></table></div>
+    <p><button type="button" class="secondary" id="add-project">Add project</button></p>
+    <div class="grid">
+      <div><label for="s-rate">Default rate / hour</label><input id="s-rate" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="s-round">Billing increment</label><select id="s-round"><option value="none">No rounding</option><option value="6">Up to 6 minutes (0.1 h)</option><option value="15">Up to 15 minutes</option><option value="30">Up to 30 minutes</option><option value="60">Up to the hour</option></select></div>
+      <div><label for="s-currency">Currency</label><select id="s-currency"><option>USD</option><option>CAD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>MXN</option><option>INR</option></select></div>
+      <div><label for="s-name">Your business name (for invoices)</label><input id="s-name" autocomplete="organization"></div>
+    </div>
+    <p class="note">Rounding is applied to each entry, so the hours on an invoice line add up to what this report shows. Tell clients your increment before you start; many contracts require it.</p>
+  </section>
+
+  <section class="card" aria-label="Export, back up, restore">
+    <h2>Export, back up, restore</h2>
+    <p>
+      <button type="button" id="export-csv">Export entries as CSV</button>
+      <p class="note" id="storage-guard" aria-live="polite"></p>
+      <button type="button" class="secondary" id="export-json">Download backup</button>
+      <button type="button" class="secondary" id="import-btn">Restore from backup</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="danger" id="clear-all">Delete everything on this device</button>
+      <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore">
+    </p>
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>What it does and does not do</h2>
+    <ul>
+      <li><strong>Whole seconds, whole cents.</strong> Time is stored as seconds and money as cents, so a week of entries adds up exactly and the invoice total equals the report total.</li>
+      <li><strong>Rounding goes up per entry</strong> to your increment (6, 15, 30 or 60 minutes). It never rounds a real entry down to zero.</li>
+      <li><strong>The timer survives a closed tab.</strong> A running timer is saved with its start time, so reopening the page picks up where it was. A timer left running overnight is flagged so you can fix it.</li>
+      <li><strong>Invoicing.</strong> "Invoice unbilled" groups a client's finished, billable, not-yet-billed entries into one line per project and rate, adds a draft to <a href="../invoice-maker/">Invoice Maker</a> on this device, and marks those entries billed so they are never charged twice.</li>
+      <li><strong>Not modelled:</strong> teams and approvals, screenshots or activity monitoring, idle detection, expenses, overtime rules, fixed-price or retainer billing, tax, and syncing between devices.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this time tracker really free?</h3>
+    <p>Yes. There is no account, no trial, no entry limit and no paywall on exports. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>Does the timer keep running if I close the tab?</h3>
+    <p>Yes. A running timer is saved with its start time, so reopening the page shows the correct elapsed time. If you forget to stop it, the page flags a timer that has run more than twelve hours so you can correct the entry.</p>
+    <h3>How does rounding to 6, 15 or 30 minutes work?</h3>
+    <p>Each entry is rounded up to your increment before it is priced, and never rounded down to zero. Because the rounding happens per entry, the hours on an invoice line add up to the totals in the report. Tell clients your increment up front.</p>
+    <h3>How do I turn tracked hours into an invoice?</h3>
+    <p>Give each project a client and a rate, then press Invoice unbilled on a client. A draft invoice with one line per project and rate is added to Invoice Maker on this device, and those entries are marked billed so you cannot charge them twice. If your browser blocks that, you get a file to restore instead.</p>
+    <h3>Can I mark time as non-billable?</h3>
+    <p>Yes. Non-billable entries count toward your tracked hours and your billable share, but not toward money and never appear on an invoice.</p>
+    <h3>Where is my time data stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes it, so use Download backup now and then; the file restores on any device. Nothing is uploaded.</p>
+    <h3>Is this a timesheet I can use for payroll or legal billing?</h3>
+    <p>No advice is given. It adds up the times and rates you enter. Payroll rules, overtime and contract billing terms vary by place and agreement, so check them before you rely on a report for either.</p>
+    <h3>Can I give a client a timesheet to go with the invoice?</h3>
+    <p>Yes. Pick the client and the range under Report, then press Print / Save as PDF in the Printable timesheet panel. It lists each entry with the time you worked and the time you billed after your billing increment, plus totals that match the invoice, and prints without the rest of the page.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It adds up the time and rates you enter; whether your billing increment, your rate or the hours you invoice are permitted by your contract or local law is for you and your client to confirm.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. Your time entries are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>timer_started</code>, <code>entry_added</code>, <code>invoice_created</code>, <code>csv_exported</code>, <code>example_loaded</code>, <code>timesheet_printed</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Quote the job with <a href="../estimate-maker/">Estimate Maker</a>, bill the hours with <a href="../invoice-maker/">Invoice Maker</a>, and see which clients are worth the time with the <a href="../client-profitability-time-analyzer/">client profitability time analyzer</a>. Setting your rate? Try the <a href="../quote-margin-check/">quote margin check</a>. Keep the costs in <a href="../expense-tracker/">Expense Tracker</a>.</p>
+    <p>See what to do next across all four on the <a href="../freelance-dashboard/">Freelance Dashboard</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseDuration, formatDuration, formatClock, formatMoney, entrySeconds, entryAmount, rateFor, clientOf, dayKey, weekStart, rangeFor, inRange, summarize, weekDays, utilisation, effectiveRate, timesheetRows, invoiceLines, nextInvoiceNumber, toInvoiceDraft, warnings, entriesToCsv, toCents } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "time-tracker-data";
+    const IM_KEY = "invoice-maker-data";
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const uid = () => "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const DEFAULTS = { rounding: "none", defaultRate: "", currency: "USD", name: "" };
+    let data = load();
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && Array.isArray(d.entries)) return { entries: d.entries, projects: Array.isArray(d.projects) ? d.projects : [], settings: { ...DEFAULTS, ...(d.settings || {}) } };
+      } catch { /* storage is optional */ }
+      return { entries: [], projects: [], settings: { ...DEFAULTS } };
+    }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+    const running = () => data.entries.find((e) => !Number.isFinite(e.end) && !Number.isFinite(e.manualSec));
+    const money = (c) => formatMoney(c, data.settings.currency);
+    const hours = (s) => formatDuration(s);
+
+    function projectFor(name) {
+      const n = String(name || "").trim();
+      if (!n) return null;
+      let p = data.projects.find((x) => x.name.toLowerCase() === n.toLowerCase());
+      if (!p) { p = { id: uid(), name: n, client: "", rate: "" }; data.projects.push(p); }
+      return p;
+    }
+
+    function start() {
+      if (running()) return;
+      const p = projectFor($("#t-project").value);
+      data.entries.push({ id: uid(), projectId: p ? p.id : "", project: p ? p.name : "", desc: $("#t-desc").value.trim(), start: Date.now(), end: null, billable: true, billed: false });
+      persist(); record("timer_started"); renderAll();
+    }
+    function stop() {
+      const r = running();
+      if (!r) return;
+      r.end = Date.now(); r.desc = r.desc || $("#t-desc").value.trim();
+      persist(); renderAll();
+    }
+    $("#start").onclick = start;
+    $("#stop").onclick = stop;
+
+    $("#add").onclick = () => {
+      const sec = parseDuration($("#m-dur").value);
+      if (!sec) { $("#add-status").textContent = "Enter a time like 1:30, 1h 30m, 45m or 1.5 (hours)."; return; }
+      if (sec > 24 * 3600) { $("#add-status").textContent = "That is more than 24 hours for one entry. Split it across days."; return; }
+      const day = $("#m-date").value || dayKey(Date.now());
+      const [y, m, d] = day.split("-").map(Number);
+      const p = projectFor($("#m-project").value);
+      data.entries.push({ id: uid(), projectId: p ? p.id : "", project: p ? p.name : "", desc: $("#m-desc").value.trim(), start: new Date(y, m - 1, d, 9, 0, 0).getTime(), end: null, manualSec: sec, billable: $("#m-bill").checked, billed: false });
+      persist(); record("entry_added");
+      $("#m-dur").value = ""; $("#m-desc").value = "";
+      $("#add-status").textContent = `Added ${hours(sec)} to ${p ? p.name : "no project"}.`;
+      renderAll();
+    };
+
+    function renderClock() {
+      const r = running();
+      $("#clock").textContent = r ? formatClock(entrySeconds(r)) : "0:00:00";
+      $("#timer-card").classList.toggle("running", !!r);
+      $("#start").hidden = !!r; $("#stop").hidden = !r;
+      document.title = r ? `${formatClock(entrySeconds(r))} — Time Tracker` : "Time Tracker — Free Billable Hours Timer, No Signup, Invoices From Your Hours";
+    }
+    setInterval(renderClock, 1000);
+
+    function renderProjects() {
+      $("#projects-dl").innerHTML = data.projects.map((p) => `<option value="${esc(p.name)}">`).join("");
+      $("#projects").innerHTML = data.projects.map((p) => `<tr data-id="${esc(p.id)}">
+        <td><input class="p-name" aria-label="Project name" value="${esc(p.name)}"></td>
+        <td><input class="p-client" aria-label="Client for ${esc(p.name)}" value="${esc(p.client)}"></td>
+        <td><input class="p-rate" inputmode="decimal" aria-label="Hourly rate for ${esc(p.name)}" value="${esc(p.rate)}"></td>
+        <td><button type="button" class="danger small p-del" aria-label="Remove project ${esc(p.name)}">×</button></td></tr>`).join("");
+    }
+    $("#projects").addEventListener("change", (ev) => {
+      const tr = ev.target.closest("tr"); if (!tr) return;
+      const p = data.projects.find((x) => x.id === tr.dataset.id); if (!p) return;
+      const oldName = p.name;
+      p.name = tr.querySelector(".p-name").value.trim() || oldName; p.client = tr.querySelector(".p-client").value.trim(); p.rate = tr.querySelector(".p-rate").value.trim();
+      for (const e of data.entries) if (e.projectId === p.id) e.project = p.name;
+      persist(); renderAll(true);
+    });
+    $("#projects").addEventListener("click", (ev) => {
+      const b = ev.target.closest(".p-del"); if (!b) return;
+      const id = b.closest("tr").dataset.id;
+      const p = data.projects.find((x) => x.id === id);
+      if (!confirm(`Remove project "${p.name}"? Its entries stay, with the name and no rate.`)) return;
+      for (const e of data.entries) if (e.projectId === id) { e.projectId = ""; }
+      data.projects = data.projects.filter((x) => x.id !== id);
+      persist(); renderAll();
+    });
+    $("#add-project").onclick = () => { data.projects.push({ id: uid(), name: "New project", client: "", rate: "" }); persist(); renderAll(); };
+
+    for (const [id, key] of [["#s-rate", "defaultRate"], ["#s-round", "rounding"], ["#s-currency", "currency"], ["#s-name", "name"]]) {
+      $(id).addEventListener("change", () => { data.settings[key] = $(id).value.trim(); persist(); renderAll(true); });
+    }
+    function fillSettings() { $("#s-rate").value = data.settings.defaultRate; $("#s-round").value = data.settings.rounding; $("#s-currency").value = data.settings.currency; $("#s-name").value = data.settings.name; }
+
+    function rangeEntries() { return data.entries.filter((e) => inRange(e, rangeFor($("#r-range").value))); }
+
+    function renderReport() {
+      const list = rangeEntries();
+      const now = Date.now();
+      const s = summarize(list, data.projects, data.settings, now);
+      const u = utilisation(list, now);
+      $("#kpis").innerHTML = [
+        [hours(s.seconds), "tracked"],
+        [money(s.amount), "billable value"],
+        [money(s.unbilledAmount), "not yet invoiced"],
+        [u === null ? "–" : Math.round(u * 100) + "%", "billable share of time"],
+        [s.seconds ? money(effectiveRate(s)) + "/h" : "–", "effective rate per tracked hour"],
+      ].map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
+      $("#empty").hidden = list.length > 0;
+      const wk = weekDays(data.entries, weekStart(now), now);
+      const max = Math.max(1, ...wk.map((d) => d.seconds));
+      $("#bars").innerHTML = wk.map((d) => `<div class="bar" style="height:${Math.round((d.seconds / max) * 100)}%"></div>`).join("");
+      $("#barlabels").innerHTML = wk.map((d, i) => `<span>${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}<br>${hours(d.seconds)}</span>`).join("");
+      $("#bars-note").textContent = `This week by day: ${hours(wk.reduce((a, d) => a + d.seconds, 0))} total.`;
+      $("#by-client").innerHTML = s.clients.map((c) => `<tr><th scope="row">${esc(c.client)}</th><td class="n">${hours(c.seconds)}</td><td class="n">${money(c.amount)}</td><td class="n">${money(c.unbilled)}</td>
+        <td>${c.unbilled > 0 && c.client !== "(no client)" ? `<button type="button" class="small inv" data-client="${esc(c.client)}">Invoice unbilled</button>` : ""}</td></tr>` +
+        c.projects.map((p) => `<tr><td>&nbsp;&nbsp;${esc(p.project)}</td><td class="n">${hours(p.seconds)}</td><td class="n">${money(p.amount)}</td><td></td><td></td></tr>`).join("")).join("");
+    }
+    $("#r-range").onchange = () => { renderReport(); renderSheet(); };
+    function renderSheet() {
+      const sel = $("#ts-client"), prev = sel.value;
+      const clients = [...new Set(data.entries.map((e) => clientOf(e, data.projects)).filter(Boolean))].sort();
+      sel.innerHTML = '<option value="">All clients</option>' + clients.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      if (clients.includes(prev)) sel.value = prev;
+      const range = rangeFor($("#r-range").value);
+      const t = timesheetRows(data.entries, data.projects, data.settings, { client: sel.value, range });
+      const inc = data.settings.rounding !== "none" ? `<br><span class="note">Billed in ${esc(data.settings.rounding)}-minute blocks, rounded up.</span>` : "";
+      $("#sheet").innerHTML = `<h2>Timesheet</h2><p>${data.settings.name ? esc(data.settings.name) + "<br>" : ""}${sel.value ? "Client: " + esc(sel.value) : "All clients"} · ${esc($("#r-range").selectedOptions[0].textContent)}${inc}</p>` +
+        (t.rows.length ? `<table><thead><tr><th scope="col">Date</th><th scope="col">Project</th><th scope="col">Description</th><th class="n" scope="col">Time</th><th class="n" scope="col">Billed</th><th class="n" scope="col">Amount</th></tr></thead><tbody>${t.rows.map((r) => `<tr><td>${esc(r.date)}</td><td>${esc(r.project)}</td><td>${esc(r.desc)}</td><td class="n">${hours(r.seconds)}</td><td class="n">${r.billable ? hours(r.billSeconds) : "–"}</td><td class="n">${r.billable ? esc(money(r.amount)) : "–"}</td></tr>`).join("")}<tr><th scope="row" colspan="3">Total</th><th class="n">${hours(t.totals.seconds)}</th><th class="n">${hours(t.totals.billSeconds)}</th><th class="n">${esc(money(t.totals.amount))}</th></tr></tbody></table>` : '<p class="note">No finished entries for this selection.</p>');
+    }
+    $("#ts-client").onchange = renderSheet;
+    $("#print-sheet").onclick = () => { record("timesheet_printed"); window.print(); };
+
+    $("#by-client").addEventListener("click", (ev) => {
+      const b = ev.target.closest(".inv"); if (!b) return;
+      invoiceClient(b.dataset.client);
+    });
+
+    function invoiceClient(client) {
+      const mine = data.entries.filter((e) => clientOf(e, data.projects) === client);
+      const lines = invoiceLines(mine, data.projects, data.settings);
+      if (!lines.length) { $("#invoice-status").textContent = `Nothing finished and unbilled for ${client}.`; return; }
+      const total = lines.reduce((a, l) => a + l.amount, 0);
+      if (!lines.every((l) => Number(l.rate) > 0) && !confirm("Some lines have no rate, so they will be invoiced at 0.00. Continue?")) return;
+      const draftBase = { issued: dayKey(Date.now()), currency: data.settings.currency, profile: { fromName: data.settings.name } };
+      let box = null, handed = false, inv;
+      try {
+        box = JSON.parse(localStorage.getItem(IM_KEY) || "null");
+        if (!box || !Array.isArray(box.invoices)) box = { invoices: [], profile: {} };
+        const prof = box.profile || {};
+        inv = toInvoiceDraft(client, lines, { ...draftBase, number: nextInvoiceNumber(box.invoices), profile: { ...prof, fromName: prof.fromName || data.settings.name } });
+        box.invoices.push(inv);
+        if (!box.profile) box.profile = {};
+        localStorage.setItem(IM_KEY, JSON.stringify(box));
+        handed = true;
+      } catch { /* storage is optional */ }
+      if (!handed) inv = toInvoiceDraft(client, lines, { ...draftBase, number: "INV-0001" });
+      const ids = new Set(lines.flatMap((l) => l.ids));
+      for (const e of data.entries) if (ids.has(e.id)) { e.billed = true; e.invoice = inv.number; }
+      persist(); record("invoice_created");
+      if (handed) $("#invoice-status").innerHTML = `Draft invoice ${esc(inv.number)} for ${esc(client)} (${esc(money(total))}) added to Invoice Maker on this device, and ${ids.size} entries marked billed. <a href="../invoice-maker/">Open Invoice Maker</a> to edit and send it.`;
+      else {
+        download(`invoice-${client.replace(/[^\w-]+/g, "-")}.json`, JSON.stringify({ invoices: [inv], profile: {} }, null, 2), "application/json");
+        $("#invoice-status").textContent = `Downloaded a draft for ${client} (${money(total)}) and marked ${ids.size} entries billed. In Invoice Maker, press Restore from backup and choose the file.`;
+      }
+      renderAll(true);
+    }
+
+    function renderEntries() {
+      const list = [...data.entries].sort((a, b) => b.start - a.start).slice(0, 200);
+      const now = Date.now();
+      $("#entries").innerHTML = list.map((e) => {
+        const run = !Number.isFinite(e.end) && !Number.isFinite(e.manualSec);
+        const amt = entryAmount(e, data.projects, data.settings, now);
+        return `<tr data-id="${esc(e.id)}"><td>${esc(dayKey(e.start))}</td><td>${esc(e.project || "–")}${e.billed ? ` <span class="pill billed">billed${e.invoice ? " " + esc(e.invoice) : ""}</span>` : ""}${e.billable === false ? ' <span class="pill nb">non-billable</span>' : ""}</td><td>${esc(e.desc)}</td>
+          <td class="n">${run ? "running" : `<input class="e-dur" aria-label="Time for entry on ${esc(dayKey(e.start))}" value="${esc(hours(entrySeconds(e, now)))}" style="width:5.5em;text-align:right">`}</td>
+          <td class="n">${esc(money(amt))}</td>
+          <td><button type="button" class="secondary small e-bill">${e.billable === false ? "Make billable" : "Non-billable"}</button><button type="button" class="secondary small e-rebill" ${e.billed ? "" : "hidden"}>Unmark billed</button><button type="button" class="danger small e-del" aria-label="Delete entry">×</button></td></tr>`;
+      }).join("");
+    }
+    $("#entries").addEventListener("change", (ev) => {
+      const inp = ev.target.closest(".e-dur"); if (!inp) return;
+      const e = data.entries.find((x) => x.id === inp.closest("tr").dataset.id);
+      const sec = parseDuration(inp.value);
+      if (e && sec !== null && sec <= 24 * 3600) { e.manualSec = sec; persist(); }
+      renderAll(true);
+    });
+    $("#entries").addEventListener("click", (ev) => {
+      const tr = ev.target.closest("tr"); if (!tr) return;
+      const e = data.entries.find((x) => x.id === tr.dataset.id); if (!e) return;
+      if (ev.target.closest(".e-del")) { if (!confirm("Delete this entry?")) return; data.entries = data.entries.filter((x) => x !== e); }
+      else if (ev.target.closest(".e-bill")) e.billable = e.billable === false;
+      else if (ev.target.closest(".e-rebill")) { e.billed = false; delete e.invoice; }
+      else return;
+      persist(); renderAll(true);
+    });
+
+    function renderWarn() { $("#warn").innerHTML = warnings(data.entries).map((w) => `<li>${esc(w)}</li>`).join(""); }
+    function renderAll(keepInputs) {
+      renderClock(); renderWarn(); renderReport(); renderSheet(); renderEntries();
+      if (!keepInputs || !document.activeElement || !document.activeElement.closest("#projects")) renderProjects();
+      fillSettings();
+    }
+
+    function download(name, text, type) {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    $("#export-csv").onclick = () => { download("time-entries.csv", entriesToCsv(data.entries, data.projects, data.settings), "text/csv"); record("csv_exported"); };
+    $("#export-json").onclick = () => download("time-tracker-backup.json", JSON.stringify(data, null, 2), "application/json");
+    $("#import-btn").onclick = () => $("#import-file").click();
+    $("#import-file").onchange = async (ev) => {
+      try {
+        const d = JSON.parse(await ev.target.files[0].text());
+        if (!d || !Array.isArray(d.entries)) throw new Error("shape");
+        if (data.entries.length && !confirm("Replace what is on this device with the backup?")) return;
+        data = { entries: d.entries, projects: Array.isArray(d.projects) ? d.projects : [], settings: { ...DEFAULTS, ...(d.settings || {}) } };
+        persist(); renderAll(); $("#io-status").textContent = "Backup restored.";
+      } catch { $("#io-status").textContent = "That file is not a Time Tracker backup."; }
+      ev.target.value = "";
+    };
+    $("#clear-all").onclick = () => { if (!confirm("Delete all time entries, projects and settings on this device? This cannot be undone.")) return; data = { entries: [], projects: [], settings: { ...DEFAULTS } }; persist(); renderAll(); };
+    $("#load-example").onclick = () => {
+      const now = Date.now(), mon = weekStart(now);
+      const P = [{ id: "ex-p1", name: "Website redesign (example)", client: "Acme Corp (example)", rate: "95" }, { id: "ex-p2", name: "Monthly retainer (example)", client: "Globex (example)", rate: "70" }];
+      for (const p of P) if (!data.projects.some((x) => x.id === p.id)) data.projects.push(p);
+      const at = (dayOff, h, mins, p, desc, extra = {}) => ({ id: uid(), projectId: p.id, project: p.name, desc, start: mon + dayOff * 864e5 + h * 3600e3, end: null, manualSec: mins * 60, billable: true, billed: false, ...extra });
+      data.entries.push(at(0, 9, 150, P[0], "Wireframes"), at(0, 14, 95, P[1], "Support emails"), at(1, 9, 200, P[0], "Homepage build"), at(1, 14, 40, P[1], "Monthly report"), at(2, 10, 125, P[0], "Client call and revisions"), at(2, 15, 30, P[1], "Admin", { billable: false }), at(3, 9, 180, P[0], "Pricing page"));
+      if (!data.settings.rounding || data.settings.rounding === "none") data.settings.rounding = "15";
+      persist(); record("example_loaded"); renderAll();
+    };
+
+    $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+    if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    $("#m-date").value = dayKey(Date.now());
+    const r0 = running(); if (r0) { $("#t-project").value = r0.project || ""; $("#t-desc").value = r0.desc || ""; }
+    renderAll();
+  </script>
+<script data-storage-guard>
+(function () {
+  var KEY = "freelance-suite-last-backup", el = document.getElementById("storage-guard");
+  if (!el) return;
+  var persisted = null;
+  function days() {
+    try {
+      var t = Number(localStorage.getItem(KEY));
+      return t > 0 ? Math.floor((Date.now() - t) / 86400000) : null;
+    } catch (e) { return null; }
+  }
+  function render() {
+    var d = days(), parts = [];
+    parts.push(persisted === true
+      ? "Storage protection: on, so this browser will not clear your data to free space."
+      : persisted === false
+        ? "Storage protection: not granted. This browser may erase your data after a stretch of not visiting, or when it is low on space."
+        : "Storage protection: not supported here, so a backup file is your only safety copy.");
+    parts.push(d === null
+      ? "No backup downloaded from this device yet."
+      : d === 0 ? "Last backup: today."
+      : "Last backup: " + d + (d === 1 ? " day" : " days") + " ago" + (d > 30 ? " - download a new one." : "."));
+    el.textContent = parts.join(" ");
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target && e.target.closest ? e.target.closest("#export-json, #backup") : null;
+    if (!b) return;
+    try { localStorage.setItem(KEY, String(Date.now())); } catch (x) {}
+    render();
+  });
+  render();
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (p) {
+        return p ? true : navigator.storage.persist();
+      }).then(function (p) { persisted = Boolean(p); render(); }, function () {});
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

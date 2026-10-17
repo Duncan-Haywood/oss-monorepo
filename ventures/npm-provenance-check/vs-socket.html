@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. Socket | npm Provenance Check</title>
+  <meta name="description" content="Socket is a paid, ongoing supply-chain security platform that monitors your dependency graph against live registry data for 70+ risk types. This is a free, no-account tool that answers one narrow factual question from a pasted lockfile or the CLI: does this exact package version carry npm's own dist.attestations.provenance field? Not affiliated with Socket, Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-socket.html">
+  <meta property="og:title" content="This checker vs. Socket">
+  <meta property="og:description" content="Socket watches your whole dependency graph on an ongoing basis across dozens of risk categories. This tool reads exactly one registry field -- dist.attestations.provenance -- per package you paste, once, with no account and no install.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Socket already report provenance the way this tool does?","acceptedAnswer":{"@type":"Answer","text":"Socket's own site describes ongoing, registry-aware monitoring of a connected dependency graph across more than 70 risk categories — through a GitHub app, CLI, or browser extension — and its own blog post on npm provenance discusses the mechanism, so provenance is plausibly one signal folded into Socket's broader scoring for a connected project. This tool does a narrower, one-off thing: given a pasted package-lock.json, package.json, or plain list, it makes one read-only GET request per package to the public npm registry and reports exactly the dist.attestations.provenance field on that version — no account, no GitHub app, no ongoing connection, and nothing installed."}},{"@type":"Question","name":"Should I use this tool or Socket?","acceptedAnswer":{"@type":"Answer","text":"They sit at different layers. Socket runs on an ongoing basis against a connected project and the public registries, watching for malware, typosquatting, permission creep, and dozens of other supply-chain risks, as a service that is free for public open-source use and offers paid Team, Business, and Enterprise tiers for private and organization use, per Socket's own site. This tool answers one narrower, one-time question with nothing to connect: for the packages in this pasted lockfile or list, which versions were published with a provenance attestation and which still rely on a classic, stealable publish token? Free, no account, no install, one read-only registry request per package."}},{"@type":"Question","name":"Is this page affiliated with Socket?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; npm Provenance Check</a></p>
+  <h1>This checker vs. Socket</h1>
+  <p class="note">Two different layers: Socket watches a connected dependency graph and the public registries on an ongoing basis across 70+ risk categories. This tool answers one narrower, one-time question from a pasted lockfile or the CLI &mdash; does this exact package version carry npm's own <code>dist.attestations.provenance</code> field &mdash; with no account and nothing installed.</p>
+
+  <section class="card">
+    <h2>What each product is for</h2>
+    <p>
+      <strong>Socket</strong> is a supply-chain security platform. Its own
+      site describes deep package inspection that characterizes what a
+      dependency actually does, connected through a GitHub app, a CLI, or a
+      browser extension, and it flags more than 70 categories of risk across
+      npm and other ecosystems &mdash; malware, typosquatting, hidden or
+      obfuscated code, and permission creep among them &mdash; while
+      monitoring a project's dependency graph on an ongoing basis. It is free
+      for public, open-source use, and Socket's own site lists paid Team,
+      Business, and Enterprise tiers for private-repository and organization
+      use. Socket has written publicly about npm provenance and trusted
+      publishing, so provenance is plausibly one signal folded into its
+      broader per-package score for a connected project; this page does not
+      claim to know exactly how Socket weighs or surfaces it, since this
+      session cannot verify that live against Socket's own product.
+    </p>
+    <p>
+      This tool does none of what Socket does. It has no account, no ongoing
+      service, no GitHub app, and it never scores a package or a project.
+      Given a pasted <code>package-lock.json</code>, <code>package.json</code>,
+      or a plain list of package names, it makes one read-only GET request per
+      package to <code>registry.npmjs.org</code> &mdash; the same registry
+      <code>npm install</code> already talks to &mdash; and reports exactly
+      the <code>dist.attestations.provenance</code> field the registry
+      publishes for that version: present (published via trusted
+      publishing/OIDC or <code>npm publish --provenance</code>) or absent (a
+      classic, stealable long-lived token). Nothing is uploaded, nothing is
+      connected, and nothing is remembered between runs beyond what you paste
+      again next time.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want continuous, registry-aware scanning of my whole dependency graph for malware, typosquats, permission creep, and dozens of other supply-chain risks &mdash; not just publish provenance.</td><td>Socket &mdash; that is the ongoing, cross-ecosystem job it is built for.</td></tr>
+          <tr><td>I want to know right now, for free, exactly which packages in a pasted lockfile lack a provenance attestation, with no account and nothing connected.</td><td>This tool &mdash; paste it, get the list, nothing installed.</td></tr>
+          <tr><td>I want a GitHub app or CLI that watches every future pull request for newly introduced supply-chain risk.</td><td>Socket &mdash; this tool has no memory between runs and watches nothing on its own.</td></tr>
+          <tr><td>I want a single, exportable report across several repositories' lockfiles with no sign-up, wired into a script with <code>--json</code>.</td><td>This tool's CLI &mdash; paste or point it at each lockfile in turn.</td></tr>
+          <tr><td>I want to know whether a specific package has ever shown malicious behavior, or is a typosquat of a popular name.</td><td>Socket &mdash; this tool checks one registry field and cannot answer that.</td></tr>
+          <tr><td>I want the exact registry-documented provenance field, per package version, with no interpretation or score layered on top.</td><td>This tool &mdash; that is the one fact it reports, nothing more.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A team can reasonably run both: Socket for continuous, registry-aware
+      defense against a live attack already under way, and this tool as a
+      fast, zero-account, zero-install check of exactly which dependencies
+      still publish through a stealable token &mdash; useful on its own, or
+      before deciding whether Socket's broader connected monitoring is worth
+      setting up at all. This page does not evaluate Socket's detection
+      accuracy or how it weighs provenance and makes no claim about either
+      &mdash; it only describes Socket's documented product shape and states
+      what this tool does differently. A clean result from either one is not
+      a guarantee that a dependency is safe: absence of a provenance
+      attestation is a fact about how a version was published, not a verdict.
+    </p>
+    <p class="note">This tool needs no account and no sign-up: it is a static page that runs in your browser, or a zero-dependency Node CLI, and every check is one read-only request per package to the public npm registry.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does Socket already report provenance the way this tool does?</h3>
+    <p>Socket's own site describes ongoing, registry-aware monitoring of a connected dependency graph across more than 70 risk categories &mdash; through a GitHub app, CLI, or browser extension &mdash; and its own blog post on npm provenance discusses the mechanism, so provenance is plausibly one signal folded into Socket's broader scoring for a connected project. This tool does a narrower, one-off thing: given a pasted package-lock.json, package.json, or plain list, it makes one read-only GET request per package to the public npm registry and reports exactly the <code>dist.attestations.provenance</code> field on that version &mdash; no account, no GitHub app, no ongoing connection, and nothing installed.</p>
+    <h3>Should I use this tool or Socket?</h3>
+    <p>They sit at different layers. Socket runs on an ongoing basis against a connected project and the public registries, watching for malware, typosquatting, permission creep, and dozens of other supply-chain risks, as a service that is free for public open-source use and offers paid Team, Business, and Enterprise tiers for private and organization use, per Socket's own site. This tool answers one narrower, one-time question with nothing to connect: for the packages in this pasted lockfile or list, which versions were published with a provenance attestation and which still rely on a classic, stealable publish token? Free, no account, no install, one read-only registry request per package.</p>
+    <h3>Is this page affiliated with Socket?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product.</p>
+    <p class="note">Open <a href="./">npm Provenance Check</a> to check your own lockfile, or read <a href="./why-not-just-npm-audit-signatures.html">why this exists alongside npm audit signatures</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review. It reports one factual field the npm registry publishes about each version you asked about &mdash; nothing more. The absence of a provenance attestation is not evidence of compromise, and its presence is not a guarantee of safety. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded; only a package name and version leave your browser, to the public npm registry. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>
+    <p>Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

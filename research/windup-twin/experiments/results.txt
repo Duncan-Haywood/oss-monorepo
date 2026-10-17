@@ -1,0 +1,50 @@
+Windup twin: x' = sat_U(u) + d, z' = x, u = -kp x - ki z, kp = 2 zeta wn, ki = wn^2, U = 1. Twin: U = inf, d = 0. x(0) = x0, z(0) = 0.
+
+== 1. Twin validity region, zeta = 0.7, wn = 1 (kp = 1.4, ki = 1): twin max |u| = kp x0 ==
+twin overshoot (initial-condition response, z(0) = 0): 0.2103, twin settle time 4.882 (x0-independent)
+x0     kp*x0/U  max|x_real - x_twin|/x0   real overshoot   real settle   twin settle
+0.1    0.140    0.000e+00                  0.2103           4.882         4.882
+0.5    0.700    0.000e+00                  0.2103           4.882         4.882
+0.7    0.980    0.000e+00                  0.2103           4.882         4.882
+0.72   1.008    6.431e-05                  0.2103           4.884         4.882
+0.8    1.120    1.171e-02                  0.2131           4.890         4.882
+1      1.400    8.384e-02                  0.2372           4.966         4.882
+1.5    2.100    2.891e-01                  0.3439           5.470         4.882
+2      2.800    4.444e-01                  0.4491           7.966         4.882
+(the twin is exact iff kp x0 <= U = 1, i.e. x0 <= 0.7143)
+
+== 2. Windup: step x0 in units of U, zeta = 0.7, wn = 1 ==
+x0/U   real overshoot  real settle  peak z   x0^2/(2U)   clamped overshoot  clamped settle  peak z   twin overshoot  twin settle
+0.5    0.2103          4.882        0.229    0.125       0.2103             4.882           0.229    0.2103          4.882
+1      0.2372          4.966        0.517    0.500       0.1502             4.998           0.328    0.2103          4.882
+2      0.4491          7.966        2.000    2.000       0.0751             5.538           0.328    0.2103          4.882
+5      0.7411          16.694       12.500   12.500      0.0300             7.576           0.328    0.2103          4.882
+10     0.8650          48.550       50.000   50.000      0.0150             9.948           0.328    0.2103          4.882
+20     0.9312          164.562      200.000  200.000     0.0075             19.644          0.328    0.2103          4.882
+50     0.9722          944.462      1250.000 1250.000    0.0030             49.000          0.328    0.2103          4.882
+
+== 3. Exact saturated phase (x0 > U/kp): x(t) = x0 - U t, z(t) = x0 t - U t^2/2, exit when kp x + ki z = U ==
+x0   exit time (formula)   exit time (sim)   z at exit (formula)   z at exit (sim)   peak z = x0^2/(2U) needs x0^2 >= 2U^2/ki = 2.000
+2    2.58997              2.59000           1.82596               1.82595
+5    8.59600              8.59600           6.03440               6.03439
+10   18.59800             18.59800          13.03720              13.03720
+
+== 4. Constant load d (integrator must supply -d), x0 = 5, zeta = 0.7, wn = 1, U = 1, T = 4000 ==
+d/U    real settle time   final x   (twin has d = 0 and settles in 4.882)
+0      16.70              4.891e-322
+0.5    25.04              3.947e-17
+0.8    54.66              4.401e-15
+0.9    105.10             -2.022e-15
+0.95   214.00             -1.082e-14
+0.99   1063.72            -6.225e-15
+1      never (drifts)     5
+1.05   never (drifts)     205
+
+== 5. Is a faster twin-tuned loop better? zeta = 0.7, x0 = 5, U = 1 ==
+wn    twin decay zeta*wn   twin settle   real settle   real overshoot   clamped settle   clamped overshoot
+0.25  0.175                19.528        20.680        0.2870           20.468           0.1202
+0.5   0.350                9.764         18.484        0.5321           11.700           0.0601
+1     0.700                4.882         16.694        0.7411           7.576            0.0300
+2     1.400                2.442         24.276        0.8650           4.974            0.0150
+4     2.800                1.222         41.142        0.9312           4.912            0.0075
+8     5.600                0.612         76.554        0.9653           4.902            0.0037

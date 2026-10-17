@@ -1,0 +1,52 @@
+name: medical-billing-pricing-calculator
+description: >-
+  Free browser tool for medical billing companies: type a practice's claim volume and average collection per claim,
+  your staff cost per claim, denial rework, software and onboarding, and three offers (percent of collections, fee per
+  claim, flat monthly). It shows margin under each, the smallest practice you can afford, the price that hits your
+  target margin, the collections-per-claim level where percent beats per-claim, and a sensitivity table. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check scored the niche 0.41 against nsa-idr-offer-calculator
+# and private-practice-payer-mix-calculator, both of which serve the practice side; no tool prices billing services
+# for the billing company.
+#
+# Why this niche: thousands of small billing firms and freelance billers quote 4-9% of collections by habit, and lose
+# money on low-dollar, high-denial clients and under-charge on high-dollar ones. Percentage pricing is the norm, so
+# "medical billing pricing percentage vs per claim" is the search a founder makes before sending a quote. Incumbent
+# content is billing-company blog posts ("what we charge"); there is no calculator that starts from the biller's own cost
+# to serve. Free tool is a lead magnet.
+#
+# First visitor: a new or small billing company owner, or a practice manager comparing quotes, searching "medical
+# billing company pricing percentage of collections" or "per claim medical billing fee"; communities such as
+# r/medicalbilling and billing-owner Facebook groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not billing, legal, tax or financial advice; nothing stored or sent.
+# State rules on percentage-based billing differ and are listed under Not decided.
+
+hypotheses:
+  - claim: >-
+      Small medical billing companies will use a cost-to-serve pricing comparison, because percentage quotes are set by
+      habit and hide which clients lose money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/medical-billing-pricing-calculator/
+  analytics: null

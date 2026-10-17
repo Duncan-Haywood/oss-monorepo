@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cron Heartbeat — Free Cron Job Monitor, Self-Hosted in One File</title>
+  <meta name="description" content="Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can self-host with zero dependencies. Free, open source, runs in your browser.">
+  <meta property="og:title" content="Cron Heartbeat — dead man's switch for cron jobs, self-hosted">
+  <meta property="og:description" content="Paste your crontab, get monitored lines and a ready config. The monitor is one Node file you run yourself.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cron Heartbeat", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node.js 18+ for the monitor", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Parses a crontab, computes next runs, the longest healthy silence and a suggested grace period, wraps each job so it reports success or failure to a heartbeat URL, and generates the config for a zero-dependency self-hosted monitor that alerts a webhook or ntfy topic when a job goes quiet."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I know if a cron job stopped running?", "acceptedAnswer": {"@type": "Answer", "text": "Cron only reports errors it can mail, and silently does nothing when the machine is down, the crontab is overwritten or the job hangs. A heartbeat (dead man's switch) inverts this: the job pings a URL when it succeeds, and the monitor alerts when the ping does not arrive within the schedule plus a grace period."}}, {"@type": "Question", "name": "What grace period should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Long enough to cover normal run time and scheduler jitter, short enough that a missed run is noticed while it still matters. This tool suggests about 10% of the typical interval, between 1 minute and 1 hour; raise it for jobs that take a long time to finish."}}, {"@type": "Question", "name": "Does it report failures as well as silence?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The wrapped command pings /ping/name when the job exits 0 and /ping/name/fail when it does not. A /start ping is also supported so a job that starts and never finishes is distinguished from one that never started."}}, {"@type": "Question", "name": "What does the monitor store, and what does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "It is one Node.js file with no dependencies that keeps check names and last-ping times in a JSON file on your own machine. Alerts go only to the webhook or ntfy topic you configure. There is no account and no cost; you pay only for the box it runs on."}}, {"@type": "Question", "name": "Which timezone does it use?", "acceptedAnswer": {"@type": "Answer", "text": "UTC by default. Put a CRON_TZ=Europe/London line above a job in the pasted crontab, or set \"tz\" on a check, and the schedule is read in that zone, daylight saving included: a repeated hour counts once and a skipped hour is skipped that day. The host timezone is never used."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f5f2; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #1d6b4f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14472f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14472f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46564d; }
+    .card { background: #fff; border: 1px solid #d8dfd9; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #a9bfb2; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bfb2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b4f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ece6; color: #14472f; }
+    pre { background: #f0f4f1; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; word-break: break-all; }
+    .job { border-top: 1px solid #e3e9e4; padding: 14px 0; }
+    .job h3 { margin: 0 0 4px; font-size: 1rem; }
+    .err { color: #9a3412; font-weight: 600; }
+    .warn { color: #7c5e10; font-size: .9rem; }
+    .meta { font-size: .88rem; color: #333c36; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Know when your cron jobs silently stop</h1>
+  <p>Cron tells you nothing when the server is down, the crontab was overwritten or a job hangs. Paste your crontab: get next runs, the longest healthy silence, a sensible grace period, a <strong>wrapped line that reports success or failure</strong>, and the config for a heartbeat monitor you run yourself &mdash; <a href="server.mjs">one Node file, no dependencies, no account</a>.</p>
+
+  <section class="card" aria-labelledby="in">
+    <h2 id="in">Your crontab</h2>
+    <label for="tab">Paste <code>crontab -l</code> output</label>
+    <textarea id="tab" spellcheck="false">0 3 * * * /usr/local/bin/backup.sh --full >/dev/null 2>&1
+*/15 * * * * cd /srv/app && ./sync-invoices.sh
+0 9 * * mon-fri /opt/send-reports.py</textarea>
+    <label for="base">Where your monitor will run (used in the ping URLs)</label>
+    <input id="base" value="https://monitor.example.com">
+    <button id="go">Analyze</button>
+    <button id="sample" class="secondary">Reset sample</button>
+  </section>
+
+  <section class="card" id="out" aria-live="polite" hidden>
+    <h2>Jobs</h2>
+    <div id="jobs"></div>
+    <h2>checks.json for the monitor</h2>
+    <pre id="cfg"></pre>
+    <button id="copy" class="secondary">Copy checks.json</button>
+  </section>
+
+  <section class="card">
+    <h2>Run the monitor</h2>
+    <pre>curl -O https://raw.githubusercontent.com/Duncan-Haywood/fp-monorepo/main/ventures/cron-heartbeat/{server,monitor,cron}.mjs
+CONFIG=checks.json PING_KEY=choose-a-secret \
+ALERT_WEBHOOK_URL=https://hooks.slack.com/... node server.mjs</pre>
+    <p class="note">Put it behind HTTPS (Caddy or nginx) on a box that is not the one running the jobs. Alerts go only to the webhook or <code>ALERT_NTFY_URL</code> topic you set. State is a JSON file next to it. Pings accept GET or POST at <code>/ping/&lt;name&gt;</code>, <code>/ping/&lt;name&gt;/start</code> and <code>/ping/&lt;name&gt;/fail</code>; <code>/status</code> returns every check as JSON. Add <code>?key=</code> to each URL when <code>PING_KEY</code> is set.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How do I know if a cron job stopped running?</h3>
+    <p>Cron only reports errors it can mail, and silently does nothing when the machine is down, the crontab is overwritten or the job hangs. A heartbeat (dead man's switch) inverts this: the job pings a URL when it succeeds, and the monitor alerts when the ping does not arrive within the schedule plus a grace period.</p>
+    <h3>What grace period should I use?</h3>
+    <p>Long enough to cover normal run time and scheduler jitter, short enough that a missed run is noticed while it still matters. This tool suggests about 10% of the typical interval, between 1 minute and 1 hour; raise it for jobs that take a long time to finish.</p>
+    <h3>Does it report failures as well as silence?</h3>
+    <p>Yes. The wrapped command pings /ping/name when the job exits 0 and /ping/name/fail when it does not. A /start ping is also supported so a job that starts and never finishes is distinguished from one that never started.</p>
+    <h3>What does the monitor store, and what does it cost?</h3>
+    <p>It is one Node.js file with no dependencies that keeps check names and last-ping times in a JSON file on your own machine. Alerts go only to the webhook or ntfy topic you configure. There is no account and no cost; you pay only for the box it runs on.</p>
+    <h3>Which timezone does it use?</h3>
+    <p>UTC by default. Put a <code>CRON_TZ=Europe/London</code> line above a job in the pasted crontab, or set <code>"tz"</code> on a check, and the schedule is read in that zone, daylight saving included: a repeated hour counts once and a skipped hour is skipped that day. The host timezone is never used. See also the <a href="../cron-dst-drift-check/">Cron DST Drift Check</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the monitor are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. A monitor can itself fail or miss an alert; it is not legal, tax, or financial advice and should not be your only safeguard for critical systems. Everything on this page runs in your browser: your crontab is never uploaded and the page makes no network requests. Hosted on a free static site with no SLA. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { analyzeCrontab } from "./crontab.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const SAMPLE = $("tab").value;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    function run() {
+      const r = analyzeCrontab($("tab").value, new Date(), $("base").value || "https://monitor.example.com");
+      $("jobs").innerHTML = r.entries.length ? r.entries.map((e) => e.error
+        ? `<div class="job"><h3><code>${esc(e.schedule)}</code></h3><p class="err">Line ${e.line}: ${esc(e.error)}</p></div>`
+        : `<div class="job"><h3>${esc(e.slug)} <code>${esc(e.schedule)}</code></h3>
+           <p class="meta">Next runs (UTC${e.tz ? `, schedule read in ${esc(e.tz)}` : ""}): ${e.nextRuns.map((d) => d.toISOString().slice(0, 16).replace("T", " ")).join(" &middot; ")}<br>
+           Longest healthy silence: ${e.longestGapText} &middot; suggested grace: ${e.graceText}</p>
+           ${e.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("")}
+           <pre>${esc(e.wrapped)}</pre></div>`).join("") : "<p>No jobs found.</p>";
+      $("cfg").textContent = r.configJson;
+      $("out").hidden = false;
+      record("analyze");
+    }
+    $("go").addEventListener("click", run);
+    $("sample").addEventListener("click", () => { $("tab").value = SAMPLE; });
+    $("copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("cfg").textContent); record("copy_config"); } catch { /* clipboard is optional */ } });
+  </script>
+</body>
+</html>

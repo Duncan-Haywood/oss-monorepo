@@ -1,0 +1,58 @@
+name: dog-grooming-profit-calculator
+description: >-
+  Free browser tool for dog groomers and grooming salon owners: enter services with
+  price, minutes, supplies and dogs per week, plus overhead, and see profit per hour
+  by service after card fees and overhead, the price that hits an hourly target,
+  own shop vs booth rent vs commission, and the client loss a price raise can
+  absorb. No client or pet data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were unrelated
+# (appointment-overbooking-optimizer 0.26, a cat-adjuster candidate 0.32); no
+# grooming venture exists, screened-out rows not hit.
+#
+# Why this niche: pet grooming is a large US small-business category (shops, mobile
+# vans, booth renters, commission groomers) with thin margins and price-by-feel.
+# Groomers already pay monthly for scheduling and payment software (MoeGo, Gingr,
+# Pawfinity, Square), so willingness to pay for tooling is demonstrated. The
+# question "which of my grooms loses money, and what should I charge?" is not
+# answered by any of them in a free, private page.
+#
+# First visitor: groomers searching "dog grooming pricing calculator", "how much
+# to charge for dog grooming", "booth rent vs commission dog groomer"; groomer
+# subreddits and Facebook groups ask the commission-vs-booth question every week.
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices asserted;
+# no tax advice; says what it does not model. No client or pet data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted grooming price-menu and margin tracker.
+
+hypotheses:
+  - claim: >-
+      Groomers will use a private, no-signup profit-per-hour calculator when
+      setting prices and when choosing between booth rent and commission.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dog-grooming-profit-calculator/
+  analytics: null

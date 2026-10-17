@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contract vs. Salary Rate Calculator (W-2 to 1099) — Free</title>
+  <meta name="description" content="Free W-2 to 1099 rate calculator: find the hourly contract rate that matches a salaried offer after self-employment tax, health insurance, unpaid time off, bench time, lost 401(k) match and expenses. Nothing uploaded.">
+  <meta property="og:title" content="What hourly rate matches your salary offer? Free contract vs. W-2 calculator">
+  <meta property="og:description" content="Step-by-step break-even contract rate, and what an offered rate really leaves you. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 22l6-6 4 4 7-9' stroke='%23fff' stroke-width='2.500' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Contract vs. Salary Rate Calculator (W-2 to 1099)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the hourly contract rate that matches a salaried job offer after self-employment tax, health insurance, unpaid time off, bench time, lost 401(k) match and expenses. Runs in your browser; nothing is uploaded.", "featureList": "Break-even contract rate, W-2 to 1099 conversion, self-employment tax, benefits replacement, offered-rate comparison"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What hourly rate should a contract pay to match a salaried offer?", "acceptedAnswer": {"@type": "Answer", "text": "Not salary divided by 2,080. A contractor pays both halves of Social Security and Medicare tax, buys their own health cover, gets no paid vacation or holidays, loses weeks between contracts and replaces the retirement match. For a typical software salary that adds roughly 30% to 45% to the naive hourly figure. The tool shows each gap as its own step."}}, {"@type": "Question", "name": "Why is self-employment tax not simply 15.3%?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to 92.35% of net earnings, and the 12.4% Social Security part stops at the annual wage base while the 2.9% Medicare part does not. The tool nets this against the employee half of FICA you stop paying when you leave a W-2 job."}}, {"@type": "Question", "name": "Does the comparison include income tax?", "acceptedAnswer": {"@type": "Answer", "text": "No. Income tax depends on state, filing status and deductions, and it is left out of both sides. This slightly favours the contractor, because half of self-employment tax is deductible and the qualified business income deduction may apply. Ask a CPA for the after-tax picture."}}, {"@type": "Question", "name": "Why count unpaid vacation and gaps between contracts?", "acceptedAnswer": {"@type": "Answer", "text": "A salaried offer pays you through holidays and time off. A contract pays only for hours worked, so every unpaid week raises the rate you need on the weeks you do bill. Enter zero for any you do not expect."}}, {"@type": "Question", "name": "What about corp-to-corp or an S corporation?", "acceptedAnswer": {"@type": "Answer", "text": "The tool models a sole proprietor or single-member LLC taxed as one. An S corporation can lower self-employment tax but adds payroll, reasonable-compensation rules and filing costs, so enter those as business expenses or ask a CPA."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not know your state, your client's terms, worker classification rules or your own benefits. Have an advisor review a real offer before you sign."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CONTRACT VS. SALARY RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What hourly rate does a contract need to pay to match your salary offer?</h1>
+    <p>Enter the salaried offer and what you would have to replace as a contractor. It finds the hourly rate that leaves you the same cash, shows how much each gap adds (self-employment tax, health cover, unpaid time off, bench weeks, the lost match, expenses), and tells you what a rate you were actually offered leaves you.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not tax or financial advice.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The salaried offer and your contract assumptions</h2>
+      <div class="grid">
+        <div><label for="salary">Salary offer ($ a year)</label><input id="salary" type="number" step="any" value="0"></div>
+        <div><label for="bonusPct">Target bonus (% of salary)</label><input id="bonusPct" type="number" step="any" value="0"></div>
+        <div><label for="equity">Stock or RSUs, cash value per year ($)</label><input id="equity" type="number" step="any" value="0"></div>
+        <div><label for="matchPct">401(k) match (% of salary)</label><input id="matchPct" type="number" step="any" value="0"></div>
+        <div><label for="employerHealth">Employer-paid health coverage ($ a year)</label><input id="employerHealth" type="number" step="any" value="0"></div>
+        <div><label for="ptoDays">Paid vacation and sick days a year</label><input id="ptoDays" type="number" step="any" value="0"></div>
+        <div><label for="holidays">Paid holidays a year</label><input id="holidays" type="number" step="any" value="0"></div>
+        <div><label for="hoursPerWeek">Hours you work per week</label><input id="hoursPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="benchWeeks">Unbilled weeks a year between contracts</label><input id="benchWeeks" type="number" step="any" value="0"></div>
+        <div><label for="expenses">Business expenses as a contractor ($ a year)</label><input id="expenses" type="number" step="any" value="0"></div>
+        <div><label for="offeredRate">Contract rate you were offered ($ per hour, 0 to skip)</label><input id="offeredRate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Tax rates</h2>
+      <div class="grid">
+        <div><label for="ssRate">Social Security rate, each half (%)</label><input id="ssRate" type="number" step="any" value="0"></div>
+        <div><label for="medicareRate">Medicare rate, each half (%)</label><input id="medicareRate" type="number" step="any" value="0"></div>
+        <div><label for="wageBase">Social Security wage base for the year ($)</label><input id="wageBase" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Find the break-even rate</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What hourly rate should a contract pay to match a salaried offer?</h3>
+      <p>Not salary divided by 2,080. A contractor pays both halves of Social Security and Medicare tax, buys their own health cover, gets no paid vacation or holidays, loses weeks between contracts and replaces the retirement match. For a typical software salary that adds roughly 30% to 45% to the naive hourly figure. The tool shows each gap as its own step.</p>
+      <h3>Why is self-employment tax not simply 15.3%?</h3>
+      <p>It applies to 92.35% of net earnings, and the 12.4% Social Security part stops at the annual wage base while the 2.9% Medicare part does not. The tool nets this against the employee half of FICA you stop paying when you leave a W-2 job.</p>
+      <h3>Does the comparison include income tax?</h3>
+      <p>No. Income tax depends on state, filing status and deductions, and it is left out of both sides. This slightly favours the contractor, because half of self-employment tax is deductible and the qualified business income deduction may apply. Ask a CPA for the after-tax picture.</p>
+      <h3>Why count unpaid vacation and gaps between contracts?</h3>
+      <p>A salaried offer pays you through holidays and time off. A contract pays only for hours worked, so every unpaid week raises the rate you need on the weeks you do bill. Enter zero for any you do not expect.</p>
+      <h3>What about corp-to-corp or an S corporation?</h3>
+      <p>The tool models a sole proprietor or single-member LLC taxed as one. An S corporation can lower self-employment tax but adds payroll, reasonable-compensation rules and filing costs, so enter those as business expenses or ask a CPA.</p>
+      <h3>Is this tax or financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type in. It does not know your state, your client's terms, worker classification rules or your own benefits. Have an advisor review a real offer before you sign.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Income tax, state taxes, the qualified business income deduction, S corporation or corp-to-corp structures, whether the role would really be classified as contract work, the client's payment terms, liability insurance, unemployment eligibility, and benefits the tool does not list (tuition, pension, equity upside). The defaults are placeholders, not your offer: replace each with your own numbers and the current year's tax rates.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../rent-vs-buy-breakeven-calculator/">rent vs buy break-even calculator</a>, the <a href="../job-offer-total-comp-calculator/">job offer total compensation calculator</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and the <a href="../locum-tenens-vs-employed-calculator/">locum tenens vs. employed calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p>Contracting in the UK? The <a href="../uk-sole-trader-vs-limited-company-calculator/">sole trader vs limited company calculator</a> compares take-home for 2026/27.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or your accountant. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any tax or legal obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, money2, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const a = analyze(opts()), b = a.breakEven;
+      let h = `<div class="finding"><h4>Break-even contract rate: ${money2(b.rate)} an hour</h4><p class="stats">That is ${a.multiplier.toFixed(2)}x the naive salary-over-2,080 figure of ${money2(a.naive)}. Billing ${b.weeks.toFixed(1)} weeks of ${(b.hours / b.weeks).toFixed(0)} hours needs about ${money(b.revenue)} of revenue to leave the same cash as the offer (${money(a.fteCash)} after the employee half of FICA).</p></div>`;
+      let prev = 0;
+      h += `<div class="finding"><h4>Where the extra rate comes from</h4>${table(["Step", "Rate", "Added"], a.steps.map((s) => { const d = s.rate - prev; prev = s.rate; return [s.label, money2(s.rate), (d >= 0 ? "+" : "") + money2(d)]; }))}</div>`;
+      if (a.offer) {
+        const o = a.offer;
+        h += `<div class="finding"><h4>${money2(o.rate)} an hour leaves you ${money(Math.abs(o.diff))} a year ${o.diff >= 0 ? "ahead of" : "behind"} the salaried offer</h4><p>Contract cash after expenses, self-employment tax, health cover and match replacement: ${money(o.contractCash)}, against ${money(o.fteCash)} for the job. ${o.shortfallRate > 0 ? `You would need ${money2(o.shortfallRate)} an hour more to break even.` : "It clears break-even."} Before income tax on either side.</p></div>`;
+      }
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

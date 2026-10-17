@@ -1,0 +1,116 @@
+name: referrer-permissions-policy-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers and security
+  researchers: sends one real HTTP GET request to a URL and classifies the
+  response's Referrer-Policy and Permissions-Policy headers into named
+  misconfiguration patterns -- Referrer-Policy: unsafe-url (leaks the full
+  URL, path and query string included, as the Referer header on every
+  request, even an HTTPS-to-HTTP downgrade), a missing or unrecognised
+  Referrer-Policy value (a conforming browser silently treats it as absent
+  and falls back to its default), the legacy no-referrer-when-downgrade
+  value (weaker than the browser's current default), a Permissions-Policy
+  directive whose allowlist syntax does not match the spec (the bare
+  wildcard * or a parenthesised (self "https://origin") list -- a bare
+  unparenthesised origin or unquoted origin inside the parens does not
+  match that shape), a wildcard allowlist on a sensitive feature (camera,
+  microphone, geolocation, payment, usb, midi, serial, hid, bluetooth,
+  display-capture, clipboard-read/write, screen-wake-lock), and reliance on
+  the deprecated Feature-Policy header alone (every current major browser
+  ignores it, so a site that only sends it enforces nothing).
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; per DIRECTION.md's standing owner
+# direction a fresh gate-cleared niche ranks ahead of a parity feature).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.20 or below for the description above -- well under the
+# 0.45 review bar. The closest match (security-headers-check, 0.20) shares
+# only the "sends one real GET request and classifies response headers"
+# vocabulary the whole CI-checker family in this portfolio uses;
+# security-headers-check's own scope is explicitly CSP, frame-ancestors and
+# HSTS, and cookie-security-check's own write-up explicitly lists cookie
+# flags as the gap it fills after security-headers-check -- neither reads
+# Referrer-Policy or Permissions-Policy, and no sibling venture in the
+# portfolio does either (checked directly: no `ventures/` slug matches
+# referrer, permission, feature-policy, or topics).
+#
+# Technical fact pattern is drawn from the stable, versioned W3C/WHATWG
+# platform specs this tool implements against -- the Referrer Policy spec
+# (unsafe-url's full-URL-on-downgrade behaviour, the multi-value
+# comma-separated fallback list, an unrecognised token being treated as
+# absent) and the Permissions Policy spec (the structured-header-based
+# allowlist syntax: the bare wildcard * versus a parenthesised list of
+# self/src/quoted-origin items) -- rather than from a dated statute or a
+# platform's current rollout status, so unlike several sibling calculators
+# this write-up carries no per-year threshold that could move out from
+# under it. Two claims are deliberately hedged rather than stated as
+# universal fact: the "browsers do not all handle a malformed
+# Permissions-Policy directive the same way" language in the syntax-error
+# finding, because per-implementation fallback behaviour for a malformed
+# structured-field item is not something this session verified against
+# every current browser engine, and the missing-Referrer-Policy notice
+# names strict-origin-when-cross-origin as "the default in every current
+# major browser" rather than asserting a specific version number, since
+# that has been the shipped default since roughly 2020 and is not expected
+# to have reverted.
+
+hypotheses:
+  - claim: >-
+      A developer or security researcher checking a site's outbound-referrer
+      leakage or third-party feature exposure will search the exact
+      terminology ("referrer-policy unsafe-url leak", "permissions-policy
+      wildcard camera", "permissions-policy syntax self without parens") and
+      find this tool, since no existing free tool packages the
+      unsafe-url-on-downgrade fact and the Permissions-Policy
+      structured-field allowlist syntax behind one command with a
+      plain-English report naming the exact header that proves each
+      finding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      No sibling venture in this portfolio reads Referrer-Policy or
+      Permissions-Policy -- security-headers-check covers CSP/frame-
+      ancestors/HSTS, cookie-security-check covers Set-Cookie attributes,
+      cors-misconfig-check covers a reflected Origin, cache-control-check
+      covers HTTP caching -- so this fills a genuinely distinct
+      response-evidence gap rather than duplicating existing coverage.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or platform team that gets a clean report will wire the
+      CLI into their own CI as a regression gate against a staging
+      environment, producing return usage without any action from this
+      portfolio -- the same shape every sibling checker in this family
+      (cors-misconfig-check, cache-control-check, security-headers-check)
+      already offers as a CI-gate exit code.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - >-
+    No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - >-
+    A materially better free tool covering the same unsafe-url-leak and
+    Permissions-Policy-wildcard patterns with the same zero-install bar
+    becomes the obvious default, such that this tool's differentiation (one
+    command, plain-English report, shared classification core tested
+    independently of the network layer) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/referrer-permissions-policy-check/
+  analytics: null

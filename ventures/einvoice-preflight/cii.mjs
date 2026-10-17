@@ -77,6 +77,7 @@ function partyFrom(tradeParty) {
     nestedText(tradeParty, "ID"),
     nestedText(tradeParty, "GlobalID"),
     nestedText(tradeParty, "SpecifiedLegalOrganization", "ID"),
+    nestedText(tradeParty, "URIUniversalCommunication", "URIID"),
     vatId,
   );
   const mapped = {
@@ -84,6 +85,45 @@ function partyFrom(tradeParty) {
     name: nestedText(tradeParty, "Name"),
   };
   if (vatId) mapped.vat_id = vatId;
+  const address = firstChild(tradeParty, "PostalTradeAddress");
+  if (address) {
+    const street = nestedText(address, "LineOne");
+    const city = nestedText(address, "CityName");
+    const postal = nestedText(address, "PostcodeCode");
+    const country = nestedText(address, "CountryID");
+    if (street) mapped.street = street;
+    if (city) mapped.city = city;
+    if (postal) mapped.postal_code = postal;
+    if (country) mapped.country = country;
+  }
+  const contactNode = firstChild(tradeParty, "DefinedTradeContact");
+  if (contactNode) {
+    const contact = {};
+    const cName = firstNonEmpty(nestedText(contactNode, "PersonName"), nestedText(contactNode, "DepartmentName"));
+    const phone = nestedText(contactNode, "TelephoneUniversalCommunication", "CompleteNumber");
+    const email = nestedText(contactNode, "EmailURIUniversalCommunication", "URIID");
+    if (cName) contact.name = cName;
+    if (phone) contact.phone = phone;
+    if (email) contact.email = email;
+    if (Object.keys(contact).length) mapped.contact = contact;
+  }
+  const legalId = firstChild(firstChild(tradeParty, "SpecifiedLegalOrganization"), "ID");
+  if (legalId && (legalId.text || "").trim()) {
+    mapped.legal_id = { id: legalId.text.trim(), scheme: legalId.attrs && legalId.attrs.schemeID ? String(legalId.attrs.schemeID).trim() : "" };
+  }
+  const uri = firstChild(firstChild(tradeParty, "URIUniversalCommunication"), "URIID");
+  if (uri) {
+    const id = (uri.text || "").trim();
+    const scheme = uri.attrs && uri.attrs.schemeID ? String(uri.attrs.schemeID).trim() : "";
+    if (id || scheme) mapped.endpoint = { id, scheme };
+  }
+  for (const registration of descendants(tradeParty, "SpecifiedTaxRegistration")) {
+    const identifier = firstChild(registration, "ID");
+    if (identifier && identifier.attrs && String(identifier.attrs.schemeID || "").trim().toUpperCase() === "FC") {
+      mapped.tax_number = identifier.text.trim();
+      break;
+    }
+  }
   return mapped;
 }
 
@@ -211,6 +251,12 @@ export function parseCiiInvoice(source) {
   if (typeCode) invoice.document_code = typeCode;
   const buyerRef = textOf(agreement, "BuyerReference");
   if (buyerRef) invoice.buyer_reference = buyerRef;
+  const specification = nestedText(firstChild(root, "ExchangedDocumentContext"), "GuidelineSpecifiedDocumentContextParameter", "ID");
+  if (specification) invoice.specification_id = specification;
+  const businessProcess = nestedText(firstChild(root, "ExchangedDocumentContext"), "BusinessProcessSpecifiedDocumentContextParameter", "ID");
+  if (businessProcess) invoice.profile_id = businessProcess;
+  const orderRef = nestedText(agreement, "BuyerOrderReferencedDocument", "IssuerAssignedID");
+  if (orderRef) invoice.order_reference = orderRef;
   if (headerReason) invoice.tax_exemption_reason = headerReason;
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
   if (totals.payable !== "") invoice.totals.payable = totals.payable;
@@ -228,5 +274,10 @@ export function parseCiiInvoice(source) {
 
   const payment = paymentFrom(settlement);
   if (payment) invoice.payment = payment;
+  const notes = [
+    ...descendants(header || { name: "", children: [] }, "IncludedNote").map((note) => nestedText(note, "Content")),
+    ...descendants(settlement || { name: "", children: [] }, "SpecifiedTradePaymentTerms").map((terms) => nestedText(terms, "Description")),
+  ].filter(Boolean);
+  if (notes.length) invoice.notes = notes;
   return invoice;
 }

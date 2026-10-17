@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How much does a climbing gym make: a worked example</title>
+  <meta name="description" content="How to work out what a climbing gym earns: day passes, memberships, youth programs, parties, staff, route setting and rent, with a worked 120-climber example, its payback on an $800,000 build, the break-even members and the prices for a 20% margin.">
+  <meta property="og:title" content="How much does a climbing gym make: a worked example">
+  <meta property="og:description" content="How to work out what a climbing gym earns: day passes, memberships, youth programs, parties, staff, route setting and rent, with a worked 120-climber example, its payback on an $800,000 build, the break-even members and the prices for a 20% margin.">
+  <link rel="canonical" href="./how-much-does-a-climbing-gym-make.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many members does a climbing gym need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, staff and pricing, so the calculator solves it: it scales members and day passes together until monthly profit is exactly zero and reports the member and day-pass counts at that point. Youth programs and parties pay for some fixed costs first, so the break-even is lower than a membership-only plan suggests."}},{"@type":"Question","name":"How much of a climbing gym's income comes from memberships?","acceptedAnswer":{"@type":"Answer","text":"Often half or more of revenue, and the steadiest part because it bills monthly. The calculator counts memberships at the fee you enter, and warns when they are over 60% of revenue, because one price change or a competitor opening nearby then moves the whole business."}},{"@type":"Question","name":"What day pass and membership price do I need for my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the day pass price and, separately, the membership fee that make margin equal your target, and shows the day pass price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random gyms."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Climbing Gym Profit Calculator</a></p>
+    <h1>How much does a climbing gym make?</h1>
+    <p>A gym that can comfortably hold 120 climbers, open 80 hours a week with 430 members and 1,300 day passes a month, keeps about 19 cents of every revenue dollar, and the build takes about 4 years to come back.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A gym with 1300 day passes at $22 a month brings in <strong>$28600.00</strong>. 430 members at $72 add <strong>$30960.00</strong>. Each member visits 6 times a month, so there are <strong>3880</strong> climber visits in all, and $4 of rentals, shop and cafe spend per visit adds <strong>$15520.00</strong>.</p>
+    <p>60 kids in youth programs at $160 bring in <strong>$9600.00</strong>, and 25 birthday parties at $350 bring in <strong>$8750.00</strong>.</p>
+    <p>Three staff on the desk and floor for 80 hours a week cost <strong>$19801.60</strong> a month at $17 an hour plus 12% payroll cost. With route setting, rent, utilities, insurance and other costs, fixed costs are <strong>$57301.60</strong>.</p>
+    <table><thead><tr><th>Line</th><th>Per month</th></tr></thead><tbody>
+<tr><td>Revenue</td><td><strong>$93430.00</strong></td></tr>
+<tr><td>Total costs</td><td><strong>$75981.40</strong></td></tr>
+<tr><td>Profit</td><td><strong>$17448.60</strong></td></tr>
+<tr><td>Margin</td><td>18.7%</td></tr>
+<tr><td>Profit per visit</td><td>$4.50</td></tr>
+    </tbody></table>
+    <p>Walls and fit-out cost <strong>$800,000</strong>, so payback is <strong>45.8</strong> months, 3.8 years. Profit would reach zero at 72.6% of planned demand, about 313 members with day passes in proportion.</p>
+  </section>
+  <section class="card">
+    <h2>The prices a 20% margin needs</h2>
+    <p>The gym earns 18.7%, short of 20%. With everything else unchanged, the lowest membership fee that reaches 20% is <strong>$75.89</strong>, $3.89 more than the $72 entered. Or the lowest day pass is <strong>$23.29</strong>, $1.29 more than $22.</p>
+    <h2 style="margin-top:20px">Hitting a 36-month payback</h2>
+    <p>At 45.8 months the gym is past a 36-month payback target. The lowest day pass that reaches 36 months is <strong>$25.91</strong>, $3.91 more than now. Payback is measured before any loan payment, so borrowing does not flatter it; a loan still comes out of monthly profit.</p>
+    <h2 style="margin-top:20px">If demand comes in under plan</h2>
+    <p>Rent, staff and route setting do not shrink when members leave. With 10% fewer members and day passes, monthly profit falls from $17,449 to $11,089 and payback stretches to 72.1 months. With 20% fewer, profit is $4,730 a month and payback is 169.1 months.</p>
+    <h2 style="margin-top:20px">More members at a lower fee</h2>
+    <p>Dropping the membership fee to $64 and signing 500 members makes <strong>$19249.40</strong> a month against <strong>$17448.60</strong>, and pays back in <strong>41.6</strong> months against 45.8. Whether a lower fee wins depends on whether the extra members really arrive and whether the floor can hold them at 6pm on a Tuesday; the second scenario in the calculator tests exactly that.</p>
+    <p>Run your own numbers: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many members does a climbing gym need to break even?</h3>
+    <p>It depends on rent, staff and pricing, so the calculator solves it: it scales members and day passes together until monthly profit is exactly zero and reports the member and day-pass counts at that point. Youth programs and parties pay for some fixed costs first, so the break-even is lower than a membership-only plan suggests.</p>
+    <h3>How much of a climbing gym's income comes from memberships?</h3>
+    <p>Often half or more of revenue, and the steadiest part because it bills monthly. The calculator counts memberships at the fee you enter, and warns when they are over 60% of revenue, because one price change or a competitor opening nearby then moves the whole business.</p>
+    <h3>What day pass and membership price do I need for my target margin?</h3>
+    <p>The calculator solves for the day pass price and, separately, the membership fee that make margin equal your target, and shows the day pass price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random gyms.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, lending or financial advice. Not affiliated with any climbing gym chain, franchise or wall builder. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+</body>
+</html>

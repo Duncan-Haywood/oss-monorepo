@@ -1,0 +1,68 @@
+name: restaurant-tip-pool-calculator
+description: >-
+  Free browser tool for restaurants, cafes and bars: paste a shift list (name, role, hours, card tips, cash tips,
+  sales) and it splits the tips three ways -- one pool by hours, one pool by hours times role points, or server
+  tip-out as a percentage of sales shared with support staff -- takes a card processing fee from card tips only,
+  excludes owners and managers, flags kitchen staff, and shows each person's payout and payout per hour. The payouts
+  always add up to the pool to the cent. Downloads a payroll CSV and a full report. Shifts are read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: tip-pool-compliance-calculator 0.30 (checks
+# whether a pool is lawful and the back-wage exposure; it does not compute who gets what), no-tax-on-tips-overtime 0.21.
+# Complementary, cross-linked, not a duplicate: that tool answers "may we", this one answers "how much to each".
+# Search phrases: "tip pool calculator", "how to split tips between servers and bussers", "tip out calculator",
+# "points based tip pool", "tip distribution spreadsheet".
+# Volume not measured with an external tool.
+#
+# Who: owners and managers of restaurants, bars, cafes and salons who split tips by hand in a spreadsheet at the end
+# of every pay period and get arguments about fairness. Paying buyer, if any: a small multi-location group or a
+# payroll bookkeeper who wants the split inside the pay run.
+#
+# What makes it more than a spreadsheet: it runs the three common methods side by side on the same shifts, keeps the
+# payouts equal to the pool to the cent by largest remainder, caps tip-out at what the server collected, and warns
+# about managers and kitchen staff before the money is paid out.
+#
+# Path to revenue (payment rails stay off): lead magnet for the restaurant-operator audience. A paid version, if usage
+# appears, is a POS tip-report import (Toast, Square, Clover exports) and a scheduled per-period payout sheet behind an
+# env-var switch; not built.
+#
+# Liability: it does arithmetic on the user's own numbers, never says a pool is lawful, and carries the no-warranty
+# and not-advice clauses. Manager and kitchen rules are stated as prompts to check, and state law is listed as not
+# decided.
+#
+# Unverified: no real POS export has been tested; column names are guesses at common ones. The first report of an
+# export it cannot read is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A restaurant manager will paste a pay period of shifts into a no-upload page to see the split under each method,
+      because their POS shows tips per server but not what a pool or a tip-out would pay each person.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "tip pool calculator" and "how to split tips between servers and bussers" prefer a tool that shows
+      the payout per person and per hour to a one-line rule of thumb.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted shift structure) engage with the tool by 2027-03-15.
+  - Users report that real POS tip exports cannot be read and the column mapping cannot be fixed cheaply.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/restaurant-tip-pool-calculator/
+  analytics: null

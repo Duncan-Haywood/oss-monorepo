@@ -1,0 +1,13 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+services:
+  - type: web
+    name: einvoice-preflight
+    runtime: docker
+    dockerContext: ventures/einvoice-preflight
+    dockerfilePath: ventures/einvoice-preflight/Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: EINVOICE_API_KEY
+        generateValue: true

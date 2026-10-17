@@ -5,6 +5,8 @@ mini-split job the way the trade actually loses money — heads, then a
 head-type and story factor, then line-set and electrical extras that a
 per-head quote cannot see — and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mini-split-bid-calculator/
+
 **After using this, you can now price a second-story cassette with a 50 ft
 line-set, a condensate pump, and a new 240 V circuit as a different job from
 a first-floor 12k wall-mount with 15 ft of included line-set**, which used to

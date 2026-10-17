@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot against the number of paid winners k: the share of the prize pool burned on speed falls from 0.97 at k=1 to 0 at k=32 while worker rent rises from 0.001 to 1">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Prize pool: burned versus kept (n = 32)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="118.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="335.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="587.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">winners paid, k</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of prize pool</text>
+<polyline points="64.0,79.0 82.1,83.1 118.2,91.6 190.5,109.6 335.0,152.6 479.5,211.0 587.9,280.8 605.9,299.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="79.0" r="3" fill="#c0392b"/>
+<circle cx="82.1" cy="83.1" r="3" fill="#c0392b"/>
+<circle cx="118.2" cy="91.6" r="3" fill="#c0392b"/>
+<circle cx="190.5" cy="109.6" r="3" fill="#c0392b"/>
+<circle cx="335.0" cy="152.6" r="3" fill="#c0392b"/>
+<circle cx="479.5" cy="211.0" r="3" fill="#c0392b"/>
+<circle cx="587.9" cy="280.8" r="3" fill="#c0392b"/>
+<circle cx="605.9" cy="299.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">burned on speed</text>
+<polyline points="64.0,323.7 82.1,323.2 118.2,321.4 190.5,314.4 335.0,283.3 479.5,219.1 587.9,127.4 605.9,103.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="323.7" r="3" fill="#1f6fb2"/>
+<circle cx="82.1" cy="323.2" r="3" fill="#1f6fb2"/>
+<circle cx="118.2" cy="321.4" r="3" fill="#1f6fb2"/>
+<circle cx="190.5" cy="314.4" r="3" fill="#1f6fb2"/>
+<circle cx="335.0" cy="283.3" r="3" fill="#1f6fb2"/>
+<circle cx="479.5" cy="219.1" r="3" fill="#1f6fb2"/>
+<circle cx="587.9" cy="127.4" r="3" fill="#1f6fb2"/>
+<circle cx="605.9" cy="103.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">worker rent</text>
+</svg>

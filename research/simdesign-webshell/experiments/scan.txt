@@ -1,0 +1,15 @@
+FE = 3D hexahedral eigenbuckling (ElementHex2), clamped at x=0; closed = Timoshenko-type formula.
+horizontal arm: length L-w, unit tip shear (N). vertical arm: length H, unit end moment (N mm).
+arm w(mm) mesh(nx,ny,nz) FE_crit closed ratio(FE/closed) seconds
+horizontal   8.0 (18, 2, 1)    1010.76     940.07  1.075     9
+horizontal   8.0 (36, 4, 1)     995.78     940.07  1.059    32
+vertical   8.0 (18, 2, 1)   24337.67   23844.43  1.021     8
+vertical   8.0 (36, 4, 1)   23952.04   23844.43  1.005    33
+horizontal  16.0 (18, 2, 1)    2890.68    2488.28  1.162     7
+horizontal  16.0 (36, 4, 1)    2855.62    2488.28  1.148    33
+vertical  16.0 (18, 2, 1)   50896.29   49867.85  1.021     7
+vertical  16.0 (36, 4, 1)   50212.21   49867.85  1.007    35
+horizontal  25.0 (18, 2, 1)    6961.52    5344.86  1.302    11
+horizontal  25.0 (36, 4, 1)    6901.49    5344.86  1.291    47
+vertical  25.0 (18, 2, 1)   80776.99   79108.35  1.021     9
+vertical  25.0 (36, 4, 1)   79978.01   79108.35  1.011    34

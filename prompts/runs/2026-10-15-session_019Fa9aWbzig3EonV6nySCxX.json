@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_019Fa9aWbzig3EonV6nySCxX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Says research work lands upstream and to commit no run record here, yet the mirror-sync milestone is oss-monorepo work that does need a record; unclear which applies."
+    },
+    {
+      "file": "research/_mirror/README.md",
+      "issue": "Does not say converted upstream records may lack errors/integrity_issues/date, which made promptctl validate fail after sync."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Merged stalled mirror-sync PR 7037 (green, clean) with a merge commit, then synced to 919825b; fixed validate failures on two malformed upstream records. No new research project this run.",
+  "corrections": [],
+  "redteam": null
+}

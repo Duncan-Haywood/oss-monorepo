@@ -1,0 +1,49 @@
+name: k8s-pod-security-check CI
+
+# Zero-dependency CLI/browser tool: `check.py` is the canonical classifier and
+# `classify.mjs` is the same logic reimplemented for the in-browser page. Keep
+# both covered independently of the portfolio-wide validation workflow, which
+# only checks published pages and does not run venture unit tests.
+on:
+  pull_request:
+    paths:
+      - "ventures/k8s-pod-security-check/**"
+      - ".github/workflows/k8s-pod-security-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/k8s-pod-security-check/**"
+      - ".github/workflows/k8s-pod-security-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: k8s-pod-security-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/k8s-pod-security-check
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run checker tests (Python — the canonical CLI)
+        run: python3 -m unittest test_check -v
+      - name: Run checker tests (browser port, including CLI parity)
+        run: node --test classify.test.mjs
+      - name: Run page tests (disclaimers, SEO metadata, sitemap coverage)
+        run: node --test page.test.mjs

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Node.js Versions Drift Between package.json, .nvmrc, Docker and CI</title>
+  <meta name="description" content="How Node.js versions drift apart across engines.node, .nvmrc, the Dockerfile and GitHub Actions setup-node, what each of the four drift checks means, and how to wire the free zero-dependency CLI into CI.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./why-node-version-drift-happens.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Why Node.js versions drift between package.json, .nvmrc, Docker and CI">
+  <meta property="og:description" content="Four files declare a Node.js version and nothing compares them. What drift looks like and how to catch it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do Node.js versions in a repo drift apart?","acceptedAnswer":{"@type":"Answer","text":"Each file is edited for a different reason by a different person. Someone bumps the Dockerfile for a security fix, someone else raises engines.node when a dependency needs it, and the .nvmrc and the CI workflow are only touched when something breaks. Nothing in npm, Docker or GitHub Actions compares them to each other, so the disagreement lasts until a bug makes it visible."}},{"@type":"Question","name":"What does an unbounded engines.node range actually risk?","acceptedAnswer":{"@type":"Answer","text":"A range like >=18 says every future major will do. It will happily install on a Node.js version released next year that none of your dependencies or tests have ever run on, and with nothing pinned in .nvmrc, the Dockerfile or CI there is no file that says which version you actually tested. A bounded range such as >=22 <25, or a pin, records the versions you stand behind."}},{"@type":"Question","name":"Why are odd-numbered Node.js versions treated differently?","acceptedAnswer":{"@type":"Answer","text":"Odd-numbered releases never enter long-term support and stop receiving fixes roughly six months after release, so the table marks their dates as approximate. Even-numbered releases become long-term support and are maintained until April 30 of their third calendar year. A pin on an odd major in a Dockerfile or CI is therefore usually a leftover rather than a decision."}},{"@type":"Question","name":"What does this checker deliberately not do?","acceptedAnswer":{"@type":"Answer","text":"It does not run Node.js, install packages, or ask any registry which versions exist. It cannot tell you what lts/* or latest mean today, so those are listed as notices. It treats prerelease tags as their release, only reads the first nodejs line of a .tool-versions file, and judges end-of-life from a static table that you should confirm against nodejs.org before acting on a finding."}}]}</script>
+  <style>
+      :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea, input[type=date] { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea { min-height: 110px; resize: vertical; }
+    input[type=date] { width: auto; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    ul.findings { list-style: none; margin: 10px 0; padding: 0; }
+    ul.findings li { background: #fef3f3; border: 1px solid #f3d1d1; border-radius: 8px; padding: 10px 12px; margin: 0 0 8px; font-size: .92rem; }
+    ul.findings li.notice { background: #f5f7fa; border-color: #d5dbe3; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Back to Node Version Drift Check</a></p>
+  <h1>Why Node.js versions drift between package.json, .nvmrc, Docker and CI</h1>
+  <p>A Node.js project states which runtime it wants in up to five places: <code>engines.node</code> in <code>package.json</code>, an <code>.nvmrc</code> or <code>.node-version</code> file, an asdf <code>.tool-versions</code> line, the <code>FROM node:</code> line of a Dockerfile, and the <code>node-version</code> of a GitHub Actions <code>actions/setup-node</code> step (Volta users add <code>volta.node</code>). Each is read by a different tool. None of those tools reads the others.</p>
+
+  <h2>The four kinds of drift</h2>
+  <table>
+    <thead><tr><th>Finding</th><th>Example</th><th>What goes wrong</th></tr></thead>
+    <tbody>
+      <tr><td>Pin violates engines.node</td><td><code>engines.node</code> is <code>&gt;=22</code>, <code>.nvmrc</code> says <code>20.11.1</code></td><td>Local development runs a Node.js your own package says it does not support; installs warn, or fail where <code>engine-strict</code> is on.</td></tr>
+      <tr><td>Majors disagree</td><td>Dockerfile on <code>node:22</code>, CI on <code>node-version: 20</code></td><td>Tests pass on one major and production runs another.</td></tr>
+      <tr><td>End-of-life Node.js</td><td>A CI matrix still lists <code>18</code></td><td>The line no longer receives security fixes, and you are testing a version you should not be shipping.</td></tr>
+      <tr><td>Unbounded engines</td><td><code>&gt;=18</code> and no pin anywhere</td><td>No file records which version was ever tested.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Reading the end-of-life table</h2>
+  <p>The dates come from the Node.js release schedule at nodejs.org/en/about/previous-releases: 18 ended 2025-04-30, 20 ended 2026-04-30, 22 ends 2027-04-30 and 24 ends 2028-04-30. Odd majors are never long-term support and end about six months after release. The table inside the tool is dated 2026-10-11 and is only a snapshot, which is why every finding says "per the table dated" and why <code>--today</code> exists: it makes the verdict reproducible in a test.</p>
+
+  <h2>Run it in CI</h2>
+  <pre>node cli.mjs --fail-on-risk</pre>
+  <p>Exit status 2 means at least one risk finding. Notices (aliases the tool will not guess at, an engines range that still admits an end-of-life major, a major that ends within 90 days) are printed but do not fail the run.</p>
+
+  <h2>Common questions</h2>
+    <h3>Why do Node.js versions in a repo drift apart?</h3>
+    <p>Each file is edited for a different reason by a different person. Someone bumps the Dockerfile for a security fix, someone else raises engines.node when a dependency needs it, and the .nvmrc and the CI workflow are only touched when something breaks. Nothing in npm, Docker or GitHub Actions compares them to each other, so the disagreement lasts until a bug makes it visible.</p>
+    <h3>What does an unbounded engines.node range actually risk?</h3>
+    <p>A range like &gt;=18 says every future major will do. It will happily install on a Node.js version released next year that none of your dependencies or tests have ever run on, and with nothing pinned in .nvmrc, the Dockerfile or CI there is no file that says which version you actually tested. A bounded range such as &gt;=22 &lt;25, or a pin, records the versions you stand behind.</p>
+    <h3>Why are odd-numbered Node.js versions treated differently?</h3>
+    <p>Odd-numbered releases never enter long-term support and stop receiving fixes roughly six months after release, so the table marks their dates as approximate. Even-numbered releases become long-term support and are maintained until April 30 of their third calendar year. A pin on an odd major in a Dockerfile or CI is therefore usually a leftover rather than a decision.</p>
+    <h3>What does this checker deliberately not do?</h3>
+    <p>It does not run Node.js, install packages, or ask any registry which versions exist. It cannot tell you what lts/* or latest mean today, so those are listed as notices. It treats prerelease tags as their release, only reads the first nodejs line of a .tool-versions file, and judges end-of-life from a static table that you should confirm against nodejs.org before acting on a finding.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked checker is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace running your tests on the Node.js version you actually deploy. The end-of-life dates come from a static table copied from nodejs.org/en/about/previous-releases on 2026-10-11 and may be out of date; check nodejs.org for the current schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="note">Node.js is a trademark of the OpenJS Foundation; Volta and nvm are the names of independent projects. They are named here only to describe which files this tool reads. Not affiliated with, endorsed by, or sponsored by Node.js, the OpenJS Foundation, Volta, nvm, npm or GitHub.</p>
+    <p><a href="./">Back to the checker</a></p>
+  </footer>
+</body>
+</html>

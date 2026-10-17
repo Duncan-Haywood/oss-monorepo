@@ -1,0 +1,66 @@
+name: donor-acknowledgment-letter-generator
+description: >-
+  Free browser tool for small nonprofits, PTAs, churches and community groups: paste a list of the year's gifts and
+  enter the organisation. It writes one acknowledgment letter per donor with the wording a donor needs for a gift of
+  $250 or more (IRC 170(f)(8)) and the quid pro quo statement for a payment over $75 that bought something (IRC 6115),
+  describes donated property without valuing it, points vehicle gifts to Form 1098-C, and lists the gifts that cannot
+  be written up as they stand (a pledge, a refund, a missing date, a gala ticket with no value). Downloads a printable
+  one-letter-per-page file, a text version and a donor summary CSV. The gift list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py scored the niche 0.24 at most (against
+# donor-retention-analyzer, which analyses retention rather than writing letters); charitable-deduction-calculator is
+# the donor's side. No venture here writes the charity's receipt.
+# Search phrases: "donation receipt template", "year-end donor acknowledgment letter", "IRS donation acknowledgment
+# letter requirements", "quid pro quo disclosure statement template", "charitable contribution receipt $250".
+# Volume not measured with an external tool; the demand is seasonal and recurring: every US charity with donors has
+# to do this between December and January, and the first visitor is the volunteer treasurer or bookkeeper searching
+# for a template in December, or posting in r/nonprofit, r/ParentTeacherAssociation or church-admin groups.
+#
+# Who: volunteer treasurers and one-person development offices at charities too small for a donor CRM, whose
+# existing answers are a Word mail-merge, the receipt feature of a paid CRM, or a template that does not know about
+# quid pro quo. The paying buyer, if there is one, is the small CRM or a bookkeeping firm serving nonprofits.
+#
+# What makes it more than a template: the per-gift $250 rule against an annual total, the $75 quid pro quo test, the
+# refusal to write "no goods or services" for a gift whose row says dinner was served, the no-value rule for
+# property, grouping the same donor typed three ways, and an error list the treasurer can fix before January.
+#
+# Path to revenue (payment rails stay off): lead magnet for nonprofit-bookkeeping and small-CRM audiences. A paid
+# version, if usage appears, is saved donor rosters, email delivery and e-signature behind an env-var switch; not
+# built.
+#
+# Liability: it reads the user's own list, shows the checks it ran, states what it does not decide (deductibility,
+# valuation, state rules, qualified-charity status), never tells a donor what they may deduct, and carries the
+# no-warranty, independent-of-the-IRS and donor-data clauses.
+#
+# Unverified: the statutory wording follows IRS Publication 1771 as read by the author, not as reviewed by a tax
+# professional; column names are alias-matched and were not run against a real CRM export. The first report of a
+# wrong letter is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A volunteer treasurer or small-nonprofit bookkeeper in December and January will paste a gift list into a
+      no-upload page to get compliant letters, because the mail-merge template they have cannot tell a $249 card gift
+      from a $300 gala payment, and paid CRMs charge for the receipt feature.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-02-15, after the January receipt season it is built for.
+  - A user reports a letter whose wording is wrong for a normal gift list, at which point the rule logic needs revisiting before the next season.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/donor-acknowledgment-letter-generator/
+  analytics: null

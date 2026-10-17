@@ -1,0 +1,57 @@
+name: crop-insurance-coverage-calculator
+description: >-
+  Free browser tool for corn, soybean and other row-crop farmers: type the APH yield, projected
+  price and the farmer-paid premium an agent quoted at each coverage level, plus a few
+  yield-and-price years, and see the guarantee, break-even yield, the cost of each extra 5 points
+  per dollar of added protection and the net result per acre under RP, RP-HPE or YP. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "crop insurance
+# revenue protection premium coverage level farmer" scored 0.24 against the nearest venture
+# (cobra-vs-marketplace-calculator); farmland-lease-cash-rent-vs-crop-share-calculator covers the
+# rent side of the farm, nothing covers the insurance decision.
+#
+# Why this niche: the coverage-level choice is made every winter on thousands of operations, each
+# 5-point step is a four-to-six-figure premium on a few hundred acres, and farmers decide largely
+# from an agent's quote sheet. Extension articles explain RP versus YP; the USDA Cost Estimator
+# prices a policy but does not show the marginal cost of a step or the net across the farmer's own
+# bad years. "85 percent vs 80 percent crop insurance" and "is RP worth it" are seasonal searches.
+#
+# First visitor: row-crop farmers and farm-business advisers (r/farming, r/agriculture, extension
+# newsletters, farm-management Facebook groups). Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed premiums, APH, prices and scenarios; it sells,
+# quotes and binds nothing, does not choose a level, and says to talk to a licensed agent; no
+# county rate data embedded; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later SCO/ECO endorsement
+# modelling and a CSV of an agent quote sheet (not built).
+
+hypotheses:
+  - claim: >-
+      Farmers and advisers will paste an agent's quoted premiums into a private page to compare
+      coverage levels across their own bad years, because the quote sheet shows prices but not the
+      marginal cost of a step or the net across scenarios.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A crop insurance agent reports that a worked indemnity disagrees with the RMA rules for RP, RP-HPE or YP fed the same APH, prices and yield.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/crop-insurance-coverage-calculator/
+  analytics: null

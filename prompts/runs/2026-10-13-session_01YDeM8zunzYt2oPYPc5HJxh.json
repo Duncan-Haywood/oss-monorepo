@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01YDeM8zunzYt2oPYPc5HJxh",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-13T14:17:00Z",
+  "ended": "2026-10-13T14:50:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-reachorder"
+  ],
+  "pr": null,
+  "commits": [
+    "7a4adb4afd5277ffd21b2cda77e44c7435d8baa4"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 0,
+  "tests_added": 5,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Track 4 (random draw); all five milestones existed, took reach next step. Negative result. Citation to Tian 2024 inherited from PROJECTS.md, not re-checked.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

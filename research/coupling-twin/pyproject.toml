@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coupling-twin"
+version = "0.1.0"
+description = "Axis coupling a per-axis twin lacks: exact stable-gain interval 2/(1+sqrt(c12 c21)) or 2/(1+|p|), deadbeat rate |c|, and the log-correlation dependence of a fitted diagonal gain"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

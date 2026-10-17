@@ -1,0 +1,65 @@
+name: production-mix-optimizer
+description: >-
+  Free browser tool for bakeries, workshops and small makers: enter products (price,
+  unit cost, minimum, maximum, batch size) and the limited hours or machines each one
+  uses, and a linear-programming solver finds the most profitable weekly mix in whole
+  batches with optional overtime. Shows what one more hour of each bottleneck is worth
+  and for how long, what each product earns once it crowds out the others, and how the
+  plan beats rule-of-thumb plans. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool, after a first idea (container load planner) turned out to have been merged
+# by another session minutes earlier (container-load-planner, #6146).
+# duplicate_check.py: closest rows were cnc-machining-quote-calculator 0.38 and
+# locksmith-bid-calculator 0.38 (generic word overlap: quote one job, not choose
+# what to make across limits), cut-list-optimizer 0.32 (cutting stock),
+# market-garden-bed-planner 0.19 (crop beds), restaurant-pos-menu-mix-analyzer 0.16
+# (what sold, not what to make). No simplex, shadow-price or product-mix tool in
+# ventures/; screened-out.md has no row for it.
+#
+# Why this niche: a bakery, print shop, workshop or food maker has a few hours a week
+# of oven, machine or labour and a longer list of things it could sell. Picking by
+# margin per unit ignores how much of the scarce hour each unit uses; the decision
+# is a linear program that production-planning software solves and a spreadsheet
+# owner approximates by feel. Shadow prices tell them what overtime or a second
+# oven is worth, which is a money decision they face weekly.
+#
+# First visitor: makers searching "what should I produce to maximise profit limited
+# capacity", "bottleneck product mix", "is overtime worth it", "product mix
+# optimization spreadsheet / Excel Solver". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no prices, costs or
+# capacities asserted (example data is invented and says so); constant-per-unit usage
+# assumed and said so; setup, shelf life and sequencing not modelled and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# lead magnet for a hosted weekly planner with saved recipes.
+
+hypotheses:
+  - claim: >-
+      Small makers with a bottleneck resource will use a private, no-signup product
+      mix optimizer when they plan a week or consider overtime, because the shadow
+      price answers "is another hour worth buying" and margin per unit does not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that earns less than a plan they found by hand on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/production-mix-optimizer/
+  analytics: null

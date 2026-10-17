@@ -1,0 +1,48 @@
+name: pawn-loan-profit-calculator
+description: >-
+  Free browser tool for pawnbrokers: enter your monthly rate, redemption rate, loan-to-value and what forfeited items
+  sell for to get profit per loan and per month, the annual return on money out, the break-even redemption rate, the
+  largest loan an item can carry for your target margin, the smallest loan worth writing, and tables for redemption,
+  loan-to-value and sale price. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check on "pawn shop loan interest yield" returned 0.34 at most
+# (auto-loan-interest-deduction-calculator, a tax tool). ventures/ has scrap-gold-buy-price-calculator for the gold buy
+# side but nothing for the loan book: redemption rate, loan-to-value, forfeit resale and ticket cost.
+#
+# Why this niche: a pawn shop's income is a blend of interest on redeemed loans and resale gain on forfeits, so the
+# profitable loan-to-value moves with the redemption rate, the rate cap and what forfeits really sell for. Small
+# tickets lose money to per-loan cost. Shops mostly set a loan-to-value by habit; this solves it from their own figures.
+#
+# First visitor: a small pawn shop owner or manager searching "pawn shop profit calculator", "pawn loan to value
+# ratio" or "how much to lend on pawn items". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, legal, tax or licensing advice; pawn charges are set
+# by state law and the tool states that; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small pawnbrokers will use a private loan-book calculator, because no free tool relates loan-to-value to redemption
+      rate and forfeit resale to a per-loan profit and a minimum ticket.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pawn-loan-profit-calculator/
+  analytics: null

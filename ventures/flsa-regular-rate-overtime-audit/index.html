@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FLSA Regular-Rate Overtime Audit — free payroll check</title>
+  <meta name="description" content="Free FLSA regular rate of pay and overtime audit for restaurants, retailers, staffing agencies and bookkeepers. Paste payroll rows, see the regular rate with bonuses and shift differentials, the half-time premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="FLSA Regular-Rate Overtime Audit — free, private, in your browser">
+  <meta property="og:description" content="Find the overtime your bonuses and shift differentials already owe, before a wage claim does.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "FLSA Regular-Rate Overtime Audit", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free FLSA regular rate of pay and overtime audit. Paste payroll rows with bonuses and shift differentials and see the regular rate per employee per workweek, the overtime premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.", "featureList": "flsa regular rate calculator, overtime with bonus calculator, shift differential overtime, back pay estimate, lookback exposure, csv export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the regular rate of pay under the FLSA?", "acceptedAnswer": {"@type": "Answer", "text": "The regular rate is the hourly rate an employee is actually paid for a workweek: all remuneration for employment, including nondiscretionary bonuses, shift differentials and commissions, divided by the total hours worked in that week. Overtime for hours over 40 is based on this rate, not on the base hourly wage alone."}}, {"@type": "Question", "name": "How do I calculate overtime when an employee gets a bonus?", "acceptedAnswer": {"@type": "Answer", "text": "Add the bonus to the week's straight-time pay and divide by total hours to get the regular rate. If the employee is paid by the hour and already received straight time for every hour, the extra owed is half the regular rate for each hour over 40. Example: 50 hours at 15 dollars plus a 100 dollar bonus gives a regular rate of 17.00 and an overtime premium of 0.5 x 17.00 x 10 = 85.00."}}, {"@type": "Question", "name": "Which pay is left out of the regular rate?", "acceptedAnswer": {"@type": "Answer", "text": "Some payments are excluded by the statute, such as truly discretionary bonuses, gifts, reimbursed expenses, premium pay for hours over the daily or weekly standard, and certain benefit-plan contributions. Whether a bonus is discretionary depends on whether the employer fixed the amount and the decision at its sole discretion, and a promised or announced bonus is generally not. Enter excluded amounts in the excluded column and they will not change the rate."}}, {"@type": "Question", "name": "How far back can an employee claim unpaid overtime?", "acceptedAnswer": {"@type": "Answer", "text": "The FLSA limitation period is two years, extended to three for a willful violation, counted from each paycheck. A court may also award an equal amount in liquidated damages unless the employer shows good faith. Some states allow longer periods. The lookback years and a damages multiplier are editable on this page, and the exposure figure is a projection, not a finding."}}, {"@type": "Question", "name": "Is my payroll data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .sum { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FLSA REGULAR-RATE OVERTIME AUDIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your overtime paid on the right rate?</h1>
+    <p>Paste a period of <strong>payroll rows</strong> with hours, hourly rate and any <strong>bonus, shift differential or commission</strong>. The page computes each employee's <strong>regular rate</strong> per workweek, the <strong>half-time premium owed</strong> on hours over 40, the <strong>back pay</strong> if overtime was paid on the base rate, and the <strong>lookback exposure</strong>. Export it for payroll.</p>
+    <p class="note">An FLSA regular-rate audit for restaurant, retail and staffing owners and the bookkeepers who run their payroll. New to the rule? Read <a href="./flsa-regular-rate-overtime-explained.html">how the regular rate works, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Rules</h2>
+    <div class="row4">
+      <div><label for="preset">Rule set</label><select id="preset"><option value="federal">Federal FLSA</option><option value="custom">Custom numbers</option></select></div>
+    </div>
+    <details style="margin-top:12px" open><summary>The numbers behind the preset (edit any of them)</summary>
+    <div class="row4">
+      <div><label for="f-otThresholdHours">Overtime starts after (hours per workweek)</label><input id="f-otThresholdHours" inputmode="decimal"></div>
+      <div><label for="f-premiumFactor">Premium factor (0.5 = half-time on top of straight time)</label><input id="f-premiumFactor" inputmode="decimal"></div>
+      <div><label for="f-lookbackYears">Lookback (years)</label><input id="f-lookbackYears" inputmode="decimal"></div>
+      <div><label for="f-willfulYears">Willful lookback (years)</label><input id="f-willfulYears" inputmode="decimal"></div>
+      <div><label for="f-liquidatedMultiplier">Damages multiplier (1 = none, 2 = double)</label><input id="f-liquidatedMultiplier" inputmode="decimal"></div>
+    </div></details>
+    <p class="note">The federal preset summarises 29 U.S.C. 207 and 29 CFR part 778. Many states set stricter overtime rules (daily overtime, longer limitation periods, higher damages), and exemptions apply to some employees. Check the numbers for your state.</p>
+
+    <h2 style="margin-top:18px">2. Payroll rows</h2>
+    <label for="rows">One employee-week per line: <code>Name, week, hours, hourly rate, bonus, shift differential or other included pay, excluded pay, overtime premium paid</code>. Everything after the rate is optional. Leave <em>overtime premium paid</em> blank to assume the premium was paid on the base rate (0.5 x rate x overtime hours). Lines with the same name and week are combined.</label>
+    <textarea id="rows" rows="9" placeholder="Ana Reyes, 2026-10-05, 50, 15, 100&#10;Ben Okoye, 2026-10-05, 45, 12, , 90, 25"></textarea>
+
+    <button type="button" id="run">Audit the payroll</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste payroll rows, then click Audit.</p>
+  </section>
+
+  <section id="out" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>By employee and week</h3>
+    <div class="scroll"><table id="weeks"><thead><tr><th>Employee</th><th>Week</th><th class="n">Hours</th><th class="n">Base rate</th><th class="n">Regular rate</th><th class="n">OT hours</th><th class="n">Owed</th><th class="n">Paid</th><th class="n">Back pay</th></tr></thead><tbody></tbody></table></div>
+    <h3>By employee</h3>
+    <div class="scroll"><table id="people"><thead><tr><th>Employee</th><th class="n">Weeks</th><th class="n">OT weeks</th><th class="n">Owed</th><th class="n">Paid</th><th class="n">Back pay</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Regular rate:</strong> straight-time pay (hours x rate) plus bonuses and other included pay, divided by total hours in the workweek. Excluded pay is shown but never changes the rate.</p>
+    <p><strong>Premium owed:</strong> the premium factor (0.5) x regular rate x hours over the threshold (40). This is the extra due when straight time was already paid for every hour.</p>
+    <p><strong>Paid and back pay:</strong> back pay is owed minus paid, never below zero. A blank paid column assumes the premium was figured on the base rate, so the shortfall is 0.5 x (regular rate - base rate) x overtime hours. The page labels assumed figures.</p>
+    <p><strong>Exposure:</strong> average back pay per distinct week in your paste, times 52 weeks, times the lookback years (and the damages multiplier). It is a projection from the sample you pasted, not a count of weeks.</p>
+    <p><strong>Not modelled:</strong> state overtime and daily overtime, exemptions, the fluctuating workweek and other special pay plans, bonuses attributable to longer periods that must be reallocated to the weeks earned, tips and tip credits, and pay for non-hour measures such as piece rates. Hours are taken as you paste them.</p>
+    <p>Related tools: the <a href="../overtime-pay-calculator/">overtime pay calculator</a> for one employee's overtime pay, and the <a href="../ca-meal-rest-break-premium-checker/">California meal and rest break premium checker</a>.</p>
+    <p><strong>Checked:</strong> the test suite recomputes hand-worked cases, including 50 hours at 15 dollars with a 100 dollar bonus (regular rate 17.00, premium 85.00), and the exact boundary at 40 versus 40.5 hours.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the regular rate of pay under the FLSA?</h3>
+    <p>The regular rate is the hourly rate an employee is actually paid for a workweek: all remuneration for employment, including nondiscretionary bonuses, shift differentials and commissions, divided by the total hours worked in that week. Overtime for hours over 40 is based on this rate, not on the base hourly wage alone.</p>
+    <h3>How do I calculate overtime when an employee gets a bonus?</h3>
+    <p>Add the bonus to the week's straight-time pay and divide by total hours to get the regular rate. If the employee is paid by the hour and already received straight time for every hour, the extra owed is half the regular rate for each hour over 40. Example: 50 hours at 15 dollars plus a 100 dollar bonus gives a regular rate of 17.00 and an overtime premium of 0.5 x 17.00 x 10 = 85.00.</p>
+    <h3>Which pay is left out of the regular rate?</h3>
+    <p>Some payments are excluded by the statute, such as truly discretionary bonuses, gifts, reimbursed expenses, premium pay for hours over the daily or weekly standard, and certain benefit-plan contributions. Whether a bonus is discretionary depends on whether the employer fixed the amount and the decision at its sole discretion, and a promised or announced bonus is generally not. Enter excluded amounts in the excluded column and they will not change the rate.</p>
+    <h3>How far back can an employee claim unpaid overtime?</h3>
+    <p>The FLSA limitation period is two years, extended to three for a willful violation, counted from each paycheck. A court may also award an equal amount in liquidated damages unless the employer shows good faith. Some states allow longer periods. The lookback years and a damages multiplier are editable on this page, and the exposure figure is a projection, not a finding.</p>
+    <h3>Is my payroll data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Employee names stay on your device.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice and does not replace the Fair Labor Standards Act, your state's wage law, your payroll provider or an employment attorney. <strong>You are responsible for verifying every figure and every rule</strong> before you pay, withhold or document anything. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. The preset summarises public law and may be wrong, incomplete or out of date.</p>
+    <p><strong>Independent.</strong> Not affiliated with the Department of Labor, any state agency, or any payroll software company, and none is named or ranked here. The example employees are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your payroll rows and names are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { RULE_PRESETS, fieldsToRules, analyze, toCsv, toText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = Object.keys(RULE_PRESETS.custom.fields);
+    const usd = (n) => "$" + n.toFixed(2);
+    let last = null;
+
+    function loadPreset() {
+      const f = RULE_PRESETS[$("#preset").value].fields;
+      for (const k of KEYS) $("#f-" + k).value = f[k];
+    }
+    const fieldValues = () => Object.fromEntries(KEYS.map((k) => [k, $("#f-" + k).value]));
+
+    function run() {
+      if (!$("#rows").value.trim()) { status.textContent = "Paste at least one payroll line."; return false; }
+      last = analyze({ text: $("#rows").value, rules: fieldsToRules(fieldValues()) });
+      $("#out").hidden = false;
+      $("#notices").innerHTML = last.errors.map((e) => `<div class="warn">${esc(e)}</div>`).join("");
+      const tiles = [[last.weekCount, "employee-weeks audited"], [last.shortWeeks, "weeks short-paid"], [usd(last.backPay), "back pay owed"]];
+      if (last.exposure) {
+        tiles.push([usd(last.exposure.normal), "projected exposure, normal lookback"]);
+        tiles.push([usd(last.exposure.willful), "projected exposure, willful lookback"]);
+      }
+      $("#big").innerHTML = tiles.map(([x, y]) => `<div><strong>${esc(x)}</strong>${esc(y)}</div>`).join("");
+      $("#weeks tbody").innerHTML = last.weeks.length ? last.weeks.map((w) => `<tr><td>${esc(w.name)}</td><td>${esc(w.week)}</td><td class="n">${w.hours}</td><td class="n">${usd(w.baseRate)}</td><td class="n">${usd(w.regularRate)}</td><td class="n">${w.otHours}</td><td class="n">${usd(w.owed)}</td><td class="n">${usd(w.paid)}${w.paidAssumed ? " <span class=\"pill tie\">assumed</span>" : ""}</td><td class="n">${w.backPay > 0 ? '<span class="pill tie">' + usd(w.backPay) + "</span>" : usd(w.backPay)}</td></tr>`).join("") : '<tr><td colspan="9">No valid rows.</td></tr>';
+      $("#people tbody").innerHTML = last.employees.map((e) => `<tr><td>${esc(e.name)}</td><td class="n">${e.weeks}</td><td class="n">${e.otWeeks}</td><td class="n">${usd(e.owed)}</td><td class="n">${usd(e.paid)}</td><td class="n">${usd(e.backPay)}</td></tr>`).join("");
+      status.textContent = "Audited. Scroll down for the result.";
+      return true;
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#preset").addEventListener("change", loadPreset);
+    $("#run").addEventListener("click", () => { if (run()) record("check_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#preset").value = "federal"; loadPreset();
+      $("#rows").value = "Ana Reyes, 2026-10-05, 50, 15, 100\nBen Okoye, 2026-10-05, 45, 12, , 90, 25\nCy Dahl, 2026-10-05, 40, 20, 50\nDee Park, 2026-10-05, 48, 18, 60, , , 72\nAna Reyes, 2026-10-12, 44, 15, 88";
+      status.textContent = "Example loaded. Click Audit the payroll.";
+      record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#out").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("regular-rate-audit.csv", toCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("regular-rate-audit.txt", toText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(toText(last)); status.textContent = "Copied."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    loadPreset();
+  </script>
+</body>
+</html>

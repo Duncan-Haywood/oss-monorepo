@@ -1,0 +1,94 @@
+name: aws-bill-change-explainer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads the CSV downloaded from AWS Cost Explorer (grouped by service, account, region or usage type) and explains why the bill moved between two periods: every line ranked by change with its share of the rise, new and gone lines called out, per-day normalisation of a half-finished month, a checklist of common causes for the services that rose, tax/support/commitment/credit lines named as accounting rather than usage, a cropped-export check against the file''s own total row, and --max-increase-usd/--max-increase-pct gates that exit 1 for a monthly script. Ranks the numbers in the file; cannot see why a line moved. Not a FinOps platform.'
+stage: prototype
+
+owner: duncan
+
+# Browser + CLI archetype over a file the user already has. The shape is not
+# the novelty argument; the gap is: "why did my AWS bill go up" is a recurring
+# query, the console answers it by clicking through filters and comparing
+# charts, and the paid FinOps products that automate it are sold to teams with
+# a budget line. A solo developer or a small startup that got a surprise
+# invoice has the CSV and no tool.
+#
+# Screened 2026-10-03. duplicate_check.py on this description:
+#
+#    score  source   label
+#     0.15  venture  lambda-vs-fargate-cost-breakeven
+#     0.14  venture  terraform-plan-cost-estimate
+#     0.13  venture  ebay-fee-calculator
+#
+# Nothing scored >= 0.45. The nearest real neighbours were read: the
+# *-cost-advisor ventures (nat-gateway, ebs-volume, rds-instance, cloudwatch-logs)
+# take hand-typed usage for ONE service and recommend a configuration, and
+# terraform-plan-cost-estimate prices a change before it is applied. This one
+# reads an invoice-shaped export after the fact and ranks what moved. Together
+# they cover before, during and after; none overlaps in code or input.
+# screened-out.md has no AWS-bill-explainer row.
+#
+# First-visitor source, stated as an expectation and not a measurement. No
+# visitor has been measured (usage.yaml carries live_url_visitors: null, which
+# is "never measured", not zero):
+#   - searches for "why did my AWS bill go up", "AWS bill increased this month",
+#     "cost explorer compare months" and "explain AWS cost increase".
+#     vs-cost-explorer.html is written for the comparison query and says plainly
+#     where the console is the better answer.
+#   - r/aws and r/devops, where a surprise bill is a recurring question shape.
+#     The right move there is to answer the question and link the tool when it
+#     helps; subreddit sizes were not verified and none is claimed. Publishing
+#     under the portfolio's public name is owner-only, so this file records the
+#     venue and does not post.
+#   - the 'Related' hop from terraform-plan-cost-estimate.
+#
+# Hint honesty. The per-service cause checklists were written from general
+# knowledge of how AWS bills behave on 2026-10-03 and were not checked against a
+# live account. They carry no prices on purpose, so they can be wrong about a
+# cause but not stale about a number. The export format parser accepts what
+# Cost Explorer's Download CSV produced as best known; a format change would
+# surface as a parse error, not a wrong answer.
+#
+# Scored against portfolio/pipeline/README.md's rubric, reasoned:
+#   ai_leverage 1 -- no model; ranking, scaling and a lookup table. A gate has to
+#     give the same answer on every run.
+#   autonomous_ops 9 -- static page and a single-file CLI. The checklist table
+#     can go stale in wording, never in a price.
+#   time_to_revenue 4 -- donation-only fleet-wide, price-sensitive audience.
+#   gross_margin 10 -- no network call in either surface.
+#   defensibility 2 -- trivially copyable; the edge is offline and zero-setup.
+#   distribution 5 -- a real, searched query plus two venues of unverified size.
+#   liability_containment 8 -- the exposure is acting on a heuristic list of causes;
+#     every surface says checklist-not-diagnosis and not billing advice.
+#   ethical_robustness 9 -- free, no accuracy-gated tier, nothing adversarial.
+
+hypotheses:
+  - claim: A developer or founder who got a surprise AWS bill will paste a Cost Explorer export and use the ranked table to decide what to look at first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Someone will schedule cli.mjs compare with --max-increase-pct against a monthly export as a cheap bill-jump alarm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The Cost Explorer Download CSV format (name column, one column per period, a Total costs column, a total row) is what the parser expects. Not verified against a live account from this environment.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real Cost Explorer export that the parser rejects or misreads and it is not fixed within 30 days.
+  - The cause checklist is reported wrong for a common service and is not corrected within 30 days -- a prompt for where to look that points the wrong way is worse than none.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/aws-bill-change-explainer/
+  analytics: null

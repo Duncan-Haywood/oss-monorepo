@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-satmarket"
+version = "0.1.0"
+description = "Reinvestment of a replicating shop when the goods market saturates: bang-bang versus smooth optima, checked by dynamic programming"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

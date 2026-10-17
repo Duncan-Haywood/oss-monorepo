@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01QM786jtSrfyCAFgdWKDh2B",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T09:38:25Z",
+  "ended": "2026-10-17T09:47:11Z",
+  "wall_minutes": 9.13,
+  "tokens_in": 3047699,
+  "tokens_out": 14473,
+  "cost_usd": 1.109,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [
+    "selfrep-terminal",
+    "selfrep-recyclers",
+    "selfrep-costpayback"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7710",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "Claim-before-build says check research/ on main, but the session checkout can be stale; nothing says to git fetch/reset to origin/main before reading research/. I duplicated chip-systolic-p32 because of it."
+    },
+    {
+      "file": "research/chip-systolic-hidewide/README.md",
+      "issue": "Next steps list P=32 and MAC-engine-at-H=16 items that were already done by chip-systolic-p32; stale next steps invite duplicates."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Spent the first ~half of the run building chip-systolic-macsim (MAC engine RTL sim + P=32), then found chip-systolic-p32 and chip-macp32cells already on origin/main; the local checkout was behind main. Discarded it, shipped three project-page figures instead.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80de1354-0c60-55b6-9e7f-12a5aa96773a",
+    "transcripts": 1,
+    "first": "2026-10-17T09:38:25Z",
+    "last": "2026-10-17T09:47:32Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 14473,
+        "thinking": 2622,
+        "cache_read": 2954307,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93328,
+        "api_equivalent_usd": 1.109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 14473,
+      "thinking": 2622,
+      "cache_read": 2954307,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93328,
+      "api_equivalent_usd": 1.109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Read": 3,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.13,
+      "active_minutes": 9.13,
+      "model_minutes": 1.85,
+      "tool_minutes": 7.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "three figure scripts plus checks, by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 135.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

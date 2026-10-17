@@ -1,0 +1,49 @@
+name: pizzeria-profit-calculator
+description: >-
+  Free browser tool for people opening or running a pizzeria or pizza takeout and delivery shop: enter ticket, food cost, the share
+  of orders that go through your own drivers and through delivery apps, staff, rent and a loan, and see profit per order, monthly
+  profit, break-even orders a day with the loan, the average ticket that reaches a target margin, volume and food-cost sensitivity,
+  and a sixty-month ramp-up with the working-capital reserve and payback. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a scheduled new-venture session. Nearest in ventures/ are restaurant-delivery-commission-analyzer (analyses
+# an uploaded app export, no pro forma), restaurant-labor-cost-daypart-analyzer (labour by daypart from POS data) and
+# boba-tea-shop-profit-calculator (per-cup, one delivery channel). None models a pizza shop's two delivery channels (own drivers and
+# apps) against break-even orders a day with a lease, loan and ramp-up cash. Not in screened-out.md.
+#
+# First visitor: a would-be or new owner sizing a lease; search phrases "pizzeria profit margin", "how many pizzas a day to break
+# even", "pizza shop business plan calculator", "is pizza delivery profitable". Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios and a multi-location
+# comparison behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No price, yield or market is claimed, sample
+# figures are labelled made up, bad input is rejected instead of clamped, and the page carries the no-warranty and not-advice clauses.
+
+hypotheses:
+  - claim: >-
+      A prospective or new pizzeria owner will enter ticket, food cost, delivery mix and rent before signing a lease, because the
+      break-even orders a day with app commission, own-driver cost and the ramp-up cash reserve are hard to see in a generic
+      startup-cost article.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pizzeria-profit-calculator/
+  analytics: null

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What a Return Really Costs, and When a Return Fee Pays</title>
+  <meta name="description" content="How to count the true cost of a return in an online store: lost margin, shipping both ways, handling, unsellable stock and card fees, and how to test a return fee or restocking fee against your own orders.">
+  <link rel="canonical" href="./returns-policy-guide.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a return cost an online store?", "acceptedAnswer": {"@type": "Answer", "text": "More than the refund. You lose the margin on the sale, the outbound shipping, the return label, the time to receive and inspect the parcel, any stock you cannot resell, and usually the card fee, which processors keep."}}, {"@type": "Question", "name": "Which products should I look at first?", "acceptedAnswer": {"@type": "Answer", "text": "Not the biggest sellers, the highest return categories weighted by their price. A category with a 35% return rate can show a healthy margin on the sales report and a thin or negative one once returns are counted. Paste orders by category and the tool ranks them by what returns cost."}}, {"@type": "Question", "name": "Does a return fee reduce returns?", "acceptedAnswer": {"@type": "Answer", "text": "It can, mostly for low-conviction orders such as bracketing sizes, and it can also cost you buyers who read the policy and leave. Neither effect can be read from past orders, so the tool takes both as inputs and shows how the answer moves."}}, {"@type": "Question", "name": "Are return fees allowed?", "acceptedAnswer": {"@type": "Answer", "text": "Rules differ by country and region, and some places guarantee a refund right for distance sales that limits what you can charge. This page is not legal advice: check the rules for the markets you sell into before changing a policy."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Returns Policy Cost Analyzer</a></p>
+  <h1>What a return really costs, and when a return fee pays</h1>
+  <p>A refund looks like money handed back. It is more than that. Counting a return the way your books should:</p>
+  <ul>
+    <li><strong>The sale is gone.</strong> The margin you expected on the order is zero, not merely smaller.</li>
+    <li><strong>Outbound shipping is sunk.</strong> You paid to send it and cannot get that back.</li>
+    <li><strong>The return label</strong> if you offer free returns, plus <strong>handling</strong> to receive, inspect and restock.</li>
+    <li><strong>Stock you cannot resell</strong> is written off at cost.</li>
+    <li><strong>The card fee</strong> is generally not refunded by the processor.</li>
+  </ul>
+  <p>Put numbers on those for your store, then rank product categories by what returns cost in total. The <a href="./">analyzer</a> does that from an orders export, and tests seven return-fee and restocking-fee policies against free returns: the profit change at your assumptions, the checkout drop-off at which each breaks even, and the policy that loses least if you are wrong.</p>
+  <h3>What does a return cost an online store?</h3>
+  <p>More than the refund. You lose the margin on the sale, the outbound shipping, the return label, the time to receive and inspect the parcel, any stock you cannot resell, and usually the card fee, which processors keep.</p>
+  <h3>Which products should I look at first?</h3>
+  <p>Not the biggest sellers, the highest return categories weighted by their price. A category with a 35% return rate can show a healthy margin on the sales report and a thin or negative one once returns are counted. Paste orders by category and the tool ranks them by what returns cost.</p>
+  <h3>Does a return fee reduce returns?</h3>
+  <p>It can, mostly for low-conviction orders such as bracketing sizes, and it can also cost you buyers who read the policy and leave. Neither effect can be read from past orders, so the tool takes both as inputs and shows how the answer moves.</p>
+  <h3>Are return fees allowed?</h3>
+  <p>Rules differ by country and region, and some places guarantee a refund right for distance sales that limits what you can charge. This page is not legal advice: check the rules for the markets you sell into before changing a policy.</p>
+  <p>Next: <a href="./">paste your orders</a>, or see the <a href="../free-shipping-threshold-optimizer/">free shipping threshold optimizer</a> for the other half of the checkout policy.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not financial, tax, legal or business advice; consumer-protection rules on returns differ by country and region. Arithmetic on numbers you provide plus assumptions you set, not a forecast of what a change will earn.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Nothing you type is uploaded.</p>
+  </footer>
+</body>
+</html>

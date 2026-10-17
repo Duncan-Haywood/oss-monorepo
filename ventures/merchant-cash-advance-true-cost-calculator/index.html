@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Merchant Cash Advance True Cost Calculator — Factor Rate to APR, Factoring Cost</title>
+  <meta name="description" content="Free merchant cash advance calculator. Turn a factor rate and daily or weekly payments into the annualised cost of the money you actually receive, see what early payoff really costs, and price an invoice factoring quote. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Merchant Cash Advance True Cost Calculator — free, private, in your browser">
+  <meta property="og:description" content="A 1.38 factor rate can be over 100% a year. Convert your quote to the annualised cost before you sign.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Merchant Cash Advance True Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Convert a merchant cash advance factor rate or a factoring quote into the annualised cost of the money you actually receive. Includes fees, early payoff, term sensitivity, payment share of revenue and a comparison with a bank loan. Runs in your browser.", "featureList": "merchant cash advance APR, factor rate to APR, invoice factoring cost, early payoff cost, term sensitivity, payment share of revenue, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a factor rate and how is it different from an APR?", "acceptedAnswer": {"@type": "Answer", "text": "A factor rate is a multiplier on the amount advanced: 1.35 means you repay $1.35 for every $1. It is not an annual rate. Because merchant cash advances are repaid in daily or weekly slices over a few months, the money is outstanding for far less than a year, so the same factor rate works out to a much higher annualised cost. This calculator converts the real payment schedule into an annualised rate."}}, {"@type": "Question", "name": "How is the annualised cost calculated here?", "acceptedAnswer": {"@type": "Answer", "text": "It finds the periodic rate at which the amount you actually receive (the advance minus fees) equals the present value of every payment, then multiplies by 252 business days a year for daily payments or 52 for weekly. The compounded figure applies that periodic rate for a full year. This is the same internal-rate-of-return method behind a loan APR, applied to the schedule you enter."}}, {"@type": "Question", "name": "Why does paying an advance off early not save money?", "acceptedAnswer": {"@type": "Answer", "text": "Most advances are priced as a fixed payback, not as interest that accrues over time, so paying early usually saves nothing in dollars while shortening the time the money was used. The annualised cost therefore goes up. Some contracts offer an early-payoff discount; if yours does, enter the discounted payback as the total you will repay."}}, {"@type": "Question", "name": "Do fees change the true cost?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Origination, underwriting and broker fees are usually taken out of the advance before it reaches you, so you receive less than the headline amount but repay on the full amount. Enter them in the fees box and the tool prices the cost on the money you actually receive."}}, {"@type": "Question", "name": "How is invoice factoring priced?", "acceptedAnswer": {"@type": "Answer", "text": "A factor advances a share of the invoice (often 80 to 95%), holds the rest as a reserve, and charges a fee per period, commonly a percentage per 30 days or per week. A period that has started is usually billed in full. When the customer pays, the reserve is returned minus the fees. The tool shows the fees, the reserve you get back, and the annualised cost on the money advanced."}}, {"@type": "Question", "name": "What payment share of revenue is too high?", "acceptedAnswer": {"@type": "Answer", "text": "There is no fixed rule, but payments above about 10 to 15% of monthly revenue compete with payroll, rent and inventory. Enter your monthly revenue and the tool shows the share. Revenue-based holdbacks that flex with sales behave differently from fixed payments; this tool models fixed daily or weekly payments."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Variable holdbacks tied to card sales, personal guarantees, confession-of-judgment clauses, default and reconciliation terms, stacking with other advances, taxes, and state disclosure rules. It prices the schedule you describe and does not read your contract."}}, {"@type": "Question", "name": "Is my financing data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MERCHANT CASH ADVANCE &amp; FACTORING COST · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does that advance really cost per year?</h1>
+    <p>Advances are quoted as a factor rate, not an APR. Enter the quote and see the <strong>annualised cost of the money you actually receive</strong>, what <strong>paying it off early</strong> does to that cost, and how it compares with a bank loan. Invoice factoring quotes are covered too.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Illustrative arithmetic on the quote you describe, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>The quote</h2>
+    <label for="mode">Type of financing</label>
+    <select id="mode"><option value="mca">Merchant cash advance / revenue-based advance</option><option value="factoring">Invoice factoring</option></select>
+    <div id="mca-fields">
+    <div class="grid">
+    <div>
+      <label for="advance">Advance amount ($, the headline figure)</label>
+      <input id="advance" type="text" inputmode="decimal" value="50000" autocomplete="off">
+      <label for="fees">Fees taken from the advance ($)</label>
+      <input id="fees" type="text" inputmode="decimal" value="1500" autocomplete="off">
+      <label for="factor">Factor rate (for example 1.38; blank if you only know the payment)</label>
+      <input id="factor" type="text" inputmode="decimal" value="1.38" autocomplete="off">
+      <label for="payment">Payment amount ($ per payment; blank to use the factor rate)</label>
+      <input id="payment" type="text" inputmode="decimal" value="" autocomplete="off">
+
+    </div>
+    <div>
+      <label for="frequency">Payment frequency</label>
+      <select id="frequency"><option value="daily">Daily (business days)</option><option value="weekly">Weekly</option></select>
+      <label for="n">Number of payments</label>
+      <input id="n" type="text" inputmode="decimal" value="168" autocomplete="off">
+      <label for="monthly-revenue">Monthly revenue ($, optional)</label>
+      <input id="monthly-revenue" type="text" inputmode="decimal" value="50000" autocomplete="off">
+      <label for="alt-rate">Bank loan APR to compare (%, optional)</label>
+      <input id="alt-rate" type="text" inputmode="decimal" value="14" autocomplete="off">
+
+    </div>
+    </div>
+    </div>
+    <div id="fac-fields" hidden>
+    <div class="grid">
+    <div>
+      <label for="face">Invoice amount ($)</label>
+      <input id="face" type="text" inputmode="decimal" value="20000" autocomplete="off">
+      <label for="advance-pct">Advance rate (% of invoice paid up front)</label>
+      <input id="advance-pct" type="text" inputmode="decimal" value="90" autocomplete="off">
+      <label for="fee-pct">Fee (% of invoice per fee period)</label>
+      <input id="fee-pct" type="text" inputmode="decimal" value="3" autocomplete="off">
+      <label for="fee-days">Fee period (days, 30 is common)</label>
+      <input id="fee-days" type="text" inputmode="decimal" value="30" autocomplete="off">
+
+    </div>
+    <div>
+      <label for="days">Days until your customer pays</label>
+      <input id="days" type="text" inputmode="decimal" value="45" autocomplete="off">
+      <label for="other-fees">Other fees per invoice ($)</label>
+      <input id="other-fees" type="text" inputmode="decimal" value="50" autocomplete="off">
+      <label for="invoices-per-year">Invoices like this per year (optional)</label>
+      <input id="invoices-per-year" type="text" inputmode="decimal" value="24" autocomplete="off">
+
+    </div>
+    </div>
+    </div>
+    <p class="note">Take the numbers from the term sheet or contract. The payback, the number of payments and every fee matter; leave optional boxes blank.</p>
+    <button type="button" id="calc">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">Edit the quote, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <div id="extra"></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Advance:</strong> you receive the advance minus fees on day 0 and repay the payback (advance × factor rate, or payment × number of payments) in equal daily or weekly payments. The periodic rate is the rate at which the funded amount equals the present value of the payments, found by bisection. It is multiplied by 252 (daily) or 52 (weekly) for the annualised cost, and compounded for the effective figure. Early payoff assumes no discount: the whole remaining payback is paid at that point. Term sensitivity keeps the total repaid fixed and changes the number of payments.</p>
+    <p><strong>Factoring:</strong> you receive the advance rate × invoice now and the reserve back on collection minus fees. Each started fee period is billed in full. The annualised cost is fees ÷ advance × 365 ÷ days to collect.</p>
+    <p><strong>Not modelled:</strong> variable holdbacks tied to card sales, personal guarantees, default and reconciliation terms, stacked advances, taxes and state disclosure rules. <strong>Unverified:</strong> checked by hand calculation and unit tests only; compare the numbers with your contract before you rely on them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a factor rate and how is it different from an APR?</h3>
+    <p>A factor rate is a multiplier on the amount advanced: 1.35 means you repay $1.35 for every $1. It is not an annual rate. Because merchant cash advances are repaid in daily or weekly slices over a few months, the money is outstanding for far less than a year, so the same factor rate works out to a much higher annualised cost. This calculator converts the real payment schedule into an annualised rate.</p>
+    <h3>How is the annualised cost calculated here?</h3>
+    <p>It finds the periodic rate at which the amount you actually receive (the advance minus fees) equals the present value of every payment, then multiplies by 252 business days a year for daily payments or 52 for weekly. The compounded figure applies that periodic rate for a full year. This is the same internal-rate-of-return method behind a loan APR, applied to the schedule you enter.</p>
+    <h3>Why does paying an advance off early not save money?</h3>
+    <p>Most advances are priced as a fixed payback, not as interest that accrues over time, so paying early usually saves nothing in dollars while shortening the time the money was used. The annualised cost therefore goes up. Some contracts offer an early-payoff discount; if yours does, enter the discounted payback as the total you will repay.</p>
+    <h3>Do fees change the true cost?</h3>
+    <p>Yes. Origination, underwriting and broker fees are usually taken out of the advance before it reaches you, so you receive less than the headline amount but repay on the full amount. Enter them in the fees box and the tool prices the cost on the money you actually receive.</p>
+    <h3>How is invoice factoring priced?</h3>
+    <p>A factor advances a share of the invoice (often 80 to 95%), holds the rest as a reserve, and charges a fee per period, commonly a percentage per 30 days or per week. A period that has started is usually billed in full. When the customer pays, the reserve is returned minus the fees. The tool shows the fees, the reserve you get back, and the annualised cost on the money advanced.</p>
+    <h3>What payment share of revenue is too high?</h3>
+    <p>There is no fixed rule, but payments above about 10 to 15% of monthly revenue compete with payroll, rent and inventory. Enter your monthly revenue and the tool shows the share. Revenue-based holdbacks that flex with sales behave differently from fixed payments; this tool models fixed daily or weekly payments.</p>
+    <h3>What does this leave out?</h3>
+    <p>Variable holdbacks tied to card sales, personal guarantees, confession-of-judgment clauses, default and reconciliation terms, stacking with other advances, taxes, and state disclosure rules. It prices the schedule you describe and does not read your contract.</p>
+    <h3>Is my financing data uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative arithmetic on the financing terms you enter, not a recommendation to accept or refuse any offer. You are responsible for reviewing and verifying them against the actual contract, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any funder, broker, factor, lender or marketplace, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>cost_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only on this device, never with any of your data, and can be switched off below; Do Not Track is honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Comparing several offers, not just this advance? The <a href="../business-loan-offer-comparator/">business loan offer comparator</a> puts loans and advances in one true-APR table. Related: the <a href="../invoice-factoring-cost-calculator/">invoice factoring cost calculator</a>, the <a href="../cash-runway-planner/">cash runway planner</a> and the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeMca, analyzeFactoring, termSensitivity, reportCsv, sampleMca, sampleFactoring, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const MCA = { advance: "advance", fees: "fees", factor: "factor", payment: "payment", frequency: "frequency", n: "n", monthlyRevenue: "monthly-revenue", altRate: "alt-rate" };
+    const FAC = { face: "face", advancePct: "advance-pct", feePct: "fee-pct", feeDays: "fee-days", days: "days", otherFees: "other-fees", invoicesPerYear: "invoices-per-year" };
+    const read = (map) => Object.fromEntries(Object.entries(map).map(([k, id]) => [k, document.getElementById(id).value]));
+    const fill = (map, v) => Object.entries(map).forEach(([k, id]) => (document.getElementById(id).value = v[k]));
+    let last = null;
+
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+
+    function run() {
+      const fac = $("#mode").value === "factoring";
+      const r = fac ? analyzeFactoring(read(FAC)) : analyzeMca(read(MCA));
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      let big, extra = "";
+      if (fac) {
+        big = [[pct(r.apr), "Annualised cost (simple)"], [money(r.fees), "Total fees (" + pct(r.feeOfInvoice) + " of the invoice)"], [money(r.advance), "Paid up front"], [money(r.rebate), "Reserve returned on collection"]];
+      } else {
+        big = [[pct(r.apr), "Annualised cost (simple)"], [pct(r.ear), "Annualised cost (compounded)"], [money(r.cost), "Total cost of the money you receive"], [money(r.funded), "You actually receive (of " + money(r.input.advance) + ")"], [money2(r.payment), "Per " + (r.input.freq === "daily" ? "business day" : "week")], [money(r.payback), "Total repaid (factor " + r.factor.toFixed(3) + ")"]];
+        extra = "<h3>If you settle early (full payback, no discount)</h3>" + table(["Settled at", "Payment #", "Annualised cost"], r.payoff.map((p) => [Math.round(p.share * 100) + "% of term", p.period, pct(p.apr)]));
+        extra += "<h3>Same total repaid over a different term</h3>" + table(["Payments", "Term (months)", "Payment", "Annualised cost"], termSensitivity(read(MCA)).map((t) => [t.n, t.termMonths.toFixed(1), money2(t.payment), pct(t.apr)]));
+        if (r.alt) extra += `<h3>Versus a bank loan</h3><p>A ${money(r.funded)} loan at ${pct(r.input.altRate)} over ${r.alt.months} months: ${money2(r.alt.monthly)} a month, ${money(r.alt.cost)} total cost. Here: ${money(r.cost)}.</p>`;
+      }
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity === "info" ? "info" : "medium"}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#extra").innerHTML = extra;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    const syncMode = () => { const fac = $("#mode").value === "factoring"; $("#mca-fields").hidden = fac; $("#fac-fields").hidden = !fac; };
+    $("#mode").addEventListener("change", () => { syncMode(); report.hidden = true; });
+    $("#calc").addEventListener("click", () => { if (run()) record("cost_run"); });
+    $("#load-example").addEventListener("click", () => {
+      if ($("#mode").value === "factoring") fill(FAC, sampleFactoring()); else fill(MCA, sampleMca());
+      if (run()) { record("example_loaded"); status.textContent = "Sample quote: invented terms, not a real offer."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "advance-true-cost.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

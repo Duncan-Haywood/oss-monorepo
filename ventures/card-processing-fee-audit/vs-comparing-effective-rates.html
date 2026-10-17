@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. comparing effective rates</title>
+  <meta name="description" content="The standard rate-shopping advice is to compare effective rate -- total fees divided by sales -- across quotes and pick the lowest. This tool shows why that number is driven by your average ticket as much as by pricing, and compares markup instead. Free, no sign-up, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./vs-comparing-effective-rates.html">
+  <meta property="og:title" content="This tool vs. comparing effective rates">
+  <meta property="og:description" content="Comparing effective rates ranks quotes by a number your own ticket size distorts. This tool splits the bill into pass-through and markup first, so the comparison is markup against markup.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't comparing effective rates the standard way to shop processors?","acceptedAnswer":{"@type":"Answer","text":"It is the standard advice, and it is easy to follow: divide fees by sales for each quote and pick the lowest. The problem is not the arithmetic, it is what the number contains. Effective rate blends a percentage-of-sales component with a flat per-transaction fee, so two processors charging identical markup will show different effective rates on the same merchant if the quotes carry different per-transaction fees — and the same processor will show different effective rates on two merchants with different average tickets, even at identical pricing."}},{"@type":"Question","name":"So a lower effective rate on a quote doesn't mean a better deal?","acceptedAnswer":{"@type":"Answer","text":"Not by itself. A quote with a lower percentage and a higher per-transaction fee can cost more on a business with a low average ticket and less on one with a high average ticket, and effective rate alone does not show you which. This tool separates the pass-through every processor charges from the markup that is actually negotiable, then re-prices your own statement's volume and transaction count under a competing quote, so the comparison is a dollar figure on your own mix rather than two blended percentages from two different merchants' worth of pricing."}},{"@type":"Question","name":"Do I need to know my current processor's exact pricing structure to compare quotes this way?","acceptedAnswer":{"@type":"Answer","text":"No. You need five numbers off a statement you already have — card sales, transaction count, total fees, roughly what share was card-present, and the flat monthly fees — and the markup percentage, per-transaction fee, and monthly fees of the quote you are comparing against. The tool estimates network pass-through from the volume and mix, so it never needs your current processor's rate sheet."}},{"@type":"Question","name":"Does this page recommend a specific processor?","acceptedAnswer":{"@type":"Answer","text":"No. It names no processor, and the comparison field accepts whatever markup, per-transaction fee, and monthly fees any quote states — there is nothing here that favors one company's pricing over another's."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16232b; background: #f4f1ea; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f6f5c; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d6cfc2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5b6a72; background: #e9efe9; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #1f6f5c; color: #f4fbf7; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5b6a72; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5b6a72; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Card processing fee audit</a></p>
+  <h1>This tool vs. comparing effective rates</h1>
+  <p>
+    The standard advice for shopping card processing is to collect a few
+    quotes, divide each one's fees by sales, and take the lowest effective
+    rate. It is easy to do and it is what almost every "how to shop your
+    processor" article recommends. It is also the reason "shop your rate"
+    advice is often noise: <strong>effective rate is driven by your average
+    ticket as much as by the pricing itself</strong>, so it ranks quotes by a
+    number your own business distorts, not by the markup you would actually
+    pay.
+  </p>
+  <p>
+    Two merchants on character-for-character identical processor pricing will
+    show effective rates nearly a full percentage point apart if one has a
+    $10 average ticket and the other a $200 one, because the flat
+    per-transaction cents spread over very different amounts of sales.
+    Compare effective rates across two <em>different</em> quotes on
+    <em>your</em> business and the distortion runs the other way too: a quote
+    with a lower percentage and a higher per-transaction fee can look cheaper
+    or more expensive purely from where the two components happen to land on
+    your ticket size.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What's my current effective rate?</td>
+        <td>Either one &mdash; total fees divided by total sales is arithmetic, not analysis.</td>
+      </tr>
+      <tr>
+        <td>Is a lower quoted effective rate actually cheaper on my own volume and ticket size?</td>
+        <td>This tool &mdash; it re-prices your statement's actual volume and transaction count under the competing quote, in dollars, instead of comparing two blended percentages.</td>
+      </tr>
+      <tr>
+        <td>How much of my bill is network interchange nobody can discount, versus my processor's own markup?</td>
+        <td>This tool's pass-through and markup bands &mdash; effective rate alone cannot separate the two.</td>
+      </tr>
+      <tr>
+        <td>Are the flat monthly fees (statement, PCI, gateway, batch) folded into the comparison?</td>
+        <td>This tool &mdash; they are priced as their own line item on both sides. A bare effective-rate comparison usually ignores them.</td>
+      </tr>
+      <tr>
+        <td>Does the comparison need my current processor's rate sheet?</td>
+        <td>No, on either &mdash; but this tool estimates pass-through from your volume and card-present share, so it never needs it.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Audit your own statement</a>
+  <p>
+    This tool needs no account and nothing installed: it is a static page,
+    the arithmetic runs in your browser, and your numbers stay on your device
+    &mdash; there is no network request in the page at all, so nothing about
+    your card volume is ever sent anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Isn't comparing effective rates the standard way to shop processors?</h3>
+  <p>It is the standard advice, and it is easy to follow: divide fees by sales for each quote and pick the lowest. The problem is not the arithmetic, it is what the number contains. Effective rate blends a percentage-of-sales component with a flat per-transaction fee, so two processors charging identical markup will show different effective rates on the same merchant if the quotes carry different per-transaction fees &mdash; and the same processor will show different effective rates on two merchants with different average tickets, even at identical pricing.</p>
+  <h3>So a lower effective rate on a quote doesn't mean a better deal?</h3>
+  <p>Not by itself. A quote with a lower percentage and a higher per-transaction fee can cost more on a business with a low average ticket and less on one with a high average ticket, and effective rate alone does not show you which. This tool separates the pass-through every processor charges from the markup that is actually negotiable, then re-prices your own statement's volume and transaction count under a competing quote, so the comparison is a dollar figure on your own mix rather than two blended percentages from two different merchants' worth of pricing.</p>
+  <h3>Do I need to know my current processor's exact pricing structure to compare quotes this way?</h3>
+  <p>No. You need five numbers off a statement you already have &mdash; card sales, transaction count, total fees, roughly what share was card-present, and the flat monthly fees &mdash; and the markup percentage, per-transaction fee, and monthly fees of the quote you are comparing against. The tool estimates network pass-through from the volume and mix, so it never needs your current processor's rate sheet.</p>
+  <h3>Does this page recommend a specific processor?</h3>
+  <p>No. It names no processor, and the comparison field accepts whatever markup, per-transaction fee, and monthly fees any quote states &mdash; there is nothing here that favors one company's pricing over another's.</p>
+  <footer><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+    kind, express or implied. It is not financial, accounting, or legal advice, and it does not replace
+    a qualified professional. <strong>You are responsible for reviewing and verifying its output before
+    relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum
+    extent permitted by law, the authors accept no liability for any loss or damage arising from its
+    use. This tool's own pass-through estimate is a band, not a lookup of the rates on any account.
+    <p class="support">Free and open source. If it found money on your statement, the
+      <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash;
+      <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+      optional and never changes what the tool does.</p></footer>
+</body>
+</html>

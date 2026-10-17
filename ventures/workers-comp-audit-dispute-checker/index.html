@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Workers' Comp Audit Dispute Checker — Free, Runs in Your Browser</title>
+  <meta name="description" content="Free tool for small employers: enter your workers' comp premium audit worksheet and your own records, see which lines are worth disputing (overtime, uninsured subcontractors, officer payroll, class) in dollars, and copy a dispute note.">
+  <meta property="og:title" content="Workers' Comp Audit Dispute Checker — free">
+  <meta property="og:description" content="Price the audit lines you can dispute, name the record that proves each one, and copy a dispute note. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Workers' Comp Audit Dispute Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that prices the lines of a workers' compensation premium audit you may be able to dispute: overtime, subcontractor certificates, officer payroll and class assignment."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I dispute a workers' comp premium audit?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Carriers have a dispute or reconsideration process, and the window to use it is printed on the audit notice, so check the date first. Disputes are won with records: payroll registers, certificates of insurance and officer endorsements, not with a letter that only says the audit is too high."}}, {"@type": "Question", "name": "Is overtime pay included in workers' comp audit payroll?", "acceptedAnswer": {"@type": "Answer", "text": "In most states only the straight-time part of overtime is premium basis, so at time-and-a-half one third of each overtime dollar is excluded. The auditor can only exclude what your payroll records show on a separate line. Check your own state and carrier rules."}}, {"@type": "Question", "name": "Do I pay workers' comp premium on subcontractors?", "acceptedAnswer": {"@type": "Answer", "text": "If a subcontractor does not carry their own workers' compensation, carriers usually charge you for their payments as if they were employees. A certificate of insurance in force for the days they worked for you is what normally removes that charge, so collect it before the work, not after the audit."}}, {"@type": "Question", "name": "Why is my executive officer payroll different on the audit?", "acceptedAnswer": {"@type": "Answer", "text": "Most states set a minimum and maximum payroll for an included executive officer, and the carrier charges within that band whatever the officer was actually paid. Whether an officer is included or excluded is set by an endorsement on your policy."}}, {"@type": "Question", "name": "Is this legal or insurance advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It prices the gap between an audit worksheet and your own records using rates you type in. It does not look up class codes, rating rules or state limits, and your carrier's audit and your state's rules control."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+      .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
+    .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WORKERS' COMP AUDIT DISPUTE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did your workers' comp audit overcharge you?</h1>
+    <p>Type the lines from the carrier's <strong>audit worksheet</strong> next to what your own books say. The tool prices each gap
+    in premium dollars — overtime premium pay, subcontractors who carry their own coverage, an officer outside the payroll band,
+    payroll sitting in a costlier class — and names the record that would prove it. Rates are the ones printed on your audit.</p>
+    <p class="note">Nothing is uploaded. Your payroll is read in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Payroll by class</h2>
+    <table class="cls">
+      <thead><tr><th>Class / label</th><th>Audited payroll ($)</th><th>Rate per $100</th><th>Overtime wages the audit excluded ($)</th><th>Payroll in your records ($)</th><th>Overtime wages in your records ($)</th><th>Other-class rate</th><th>Payroll that belongs there ($)</th><th>Remove</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-row">Add a class</button></p>
+    <p class="note">Leave "in your records" blank to accept the audit's figure. Overtime is the full overtime wages; the tool excludes the premium share using the multiplier below.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Subcontractors the audit charged you for</h2>
+    <table class="cls">
+      <thead><tr><th>Subcontractor</th><th>Amount charged as payroll ($)</th><th>Rate per $100</th><th>Their workers' comp certificate was in force</th><th>Remove</th></tr></thead>
+      <tbody id="subs"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-sub">Add a subcontractor</button></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Executive officers</h2>
+    <table class="cls">
+      <thead><tr><th>Officer</th><th>Audited payroll ($)</th><th>Minimum for the year ($)</th><th>Maximum for the year ($)</th><th>Rate per $100</th><th>Remove</th></tr></thead>
+      <tbody id="officers"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-officer">Add an officer</button></p>
+  </section>
+
+  <section class="card">
+    <h2>4. Modifiers on your policy</h2>
+    <div class="grid">
+      <div><label for="mod">Experience mod (1.00 = average)</label><input type="number" id="mod" step="0.01" value="1.00"></div>
+      <div><label for="schedule">Schedule credit (−) or debit (+), %</label><input type="number" id="schedule" step="0.5" value="0"></div>
+      <div><label for="discount">Premium discount, %</label><input type="number" id="discount" step="0.5" value="0"></div>
+      <div><label for="surcharge">Surcharges and assessments, %</label><input type="number" id="surcharge" step="0.1" value="0"></div>
+      <div><label for="otmult">Overtime multiplier</label><input type="number" id="otmult" step="0.1" value="1.5"></div>
+      <div><label for="policy">Policy number (for the note, optional)</label><input type="text" id="policy"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Check the audit</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter at least one audited class, subcontractor or officer line, then click Check the audit.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="total" id="report-total"></p>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Dispute note (edit before you send)</h3>
+    <textarea id="note" rows="10" style="width:100%;box-sizing:border-box" aria-label="Dispute note"></textarea>
+    <p><button type="button" class="secondary" id="copy-note">Copy note</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not insurance, legal, tax, or financial advice.</strong> Your carrier's audit and your state's rules control.</li>
+      <li><strong>No rate or class-code lookup.</strong> You supply the rates from the audit; the tool cannot say which class your work belongs in.</li>
+      <li><strong>No state rule engine.</strong> Overtime exclusion, officer minimums and maximums, and dispute windows differ by state and carrier. Premium discount is applied as one flat percentage, not a tier table, so figures are estimates.</li>
+      <li><strong>It does not decide who is right.</strong> A line is only worth disputing if your records prove it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I dispute a workers' comp premium audit?</h3>
+    <p>Yes. Carriers have a dispute or reconsideration process, and the window to use it is printed on the audit notice, so check the date first. Disputes are won with records: payroll registers, certificates of insurance and officer endorsements, not with a letter that only says the audit is too high.</p>
+    <h3>Is overtime pay included in workers' comp audit payroll?</h3>
+    <p>In most states only the straight-time part of overtime is premium basis, so at time-and-a-half one third of each overtime dollar is excluded. The auditor can only exclude what your payroll records show on a separate line. Check your own state and carrier rules.</p>
+    <h3>Do I pay workers' comp premium on subcontractors?</h3>
+    <p>If a subcontractor does not carry their own workers' compensation, carriers usually charge you for their payments as if they were employees. A certificate of insurance in force for the days they worked for you is what normally removes that charge, so collect it before the work, not after the audit.</p>
+    <h3>Why is my executive officer payroll different on the audit?</h3>
+    <p>Most states set a minimum and maximum payroll for an included executive officer, and the carrier charges within that band whatever the officer was actually paid. Whether an officer is included or excluded is set by an endorsement on your policy.</p>
+    <h3>Is this legal or insurance advice?</h3>
+    <p>No. It prices the gap between an audit worksheet and your own records using rates you type in. It does not look up class codes, rating rules or state limits, and your carrier's audit and your state's rules control.</p>
+  </section>
+
+  <footer>
+    <p>Before the audit arrives, the <a href="../workers-comp-premium-calculator/">workers' comp premium calculator</a> shows how the policy premium is built and what an audit true-up could add.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your insurance carrier, broker, or a qualified professional. Check every figure against your policy and audit.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you type.</p>
+    <p>Everything runs in your browser. Your payroll and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>audit_checked</code>, <code>example_loaded</code>, <code>note_copied</code>) are counted in this browser only, and stay off if you turn counting off or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../coi-expiry-gap-checker/">COI expiry gap checker</a>, the <a href="../employee-cost-calculator/">employee cost calculator</a> and the <a href="../business-insurance-policy-reader/">business insurance policy reader</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { auditDispute, disputeNote, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const cell = (cls, label, type = "number", v = "", step = "100") => `<td><input aria-label="${label}" class="${cls}" type="${type}" ${type === "number" ? `step="${step}"` : ""} value="${esc(v)}"></td>`;
+    const del = (label) => `<td><button type="button" class="secondary r-del" aria-label="${label}">×</button></td>`;
+    function addTo(id, html) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = html;
+      tr.querySelector(".r-del").addEventListener("click", () => tr.remove());
+      $(id).appendChild(tr);
+    }
+    const addClass = (v = {}) => addTo("#rows", cell("c-label", "Class or label", "text", v.label) + cell("c-apay", "Audited payroll", "number", v.apay) + cell("c-rate", "Rate per 100 dollars of payroll", "number", v.rate, "0.01") +
+      cell("c-aot", "Overtime wages the audit excluded", "number", v.aot) + cell("c-opay", "Payroll in your records", "number", v.opay) + cell("c-oot", "Overtime wages in your records", "number", v.oot) +
+      cell("c-mrate", "Rate of the other class", "number", v.mrate, "0.01") + cell("c-mamt", "Payroll that belongs in the other class", "number", v.mamt) + del("Remove this class"));
+    const addSub = (v = {}) => addTo("#subs", cell("s-label", "Subcontractor", "text", v.label) + cell("s-amt", "Amount charged as payroll", "number", v.amt) + cell("s-rate", "Rate per 100 dollars", "number", v.rate, "0.01") +
+      `<td><input aria-label="Certificate was in force" class="s-cert" type="checkbox" ${v.cert ? "checked" : ""}></td>` + del("Remove this subcontractor"));
+    const addOfficer = (v = {}) => addTo("#officers", cell("o-label", "Officer", "text", v.label) + cell("o-pay", "Audited payroll", "number", v.pay) + cell("o-min", "Minimum payroll", "number", v.min) +
+      cell("o-max", "Maximum payroll", "number", v.max) + cell("o-rate", "Rate per 100 dollars", "number", v.rate, "0.01") + del("Remove this officer"));
+    const g = (tr, c) => tr.querySelector(c).value;
+    function inputs() {
+      return {
+        mod: $("#mod").value, schedulePct: $("#schedule").value, discountPct: $("#discount").value, surchargePct: $("#surcharge").value,
+        classes: [...$("#rows").querySelectorAll("tr")].map((tr) => ({ label: g(tr, ".c-label"), auditedPayroll: g(tr, ".c-apay"), rate: g(tr, ".c-rate"), auditedOvertime: g(tr, ".c-aot"),
+          ownPayroll: g(tr, ".c-opay"), ownOvertime: g(tr, ".c-oot"), moveToRate: g(tr, ".c-mrate"), moveAmount: g(tr, ".c-mamt") || 0, overtimeMultiplier: $("#otmult").value })),
+        subs: [...$("#subs").querySelectorAll("tr")].map((tr) => ({ label: g(tr, ".s-label"), amount: g(tr, ".s-amt"), rate: g(tr, ".s-rate"), certificate: tr.querySelector(".s-cert").checked })),
+        officers: [...$("#officers").querySelectorAll("tr")].map((tr) => ({ name: g(tr, ".o-label"), auditedPayroll: g(tr, ".o-pay"), minPayroll: g(tr, ".o-min"), maxPayroll: g(tr, ".o-max"), rate: g(tr, ".o-rate") })),
+      };
+    }
+    function reset() { $("#rows").innerHTML = ""; $("#subs").innerHTML = ""; $("#officers").innerHTML = ""; addClass(); addSub(); addOfficer(); }
+    reset();
+
+    function run() {
+      const out = $("#report");
+      try {
+        const r = auditDispute(inputs());
+        $("#report-total").textContent = money(r.claimable) + " of premium worth disputing";
+        $("#report-stats").textContent = (r.againstYou ? money(r.againstYou) + " of lines go against you if corrected. " : "") + "Estimated at a combined load of " + r.factor.toFixed(4) + "× manual premium (mod, schedule, discount, surcharges).";
+        $("#report-findings").innerHTML = r.items.map((f) => `<div class="finding"><h4><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "dispute" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(f.dollars) : ""}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("");
+        $("#note").value = disputeNote(r, { policy: $("#policy").value });
+        out.hidden = false;
+        $("#form-status").textContent = "";
+        record("audit_checked");
+        out.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        out.hidden = true;
+        $("#form-status").textContent = e.message;
+      }
+    }
+    $("#calculate").addEventListener("click", run);
+    $("#add-row").addEventListener("click", () => addClass());
+    $("#add-sub").addEventListener("click", () => addSub());
+    $("#add-officer").addEventListener("click", () => addOfficer());
+
+    $("#load-example").addEventListener("click", () => {
+      reset(); $("#rows").innerHTML = ""; $("#subs").innerHTML = ""; $("#officers").innerHTML = "";
+      addClass({ label: "Roofing", apay: 300000, rate: 20, aot: 0, opay: 300000, oot: 30000 });
+      addSub({ label: "Ace Electric", amt: 40000, rate: 6, cert: true });
+      addOfficer({ label: "Owner", pay: 150000, min: 50000, max: 120000, rate: 20 });
+      $("#mod").value = "1.10"; $("#schedule").value = "0"; $("#discount").value = "0"; $("#surcharge").value = "0"; $("#otmult").value = "1.5";
+      run();
+      record("example_loaded");
+      $("#form-status").textContent = "Worked example: a roofer audited on 300000 payroll with no overtime excluded, 30000 of overtime wages in the books, a certified electrician charged as uninsured, and an owner above the payroll cap, at a 1.10 mod.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      reset();
+      for (const [id, v] of [["mod", "1.00"], ["schedule", "0"], ["discount", "0"], ["surcharge", "0"], ["otmult", "1.5"], ["policy", ""]]) $("#" + id).value = v;
+      $("#report").hidden = true;
+      $("#form-status").textContent = "Enter at least one audited class, subcontractor or officer line, then click Check the audit.";
+    });
+    $("#copy-note").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("#note").value); $("#copy-note").textContent = "Copied"; } catch { $("#note").select(); $("#copy-note").textContent = "Select and copy"; }
+      record("note_copied");
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

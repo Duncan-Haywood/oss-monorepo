@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WH-347 Certified Payroll Report Builder — Free, In Your Browser</title>
+<meta name="description" content="Free WH-347 certified payroll worksheet: enter weekly hours by day, wage determination rates and deductions for each worker. Get gross, net, correct overtime on cash fringe, an underpayment check and a printable CSV. Nothing is uploaded.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./wh347-report.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="WH-347 Certified Payroll Report Builder">
+<meta property="og:description" content="Weekly certified payroll for Davis-Bacon subcontractors, checked against the wage determination, in your browser.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "WH-347 Certified Payroll Report Builder", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that fills the weekly certified payroll columns of the WH-347 for a Davis-Bacon subcontractor, with overtime on cash fringe and a prevailing-wage check on every row."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this the official DOL WH-347 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It fills the same columns as the WH-347 payroll sheet (hours by day, total hours, rate, gross earned on the project, deductions, net) and checks each row against the wage determination you type in. You still sign the Statement of Compliance on the back of the official form or your agency's equivalent. DOL publishes the form and its instructions on dol.gov."}}, {"@type": "Question", "name": "How are overtime hours decided?", "acceptedAnswer": {"@type": "Answer", "text": "Hours over 40 in the workweek are overtime, counting hours the worker put in on other jobs that week, which you enter in the other-jobs column. Those hours are assumed to come first, so overtime lands on this project's hours last. If your timekeeping splits it differently, enter the hours that way and check the result."}}, {"@type": "Question", "name": "Does overtime include fringe benefits?", "acceptedAnswer": {"@type": "Answer", "text": "Cash paid in lieu of fringe is part of the overtime regular rate and gets the premium. A contribution to a bona fide plan does not. Each row applies that rule, and flags the dollars a base-only payroll system would have underpaid."}}, {"@type": "Question", "name": "Do I enter full Social Security numbers?", "acceptedAnswer": {"@type": "Answer", "text": "No. The form asks for the last four digits only, and this page refuses anything longer. Nothing you type is sent anywhere, stored, or put in a link."}}, {"@type": "Question", "name": "What does it leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Which wage determination applies, whether the contract is covered, apprentice registration, fringe plan qualification, the Statement of Compliance and state prevailing wage forms that differ from the WH-347. Rates are what you type."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 1180px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  label { display:block; font-weight:600; margin:10px 0 4px; }
+  input { box-sizing:border-box; padding:7px 8px; border:1px solid #9fb2c0; border-radius:6px; font:14px system-ui, sans-serif; width:100%; }
+  .hdr { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+  .scroll { overflow-x:auto; }
+  .w td, .w th { padding:4px 3px; white-space:nowrap; }
+  .w input { min-width:62px; } .w input.wide { min-width:150px; } .w input.day { min-width:48px; }
+  button { border:0; border-radius:8px; padding:10px 14px; background:#1f4a5d; color:#fff; font-weight:700; cursor:pointer; margin:12px 8px 0 0; }
+  button.secondary { background:#e3edf2; color:#1f4a5d; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .visually { position:absolute; left:-9999px; }
+  .flag { color:#8a3b00; font-size:.86rem; }
+  .ok { color:#1b5e2b; font-weight:700; }
+  .bad { color:#9b1c1c; font-weight:700; }
+  @media print { .noprint, footer, .faq { display:none; } body { background:#fff; padding:6px; } .card { box-shadow:none; border:0; padding:0; } }
+</style>
+</head>
+<body>
+<p class="note noprint"><a href="./">&larr; back to the one-worker overtime check</a></p>
+<h1>WH-347 certified payroll report builder</h1>
+<p class="lede">Enter each worker's hours by day, the wage determination rates and what you withheld. You get the weekly payroll sheet in WH-347 column order, a prevailing-wage check on every row, and overtime that treats cash fringe correctly. <strong>Free, no account, nothing leaves your browser.</strong></p>
+<p class="note noprint">Calculated in this tab. The example is made up. This is a worksheet for the numbers on the form, not the signed filing.</p>
+
+<section class="card noprint">
+<h2>1. The payroll</h2>
+<div class="hdr">
+<div><label for="contractor">Contractor</label><input id="contractor" autocomplete="off"></div>
+<div><label for="project">Project and location</label><input id="project" autocomplete="off"></div>
+<div><label for="contractNo">Contract or project number</label><input id="contractNo" autocomplete="off"></div>
+<div><label for="payrollNo">Payroll number</label><input id="payrollNo" autocomplete="off"></div>
+<div><label for="weekEnding">Week ending</label><input id="weekEnding" type="date"></div>
+</div>
+<h2 style="margin-top:22px">2. Workers</h2>
+<p class="note">Hours are for this project. "Other jobs" is the hours the same person worked elsewhere that week, which only matters for the 40-hour overtime line. ID is the last four digits only.</p>
+<div class="scroll"><table class="w" id="workers"><thead><tr>
+<th scope="col">Name</th><th scope="col">ID last 4</th><th scope="col">Classification</th>
+<th scope="col">Mon</th><th scope="col">Tue</th><th scope="col">Wed</th><th scope="col">Thu</th><th scope="col">Fri</th><th scope="col">Sat</th><th scope="col">Sun</th>
+<th scope="col">Other jobs</th><th scope="col">WD base $/hr</th><th scope="col">WD fringe $/hr</th><th scope="col">Base paid</th><th scope="col">Fringe to plan</th><th scope="col">Fringe in cash</th><th scope="col">FICA</th><th scope="col">Withheld</th><th scope="col">Other ded.</th><th scope="col"><span class="visually">Remove</span></th>
+</tr></thead><tbody id="body"></tbody></table></div>
+<p>
+<button type="button" id="add" class="secondary">Add a worker</button>
+<button type="button" id="build">Build the report</button>
+<button type="button" id="example" class="secondary">Load an example</button>
+</p>
+<details><summary>Paste from a spreadsheet instead</summary>
+<p class="note">One worker per line, tab or comma separated, in this order: name, last 4, classification, Mon to Sun hours, other-jobs hours, WD base, WD fringe, base paid, fringe to plan, fringe in cash, FICA, withheld, other deductions.</p>
+<textarea id="paste" rows="5" style="width:100%;box-sizing:border-box"></textarea>
+<button type="button" id="import" class="secondary">Use pasted rows</button></details>
+<p class="note" id="status">Add workers, or load the example, then build the report.</p>
+</section>
+
+<section class="card" id="report" aria-live="polite" hidden>
+<h2>Weekly payroll</h2>
+<div id="hdrOut" class="note"></div>
+<div id="advice"></div>
+<div class="scroll"><table id="out"><thead><tr><th scope="col">Name (ID)</th><th scope="col">Classification</th><th scope="col" class="num">Mon</th><th scope="col" class="num">Tue</th><th scope="col" class="num">Wed</th><th scope="col" class="num">Thu</th><th scope="col" class="num">Fri</th><th scope="col" class="num">Sat</th><th scope="col" class="num">Sun</th><th scope="col" class="num">Hours</th><th scope="col" class="num">OT</th><th scope="col" class="num">Rate paid</th><th scope="col" class="num">Gross</th><th scope="col" class="num">Deductions</th><th scope="col" class="num">Net</th><th scope="col">Check</th></tr></thead><tbody id="outBody"></tbody><tfoot id="outFoot"></tfoot></table></div>
+<p class="noprint"><button type="button" id="print" class="secondary">Print</button><button type="button" id="csv" class="secondary">Download CSV</button></p>
+<p class="note">Rate paid is base plus cash fringe plus plan fringe per hour. The Statement of Compliance on the back of the official form is not generated here.</p>
+</section>
+
+<section class="faq card">
+<h2>Common questions</h2>
+<h3>Is this the official DOL WH-347 form?</h3>
+<p>No. It fills the same columns as the WH-347 payroll sheet (hours by day, total hours, rate, gross earned on the project, deductions, net) and checks each row against the wage determination you type in. You still sign the Statement of Compliance on the back of the official form or your agency's equivalent. DOL publishes the form and its instructions on dol.gov.</p>
+<h3>How are overtime hours decided?</h3>
+<p>Hours over 40 in the workweek are overtime, counting hours the worker put in on other jobs that week, which you enter in the other-jobs column. Those hours are assumed to come first, so overtime lands on this project's hours last. If your timekeeping splits it differently, enter the hours that way and check the result.</p>
+<h3>Does overtime include fringe benefits?</h3>
+<p>Cash paid in lieu of fringe is part of the overtime regular rate and gets the premium. A contribution to a bona fide plan does not. Each row applies that rule, and flags the dollars a base-only payroll system would have underpaid.</p>
+<h3>Do I enter full Social Security numbers?</h3>
+<p>No. The form asks for the last four digits only, and this page refuses anything longer. Nothing you type is sent anywhere, stored, or put in a link.</p>
+<h3>What does it leave out?</h3>
+<p>Which wage determination applies, whether the contract is covered, apprentice registration, fringe plan qualification, the Statement of Compliance and state prevailing wage forms that differ from the WH-347. Rates are what you type.</p>
+</section>
+
+<footer>
+<label class="noprint" style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, payroll, or compliance advice, and it does not replace a qualified professional or the official form. <strong>You are responsible for reviewing and verifying its output</strong> and for every certified payroll you sign and submit.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Nothing you enter is saved by this tool; do not use it as a system of record.</p>
+<p><strong>Nothing leaves your browser.</strong> Names, IDs, rates and hours stay on this device and are never put in a link. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Do Not Track and Global Privacy Control are honoured.</p>
+<p>Related: <a href="./">one-worker overtime and apprentice-ratio check</a>, <a href="../overtime-pay-calculator/">overtime pay calculator</a>, <a href="../contractor-bid-readiness/">contractor bid readiness</a>.</p>
+<p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+
+<script type="module">
+import { buildReport, toCsv, parsePaste, sampleReport, DAYS } from "./wh347.mjs";
+import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const COLS = ["name", "idLast4", "classification", ...DAYS, "otherHours", "requiredBase", "requiredFringe", "actualBase", "planFringe", "cashFringe", "fica", "withholding", "otherDeductions"];
+const WIDE = new Set(["name", "classification"]);
+const body = $("#body"), status = $("#status"), report = $("#report");
+let last = null;
+
+function addRow(w = {}) {
+  const tr = document.createElement("tr");
+  const days = w.days || [];
+  tr.innerHTML = COLS.map((k) => {
+    const di = DAYS.indexOf(k);
+    const v = di >= 0 ? (days[di] ?? w[k] ?? "") : (w[k] ?? "");
+    const num = !["name", "idLast4", "classification"].includes(k);
+    return `<td><input data-k="${k}" aria-label="${k}" class="${WIDE.has(k) ? "wide" : di >= 0 ? "day" : ""}" ${num ? 'inputmode="decimal"' : k === "idLast4" ? 'inputmode="numeric" maxlength="4"' : ""} value="${esc(v)}" autocomplete="off"></td>`;
+  }).join("") + '<td><button type="button" class="secondary rm" aria-label="Remove this worker">x</button></td>';
+  tr.querySelector(".rm").addEventListener("click", () => tr.remove());
+  body.appendChild(tr);
+}
+function readRows() {
+  return [...body.children].map((tr) => {
+    const w = {};
+    for (const i of tr.querySelectorAll("input[data-k]")) w[i.dataset.k] = i.value;
+    w.days = DAYS.map((d) => w[d]);
+    return w;
+  });
+}
+function readHeader() {
+  const h = {};
+  for (const k of ["contractor", "project", "contractNo", "payrollNo", "weekEnding"]) h[k] = $("#" + k).value;
+  return h;
+}
+function load(rep) {
+  for (const [k, v] of Object.entries(rep.header)) $("#" + k).value = v;
+  body.innerHTML = "";
+  rep.workers.forEach(addRow);
+}
+function run() {
+  let r;
+  try { r = buildReport({ header: readHeader(), workers: readRows() }); }
+  catch (e) { status.textContent = e.message; report.hidden = true; return false; }
+  last = r;
+  const h = r.header;
+  $("#hdrOut").textContent = [h.contractor, h.project, h.contractNo && "Contract " + h.contractNo, h.payrollNo && "Payroll " + h.payrollNo, h.weekEnding && "Week ending " + h.weekEnding].filter(Boolean).join(" · ");
+  $("#advice").innerHTML = r.advice.map((a) => `<p>${esc(a)}</p>`).join("");
+  $("#outBody").innerHTML = r.workers.map((w) => `<tr><th scope="row">${esc(w.name)}${w.idLast4 ? " (xxx-xx-" + esc(w.idLast4) + ")" : ""}</th><td>${esc(w.classification)}</td>${w.days.map((d) => `<td class="num">${d || ""}</td>`).join("")}<td class="num">${w.projectHours}</td><td class="num">${w.overtimeHours}</td><td class="num">${usd(w.ratePaid)}</td><td class="num">${usd(w.gross)}</td><td class="num">${usd(w.deductions)}</td><td class="num">${usd(w.net)}</td><td>${w.flags.length ? w.flags.map((f) => `<div class="flag">${esc(f)}</div>`).join("") : '<span class="ok">OK</span>'}</td></tr>`).join("");
+  $("#outFoot").innerHTML = `<tr><th scope="row" colspan="9">Totals</th><td></td><td class="num">${r.totals.projectHours}</td><td class="num">${r.totals.overtimeHours}</td><td></td><td class="num">${usd(r.totals.gross)}</td><td class="num">${usd(r.totals.deductions)}</td><td class="num">${usd(r.totals.net)}</td><td class="${r.totals.underpayment > 0 ? "bad" : "ok"}">${r.totals.underpayment > 0 ? "Underpaid " + usd(r.totals.underpayment) : "No underpayment"}</td></tr>`;
+  report.hidden = false;
+  status.textContent = r.ready ? "Report built. Nothing flagged." : "Report built. Read the flags before you sign.";
+  report.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
+}
+const track = (e) => { try { recordUsage(localStorage, false, e); } catch { /* optional */ } };
+$("#add").addEventListener("click", () => addRow());
+$("#build").addEventListener("click", () => { if (run()) track("report_built"); });
+$("#example").addEventListener("click", () => { load(sampleReport()); if (run()) track("wh347_example_loaded"); });
+$("#import").addEventListener("click", () => {
+  const rows = parsePaste($("#paste").value);
+  if (!rows.length) { status.textContent = "Nothing to import: paste one worker per line."; return; }
+  body.innerHTML = ""; rows.forEach(addRow); status.textContent = `${rows.length} row${rows.length === 1 ? "" : "s"} loaded. Build the report.`;
+});
+$("#print").addEventListener("click", () => window.print());
+$("#csv").addEventListener("click", () => {
+  if (!last) return;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+  a.download = "certified-payroll-week.csv";
+  a.click();
+  track("wh347_csv_downloaded");
+});
+try { $("#usageOptOut").checked = readOptOut(); } catch { /* optional */ }
+$("#usageOptOut").addEventListener("change", (e) => { try { writeOptOut(localStorage, e.target.checked); } catch { /* optional */ } });
+addRow();
+</script>
+</body>
+</html>

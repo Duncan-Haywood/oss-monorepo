@@ -1,0 +1,52 @@
+name: brewery-tank-schedule-optimizer
+description: >-
+  Free browser tool for craft and nano breweries: enter fermenters, bright tanks and beers (batch size, fermenting and
+  conditioning days, margin per barrel, optional minimum and maximum batches) and get the brew-day and tank plan that finishes
+  the most margin over 1 to 26 weeks, with cleaning turnaround and a brewhouse limit. Shows the gain over brewing in rotation,
+  tank-by-tank utilisation, an upper bound no plan can beat, and the extra margin one more fermenter or bright tank would add.
+  Every plan passes an independent feasibility check; search is tested against exhaustive search. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was craft-brewery-batch-margin-calculator 0.29 (profit
+# per barrel by sales channel, not when and where each batch goes). Many first ideas this session (cut list, ad budget, tip pool,
+# overbooking, rent, gig picker, nexus, lien, A/B test) already existed and were dropped: check by name too.
+#
+# Why this niche: a brewery's fermenter and brite-tank days are its capacity, and each new fermenter is a five-figure purchase.
+# Owners schedule on whiteboards and spreadsheets and cannot easily see what a long lager costs the ales behind it, or whether
+# another tank pays. Machine scheduling with cleaning turnaround and two linked resources (fermenter then brite) is a classic
+# operations-research problem, absent from free tools aimed at breweries.
+#
+# First visitor: people searching "brewery tank scheduling", "fermenter capacity planning", "should I buy another fermenter";
+# r/projectbrewing, r/Homebrewing pro-brewer threads, Brewers Association forums, nano-brewery owner groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not brewing, food-safety, licensing or business advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid production-planning tool
+# connected to brewery software, or referrals to brewery software and equipment vendors.
+
+hypotheses:
+  - claim: >-
+      Owners of small breweries will use a free tank-scheduling planner, and will use its "one more tank" figure when deciding
+      on equipment, returning each planning period.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a plan breaks a rule they entered (tank overlap, size, brew-day limit).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/brewery-tank-schedule-optimizer/
+  analytics: null

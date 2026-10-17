@@ -1,0 +1,74 @@
+Validating a twin's stated failure probability q against n real trials (real p = c*q). alpha = 0.05 throughout.
+Difference test = exact two-sided binomial test of p=q (twin 'passes' if not rejected); equivalence = exact TOST for p in [q/D, qD].
+
+== 0. Exact pass probability of the difference test vs simulation (20000 draws) ==
+q       n      c    exact     simulated
+0.005   300    2    0.8161    0.8153
+0.001   2000   3    0.4454    0.4459
+0.02    200    0.5  0.8658    0.8652
+
+== 1. P(twin passes the difference test), q = 1e-3: a twin that is wrong by a factor c is 'validated' by a small real sample ==
+c      n=100     n=500     n=2000    n=10000     (expected real failures n*q = 0.1, 0.5, 2, 10 for a perfect twin)
+1      0.995     0.986     0.983     0.963     
+1.5    0.990     0.960     0.916     0.664     
+2      0.983     0.920     0.785     0.221     
+3      0.963     0.809     0.445     0.004     
+5      0.910     0.543     0.067     0.000     
+0.5    0.999     0.998     0.999     0.735     
+0.2    1.000     1.000     1.000     0.143     
+
+== 2. Real trials for 80% power to REJECT a twin off by factor c (difference test), as n*q = expected real failures of the twin ==
+q        c=2 n*q    c=3 n*q    c=0.5 n*q   c=1.5 n*q
+0.01     10.80       3.41        27.81       39.65     
+0.001    10.72       3.49        26.03       38.23     
+0.0001   10.72       3.49        26.03       38.22     
+normal-approx n*q = (z_.025 + z_.20 sqrt(c))^2/(c-1)^2, where alpha/2 and 20% tails:
+  c=2    9.92
+  c=3    2.92
+  c=0.5  26.11
+  c=1.5  35.78
+
+== 3. Equivalence testing: real failures needed to VALIDATE a perfect twin (c=1) within margin D with 80% power ==
+q        D=3 n*q    D=2 n*q    D=1.5 n*q  D=1.25 n*q
+0.01     10.5        19.8        55.2        178.0     
+0.001    10.5        19.8        58.0        178.0     
+large-count rule: relative sd 1/sqrt(nq) must fit inside ln D at z_.05+z_.20: nq ~ ((z_.05+z_.20)/ln D)^2:
+  D=3     5.1
+  D=2     12.9
+  D=1.5   37.6
+  D=1.25  124.2
+
+== 4. False validation is capped at alpha by construction: P(TOST validates) as the real p moves across the margin (q=1e-3, D=2, n=20000, n*q=20) ==
+c       P(validated)
+0.4     0.0082
+0.5     0.0487
+0.6     0.1555
+0.8     0.5322
+1       0.8219
+1.25    0.7958
+1.6     0.3372
+2       0.0431
+2.5     0.0009
+region (xl, xh) of validating failure counts: (16, 29)
+
+== 5. Tightest margin D a perfect twin can be validated to (80% power) with n*q expected failures, q=1e-3 ==
+n*q    n         D_min
+5      5000      6.481
+10     10000     3.043
+20     20000     2.030
+50     50000     1.529
+100    100000    1.350
+400    400000    1.159
+
+== 6. Passing is weak evidence: twins with ln c ~ N(0, 0.7^2) (sd of ln c = 0.7, i.e. a factor 2.0), 'bad' = off by 2x or more; q=1e-3 ==
+n       n*q   P(bad)  P(pass)  P(pass|bad)  P(bad|pass)
+300     0.3   0.325   0.931    0.882        0.308
+1000    1     0.325   0.921    0.827        0.292
+3000    3     0.325   0.833    0.652        0.254
+10000   10    0.325   0.636    0.267        0.137
+30000   30    0.325   0.395    0.015        0.013
+Same prior, equivalence test with D=2 (validated = TOST passes):
+n       n*q   P(validated)  P(bad|validated)  P(validated|bad)
+10000   10    0.142         0.017             0.008
+30000   30    0.393         0.005             0.006
+100000  100   0.536         0.003             0.004

@@ -1,0 +1,55 @@
+name: npm-audit-triage
+description: 'Free tool that ranks npm audit --json findings by reachability -- whether your source actually imports the vulnerable package, reaches it only through an imported parent, uses it only in test/tooling files, or never references it -- in the browser (paste the audit output and source) or as a zero-dependency Node CLI that can fail CI on reachable high/critical findings. No upload, no network calls of its own. A static text scan and heuristic ranking, not a security audit.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator (portfolio/pipeline/
+# README.md "archetype itself"). duplicate_check.py (run 2026-10-13) scored the
+# closest ventures 0.15 (tender-radar, a lexical accident) and 0.17-0.20 for the
+# other npm checks (lockfile-license-check, npm-provenance-check): those audit
+# licences, provenance and duplicates, none reads `npm audit` output or the
+# project's source. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "npm audit
+# false positives", "npm audit too many vulnerabilities", "is npm audit
+# vulnerability reachable", "npm audit fix --force broke my build"; r/node,
+# r/webdev and r/devops threads complaining about audit noise; Hacker News
+# threads on "npm audit is broken" (a recurring genre). The paid category it
+# undercuts is reachability analysis in Snyk, Socket and Endor Labs; the free
+# first pass has no pasteable equivalent. Natural upgrade path (where revenue
+# could come from later): a GitHub Action that comments the ranked list on
+# Dependabot PRs.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# medium-high. It reads files the user already holds and sends nothing off the
+# device. The risk is being read as a security guarantee, so the page, guide
+# and README say it is a heuristic, "not imported" is not "safe", and it is not
+# a security audit.
+hypotheses:
+  - claim: 'A developer facing a long npm audit report will paste it with their source, find that the reachable high/critical findings are a small subset, and fix those first.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add audit-triage.mjs --fail-on high to CI so a new reachable vulnerability blocks the merge while unreachable noise does not.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using audit-triage.mjs or triage.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/
+  analytics: null

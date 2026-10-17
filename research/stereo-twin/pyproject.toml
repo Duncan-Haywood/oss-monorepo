@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stereo-twin"
+version = "0.1.0"
+description = "Stereo twin: a Gaussian-depth-noise stereo twin vs real disparity-space noise: depth is the reciprocal of a Gaussian, so the median is right, the gated mean is biased by about s^2, over-range errors are far more common than the twin says, and averaging depth floors where averaging disparity converges"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

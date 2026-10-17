@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mount-twin"
+version = "0.1.0"
+description = "Sensor mount misalignment a twin assumes away: radar ego-velocity dead reckoning is the true path rotated by the mount angle (error 2 sin(e/2)|p|, invisible to loop-closure tests), fitted in closed form; in 3-D it is not"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

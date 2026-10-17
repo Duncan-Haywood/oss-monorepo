@@ -1,0 +1,59 @@
+name: pslf-vs-refinance-calculator
+description: >-
+  Free browser tool for borrowers with federal student loans in public service:
+  compares staying federal for Public Service Loan Forgiveness against a
+  private refinance. Reports total paid under each path, the balance
+  forgiven, the income at which refinancing wins, and the cost of leaving
+  qualifying work early. Plan percentage, protected income and poverty
+  guideline are editable inputs. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: no
+# student-loan venture exists (closest hits below 0.15). A federal balance of
+# $100k-$400k is common for physicians, dentists, vets, lawyers and nurses
+# practitioners in non-profit or government jobs, and refinance ads target
+# exactly this group, so the decision is worth tens to hundreds of thousands
+# of dollars and is usually made from a lender's own calculator.
+#
+# First visitor: r/StudentLoans and r/PSLF threads asking "should I
+# refinance", physician finance forums and blogs, searches "PSLF vs refinance
+# calculator" and "should I refinance federal student loans"; volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: loan and income data never leave the
+# browser (tests assert no network calls). No servicer, lender or plan
+# rule is asserted as current: percentage, multiple and guideline are inputs.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only; no
+# lender referral fees, so the comparison carries no conflict of interest.
+# Liability: illustrative estimates, not advice; omissions stated on the page;
+# warns that refinancing federal loans is irreversible.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Borrowers weighing PSLF against a refinance offer will use a no-signup,
+      no-referral tool that shows total paid, the forgiven balance and the
+      break-even income, instead of a lender's own calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pslf-vs-refinance-calculator/
+  analytics: null

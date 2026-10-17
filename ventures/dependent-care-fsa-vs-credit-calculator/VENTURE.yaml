@@ -1,0 +1,53 @@
+name: dependent-care-fsa-vs-credit-calculator
+description: >-
+  Free browser tool for working parents: compares a dependent care FSA with the
+  child and dependent care tax credit (2026 limits) and finds the best split of
+  childcare spending, given income, tax rates and the lower earner's income. No
+  tax-table data is embedded. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Adjacent ventures cover
+# childcare tuition and HSA limits; none compares the FSA against the credit.
+# Buyers have money and a yearly deadline: open enrolment is a once-a-year
+# election worth hundreds to a couple of thousand dollars, and 2026 raised the
+# FSA limit to $7,500 and the credit rate, so old rules of thumb are stale.
+#
+# First visitor: r/personalfinance and parenting-forum threads on "FSA or
+# child care credit", searches "dependent care fsa vs child care credit" and
+# "dependent care fsa limit 2026"; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: household figures never leave the browser
+# (tests assert no network calls). No employer, administrator or software
+# vendor is named; the visitor supplies every number.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page;
+# points the reader to a tax professional; current-year figures to be confirmed.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Parents at open enrolment will use a no-signup tool that shows FSA vs
+      credit vs a split, and come back each year.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dependent-care-fsa-vs-credit-calculator/
+  analytics: null

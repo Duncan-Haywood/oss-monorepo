@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee vs. Contractor Cost Calculator | True Cost of a W-2 Hire vs. a 1099</title>
+  <meta name="description" content="Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers' comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.">
+  <meta property="og:title" content="Employee vs. Contractor Cost Calculator">
+  <meta property="og:description" content="What does hiring a W-2 employee really cost, fully loaded, next to paying a 1099 contractor for the same hours? Free and private.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Employee vs. Contractor Cost Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Fully-loaded annual and hourly cost of a W-2 employee (wages, employer FICA, capped FUTA/SUTA, workers' comp, PTO accrual, retirement match, health insurance, payroll admin, one-time onboarding) compared against a 1099 contractor (rate, hours, filing admin, one-time setup), plus the contractor hourly rate at which the two cost the same"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this calculator tell me whether a worker should be a W-2 employee or a 1099 contractor?","acceptedAnswer":{"@type":"Answer","text":"No. Worker classification is a legal determination under the IRS common-law test (behavioral control, financial control, and the relationship type) and, in many states, a separate and stricter ABC test — getting it wrong carries real back-tax and penalty exposure regardless of which arrangement is cheaper. This tool assumes the classification question is already settled, or is being modelled hypothetically for both arrangements, and answers a narrower question: once you pay for the role either way, which one costs more, and by how much."}},{"@type":"Question","name":"Why is FUTA and SUTA not just a flat percentage of wages?","acceptedAnswer":{"@type":"Answer","text":"Both are charged only on wages up to a wage base — $7,000 federally for FUTA, and a state-set amount for SUTA — so once a role's annual wages clear those bases, the rest of the year's wages owe no more of that particular tax. A full-time role clears both bases early in the year, which is why this calculator applies each rate to the wage base rather than to total annual wages."}},{"@type":"Question","name":"Why are ongoing cost and year-one cost shown separately?","acceptedAnswer":{"@type":"Answer","text":"Recruiting, background checks, and onboarding time are one-time costs. A calculator that folds them into a flat annual rate overstates every year after the first. The ongoing figures are what the role costs every year after the first; the year-one figures add each side's one-time setup cost."}},{"@type":"Question","name":"Where do the default tax and benefit rates come from?","acceptedAnswer":{"@type":"Answer","text":"They are illustrative starting points, not your figures. Employer FICA (7.65%) and the federal FUTA wage base ($7,000) are fixed by federal law; FUTA's net rate, SUTA's rate and wage base, and workers' comp all vary by state and, for workers' comp, by class code — replace them with your own state's rates and your own policy's rate before relying on the result."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. None of the wages, rates, or hours you enter are sent anywhere or stored anywhere but this device. The optional usage counter records only which features were used and the day, never any of your numbers."}},{"@type":"Question","name":"Does the break-even rate account for the contractor's own self-employment tax?","acceptedAnswer":{"@type":"Answer","text":"No, and it should not — this calculator answers what the role costs your business, not what a contractor takes home. A contractor's self-employment tax is their own cost of doing business, already reflected (or not) in the hourly rate they quote you; it is not a cost your business pays either way."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2126; background: #eef1f6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 780px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4a8c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr); gap: 18px; align-items: start; }
+    section { background: #f9fbfd; border: 1px solid #ccd6e6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0d2a5c0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    h3 { font-size: .95rem; }
+    .hint { font-size: .82rem; color: #4d5a6b; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    .col-title { grid-column: 1 / -1; font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #4d5a6b; margin: 14px 0 -2px; }
+    .col-title:first-child { margin-top: 0; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #93a8c9; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #93a8c9; background: #e2eaf6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #cddaf1; }
+    .primary { background: #1f4a8c; border-color: #1f4a8c; color: #f0f4fa; }
+    .primary:hover { background: #183a70; }
+    .result { position: sticky; top: 15px; background: #10182b; color: #eaeffa; border-color: #10182b; }
+    .result a { color: inherit; }
+    /* .hint's default color is tuned for the light form section; the target
+       box sits on the dark result background and needs its own contrast. */
+    .result .hint { color: #aeb9d1; }
+    .hero-number { font-size: 2.5rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    .winner { font-size: .95rem; margin: 4px 0 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .89rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .target { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .target h3 { margin: 0 0 8px; font-size: .95rem; }
+    .target-hero { margin: 8px 0 0; font-size: 1.25rem; font-weight: 750; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: #ffd8a8; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5a6b; }
+    footer a { color: #1f4a8c; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SMALL BUSINESS OWNERS DECIDING HOW TO STAFF A ROLE</p>
+    <h1>What does this role actually cost — hired, or contracted?</h1>
+    <p>Enter the same role two ways: a W-2 employee's wage plus the employer taxes, workers' comp, benefits and admin that come with it, and a 1099 contractor's rate for the same hours. See the fully-loaded cost of each, side by side, and the contractor rate at which the two are exactly the same.</p>
+    <p class="seo-link"><a href="../workers-comp-premium-calculator/">Workers' comp premium calculator</a> for the class-rate insurance cost that sits on top of payroll</p>
+    <p class="seo-link"><a href="../home-care-agency-margin-calculator/">Home care agency margin calculator</a> for pricing an hourly caregiver bill rate from the loaded wage, payer by payer</p>
+    <p class="seo-link"><a href="../staffing-markup-calculator/">Staffing markup calculator</a> for pricing a placement you bill to a client, rather than staff yourself</p>
+    <p class="seo-link">Compare: <a href="./vs-a-flat-burden-percentage.html">this calculator vs. a flat burden-percentage rule of thumb</a>.</p>
+    <p class="seo-link">Guide: <a href="./when-does-futa-suta-stop-accruing.html">how many weeks into the year does FUTA and SUTA stop accruing?</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="costForm">
+      <section>
+        <h2>The role, priced two ways</h2>
+        <p class="hint">Defaults are a worked example — a $28/hr full-time role against a $40/hr contractor at the same hours. Replace every rate with your own state's and your own policy's before relying on the result.</p>
+
+        <div class="fields">
+          <p class="col-title">W-2 employee</p>
+          <label>Hourly wage <input id="employeeHourlyWage" type="number" min="0.01" step="any" value="28"></label>
+          <label>Hours per week <input id="employeeHoursPerWeek" type="number" min="1" step="1" value="40"></label>
+          <label>Paid weeks per year <input id="employeeWeeksPerYear" type="number" min="1" max="52" step="1" value="52"></label>
+          <label>Employer FICA % <input id="ficaPercent" type="number" min="0" step="0.01" value="7.65"></label>
+          <label>FUTA rate % <input id="futaPercent" type="number" min="0" step="0.01" value="0.6"></label>
+          <label>FUTA wage base $ <input id="futaWageBase" type="number" min="0" step="100" value="7000"></label>
+          <label>State unemployment (SUTA) rate % <input id="sutaPercent" type="number" min="0" step="0.01" value="2.7"></label>
+          <label>SUTA wage base $ <input id="sutaWageBase" type="number" min="0" step="500" value="9500"></label>
+          <label>Workers' comp % of payroll <input id="workersCompRate" type="number" min="0" step="0.01" value="1.5"></label>
+          <label>PTO &amp; holiday accrual % <input id="ptoHolidayPercent" type="number" min="0" step="0.1" value="5.8"></label>
+          <label>Retirement match % <input id="retirementMatchPercent" type="number" min="0" step="0.1" value="0"></label>
+          <label>Health insurance $/month <input id="healthInsuranceMonthly" type="number" min="0" step="10" value="500"></label>
+          <label>Payroll &amp; HR admin $/year <input id="payrollAdminAnnual" type="number" min="0" step="10" value="600"></label>
+          <label>One-time onboarding cost $ <input id="onboardingOneTimeCost" type="number" min="0" step="50" value="1200"></label>
+
+          <p class="col-title">1099 contractor</p>
+          <label>Contractor hourly rate <input id="contractorHourlyRate" type="number" min="0.01" step="any" value="40"></label>
+          <label>Contractor hours per year <input id="contractorHoursPerYear" type="number" min="1" step="any" value="2080"></label>
+          <label>1099 filing &amp; admin $/year <input id="contractorAdminAnnual" type="number" min="0" step="5" value="75"></label>
+          <label>One-time vetting/setup cost $ <input id="contractorOneTimeCost" type="number" min="0" step="50" value="0"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary" id="calculate">Compare the cost</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="result" aria-live="polite">
+      <p class="hero-label" id="heroLabel">Ongoing annual gap (employee &minus; contractor)</p>
+      <p class="hero-number" id="gapOut">&mdash;</p>
+      <div id="output" hidden>
+        <p class="winner" id="winnerOut"></p>
+        <dl>
+          <dt class="group">W-2 employee</dt>
+          <dt>Annual wages</dt><dd id="wagesOut"></dd>
+          <dt>Employer burden</dt><dd id="burdenOut"></dd>
+          <dt>Burden as % of wages</dt><dd id="burdenPctOut"></dd>
+          <dt>Ongoing annual cost</dt><dd id="empOngoingOut"></dd>
+          <dt>Year-one cost (+ onboarding)</dt><dd id="empYear1Out"></dd>
+          <dt>Ongoing cost per hour</dt><dd id="empHourlyOut"></dd>
+
+          <dt class="group">1099 contractor</dt>
+          <dt>Ongoing annual cost</dt><dd id="contOngoingOut"></dd>
+          <dt>Year-one cost (+ setup)</dt><dd id="contYear1Out"></dd>
+          <dt>Cost per hour</dt><dd id="contHourlyOut"></dd>
+        </dl>
+
+        <div class="target" id="targetBox">
+          <h3>Break-even contractor rate</h3>
+          <p class="target-hero" id="breakEvenOut"></p>
+          <p class="hint" style="margin:6px 0 0">The hourly rate a contractor would have to charge, at the hours entered, to cost exactly what the employee costs, ongoing.</p>
+        </div>
+
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <div id="problems" hidden>
+        <ul class="errors" id="errorList"></ul>
+      </div>
+      <p class="empty" id="empty">The form opens on a worked example. Change the numbers to your own and press the button.</p>
+      <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Change what is different about your role and press the button.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Does this calculator tell me whether a worker should be a W-2 employee or a 1099 contractor?</h3>
+      <p>No. Worker classification is a legal determination under the IRS common-law test (behavioral control,
+        financial control, and the relationship type) and, in many states, a separate and stricter ABC test &mdash;
+        getting it wrong carries real back-tax and penalty exposure regardless of which arrangement is cheaper. This
+        tool assumes the classification question is already settled, or is being modelled hypothetically for both
+        arrangements, and answers a narrower question: once you pay for the role either way, which one costs more,
+        and by how much.</p>
+
+      <h3>Why is FUTA and SUTA not just a flat percentage of wages?</h3>
+      <p>Both are charged only on wages up to a wage base &mdash; $7,000 federally for FUTA, and a state-set amount
+        for SUTA &mdash; so once a role's annual wages clear those bases, the rest of the year's wages owe no more of
+        that particular tax. A full-time role clears both bases early in the year, which is why this calculator
+        applies each rate to the wage base rather than to total annual wages.</p>
+
+      <h3>Why are ongoing cost and year-one cost shown separately?</h3>
+      <p>Recruiting, background checks, and onboarding time are one-time costs. A calculator that folds them into a
+        flat annual rate overstates every year after the first. The ongoing figures are what the role costs every
+        year after the first; the year-one figures add each side's one-time setup cost.</p>
+
+      <h3>Where do the default tax and benefit rates come from?</h3>
+      <p>They are illustrative starting points, not your figures. Employer FICA (7.65%) and the federal FUTA wage
+        base ($7,000) are fixed by federal law; FUTA's net rate, SUTA's rate and wage base, and workers' comp all
+        vary by state and, for workers' comp, by class code &mdash; replace them with your own state's rates and your
+        own policy's rate before relying on the result.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. None of the wages,
+        rates, or hours you enter are sent anywhere or stored anywhere but this device. The optional usage counter
+        records only which features were used and the day, never any of your numbers.</p>
+
+      <h3>Does the break-even rate account for the contractor's own self-employment tax?</h3>
+      <p>No, and it should not &mdash; this calculator answers what the role costs your business, not what a
+        contractor takes home. A contractor's self-employment tax is their own cost of doing business, already
+        reflected (or not) in the hourly rate they quote you; it is not a cost your business pays either way.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not determine, and is not evidence toward, whether any worker should be classified as a W-2 employee or a 1099 independent contractor. It is arithmetic on the numbers you type. Verify every rate against your own state's requirements and a qualified accountant or employment attorney before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record — export or note down anything you need to keep.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your wages, rates, and hours are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor.</p>
+    <p>Hiring in a classified trade? The <a href="../workers-comp-premium-calculator/">workers' comp premium calculator</a> estimates the premium and the audit true-up from your own class rates &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If it saves you a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareCosts, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    // Sign goes outside the $ (`-$40`, never `$-40`) — every figure this page
+    // shows is a non-negative cost, but the gap can be negative, and this is
+    // the one shared formatter both call through.
+    const money = (value) => {
+      const format = (v) => `$${Math.round(v).toLocaleString('en-US')}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const moneyHr = (value) => {
+      const format = (v) => `$${v.toFixed(2)}/hr`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, el(id).value]));
+    }
+
+    function markFields(errors) {
+      const bad = new Set(errors.map(e => e.field));
+      for (const id of ALL_INPUT_IDS) {
+        const node = el(id);
+        if (bad.has(id)) node.setAttribute('aria-invalid', 'true');
+        else node.removeAttribute('aria-invalid');
+      }
+    }
+
+    function showProblems(errors) {
+      markFields(errors);
+      el('gapOut').textContent = '—';
+      el('gapOut').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted fields';
+      el('output').hidden = true;
+      el('empty').hidden = true;
+      el('problems').hidden = false;
+      el('errorList').replaceChildren(...errors.map(error => {
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        return li;
+      }));
+    }
+
+    function render(result) {
+      markFields([]);
+      el('problems').hidden = true;
+      el('empty').hidden = true;
+      el('output').hidden = false;
+      el('heroLabel').textContent = 'Ongoing annual gap (employee − contractor)';
+      el('gapOut').className = 'hero-number';
+      const gap = result.gapOngoingAnnual;
+      el('gapOut').textContent = gap > 0 ? `+${money(gap)}` : money(gap);
+
+      const winnerText = result.cheaperOngoing === 'tie'
+        ? 'The two cost exactly the same, ongoing.'
+        : result.cheaperOngoing === 'employee'
+          ? `The employee is cheaper, ongoing, by ${money(Math.abs(gap))}/year.`
+          : `The contractor is cheaper, ongoing, by ${money(Math.abs(gap))}/year.`;
+      el('winnerOut').textContent = winnerText;
+
+      el('wagesOut').textContent = money(result.annualWages);
+      el('burdenOut').textContent = money(result.burden.total);
+      el('burdenPctOut').textContent = `${result.burdenPercentOfWages.toFixed(1)}%`;
+      el('empOngoingOut').textContent = money(result.employeeOngoingAnnualCost);
+      el('empYear1Out').textContent = money(result.employeeYear1Cost);
+      el('empHourlyOut').textContent = moneyHr(result.employeeOngoingHourlyCost);
+
+      el('contOngoingOut').textContent = money(result.contractorOngoingAnnualCost);
+      el('contYear1Out').textContent = money(result.contractorYear1Cost);
+      el('contHourlyOut').textContent = moneyHr(result.contractorHourlyCost);
+
+      if (result.breakEvenContractorRate !== null) {
+        el('targetBox').hidden = false;
+        el('breakEvenOut').textContent = moneyHr(result.breakEvenContractorRate);
+      } else {
+        el('targetBox').hidden = true;
+      }
+
+      el('notes').replaceChildren(...result.notes.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+    }
+
+    el('costForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const result = compareCosts(readInput());
+      if (!result.ok) {
+        showProblems(result.errors);
+        return;
+      }
+      render(result);
+      el('exampleNote').hidden = true;
+      count('cost_compared');
+      if (result.breakEvenContractorRate !== null) count('break_even_shown');
+    });
+
+    // Keep the figure on screen matching the form, the same way every
+    // sibling calculator here does: an edited field that does not yet
+    // compute leaves the last good figure up rather than blanking it, and
+    // errors stay with the submit handler so a mid-typed number is not
+    // treated as a mistake.
+    el('costForm').addEventListener('input', () => {
+      const result = compareCosts(readInput());
+      if (!result.ok) return;
+      render(result);
+      el('exampleNote').hidden = true;
+    });
+
+    (() => {
+      const example = compareCosts(readInput());
+      if (!example.ok) return;
+      render(example);
+      el('exampleNote').hidden = false;
+    })();
+
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+</body>
+</html>

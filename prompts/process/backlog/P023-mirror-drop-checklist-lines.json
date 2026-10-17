@@ -1,0 +1,24 @@
+{
+  "status": "dropped",
+  "owner": "agent",
+  "opened": "2026-10-16",
+  "source": "P021 split of P014",
+  "pr": null,
+  "result": "Premise wrong: regen.mjs also regenerates and verifies the apex (front-door.mjs: pages, sitemap, feed, llms.txt). Run 2026-10-16: with the mirror deleted, regen --verify still runs front-door.mjs and guards the apex, so both checklist lines stay. Only the mirror half of regen goes; that is P024.",
+  "history": [],
+  "touches": [
+    "platform/marketing/",
+    "gitops/tests/"
+  ],
+  "id": "P023",
+  "title": "P014 step 2: drop regen lines from the CLAUDE.md checklist and checklist_coverage.py",
+  "effect": 1,
+  "cost": 1,
+  "problem": "Second step of P014, after P022 lands: once nothing reads the committed mirror, the regen --verify / regen lines are dead ritual for every venture PR.",
+  "evidence": [
+    "CLAUDE.md pre-merge checklist"
+  ],
+  "change": "Remove the two regen lines and their coverage entries in the same PR.",
+  "metric": "checklist lines mentioning regen.mjs",
+  "baseline": "2 lines"
+}

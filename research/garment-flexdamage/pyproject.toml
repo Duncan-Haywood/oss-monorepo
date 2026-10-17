@@ -1,0 +1,13 @@
+[project]
+name = "garment-flexdamage"
+version = "0.1.0"
+description = "Correlated damage (worn contacts near breaks, fold bands) in a conductive woven fabric"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

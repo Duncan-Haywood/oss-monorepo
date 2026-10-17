@@ -1,0 +1,55 @@
+name: commercial-lease-effective-rent-calculator
+description: >-
+  Free browser tool for small-business tenants comparing up to three
+  commercial lease offers: net effective rent, levelized all-in cost per
+  square foot after free rent, TI allowance, escalations, NNN costs and
+  fit-out, early-exit cost and the base rent that would match the best offer.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Repo-wide search for
+# "effective rent", "commercial lease", "tenant improvement" and "lease vs"
+# found no existing venture or candidate (equipment-lease-buyout-calculator is
+# equipment, not real estate). Users have money and a real problem: a lease is
+# the largest fixed commitment most small businesses sign, often with a
+# personal guarantee, and the landlord's headline rent hides free rent, TI,
+# escalations and NNN. High-intent search ("net effective rent calculator",
+# "commercial lease comparison", "NNN lease calculator"). Paid alternatives are
+# broker spreadsheets and CRE analysis subscriptions built for investors, not
+# tenants.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only;
+# the audience is also the audience for the portfolio's cash-runway and
+# break-even tools. No landlord, broker or listing service is named or ranked
+# and no referral fee is taken.
+# Liability: arithmetic on terms the visitor enters, not advice or a
+# recommendation; the page says what it leaves out. Unverified: hand
+# calculation and unit tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Tenants holding two or three lease offers will use a no-signup tool that
+      ranks them on net effective rent and all-in cost and hands them a counter
+      rent, and will return for each new negotiation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a net effective rent or all-in figure contradicts their own hand calculation on the same terms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/commercial-lease-effective-rent-calculator/
+  analytics: null

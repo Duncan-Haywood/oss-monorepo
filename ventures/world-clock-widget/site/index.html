@@ -129,6 +129,8 @@
     <p>Yes. The <strong>Copy share link</strong> button puts the current selection into the URL, so the person you send it to opens the same cities in the same order. The link carries nothing but the city names — no identifier, and nothing about you.</p>
     <h3>How is this different from my phone's built-in world clock?</h3>
     <p>A phone's world clock shows the time in a city; it usually does not show sunrise, sunset, daylight length, or whether that time is a reasonable one to call. See <a href="./vs-your-phones-clock-app.html">this tool vs. your phone's built-in world clock</a> for the comparison.</p>
+    <h3>Why is India's time zone UTC+5:30 instead of a whole number?</h3>
+    <p>Because Indian Standard Time is anchored to a meridian near the country's geographic centre rather than rounded to the nearest hour, and the country has run on one national clock since 1906 despite spanning roughly two hours of longitude. See <a href="./why-is-indias-time-zone-utc-5-30.html">why India's time zone is UTC+5:30</a> for the full explanation, including the other half-hour and 45-minute zones around the world.</p>
   </section>
 
   <footer>
@@ -137,6 +139,7 @@
     <p>Everything runs in your browser. Nothing you do here is ever uploaded; there are no accounts, cookies, or analytics vendors. Your selected cities and anonymous feature events (<code>city_added</code>, <code>city_removed</code>, <code>link_copied</code>, <code>sorted_by_time</code>) are kept only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also worth a pass on the same repo: <a href="../cron-dst-drift-check/">Cron DST Drift Check</a> catches the schedule that skips or double-fires across a daylight-saving transition — the same time-zone arithmetic, applied to the jobs that run while you sleep.</p>
+    <p>Also: <a href="../garmin-world-traveler-watchface/">World Traveler</a>, a Garmin watch face that shows 42 world cities on a 24-hour ring.</p>
     <p class="support">Free and open source. If this saved you a badly-timed phone call, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

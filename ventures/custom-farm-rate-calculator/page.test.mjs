@@ -147,3 +147,7 @@ test('index links one hop to the shop-rate-calculator sibling', () => {
     'index must link ../shop-rate-calculator/ so crawlers reach the shop rate calculator in one hop',
   );
 });
+
+test("links to the cow-calf breakeven calculator", () => {
+  assert.match(html, /href="\.\.\/cow-calf-breakeven-calculator\/"/);
+});

@@ -1,0 +1,1 @@
+Module `sat_add(input signed [7:0] a, input signed [7:0] b, output signed [7:0] s)`. Signed two's-complement saturating addition: if the true sum exceeds 127 the output is 127; if it is below -128 the output is -128; otherwise it is the exact sum.

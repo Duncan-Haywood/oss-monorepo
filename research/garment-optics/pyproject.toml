@@ -1,0 +1,13 @@
+[project]
+name = "garment-optics"
+version = "0.1.0"
+description = "RF shielding of conductive woven fabric: sheet-resistance model, aperture limit, yarn breakage"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

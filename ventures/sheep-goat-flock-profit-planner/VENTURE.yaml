@@ -1,0 +1,46 @@
+name: sheep-goat-flock-profit-planner
+description: >-
+  Free browser tool for small sheep and meat-goat producers. Enter ewes or does, weaning rate, prices, hay and costs;
+  get a year-by-year flock and profit projection, weaning-rate, hay-price and market-price sensitivity, a comparison of
+  selling at weaning vs finishing vs breeding stock, break-even flock size and payback. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. No sheep/goat venture exists in ventures/ (checked slugs for
+# sheep, goat, lamb, flock); not in screened-out.md.
+# Who: hobby-to-sideline flock owners (10-100 breeding females) deciding whether to expand or whether the flock pays.
+# Where the first visitor comes from: searches such as "is raising sheep profitable", "how many goats to make a
+# profit", "meat goat profit calculator", "sheep farm profit calculator"; r/sheep, r/goats, extension-club forums.
+# Volume not measured with an external tool.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty and
+# not-advice clauses. Animal health, regulation and slaughter/sales licensing are explicitly out of scope on the page.
+#
+# Unverified: no producer has used it. Defaults (1.4 weaned per ewe, $2.00/lb at 85 lb, $200/ton hay) are placeholders.
+# Path to revenue (payment rails stay off): lead magnet and donations; if usage appears, saved flock plans and a
+# printable lender/FSA-loan summary are the next build, then a paid-tier candidate behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Small flock owners weighing expansion will use a private multi-year flock projection with weaning-rate and
+      hay-price sensitivity, because the per-animal sale price they quote hides that hay and weaning rate decide the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sheep-goat-flock-profit-planner/
+  analytics: null

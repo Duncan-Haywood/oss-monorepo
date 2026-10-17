@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LLM Call Cost Scan — Find the OpenAI and Claude Calls Quietly Costing You Money</title>
+  <meta name="description" content="Paste your code and see every OpenAI, Anthropic and Gemini call with no max-tokens cap, inside a loop, on a premium model, or using a retired model name, plus a monthly cost estimate from your own traffic guess. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which LLM calls in your code are quietly costing you money?">
+  <meta property="og:description" content="A deterministic static scan for uncapped outputs, LLM calls in loops, premium-tier models and retired model names. No account, no upload, no API key.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "LLM Call Cost Scan", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Static scan of JavaScript, TypeScript and Python source for OpenAI, Anthropic and Google LLM call sites that quietly cost money: no output cap, calls inside loops, a premium-tier model hard-coded, retired model names, with a monthly estimate from your own traffic guess. Runs in the browser or as a zero-dependency Node CLI usable as a CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my API traffic or my bill?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads source text only, so it can see what your code asks for, not what actually runs. Every dollar figure is arithmetic on a calls-per-day and token guess that you type, multiplied by list prices you can edit. It is an estimate for comparing options, never a measurement of what you are charged."}}, {"@type": "Question", "name": "Why flag a call with no max-tokens?", "acceptedAnswer": {"@type": "Answer", "text": "Without an output cap, one call can generate the model's full output limit. A prompt that accidentally or deliberately asks for a long answer then costs far more than you budgeted, and it does so on every call. A cap is one line and bounds the worst case."}}, {"@type": "Question", "name": "Why flag a premium model if I need it?", "acceptedAnswer": {"@type": "Answer", "text": "It is an information note, not an error. Teams often hard-code the largest model during prototyping and never revisit it. A small-tier sibling from the same vendor frequently handles classification, extraction and short rewrites; run an eval on your own prompts before switching, because quality is yours to verify."}}, {"@type": "Question", "name": "Is my code uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page scans the text you paste in your own browser and never sends it anywhere. The CLI reads only local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LLM CALL COST SCAN · RUNS IN YOUR BROWSER</p>
+    <h1>Which LLM calls in your code are quietly costing you money?</h1>
+    <p>Paste source code and get every OpenAI, Anthropic and Gemini call that has <strong>no output cap</strong>, sits <strong>inside a loop</strong>, hard-codes a <strong>premium-tier model</strong> where a small sibling often does the job, or uses a <strong>retired model name</strong> — plus a monthly estimate from your own traffic guess.</p>
+    <p class="note">Nothing is uploaded. The text box is scanned in this browser and never leaves your device. This reads source text only: it cannot see your real usage or bill.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your code</h2>
+    <label for="source-input">JavaScript, TypeScript or Python that calls an LLM SDK (several files one after another is fine)</label>
+    <textarea id="source-input" spellcheck="false" placeholder="resp = client.chat.completions.create(&#10;    model=&quot;gpt-4o&quot;,&#10;    messages=[...],&#10;)"></textarea>
+    <div class="row">
+      <div><label for="cpd">Calls per day</label><input type="number" id="cpd" min="0" value="1000"></div>
+      <div><label for="intok">Input tokens / call</label><input type="number" id="intok" min="0" value="1000"></div>
+      <div><label for="outtok">Output tokens / call</label><input type="number" id="outtok" min="0" value="300"></div>
+    </div>
+    <p>
+      <button type="button" id="scan">Scan</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Line</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one command — walks a whole source tree, skipping <code>node_modules</code>, <code>.git</code> and similar:</p>
+    <pre class="cmd">node cli.mjs scan src                                   # human-readable
+node cli.mjs scan . --json                                 # machine-readable
+node cli.mjs scan src --calls-per-day 5000 --out-tokens 500
+node cli.mjs scan src --fail-on warn                       # fail CI on warnings too
+node cli.mjs scan src --prices my-prices.json              # your negotiated or current prices</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. Exits 1 on a retired model name (or on any warning with <code>--fail-on warn</code>).</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Vendor</th><th>Call sites matched</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Python and JS/TS, matched line by line. A model passed through a variable is reported as unpriced rather than guessed at. List prices in the built-in table are illustrative and dated; edit them with <code>--prices</code> or the CLI JSON file. More: <a href="why-llm-api-bills-surprise-teams-and-what-a-code-scan-can-catch.html">why LLM bills surprise teams, and what a static scan can and cannot catch</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my API traffic or my bill?</h3>
+    <p>No. It reads source text only, so it can see what your code asks for, not what actually runs. Every dollar figure is arithmetic on a calls-per-day and token guess that you type, multiplied by list prices you can edit. It is an estimate for comparing options, never a measurement of what you are charged.</p>
+    <h3>Why flag a call with no max-tokens?</h3>
+    <p>Without an output cap, one call can generate the model's full output limit. A prompt that accidentally or deliberately asks for a long answer then costs far more than you budgeted, and it does so on every call. A cap is one line and bounds the worst case.</p>
+    <h3>Why flag a premium model if I need it?</h3>
+    <p>It is an information note, not an error. Teams often hard-code the largest model during prototyping and never revisit it. A small-tier sibling from the same vendor frequently handles classification, extraction and short rewrites; run an eval on your own prompts before switching, because quality is yours to verify.</p>
+    <h3>Is my code uploaded anywhere?</h3>
+    <p>No. The browser page scans the text you paste in your own browser and never sends it anywhere. The CLI reads only local files and makes no network call.</p>
+  </section>
+
+    <p class="note">Switching models or editing a prompt rather than costing it? <a href="../llm-output-regression-diff/">Diff saved outputs before and after to catch broken JSON, new refusals and truncation</a>.</p>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It pattern-matches source text and multiplies numbers you supply by list prices that may be out of date; it is not a guarantee of what any provider will charge, and it can miss or misread calls. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>To enforce a cap at run time rather than in review, <a href="../llm-spend-guard/">LLM Spend Guard</a> refuses a call before it is sent when it would cross a per-user, per-run or daily budget.</p>
+    <p>Related checks on the same repo: <a href="../ai-coding-plan-cost-calculator/">AI Coding Plan Cost Calculator</a> prices the subscription side of AI spend, and <a href="../env-example-drift-check/">.env.example Drift Check</a> is another zero-upload CI gate that diffs a config file against the code that reads it, and <a href="../prometheus-cardinality-cost/">Prometheus Cardinality Cost</a> does the same for the metrics side of the bill.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanSource, estimateMonthly, summarize, CHECKED_PATTERNS, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#source-input"), status: $("#status"), reportCard: $("#report-card"),
+      summary: $("#summary"), table: $("#results-table"), rows: $("#results-rows"),
+      estimate: $("#estimate"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = CHECKED_PATTERNS.map((p) => `<tr><td>${escapeHtml(p.vendor)}</td><td><code>${escapeHtml(p.examples)}</code></td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some code first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const scan = scanSource(text, "pasted source");
+      const { status, text: summaryText } = summarize(scan);
+      els.summary.innerHTML = `<span class="${status === "ok" || status === "none" ? "ok" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.table.hidden = scan.findings.length === 0;
+      els.rows.innerHTML = scan.findings.map((f) => `<tr>
+        <td><code>${escapeHtml(f.rule)}</code></td>
+        <td><span class="pill ${f.severity}">${f.severity}</span></td>
+        <td>${f.line}</td>
+        <td>${escapeHtml(f.message)}</td>
+      </tr>`).join("");
+      const num = (id) => Math.max(0, Number($(id).value) || 0);
+      const est = estimateMonthly(scan.calls, { callsPerDay: num("#cpd"), inTokens: num("#intok"), outTokens: num("#outtok") });
+      els.estimate.textContent = est.pricedCount
+        ? `Estimate if every priced call site ran ${num("#cpd")}x/day: $${est.total.toFixed(2)}/month (${est.pricedCount} of ${scan.calls.length} call sites priced; ${PRICES_AS_OF}). Your traffic guess, not a measurement.`
+        : "";
+      els.reportCard.hidden = false;
+      record("scan_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#scan").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `for doc in docs:
+    resp = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": doc}],
+    )
+
+legacy = openai.chat.completions.create(model="gpt-3.5-turbo-0301", max_tokens=100, messages=m)`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

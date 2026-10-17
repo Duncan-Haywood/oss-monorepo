@@ -1,0 +1,10 @@
+kind,fee,hours,deadline_week,label
+capacity,,30,,default per week
+capacity,,15,3,week 3 (holiday)
+project,6000,60,3,Brand site rebuild
+project,2400,40,2,Landing page sprint
+project,3200,35,4,Dashboard prototype
+project,1800,12,1,Bug-fix retainer month
+project,5200,80,5,Mobile app MVP
+project,900,10,5,Newsletter template
+project,2600,30,5,Checkout audit

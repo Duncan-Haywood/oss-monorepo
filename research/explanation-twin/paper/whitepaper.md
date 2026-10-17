@@ -1,0 +1,32 @@
+# The cost a planner quotes from its own digital-twin rollouts is optimistic, and fresh rollouts fix only the sampling half
+
+*Stylised: `K` candidate plans, plan `k` has true cost `μ_k`, `n` twin rollouts per plan with sd `σ`, so sample means are independent `N(μ_k, s²)` with `s=σ/√n`. The planner picks the smallest sample mean and explains the choice by quoting it. Pure Python; every number is from `experiments/results.txt` (seeded, ~20 s). Exact quantities use quadrature on a 4,001-point grid; Monte-Carlo uses 100,000 repeats (20,000 for the non-Gaussian check).*
+
+## Question
+Explainable planners (Hayes & Shah 2017; Miller 2019) justify a choice with numbers: "plan A costs 41 s in simulation, 6 s less than plan B." When the numbers come from the same twin rollouts that made the choice, they are the extreme of `K` noisy estimates, not an unbiased estimate of the chosen plan's cost. How large is the optimism, what does it do to a stated confidence interval and margin, what does re-simulating for the explanation cost, and what remains when the twin itself is wrong?
+
+## Model
+Sample means `X_k~N(μ_k,s²)` independent; the planner picks `k̂=argmin X_k` and quotes `X_{k̂}`. The density of the minimum is `Σ_k φ_k(x)∏_{j≠k}(1−Φ_j(x))`, which gives `P(k̂=k)`, `E[X_{k̂}]` and `E[μ_{k̂}]` by quadrature. With equal `μ`, `E[X_{k̂}]−μ=−e_K s`, `e_K=E max of K iid N(0,1)`; for `K=2` and gap `d`, `E[X_{k̂}]−E[μ_{k̂}]=−θφ(d/θ)`, `θ=s√2`, and the quoted margin `|X_1−X_2|` has mean `θ√(2/π)e^{−d²/2θ²}+d(1−2Φ(−d/θ))`. The tests check `e_K` against known values (`1/√π`, `3/(2√π)`), the closed form against quadrature, and quadrature against Monte-Carlo.
+
+## Results
+1. **Winner's curse, exactly.** With equal true costs the quoted cost is low by `e_K s`: 0.564 / 0.846 / 1.163 / 1.539 / 1.868 `s` at `K`=2/3/5/10/20 (Monte-Carlo, `results.txt` §1: −0.5649 / −0.8443 / −1.1589 / −1.5385 / −1.8661). This is the optimizer's curse (Smith & Winkler 2006) applied to a planner's self-explanation.
+2. **The quoted margin is inflated too.** Two plans that are truly identical are quoted a gap of 1.128 `s` on average; at a true gap of `s` the quote is 1.40 `s`, at `2s` it is 1.05× true; at `5s` the quoted-cost bias is −0.001 `s`. Explanations of close calls are the ones overstated.
+3. **Bias falls only with rollouts.** For `K=5` plans spaced 0.25 apart (σ=1), the quoted-minus-true bias is −0.713 / −0.216 / −0.038 / −0.0119 at `n`=2/10/50/100, with probability of picking the best plan 0.42 / 0.65 / 0.89 / 0.96 and regret 0.269 / 0.118 / 0.028 / 0.010. Once selection is reliable the bias disappears because the selection effect does.
+4. **Stated intervals under-cover.** Quoted ±1.96 `s` covers the picked plan's true cost 95.0% / 95.0% / 88.2% / 77.8% / 60.2% of the time at `K`=1/2/5/10/20 (equal means, `n`=10); an independent set of rollouts of the picked plan covers 95% at every `K`. (`K=2` stays at 95% by near-cancellation: the minimum of two has mean −0.56 `s` but sd 0.83 `s`, so the shift and the narrowing offset; this is a property of that case, not a general one.)
+5. **Split-sample repair is unbiased but not free.** With 20 rollouts per plan (`K=5`, spacing 0.25), selecting on all 20 gives bias −0.112, regret 0.069, P(best) 0.762; selecting on 16 and reporting from 4 fresh gives bias −0.003, regret 0.084, 0.724; 12/8 gives −0.001, 0.104, 0.677; 4/16 gives 0.000, 0.202, 0.511. The correction is exact; its price is selection quality, so the decision is between an honest number and a better plan, unless more rollouts are affordable (cheap in a twin: the fresh set is only needed for the chosen plan).
+6. **Fresh rollouts do not fix twin model error.** Let the twin's cost of plan `k` be off by a fixed `b_k~N(0,τ²)` (equal real costs, `K=5`). The fresh-report bias of quoted-minus-real cost is `−e_K τ²/√(τ²+s²)`: formula / simulated −0.0475 / −0.0452 at `τ=0.1`, −0.217 / −0.216 at 0.25, −0.531 / −0.530 at 0.5, −1.135 / −1.138 at 1.0 (n=40, 20 select + 20 report, σ=1). As `s→0` this tends to `−e_K τ`: the planner selects the plan the twin is most wrong in favour of, and more rollouts sharpen exactly that selection. Only real trials of the chosen plan, independent of selection, give an unbiased real-cost quote (with sd `σ_real/√r`).
+7. **Non-Gaussian rollouts.** With cost the sum of four lognormal segment delays (σ_ln=0.8, mean 4, rollout sd 1.89), `K=5`, `n=10`: simulated bias −0.650 vs the Gaussian formula −0.696 (7% too large). The formula is a good guide, not exact, for skewed costs.
+
+## Limitations
+Independent plans; in practice plans share segments and rollouts can share random seeds (common random numbers), which correlates the estimates and shrinks the curse for the *gap* but not for the absolute cost. Gaussian sample means and a common `σ`; known `σ` (no studentisation); the twin-error model is i.i.d. normal per plan; the "human" who receives the explanation is not modelled, so nothing is claimed about whether inflated margins change human trust or override behaviour. All parameters are chosen, not measured; no robot, no data. Preliminary.
+
+## Next steps
+Common random numbers and shared segments; sequential selection (racing / successive halving) with the anytime-valid intervals of `sequential-slashing`, `forecast-duel` and `verifier-league`; shrinkage (empirical-Bayes) quotes and estimating `τ` from a few real trials; contrastive explanations ("B would win if the hazard exceeded …") and their faithfulness to the real system; a user study of how an inflated margin changes a human collaborator's reliance.
+
+## References
+- Smith, J. E. & Winkler, R. L. (2006). The optimizer's curse: skepticism and postdecision surprise in decision analysis. *Management Science* 52(3), 311–322.
+- Berk, R., Brown, L., Buja, A., Zhang, K. & Zhao, L. (2013). Valid post-selection inference. *Annals of Statistics* 41(2), 802–837.
+- Cox, D. R. (1975). A note on data-splitting for the evaluation of significance levels. *Biometrika* 62(2), 441–444.
+- Hayes, B. & Shah, J. A. (2017). Improving robot controller transparency through autonomous policy explanation. *ACM/IEEE HRI*, 303–312.
+- Miller, T. (2019). Explanation in artificial intelligence: insights from the social sciences. *Artificial Intelligence* 267, 1–38.
+- Chakraborti, T., Sreedharan, S., Zhang, Y. & Kambhampati, S. (2017). Plan explanations as model reconciliation: moving beyond explanation as soliloquy. *IJCAI*, 156–163.

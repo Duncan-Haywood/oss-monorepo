@@ -1,0 +1,77 @@
+name: node-version-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that detects Node.js version drift inside a repo: reads package.json engines.node and volta.node, .nvmrc, .node-version, .tool-versions, Dockerfile FROM node: tags and GitHub Actions setup-node versions (scalar, matrix, node-version-file), then flags a pinned version that cannot satisfy engines.node, pins that disagree on the major version across files, a pin or CI matrix entry on an end-of-life Node.js major (dated table, --today override), and an unbounded engines.node range with nothing pinned. It compares a repo''s own declarations to each other and never runs node, npm or a registry lookup.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype chosen deliberately, per portfolio/pipeline/README.md's
+# archetype-fatigue note: this is not another <trade>-bid-calculator, and it
+# checks a different object than any existing checker -- a repo's own Node.js
+# version *declarations compared to each other* (engines.node vs .nvmrc vs
+# Dockerfile vs setup-node), not one file against a rule.
+#
+# duplicate_check.py (run 2026-10-12) scored every existing venture,
+# screened-out row, and pipeline candidate against this idea's final
+# description at or below 0.18 -- far from the 0.45 read-this-first bar.
+# Closest by eye: docker-cache-order-check (0.18, shares only "Dockerfile",
+# "zero-dependency CLI" vocabulary), package-exports-drift-check (0.15,
+# "package.json"/"drift"), docker-base-image-eol-check (reads a Dockerfile's
+# base image against an EOL date, but not node pins across files and never
+# against engines.node). No existing venture reads engines.node, .nvmrc or
+# setup-node.
+#
+# Distribution channel, named and checkable without guessing: the Node.js
+# project's own release schedule (nodejs.org/en/about/previous-releases) is the
+# page every "is Node 20 still supported" search lands on, and Stack Overflow
+# and r/node carry recurring "works locally, fails in CI" threads that end in
+# a Node.js major mismatch between .nvmrc, the Dockerfile and the workflow. Per
+# this portfolio's standing caveat on other recent checkers, no external
+# search-volume tool was queried to confirm magnitude.
+hypotheses:
+  - claim: A developer who has just hit a "works on my machine, fails in CI" Node.js version mismatch, or who is checking whether their Node.js major is still supported, will search for a way to compare their repo's Node.js declarations, find this tool via GitHub/web search, and run either the CLI or the browser page at least once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire cli.mjs --fail-on-risk into CI as a gate on package.json, Dockerfile and workflow changes, the same way this portfolio's other CLI checkers are designed to be wired in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page computes everything from the
+  # text the visitor pastes in using a hand-written semver range parser and
+  # line-based file readers, with no library and no network call, and the CLI
+  # is the same logic reading files already on the visitor's own disk.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs --fail-on-risk into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/node-version-drift-check/
+  analytics: null
+
+# Scored against portfolio/pipeline/README.md's eight dimensions, 2026-10-12.
+# liability_containment and ethical_robustness are the two hard gates (reject
+# below 5); both score well above it: pure static text analysis, no
+# advice-of-record, no data collection. The one honest exposure is the static
+# end-of-life table going stale, which every finding labels with its table date.
+scoring:
+  ai_leverage: 3            # deterministic rule-based text analysis, not model work -- consistent with this portfolio's other checkers
+  autonomous_ops: 8         # static file + CLI; the only upkeep is refreshing the dated EOL table once or twice a year
+  time_to_revenue: 1        # donation-only, no direct-revenue plan -- the honest floor for every free tool in this portfolio
+  gross_margin: 10          # zero marginal cost per user, no server, no paid API
+  defensibility: 3          # easily copied ruleset; the moat, if any, is being first and best-documented
+  distribution: 6           # named channel above: the Node.js release-schedule page plus recurring "works locally, fails in CI" threads
+  liability_containment: 9  # gate; pure static text analysis, worst case is a missed or mistaken drift finding
+  ethical_robustness: 9     # gate; transparent about what it does and does not check, no negative externality
+  composite: 6.125          # mean of the eight above
+  floor: 1                  # time_to_revenue

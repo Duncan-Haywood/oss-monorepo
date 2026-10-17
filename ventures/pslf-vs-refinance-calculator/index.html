@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PSLF vs Refinance Calculator — Should You Refinance Federal Loans?</title>
+  <meta name="description" content="Free PSLF vs refinance calculator. Enter your federal loan balance, income and a refinance offer to see total paid under Public Service Loan Forgiveness, the amount forgiven, the income where refinancing wins, and what leaving public service early costs. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="PSLF vs Refinance Calculator — free, private, in your browser">
+  <meta property="og:description" content="Stay federal for PSLF or refinance privately? Total paid, forgiven balance, break-even income and early-exit cost.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PSLF vs Refinance Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares staying on federal loans for Public Service Loan Forgiveness with refinancing privately: total paid, amount forgiven, the income where the two cost the same, and what happens if you leave public service early. Runs in your browser.", "featureList": "PSLF versus refinance, income-driven payment, forgiveness estimate, break-even income, early-exit scenarios, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is PSLF and who qualifies?", "acceptedAnswer": {"@type": "Answer", "text": "Public Service Loan Forgiveness forgives the remaining balance of eligible federal Direct loans after 120 qualifying monthly payments made while working full-time for a qualifying employer, generally a government or non-profit organization. This tool assumes every payment you count qualifies; confirm your employer and payment count with your servicer and studentaid.gov."}}, {"@type": "Question", "name": "What do I lose if I refinance federal loans?", "acceptedAnswer": {"@type": "Answer", "text": "A private refinance replaces the federal loan. You lose income-driven repayment, PSLF and other forgiveness, and federal deferment and forbearance protections, and you cannot move the loan back to the federal program. The tool shows the dollar comparison; the lost protection is a risk it cannot price."}}, {"@type": "Question", "name": "How is the income-driven payment calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each year the payment is your chosen percentage of the income above a protected amount, which is a multiple of the poverty guideline for your household size, divided by 12. It is capped at the 10-year standard payment when you leave the cap on. The percentage, the multiple and the guideline are editable because plan rules change; check the current plan on studentaid.gov."}}, {"@type": "Question", "name": "Which repayment plan should I enter?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the percentage and protected-income multiple of the plan you are on or would use. The defaults, 10 percent of income above 150 percent of the poverty guideline, are a common illustration, not a statement of any one plan's current rules."}}, {"@type": "Question", "name": "What if I leave public service early?", "acceptedAnswer": {"@type": "Answer", "text": "The tool shows the total you would pay if you make income-driven payments for a set number of years and then repay the remaining balance over 10 years at your federal rate, next to the refinance total. Early exit is the main way PSLF turns out worse than refinancing."}}, {"@type": "Question", "name": "Is the forgiven amount taxed?", "acceptedAnswer": {"@type": "Answer", "text": "The tool does not model taxes. PSLF forgiveness has been federally tax-free under current law, but rules change and state treatment varies; ask a tax professional."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PSLF VS REFINANCE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should you refinance your federal loans, or stay for PSLF?</h1>
+    <p>Enter your loan, your income and a refinance offer. You get the <strong>total paid under each path</strong>, the <strong>balance forgiven</strong>, the <strong>income at which refinancing starts to win</strong>, and what it costs if you <strong>leave public service early</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your federal loan and income</h2>
+    <div class="grid">
+      <div><label for="balance">Federal loan balance, dollars</label><input type="text" id="balance" inputmode="decimal" placeholder="250000" autocomplete="off"></div>
+      <div><label for="fedRate">Federal loan interest rate, percent</label><input type="text" id="fedRate" inputmode="decimal" placeholder="6.5" autocomplete="off"></div>
+      <div><label for="income">Yearly income (AGI) now, dollars</label><input type="text" id="income" inputmode="decimal" placeholder="95000" autocomplete="off"></div>
+      <div><label for="growth">Expected yearly income growth, percent (blank for 0)</label><input type="text" id="growth" inputmode="decimal" placeholder="3" autocomplete="off"></div>
+      <div><label for="household">Household size (blank for 1)</label><input type="text" id="household" inputmode="decimal" placeholder="1" autocomplete="off"></div>
+      <div><label for="paymentsMade">Qualifying PSLF payments already made (blank for 0)</label><input type="text" id="paymentsMade" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Income-driven plan (editable)</h2>
+    <div class="grid">
+      <div><label for="pct">Plan payment, percent of income above the protected amount (blank for 10)</label><input type="text" id="pct" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="mult">Protected income, percent of poverty guideline (blank for 150)</label><input type="text" id="mult" inputmode="decimal" placeholder="150" autocomplete="off"></div>
+      <div><label for="poverty">Poverty guideline, dollars (blank to use 15,650 + 5,500 per extra person)</label><input type="text" id="poverty" inputmode="decimal" placeholder="15650" autocomplete="off"></div>
+      <div><label for="capStandard">Cap the payment at the 10-year standard payment</label><select id="capStandard"><option value="yes">Yes</option><option value="no">No</option></select></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Refinance offer</h2>
+    <div class="grid">
+      <div><label for="refiRate">Refinance interest rate, percent</label><input type="text" id="refiRate" inputmode="decimal" placeholder="4.5" autocomplete="off"></div>
+      <div><label for="refiYears">Refinance term, years</label><input type="text" id="refiYears" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="discount">Discount rate for present value, percent (blank for 0)</label><input type="text" id="discount" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your loan, income and a refinance offer, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If your income is different</h3>
+    <div class="scroll"><table id="income-table"><thead><tr><th>Scenario</th><th class="n">Income</th><th class="n">PSLF total paid</th><th class="n">Refinance total paid</th><th class="n">Refinance minus PSLF</th></tr></thead><tbody></tbody></table></div>
+    <h3>If you leave qualifying work early</h3>
+    <div class="scroll"><table id="leave-table"><thead><tr><th>Years before leaving</th><th class="n">Total paid</th><th class="n">Refinance total</th><th class="n">Refinance minus this</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>PSLF path: each year the payment is the plan percentage times the income above the protected amount, divided by 12, where income grows at your growth rate and the protected amount is the poverty guideline times your multiple, growing 2.5 percent a year. The payment is capped at the 10-year standard payment if you choose, and interest the payment does not cover is added to the balance. After the remaining qualifying payments (120 minus those made) the balance is forgiven. Refinance path: a level payment over your term at the refinance rate. Early exit: income-driven payments for the years shown, then a 10-year standard schedule on what is left at your federal rate.</p>
+    <p><strong>Not modelled:</strong> taxes on any forgiveness, interest subsidies and the exact rules of any one plan, spousal income and filing status effects, employer eligibility, payment-count errors, lender fees or rate changes, and the value of the federal protections you give up by refinancing. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Confirm plan rules on studentaid.gov and talk to a qualified adviser before refinancing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is PSLF and who qualifies?</h3>
+    <p>Public Service Loan Forgiveness forgives the remaining balance of eligible federal Direct loans after 120 qualifying monthly payments made while working full-time for a qualifying employer, generally a government or non-profit organization. This tool assumes every payment you count qualifies; confirm your employer and payment count with your servicer and studentaid.gov.</p>
+    <h3>What do I lose if I refinance federal loans?</h3>
+    <p>A private refinance replaces the federal loan. You lose income-driven repayment, PSLF and other forgiveness, and federal deferment and forbearance protections, and you cannot move the loan back to the federal program. The tool shows the dollar comparison; the lost protection is a risk it cannot price.</p>
+    <h3>How is the income-driven payment calculated?</h3>
+    <p>Each year the payment is your chosen percentage of the income above a protected amount, which is a multiple of the poverty guideline for your household size, divided by 12. It is capped at the 10-year standard payment when you leave the cap on. The percentage, the multiple and the guideline are editable because plan rules change; check the current plan on studentaid.gov.</p>
+    <h3>Which repayment plan should I enter?</h3>
+    <p>Enter the percentage and protected-income multiple of the plan you are on or would use. The defaults, 10 percent of income above 150 percent of the poverty guideline, are a common illustration, not a statement of any one plan's current rules.</p>
+    <h3>What if I leave public service early?</h3>
+    <p>The tool shows the total you would pay if you make income-driven payments for a set number of years and then repay the remaining balance over 10 years at your federal rate, next to the refinance total. Early exit is the main way PSLF turns out worse than refinancing.</p>
+    <h3>Is the forgiven amount taxed?</h3>
+    <p>The tool does not model taxes. PSLF forgiveness has been federally tax-free under current law, but rules change and state treatment varies; ask a tax professional.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <section class="card">
+    <p>Related tool: the <a href="../student-loan-rap-ibr-standard-calculator/">student loan RAP vs IBR vs Standard calculator</a>, which compares the three federal repayment plans including tax on forgiveness.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter and on repayment-plan rules that change; real outcomes depend on your servicer, your employer's eligibility and the law in force. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the U.S. Department of Education, any loan servicer, or any lender or refinancing company, and no company is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Physician weighing job offers? See the <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a>. Thinking about the tax side of a raise? The <a href="../job-offer-total-comp-calculator/">job offer total comp calculator</a> covers the whole package.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["balance", "fedRate", "income", "growth", "household", "paymentsMade", "pct", "mult", "poverty", "capStandard", "refiRate", "refiYears", "discount"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? (k === "capStandard" ? "yes" : ""); }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[usd(a.pslfTotal), "Total paid staying federal (PSLF)"], [usd(a.forgiven), "Balance forgiven"], [usd(a.refiTotal), "Total paid refinancing"], [usd(a.refiMonthly), "Refinance monthly payment"], [usd(a.firstIdr), "First income-driven monthly payment"]];
+      if (a.breakIncome !== null) tiles.push([usd(a.breakIncome), "Income where the two cost the same"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#income-table tbody").innerHTML = a.incomeScenarios.map((s) => `<tr class="${s.label === "Your income" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.income)}</td><td class="n">${usd(s.pslf)}</td><td class="n">${usd(s.refi)}</td><td class="n">${usd(s.diff)}</td></tr>`).join("");
+      $("#leave-table tbody").innerHTML = a.leave.length ? a.leave.map((l) => `<tr><td>${l.years}</td><td class="n">${usd(l.total)}</td><td class="n">${usd(a.refiTotal)}</td><td class="n">${usd(a.refiTotal - l.total)}</td></tr>`).join("") : `<tr><td colspan="4">Not applicable: no payments remain before forgiveness.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("comparison_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented borrower, not real loans."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your loan, income and a refinance offer, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "pslf-vs-refinance.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

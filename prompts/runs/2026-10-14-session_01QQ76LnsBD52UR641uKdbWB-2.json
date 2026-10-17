@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01QQ76LnsBD52UR641uKdbWB",
+  "prompt_version": 0,
+  "input": "add to the prompt and action list for for to work on merging the oss research and oss monorepos. they should be mirrored. All work will eventually move to oss monorepo. there should be no history loss.",
+  "input_sha256": "ccb6d36e4df99c9cf8fa15395d4183bfdb7fd9e00ce67ea43d8097770686d665",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-14T23:23:52Z",
+  "ended": "2026-10-14T23:59:13Z",
+  "wall_minutes": 35,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "mirror",
+  "projects": [],
+  "pr": null,
+  "commits": [
+    "5c05cb3"
+  ],
+  "lines_added": 64,
+  "lines_removed": 85,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "Correction to this session's earlier line for PR #484. https://github.com/Duncan-Haywood/oss-monorepo/pull/6832 landed a different mirror (research/_mirror/mirror.py) 2 minutes after #484 opened, so #484's action list described a second sync. Its rm -rf research step would have wiped research/_mirror/ and research/_homepage/ there. This PR replaces that list."
+  ],
+  "integrity_issues": [],
+  "notes": "Second PR of the same session; pr is filled in by the review. The action list and prompt now point at oss-monorepo's mirror.py. #6832 had already done the import and the #6143 retirement. Another session's site-redesign milestone was kept and renumbered. A companion oss-monorepo PR, https://github.com/Duncan-Haywood/oss-monorepo/pull/6984, adds the one-writer rule there: the research track routes 50% of runs to the monorepo, and mirror.py sync deletes files upstream lacks. It also changes cutover from deleting this repository to archiving it. Usage is null because get_session returns no usage block.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

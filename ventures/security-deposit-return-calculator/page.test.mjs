@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+const guide = page("normal-wear-and-tear-vs-damage.html");
 
 test("index page carries the required disclaimer, privacy line, and sponsor link", () => {
   const html = page("index.html");
@@ -23,6 +24,36 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(robots, /Allow: \//);
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /index\.html/);
+});
+
+// --- Wear-and-tear guide page ----------------------------------------------
+
+test("index links to the wear-and-tear-vs-damage guide page", () => {
+  const html = page("index.html");
+  assert.match(html, /href="normal-wear-and-tear-vs-damage\.html"/);
+});
+
+test("the guide page stays crawlable, is listed in the sitemap, and links back to the tool", () => {
+  const sitemap = page("sitemap.xml");
+  assert.match(guide, /<title>Normal Wear and Tear vs\. Damage/);
+  assert.match(guide, /name="description"/);
+  assert.match(guide, /rel="canonical"/);
+  assert.match(guide, /href="\.\/"/);
+  assert.match(sitemap, /normal-wear-and-tear-vs-damage\.html/);
+});
+
+test("the guide page carries the same disclaimer and sponsor link as the tool", () => {
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not legal, financial, or tax advice/);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the guide page's FAQPage JSON-LD parses as valid JSON", () => {
+  const matches = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  assert.ok(matches.length >= 1, "expected at least one JSON-LD block");
+  for (const match of matches) {
+    assert.doesNotThrow(() => JSON.parse(match[1]));
+  }
 });
 
 // Reciprocal of the link in str-host-payout-calculator's footer: the same
@@ -87,4 +118,8 @@ test("Clear resets the interest fields along with the deposit and deductions", (
   const body = clearBlock.slice(0, clearBlock.indexOf("});"));
   assert.match(body, /depositEls\.interestRate\.value = "";/);
   assert.match(body, /depositEls\.interestDays\.value = "";/);
+});
+
+test("index links ../roommate-rent-splitter/ so a shared-lease reader reaches it in one hop", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/roommate-rent-splitter\/"/);
 });

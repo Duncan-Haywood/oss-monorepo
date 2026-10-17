@@ -143,3 +143,17 @@ test("parity: the browser port agrees with sbom_diff.py on the same input", () =
     cliDiff.version_changed.map((v) => ({ name: v.name, from: v.from, to: v.to })),
   );
 });
+
+test("nested and grouped CycloneDX components match the Python CLI", () => {
+  const doc = {
+    bomFormat: "CycloneDX",
+    components: [
+      { name: "app", version: "1.0.0", components: [{ name: "inner", version: "2.0.0", components: [{ name: "deep", version: "3.0.0" }] }] },
+      { group: "@types", name: "node", version: "20.1.0" },
+      { name: "node", version: "18.0.0" },
+      { components: [{ name: "kid", version: "1" }] },
+    ],
+  };
+  const { components } = parseSbom(JSON.stringify(doc), "doc");
+  assert.deepEqual(components.map((c) => c.name), ["app", "inner", "deep", "@types/node", "node", "kid"]);
+});

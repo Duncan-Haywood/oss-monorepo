@@ -1,0 +1,39 @@
+# simdesign-bracket results (mm, N, MPa, g; material inputs are assumed)
+stress limit 20.0 MPa, tip deflection limit 4.0 mm, load 100.0 N, E=3000.0 MPa, nu=0.36, rho=0.00124 g/mm^3
+
+## 1. Mesh convergence (baseline design w=12, b=15)
+r(mm)  h(mm)  elements  tip(mm)  max_vm(MPa)
+ 0.0   3.00       394    8.068     24.90
+ 0.0   2.00      1046    8.080     28.66
+ 0.0   1.50      1486    8.085     32.18
+ 0.0   1.00      3870    8.090     37.24
+ 0.0   0.70      7286    8.093     43.01
+ 6.0   3.00       414    7.638     22.66
+ 6.0   2.00      1060    7.643     23.50
+ 6.0   1.50      1512    7.643     24.30
+ 6.0   1.00      3884    7.644     25.86
+ 6.0   0.70      7316    7.644     26.28
+
+## 2. Optimisation, 150 FE evaluations each (h=1.5 mm), minimise mass
+(differential evolution used 144 evaluations)
+method                   w(mm)  r(mm)  b(mm)  mass(g)  max_vm(MPa)  tip(mm)
+random search             19.85  13.73   7.31    25.59      17.48    2.631
+grid 5x5x6                19.50   7.50   9.20    31.39      16.39    2.398
+differential evolution    24.79  10.34   4.69    19.61      19.44    1.945
+
+best: differential evolution
+
+## 3. Re-check of the best design on finer meshes
+h=1.50  elements   2968  tip 1.945 mm  max_vm 19.44 MPa
+h=1.00  elements   6892  tip 1.945 mm  max_vm 20.29 MPa
+h=0.70  elements  13708  tip 1.945 mm  max_vm 20.47 MPa
+h=0.50  elements  27284  tip 1.945 mm  max_vm 20.81 MPa
+
+reference design w=12.0, r=6.0, b=15.0: mass 33.18 g, max_vm 26.28 MPa, tip 7.644 mm (h=0.7)
+
+## 4. Printability of the best design
+min_wall_mm: 4.685492921479023
+min_wall_ok: True
+overhang_mm_profile_flat: 0.0
+overhang_mm_profile_upright: 80.0
+STL: 212 triangles, volume 15814.9 mm^3 -> 19.61 g (mass_g 19.61)

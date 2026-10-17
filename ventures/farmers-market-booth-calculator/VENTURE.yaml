@@ -1,0 +1,40 @@
+name: farmers-market-booth-calculator
+description: 'Free, zero-network browser calculator for farmers market, craft fair and festival vendors: enter each markets typical sales, booth fee, percent of sales taken, hours and miles plus your product cost, waste and card fees, and get profit per day and per hour, break-even sales, the sales needed for your target wage, a 20 percent worse-day case and a keep, reprice or drop verdict. Arithmetic on the numbers the user types, not accounting or tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: market vendors choose which markets to pay for without knowing profit per hour.
+# Checked 2026-10-03: no farmers-market venture exists in ventures/; closest are food-truck-event-margin-calculator (one event, truck costs) and craft-fair style fee tools; not in screened-out.md.
+#
+# First visitor: searches "farmers market profit calculator", "is a farmers market worth it", "craft fair booth fee worth it",
+# "farmers market break even"; r/farmersmarket, r/smallbusiness and vendor Facebook groups. Volume not measured with an external tool.
+# A hosted version that logs each market day and tracks sales per market over a season is the natural paid upgrade.
+hypotheses:
+  - claim: A vendor will enter three or more markets, see hourly profit rather than sales ranks them differently, and drop or reprice one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for break-even sales at a market at least as often as for profit per hour.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No vendor reports changing a market or price because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/farmers-market-booth-calculator/
+  analytics: null

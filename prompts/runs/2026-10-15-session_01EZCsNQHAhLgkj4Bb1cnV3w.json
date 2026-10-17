@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01EZCsNQHAhLgkj4Bb1cnV3w",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "make sure both are mit licensed? merge when done",
+  "input_sha256": "84cf3c5f286180be9855b6aa82340de4763494a4963881777c44eade0def143b",
+  "follow_up_inputs": [
+    "needs a license fiel"
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-14T23:15:55Z",
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "maintenance",
+  "projects": [],
+  "pr": 6983,
+  "commits": [
+    "45b51f261a",
+    "d4302d550c",
+    "08a53f9c3c"
+  ],
+  "lines_added": 216,
+  "lines_removed": 19,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Actions did not start any run for #6983 (repo-wide startup_failure on other PRs at the time), so verification was the CLAUDE.md starvation checklist run locally."
+  ],
+  "integrity_issues": [
+    "main was red when this branch merged it: #6981 and #6982 each wrote the mirrored-tool count as 1223 against a base without the other; the tree is 1224. Re-synced here with sync_tree_counts.py."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/marketing/resolve-mirror-merge.sh",
+      "issue": "Refuses when gitops/prod/front-door/00-mirror-alias.conf conflicts, calling it authored code, but front-door-tools.mjs generates that file (its own header says so). Took a side and ran regen.mjs by hand, twice in one run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Starvation checklist's platform/ci loop uses '|| break', and test_check_money_sign, test_check_step_grid and test_validate_workflows fail on clean main, so the loop as written stops before later modules."
+    },
+    {
+      "file": "gitops/tests/test_worker_run.py",
+      "issue": "26 tests fail on clean main in a web session because gh is preinstalled at /usr/local/bin; the checklist does not say to expect it."
+    },
+    {
+      "file": "oss-research-monorepo/CLAUDE.md",
+      "issue": "Said the move into oss-monorepo was on hold; #6832 merged the fold-in during this run."
+    }
+  ],
+  "goal": null,
+  "notes": "Root MIT LICENSE added to oss-monorepo (it had none) plus LICENSE in the 8 ventures lacking one; 3 venture READMEs switched from 'Private / all rights reserved' to MIT; einvoice-preflight LICENSE given its copyright holder; two research package.json files UNLICENSED -> MIT. oss-research-monorepo was already MIT throughout (root LICENSE, README, 386 pyproject.toml files), so it needed no change. cost_usd omitted: get_session's usage block was mid-run.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6983 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ]
+}

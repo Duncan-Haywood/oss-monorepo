@@ -1,5 +1,5 @@
 name: marketplace-fee-compare
-description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
+description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -7,7 +7,7 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
-  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.25% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
+  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.6% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
     status: untested
     checked: null
     evidence: customer-contact

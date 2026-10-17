@@ -1,0 +1,49 @@
+name: social-security-benefits-tax-calculator
+description: >-
+  Free browser tool for retirees: enter Social Security benefits, other income and filing status, and see provisional
+  income, the taxable share of benefits (0, 50 or 85 percent), the federal tax on them, the effective marginal rate of
+  the "tax torpedo" on the next IRA withdrawal or Roth conversion, and a table across income levels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Not in ventures/ (retirement-withdrawal-sequencer uses provisional
+# income internally; no standalone tool), not in screened-out.md. High-intent searches: "is social security taxable
+# calculator", "social security tax torpedo", "how much of my social security is taxable". Incumbents: SmartAsset and
+# Kiplinger calculators behind lead forms, and IRS Pub. 915's worksheet.
+#
+# Who: retirees and pre-retirees planning withdrawals and Roth conversions, and the advisors and preparers serving them.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. An advisor-branded client report
+# is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; both base amounts are editable inputs; carries the
+# no-warranty and not-advice clauses and lists what is not decided.
+#
+# Unverified: the formula follows IRS Publication 915 as understood and was checked against hand-worked cases in the
+# tests, not against IRS software. Benefits are held flat and the single marginal rate applies to the whole taxable amount.
+
+hypotheses:
+  - claim: >-
+      A retiree planning IRA withdrawals or a Roth conversion will enter their figures into a no-upload page to see the
+      effective marginal rate in the tax torpedo zone, because the worksheet is opaque and lead-form calculators ask for
+      an email.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that a result differs materially from IRS Publication 915 on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/social-security-benefits-tax-calculator/
+  analytics: null

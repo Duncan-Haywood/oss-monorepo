@@ -1,0 +1,40 @@
+name: email-list-csv-check
+description: >-
+  Free browser tool that checks an email or contact list CSV before it is imported into Mailchimp,
+  HubSpot, Klaviyo, Brevo or Constant Contact: invalid and blank emails, duplicates (case-insensitive
+  and Gmail dot/plus aliases), common domain typos with a suggested fix, role and disposable
+  addresses, Excel damage (scientific notation, stripped leading zeros, mojibake, BOM, mixed
+  delimiters, ragged rows), unsubscribed and consent column hints and heading names per platform,
+  each with its line number, plus a safe-fixes download and a separate rejected-rows file. The file
+  is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. No email-list hygiene tool exists in ventures/
+# (neighbours: email-auth-check, which reads a sending domain's DNS; substack-subscriber-export-analyzer,
+# which analyses one platform's export; the CSV pre-flight checkers for Shopify, WooCommerce, BigCommerce,
+# Xero and 1099 files, which validate other file models). Anyone moving a list between platforms,
+# from a shop or CRM export, or from a spreadsheet hits the same walls: rows skipped for malformed
+# addresses, duplicates, a first campaign that bounces on typo domains and role mailboxes, and Excel
+# damage to phone and ZIP columns. Existing answers are paid verification services that upload the
+# list to someone else's server, each platform's own terse import error, and generic CSV linters.
+#
+# First visitor: searches such as "mailchimp import skipped rows", "check email list before import",
+# "remove duplicate emails csv", "gmial.com typo fix csv", "hubspot import email invalid", and
+# r/emailmarketing, r/mailchimp, r/smallbusiness. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it checks the list against the destination's heading names,
+# separates well-formed from probably-the-same-person (Gmail aliases) without deleting anything it
+# cannot be sure of, and moves every removed row into a rejected file with a reason.
+#
+# Privacy is the liability boundary: a contact list is personal data, so it never leaves the browser
+# (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the small-list owner; natural siblings
+# are per-platform export converters. A paid version, if usage appears, is bulk checks across
+# several lists with saved rules behind an env-var switch; not built.
+#
+# Liability: format and spelling checks on the user's own file, no deliverability verification, no
+# consent determination, not legal advice (CAN-SPAM/GDPR/CASL stay the user's responsibility), no
+# warranty, independent-of-every-platform clause, trademarks used nominatively, heading names stated
+# as read from memory.

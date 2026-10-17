@@ -1,0 +1,57 @@
+name: wedding-photographer-profit-calculator
+description: >-
+  Free browser tool for wedding and event photographers: enter packages with price,
+  coverage hours and job costs, plus overhead, and see profit per hour actually worked
+  (travel, client time and culling and editing counted) beside the headline rate per
+  coverage hour, the price that hits an hourly target, own clients vs lead marketplace
+  vs shooting for a studio, and the client loss a price raise can absorb. No client or
+  event data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest row photo-addon-pricing-calculator
+# 0.41 (one add-on's net profit, not whole-package profit per hour worked or a business
+# model comparison); below the 0.45 threshold; screened-out rows not hit.
+#
+# Why this niche: wedding photography is a large US small-business trade where a day of
+# coverage is routinely 3x as many hours of culling and editing, and packages are priced
+# per coverage hour or by feel. Booking software (HoneyBook, Dubsado, Pixieset) sells
+# contracts and galleries, not a free private "what do I earn per hour worked" answer.
+#
+# First visitor: photographers searching "how much to charge for wedding photography",
+# "wedding photographer pricing calculator", "how long does it take to edit a wedding".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices asserted; no tax
+# advice; says what it does not model. No client or event data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead magnet
+# for a future hosted package-pricing and editing-time tracker.
+
+hypotheses:
+  - claim: >-
+      Wedding and event photographers will use a private, no-signup profit-per-hour
+      calculator that counts editing time when setting package prices and when deciding
+      whether a lead marketplace or shooting for a studio beats their own clients.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-photographer-profit-calculator/
+  analytics: null

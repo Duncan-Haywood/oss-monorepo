@@ -1,0 +1,81 @@
+name: poshmark-sales-report-analyzer
+description: >-
+  Free browser tool that turns a Poshmark My Sales Report CSV into per-item,
+  per-brand and per-month profit after Poshmark's fee (flat $2.95 under $15,
+  20% at $15 or more), with effective fee rate, optional cost basis by SKU,
+  shipping-deduction detection, days to sell and brands to stop sourcing. The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Poshmark resellers earn
+# real money and one recurring question decides what they buy next: "which of
+# my brands and items actually made money after Poshmark's cut?" Existing
+# answers are reseller bookkeeping subscriptions (accounts, monthly fees) and
+# hand-built spreadsheets. Sellers already hold the file: My Sales Report.
+# Overlap check: poshmark-fee-calculator prices one sale from typed numbers;
+# nothing in the tree reads a seller's own history. Linked both ways.
+#
+# First visitor: r/poshmark, r/Reseller, reseller Facebook groups asking "am I
+# actually making money on Poshmark"; search phrases "poshmark profit
+# calculator", "poshmark sales report", "poshmark profit tracker spreadsheet".
+# Volume not measured with an external tool.
+#
+# What makes it more than a sum: the flat $2.95 fee is shown as an effective
+# rate per item and per brand (29.5% on a $10 sale) and as the extra it cost
+# over 20%; a brand is only named "stop sourcing" with three or more costed
+# sales and a total loss, and sales with no cost are excluded from profit
+# instead of counted as free; shipping deductions are read from a discount
+# column or from the gap between price minus fee and net earnings.
+#
+# Privacy is the differentiator and the liability boundary: the file never
+# leaves the browser (a test asserts the page has no network calls), so the
+# portfolio holds no seller or buyer data and needs no partner API.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to the
+# poshmark-fee-calculator already published. A paid version, if usage appears,
+# would be a month-over-month closet diff behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and typed costs, model and omissions
+# stated on the page, fee schedule stated as a constant to check against a
+# statement, no tax advice, no warranty, independent-of-Poshmark clause.
+#
+# Unverified: column names are from memory of Poshmark's export and matched by
+# alias; no real export was available, so the first user report of an unread
+# file is the priority fix. Whether Poshmark's net earnings already subtracts a
+# seller shipping discount is not known; the tool trusts the net column and
+# says so.
+
+hypotheses:
+  - claim: >-
+      Poshmark resellers will run a no-signup analysis of a sales report they
+      already hold before building a spreadsheet or paying for a bookkeeping
+      subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing profit and effective fee rate per brand changes at least one
+      sourcing decision (stop buying a brand, reprice a low-price category),
+      which is the reason to come back with each new report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong profit figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/poshmark-sales-report-analyzer/
+  analytics: null

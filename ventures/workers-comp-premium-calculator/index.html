@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Workers' Comp Premium Calculator — Free, With Audit True-Up</title>
+  <meta name="description" content="Free workers' compensation premium calculator for contractors and small employers: class-code rates, experience mod, overtime exclusion, schedule debit, premium discount and the audit true-up. Runs in your browser.">
+  <meta property="og:title" content="Workers' Comp Premium Calculator — free, with audit true-up">
+  <meta property="og:description" content="See what your experience mod, schedule debit and payroll estimate really cost, and what an audit will add. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Workers' Comp Premium Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser calculator for workers' compensation premium: class-code rates, experience mod, overtime exclusion, schedule debits, audit true-up."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is workers' compensation premium calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Premium is payroll divided by 100, times the rate for each class code, summed across classes to get manual premium. That is multiplied by your experience modification, adjusted by any schedule credit or debit, reduced by any premium discount, and then flat charges such as an expense constant are added."}}, {"@type": "Question", "name": "What is an experience modification rate?", "acceptedAnswer": {"@type": "Answer", "text": "The experience mod compares your claims history over a recent multi-year window with what is expected for a business of your size and class. A mod of 1.00 is average, above 1.00 raises your premium and below 1.00 lowers it. Your rating bureau or carrier publishes the worksheet, and errors on it are worth disputing."}}, {"@type": "Question", "name": "Is overtime pay included in workers' comp payroll?", "acceptedAnswer": {"@type": "Answer", "text": "In most states only the straight-time part of overtime is premium basis. At time-and-a-half, one third of each overtime dollar is the premium portion and is excluded, but only if your payroll records show overtime separately. Check your own state and carrier rules."}}, {"@type": "Question", "name": "Why did my workers' comp audit bill me extra?", "acceptedAnswer": {"@type": "Answer", "text": "The policy is written on estimated payroll. At the end of the term the carrier audits actual payroll, and any difference is charged or returned at the same rates. Growth, more overtime, or uninsured subcontractors added to your payroll are the usual causes of an additional premium."}}, {"@type": "Question", "name": "Is this an insurance quote?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the arithmetic on rates you type in from your own quote or policy. It does not look up class codes or rates, it is not insurance or legal advice, and your carrier's figures control."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+      .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
+    .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WORKERS' COMP PREMIUM CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is your workers' comp premium really made of?</h1>
+    <p>Enter the payroll and <strong>rate per $100</strong> for each class code from your
+    quote or declarations page, plus your <strong>experience mod</strong>. The tool rebuilds the
+    premium line by line, shows what each 0.10 of mod is worth, and — if you add actual payroll —
+    what a <strong>final audit</strong> will add or return. Rates are yours; nothing is looked up or guessed.</p>
+    <p class="note">Nothing is uploaded. Your payroll is read in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Payroll by class code</h2>
+    <table class="cls">
+      <thead><tr><th>Class / label</th><th>Estimated payroll ($)</th><th>Rate per $100</th><th>Overtime wages in payroll ($)</th><th>Actual payroll at audit ($, optional)</th><th>Remove</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-row">Add a class</button></p>
+    <p class="note">Put uninsured subcontractors in their own row at the rate and amount your carrier charges for them.
+    Overtime multiplier is assumed to be 1.5 unless you change it below.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Modifiers and charges</h2>
+    <div class="grid">
+      <div><label for="mod">Experience mod (1.00 = average)</label><input type="number" id="mod" step="0.01" value="1.00"></div>
+      <div><label for="schedule">Schedule credit (−) or debit (+), %</label><input type="number" id="schedule" step="0.5" value="0"></div>
+      <div><label for="discount">Premium discount, %</label><input type="number" id="discount" step="0.5" value="0"></div>
+      <div><label for="surcharge">Surcharges and assessments, % of premium</label><input type="number" id="surcharge" step="0.1" value="0"></div>
+      <div><label for="expense">Expense constant ($)</label><input type="number" id="expense" step="1" value="0"></div>
+      <div><label for="flat">Other flat fees ($)</label><input type="number" id="flat" step="1" value="0"></div>
+      <div><label for="otmult">Overtime multiplier</label><input type="number" id="otmult" step="0.1" value="1.5"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. What if the same payroll sat in a different class? (optional)</h2>
+    <div class="grid">
+      <div><label for="rc-payroll">Payroll ($)</label><input type="number" id="rc-payroll" step="100"></div>
+      <div><label for="rc-from">Current rate per $100</label><input type="number" id="rc-from" step="0.01"></div>
+      <div><label for="rc-to">Other rate per $100</label><input type="number" id="rc-to" step="0.01"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate premium</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter payroll and a rate for at least one class, then click Calculate premium.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="total" id="report-total"></p>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not insurance, legal, tax, or financial advice.</strong> Your carrier's quote and audit control.</li>
+      <li><strong>No rate or class-code lookup.</strong> You supply the rates; state rating bureaus and carriers publish them.</li>
+      <li><strong>No state-specific rule engine.</strong> Overtime exclusion, premium discount tables, owner-officer rules, deductible programs and minimum premiums differ by state and carrier and are not modeled beyond the fields above.</li>
+      <li><strong>No experience-mod calculation.</strong> You enter the mod; the tool does not recompute it from claims.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is workers' compensation premium calculated?</h3>
+    <p>Premium is payroll divided by 100, times the rate for each class code, summed across classes to get manual premium. That is multiplied by your experience modification, adjusted by any schedule credit or debit, reduced by any premium discount, and then flat charges such as an expense constant are added.</p>
+    <h3>What is an experience modification rate?</h3>
+    <p>The experience mod compares your claims history over a recent multi-year window with what is expected for a business of your size and class. A mod of 1.00 is average, above 1.00 raises your premium and below 1.00 lowers it. Your rating bureau or carrier publishes the worksheet, and errors on it are worth disputing.</p>
+    <h3>Is overtime pay included in workers' comp payroll?</h3>
+    <p>In most states only the straight-time part of overtime is premium basis. At time-and-a-half, one third of each overtime dollar is the premium portion and is excluded, but only if your payroll records show overtime separately. Check your own state and carrier rules.</p>
+    <h3>Why did my workers' comp audit bill me extra?</h3>
+    <p>The policy is written on estimated payroll. At the end of the term the carrier audits actual payroll, and any difference is charged or returned at the same rates. Growth, more overtime, or uninsured subcontractors added to your payroll are the usual causes of an additional premium.</p>
+    <h3>Is this an insurance quote?</h3>
+    <p>No. It does the arithmetic on rates you type in from your own quote or policy. It does not look up class codes or rates, it is not insurance or legal advice, and your carrier's figures control.</p>
+  </section>
+
+  <footer>
+    <p>Hurt on the job? The <a href="../injury-settlement-net-proceeds-calculator/">injury settlement net proceeds calculator</a> shows what a settlement leaves after fees and liens.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your insurance carrier, broker, or a qualified professional. Check every figure against your policy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you type.</p>
+    <p>Everything runs in your browser. Your payroll and rates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>premium_calculated</code>, <code>example_loaded</code>) are counted in this browser only, and stay off if you turn counting off or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../employee-cost-calculator/">employee cost calculator</a> the <a href="../staffing-markup-calculator/">staffing markup calculator</a> the <a href="../experience-mod-calculator/">experience mod calculator</a> the <a href="../payroll-tax-deposit-penalty-calculator/">payroll tax deposit penalty calculator</a> and, once an audit arrives, the <a href="../workers-comp-audit-dispute-checker/">workers' comp audit dispute checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { policyPremium, modSensitivity, auditTrueUp, reclassImpact, findings } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const rowsEl = $("#rows");
+    const money = (n) => (n < 0 ? "−$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function addRow(v = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input aria-label="Class or label" class="r-label" type="text" value="${v.label || ""}"></td>
+        <td><input aria-label="Estimated payroll" class="r-payroll" type="number" step="100" value="${v.payroll ?? ""}"></td>
+        <td><input aria-label="Rate per 100 dollars of payroll" class="r-rate" type="number" step="0.01" value="${v.rate ?? ""}"></td>
+        <td><input aria-label="Overtime wages included in payroll" class="r-ot" type="number" step="100" value="${v.ot ?? ""}"></td>
+        <td><input aria-label="Actual payroll at audit" class="r-actual" type="number" step="100" value="${v.actual ?? ""}"></td>
+        <td><button type="button" class="secondary r-del" aria-label="Remove this class">×</button></td>`;
+      tr.querySelector(".r-del").addEventListener("click", () => tr.remove());
+      rowsEl.appendChild(tr);
+    }
+    function readRows(useActual) {
+      return [...rowsEl.querySelectorAll("tr")].map((tr) => {
+        const g = (c) => tr.querySelector(c).value;
+        return { label: g(".r-label"), payroll: useActual ? g(".r-actual") : g(".r-payroll"), rate: g(".r-rate"),
+          overtimeWages: g(".r-ot"), overtimeMultiplier: $("#otmult").value };
+      });
+    }
+    function inputs() {
+      return { classes: readRows(false), mod: $("#mod").value, schedulePct: $("#schedule").value, discountPct: $("#discount").value,
+        surchargePct: $("#surcharge").value, expenseConstant: $("#expense").value, flatFees: $("#flat").value };
+    }
+    function reset() { rowsEl.innerHTML = ""; addRow(); addRow(); }
+    reset();
+
+    function run() {
+      const out = $("#report");
+      try {
+        const inp = inputs();
+        const r = policyPremium(inp);
+        const s = modSensitivity(inp);
+        $("#report-total").textContent = money(r.total) + " estimated annual premium";
+        $("#report-stats").textContent = "Effective rate " + r.effectiveRate.toFixed(2) + " per $100 of premium-basis payroll. Each 0.10 of experience mod is worth " + money(s.up) + " a year.";
+        const lines = [["Manual premium (payroll / 100 × rate)", r.manual], ["After experience mod " + r.mod.toFixed(2), r.modified], ["After schedule " + (r.schedulePct > 0 ? "debit +" : "credit ") + r.schedulePct + "%", r.scheduled],
+          ["Premium discount", -r.discount], ["Surcharges", r.surcharges], ["Expense constant + flat fees", r.expenseConstant + r.flatFees]];
+        let html = lines.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${money(v)}</td></tr>`).join("");
+        html += r.classes.map((c) => `<tr><th scope="row">${c.label}</th><td>${money(c.manual)} manual on ${money(c.basis)} basis</td></tr>`).join("");
+        const hasActual = [...rowsEl.querySelectorAll(".r-actual")].some((i) => i.value !== "");
+        if (hasActual) {
+          const a = auditTrueUp(inp, readRows(true).map((x, i) => x.payroll === "" ? readRows(false)[i] : x));
+          html += `<tr><th scope="row">Audit true-up</th><td><strong>${a.direction === "return" ? "Return " : a.direction === "additional" ? "Additional " : ""}${money(Math.abs(a.diff))}</strong> (actual total ${money(a.actual.total)} on payroll ${money(a.actual.payroll)})</td></tr>`;
+        }
+        const rp = $("#rc-payroll").value, rf = $("#rc-from").value, rt = $("#rc-to").value;
+        if (rp !== "" && rf !== "" && rt !== "") html += `<tr><th scope="row">Other class</th><td>${money(reclassImpact(rp, rf, rt, r.mod))} per year</td></tr>`;
+        $("#result-table").innerHTML = html;
+        $("#report-findings").innerHTML = findings(r).map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+        out.hidden = false;
+        $("#form-status").textContent = "";
+        record("premium_calculated");
+        out.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        out.hidden = true;
+        $("#form-status").textContent = e.message;
+      }
+    }
+    $("#calculate").addEventListener("click", run);
+    $("#add-row").addEventListener("click", () => addRow());
+
+    $("#load-example").addEventListener("click", () => {
+      rowsEl.innerHTML = "";
+      addRow({ label: "Roofing", payroll: 200000, rate: 18.5, ot: 20000, actual: 260000 });
+      addRow({ label: "Clerical", payroll: 40000, rate: 0.35, actual: 40000 });
+      $("#mod").value = "1.12"; $("#schedule").value = "5"; $("#discount").value = "0"; $("#surcharge").value = "0";
+      $("#expense").value = "250"; $("#flat").value = "0"; $("#otmult").value = "1.5";
+      $("#rc-payroll").value = "50000"; $("#rc-from").value = "18.5"; $("#rc-to").value = "12";
+      run();
+      record("example_loaded");
+      $("#form-status").textContent = "Worked example: a roofing contractor with 200000 estimated payroll at 18.50, 20000 of it overtime, a 1.12 mod and a 5% debit, who ends the year at 260000 actual payroll.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      reset();
+      for (const [id, v] of [["mod", "1.00"], ["schedule", "0"], ["discount", "0"], ["surcharge", "0"], ["expense", "0"], ["flat", "0"], ["otmult", "1.5"]]) $("#" + id).value = v;
+      for (const id of ["rc-payroll", "rc-from", "rc-to"]) $("#" + id).value = "";
+      $("#report").hidden = true;
+      $("#form-status").textContent = "Enter payroll and a rate for at least one class, then click Calculate premium.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

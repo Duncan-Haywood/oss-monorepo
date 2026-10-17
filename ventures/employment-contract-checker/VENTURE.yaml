@@ -1,0 +1,63 @@
+name: employment-contract-checker
+description: >-
+  Free browser tool for people about to sign a job offer or employment agreement: paste the text and see the clauses
+  that most often cost the signer, each with the change to ask for. Flags a non-compete (length, scope, survives a
+  layoff), non-solicitation, an invention assignment with no carve-out for your own time, signing-bonus or relocation
+  repayment, bonus or commissions forfeited on leaving, equity the company can buy back, a short option exercise window,
+  mandatory arbitration, long resignation notice, terms the employer can change alone, and a salary or signing bonus
+  that does not match what you were promised. Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.17
+# (nail-tech-booth-rent-calculator, exemption-certificate-audit-check, job-offer-total-comp-calculator at 0.14).
+# job-offer-total-comp-calculator prices an offer and reads no contract text; no venture reads an agreement.
+# Search phrases: "employment contract red flags", "job offer red flags", "non-compete clause checker",
+# "should I sign this offer letter", "signing bonus repayment clause", "invention assignment agreement side project".
+# Volume not measured with an external tool. Demand is steady and tied to every job change; incumbents are law-firm
+# blog checklists and paid attorney review (hundreds of dollars), and contract-review AI aimed at in-house legal
+# teams. Nobody serves the individual employee who just wants to know what to ask for before signing.
+#
+# Who: professionals changing jobs, especially engineers, sales staff and executives whose offers carry equity,
+# commissions, a non-compete or an invention assignment. The paying buyer, if there is one, is a negotiation coach,
+# recruiter-side career service or employment law practice that wants saved reviews, a redline-ready email draft and
+# state-specific clause libraries behind an env-var switch; not built.
+#
+# Path to revenue (payment rails stay off): lead magnet for the career audience, pairing with
+# job-offer-total-comp-calculator. Redline drafts, a clause library and attorney referral are the paid version if
+# usage appears.
+#
+# Liability: reads the user's own text with fixed, visible rules; says what each finding means and what to ask for;
+# never says a contract is fair, safe or enforceable; carries the no-warranty and not-legal-advice clauses; lists
+# enforceability, state law, tax treatment of equity and the decision to sign as not decided. The state notes are
+# pointers to check current law, not rules; non-compete law is changing quickly.
+#
+# Unverified: no employee or attorney has run a real agreement through it yet. The rules are regular expressions over
+# normalized text, so unusual wording can be missed (false negative) or a benign clause flagged (false positive). The
+# first report of a wrong result is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A person holding a job offer will paste it into a no-upload page to see what to push back on, because the
+      non-compete, repayment and invention-assignment traps are costly and the signer has no one to ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted agreement structure) engage with the tool by 2027-03-15.
+  - An employee or attorney reports a plain agreement the rules mis-read, at which point the rule needs revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/employment-contract-checker/
+  analytics: null

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hydroseeding Job Bid Calculator — Price per 1,000 Sq Ft, Tank Loads, Profit</title>
+  <meta name="description" content="Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.">
+  <meta property="og:title" content="Hydroseeding Job Bid Calculator — free, private">
+  <meta property="og:description" content="Find out what a hydroseeding job really costs, where small jobs lose money, and how many jobs cover the hydroseeder.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Hydroseeding Job Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free hydroseeding bid calculator: turn seed, mulch, water, tank loads, crew hours, travel and equipment into cost, profit and the price per 1,000 sq ft for a target margin."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a hydroseeding contractor charge per square foot?", "acceptedAnswer": {"@type": "Answer", "text": "Add up seed, mulch, tackifier and water for the area, the crew hours (setup, spraying and every tank refill) at loaded pay, and the drive to the site, then divide by one minus the margin you want. Residential hydroseeding is usually quoted per 1,000 square feet or per square foot, and the number that works depends heavily on job size, because setup and travel cost the same on 2,000 square feet as on 20,000. Type your own costs and the result prints the price per 1,000 square feet that earns your margin."}}, {"@type": "Question", "name": "Why do small hydroseeding jobs lose money?", "acceptedAnswer": {"@type": "Answer", "text": "Setup, travel and a tank mix are close to fixed for each job. A 2,000 square foot yard can take most of the day's overhead for a few hundred dollars of revenue. The size table shows where your minimum charge is doing the work and where the per-square-foot price takes over."}}, {"@type": "Question", "name": "How many tank loads does a job need?", "acceptedAnswer": {"@type": "Answer", "text": "Gallons of slurry per 1,000 square feet times the area, divided by your tank size, rounded up. Each extra load costs refill and mixing minutes with the crew standing by, which is why a closer water source or a bigger tank can matter more than spraying faster."}}, {"@type": "Question", "name": "How many jobs does it take to cover the hydroseeder?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the season's fixed cost (the machine's price spread over the years you keep it, plus insurance, shop and other overhead) by what one job earns after materials, labor and travel. The result prints the break-even job count and the season at 50 to 150 percent of the jobs you expect."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Your own pay as owner, sales tax, permits, erosion-control bonds, seed warranties and re-seeding callbacks, insurance beyond the overhead you type, card fees and income tax. Seed and mulch rates vary by mix, season and site: use your supplier's numbers. It is a planning aid, not a bid of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HYDROSEEDING JOB BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does this hydroseeding job really cost, and what should you bid?</h1>
+    <p>Enter the job's size, seed, mulch and water, your tank, crew, travel and hydroseeder. You get <strong>the cost and profit of the job, the tank loads and crew hours it needs, the price per 1,000 sq ft for your target margin, a table of job sizes showing where small jobs lose money, and the season against the jobs you expect</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a bid of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The job</h2>
+    <div class="grid">
+      <div><label for="areaSqft">Job area (sq ft)</label><input type="number" id="areaSqft" min="0" step="1" value="20000"></div>
+      <div><label for="jobsPerSeason">Jobs you expect this season</label><input type="number" id="jobsPerSeason" min="0" step="1" value="60"></div>
+      <div><label for="pricePer1k">Your price per 1,000 sq ft ($)</label><input type="number" id="pricePer1k" min="0" step="any" value="85"></div>
+      <div><label for="minCharge">Minimum job charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="450"></div>
+      <div><label for="slopePremiumPct">Steep-slope premium (%)</label><input type="number" id="slopePremiumPct" min="0" step="any" value="25"></div>
+      <div><label for="slopeSharePct">Share of jobs that are steep (%)</label><input type="number" id="slopeSharePct" min="0" step="any" value="20"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Seed, mulch and water per 1,000 sq ft</h2>
+    <div class="grid">
+      <div><label for="seedLbPer1k">Seed (lb)</label><input type="number" id="seedLbPer1k" min="0" step="any" value="4"></div>
+      <div><label for="seedCostLb">Seed cost ($ per lb)</label><input type="number" id="seedCostLb" min="0" step="any" value="2.5"></div>
+      <div><label for="mulchLbPer1k">Mulch (lb)</label><input type="number" id="mulchLbPer1k" min="0" step="any" value="70"></div>
+      <div><label for="mulchCostBale">Mulch cost ($ per 50 lb bale)</label><input type="number" id="mulchCostBale" min="0" step="any" value="17"></div>
+      <div><label for="extraPer1k">Fertilizer and tackifier ($)</label><input type="number" id="extraPer1k" min="0" step="any" value="1.5"></div>
+      <div><label for="waterGalPer1k">Slurry sprayed (gallons)</label><input type="number" id="waterGalPer1k" min="0" step="any" value="90"></div>
+      <div><label for="waterPer1kGal">Water cost ($ per 1,000 gal)</label><input type="number" id="waterPer1kGal" min="0" step="any" value="6"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Crew, tank and travel</h2>
+    <div class="grid">
+      <div><label for="tankGal">Tank size (gallons)</label><input type="number" id="tankGal" min="0" step="any" value="1500"></div>
+      <div><label for="sprayRate1kPerHr">Spray rate (1,000 sq ft per hour)</label><input type="number" id="sprayRate1kPerHr" min="0" step="any" value="20"></div>
+      <div><label for="refillMin">Minutes to refill and mix a load</label><input type="number" id="refillMin" min="0" step="any" value="20"></div>
+      <div><label for="setupHrs">Setup and teardown hours per job</label><input type="number" id="setupHrs" min="0" step="any" value="1.5"></div>
+      <div><label for="crewSize">Crew size</label><input type="number" id="crewSize" min="0" step="1" value="2"></div>
+      <div><label for="crewRate">Crew pay ($ per hour each)</label><input type="number" id="crewRate" min="0" step="any" value="22"></div>
+      <div><label for="burdenPct">Payroll tax and extras (%)</label><input type="number" id="burdenPct" min="0" step="any" value="15"></div>
+      <div><label for="travelMiles">Round-trip miles to the site</label><input type="number" id="travelMiles" min="0" step="any" value="40"></div>
+      <div><label for="truckCostPerMile">Truck cost ($ per mile)</label><input type="number" id="truckCostPerMile" min="0" step="any" value="1.1"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Hydroseeder, overhead and margin</h2>
+    <div class="grid">
+      <div><label for="machineCost">Hydroseeder cost ($)</label><input type="number" id="machineCost" min="0" step="any" value="38000"></div>
+      <div><label for="machineYears">Years you will use it</label><input type="number" id="machineYears" min="0" step="1" value="7"></div>
+      <div><label for="otherFixed">Other fixed cost per year ($)</label><input type="number" id="otherFixed" min="0" step="any" value="6000"></div>
+      <div><label for="targetMarginPct">Target margin on a job (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="35"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the bid</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the bid.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>The same costs at different job sizes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Job size (sq ft)</th><th scope="col">Tank loads</th><th scope="col">Crew hours</th><th scope="col">Cost</th><th scope="col">Bill</th><th scope="col">Profit</th><th scope="col">Margin</th></tr></thead><tbody id="sizes"></tbody></table></div>
+    <h3>The season at different volumes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Jobs</th><th scope="col">Revenue</th><th scope="col">Profit after fixed cost</th><th scope="col">Crew hours</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Materials are seed, mulch, fertilizer and tackifier, and water, each per 1,000 sq ft of the job. Tank loads are the slurry gallons divided by your tank, rounded up.</li>
+      <li>Crew hours are setup, spraying at your rate, and a refill for every load after the first. Labor is those hours for the whole crew at loaded pay. Travel is round-trip miles at your truck cost.</li>
+      <li>The bill is your price per 1,000 sq ft (with the steep-slope premium averaged over the share of jobs that are steep) or your minimum charge, whichever is higher. Fixed cost, the hydroseeder spread over its years plus overhead, belongs to the season, not the job.</li>
+      <li><strong>Not modelled:</strong> your own pay as owner, sales tax, permits and bonds, seed warranties and re-seeding callbacks, card fees, insurance beyond the overhead you type, and income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a hydroseeding contractor charge per square foot?</h3>
+    <p>Add up seed, mulch, tackifier and water for the area, the crew hours (setup, spraying and every tank refill) at loaded pay, and the drive to the site, then divide by one minus the margin you want. Residential hydroseeding is usually quoted per 1,000 square feet or per square foot, and the number that works depends heavily on job size, because setup and travel cost the same on 2,000 square feet as on 20,000. Type your own costs and the result prints the price per 1,000 square feet that earns your margin.</p>
+    <h3>Why do small hydroseeding jobs lose money?</h3>
+    <p>Setup, travel and a tank mix are close to fixed for each job. A 2,000 square foot yard can take most of the day's overhead for a few hundred dollars of revenue. The size table shows where your minimum charge is doing the work and where the per-square-foot price takes over.</p>
+    <h3>How many tank loads does a job need?</h3>
+    <p>Gallons of slurry per 1,000 square feet times the area, divided by your tank size, rounded up. Each extra load costs refill and mixing minutes with the crew standing by, which is why a closer water source or a bigger tank can matter more than spraying faster.</p>
+    <h3>How many jobs does it take to cover the hydroseeder?</h3>
+    <p>Divide the season's fixed cost (the machine's price spread over the years you keep it, plus insurance, shop and other overhead) by what one job earns after materials, labor and travel. The result prints the break-even job count and the season at 50 to 150 percent of the jobs you expect.</p>
+    <h3>What does this leave out?</h3>
+    <p>Your own pay as owner, sales tax, permits, erosion-control bonds, seed warranties and re-seeding callbacks, insurance beyond the overhead you type, card fees and income tax. Seed and mulch rates vary by mix, season and site: use your supplier's numbers. It is a planning aid, not a bid of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>bid_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../artificial-turf-bid-calculator/">artificial turf bid</a>, <a href="../lawn-care-bid-calculator/">lawn care bid</a>, <a href="../concrete-bid-calculator/">concrete bid</a>, <a href="../handyman-minimum-job-calculator/">handyman minimum job</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["areaSqft", "jobsPerSeason", "pricePer1k", "minCharge", "slopePremiumPct", "slopeSharePct", "seedLbPer1k", "seedCostLb", "mulchLbPer1k", "mulchCostBale", "extraPer1k", "waterGalPer1k", "waterPer1kGal", "tankGal", "sprayRate1kPerHr", "refillMin", "setupHrs", "crewSize", "crewRate", "burdenPct", "travelMiles", "truckCostPerMile", "machineCost", "machineYears", "otherFixed", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#sizes").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.area.toLocaleString("en-US")}</th><td>${x.loads}</td><td>${x.hours}</td><td>${usd(x.cost)}</td><td>${usd(x.revenue)}${x.minApplies ? " (minimum)" : ""}</td><td>${usd(x.profit)}</td><td>${x.marginPct}%</td></tr>`).join("");
+      $("#rows").innerHTML = r.seasonTable.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.jobs}</td><td>${usd(x.revenue)}</td><td>${usd(x.profit)}</td><td>${x.hours}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `This job earns ${usd(r.season.job.profit)} before fixed cost; season ${usd(r.season.profit)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("bid_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "hydroseeding-job-sizes.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

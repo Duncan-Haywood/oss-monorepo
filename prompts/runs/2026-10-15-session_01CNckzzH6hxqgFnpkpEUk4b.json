@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01CNckzzH6hxqgFnpkpEUk4b",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/deploy"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7057",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The huge local checklist is hard to map onto a platform/deploy-only change; only the deploy suite and checklist_coverage were run."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Shipped a Render deploy path for the 4 server ventures on the one-click deploy page; not tested against a live Render account.",
+  "corrections": [],
+  "redteam": null
+}

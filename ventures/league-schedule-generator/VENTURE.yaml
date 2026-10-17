@@ -1,0 +1,61 @@
+name: league-schedule-generator
+description: >-
+  Free browser tool for rec leagues, youth sports, pickleball, darts and chess
+  clubs and office leagues: paste the team names and it builds a fair single or
+  double round-robin schedule with real dates, balanced home and away, courts and
+  time slots shared evenly, team blackout dates handled with makeup rounds, an
+  optional play-off bracket seeded from standings, and CSV, calendar (.ics) and
+  plain-text exports. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session.
+# duplicate_check.py: closest row was shift-cover-optimizer 0.11 (staff shift cover,
+# a different job); nothing near the 0.45 line. screened-out.md has no league or round-robin row.
+#
+# Why this niche: volunteer organisers of rec leagues, youth sports, pickleball
+# ladders, darts, chess and office leagues spend an evening with a spreadsheet each
+# season. The free generators online either ignore courts and time slots, give no
+# home/away balance, cannot handle "this team cannot play on the 12th", or sit
+# behind a sign-up. The organiser is the person with the problem and with the club
+# or league fees to pay for the courts, so a tool that saves an evening and avoids
+# the angry email about three late games in a row has a real audience.
+#
+# First visitor: people searching "round robin schedule generator", "league
+# schedule maker", "pickleball round robin schedule"; organisers asking in
+# r/pickleball, r/youthsports and r/chess about how to schedule a club league.
+# Volume not measured with an external tool.
+#
+# Liability boundary: scheduling arithmetic only. No payments, no accounts, no
+# registration, nothing stored or uploaded. The organiser still checks the dates and
+# venues before sending them round; no promise a schedule suits any league's rules.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid league-management or court-booking referral.
+
+hypotheses:
+  - claim: >-
+      League organisers will paste a team list into a private, no-signup generator
+      and use the schedule it makes (dates, courts, home/away) instead of building
+      one by hand, and will come back each season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a schedule where a pair does not meet the right number of times or a team plays twice in a round.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/
+  analytics: null

@@ -162,3 +162,7 @@ test('printing sends the customer sheet and hides the contractor\u2019s own numb
   assert.match(print[1], /\.pr-shell\s*\{[^}]*display:\s*block/i,
     'the proposal is not shown on the printed sheet');
 });
+
+test('links to the homeowner heat pump vs furnace calculator', () => {
+  assert.match(html, /href="\.\.\/heat-pump-vs-furnace-calculator\/"/, 'the sibling-tool link is missing');
+});

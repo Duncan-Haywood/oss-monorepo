@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sag-twin"
+version = "0.1.0"
+description = "Sag twin: an ideal-source (no internal resistance) battery twin overstates endurance by 1/eta, certifies every burst power, and a constant derate refit fails off the fit power"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_015KgzQcaHYXgu9fBDhACbix",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T20:44:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7189",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "gitops/tests line: test_ci_runner.py has 2 failures (readme runs-on count, sync_readme_counts) in this checkout unrelated to the diff; not confirmed against clean main"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "top candidates are all single-page calculators, which the ventures prompt forbids; I ignored them and deepened webhook-relay"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "skipped its calculator candidates per ventures/prompt-1.md; shipped bulk replay for webhook-relay instead"
+    }
+  ],
+  "goal": null,
+  "notes": "Added POST /v1/replay + admin button. regen.mjs run for mirror. Pages snapshot publish not done this run.",
+  "corrections": [],
+  "redteam": null
+}

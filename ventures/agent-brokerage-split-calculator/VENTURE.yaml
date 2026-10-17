@@ -1,0 +1,68 @@
+name: agent-brokerage-split-calculator
+description: >-
+  Free browser tool that compares up to three real estate brokerages (traditional
+  split, capped split, flat-fee) by what an agent nets after splits, caps,
+  transaction and monthly fees, franchise royalty and referral fees, and finds
+  the deal count where each plan overtakes another. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: no
+# match above 0.30 for "real estate agent commission split brokerage fee cap net
+# income calculator" (top hit estate-sale-net-proceeds-calculator, unrelated).
+# Chosen over another employee-tax calculator because four sessions collided on
+# those in a day, and because the user has real money on the line: a US agent
+# choosing between a 70/30, an 80/20 capped and a 100% flat-fee brokerage is
+# comparing plans worth five figures a year, and brokerages publish these terms
+# as prose, not as a like-for-like number.
+# Angle: brokerage-run "commission calculators" exist but each only models its own
+# plan and is a recruiting funnel. This one models any plan, is independent, and
+# returns the crossover deal count and the split to negotiate for.
+#
+# First visitor: r/realtors and r/RealEstateAgent threads on "which brokerage",
+# "eXp vs Keller Williams vs Compass split", "is a cap worth it", and the search
+# phrases "brokerage split calculator" and "real estate commission split
+# calculator"; volume not measured.
+#
+# Privacy is the liability boundary: figures never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet; if usage appears, a
+# saved-scenarios and team-split tier, local only; not built. No brokerage
+# referral fees are taken, which is what keeps it independent.
+#
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Agents deciding whether to switch brokerages will use a no-signup tool that
+      models cap, fees and royalty together rather than reading each brokerage's
+      own calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The crossover deal count is the number agents screenshot and share in
+      brokerage-choice threads.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the tool ranks brokerages in a way that contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/agent-brokerage-split-calculator/
+  analytics: null

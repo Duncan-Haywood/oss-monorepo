@@ -1,0 +1,72 @@
+name: client-rebooking-predictor
+description: >-
+  Free browser tool for salons, barbers, groomers, massage and physio practices,
+  dentists, cleaners and lawn-care businesses: paste or upload client, visit date
+  and amount, and get who is due, who is overdue but still recoverable and who
+  has probably gone, each judged against that client's own rhythm (lognormal
+  gaps with shrinkage toward the shop-wide rhythm and a fitted chance that a
+  client silently leaves), a win-back list ranked by value, and a hold-out
+  back-test against a plain recency rule. Refuses a history too short or thin to
+  tell "not due yet" from "gone". Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "recurring customer next-visit prediction and win-back timing for salons
+# barbershops and service businesses from booking history": closest is
+# no-show-fee-calculator at 0.22, far below the read-this-first bar. Adjacent:
+# invoice-aging-late-payer-analyzer (when invoices get paid, not when customers
+# come back), appointment-no-show-analyzer (one booking, not the return gap),
+# stripe-churn-cohort-analyzer and patreon-members-churn-analyzer (subscription
+# churn, where cancellation is observed; here a client leaves by just not
+# booking, so it must be inferred). Alternatives are the flat "lapsed clients
+# over 90 days" report in booking systems (Vagaro, Fresha, Boulevard, Square
+# Appointments, Mindbody) which treats a monthly regular and a twice-a-year
+# client identically, and a hand-built spreadsheet.
+#
+# First visitor: searches "how to find lapsed salon clients", "client retention
+# report barber", "win back inactive clients", "how often do clients rebook";
+# r/hairstylist, r/Barber, r/smallbusiness, r/dogs groomer forums. Volume not
+# measured with an external tool. Sibling: sales-seasonality-forecaster and the
+# trade bid tools serve the same owner-operators.
+#
+# Privacy is the liability boundary: a client list never leaves the browser
+# (tests assert no network calls). Client names are customer data; the page says
+# names stay on the device and suggests an id or first name. No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved rebooking lists or a text-message export; not
+# built.
+# Liability: statistical estimate of supplied data, not advice; it never
+# contacts anyone. The page reminds the owner that marketing messages to clients
+# are subject to consent rules (TCPA, CAN-SPAM, GDPR) and that the tool sends
+# nothing.
+# Unverified: tested on simulated businesses with known behaviour, not on a
+# published dataset.
+
+hypotheses:
+  - claim: >-
+      Owners of appointment businesses with 50 or more regular clients will use a
+      private, no-signup tool that ranks overdue clients against each client's
+      own rhythm, and will return monthly with a fresh export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that clients the tool marked lost had in fact rebooked on their own schedule, or that overdue ordering disagrees with a hand count of the same export.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/client-rebooking-predictor/
+  analytics: null

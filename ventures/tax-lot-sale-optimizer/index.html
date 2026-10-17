@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tax Lot Selector: Which Shares to Sell for the Lowest Tax — Free</title>
+  <meta name="description" content="Free tax lot optimizer: paste your purchase lots, enter the cash you need, and get the exact shares to sell from each lot for the lowest capital-gains tax, compared with FIFO, LIFO and highest-cost-first. Nothing uploaded.">
+  <meta property="og:title" content="Which lots should you sell? Free tax lot optimizer">
+  <meta property="og:description" content="Specific identification worked out for you: lowest-tax lots, wait-until-long-term savings, wash-sale warning. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23065f46'/%3E%3Cpath d='M7 22l6-7 5 4 7-9' stroke='%23fff' stroke-width='2.200' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tax Lot Sale Optimizer","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste your purchase lots, say how much cash you need, and see which specific lots to sell to pay the least tax, compared with FIFO, LIFO and highest-cost-first. Runs in your browser; nothing is uploaded.","featureList":"Specific lot identification, lowest-tax lot selection, FIFO LIFO HIFO comparison, short-term and long-term netting, capital loss deduction, wash-sale warning, wait-until-long-term table, CSV of lots to sell"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which lots should I sell to raise cash with the least tax?","acceptedAnswer":{"@type":"Answer","text":"Usually a mix. Lots sold at a loss lower the tax bill, lots held more than a year are taxed at the lower long-term rate, and among lots of the same kind the highest-cost ones give the smallest gain. The best mix depends on your gains and losses already realized this year, so the tool searches every split between short-term and long-term lots and shows the lowest-tax plan next to FIFO, LIFO and highest-cost-first."}},{"@type":"Question","name":"What is specific identification and how do I use it?","acceptedAnswer":{"@type":"Answer","text":"Specific identification means telling your broker exactly which lots to sell instead of letting the default method pick, which at most brokers is first-in, first-out. You choose the lots before the trade settles, through the broker's cost-basis or lot-selection setting on the order ticket, and keep a record. The table lists the shares to sell from each lot so you can enter them."}},{"@type":"Question","name":"How does the tool decide a lot is long-term?","acceptedAnswer":{"@type":"Answer","text":"A lot is long-term when the sale date is more than one year after the purchase date. A sale on the first anniversary is still short-term; the next day is long-term. The waiting table re-runs the plan on the dates short-term lots turn long-term, so you can see what a few days of patience is worth before you accept the price risk."}},{"@type":"Question","name":"Does it handle the wash-sale rule?","acceptedAnswer":{"@type":"Answer","text":"It warns, it does not apply the rule. If the plan sells shares at a loss while you still hold shares bought in the 30 days before the sale, part of the loss can be disallowed, and so can a loss if you buy the same security again within 30 days after. Purchases in other accounts, including a spouse's or an IRA, can also trigger it, and the tool cannot see them."}},{"@type":"Question","name":"What tax rates should I enter?","acceptedAnswer":{"@type":"Answer","text":"Your federal rate on ordinary income (short-term gains are taxed at it), your long-term capital-gains rate, your state rate on gains, and 3.8 for the net investment income tax if your income is over its threshold, otherwise 0. The tool embeds no tax tables because they change; check the current ones or ask your tax preparer."}},{"@type":"Question","name":"Is this tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the rates and amounts you type, with simplifications: one security, one sale date, one price, a flat rate per character, and no alternative minimum tax. It does not decide your tax. Confirm the plan with your tax adviser or broker before you trade."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">TAX LOT SALE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which shares should I sell to pay the least tax?</h1>
+    <p>Selling the same number of shares can cost very different tax depending on <em>which lots</em> you sell. Most brokers default to oldest-first. Paste your purchase lots, say how much cash you need, and the tool works out the exact shares to sell from each lot, what it saves against FIFO, LIFO and highest-cost-first, and whether waiting a few days for a lot to turn long-term is worth the risk.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a recommendation or a real account.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your lots (one security)</h2>
+      <p>One line per purchase: <code>date, shares, cost per share</code>. Dates as 2024-03-15 or 3/15/2024. Copy them from your broker's cost-basis page.</p>
+      <label for="lotsText">Purchase lots</label>
+      <textarea id="lotsText" rows="9" spellcheck="false"></textarea>
+      <div class="grid">
+        <div><label for="price">Sale price per share ($)</label><input id="price" type="number" step="any" value="0"></div>
+        <div><label for="saleDate">Sale date</label><input id="saleDate" type="text" value="" placeholder="2026-10-15"></div>
+        <div><label for="targetMode">I want to enter</label><select id="targetMode"><option value="cash">Cash to raise ($)</option><option value="shares">Shares to sell</option></select></div>
+        <div><label for="target">Amount</label><input id="target" type="number" step="any" value="0"></div>
+        <div><label for="wholeShares">Sell whole shares only</label><select id="wholeShares"><option value="1">Yes</option><option value="0">No (fractional shares)</option></select></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Your tax rates and this year so far</h2>
+      <div class="grid">
+        <div><label for="ordinaryRatePct">Federal rate on ordinary income / short-term gains (%)</label><input id="ordinaryRatePct" type="number" step="any" value="0"></div>
+        <div><label for="ltRatePct">Federal long-term capital-gains rate (%)</label><input id="ltRatePct" type="number" step="any" value="0"></div>
+        <div><label for="stateRatePct">State rate on gains (%)</label><input id="stateRatePct" type="number" step="any" value="0"></div>
+        <div><label for="niitPct">Net investment income tax (% — 3.8 if it applies, else 0)</label><input id="niitPct" type="number" step="any" value="0"></div>
+        <div><label for="ytdShort">Net short-term gain realized so far this year ($, negative for a loss)</label><input id="ytdShort" type="number" step="any" value="0"></div>
+        <div><label for="ytdLong">Net long-term gain realized so far this year ($, negative for a loss, include any carryover loss)</label><input id="ytdLong" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Find the lowest-tax lots</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Which lots should I sell to raise cash with the least tax?</h3>
+      <p>Usually a mix. Lots sold at a loss lower the tax bill, lots held more than a year are taxed at the lower long-term rate, and among lots of the same kind the highest-cost ones give the smallest gain. The best mix depends on your gains and losses already realized this year, so the tool searches every split between short-term and long-term lots and shows the lowest-tax plan next to FIFO, LIFO and highest-cost-first.</p>
+      <h3>What is specific identification and how do I use it?</h3>
+      <p>Specific identification means telling your broker exactly which lots to sell instead of letting the default method pick, which at most brokers is first-in, first-out. You choose the lots before the trade settles, through the broker&#x27;s cost-basis or lot-selection setting on the order ticket, and keep a record. The table lists the shares to sell from each lot so you can enter them.</p>
+      <h3>How does the tool decide a lot is long-term?</h3>
+      <p>A lot is long-term when the sale date is more than one year after the purchase date. A sale on the first anniversary is still short-term; the next day is long-term. The waiting table re-runs the plan on the dates short-term lots turn long-term, so you can see what a few days of patience is worth before you accept the price risk.</p>
+      <h3>Does it handle the wash-sale rule?</h3>
+      <p>It warns, it does not apply the rule. If the plan sells shares at a loss while you still hold shares bought in the 30 days before the sale, part of the loss can be disallowed, and so can a loss if you buy the same security again within 30 days after. Purchases in other accounts, including a spouse&#x27;s or an IRA, can also trigger it, and the tool cannot see them.</p>
+      <h3>What tax rates should I enter?</h3>
+      <p>Your federal rate on ordinary income (short-term gains are taxed at it), your long-term capital-gains rate, your state rate on gains, and 3.8 for the net investment income tax if your income is over its threshold, otherwise 0. The tool embeds no tax tables because they change; check the current ones or ask your tax preparer.</p>
+      <h3>Is this tax or financial advice?</h3>
+      <p>No. It is arithmetic on the rates and amounts you type, with simplifications: one security, one sale date, one price, a flat rate per character, and no alternative minimum tax. It does not decide your tax. Confirm the plan with your tax adviser or broker before you trade.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your actual tax: alternative minimum tax, the phase-outs of other deductions, the income-based bracket your gain lands in (one flat rate per character is used), state rules, collectibles and real-estate-fund rates, covered-versus-noncovered lot rules, mutual-fund average cost, and wash sales across accounts or relatives. It also cannot see what the price does while you wait. One security and one sale date at a time.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../cd-treasury-ladder-planner/">CD and Treasury ladder planner</a>, the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a> for year-end loss selling, the <a href="../wash-sale-checker/">wash sale checker</a>, the <a href="../covered-call-wheel-calculator/">covered call and wheel calculator</a> if you sell options on shares you keep, and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> for the payment the sale may add.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not recommend buying or selling any security. Results are arithmetic on figures you type; verify them with your broker's cost-basis records and a qualified tax professional before you trade.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv, isoDate } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const TEXT = new Set(["lotsText", "saleDate", "targetMode", "wholeShares"]);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = TEXT.has(k) ? $(k).value : (Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]); return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const sh = (x) => (Math.abs(x - Math.round(x)) < 1e-6 ? String(Math.round(x)) : x.toFixed(3));
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const b = a.best;
+      const verdict = "Selling " + sh(b.shares) + " shares raises " + money(b.proceeds) + " and adds " + (b.tax >= 0 ? money(b.tax) + " of tax" : "no tax and saves " + money(-b.tax)) + " with the lots below" + (a.savingVsFifo > 1 ? ", which is " + money(a.savingVsFifo) + " less than selling oldest-first (FIFO)." : ".");
+      h += `<div class="finding"><h4>The plan</h4><p>${esc(verdict)}</p>${table(["Lot", "Bought", "Sell shares", "Cost / share", "Term", "Gain / loss"], a.rows.map((x) => [x.id, isoDate(x.acquired), sh(x.shares), money(x.cost), x.longTerm ? "Long" : "Short", money(x.gain)]))}<p><button type="button" class="secondary" id="csv">Download lots to sell (CSV)</button></p></div>`;
+      if (b.carry > 0) h += `<div class="finding"><span class="pill">Note</span> This sale leaves ${money(b.carry)} of net capital loss to carry forward after the $3,000 deduction; the tool does not value the carryforward.</div>`;
+      if (a.washLots.length) h += `<div class="finding"><span class="pill">Wash sale</span> The plan sells lot${a.washLots.length > 1 ? "s" : ""} ${a.washLots.join(", ")} at a loss while you still hold shares bought in the 30 days before ${esc($("saleDate").value)}. That part of the loss can be disallowed. Waiting 31 days, or selling the newer lots too, avoids it; purchases in other accounts also count.</div>`;
+      h += `<div class="finding"><h4>Same sale, four ways of choosing lots</h4>${table(["Method", "Short-term gain", "Long-term gain", "Tax added"], a.results.map((r) => [r.label, money(r.stGain), money(r.ltGain), money(r.tax)]))}</div>`;
+      if (a.waits.length) h += `<div class="finding"><h4>If you waited for lots to turn long-term</h4><p>Same price assumed; the real price will move. Tax added by the best plan on each date:</p>${table(["Wait", "Date", "Tax added", "Saved vs today"], a.waits.map((w) => [w.days + " days", w.date, money(w.tax), money(w.saving)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "lots-to-sell.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

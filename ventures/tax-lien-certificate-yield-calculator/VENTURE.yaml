@@ -1,0 +1,56 @@
+name: tax-lien-certificate-yield-calculator
+description: >-
+  Free browser tool for tax lien certificate investors: type the county's interest rule, face,
+  premium, fees and later taxes and see interest and annualized yield by redemption month, the
+  expected result at your own redemption chance, and the break-even parcel value if you must
+  foreclose. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "tax lien certificate
+# redemption yield and bid-down calculator" scored 0.18 against the nearest venture
+# (storage-auction-max-bid-calculator); nothing in the catalogue models tax lien certificates.
+#
+# Why this niche: county tax lien sales are run in around two dozen states, buyers are individual
+# investors with real capital at stake per certificate, and the sale terms are PDFs with the
+# interest rule written three different ways. Investor forums trade spreadsheets; auction sites
+# show a face amount and a max rate, not what a month-8 redemption nets after fees and the
+# premium, nor the parcel value needed if it never redeems. "tax lien certificate calculator" and
+# "tax lien investing return" are standing searches.
+#
+# First visitor: tax lien investors and county-auction beginners (r/realestateinvesting,
+# BiggerPockets tax-lien forums, county sale-day Facebook groups). Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed rules and amounts; no state or county data
+# embedded, no valuation, no recommendation to buy; says to read the county's rules and consult a
+# professional; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later CSV import of a
+# county's certificate list to rank by yield (not built).
+
+hypotheses:
+  - claim: >-
+      Tax lien buyers will type a county's interest rule into a private page to compare redemption
+      timing, premium and foreclosure break-even, because sale lists show face and rate but not
+      the net by month.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A tax lien investor reports that a worked redemption amount disagrees with their county's statute for the same rule, rate and redemption date.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-lien-certificate-yield-calculator/
+  analytics: null

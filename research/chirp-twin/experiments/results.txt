@@ -1,0 +1,52 @@
+FMCW range-Doppler coupling twin. Twin reads the true range; the real up-ramp radar reads R + kappa v (+ v T).
+Presets: name, carrier fc, bandwidth B, ramp T, repetition interval Tpri
+
+== 1. kappa, range cell, unambiguous speed V, bias in cells at 30 m/s (analytic) ==
+preset         kappa [s]  cell [m]  V [m/s]  bias@30 m/s [m]  [cells]  (= f_D T)
+fast 77 GHz   0.00308    0.1499    16.22    0.0924           0.616
+mid 77 GHz    0.0154     0.1499    3.89     0.4620           3.082
+slow 24 GHz   0.096      0.5996    2.60     2.8800           4.803
+
+== 2. Signal-level check: beat tone simulated with exact two-way delay, Hann window, zero-padded FFT + parabola ==
+(R0 = 30 m at ramp start; read - R0 versus the formula kappa v and kappa v + v T)
+preset         v [m/s]  read-R0 [m]   kappa v [m]   kappa v + v T [m]   residual to the latter [cells]
+fast 77 GHz   -25      -0.07799      -0.07700      -0.07800            +0.0000
+fast 77 GHz   10       0.03120       0.03080       0.03120             -0.0000
+fast 77 GHz   25       0.07799       0.07700       0.07800             -0.0000
+mid 77 GHz    -25      -0.38999      -0.38500      -0.39000            +0.0000
+mid 77 GHz    10       0.15600       0.15400       0.15600             -0.0000
+mid 77 GHz    25       0.38999       0.38500       0.39000             -0.0000
+slow 24 GHz   -25      -2.42496      -2.40000      -2.42500            +0.0001
+slow 24 GHz   10       0.97002       0.96000       0.97000             +0.0000
+slow 24 GHz   25       2.42496       2.40000       2.42500             -0.0001
+
+== 3. Bias in cells stays <= (T/Tpri)/2 for |v| <= V (analytic: (v/V) T/(2 Tpri)) ==
+fast 77 GHz   T/Tpri=0.667  cells at v=V: 0.3333   at 2V: 0.6667   at 3V: 1.0000
+mid 77 GHz    T/Tpri=0.800  cells at v=V: 0.4000   at 2V: 0.8000   at 3V: 1.2000
+slow 24 GHz   T/Tpri=0.833  cells at v=V: 0.4167   at 2V: 0.8333   at 3V: 1.2500
+
+== 4. Compensating with the wrapped Doppler speed (fast preset; V=16.22 m/s) ==
+v/V   uncorrected [cells]   wrapped-corrected [cells]   corrected worse than none?
+0.5   0.1667               0.0000                      False
+0.9   0.3000               0.0000                      False
+1.1   0.3667               0.6667                      True
+1.5   0.5000               0.6667                      True
+1.9   0.6333               0.6667                      True
+2.5   0.8333               0.6667                      False
+2.9   0.9667               0.6667                      False
+3.3   1.1000               1.3333                      True
+3.7   1.2333               1.3333                      True
+5     1.6667               2.0000                      True
+fraction of speeds in (V, 21V) where wrapped compensation is worse than none: 0.5000
+
+== 5. Stationary scene seen by a forward-moving radar: every point read short by kappa v cos(theta) ==
+(analytic closed forms; rigid 2-D Procrustes residual by numerics on a ring r=40 m, 2001 points)
+FOV +-deg  <cos^2>  translation bias / kv   residual rms (closed) / kv   rigid residual (numeric) / kv
+30         0.9135   0.9135                 0.2811                     0.2812
+60         0.7067   0.7067                 0.4553                     0.4554
+90         0.5000   0.5000                 0.5000                     0.5000
+
+along-track position bias and residual map distortion at v = 30 m/s, FOV +-60 deg:
+fast 77 GHz   translation bias 0.0653 m   residual rms 0.0421 m   (cell 0.1499 m)
+mid 77 GHz    translation bias 0.3265 m   residual rms 0.2103 m   (cell 0.1499 m)
+slow 24 GHz   translation bias 2.0354 m   residual rms 1.3111 m   (cell 0.5996 m)

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Xero Contacts CSV Check — Find Import Errors Before You Upload</title>
+  <meta name="description" content="Free Xero contacts CSV checker: finds duplicate contact names, missing columns, emails holding two addresses, bad payment terms, discounts out of range and Excel damage to phone numbers and postcodes, with line numbers, applies safe fixes and splits big files. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="Xero Contacts CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks a Xero contacts import, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Xero Contacts CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a Xero contacts import CSV for template headings, the required contact name, duplicate names, email addresses, payment terms, discounts and Excel damage to phone and postcode columns before it is imported, applies safe fixes and splits big files. Runs entirely in your browser; the file is never uploaded.", "featureList": "Xero contacts CSV validator, duplicate contact name finder, email address checker, scientific notation phone number finder, lost leading zero postcode warning, payment terms checker, semicolon CSV fix, file splitter"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my Xero contacts CSV import fail?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a missing *ContactName column or empty name cells, two rows whose names are the same once case and spacing are ignored, a cell holding two email addresses, payment terms outside the values Xero accepts, a Discount above 100 or written as a fraction, and an Excel save that turned phone or bank numbers into scientific notation. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "How do I check a Xero contacts CSV before importing it?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the file or drop it onto this page. It reads the header against the contacts template, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded."}}, {"@type": "Question", "name": "Does Xero allow two contacts with the same name?", "acceptedAnswer": {"@type": "Answer", "text": "No. Contact names must be unique, and Xero compares them without regard to capitals or repeated spaces, so Acme Ltd and ACME  ltd collide. Add a town or branch to tell them apart, or merge the rows. This tool lists every pair with its line numbers."}}, {"@type": "Question", "name": "Why did my phone numbers turn into 4.41175E+11?", "acceptedAnswer": {"@type": "Answer", "text": "Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text."}}, {"@type": "Question", "name": "Why did my ZIP codes lose their leading zero?", "acceptedAnswer": {"@type": "Answer", "text": "Excel reads 02108 as the number 2108. The tool flags four-digit postal codes on US addresses, because the original usually began with a zero, but it never rewrites a postcode itself."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things with one reasonable reading: the separator, template heading spelling, stray spaces in any cell, a mailto: prefix on an email, a percent sign or decimal comma in Discount, lower-case payment terms, and exact duplicate rows. It never edits the letters of a name, an address, a phone, bank or tax number."}}, {"@type": "Question", "name": "Is it safe to put my customer list into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies still decide what you may open in a browser."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether Xero will accept the file today, whether a contact already exists in your organisation, whether tax code names, account codes and tracking categories exist, and anything Xero changes in its importer. A clean result is not a promise of success: import a handful of contacts first."}}]}</script>
+      <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">XERO CONTACTS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my Xero contacts import fail?</h1>
+    <p>Paste or drop your <strong>contacts CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>two contacts with the same name</strong> once case and spacing are ignored, an <strong>email cell holding two addresses</strong>, phone numbers Excel turned into <code>4.41175E+11</code>, <strong>ZIP codes that lost their zero</strong>, payment terms Xero does not know, and a Discount of 150. Then download a cleaned copy.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Xero. Column names and rules are read from memory of Xero's public contacts CSV import template and help pages; no Xero import was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your contacts CSV</h2>
+    <p class="note">The file from a spreadsheet, a CRM or old accounting package export, or Xero's own contacts import template, saved as CSV.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="*ContactName,EmailAddress,FirstName,LastName,..."></textarea>
+    <div class="grid">
+      <div><label for="splitsize">If you split the file, contacts per part</label>
+        <input type="number" id="splitsize" value="500" min="1" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Contacts</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col">City</th></tr></thead><tbody id="contacts"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button> <button type="button" class="secondary" id="split">Split into parts</button></p>
+    </div>
+    <div id="split-box" hidden>
+      <h3>Split files</h3>
+      <ul id="split-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>One required column:</strong> <code>*ContactName</code> is the only starred column in the template, and it must be filled on every row.</li>
+      <li><strong>Names are unique:</strong> Xero compares contact names ignoring capitals and repeated spaces, so near-copies collide. Exact copies of a whole row are flagged separately and removed by safe fixes.</li>
+      <li><strong>One email per contact:</strong> the template has a single EmailAddress cell. A list separated by commas or semicolons is an error.</li>
+      <li><strong>Excel damage:</strong> phone, bank and tax numbers in scientific notation are unrecoverable and flagged; postal codes and phone numbers that lost a leading zero are flagged but never rewritten, because the tool cannot know the original.</li>
+      <li><strong>Payment terms:</strong> a day count from 0 to 31 plus one of DAYSAFTERBILLDATE, DAYSAFTERBILLMONTH, OFCURRENTMONTH or OFFOLLOWINGMONTH, both halves together.</li>
+      <li><strong>Discount</strong> is a percentage from 0 to 100, written as a bare number.</li>
+      <li><strong>Safe fixes</strong> change only the separator, heading spelling, stray spaces, a mailto: prefix, a percent sign or decimal comma in Discount, payment term capitals and exact duplicate rows. It never edits the letters of a name, an address, or a phone, bank or tax number.</li>
+      <li><strong>Not checked:</strong> that Xero will accept the file today, that a contact already exists, that tax code names, account codes and tracking categories exist, and anything Xero changes in its importer. Import a handful first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my Xero contacts CSV import fail?</h3>
+    <p>The usual causes are a missing *ContactName column or empty name cells, two rows whose names are the same once case and spacing are ignored, a cell holding two email addresses, payment terms outside the values Xero accepts, a Discount above 100 or written as a fraction, and an Excel save that turned phone or bank numbers into scientific notation. This tool tests each of them and names the line.</p>
+    <h3>How do I check a Xero contacts CSV before importing it?</h3>
+    <p>Paste the file or drop it onto this page. It reads the header against the contacts template, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded.</p>
+    <h3>Does Xero allow two contacts with the same name?</h3>
+    <p>No. Contact names must be unique, and Xero compares them without regard to capitals or repeated spaces, so Acme Ltd and ACME  ltd collide. Add a town or branch to tell them apart, or merge the rows. This tool lists every pair with its line numbers.</p>
+    <h3>Why did my phone numbers turn into 4.41175E+11?</h3>
+    <p>Excel stored a long number in a cell formatted as General or Number and shortened it. The lost digits cannot be recovered from the file, so the tool flags the cell as an error and leaves it alone. Re-export from the source with the column set to Text.</p>
+    <h3>Why did my ZIP codes lose their leading zero?</h3>
+    <p>Excel reads 02108 as the number 2108. The tool flags four-digit postal codes on US addresses, because the original usually began with a zero, but it never rewrites a postcode itself.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the separator, template heading spelling, stray spaces in any cell, a mailto: prefix on an email, a percent sign or decimal comma in Discount, lower-case payment terms, and exact duplicate rows. It never edits the letters of a name, an address, a phone, bank or tax number.</p>
+    <h3>Is it safe to put my customer list into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies still decide what you may open in a browser.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether Xero will accept the file today, whether a contact already exists in your organisation, whether tax code names, account codes and tracking categories exist, and anything Xero changes in its importer. A clean result is not a promise of success: import a handful of contacts first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Xero's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before anything is imported into your accounting records.</p>
+    <p><strong>Not affiliated with Xero.</strong> This tool is independent and is not sponsored, endorsed or connected to Xero Limited or any accounting, CRM or marketplace vendor. Xero is a trademark of its owner, used here only to say which file format the tool reads. The column list and rules are read from memory of public sources and may be out of date or miss a variant; check them against Xero's current import template.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>file_split</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> does the same for sales invoice files, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> covers QuickBooks Online customer, vendor and item files, and the <a href="../email-list-csv-check/">email list CSV check</a> cleans a mailing list before it goes into an email platform.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, splitContacts, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null, lastText = "";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      lastText = text;
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.contacts} contact${s.contacts === 1 ? "" : "s"}, ${s.withEmail} with an email, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#contacts").innerHTML = s.list.slice(0, 500).map((c) => `<tr><td>${c.line}</td><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${esc(c.city)}</td></tr>`).join("") || `<tr><td colspan="5">No contacts found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#split-box").hidden = true;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses and phone, bank and tax numbers are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.contacts} contact(s).` : `No errors in ${s.contacts} contact(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up businesses, not real customers."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of list after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#split").addEventListener("click", () => {
+      const split = splitContacts(fixedText || lastText, Number($("#splitsize").value) || 500);
+      $("#split-box").hidden = false;
+      $("#split-list").innerHTML = split.error ? `<li>${esc(split.error)}</li>` : split.parts.map((p, i) => `<li>${esc(p.name)}: ${p.contacts} contacts <button type="button" class="secondary" data-part="${i}">Download</button></li>`).join("");
+      $("#split-list").onclick = (e) => { const i = e.target.dataset && e.target.dataset.part; if (i !== undefined && split.parts[i]) { record("file_split"); download(split.parts[i].name, split.parts[i].text, "text/csv"); } };
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; lastText = ""; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("xero-contacts-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("xero-contacts-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+name: s-corp-reasonable-compensation-calculator
+description: Free browser calculator for single-shareholder S-corp owners that compares a planned or current W-2 salary against a comparable-wage figure the owner supplies, using the IRS's actual multi-factor reasonable-compensation test (not a percentage safe-harbor, which does not exist), reports the FICA-tax cost of closing any gap using the 2026 Social Security wage base, and prints a nine-factor documentation checklist drawn from Rev. Rul. 74-44 and Watson v. Commissioner. Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-24. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.10 -- the closest matches
+# (staffing-markup-calculator, employee-cost-calculator,
+# economic-nexus-threshold-tracker) are all different problems: markup on a
+# staffing agency's billed rate, the fully-loaded cost of hiring an
+# employee, and a state sales-tax registration threshold, none of them the
+# W-2-salary-vs-distribution split inside a single S-corp. A grep for
+# "s-corp", "reasonable comp", "1099" and "classification" across ventures/
+# and portfolio/pipeline/ found the existing 1099-vendor-tracker (IRS
+# 1099-NEC issuer-side reporting thresholds) and 1099-k-threshold-checker
+# (marketplace 1099-K payment-reporting thresholds) as the closest
+# siblings by domain -- both are a different threshold question (who has
+# to be issued or receive a form) from this venture's question (how should
+# an owner-employee split their own pay). Deliberately chosen to sit
+# outside both saturated fleet archetypes named in the session brief: it
+# is neither a <trade>-bid-calculator (it prices nobody's job) nor a
+# security/compliance-text scanner (it makes no network request and checks
+# no external configuration).
+#
+# Niche test (PRODUCT_PLAYBOOK.md 1):
+#   Who exactly: single-shareholder S-corp owners (consultants, real estate
+#     agents/brokers, physicians and other licensed professionals, small
+#     agency owners) who prepare their own numbers or work with a CPA and
+#     want a first read before or between annual conversations.
+#   What they search: "s corp salary calculator", "s corp reasonable
+#     compensation calculator", "how much should I pay myself s corp" --
+#     demonstrated real, current volume by at least nine independent
+#     competitor/publisher pages found via WebSearch 2026-09-24, several
+#     dated 2026: jupid.com/s-corp-salary-calculator, lecpa.co/calculator/
+#     reasonable-salary, nationaltaxtools.com's guide+calculator,
+#     madsencpa.com/s-corp-salary-calculator, taxstra.com,
+#     biztaxcalc.com, sdocpa.com, unclekam.com, and
+#     financial-advisors-for-business-owners.com -- all CPA-firm or
+#     advisor-marketing pages built specifically to rank for this phrase.
+#   What it costs them: Watson v. Commissioner (668 F.3d 1008, 8th Cir.
+#     2012) recharacterized $67,044/year of distributions to wages against
+#     a $24,000 salary on ~$200k-274k of annual profit -- real back
+#     payroll tax, penalties, and interest, not a hypothetical.
+#   Why no vendor has solved it for this segment: the free version of this
+#     question is answered today only by static reference articles (the
+#     nine competitor pages above); the tools with real data behind them
+#     (RCReports and similar) are priced per-report ($200-900) and sold
+#     through CPAs, not to the owner directly, and none of the free
+#     articles found offers an interactive self-check with the owner's
+#     own numbers plus the FICA-cost tradeoff in one place.
+#
+# Data sourcing and its limits: the 2026 Social Security wage base
+# ($184,500) is drawn from the Social Security Administration's own
+# October 2025 announcement, cross-confirmed via WebSearch 2026-09-24
+# against Thomson Reuters Tax & Accounting, the AICPA's The Tax Adviser,
+# and Paycor's 2026 payroll guide (all independently reporting the same
+# figure). The Additional Medicare Tax thresholds ($200k single/HOH,
+# $250k MFJ, $125k MFS) are fixed statutory amounts under IRC 3101(b)(2),
+# not inflation-indexed since enactment in 2013. Watson v. Commissioner's
+# facts (the $24,000 salary, the $67,044/year recharacterization, the
+# 2012 Eighth Circuit affirmance) are drawn from the same WebSearch pass
+# and are consistent across independent summaries. The comparable-wage
+# figure itself is never asserted by this tool -- it is an input the
+# owner supplies, exactly as the "Data sourcing" note on every page says,
+# because asserting a specific market-wage number without a live
+# wage-data source would be the kind of unverified claim
+# PRODUCT_PLAYBOOK.md 5b warns against.
+#
+# Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
+# bold must clear 5):
+#   ai_leverage: 1 (deterministic FICA arithmetic and a static factor
+#     checklist; no model involved)
+#   autonomous_ops: 10 (static page, no queue, no human step)
+#   time_to_revenue: 1 (donations-only; no paid tier)
+#   gross_margin: 10 (GitHub Pages hosting, zero per-user cost)
+#   defensibility: 2 (the arithmetic and checklist are easy to reproduce --
+#     typical for this portfolio's calculator shape; the free/no-account
+#     angle against a paid per-report service is the only edge)
+#   distribution: 6 (real, current search demand for "s corp salary
+#     calculator" / "s corp reasonable compensation" -- nine independent
+#     CPA/advisor pages competing for the phrase is evidence the query
+#     exists, not evidence this page will rank; no paid acquisition,
+#     discoverability checklist in place)
+#   **liability_containment: 6** (the number a filer sees is arithmetic on
+#     figures they supplied, compared against a comparable-wage figure
+#     they also supplied -- the tool asserts no market-wage figure of its
+#     own. Output is framed throughout as a starting-point estimate and a
+#     documentation aid, explicitly "not a determination," never a filed
+#     position or a guarantee against an IRS exam outcome. Scored one
+#     point below the sibling economic-nexus-threshold-tracker (7)
+#     because this domain's worst case if misused -- an owner
+#     under-salarying based on a bad self-supplied comparable-wage guess
+#     -- has a real dollar consequence (back FICA, penalties, interest)
+#     that a threshold-checked/not-checked result does not carry to the
+#     same degree; still clearly above the gate given no advice-of-record
+#     framing, no filing, and no data leaving the browser)
+#   **ethical_robustness: 8** (the tool's only effect is prompting an
+#     owner toward a more defensible, better-documented salary decision --
+#     nothing about one owner using it makes another owner's experience
+#     worse, and it explicitly refuses to offer a percentage safe-harbor
+#     shortcut that would help a user game the system, instead directing
+#     them to the comparable-wage test and documentation the IRS and
+#     courts actually apply; no personal or scraped data, no advice framed
+#     as a determination)
+#   Composite: 5.5; floor 1 (ai_leverage/time_to_revenue, same floor class
+#     as most of this portfolio's zero-marginal-cost calculators)
+#
+# Distribution channel evidence (DIRECTION.md North star point 2):
+# r/tax, r/smallbusiness, r/accounting, and r/Bookkeeping all carry
+# recurring threads asking versions of "how much should I pay myself as
+# an S-corp" -- a perennial question every S-corp owner or their preparer
+# faces at least once a year at tax-planning time, and one every paid
+# competitor page found above is itself written to capture. The free,
+# no-signup, no-report-fee angle is the differentiator against both the
+# free static articles (no interactive self-check) and the paid
+# per-report services (RCReports and similar).
+
+hypotheses:
+  - claim: >-
+      S-corp owners uncertain whether their planned salary is defensible
+      will search plain-language phrases ("s corp salary calculator", "how
+      much should I pay myself s corp", "s corp reasonable compensation")
+      and return to a free, no-signup calculator that compares their own
+      numbers against the comparable-wage test, rather than relying solely
+      on a static advisor blog post or paying for a formal report before
+      they know whether they need one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      An owner who sees their planned salary flagged below their own
+      stated comparable-wage figure, while also taking a distribution,
+      will use the FICA-cost comparison to decide how much of the gap is
+      worth closing, rather than treating the flag as pass/fail.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A CPA or bookkeeper serving several S-corp clients will return to
+      this tool at the start of each client's annual salary-setting
+      conversation, because the comparable-wage comparison and FICA math
+      are the same first questions for every client, even though the
+      inputs differ.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January-April tax-filing season (the first full annual
+    salary-setting cycle after this tool's 2026-09-24 launch that an
+    S-corp owner or preparer would plausibly use it during).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within that same 90-day window.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/
+  analytics: null

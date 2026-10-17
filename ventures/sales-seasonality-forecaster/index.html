@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Seasonality Forecaster — slow months and cash cushion from your sales</title>
+  <meta name="description" content="Free seasonal sales forecaster for small shops and restaurants. Paste your monthly sales to get a 12-month forecast with ranges, your slow and peak months, a back-test against last year, and the cash cushion for the slow season. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Sales Seasonality Forecaster — free, private, in your browser">
+  <meta property="og:description" content="Forecast the next 12 months of sales with Holt-Winters, see the slow months, and size the slow-season cash cushion, with a back-test that says when not to trust it.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sales Seasonality Forecaster", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your sales history (date, amount) and get a 6 to 12 month seasonal forecast with 80% and 95% ranges, the slow and peak months, a back-test against same month last year with a do-not-trust warning, and the slow-season cash cushion against your fixed costs. Runs entirely in your browser.", "featureList": "seasonal sales forecast, Holt-Winters forecast, monthly sales forecast from CSV, seasonal index by month, slow season cash flow, prediction intervals, forecast back-test versus naive baseline, small business cash cushion, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I forecast seasonal sales for a small business?", "acceptedAnswer": {"@type": "Answer", "text": "Use a method that learns the yearly pattern from your own history. Holt-Winters exponential smoothing keeps three running estimates: the current level of sales, the trend, and a seasonal factor for each calendar month, and updates them every month. This tool fits it to the date and amount rows you supply, tries additive and multiplicative seasonality with and without a damped trend, keeps the version that predicted a recent stretch of your history best, and projects it forward with ranges."}}, {"@type": "Question", "name": "How much history do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 24 months, which is two full cycles of the seasons. With less, one unusual year cannot be told apart from a real seasonal pattern, so the tool refuses to guess and says how many months it found. Three or more years is noticeably better: the seasonal pattern is then averaged over more years and the ranges are narrower."}}, {"@type": "Question", "name": "What do the 80% and 95% ranges mean?", "acceptedAnswer": {"@type": "Answer", "text": "They are prediction intervals built from how far the model's one-month-ahead guesses missed on your own history, widened the further ahead the month is. About four in five real months should land inside the 80% band and nineteen in twenty inside the 95% band. They describe ordinary month-to-month noise, not a shock such as a closure, a new competitor or a bad storm."}}, {"@type": "Question", "name": "Why does the tool sometimes say not to trust the forecast?", "acceptedAnswer": {"@type": "Answer", "text": "Because it checks itself. It repeatedly hides the last few months, forecasts them, and compares the error with the simplest possible forecast: the same month last year. If the model does not beat that, all its extra machinery adds nothing for your business, and the honest advice is to use last year's figures. That happens with erratic sales, few years of data, or a business that changed a lot."}}, {"@type": "Question", "name": "What is the slow-season cash cushion?", "acceptedAnswer": {"@type": "Answer", "text": "You enter your monthly fixed costs: rent, wages, loan payments, whatever you owe even in a dead month. For each forecast month the tool takes the low end of the range and adds up how far it falls below that cost. The total is the shortfall you should expect to fund from savings or credit in a bad version of the coming months, and the tool also shows the deepest running deficit, which is the cushion you need so the balance never goes below zero."}}, {"@type": "Question", "name": "What format should my file be in?", "acceptedAnswer": {"@type": "Answer", "text": "Two columns, date and amount, one row per day, week or month. Dates can be 2024-03-31, 3/31/2024, Mar 31, 2024 or just 2024-03. Amounts can carry currency symbols and thousands separators, and refunds as negative numbers are netted against sales. Rows are added up into calendar months. Months with no rows are treated as zero sales and flagged. Use one currency and one measure, for example net sales."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your sales. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALES SEASONALITY FORECASTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much will the slow season cost you?</h1>
+    <p>Paste or upload your sales history (date, amount; daily, weekly or monthly). The tool learns your <strong>yearly pattern</strong> with Holt-Winters smoothing, forecasts the <strong>next 6 to 12 months with 80% and 95% ranges</strong>, shows which months are <strong>peak and slow</strong>, and sizes the <strong>cash cushion</strong> you need to cover your fixed costs in the slow months. It then <strong>back-tests itself</strong> against "same month last year" and tells you plainly when not to trust it.</p>
+    <p class="note">Your sales never leave this browser tab. Statistical forecast from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your sales</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="sales">…or paste rows (header optional: date, amount)</label>
+    <textarea id="sales" spellcheck="false" placeholder="date,sales&#10;2023-01-31,10450.00&#10;2023-02-28,9800.50"></textarea>
+    <div class="grid">
+      <div><label for="horizon">Forecast the next</label><select id="horizon"><option value="6">6 months</option><option value="12" selected>12 months</option></select></div>
+      <div><label for="fixed">Monthly fixed costs to cover (optional)</label><input id="fixed" inputmode="decimal" placeholder="e.g. 9000"></div>
+      <div><label for="band">Plan for</label><select id="band"><option value="80" selected>a bad month (80% low band)</option><option value="95">a very bad month (95% low band)</option></select></div>
+    </div>
+    <p class="note">Use one measure in one currency, for example net sales or gross profit, and enter fixed costs on the same basis. Rows are added into calendar months; refunds as negative amounts net against sales; months with no rows count as zero (you are warned). At least 24 months are needed.</p>
+    <button type="button" id="analyze">Forecast</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your sales, then click Forecast.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Forecast with ranges</h3>
+    <div class="legend note"><span>Dark line: your history</span><span>Blue line: forecast</span><span>Shaded: 80% and 95% ranges</span></div>
+    <div id="chart"></div>
+    <div class="scroll"><table id="fc"><thead><tr><th>Month</th><th class="n">Forecast</th><th class="n">80% range</th><th class="n">95% range</th><th class="n" id="short-h">Shortfall</th></tr></thead><tbody></tbody></table></div>
+    <h3>Which months are slow and which are peak</h3>
+    <p class="note">Seasonal index: 1.00 is an average month; 0.60 means 40% below average.</p>
+    <div class="scroll"><table id="seasonal"><thead><tr><th>Month</th><th class="n">Index</th><th>Pattern</th><th></th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test against "same month last year"</h3>
+    <div id="bt-note" class="note"></div>
+    <div class="scroll"><table id="bt"><thead><tr><th>Forecast</th><th class="n">MASE</th><th class="n">MAPE</th><th class="n">Average miss</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">MASE below 1 means better than repeating last year's month in the training years; lower is better. MAPE is the average percentage miss over months with sales.</p>
+    <h3>Model chosen</h3>
+    <p class="note" id="params"></p>
+    <div class="scroll"><table id="cands"><thead><tr><th>Candidate</th><th class="n">Hold-out MASE</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download forecast CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Aggregation:</strong> rows are summed into calendar months. A half-covered first or last month of daily data is dropped so it is not read as a slump. <strong>Holt-Winters</strong> (Holt 1957, Winters 1960): three estimates are updated each month, the level, the trend and a seasonal factor for each calendar month, with smoothing weights fitted by Nelder-Mead to minimise the squared one-month-ahead error. Four versions compete: additive or multiplicative seasonality, each with an undamped or damped trend; the one with the lowest MASE on a hold-out (the last 12 months, or 6 if you have under 36) is refitted on everything. <strong>Ranges:</strong> the spread of the model's own one-month-ahead misses, widened with the horizon by the standard Holt-Winters variance recursion (Hyndman and others, 2008), with a small-sample allowance so the 80% band covers about 80% on simulated data. <strong>Back-test:</strong> from up to 12 starting points the model is refit on the history so far and forecasts the next 6 months; the same months are also "forecast" as the same month a year earlier. MASE and MAPE are reported for both. The model type was picked using data that overlaps the back-test, so the back-test flatters the model a little. <strong>Cash cushion:</strong> for each month, max(0, fixed costs minus the low band); the cushion is their sum, and the deepest running deficit is shown too.</p>
+    <p><strong>Not modelled:</strong> promotions, price changes, moving holidays such as Easter, trading-day effects, a one-off shock inside your history, and cash timing (this forecasts the figures you give it, not bank balances). <strong>Unverified:</strong> checked against simulated series with known answers in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I forecast seasonal sales for a small business?</h3>
+    <p>Use a method that learns the yearly pattern from your own history. Holt-Winters exponential smoothing keeps three running estimates: the current level of sales, the trend, and a seasonal factor for each calendar month, and updates them every month. This tool fits it to the date and amount rows you supply, tries additive and multiplicative seasonality with and without a damped trend, keeps the version that predicted a recent stretch of your history best, and projects it forward with ranges.</p>
+    <h3>How much history do I need?</h3>
+    <p>At least 24 months, which is two full cycles of the seasons. With less, one unusual year cannot be told apart from a real seasonal pattern, so the tool refuses to guess and says how many months it found. Three or more years is noticeably better: the seasonal pattern is then averaged over more years and the ranges are narrower.</p>
+    <h3>What do the 80% and 95% ranges mean?</h3>
+    <p>They are prediction intervals built from how far the model's one-month-ahead guesses missed on your own history, widened the further ahead the month is. About four in five real months should land inside the 80% band and nineteen in twenty inside the 95% band. They describe ordinary month-to-month noise, not a shock such as a closure, a new competitor or a bad storm.</p>
+    <h3>Why does the tool sometimes say not to trust the forecast?</h3>
+    <p>Because it checks itself. It repeatedly hides the last few months, forecasts them, and compares the error with the simplest possible forecast: the same month last year. If the model does not beat that, all its extra machinery adds nothing for your business, and the honest advice is to use last year's figures. That happens with erratic sales, few years of data, or a business that changed a lot.</p>
+    <h3>What is the slow-season cash cushion?</h3>
+    <p>You enter your monthly fixed costs: rent, wages, loan payments, whatever you owe even in a dead month. For each forecast month the tool takes the low end of the range and adds up how far it falls below that cost. The total is the shortfall you should expect to fund from savings or credit in a bad version of the coming months, and the tool also shows the deepest running deficit, which is the cushion you need so the balance never goes below zero.</p>
+    <h3>What format should my file be in?</h3>
+    <p>Two columns, date and amount, one row per day, week or month. Dates can be 2024-03-31, 3/31/2024, Mar 31, 2024 or just 2024-03. Amounts can carry currency symbols and thousands separators, and refunds as negative numbers are netted against sales. Rows are added up into calendar months. Months with no rows are treated as zero sales and flagged. Use one currency and one measure, for example net sales.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your sales. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical forecasts from the sales you supply; they do not guarantee what will happen. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any accounting, point-of-sale or e-commerce vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>forecast_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../cash-runway-planner/">cash runway planner</a>, the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>, the <a href="../seasonal-buy-quantity-optimizer/">seasonal buy quantity optimizer</a> and the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
+    <p>Run an appointment business? The <a href="../client-rebooking-predictor/">client rebooking predictor</a> shows which regular clients are overdue and which have probably gone.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSeries, analyze, forecastCsv, sampleText, num, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(r) {
+      const hist = r.history.slice(-36), fc = r.forecast;
+      const all = [...hist.map((h) => h.value), ...fc.map((f) => f.hi95), ...fc.map((f) => f.lo95)];
+      const W = 900, H = 300, L = 56, R = 12, T = 12, B = 26;
+      const n = hist.length + fc.length;
+      const max = Math.max(...all) * 1.05, min = Math.min(0, ...all);
+      const x = (i) => L + (i * (W - L - R)) / (n - 1);
+      const y = (v) => T + (H - T - B) * (1 - (v - min) / (max - min || 1));
+      const pts = (arr, off) => arr.map((v, i) => `${x(i + off).toFixed(1)},${y(v).toFixed(1)}`);
+      const band = (lo, hi) => `<polygon fill="#1f5f86" fill-opacity="${lo === "lo95" ? 0.12 : 0.22}" points="${[...pts(fc.map((f) => f[hi]), hist.length), ...pts(fc.map((f) => f[lo]), hist.length).reverse()].join(" ")}"/>`;
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((q) => min + q * (max - min));
+      const labelEvery = Math.ceil(n / 9);
+      const names = [...hist.map((h) => h.key), ...fc.map((f) => f.key)];
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Line chart of monthly sales history and the forecast with 80 and 95 percent ranges">` +
+        ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${esc(num(t))}</text>`).join("") +
+        band("lo95", "hi95") + band("lo80", "hi80") +
+        `<polyline fill="none" stroke="#1b1f2a" stroke-width="2" points="${pts(hist.map((h) => h.value), 0).join(" ")}"/>` +
+        `<polyline fill="none" stroke="#1f5f86" stroke-width="2.5" stroke-dasharray="6 3" points="${[pts([hist[hist.length - 1].value], hist.length - 1)[0], ...pts(fc.map((f) => f.point), hist.length)].join(" ")}"/>` +
+        names.map((k, i) => (i % labelEvery === 0 ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(k)}</text>` : "")).join("") +
+        `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseSeries($("#sales").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.months, { horizon: Number($("#horizon").value), fixedCost: Number($("#fixed").value), band: Number($("#band").value) });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const all = [...parsed.warnings, ...r.warnings];
+      $("#notices").innerHTML = all.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const total = r.forecast.reduce((s, f) => s + f.point, 0);
+      const slow = [...r.seasonal].filter((s) => s.index !== null).sort((a, b) => a.index - b.index).slice(0, 3).map((s) => s.name).join(", ");
+      const peak = [...r.seasonal].filter((s) => s.index !== null).sort((a, b) => b.index - a.index).slice(0, 3).map((s) => s.name).join(", ");
+      const big = [
+        [num(total), `Forecast total, next ${r.horizon} months`],
+        [slow, "Slowest months"],
+        [peak, "Peak months"],
+      ];
+      if (r.cushion) big.push([num(r.cushion.total), `Slow-season shortfall against ${num(r.cushion.fixedCost)} a month (${r.cushion.band}% low band)`], [num(r.cushion.peakRunningDeficit), "Cushion needed so the balance never dips below zero"]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const bt = r.backtest;
+      $("#trust").innerHTML = bt
+        ? `<div class="warn ${bt.doNotTrust ? "stop" : ""}"><span class="pill ${bt.doNotTrust ? "high" : bt.verdict === "marginal" ? "medium" : "good"}">${bt.doNotTrust ? "do not trust" : bt.verdict === "marginal" ? "marginal" : "passes back-test"}</span>${esc(bt.message)}</div>`
+        : `<div class="warn">No back-test was possible with this much history, so there is no evidence the model beats last year's figures.</div>`;
+      $("#chart").innerHTML = chart(r);
+      $("#short-h").hidden = !r.cushion;
+      $("#fc tbody").innerHTML = r.forecast.map((f, i) => `<tr><td>${esc(f.label)}</td><td class="n">${num(f.point)}</td><td class="n">${num(f.lo80)} – ${num(f.hi80)}</td><td class="n">${num(f.lo95)} – ${num(f.hi95)}</td>${r.cushion ? `<td class="n">${num(r.cushion.rows[i].shortfall)}</td>` : ""}</tr>`).join("");
+      const maxIdx = Math.max(...r.seasonal.map((s) => s.index || 0));
+      $("#seasonal tbody").innerHTML = r.seasonal.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.index === null ? "n/a" : s.index.toFixed(2)}</td><td>${esc(s.label)}</td><td><span class="bar ${s.label === "slow" ? "slow" : ""}" style="width:${s.index ? Math.round((s.index / maxIdx) * 140) : 0}px"></span></td></tr>`).join("");
+      $("#bt-note").textContent = bt ? `${bt.origins} starting points, each forecasting ${bt.horizon} months ahead (${bt.count} forecasts scored). Baseline: the same month a year earlier.` : "Not enough history to hold out a test period.";
+      $("#bt tbody").innerHTML = bt ? [["Holt-Winters model", bt.modelMase, bt.modelMape, bt.modelMae], ["Same month last year", bt.baselineMase, bt.baselineMape, bt.baselineMae]].map(([n, a, b, c]) => `<tr><td>${esc(n)}</td><td class="n">${a.toFixed(2)}</td><td class="n">${pct(b, 1)}</td><td class="n">${num(c)}</td></tr>`).join("") : "";
+      const p = r.model.params;
+      $("#params").textContent = `${r.model.name}. Smoothing: level ${p.alpha.toFixed(3)}, trend ${p.beta.toFixed(3)}, seasonal ${p.gamma.toFixed(3)}` + (r.model.damped ? `, damping ${p.phi.toFixed(2)}` : "") + `. History: ${r.n} months, ${r.first} to ${r.last}. Hold-out: last ${r.holdout} months.`;
+      $("#cands tbody").innerHTML = r.candidates.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${c.mase === null ? esc(c.note) : c.mase.toFixed(2)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("forecast_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#sales").value = sampleText();
+      if (!$("#fixed").value) $("#fixed").value = "9000";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 36 invented months for a seasonal shop, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#sales").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Forecast.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#sales").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your sales, then click Forecast."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([forecastCsv(last)], { type: "text/csv" }));
+      a.download = "sales-forecast.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

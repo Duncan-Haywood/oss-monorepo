@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
+  <meta name="description" content="Paste a SKILL.md file (the format Claude Code and similar agent systems use) and get every common authoring mistake flagged: missing or malformed frontmatter, a description too vague to trigger reliably, overlapping triggers across sibling skills, and a body-size caution against a context budget. Free SKILL.md linter and Claude skill checker, runs entirely in your browser, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Skill Manifest Check">
+  <meta property="og:description" content="Paste a SKILL.md and get every common authoring mistake flagged -- missing frontmatter fields, a description too vague to trigger reliably, overlapping triggers between skills, and a context-budget caution. Nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Skill Manifest Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that checks one or more pasted SKILL.md agent-skill manifests for structural authoring mistakes: missing or malformed YAML frontmatter (name, description), a description too vague or too generic to trigger reliably, overlapping trigger vocabulary between two or more pasted skills, and a rough instruction-body token estimate against a documented context-budget caution.","featureList":"Frontmatter and required-field validation; description vagueness heuristics (length, trigger cue, distinctive vocabulary); cross-skill overlapping-trigger detection; body-size context-budget caution; copyable findings summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this tool check in a SKILL.md file?","acceptedAnswer":{"@type":"Answer","text":"Four things: the YAML frontmatter has a valid name and description, the description gives an agent enough to trigger reliably (length, a concrete trigger cue, and real distinctive vocabulary), whether two or more pasted skills have descriptions that could compete for the same request, and a rough token estimate for the instruction body against a documented caution line."}},{"@type":"Question","name":"Does this tool contact a network, an AI model, or Anthropic's servers?","acceptedAnswer":{"@type":"Answer","text":"No. Every check is a deterministic pattern match against the text you paste, entirely in your browser. It never calls an LLM to judge the skill, never uploads anything, and never checks whether the skill actually triggers inside a real agent session."}},{"@type":"Question","name":"Is a clean result a guarantee the skill will trigger correctly?","acceptedAnswer":{"@type":"Answer","text":"No. Every check here is a structural, pattern-matching signal against known failure shapes, not a semantic understanding of your description or a real trigger test. A skill with zero findings can still fail to trigger in an actual agent session, and a skill that trips a finding can still work fine -- read every finding as worth a look, not a verdict."}},{"@type":"Question","name":"Why does pasting more than one SKILL.md matter?","acceptedAnswer":{"@type":"Answer","text":"An agent with many skills loaded has to pick one for each request. Two skills whose descriptions share too much distinctive vocabulary compete for the same request even if neither file is wrong on its own -- this tool only checks for that overlap when you paste two or more skills at once."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}
+    p{color:var(--muted)}.lede{max-width:700px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
+    label{display:block;color:var(--muted);font-size:.86rem;margin:9px 0}
+    textarea{display:block;width:100%;min-height:170px;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);margin-top:4px;resize:vertical}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;margin-top:8px}
+    button.secondary{background:#eef2fa;color:var(--ink);font-weight:600}
+    button.remove{background:#fdf1f0;color:#a3211a;font-weight:600;padding:6px 10px;font-size:.82rem;margin:0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .skillBox{border:1px solid var(--line);border-radius:10px;padding:12px;margin:12px 0;background:#f8f9fc}
+    .skillBox .row{justify-content:space-between;margin-top:0}
+    .skillBox .row label{margin:0;font-weight:700;color:var(--ink)}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0}
+    .summary[hidden]{display:none}
+    .stat{border:1px solid var(--line);border-radius:10px;padding:12px;background:#f8f9fc}
+    .stat strong{display:block;font-size:1.5rem;color:var(--ink)}
+    .stat.high strong{color:#a3211a}.stat.medium strong{color:#8a6100}.stat.low strong{color:#2457d6}
+    .skillResult{margin:16px 0}
+    .skillResult h3{font-size:.98rem;margin:0 0 6px;color:var(--ink)}
+    .skillResult .ok{color:#1b7a3d;font-weight:600;font-size:.85rem}
+    ul.findings{list-style:none;margin:0;padding:0}
+    ul.findings li{border-left:4px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0;background:#f8f9fc}
+    ul.findings li.high{border-left-color:#a3211a;background:#fdf1f0}
+    ul.findings li.medium{border-left-color:#c98a00;background:#fdf7e8}
+    ul.findings li.low{border-left-color:#2457d6;background:#eef2fa}
+    ul.findings .cat{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-bottom:3px}
+    .small{font-size:.85rem}.notice{background:#fff8e5;border-left:4px solid #d49a00;padding:10px 13px;color:#5f4900}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}
+    #overlapSection[hidden]{display:none}
+    @media(max-width:700px){.summary{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Skill Manifest Check</h1>
+  <p class="lede">Paste a <code>SKILL.md</code> file -- the frontmatter-plus-Markdown format Claude Code and similar agent systems use -- and get every common authoring mistake flagged in seconds: missing or malformed frontmatter, a description too vague to trigger reliably, overlapping triggers between two or more skills, and a body-size caution against a context budget.</p>
+  <p class="notice"><strong>Structural pattern-matching, not a trigger test.</strong> This tool never runs your skill inside an agent and never calls an LLM to judge it -- it only looks at the text you paste and flags known failure shapes in it. A finding is something worth a look, not a verdict, and a clean result is not a guarantee the skill will trigger correctly.</p>
+
+  <section class="panel">
+    <h2>1. Paste your SKILL.md</h2>
+    <p class="small">Paste one skill to check its frontmatter, description, and body size. Add a second (or more) to also check whether their descriptions overlap enough to compete for the same request. Nothing here is uploaded -- everything runs in this page.</p>
+    <div id="skillsContainer"></div>
+    <div class="row">
+      <button id="addSkill" type="button" class="secondary">+ Add another skill</button>
+      <button id="loadExample" type="button" class="secondary">Load an example bundle</button>
+      <button id="clearAll" type="button" class="secondary">Clear all</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <div id="summaryOut" class="summary" hidden>
+      <div class="stat"><strong id="skillCount">0</strong><span class="small">skill(s) parsed</span></div>
+      <div class="stat high"><strong id="highCount">0</strong><span class="small">high-severity</span></div>
+      <div class="stat medium"><strong id="mediumCount">0</strong><span class="small">medium-severity</span></div>
+      <div class="stat low"><strong id="lowCount">0</strong><span class="small">caution</span></div>
+    </div>
+    <p id="statusOut" class="small" role="status" aria-live="polite">Paste a SKILL.md above, or load the example, to see findings.</p>
+    <div id="skillResults"></div>
+    <section id="overlapSection" hidden>
+      <h3>Overlapping triggers</h3>
+      <ul class="findings" id="overlapList"></ul>
+    </section>
+    <button id="copySummary" type="button">Copy findings summary</button>
+    <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous lint events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only that a lint ran or a summary was copied. Nothing you paste -- no SKILL.md contents, names, descriptions, or findings -- is ever recorded, uploaded, or sent to an analytics service. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What does this tool check in a SKILL.md file?</h3>
+  <p>Four things: the YAML frontmatter has a valid name and description, the description gives an agent enough to trigger reliably (length, a concrete trigger cue, and real distinctive vocabulary), whether two or more pasted skills have descriptions that could compete for the same request, and a rough token estimate for the instruction body against a documented caution line.</p>
+  <h3>Does this tool contact a network, an AI model, or Anthropic's servers?</h3>
+  <p>No. Every check is a deterministic pattern match against the text you paste, entirely in your browser. It never calls an LLM to judge the skill, never uploads anything, and never checks whether the skill actually triggers inside a real agent session.</p>
+  <h3>Is a clean result a guarantee the skill will trigger correctly?</h3>
+  <p>No. Every check here is a structural, pattern-matching signal against known failure shapes, not a semantic understanding of your description or a real trigger test. A skill with zero findings can still fail to trigger in an actual agent session, and a skill that trips a finding can still work fine -- read every finding as worth a look, not a verdict.</p>
+  <h3>Why does pasting more than one SKILL.md matter?</h3>
+  <p>An agent with many skills loaded has to pick one for each request. Two skills whose descriptions share too much distinctive vocabulary compete for the same request even if neither file is wrong on its own -- this tool only checks for that overlap when you paste two or more skills at once.</p>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee that a skill will or will not trigger correctly in any particular agent runtime, and it does not replace testing the skill inside the agent you actually run it in. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The SKILL.md text you paste, and every finding this tool produces, never leaves your device -- there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Auditing an MCP server's launch config instead of a skill manifest? See <a href="../mcp-config-risk-check/">MCP Config Risk Check</a>. Checking a pasted file for hidden or invisible Unicode instead? See <a href="../hidden-unicode-check/">Hidden Unicode Check</a>. Checking a Claude Code settings.json's hooks and permissions instead of a skill manifest? See <a href="../claude-code-settings-check/">Claude Code Settings Check</a>. Checking a Claude Code subagent definition instead of a skill manifest? See <a href="../claude-code-subagent-check/">Claude Code Subagent Check</a>. Starting a brand-new skill instead of checking an existing one? See <a href="../claude-skill-scaffold-generator/">Claude Skill Scaffold Generator</a>. Checking a Claude Code hook's command text for dangerous shapes instead of a skill manifest? See <a href="../claude-code-hooks-security-check/">Claude Code Hooks Security Check</a>.</p>
+    <p>See <a href="./how-to-write-a-description-that-triggers.html">how to write a description that actually triggers</a>, with before/after rewrites. Wondering what a careful read still misses? See <a href="./vs-reading-the-skill-by-hand.html">this tool vs. reading the SKILL.md by hand</a>.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { lintSkills, summaryText } from "./calc.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  const EXAMPLE_SKILLS = [
+    `---
+name: pdf-form-filler
+description: Use when the user asks to fill out a PDF form, extract PDF form field values, or flatten a completed PDF form into a final document, e.g. "fill in this W-9 with my details".
+---
+
+# PDF Form Filler
+
+1. Read the form fields from the uploaded PDF.
+2. Map the user's supplied values onto each field by name.
+3. Flatten the form and return the completed PDF.
+`,
+    `---
+name: PDF Helper
+description: Helps with PDFs.
+---
+Do PDF stuff for the user.
+`,
+    `---
+name: pdf-form-autopopulate
+description: Trigger when the user wants to fill a PDF form automatically, populate PDF form field values, or flatten a completed PDF form for review.
+---
+
+# PDF Form Autopopulate
+
+Same job as pdf-form-filler, worded differently -- included to show the overlap check.
+`,
+  ];
+
+  let skillIndex = 0;
+  let lastResult = null;
+  let lintTimer;
+
+  function skillBoxes() {
+    return [...$("skillsContainer").querySelectorAll(".skillBox")];
+  }
+
+  function updateRemoveButtons() {
+    const boxes = skillBoxes();
+    for (const box of boxes) {
+      box.querySelector(".remove").hidden = boxes.length <= 1;
+    }
+  }
+
+  function addSkillBox(initialText = "") {
+    skillIndex += 1;
+    const n = skillIndex;
+    const box = document.createElement("div");
+    box.className = "skillBox";
+    box.innerHTML = `
+      <div class="row">
+        <label for="skillInput${n}">Skill ${n}</label>
+        <button type="button" class="remove">Remove</button>
+      </div>
+      <textarea id="skillInput${n}" class="skillInput" spellcheck="false" aria-label="SKILL.md text, skill ${n}"></textarea>
+    `;
+    box.querySelector("textarea").value = initialText;
+    box.querySelector("textarea").addEventListener("input", () => lint(true));
+    box.querySelector(".remove").addEventListener("click", () => {
+      box.remove();
+      updateRemoveButtons();
+      lint(false);
+    });
+    $("skillsContainer").appendChild(box);
+    updateRemoveButtons();
+    return box;
+  }
+
+  function categoryLabel(category) {
+    return {
+      "invalid-frontmatter": "Invalid frontmatter",
+      "missing-field": "Missing required field",
+      "malformed-name": "Malformed name",
+      "description-too-short": "Description too short",
+      "description-no-trigger-cue": "No trigger cue",
+      "description-too-generic": "Description too generic",
+      "oversized-body": "Body size caution",
+      "overlapping-trigger": "Overlapping trigger",
+    }[category] || category;
+  }
+
+  function findingLi(f) {
+    const li = document.createElement("li");
+    li.className = f.severity;
+    li.innerHTML = `<span class="cat">${categoryLabel(f.category)} · ${f.severity}</span><br>${f.detail}`;
+    return li;
+  }
+
+  function renderResults(result) {
+    const container = $("skillResults");
+    container.innerHTML = "";
+    for (const skill of result.skills) {
+      const section = document.createElement("div");
+      section.className = "skillResult";
+      const heading = document.createElement("h3");
+      heading.textContent = skill.name;
+      section.appendChild(heading);
+      if (skill.findings.length === 0) {
+        const ok = document.createElement("p");
+        ok.className = "ok";
+        ok.textContent = "No structural issues found.";
+        section.appendChild(ok);
+      } else {
+        const list = document.createElement("ul");
+        list.className = "findings";
+        for (const f of skill.findings) list.appendChild(findingLi(f));
+        section.appendChild(list);
+      }
+      container.appendChild(section);
+    }
+
+    const overlapList = $("overlapList");
+    overlapList.innerHTML = "";
+    if (result.overlapFindings.length > 0) {
+      for (const f of result.overlapFindings) {
+        const li = findingLi(f);
+        li.querySelector(".cat").textContent = `${f.skillA} ↔ ${f.skillB} · ${f.severity}`;
+        overlapList.appendChild(li);
+      }
+      $("overlapSection").hidden = false;
+    } else {
+      $("overlapSection").hidden = true;
+    }
+
+    $("skillCount").textContent = String(result.skills.length);
+    $("highCount").textContent = String(result.counts.high);
+    $("mediumCount").textContent = String(result.counts.medium);
+    $("lowCount").textContent = String(result.counts.low);
+    $("summaryOut").hidden = false;
+  }
+
+  function lint(track = false) {
+    const texts = skillBoxes()
+      .map((box) => box.querySelector("textarea").value)
+      .filter((t) => t.trim() !== "");
+    lastResult = null;
+    if (texts.length === 0) {
+      $("statusOut").textContent = "Paste a SKILL.md above, or load the example, to see findings.";
+      $("skillResults").innerHTML = "";
+      $("overlapSection").hidden = true;
+      $("summaryOut").hidden = true;
+      return;
+    }
+    try {
+      const result = lintSkills(texts);
+      lastResult = result;
+      renderResults(result);
+      $("statusOut").textContent = result.findings.length === 0
+        ? `${result.skills.length} skill(s) parsed. No structural issues observed -- not a guarantee the skill will trigger correctly, only that none of this tool's checks fired.`
+        : `${result.skills.length} skill(s) parsed, ${result.findings.length} finding(s) below.`;
+      clearTimeout(lintTimer);
+      if (track) lintTimer = setTimeout(() => countUsage("lint_run"), 800);
+    } catch (error) {
+      $("statusOut").textContent = error.message;
+      $("skillResults").innerHTML = "";
+      $("overlapSection").hidden = true;
+      $("summaryOut").hidden = true;
+    }
+  }
+
+  $("addSkill").addEventListener("click", () => addSkillBox());
+  $("loadExample").addEventListener("click", () => {
+    $("skillsContainer").innerHTML = "";
+    skillIndex = 0;
+    for (const text of EXAMPLE_SKILLS) addSkillBox(text);
+    lint(true);
+  });
+  $("clearAll").addEventListener("click", () => {
+    $("skillsContainer").innerHTML = "";
+    skillIndex = 0;
+    addSkillBox("");
+    lint(false);
+  });
+
+  addSkillBox("");
+  $("usage").checked = usageAllowed();
+  $("usage").addEventListener("change", (event) => setUsageEnabled(event.target.checked));
+  lint();
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
+
+  $("copySummary").addEventListener("click", async () => {
+    try {
+      if (!lastResult) throw new Error("Paste and lint a SKILL.md first.");
+      const text = summaryText(lastResult);
+      await copyText(text);
+      $("copyStatus").textContent = "Copied";
+      countUsage("summary_copied");
+    } catch (error) {
+      $("copyStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
+</script>
+</body>
+</html>

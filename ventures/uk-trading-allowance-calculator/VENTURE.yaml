@@ -1,0 +1,39 @@
+name: uk-trading-allowance-calculator
+description: >-
+  Free browser tool for UK side-hustlers, sellers and freelancers: enter gross trading income, expenses and other income to see whether to claim the 1,000 GBP trading allowance or deduct actual costs, the income tax and Class 4 NIC either way, and Self Assessment deadlines. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was str-tax-loophole-calculator (0.25), a US property-tax tool; no UK trading-allowance tool in ventures/.
+#
+# First visitor: UK Vinted/eBay/Etsy seller, tutor or gig worker searching "trading allowance 1000 or expenses", "do I need to declare side hustle income HMRC", "trading allowance calculator".
+# Audience is the millions of UK side earners each tax year, with a January spike; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a year-round income and expense tracker with a tax-pot estimate behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (what counts as a trade, allowable costs, Scotland, student loans, child benefit charge, partnerships). Ethical risk is false comfort from an "exempt" result, mitigated by the gross-income-across-all-activities note.
+hypotheses:
+  - claim: >-
+      UK side earners will use a free calculator to choose between the trading allowance and expenses and to learn whether they must register.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-trading-allowance-calculator/
+  analytics: null

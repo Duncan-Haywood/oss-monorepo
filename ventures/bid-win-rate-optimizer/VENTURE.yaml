@@ -1,0 +1,67 @@
+name: bid-win-rate-optimizer
+description: >-
+  Free browser tool for contractors, agencies and freelancers: paste or upload
+  past quotes as price, won or lost, and cost, and get a win-probability curve
+  by markup (logistic regression with an interval), the markup with the highest
+  expected profit searched only inside the range actually quoted, what a few
+  percent more or less does to win chance and profit, bootstrap ranges and a
+  hold-out back-test that says when price does not explain wins. Refuses a
+  history where quotes never varied. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "bid win probability from past quotes logistic regression to find the markup
+# that maximizes expected profit for contractors": closest is
+# property-tax-appeal-calculator at 0.16, far below the read-this-first bar.
+# Adjacent: ~60 trade bid calculators here (they price a job from costs, none
+# learns from won and lost outcomes), price-elasticity-estimator (units sold vs
+# price, not binary bid outcomes) and contractor-bid-readiness (paperwork).
+# Alternatives are a hand-built spreadsheet of win % per price band (no
+# uncertainty, no cost normalisation) and proposal/CRM suites (Proposify,
+# PandaDoc, Jobber, ServiceTitan) that report win rate but do not turn it into a
+# price.
+#
+# First visitor: searches "bid win rate calculator", "what markup should I
+# charge", "how to price bids to win more jobs", "contractor markup vs win
+# rate"; r/Construction, r/smallbusiness, r/freelance and trade-estimator
+# forums. Volume not measured with an external tool. Each bid-calculator venture
+# in this catalogue is a natural feeder: it prices the job, this learns which
+# markup to put on it.
+#
+# Privacy is the liability boundary: bid files never leave the browser (tests
+# assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved, team-shared bid log; not built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# "unidentified" and refuses when the data cannot support an answer.
+# Unverified: tested on simulated bids with known curves, not on a published
+# dataset.
+
+hypotheses:
+  - claim: >-
+      Owners who send ten or more quotes a month will use a private, no-signup
+      tool that turns won and lost quotes into a markup recommendation, and will
+      return as their bid log grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the slope or the best markup disagrees with a standard logistic regression on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bid-win-rate-optimizer/
+  analytics: null

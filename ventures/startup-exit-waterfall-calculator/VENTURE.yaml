@@ -1,0 +1,57 @@
+name: startup-exit-waterfall-calculator
+description: >-
+  Free browser tool for founders, employees and angels: enter a sale price and
+  a cap table (common, options, preferred series with liquidation preference,
+  participation caps, seniority, dividends) and see what each class is paid,
+  the exit price where each series converts to common, and payouts across a
+  sweep of prices. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Not in screened-out.md;
+# the tree has SAFE dilution, option value and 83(b) tools but no exit
+# waterfall. The paid incumbents (cap table platforms) charge for scenario
+# modelling behind a login; a static no-signup waterfall for one deal is the
+# specific, underserved slice.
+# Users have money and a real decision: a founder or employee reading an
+# acquisition offer, an angel checking a term sheet, a lawyer or advisor
+# sketching outcomes. The gap between ownership % and take-home at a given
+# price is often the whole negotiation.
+#
+# First visitor: people searching "liquidation preference calculator",
+# "exit waterfall calculator", "participating preferred calculator", "how much
+# will I get if my startup is acquired"; volume not measured with an external
+# tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on terms the visitor types, not legal, tax or
+# investment advice, no statement of what anyone is owed; the page says what it
+# leaves out and defers to the charter. Unverified: hand calculation and unit
+# tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Founders, employees and investors facing an acquisition or a term sheet
+      will use a no-signup waterfall calculator and return whenever the price
+      or terms change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a payout figure contradicts their own hand calculation on the same terms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/startup-exit-waterfall-calculator/
+  analytics: null

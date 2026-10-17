@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
+  <meta name="description" content="Break starting MRR into new, expansion, reactivation, contraction, and churned MRR, then get ending MRR, gross and net revenue retention, and your growth-to-loss quick ratio. Runs entirely in your browser.">
+  <meta property="og:title" content="MRR Waterfall Calculator"><meta property="og:description" content="See gross and net revenue retention side by side from the same waterfall, privately in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MRR Waterfall Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"MRR waterfall breakdown, gross revenue retention, net revenue retention, quick ratio"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the difference between gross and net revenue retention?","acceptedAnswer":{"@type":"Answer","text":"Gross revenue retention (GRR) answers one question only: of the MRR you started the month with, how much did you keep, counting only contraction and churn against it? It never counts new, expansion, or reactivation MRR, and it is capped at 100% because you cannot retain more of a base than you started with. Net revenue retention (NRR) adds expansion and reactivation back in and has no cap. On the default example, GRR is 90% (real churn and contraction) while NRR is 106% (expansion and reactivation more than covered it) -- both numbers are correct, and they answer different questions."}},{"@type":"Question","name":"Why can net revenue retention be over 100%?","acceptedAnswer":{"@type":"Answer","text":"Because expansion and reactivation MRR are added to the base before comparing it to what you started with. When existing customers upgrade or come back for more than the contraction and churn removed, the surviving base is worth more than it was a month ago -- this is what SaaS operators mean by “negative churn.” It is a real, common, and desirable outcome. It does not mean nothing was lost; check gross revenue retention for that."}},{"@type":"Question","name":"Does new MRR count toward NRR or GRR?","acceptedAnswer":{"@type":"Answer","text":"No. Both retention metrics measure what happened to the base of customers you already had at the start of the period. New MRR from brand-new customers is a separate line in the waterfall (and in ending MRR and the quick ratio), but it is never part of either retention percentage -- a period with excellent retention and zero new customers still reports the same GRR and NRR as one with the same retention and a wave of new signups."}},{"@type":"Question","name":"What does the quick ratio tell me that retention doesn't?","acceptedAnswer":{"@type":"Answer","text":"Retention is about the existing base only. The quick ratio -- growth MRR (new plus expansion plus reactivation) divided by loss MRR (contraction plus churn) -- adds new customers back into the picture and asks a blunter question: for every dollar you lost, how many did you win? A ratio above 4 is generally considered strong, 1 means you are running in place, and below 1 means you are shrinking even after counting new business."}},{"@type":"Question","name":"Is my subscription data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. The six numbers you type in are never sent anywhere, and the optional usage counter records only which features were used and the day, never your MRR figures."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#20232a;background:#eef1f6}body{max-width:960px;margin:auto;padding:32px 18px}header{max-width:700px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:8px 0 16px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}section{background:#fff;border:1px solid #c7d0dd;border-radius:14px;padding:22px;box-shadow:0 8px 20px #1a233a0c}h2{font-size:1.1rem}.fields{display:grid;gap:13px}label{display:grid;gap:5px;font-weight:650;font-size:.9rem}input{font:inherit;padding:10px;border:1px solid #a7b2c4;border-radius:7px}#result{background:#18233c;color:#f3f6ff;border-color:#18233c}.hero{font-size:2.6rem;font-weight:800;letter-spacing:-.04em;margin:10px 0}.good{color:#bcd7ff}.warn{color:#ffd09c}dl{display:grid;grid-template-columns:1fr auto;gap:10px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px 3px;border-bottom:1px solid #ffffff2b;text-align:right}th:first-child,td:first-child{text-align:left}.note{font-size:.83rem;opacity:.78;line-height:1.45}footer{margin-top:22px;font-size:.83rem}@media(max-width:700px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header><p>FOR SAAS FOUNDERS AND OPERATORS</p><h1>See gross and net revenue retention from the same waterfall.</h1><p>Enter starting MRR and the five things that moved it: new, expansion, reactivation, contraction, and churned MRR. The calculation runs privately in your browser. It does not connect to your billing system or upload anything.</p><p><a href="./vs-tracking-mrr-in-a-spreadsheet.html">This calculator vs. tracking MRR in a spreadsheet</a></p></header>
+  <main class="layout"><section><h2>This period's MRR movements</h2><div class="fields">
+    <label>Starting MRR<input id="startingMrr" type="number" min="0" step="1" value="10000"></label>
+    <label>New MRR<input id="newMrr" type="number" min="0" step="1" value="1200"></label>
+    <label>Expansion MRR<input id="expansionMrr" type="number" min="0" step="1" value="1500"></label>
+    <label>Reactivation MRR<input id="reactivationMrr" type="number" min="0" step="1" value="100"></label>
+    <label>Contraction MRR<input id="contractionMrr" type="number" min="0" step="1" value="400"></label>
+    <label>Churned MRR<input id="churnedMrr" type="number" min="0" step="1" value="600"></label>
+  </div><p class="note">All five movement fields are non-negative amounts -- enter contraction and churn as positive numbers you lost, not negative deltas.</p></section>
+  <section id="result" aria-live="polite"><h2>Waterfall readout</h2><p id="errors" class="warn" role="alert" hidden></p><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Ending MRR</dt><dd id="endingMrr"></dd><dt>Net new MRR</dt><dd id="netNewMrr"></dd><dt>Gross revenue retention</dt><dd id="grossRevenueRetention"></dd><dt>Gross churn rate</dt><dd id="grossChurnRate"></dd><dt>Quick ratio</dt><dd id="quickRatio"></dd></dl><h2>Waterfall</h2><table><thead><tr><th>Line</th><th>Amount</th></tr></thead><tbody id="waterfall"></tbody></table></section></main>
+  <section id="faq" style="max-width:960px;margin:18px auto 0">
+    <h2>Common questions</h2>
+
+    <h3>What's the difference between gross and net revenue retention?</h3>
+    <p>Gross revenue retention (GRR) answers one question only: of the MRR you started the month with, how much
+      did you keep, counting only contraction and churn against it? It never counts new, expansion, or
+      reactivation MRR, and it is capped at 100% because you cannot retain more of a base than you started with.
+      Net revenue retention (NRR) adds expansion and reactivation back in and has no cap. On the default example,
+      GRR is 90% (real churn and contraction) while NRR is 106% (expansion and reactivation more than covered it)
+      -- both numbers are correct, and they answer different questions.</p>
+
+    <h3>Why can net revenue retention be over 100%?</h3>
+    <p>Because expansion and reactivation MRR are added to the base before comparing it to what you started
+      with. When existing customers upgrade or come back for more than the contraction and churn removed, the
+      surviving base is worth more than it was a month ago -- this is what SaaS operators mean by
+      &ldquo;negative churn.&rdquo; It is a real, common, and desirable outcome. It does not mean nothing was
+      lost; check gross revenue retention for that.</p>
+
+    <h3>Does new MRR count toward NRR or GRR?</h3>
+    <p>No. Both retention metrics measure what happened to the base of customers you already had at the start
+      of the period. New MRR from brand-new customers is a separate line in the waterfall (and in ending MRR
+      and the quick ratio), but it is never part of either retention percentage -- a period with excellent
+      retention and zero new customers still reports the same GRR and NRR as one with the same retention and a
+      wave of new signups.</p>
+
+    <h3>What does the quick ratio tell me that retention doesn't?</h3>
+    <p>Retention is about the existing base only. The quick ratio -- growth MRR (new plus expansion plus
+      reactivation) divided by loss MRR (contraction plus churn) -- adds new customers back into the
+      picture and asks a blunter question: for every dollar you lost, how many did you win? A ratio above 4 is
+      generally considered strong, 1 means you are running in place, and below 1 means you are shrinking even
+      after counting new business.</p>
+
+    <h3>Is my subscription data uploaded anywhere?</h3>
+    <p>No. The calculator runs entirely in your browser. The six numbers you type in are never sent anywhere,
+      and the optional usage counter records only which features were used and the day, never your MRR
+      figures.</p>
+  </section>
+  <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p><p>Testing a price change instead of last period's movements? The <a href="../subscription-price-impact/">subscription price impact calculator</a> shows how much churn a price increase can absorb, in the same browser-local style.</p><p>Have the Stripe export rather than the totals? The <a href="../stripe-churn-cohort-analyzer/">Stripe churn and cohort analyzer</a> derives the monthly waterfall and a cohort retention table from the CSV, in your browser.</p><p>Thinking of selling the business? The <a href="../online-business-valuation-calculator/">online business valuation calculator</a> prices a small online business on SDE and ARR multiples.</p><p>Planning sales hiring against a bookings target? The <a href="../sales-quota-capacity-planner/">sales quota capacity planner</a> works out how many reps to hire and the latest start date for each cohort, in your browser.</p></footer>
+  <script type="module">
+    import { calculateWaterfall } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const ids=['startingMrr','newMrr','expansionMrr','reactivationMrr','contractionMrr','churnedMrr']; const $=id=>document.getElementById(id); const money=n=>{if(!Number.isFinite(n))return n>0?'no ceiling':'$0.00';const t=`$${Math.abs(n).toFixed(2)}`;return n<0&&/[1-9]/.test(t)?`-${t}`:t;}; const pct=n=>`${n.toFixed(1)}%`;
+    const WATERFALL_ROWS = [
+      ['Starting MRR', r => r.startingMrr, money],
+      ['+ New MRR', r => r.newMrr, money],
+      ['+ Expansion MRR', r => r.expansionMrr, money],
+      ['+ Reactivation MRR', r => r.reactivationMrr, money],
+      ['- Contraction MRR', r => -r.contractionMrr, money],
+      ['- Churned MRR', r => -r.churnedMrr, money],
+      ['= Ending MRR', r => r.endingMrr, money],
+    ];
+    function render(count=true){const errorsEl=$('errors');const headline=$('headline');try{const input=Object.fromEntries(ids.map(id=>[id,$(id).value]));const r=calculateWaterfall(input);errorsEl.hidden=true;errorsEl.textContent='';headline.hidden=false;headline.textContent=pct(r.netRevenueRetention);headline.className=`hero ${r.netRevenueRetention>=100?'good':'warn'}`;$('subhead').textContent='net revenue retention';$('endingMrr').textContent=money(r.endingMrr);$('netNewMrr').textContent=money(r.netNewMrr);$('grossRevenueRetention').textContent=pct(r.grossRevenueRetention);$('grossChurnRate').textContent=pct(r.grossChurnRate);$('quickRatio').textContent=r.quickRatio===null?'not applicable (no growth or loss)':(r.quickRatio===Infinity?'no ceiling (growth, zero loss)':r.quickRatio.toFixed(2));$('waterfall').replaceChildren(...WATERFALL_ROWS.map(([label,get])=>{const row=document.createElement('tr');row.insertCell().textContent=label;row.insertCell().textContent=money(get(r));return row;}));if(count)recordUsage('waterfall_calculated',$('usageOptOut').checked);}catch(e){
+      // A rejected input must not leave the last valid readout on screen next
+      // to an easy-to-miss error -- that reads as if the stale retention
+      // figures and waterfall still answer the inputs now in the form.
+      errorsEl.textContent=e.message;errorsEl.hidden=false;headline.hidden=true;$('subhead').textContent='';$('endingMrr').textContent='';$('netNewMrr').textContent='';$('grossRevenueRetention').textContent='';$('grossChurnRate').textContent='';$('quickRatio').textContent='';$('waterfall').replaceChildren();
+    }}
+    ids.forEach(id=>$(id).addEventListener('input',()=>render())); $('usageOptOut').addEventListener('change',()=>render(false)); render(false);
+
+    // Remember the visitor's usage-counting choice between visits, and show
+    // it on arrival, per the pattern this fleet uses across ventures.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+</body></html>

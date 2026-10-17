@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CBAM Cost Estimator — What Will the EU Carbon Border Levy Cost on My Imports?</title>
+  <meta name="description" content="Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="CBAM cost estimator: what the EU carbon border levy adds to your imports. Free, private">
+  <meta property="og:description" content="Tonnes and emissions in; certificates, euro cost, cost per tonne and the year-by-year ramp out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CBAM Cost Estimator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does CBAM apply to my imports?", "acceptedAnswer": {"@type": "Answer", "text": "CBAM covers imports into the EU of cement, iron and steel, aluminium, fertilisers, hydrogen and electricity. Since 1 January 2026 importers above an annual threshold of 50 tonnes of net mass must be authorised CBAM declarants and surrender certificates for the emissions embedded in the goods."}}, {"@type": "Question", "name": "How is the CBAM cost worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Embedded emissions of the goods, minus the free allocation EU producers still receive for the year (which is phased out from 2.5% in 2026 to 100% in 2034), multiplied by the carbon certificate price, minus any carbon price already paid in the country of origin."}}, {"@type": "Question", "name": "What price do CBAM certificates have?", "acceptedAnswer": {"@type": "Answer", "text": "For 2026 imports the certificate price is the quarterly average of EU ETS auction prices, and certificate sales start on 1 February 2027. Enter the price you expect to plan with; the page also shows the cost at 50% to 150% of it."}}, {"@type": "Question", "name": "Where do emission figures come from?", "acceptedAnswer": {"@type": "Answer", "text": "From your supplier's verified emissions report, or from the Commission's default values, which carry a mark-up. The presets on this page are illustrative round numbers so you can see the order of magnitude, not values to declare."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CBAM COST ESTIMATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will the EU carbon border levy (CBAM) cost on your steel, aluminium, cement or fertiliser imports?</h1>
+    <p>Enter what you import and the carbon price. You get the <strong>certificates you would need</strong>, the <strong>euro cost and cost per tonne</strong>, whether you are under the <strong>50-tonne threshold</strong>, and how the bill <strong>ramps from 2026 to 2034</strong> as free allocation is phased out.</p>
+    <p class="note">An estimate under Regulation (EU) 2023/956 as amended. Emission presets are illustrative; use verified supplier data or Commission defaults for anything you declare. It is not legal or customs advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Import year</label><select id="year"><option>2026</option><option selected>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option></select></div>
+      <div><label for="eua">Carbon certificate price, EUR per tCO2</label><input id="eua" inputmode="decimal" placeholder="75"></div>
+      <div><label for="origin">Carbon price already paid in the origin country, EUR per tCO2</label><input id="origin" inputmode="decimal" placeholder="0"></div>
+      <div><label for="defaults">Emission data source</label><select id="defaults"><option value="no">Verified supplier data</option><option value="yes">Commission default values (adds the mark-up)</option></select></div>
+    </div>
+  </section>
+  
+    <div class="card line"><h3>Line 1</h3><div class="grid">
+      <div><label for="good1">Goods</label><select id="good1"><option value="">Choose goods</option><option value="steel-bf">Iron and steel: blast furnace route (rolled or finished)</option><option value="steel-eaf">Iron and steel: electric arc furnace route</option><option value="alu-primary">Aluminium: primary unwrought (smelter)</option><option value="alu-secondary">Aluminium: recycled / secondary</option><option value="cement-clinker">Cement: grey clinker</option><option value="ammonia">Fertilisers: ammonia</option><option value="nitric">Fertilisers: nitric acid</option><option value="hydrogen">Hydrogen</option></select></div>
+      <div><label for="tonnes1">Tonnes imported in the year</label><input id="tonnes1" inputmode="decimal" placeholder="400"></div>
+      <div><label for="ei1">Embedded emissions, tCO2e per tonne (blank = illustrative preset)</label><input id="ei1" inputmode="decimal"></div>
+      <div><label for="bm1">Free-allocation benchmark, tCO2e per tonne (blank = preset)</label><input id="bm1" inputmode="decimal"></div>
+      <div><label for="val1">Goods value, EUR (optional)</label><input id="val1" inputmode="decimal"></div>
+    </div></div>
+    <div class="card line"><h3>Line 2</h3><div class="grid">
+      <div><label for="good2">Goods</label><select id="good2"><option value="">Choose goods</option><option value="steel-bf">Iron and steel: blast furnace route (rolled or finished)</option><option value="steel-eaf">Iron and steel: electric arc furnace route</option><option value="alu-primary">Aluminium: primary unwrought (smelter)</option><option value="alu-secondary">Aluminium: recycled / secondary</option><option value="cement-clinker">Cement: grey clinker</option><option value="ammonia">Fertilisers: ammonia</option><option value="nitric">Fertilisers: nitric acid</option><option value="hydrogen">Hydrogen</option></select></div>
+      <div><label for="tonnes2">Tonnes imported in the year</label><input id="tonnes2" inputmode="decimal" placeholder="400"></div>
+      <div><label for="ei2">Embedded emissions, tCO2e per tonne (blank = illustrative preset)</label><input id="ei2" inputmode="decimal"></div>
+      <div><label for="bm2">Free-allocation benchmark, tCO2e per tonne (blank = preset)</label><input id="bm2" inputmode="decimal"></div>
+      <div><label for="val2">Goods value, EUR (optional)</label><input id="val2" inputmode="decimal"></div>
+    </div></div>
+    <div class="card line"><h3>Line 3</h3><div class="grid">
+      <div><label for="good3">Goods</label><select id="good3"><option value="">Choose goods</option><option value="steel-bf">Iron and steel: blast furnace route (rolled or finished)</option><option value="steel-eaf">Iron and steel: electric arc furnace route</option><option value="alu-primary">Aluminium: primary unwrought (smelter)</option><option value="alu-secondary">Aluminium: recycled / secondary</option><option value="cement-clinker">Cement: grey clinker</option><option value="ammonia">Fertilisers: ammonia</option><option value="nitric">Fertilisers: nitric acid</option><option value="hydrogen">Hydrogen</option></select></div>
+      <div><label for="tonnes3">Tonnes imported in the year</label><input id="tonnes3" inputmode="decimal" placeholder="400"></div>
+      <div><label for="ei3">Embedded emissions, tCO2e per tonne (blank = illustrative preset)</label><input id="ei3" inputmode="decimal"></div>
+      <div><label for="bm3">Free-allocation benchmark, tCO2e per tonne (blank = preset)</label><input id="bm3" inputmode="decimal"></div>
+      <div><label for="val3">Goods value, EUR (optional)</label><input id="val3" inputmode="decimal"></div>
+    </div></div>
+  <section class="card">
+    <p>
+      <button type="button" id="calc">Estimate CBAM cost</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter the year, a certificate price and at least one line, then click Estimate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Per line</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Goods</th><th scope="col" class="n">Tonnes</th><th scope="col" class="n">Certificates</th><th scope="col" class="n">Cost, EUR</th><th scope="col" class="n">EUR per tonne</th></tr></thead><tbody id="line-rows"></tbody></table></div>
+    <h3>The same imports in other years</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Year</th><th scope="col" class="n">Free allocation phased out</th><th scope="col" class="n">Cost, EUR</th><th scope="col" class="n">EUR per tonne</th></tr></thead><tbody id="ladder-rows"></tbody></table></div>
+    <h3>The same year at other carbon prices</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">EUR per tCO2</th><th scope="col" class="n">Cost, EUR</th></tr></thead><tbody id="price-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download year table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Formula:</strong> certificates = embedded emissions (plus the default-value mark-up if used) minus benchmark free allocation times (1 minus the CBAM factor); cost = certificates times price, less carbon price paid abroad.</li>
+      <li><strong>Phase-out:</strong> free allocation is reduced by 2.5% (2026), 5%, 10%, 22.5%, 48.5%, 61%, 73.5%, 86% and 100% (2034).</li>
+      <li><strong>Not decided:</strong> your CN codes and whether they are covered, verified emissions, precursor goods, the exact certificate price, recognition of foreign carbon prices, indirect emissions rules per sector, electricity, and your declarant status and deadlines.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does CBAM apply to my imports?</h3>
+    <p>CBAM covers imports into the EU of cement, iron and steel, aluminium, fertilisers, hydrogen and electricity. Since 1 January 2026 importers above an annual threshold of 50 tonnes of net mass must be authorised CBAM declarants and surrender certificates for the emissions embedded in the goods.</p>
+    <h3>How is the CBAM cost worked out?</h3>
+    <p>Embedded emissions of the goods, minus the free allocation EU producers still receive for the year (which is phased out from 2.5% in 2026 to 100% in 2034), multiplied by the carbon certificate price, minus any carbon price already paid in the country of origin.</p>
+    <h3>What price do CBAM certificates have?</h3>
+    <p>For 2026 imports the certificate price is the quarterly average of EU ETS auction prices, and certificate sales start on 1 February 2027. Enter the price you expect to plan with; the page also shows the cost at 50% to 150% of it.</p>
+    <h3>Where do emission figures come from?</h3>
+    <p>From your supplier's verified emissions report, or from the Commission's default values, which carry a mark-up. The presets on this page are illustrative round numbers so you can see the order of magnitude, not values to declare.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    
+  </section>
+  <footer>
+    <p>Also see the <a href="../eu-csrd-scope-checker/">EU CSRD scope checker</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your customs broker, the competent authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../import-landed-cost-calculator/">import landed cost calculator</a>, the <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a> and the <a href="../nis2-scope-checker/">NIS2 scope checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, GOODS, summaryText, ladderCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const eur = (x) => x.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const IDLE = "Enter the year, a certificate price and at least one line, then click Estimate.";
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => ({
+      year: $("#year").value, eua: $("#eua").value, originPrice: $("#origin").value, defaults: $("#defaults").value,
+      lines: [1, 2, 3].map((i) => ({ good: $("#good" + i).value, tonnes: $("#tonnes" + i).value, intensity: $("#ei" + i).value, benchmark: $("#bm" + i).value, value: $("#val" + i).value })),
+    });
+    for (const i of [1, 2, 3]) $("#good" + i).addEventListener("change", (e) => {
+      const g = GOODS[e.target.value];
+      $("#ei" + i).placeholder = g ? String(g.intensity) : "";
+      $("#bm" + i).placeholder = g ? String(g.benchmark) : "";
+    });
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Estimated CBAM cost for ${r.year}: EUR ${eur(r.totalCost)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#line-rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${l.tonnes}</td><td class="n">${l.certificates}</td><td class="n">${eur(l.cost)}</td><td class="n">${eur(l.costPerTonne)}</td></tr>`).join("");
+      $("#ladder-rows").innerHTML = r.ladder.map((l) => `<tr><td>${l.year}</td><td class="n">${Math.round(l.factor * 1000) / 10}%</td><td class="n">${eur(l.cost)}</td><td class="n">${eur(l.perTonne)}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceLadder.map((p) => `<tr><td class="n">${eur(p.price)}</td><td class="n">${eur(p.cost)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Replace the illustrative emission figures with verified data before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      $("#year").value = SAMPLE.year; $("#eua").value = SAMPLE.eua; $("#origin").value = SAMPLE.originPrice; $("#defaults").value = SAMPLE.defaults;
+      SAMPLE.lines.forEach((l, k) => { const i = k + 1; $("#good" + i).value = l.good; $("#tonnes" + i).value = l.tonnes; $("#ei" + i).value = l.intensity; $("#bm" + i).value = l.benchmark; $("#val" + i).value = l.value; });
+      run(); record("example_loaded");
+      status.textContent = "Worked example: steel and aluminium imports in 2027. Illustrative figures, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const el of document.querySelectorAll("#inputs input, .line input")) el.value = ""; for (const el of document.querySelectorAll(".line select")) el.value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("cbam-estimate.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("cbam-years.csv", ladderCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

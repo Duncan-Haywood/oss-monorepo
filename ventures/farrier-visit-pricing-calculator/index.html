@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Farrier Visit Pricing Calculator</title>
+  <meta name="description" content="Free pricing calculator for farriers: drive time, minutes per horse, materials, fixed costs and the income you want become a trip charge plus a per-horse rate, with a table by stop size. Private, runs in your browser.">
+  <meta property="og:title" content="Farrier pricing calculator: what to charge per horse and per stop. Free, private">
+  <meta property="og:description" content="Drive time, shoeing time, materials and your income target in, trip charge and per-horse price out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Farrier Visit Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price farrier work?", "acceptedAnswer": {"@type": "Answer", "text": "Work out the income you need per working day (yearly fixed costs plus the take-home you want, over the days you actually work), then charge each stop for the share of the day it uses. Drive and setup time is the same for one horse as for four, so it belongs in a trip charge; the minutes and materials per horse make the per-horse rate."}}, {"@type": "Question", "name": "Why charge a trip fee as well as a price per horse?", "acceptedAnswer": {"@type": "Answer", "text": "A one-horse stop uses nearly as much of the day as a three-horse stop. A flat rate per horse that pays on a big barn loses money on a single-horse call. The page shows both the trip charge and the per-horse rate, and the price for each stop size."}}, {"@type": "Question", "name": "What are lost days?", "acceptedAnswer": {"@type": "Answer", "text": "Weather, client no-shows, your own injuries and equipment trouble all cost working days while fixed costs continue. Enter the share you lose and the page spreads fixed costs over the days that remain."}}, {"@type": "Question", "name": "Does it know what other farriers charge?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works backwards from your costs and the income you want. Compare the result with local farriers before you publish a rate."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FARRIER VISIT PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What to charge a farrier visit: trip charge, price per horse and what small stops really cost</h1>
+    <p>Enter drive time, minutes per horse, materials, your yearly fixed costs and the income you want. You get a <strong>trip charge</strong> plus a <strong>per-horse rate</strong>, the price for each stop size, and how the flat per-horse rate you charge today performs.</p>
+    <p class="note">It works backwards from your costs. It does not know what other farriers charge.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your route and year</h2>
+    <div class="grid">
+      <div><label for="horses">Horses at a typical stop</label><input id="horses" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="minperhorse">Minutes of work per horse (trim or shoe)</label><input id="minperhorse" inputmode="decimal" value="" placeholder="50"></div>
+      <div><label for="setupmin">Setup and cleanup minutes per stop</label><input id="setupmin" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="drivemin">Drive minutes between stops</label><input id="drivemin" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="miles">Miles between stops</label><input id="miles" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="costpermile">Vehicle cost per mile, dollars</label><input id="costpermile" inputmode="decimal" value="" placeholder="0.80"></div>
+      <div><label for="materials">Shoes, nails and supplies per horse, dollars</label><input id="materials" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="dayhours">Working hours per day, including driving</label><input id="dayhours" inputmode="decimal" value="" placeholder="9"></div>
+      <div><label for="workdays">Working days per year</label><input id="workdays" inputmode="decimal" value="" placeholder="200"></div>
+      <div><label for="lostpct">Days lost to weather, no-shows, injury, %</label><input id="lostpct" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="fixedyear">Yearly fixed costs: insurance, tools, truck payment, forge, phone, dollars</label><input id="fixedyear" inputmode="decimal" value="" placeholder="9000"></div>
+      <div><label for="target">Income you want to take home per year, dollars</label><input id="target" inputmode="decimal" value="" placeholder="70000"></div>
+      <div><label for="feepct">Card processing fee, %</label><input id="feepct" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="current">Flat price per horse you charge now, dollars (blank = skip)</label><input id="current" inputmode="decimal" value="" placeholder="55"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the price</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your route and year, then click Work out the price.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Pricing</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Price needed by stop size</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Horses</th><th scope="col" class="n">Minutes</th><th scope="col" class="n">Price per stop</th><th scope="col" class="n">Per horse</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download stop sizes (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> paid days = working days x (1 - lost share); day revenue needed = (fixed costs + target income) / paid days; a stop is charged its share of the working day (minutes / working minutes) of that revenue; trip charge = share for drive and setup + vehicle cost per mile x miles; per-horse rate = share for the work minutes + materials; both divided by (1 - card fee).</li>
+      <li><strong>Not decided:</strong> what the market pays, business licence and insurance terms, sales tax on services or materials, how you handle emergency or after-hours calls, client travel zones, and how a mix of trims and shoes changes minutes per horse.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How do I price farrier work?</h3>
+    <p>Work out the income you need per working day (yearly fixed costs plus the take-home you want, over the days you actually work), then charge each stop for the share of the day it uses. Drive and setup time is the same for one horse as for four, so it belongs in a trip charge; the minutes and materials per horse make the per-horse rate.</p>
+    <h3>Why charge a trip fee as well as a price per horse?</h3>
+    <p>A one-horse stop uses nearly as much of the day as a three-horse stop. A flat rate per horse that pays on a big barn loses money on a single-horse call. The page shows both the trip charge and the per-horse rate, and the price for each stop size.</p>
+    <h3>What are lost days?</h3>
+    <p>Weather, client no-shows, your own injuries and equipment trouble all cost working days while fixed costs continue. Enter the share you lose and the page spreads fixed costs over the days that remain.</p>
+    <h3>Does it know what other farriers charge?</h3>
+    <p>No. It works backwards from your costs and the income you want. Compare the result with local farriers before you publish a rate.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before publishing a rate. Treat it as a worksheet to check, not a price recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../fishing-charter-trip-pricing-calculator/">fishing charter trip pricing calculator</a> the <a href="../tow-truck-rate-calculator/">tow truck rate calculator</a> and the <a href="../horse-boarding-stall-profit-calculator/">horse boarding stall profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { horses: "horses", minperhorse: "minPerHorse", setupmin: "setupMin", drivemin: "driveMin", miles: "miles", costpermile: "costPerMile", materials: "materials", dayhours: "dayHours", workdays: "workDays", lostpct: "lostPct", fixedyear: "fixedYear", target: "target", feepct: "feePct", current: "currentPerHorse" };
+    const IDLE = "Fill in your route and year, then click Work out the price.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Trip charge ${dollars(r.tripCharge)} plus ${dollars(r.horseRate)} a horse. A ${r.input.horses}-horse stop: ${dollars(r.price)}. Break-even: ${dollars(r.breakEven)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${x.n}</td><td class="n">${x.minutes}</td><td class="n">${dollars(x.price)}</td><td class="n">${dollars(x.perHorse)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 3 horses a stop, 30 minutes of driving, 200 working days, $70,000 take-home target.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("farrier-pricing.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("farrier-pricing-by-stop-size.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "latency-twin"
+version = "0.1.0"
+description = "Sensor latency missing from a digital twin: an LQ gain tuned at zero delay, its exact delay margin, closed-form cost of delay mismatch, and the samples needed to identify the delay"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

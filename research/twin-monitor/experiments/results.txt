@@ -1,0 +1,46 @@
+plant a=0.9 b=1.0 q=1.0 r=0.1 s2=1.0; mixture prior tau2=1.0; alpha=0.05
+
+== 1. False alarms under peeking (twin exact, dither v=0.2, T=2000, 1000 runs) ==
+e-process alarm rate 0.023 (bound 0.05); peeking chi2(2) 5% test alarm rate 0.516
+
+== 2. Detection delay, twin b_hat=1.4 b (a exact), gain k*(twin), regret 0.0567 ==
+  v     KL rate   L/rate   predicted   sim median  sim mean   alarmed(T=6000)
+  0.00  0.03274     91.5      160.8        142     165.8   300/300
+  0.05  0.03838     78.1      151.8        125     148.3   300/300
+  0.20  0.05529     54.2      111.9         95     106.6   300/300
+  1.00  0.14548     20.6       43.1         42      44.2   300/300
+
+== 3. The closed-loop blind line (twin's own gain k satisfies a_hat - a = k (b_hat - b)) ==
+ twin a_hat=0.70 b_hat=0.7502 k=0.8007, da/db=0.8007: regret R=0.0006; per-step dither cost c_d=1.1747
+  v      rate     rho*v(=db^2 v/2)  predicted  sim median  alarmed(T=40000)
+  0.00  0.000000  0.000000                inf          -  3/100
+  0.05  0.001560  0.001560               5946       5713  100/100
+  0.20  0.006239  0.006239               1374       1298  100/100
+  1.00  0.031196  0.031196                255        247  100/100
+ twin a_hat=1.00 b_hat=1.1203 k=0.8310, da/db=0.8310: regret R=0.0001; per-step dither cost c_d=1.1742
+  v      rate     rho*v(=db^2 v/2)  predicted  sim median  alarmed(T=40000)
+  0.00  0.000000  0.000000                inf          -  3/100
+  0.05  0.000362  0.000362              29954      20544  73/100
+  0.20  0.001448  0.001448               7011       5570  100/100
+  1.00  0.007241  0.007241               1318       1091  100/100
+ twin a_hat=0.50 b_hat=0.0700 k=0.4301, da/db=0.4301: regret R=0.2330; per-step dither cost c_d=1.4071
+  v      rate     rho*v(=db^2 v/2)  predicted  sim median  alarmed(T=40000)
+  0.00  0.000000  0.000000                inf          -  0/100
+  0.05  0.021621  0.021621                322        319  100/100
+  0.20  0.086484  0.086484                 72         68  100/100
+  1.00  0.432419  0.432419                 13         14  100/100
+
+== 4. Is dithering worth it? Optimal dither v* (0 = monitor passively), prior of a bad twin pi, horizon H, alpha=0.05 ==
+ a_hat=0.7 (b_hat=0.750, R=0.0006) pi=0.1 H=10000   leading-order v*=0.0000 cost 0.61 (closed form 0.0007); mixture-delay v*=0.0000 cost 0.61; never detect 0.61
+ a_hat=0.7 (b_hat=0.750, R=0.0006) pi=0.5 H=100000  leading-order v*=0.0000 cost 30.43 (closed form 0.0007); mixture-delay v*=0.0000 cost 30.43; never detect 30.43
+ a_hat=1.6 (b_hat=1.818, R=0.0013) pi=0.1 H=10000   leading-order v*=0.0000 cost 1.27 (closed form 0.0003); mixture-delay v*=0.0000 cost 1.27; never detect 1.27
+ a_hat=1.6 (b_hat=1.818, R=0.0013) pi=0.5 H=100000  leading-order v*=0.0003 cost 41.84 (closed form 0.0003); mixture-delay v*=0.0000 cost 63.47; never detect 63.47
+ a_hat=0.5 (b_hat=0.070, R=0.2330) pi=0.1 H=10000   leading-order v*=0.0036 cost 91.40 (closed form 0.0036); mixture-delay v*=0.0061 cost 151.91; never detect 232.98
+ a_hat=0.5 (b_hat=0.070, R=0.2330) pi=0.5 H=100000  leading-order v*=0.0034 cost 481.44 (closed form 0.0034); mixture-delay v*=0.0058 cost 801.34; never detect 11649.17
+ simulated cost for a_hat=0.5, pi=0.5, H=1e5: (1-pi) H c_d v + pi (R + c_d v) min(E[N], H), 60 runs
+  v=0.0010 mean delay    23281  simulated total   2798.83   leading-order    882.26   mixture-delay   2555.06
+  v=0.0034 mean delay     6476  simulated total   1009.04   leading-order    481.44   mixture-delay    925.03
+  v=0.0100 mean delay     2069  simulated total    959.16   leading-order    789.12   mixture-delay    928.46
+  v=0.0300 mean delay      597  simulated total   2192.83   leading-order   2142.40   mixture-delay   2187.59
+  v=0.1000 mean delay      154  simulated total   7064.15   leading-order   7048.37   mixture-delay   7063.93
+  v=0.3000 mean delay       47  simulated total  21121.78   leading-order  21113.83   mixture-delay  21121.56

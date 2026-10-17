@@ -1,0 +1,62 @@
+name: tax-loss-harvesting-calculator
+description: >-
+  Free browser tool that nets realized capital gains and losses, adds candidate
+  losses with a wash-sale check, and estimates the tax saved this year, the
+  ordinary-income deduction and the carryforward. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.21 (unrelated). Adjacent to the equity-comp tax trio (RSU, ISO, ESPP)
+# but a different job: year-end action for anyone with a taxable brokerage
+# account, not just employees with equity.
+# Every December, people with gains and unrealized losses google "tax loss
+# harvesting" and get robo-advisor marketing pages. The tool's edge is a
+# private, no-signup answer with the netting order, wash-sale exclusion and
+# the deferral warning that marketing pages skip.
+#
+# First visitor: r/personalfinance, r/Bogleheads and r/investing threads on
+# "should I harvest losses this year"; volume not measured.
+#
+# Privacy is the liability boundary: figures never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the equity-comp
+# tools; a paid tier, if usage appears, is a multi-lot CSV import from broker
+# exports, local only; not built.
+#
+# Liability: illustrative estimates, not advice; omissions stated on the page;
+# no security is recommended and no broker is referred.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Investors with realized gains will use a no-signup calculator that nets
+      losses and flags wash sales before year end.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The deferral warning makes the estimate more trusted than a
+      savings-only robo-advisor page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the netting or carryforward result contradicts Schedule D on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-loss-harvesting-calculator/
+  analytics: null

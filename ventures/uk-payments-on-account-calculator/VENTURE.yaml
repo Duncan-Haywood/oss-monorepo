@@ -1,0 +1,39 @@
+name: uk-payments-on-account-calculator
+description: >-
+  Free browser tool for UK sole traders, landlords and freelancers: enter your Self Assessment bill and tax already deducted to see the 31 January balancing payment, both payments on account, why the first January bill is about 150%, and what a reduction claim defers. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was uk-trading-allowance-calculator (0.24), a different question (allowance vs expenses); no payments-on-account tool in ventures/. Sibling in the UK Self Assessment cluster.
+#
+# First visitor: UK sole trader or landlord who just filed their first return and got a bill 50% higher than expected, searching "payments on account explained", "why is my self assessment bill so high", "reduce payments on account".
+# Audience is the millions of Self Assessment filers; the January spike and the first-year shock make it a recurring annual search. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a year-round tax-pot tracker that sets aside the next bill behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (computing the tax bill, CGT, student loan, child benefit charge, interest and penalties, whether a reduction is justified). Ethical risk is a too-small cash figure; mitigated by naming what is excluded (CGT, student loan, interest, penalties) in every result.
+hypotheses:
+  - claim: >-
+      UK Self Assessment filers will use a free calculator to see their 31 January and 31 July payments before the bill arrives.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, percentage or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-payments-on-account-calculator/
+  analytics: null

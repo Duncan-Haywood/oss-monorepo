@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pawn Loan Profit Calculator: Loan-to-Value and Redemption Rate — Free</title>
+  <meta name="description" content="Free pawn loan profit calculator for pawnbrokers: enter your rate, redemption rate, loan-to-value and what forfeits sell for to see profit per loan, break-even redemption, the largest loan an item can carry and the smallest loan worth writing. Nothing uploaded.">
+  <meta property="og:title" content="Pawn loan profit calculator for pawnbrokers">
+  <meta property="og:description" content="What does the average pawn loan really earn, and how much can you lend on this item? Redemption rate, loan-to-value, forfeit resale. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pawn Loan Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out what an average pawn loan earns after redemption rate, interest, forfeit resale, selling cost and the cost of money, the largest loan an item can carry and the smallest loan worth writing. Runs in your browser.","featureList":"Expected profit per loan, break-even redemption rate, largest loan for a target margin, smallest loan that pays, redemption and loan-to-value tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should a pawn shop lend on an item?","acceptedAnswer":{"@type":"Answer","text":"Work back from what a forfeit really nets you. The largest loan is the one where the interest you collect, plus the gain on the forfeited items weighted by how often loans forfeit, less per-ticket cost and the cost of money, still leaves your target profit. This tool solves that for the item on your counter and shows it as a share of resale price."}},{"@type":"Question","name":"What redemption rate does a pawn shop need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on how much you lend against resale value. At a low loan-to-value, forfeits are profitable and you can survive a low redemption rate; at a high one you need most loans redeemed. The tool finds the break-even redemption rate for your figures and shows profit at redemption rates from 50% to 90%."}},{"@type":"Question","name":"What is a good loan-to-value for pawn loans?","acceptedAnswer":{"@type":"Answer","text":"There is no single number. Many shops lend a third to a half of expected resale, but the right figure depends on your rate, how often loans forfeit, what forfeits sell for and your costs. The loan-to-value table shows profit per loan across a range so you can see where the margin turns."}},{"@type":"Question","name":"Why do small loans lose money?","acceptedAnswer":{"@type":"Answer","text":"Every ticket costs about the same to write, store and report whether it is $20 or $200. The tool computes the smallest loan that pays at your loan-to-value, below which per-ticket cost outruns the interest and the resale gain."}},{"@type":"Question","name":"Is this financial or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Pawn charges, licences, holding periods and reporting rules are set by state and local law; check yours with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PAWN LOAN PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your average pawn loan really earn?</h1>
+    <p>Type your rate, how often loans are redeemed, how much you lend against resale value and what forfeited items actually sell for. The tool shows expected profit per loan and per month, the redemption rate you need to break even, the largest loan the item on your counter can carry, and the smallest loan worth writing. It also shows how profit changes with redemption, loan-to-value and sale price.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, legal, tax or licensing advice. The example figures are placeholders, not your rate card or your state's limits.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your typical loan</h2>
+      <div class="grid">
+        <div><label for="avgLoan">Typical loan ($)</label><input id="avgLoan" type="number" step="any" value="0"><p class="note">Average amount you lend per ticket.</p></div>
+        <div><label for="ltvPct">Loan as % of resale price</label><input id="ltvPct" type="number" step="any" value="0"><p class="note">Loan divided by what you expect to resell the item for. 35% means you lend $35 on a $100 item.</p></div>
+        <div><label for="redeemPct">Loans redeemed (%)</label><input id="redeemPct" type="number" step="any" value="0"><p class="note">Share the customer pays off and takes back. Use your own last-12-months figure.</p></div>
+        <div><label for="loansPerMonth">New loans a month</label><input id="loansPerMonth" type="number" step="any" value="0"><p class="note">Used for the monthly profit and money out.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. What you charge</h2>
+      <div class="grid">
+        <div><label for="monthlyRatePct">Interest and service charge per month (%)</label><input id="monthlyRatePct" type="number" step="any" value="0"><p class="note">Check your state's cap; the example is a placeholder.</p></div>
+        <div><label for="monthlyFee">Flat fee per ticket per month ($)</label><input id="monthlyFee" type="number" step="any" value="0"><p class="note">Storage or insurance fee, if you charge one.</p></div>
+        <div><label for="redeemMonths">Months a redeemed loan stays open</label><input id="redeemMonths" type="number" step="any" value="0"><p class="note">Average, counting renewals.</p></div>
+        <div><label for="forfeitMonths">Months until a forfeited item is yours</label><input id="forfeitMonths" type="number" step="any" value="0"><p class="note">Loan term plus any grace period.</p></div>
+        <div><label for="forfeitPaidMonths">Months of interest paid on loans that forfeit</label><input id="forfeitPaidMonths" type="number" step="any" value="0"><p class="note">Renewals the customer paid before walking away.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. When the item is forfeited</h2>
+      <div class="grid">
+        <div><label for="realizationPct">Sale price as % of your retail estimate</label><input id="realizationPct" type="number" step="any" value="0"><p class="note">After markdowns and haggling. Check what last quarter's forfeits actually sold for.</p></div>
+        <div><label for="sellCostPct">Selling cost (%)</label><input id="sellCostPct" type="number" step="any" value="0"><p class="note">Marketplace fees, card fees, commissions.</p></div>
+        <div><label for="shrinkPct">Shrink on forfeited items (%)</label><input id="shrinkPct" type="number" step="any" value="0"><p class="note">Lost, damaged, returned or written off.</p></div>
+        <div><label for="daysToSell">Days a forfeited item takes to sell</label><input id="daysToSell" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Your costs and your target</h2>
+      <div class="grid">
+        <div><label for="ticketCost">Cost to write a loan ($)</label><input id="ticketCost" type="number" step="any" value="0"><p class="note">Labour, paperwork, police-reporting entry.</p></div>
+        <div><label for="storagePerMonth">Storage and handling per item per month ($)</label><input id="storagePerMonth" type="number" step="any" value="0"></div>
+        <div><label for="capitalRatePct">Cost of your money (% a year)</label><input id="capitalRatePct" type="number" step="any" value="0"><p class="note">What the cash would earn elsewhere or what you pay to borrow.</p></div>
+        <div><label for="wantPct">Profit you want on each dollar lent (%)</label><input id="wantPct" type="number" step="any" value="0"><p class="note">Used for the largest-loan figure.</p></div>
+        <div><label for="itemValue">Item on the counter: your retail estimate ($)</label><input id="itemValue" type="number" step="any" value="0"><p class="note">The tool shows the biggest loan that still meets your target.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Work out my profit</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions pawnbrokers ask</h2>
+      <h3>How much should a pawn shop lend on an item?</h3>
+      <p>Work back from what a forfeit really nets you. The largest loan is the one where the interest you collect, plus the gain on the forfeited items weighted by how often loans forfeit, less per-ticket cost and the cost of money, still leaves your target profit. This tool solves that for the item on your counter and shows it as a share of resale price.</p>
+      <h3>What redemption rate does a pawn shop need to break even?</h3>
+      <p>It depends on how much you lend against resale value. At a low loan-to-value, forfeits are profitable and you can survive a low redemption rate; at a high one you need most loans redeemed. The tool finds the break-even redemption rate for your figures and shows profit at redemption rates from 50% to 90%.</p>
+      <h3>What is a good loan-to-value for pawn loans?</h3>
+      <p>There is no single number. Many shops lend a third to a half of expected resale, but the right figure depends on your rate, how often loans forfeit, what forfeits sell for and your costs. The loan-to-value table shows profit per loan across a range so you can see where the margin turns.</p>
+      <h3>Why do small loans lose money?</h3>
+      <p>Every ticket costs about the same to write, store and report whether it is $20 or $200. The tool computes the smallest loan that pays at your loan-to-value, below which per-ticket cost outruns the interest and the resale gain.</p>
+      <h3>Is this financial or legal advice?</h3>
+      <p>No. It is arithmetic on figures you type. Pawn charges, licences, holding periods and reporting rules are set by state and local law; check yours with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a loan is legal at your rate (state and local caps, licences, holding periods and reporting rules differ), item authenticity and condition, how the market will price a forfeit, taxes, and seasonal swings in redemption. Every loan is treated as the same typical loan with the same redemption chance; real tickets vary. Interest is simple, not compounded.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../scrap-gold-buy-price-calculator/">scrap gold buy price calculator</a>, the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a> and the <a href="../laundromat-machine-payback-calculator/">laundromat machine payback calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you buy or sell anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, b = r.base, o = a.opts;
+      h += `<div class="finding"><h4>The average loan ${b.profit >= 0 ? "earns" : "loses"} ${money2(Math.abs(b.profit))} (${pct(b.margin)} of the loan)</h4><p>Across ${o.loansPerMonth} loans a month that is ${money(r.monthlyProfit)} a month on about ${money(r.capitalOut)} of your money out at any time. Your money is tied up ${b.months.toFixed(1)} months per loan on average, an annual return on that money of ${pct(b.annualRoi)}.</p></div>`;
+      h += `<div class="finding"><h4>Largest loan on your ${money(o.itemValue)} item: ${money(r.itemMaxLoan)} (${pct(r.itemMaxLtv)} of resale)</h4><p>That is the most you can lend and still earn ${pct(o.wantPct)} on the loan at your figures. The smallest loan that pays at ${pct(o.ltvPct)} loan-to-value is about ${money2(r.smallest)}.</p></div>`;
+      h += `<div class="finding"><h4>Redeemed or forfeited</h4>${table(["Outcome", "Chance", "Profit on the loan"], [["Redeemed", pct(o.redeemPct), money2(b.profitRedeemed)], ["Forfeited and sold", pct(100 - o.redeemPct), money2(b.profitForfeited)], ["Break-even redemption rate", Number.isFinite(r.breakEvenRedeem) ? pct(r.breakEvenRedeem) : "none", ""]])}<p>An item worth ${money(b.retail)} at retail nets about ${money(b.netSale)} when it forfeits, against ${money(b.loan)} lent.</p></div>`;
+      h += `<div class="finding"><h4>If more or fewer loans are redeemed</h4>${table(["Redeemed", "Profit per loan", "Margin on loan"], a.redemption.map((x) => [x.redeemPct + "%", money2(x.profit), pct(x.margin)]))}</div>`;
+      h += `<div class="finding"><h4>If you lend more or less against resale value</h4>${table(["Loan as % of resale", "Profit per loan", "Margin on loan", "Annual return"], a.ltv.map((x) => [x.ltvPct + "%", money2(x.profit), pct(x.margin), pct(x.annualRoi)]))}</div>`;
+      h += `<div class="finding"><h4>If forfeits sell for less</h4>${table(["Sale price vs estimate", "Profit per loan", "Margin on loan"], a.realization.map((x) => [x.realizationPct + "%", money2(x.profit), pct(x.margin)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "pawn-loan-profit.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

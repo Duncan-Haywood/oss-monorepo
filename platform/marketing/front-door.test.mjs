@@ -36,6 +36,7 @@ import {
   EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
+  llmsStoredKey,
   OUTPUT_FILE,
   PROMISE,
   ROBOTS_FILE,
@@ -52,6 +53,7 @@ import {
   PRIVACY_LOG_FIELDS,
   SPONSORS_URL,
   aboutOutputFile,
+  aboutStoredKey,
   apexAboutUrl,
   buildFrontDoor,
   categoryAnchor,
@@ -59,6 +61,7 @@ import {
   categoryCounts,
   categoryOutputFile,
   categoryPageKey,
+  categoryPageStoredKey,
   extraTokens,
   mirroredByCategory,
   orderedCategories,
@@ -333,14 +336,22 @@ test('the nginx rewrite and the ConfigMap key agree about where a category page 
     'utf8',
   );
   assert.match(conf, /location ~ "\^\/c\/\(\?<cat>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{/);
-  assert.match(conf, /try_files \/c__\$\{cat\}\.html =404;/);
+  // `rewrite`, not `try_files`: the key is stored gzipped and the plain name
+  // exists nowhere, so a `try_files` would stat a missing file and 404 before
+  // `gzip_static` ever ran. See `categoryPageStoredKey` in front-door.mjs.
+  assert.match(conf, /rewrite \^ \/c__\$\{cat\}\.html break;/);
+  assert.match(conf, /gzip_static always;/);
+  assert.match(conf, /gunzip on;/);
 
   const { categoryPages } = await buildFrontDoor();
   for (const page of categoryPages) {
     // The URL path the sitemap advertises, run through the rewrite by hand,
-    // must be the key the generator writes.
+    // must be the plain key the generator's `--write` path compresses.
     const served = categoryPagePath(page.id).replace(/^c\/([a-z0-9-]+)\/$/, 'c__$1.html');
     assert.equal(served, categoryPageKey(page.id));
+    // And the rewritten name plus `.gz` is what is actually on disk — the two
+    // halves of `gzip_static`'s lookup, which nothing else states in one place.
+    assert.equal(categoryPageStoredKey(page.id), `${categoryPageKey(page.id)}.gz`);
   }
 });
 
@@ -481,7 +492,7 @@ test('every rendered category page is mounted by the kustomization', async () =>
     'utf8',
   );
   for (const page of categoryPages) {
-    const key = categoryPageKey(page.id);
+    const key = categoryPageStoredKey(page.id);
     assert.ok(
       kustomization.includes(`- ${key}=front-door/${key}`),
       `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
@@ -490,12 +501,12 @@ test('every rendered category page is mounted by the kustomization', async () =>
   // And nothing stale: a line for a category that is no longer rendered makes
   // `kustomize build` fail on a missing file, which takes the whole prod
   // Application down rather than just that page.
-  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html)=front-door\//g)].map(
+  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html\.gz)=front-door\//g)].map(
     (match) => match[1],
   );
   assert.deepEqual(
     mounted.sort(),
-    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    categoryPages.map((page) => categoryPageStoredKey(page.id)).sort(),
   );
 });
 
@@ -1024,10 +1035,16 @@ test('the committed category pages match what this generator produces', async ()
   // such an edit runs this test.
   const { categoryPages } = await buildFrontDoor();
   for (const page of categoryPages) {
+    // Compared after inflating rather than by re-gzipping and matching bytes,
+    // same reasoning as the comparison-index test: the committed artifact is
+    // what a visitor receives, and that is the HTML. `GZIP_LEVEL` and the
+    // pinned `GZIP_HEADER` in front-door-tools.mjs keep the stored bytes
+    // reproducible; this test is about the content.
+    const stored = await fs.readFile(categoryOutputFile(page.id));
     assert.equal(
-      await fs.readFile(categoryOutputFile(page.id), 'utf8'),
+      zlib.gunzipSync(stored).toString('utf8'),
       page.html,
-      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
+      `gitops/prod/front-door/${categoryPageStoredKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
     );
   }
 
@@ -1038,11 +1055,11 @@ test('the committed category pages match what this generator produces', async ()
   // `--write` path sweeps them; this is what proves it did.
   const dir = path.dirname(OUTPUT_FILE);
   const onDisk = (await fs.readdir(dir)).filter(
-    (name) => name.startsWith('c__') && name.endsWith('.html'),
+    (name) => name.startsWith('c__') && name.endsWith(`.html${COMPRESSED_SUFFIX}`),
   );
   assert.deepEqual(
     onDisk.sort(),
-    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    categoryPages.map((page) => categoryPageStoredKey(page.id)).sort(),
     'a category page on disk is no longer rendered — run: node platform/marketing/regen.mjs',
   );
 });
@@ -1456,11 +1473,16 @@ test('llms.txt claims a wider collection only while one actually exists', () => 
 });
 
 test('the committed llms.txt matches what this generator produces', async () => {
+  // Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in
+  // `front-door.mjs`), so this reads it through `readCommittedLlms` rather
+  // than as UTF-8 — see that helper's own doc comment for why reading the
+  // `.gz` bytes as text would not throw but would compare mojibake to plain
+  // text and fail for the wrong reason.
   const { llms } = await buildFrontDoor();
   assert.equal(
-    await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'),
+    await readCommittedLlms(),
     llms,
-    'gitops/prod/front-door/llms.txt is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/llms.txt.gz is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1471,7 +1493,7 @@ test('every link in the committed llms.txt resolves on this host', async () => {
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
   const { compareProductPages } = await buildFrontDoor();
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
   assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
   const served = new Set([
@@ -1505,12 +1527,21 @@ test('nginx answers /llms.txt as markdown-ish text, with the encoding declared',
   const block = conf.match(new RegExp(`location = /${escapeForRegExp(LLMS_FILE)} \\{[\\s\\S]*?\\n {2}\\}`));
   assert.ok(block, `front-door/default.conf must serve /${LLMS_FILE} explicitly`);
   assert.match(block[0], /default_type text\/plain;/);
-  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(LLMS_FILE)} =404;`));
   // The one thing robots.txt does not need. That file is held to ASCII by a
   // test; this one carries the ventures' own titles, 31 of whose bullets
   // contain an em dash, and nginx defaults to `charset off` — so without this
   // a client assuming Latin-1 renders every one as mojibake.
   assert.match(block[0], /charset utf-8;/);
+  // Stored gzip-only since 2026-09-24, so this block is served out of the
+  // content phase by `gzip_static` rather than resolved in the rewrite phase
+  // by `try_files`. Both halves are asserted, for the identical reason the
+  // `/sitemap.xml` and `/catalog.json` blocks' own tests give.
+  assert.ok(
+    !/try_files/.test(block[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
+  );
+  assert.match(block[0], /gzip_static always;/);
+  assert.match(block[0], /gunzip on;/);
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/llms.txt exists to be read by crawlers');
   assert.ok(
     conf.indexOf(`location = /${LLMS_FILE}`) < conf.indexOf('location / {'),
@@ -1522,11 +1553,33 @@ test('the committed llms.txt is the file that block promises to serve', async ()
   // The encoding claim above is only true if the bytes really are UTF-8, and
   // the em-dash count is what makes the charset load-bearing rather than
   // decorative — if a future edit made this file ASCII the directive would be
-  // harmless but the comment beside it would be wrong.
-  const bytes = await fs.readFile(LLMS_OUTPUT_FILE);
-  assert.equal(bytes.toString('utf8'), await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'));
-  const nonAscii = [...bytes.toString('utf8')].filter((c) => c.codePointAt(0) > 127);
+  // harmless but the comment beside it would be wrong. Read through
+  // `readCommittedLlms` since the committed key is gzipped, not plain text.
+  const txt = await readCommittedLlms();
+  const nonAscii = [...txt].filter((c) => c.codePointAt(0) > 127);
   assert.ok(nonAscii.length > 0, 'if this file is ever pure ASCII, drop the charset comment with it');
+});
+
+test('the stored llms.txt key agrees with the compression suffix constant', () => {
+  // `LLMS_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX` is
+  // declared below it and a forward reference would be a TDZ error at module
+  // load. This is the assertion that comment promises, so the literal cannot
+  // drift from the constant the rest of the mechanism uses.
+  assert.equal(llmsStoredKey(), `${LLMS_FILE}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(LLMS_OUTPUT_FILE), llmsStoredKey());
+});
+
+test('no plain llms.txt is left beside the compressed key', async () => {
+  // The stale-sibling trap, asserted rather than trusted to the sweep in
+  // `front-door.mjs`: `location = /llms.txt`'s own `root` would still find a
+  // plain file, so a regeneration that stopped writing the `.gz` would go on
+  // serving a frozen document under a 200 for as long as anybody looked.
+  const plain = path.join(path.dirname(LLMS_OUTPUT_FILE), LLMS_FILE);
+  assert.equal(
+    await fs.stat(plain).then(() => true, () => false),
+    false,
+    `${LLMS_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
+  );
 });
 
 test('llms.txt rides in the ConfigMap that mounts at the document root', async () => {
@@ -1534,7 +1587,18 @@ test('llms.txt rides in the ConfigMap that mounts at the document root', async (
     path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
     'utf8',
   );
-  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(LLMS_FILE)}=front-door/${escapeForRegExp(LLMS_FILE)}`));
+  // The compressed key, and the plain name must not also be listed: two keys
+  // for one URL is how a frozen copy ends up being served beside a live one.
+  assert.match(
+    kustomization,
+    new RegExp(`- ${escapeForRegExp(llmsStoredKey())}=front-door/${escapeForRegExp(llmsStoredKey())}`),
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(LLMS_FILE)}=front-door/${escapeForRegExp(LLMS_FILE)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain llms.txt key must be gone, not listed alongside its .gz',
+  );
 });
 
 test('the footer offers llms.txt only where this host serves one', () => {
@@ -1756,7 +1820,7 @@ test('the committed catalog.json parses and agrees with llms.txt', async () => {
   // comparable between these two — and a client that read both and got
   // different collections would have no way to tell which was right.
   const catalog = JSON.parse(await readCommittedCatalog());
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   const linked = new Set(
     [...txt.matchAll(/\]\((https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/)\)/g)].map((m) => m[2]),
   );
@@ -1772,7 +1836,7 @@ test('llms.txt offers the catalogue now that this host serves one', async () => 
   // "lives on the tools host and is not served here". It is served here now,
   // and the rule that produced the old exclusion — every entry is a path this
   // host answers — is what makes listing it correct rather than a regression.
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   assert.ok(
     txt.includes(`${FRONT_DOOR_URL}${CATALOG_FILE}`),
     'llms.txt should point a model at the structured catalogue',
@@ -1847,6 +1911,17 @@ test('catalog.json rides in the ConfigMap that mounts at the document root', asy
  */
 async function readCommittedSitemap() {
   return zlib.gunzipSync(await fs.readFile(SITEMAP_OUTPUT_FILE)).toString('utf8');
+}
+
+/**
+ * The committed llms.txt, inflated.
+ *
+ * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
+ * so every assertion below reads it through here rather than as UTF-8, for
+ * the identical reason `readCommittedSitemap` above does.
+ */
+async function readCommittedLlms() {
+  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
 }
 
 test('the stored sitemap key agrees with the compression suffix constant', () => {
@@ -1943,11 +2018,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
     path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
     'utf8',
   );
-  const block = kustomization.match(
-    /\n {2}- name: portfolio-front-html\n([\s\S]*?)(?=\n {2}- name: |\n[a-zA-Z])/,
-  );
-  assert.ok(block, 'could not find the portfolio-front-html ConfigMap in the kustomization');
-  const names = [...block[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  // Two generators since 2026-10-04: the page and its fixed files, and the
+  // `-index` half that grows with the catalogue. Both mount at one path, so the
+  // ceiling is per object, and each is checked below against the full 1 MiB.
+  const blocks = ['portfolio-front-html', 'portfolio-front-html-index'].map((name) => {
+    const b = kustomization.match(
+      new RegExp(`\\n {2}- name: ${name}\\n([\\s\\S]*?)(?=\\n {2}- name: |\\n[a-zA-Z])`),
+    );
+    assert.ok(b, `could not find the ${name} ConfigMap in the kustomization`);
+    return [...b[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  });
+  const names = blocks.flat();
   assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
 
   // Binary keys are counted base64'd, which is how kustomize stores them; text
@@ -1963,15 +2044,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   // `UnicodeDecodeError` rather than trusting a filename pattern) and this
   // test did not.
   const BINARY = /\.(png|ico|woff2?|gz)$/;
-  let total = 0;
-  for (const name of names) {
-    const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
-    total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+  for (const group of blocks) {
+    let total = 0;
+    for (const name of group) {
+      const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
+      total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+    }
+    assert.ok(
+      total < 1024 * 1024,
+      `a front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
+    );
   }
-  assert.ok(
-    total < 1024 * 1024,
-    `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
-  );
 });
 
 test('the About page is mounted by the kustomization and served by nginx', async () => {
@@ -1986,8 +2069,14 @@ test('the About page is mounted by the kustomization and served by nginx', async
     'utf8',
   );
   assert.ok(
-    kustomization.includes(`- ${ABOUT_KEY}=front-door/${ABOUT_KEY}`),
-    `gitops/prod/kustomization.yaml must mount ${ABOUT_KEY}; without it /about/ is a 404`,
+    kustomization.includes(`- ${aboutStoredKey()}=front-door/${aboutStoredKey()}`),
+    `gitops/prod/kustomization.yaml must mount ${aboutStoredKey()}; without it /about/ is a 404`,
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(ABOUT_KEY)}=front-door/${escapeForRegExp(ABOUT_KEY)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain about.html key must be gone, not listed alongside its .gz',
   );
   const conf = await fs.readFile(path.join(frontDoorDir, 'default.conf'), 'utf8');
   assert.match(
@@ -1995,10 +2084,20 @@ test('the About page is mounted by the kustomization and served by nginx', async
     /location ~ "\^\/about\/\?\$"/,
     'front-door/default.conf must route /about/, or the catch-all answers it with the front page',
   );
+  const aboutBlock = conf.match(/location ~ "\^\/about\/\?\$" \{[\s\S]*?\n {2}\}/);
+  assert.ok(aboutBlock, 'front-door/default.conf must have an /about/ block');
   assert.ok(
-    conf.includes(`try_files /${ABOUT_KEY} =404`),
-    `the /about/ block must rewrite to ${ABOUT_KEY}, the key the kustomization mounts`,
+    !/try_files/.test(aboutBlock[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
   );
+  assert.match(aboutBlock[0], new RegExp(`rewrite \\^ /${escapeForRegExp(ABOUT_KEY)} break;`));
+  assert.match(aboutBlock[0], /gzip_static always;/);
+  assert.match(aboutBlock[0], /gunzip on;/);
+});
+
+test('the stored About key agrees with the compression suffix constant', () => {
+  assert.equal(aboutStoredKey(), `${ABOUT_KEY}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(aboutOutputFile()), aboutStoredKey());
 });
 
 test('the About page claim about the access log matches the log_format that ships', async () => {
@@ -2124,7 +2223,7 @@ test('the About page counts the tools and categories this host actually serves',
     'the facts list does not carry the live tool and category counts',
   );
   assert.equal(apexAboutUrl(), `${FRONT_DOOR_URL}${ABOUT_PATH}`);
-  assert.ok(aboutOutputFile().endsWith(ABOUT_KEY));
+  assert.ok(aboutOutputFile().endsWith(aboutStoredKey()));
 });
 
 test('the front page and the sitemap both lead to the About page', async () => {

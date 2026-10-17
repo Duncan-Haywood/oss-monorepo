@@ -1,0 +1,42 @@
+7 rod options x 2^6 other-substitution subsets = 448 designs; rod penalty = min(1, K*log2(1+sag/sag_steel8)), K = 0.25 (assumed); sag_steel8 = 0.192 mm at 5 N, 420 mm
+rod penalties: steel rods 0.00, hardwood 8 mm 1.00, hardwood 10 mm 0.80, hardwood 12 mm 0.58, aluminium 8 mm 0.49, aluminium 10 mm 0.28, aluminium 12 mm 0.16
+
+== objective: mass closure, printer+router+laser shop
+budget  joint-search  | old redesign (wood 0.9)  | joint choice
+  0.0     22.4%      |   22.4%                  | steel rods; -
+  0.5     37.6%      |   25.0%                  | aluminium 12 mm; printed-m8-nuts
+  1.0     38.7%      |   28.6%                  | aluminium 12 mm; printed-bushings, printed-m8-nuts
+  1.5     39.7%      |   31.8%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts
+  2.0     40.0%      |   33.1%                  | aluminium 12 mm; printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
+  3.0     41.1%      |   35.2%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
+  4.0     41.4%      |   35.8%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive, printed-hobbed-bolt
+
+== objective: cost closure, printer+router+laser shop
+budget  joint-search  | old redesign (wood 0.9)  | joint choice
+  0.0     15.9%      |   15.9%                  | steel rods; -
+  0.5     35.6%      |   33.6%                  | aluminium 12 mm; printed-m8-nuts
+  1.0     42.1%      |   41.2%                  | aluminium 12 mm; printed-m8-nuts, printed-m3-nuts
+  1.5     44.9%      |   43.9%                  | aluminium 12 mm; printed-bushings, printed-m8-nuts, printed-m3-nuts
+  2.0     46.1%      |   44.9%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts
+  3.0     47.1%      |   46.1%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
+  4.0     47.7%      |   47.7%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive, printed-hobbed-bolt
+
+== objective: lines closure, printer+router+laser shop
+budget  joint-search  | old redesign (wood 0.9)  | joint choice
+  0.0     43.1%      |   43.1%                  | steel rods; -
+  0.5     49.0%      |   45.1%                  | aluminium 12 mm; printed-m8-nuts
+  1.0     51.0%      |   49.0%                  | aluminium 12 mm; printed-m8-nuts, printed-m3-nuts
+  1.5     53.1%      |   51.0%                  | aluminium 12 mm; printed-idlers, printed-m8-nuts, printed-m3-nuts
+  2.0     56.2%      |   53.1%                  | aluminium 12 mm; printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
+  3.0     58.3%      |   56.2%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive
+  4.0     60.4%      |   60.4%                  | aluminium 12 mm; printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, printed-belt-drive, printed-hobbed-bolt
+
+== random search on the joint space, mass closure, 8 evaluations (mean of 200) vs exhaustive
+budget 1.0: random 27.4%  exhaustive 38.7%
+budget 2.0: random 36.1%  exhaustive 40.0%
+budget 3.0: random 38.1%  exhaustive 41.1%
+
+== which rod does the mass-closure optimum use as the rod penalty scale K varies (K assumed 0.25)
+budget 1.0: K=0.05: aluminium 12 mm 38.7% | K=0.1: aluminium 12 mm 38.7% | K=0.25: aluminium 12 mm 38.7% | K=0.5: aluminium 12 mm 37.8% | K=1.0: aluminium 12 mm 37.6%
+budget 2.0: K=0.05: aluminium 12 mm 40.2% | K=0.1: aluminium 12 mm 40.2% | K=0.25: aluminium 12 mm 40.0% | K=0.5: aluminium 12 mm 40.0% | K=1.0: aluminium 12 mm 39.7%
+budget 3.0: K=0.05: aluminium 12 mm 41.1% | K=0.1: aluminium 12 mm 41.1% | K=0.25: aluminium 12 mm 41.1% | K=0.5: aluminium 12 mm 41.1% | K=1.0: aluminium 12 mm 41.1%

@@ -1,0 +1,44 @@
+name: pottery-piece-pricing-calculator
+description: >-
+  Free browser tool for potters and ceramic artists who sell. Enter clay, glaze, kiln firings, breakage, your hours and
+  studio rent; get the true cost of a sellable piece, the retail and wholesale price for a target margin, hourly return,
+  and breakage, kiln-fill and electricity sensitivity. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. No pottery/ceramics venture exists in ventures/ (candle-batch-cost-calculator and
+# farmers-market-booth-calculator are adjacent maker tools); not in screened-out.md.
+# Who: studio and home potters selling at markets, on Etsy and wholesale to shops, plus hobbyists turning pro. First
+# visitor: searches like "how to price pottery", "kiln firing cost per piece", "how much to charge for a handmade mug";
+# ceramics forums and subreddits. Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, no-warranty and not-advice clauses.
+# Sales tax, licensing, insurance and income tax are explicitly out of scope on the page.
+#
+# Unverified: no potter has used it. Defaults are placeholders. Path to revenue (payment rails stay off): lead magnet and
+# donations; if usage appears, saved piece libraries and a printable price list, then a paid tier behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Selling potters will use a private cost model because undercounted kiln share, breakage and their own hours are
+      the usual reason handmade pottery is underpriced.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pottery-piece-pricing-calculator/
+  analytics: null

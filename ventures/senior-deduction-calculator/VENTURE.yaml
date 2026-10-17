@@ -1,0 +1,174 @@
+name: senior-deduction-calculator
+description: >-
+  Free browser calculator for the new federal "senior bonus" deduction (One
+  Big Beautiful Bill Act, tax years 2025-2028) -- up to $6,000 per qualifying
+  taxpayer age 65+ ($12,000 if both spouses qualify on a joint return),
+  applying the 6%-per-dollar MAGI phase-out above $75,000
+  single/head-of-household/qualifying-surviving-spouse or $150,000 married
+  filing jointly, and the married-filing-separately exclusion -- which runs
+  the SAME direction as this portfolio's own tips/overtime deduction
+  calculator and the OPPOSITE direction of its
+  auto-loan-interest-deduction-calculator. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-24 new-venture-first session (session_gate.py:
+# build-now queue empty; DIRECTION.md's standing owner direction ranks a
+# fresh gate-cleared niche ahead of a parity feature on a product nobody
+# has visited). A sibling session was concurrently driving PR #5747
+# (economic-nexus-threshold-tracker comparison page) -- untouched by this
+# session, different venture and files entirely.
+#
+# NICHE SELECTION (PRODUCT_PLAYBOOK.md's four-question table):
+#  - Who exactly? US taxpayers who are (or whose spouse is) age 65 or older
+#    by the end of a 2025-2028 tax year -- a huge, well-defined, searchable
+#    population with a hard age cutoff.
+#  - What do they type into a search box? "$6000 senior deduction
+#    calculator", "new senior tax deduction 2025", "am I eligible for the
+#    OBBBA senior deduction", "senior deduction phase out".
+#  - What does the problem cost them? Getting the married-filing-separately
+#    rule or the phase-out arithmetic wrong means either missing up to
+#    $12,000 of real, legitimate deduction on a joint return, or claiming a
+#    deduction that has actually phased out -- both are real dollars, not a
+#    convenience question.
+#  - Why hasn't a big vendor solved it? It is a brand-new provision (OBBBA,
+#    2025) -- several ad-supported finance-blog calculators already exist
+#    (found during WebSearch research), but none of this portfolio's own,
+#    private, no-signup, no-upsell tools cover it yet, and it sits in the
+#    exact archetype (a specific, brand-new, dated OBBBA provision with its
+#    own eligibility mechanics) that already produced two successful
+#    siblings in this same portfolio this month.
+#
+# duplicate_check.py (run before building) against "Free browser calculator
+# for the new OBBBA federal senior bonus deduction (2025-2028 tax years): up
+# to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify
+# on a joint return), with the 6% MAGI phase-out above $75,000 single/HOH/QSS
+# or $150,000 married filing jointly, the married-filing-separately
+# exclusion, and the fact it stacks on top of the standard deduction whether
+# or not the filer itemizes":
+#
+#   score  source                    label
+#    0.26  venture                   auto-loan-interest-deduction-calculator
+#    0.16  pipeline candidate        auto-loan-interest-deduction-calculator
+#    0.16  pipeline candidate        no-tax-on-tips-overtime-calculator
+#    0.14  venture                   no-tax-on-tips-overtime-calculator
+#    0.11  venture                   qbi-deduction-calculator
+#    0.07  pipeline candidate        chrome-extension-permission-check
+#    0.06  pipeline candidate        cat-adjuster-fee-calculator
+#    0.06  venture                   ny-llc-transparency-act-tracker
+#    0.06  venture                   ebay-fee-calculator
+#    0.06  venture                   wildlife-exclusion-bid-calculator
+#
+# Nothing scored >= 0.45 (the review bar). The top match
+# (auto-loan-interest-deduction-calculator, 0.26) is a different statutory
+# provision -- IRC 63(f)-style age deduction vs. IRC 163(h)(4) vehicle loan
+# interest -- with opposite MFS treatment, confirmed by reading that
+# venture's own calc.mjs (its MFS handling is "eligible, own $10,000 cap",
+# this venture's is "excluded entirely"). Not in
+# portfolio/pipeline/screened-out.md: no row mentions the senior deduction,
+# $6,000, age-65 bonus deduction, or OBBBA senior break. Also checked
+# `git log --oneline -60 origin/main` and no venture, PR title, or commit
+# message in that window mentions "senior deduction" or the $6,000 figure.
+#
+# LIABILITY CONTAINMENT: deterministic arithmetic against published
+# statutory figures and numbers/checkboxes the user supplies -- no network
+# call, no LLM call, no claim about the user's actual eligibility beyond
+# what they self-report. Positioned throughout (page, README, footer) as an
+# estimate to verify before filing, never a determination made on the
+# user's behalf -- matching this portfolio's other OBBBA-deduction
+# calculators. The one genuinely time-dependent fact (the provision expires
+# after the 2028 tax year under current law) is stated as a fact about
+# current law, not a promise about a future Congress.
+#
+# Mechanics verified via WebSearch on 2026-09-24 (not screening-estimate
+# figures), cross-checked across multiple independent sources -- Kiplinger
+# ("New $6,000 'Senior Bonus' Deduction" and its own dedicated phase-out
+# explainer), H&R Block, Thomson Reuters Tax & Accounting, CNBC Select,
+# TurboTax, and several independent CPA-firm summaries (jmco.com, nkcpa.com):
+# $6,000 per qualifying person age 65+ by year-end, $12,000 combined when
+# both spouses qualify on a joint return; 6 cents per dollar of MAGI phase-
+# out above $75,000 (single/HoH/qualifying surviving spouse) or $150,000
+# (joint); complete phase-out at $175,000 single/HoH/QSS and $250,000 joint
+# -- confirmed arithmetically self-consistent ($6,000 / 6% = $100,000 of
+# phase-out headroom above each threshold) and confirmed that the JOINT
+# zero-crossing point does NOT change between one qualifying spouse and two,
+# because each spouse's own $6,000 phases out independently against the
+# same household MAGI excess rather than a combined $12,000 pot phasing out
+# once; married filing separately excluded entirely (H&R Block, Kiplinger,
+# and Thomson Reuters all independently confirm "married taxpayers must
+# file jointly for either spouse to qualify"); available whether the filer
+# itemizes or takes the standard deduction.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- helps a senior
+# filer estimate a deduction they are legally entitled to and catch the two
+# easy-to-miss mechanics (MFS exclusion, per-person phase-out) before
+# filing wrong, with no adverse incentive on our side (no affiliate link, no
+# referral fee, donations-only same as the rest of the portfolio, same
+# posture as the sibling auto-loan and tips/overtime calculators).
+#
+# JUDGMENT CALLS flagged for review:
+#  - The provision's own future is a policy fact, not a calculation this
+#    tool makes: it is legislated through the 2028 tax year under current
+#    law, and the page says so rather than speculating about extension.
+#  - Age and valid-SSN status are self-reported checkboxes, the same pattern
+#    the sibling auto-loan-interest-deduction-calculator uses for its own
+#    eligibility checklist -- this tool does not and cannot verify either.
+#  - The 6%-per-dollar phase-out is modelled as a continuous rate rather
+#    than the QPVLI sibling's stepped "per $1,000 or fraction thereof"
+#    rounding, because every source describing this provision states it as
+#    a plain percentage ("6 cents per dollar") with no rounding-up language
+#    in any of the independent sources checked -- flagged here in case a
+#    future primary-source reading (Treasury regulations, once issued)
+#    reveals a stepped rounding rule the secondary sources omitted.
+
+hypotheses:
+  - claim: >-
+      A taxpayer age 65+ (or with a spouse who is), searching for how the new
+      2025 OBBBA senior deduction and its income phase-out apply to their own
+      numbers, will prefer a free, private, no-signup, no-upsell calculator
+      over an ad-supported finance blog's embedded widget or a paid tax-prep
+      marketing page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The married-filing-separately-is-fully-excluded framing, and the
+      same-MAGI-zero-crossing-for-one-or-two-spouses finding, are genuine
+      differentiators a visitor cannot get from a generic phase-out
+      description alone -- not just a duplicate entrant into an already-
+      searched niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who land here from this portfolio's own
+      auto-loan-interest-deduction-calculator or
+      no-tax-on-tips-overtime-calculator (or vice versa) -- three new 2025
+      OBBBA deductions a filer may claim in the same season -- will follow
+      the cross-links between the three, a cross-venture return-visit signal
+      this portfolio does not yet have evidence for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic by the end of the
+    2027 April filing season (the first full season under this deduction and
+    this venture's natural traffic peak).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of the 2027 April filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/senior-deduction-calculator/
+  analytics: null

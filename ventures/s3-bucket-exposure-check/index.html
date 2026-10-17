@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S3 Bucket Exposure Checker — Is Your Bucket Publicly Listable or Writable?</title>
+<meta name="description" content="Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers. Object file contents are never fetched, only key names. Nothing uploaded to us.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/s3-bucket-exposure-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="S3 Bucket Exposure Checker">
+<meta property="og:description" content="Paste a bucket name to see whether it allows anonymous listing or grants public read/write on its ACL. Free, runs from your browser or a CLI, nothing uploaded.">
+<meta property="og:url" content="https://example.invalid/s3-bucket-exposure-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "S3 Bucket Exposure Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser when the target allows a cross-origin read); a Node.js CLI is also included and has no such restriction",
+  "description": "Sends two real, unsigned GET requests to an S3 bucket's own REST endpoint -- a listing request and an ACL request -- and names whether anonymous listing is enabled, whether the ACL grants read or write to the AllUsers group, and whether it grants anything to the AuthenticatedUsers group (any AWS account holder, not just your own users). Object file contents are never fetched -- only key names and ACL grant metadata.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends an unsigned ListBucket request and reports whether anonymous listing succeeds",
+    "Reads the bucket's ACL and names any grant to the AllUsers group (read or write) or the AuthenticatedUsers group",
+    "Distinguishes public-write (anyone can upload, overwrite, or delete) from public-read at the ACL level",
+    "Never fetches an object's content -- only the key (file) names S3's own listing response already returns, and ACL grant metadata",
+    "Retries once against the bucket's own region endpoint on a region-mismatch response, the same approach well-known open-source S3 recon tools use",
+    "A Node.js CLI performs the identical check for CI, with no browser CORS restriction"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does this tool show me the actual file contents in the bucket?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, never. This tool only sends a ListBucket request (which returns object KEY NAMES, exactly the same names S3's own listing response includes) and a GetBucketAcl request (which returns grant metadata, never file content). It never fetches an object's bytes, and the report only ever displays key names and ACL grants -- never anything read from inside a file." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would a bucket end up publicly listable or writable in the first place?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Most commonly: a bucket created before S3's 2018 default-private ACL change and never revisited, a public-read ACL applied intentionally for static website hosting and left in place after the bucket started holding other data too, or S3 Block Public Access being disabled account-wide or bucket-wide for one legitimate reason and never re-enabled. AWS's own blog and IAM Access Analyzer exist specifically because this remains a common, ongoing misconfiguration." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from AWS's own tools (Trusted Advisor, IAM Access Analyzer)?",
+      "acceptedAnswer": { "@type": "Answer", "text": "AWS's own tools check from the INSIDE -- they need you to be logged into the AWS account that owns the bucket. This tool checks from the OUTSIDE, the same unsigned, anonymous request any stranger on the internet can send with no AWS account or credentials at all -- useful for a quick self-check with no console access, or for a security researcher auditing a bucket they don't own an account for." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to point this at a bucket name?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends only two ordinary, unsigned GET requests to the bucket name you give it -- the same requests any anonymous visitor, or curl, or the AWS CLI's --no-sign-request flag already makes. It never writes, uploads, or deletes anything, and it does not upload the bucket name or anything it finds to our servers when run in the browser. Still, only run this against a bucket you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's infrastructure." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my bucket has no exposure at all?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It means the two requests this run made were both cleanly denied. It does not check bucket policies that grant access under conditions this tool's plain unsigned request would not trigger, does not check object-level ACLs on individual files, and only checks the one bucket name you give it. Treat a clean report as evidence about what this run actually found, not a full audit of the bucket or the account." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  input[type="text"] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; margin: 0.3rem 0 0.8rem; }
+  label { font-weight: 600; font-size: 0.9rem; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.critical { border-left-color: #8b0000; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; word-break: break-all; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>S3 Bucket Exposure Checker</h1>
+<p>
+  Enter an S3 bucket name. This sends two plain, <strong>unsigned</strong> GET requests to the
+  bucket's own REST endpoint — a <code>ListBucket</code> request and a <code>GetBucketAcl</code>
+  request — and reports whether anonymous listing is enabled, and whether the ACL grants read or
+  write access to <code>AllUsers</code> (anyone on the internet, no AWS account required) or
+  <code>AuthenticatedUsers</code> (any AWS account holder anywhere — a commonly misunderstood
+  setting). <strong>Object file contents are never fetched by this tool — only the key (file)
+  names S3's own listing response already returns, and ACL grant metadata.</strong> See
+  <a href="why-s3-buckets-end-up-public.html">why S3 buckets end up publicly exposed</a> for the
+  common causes and the fix for each, or
+  <a href="vs-checking-by-hand.html">how this compares to checking by hand</a>. Only run this
+  against a bucket you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>Run the check</h2>
+  <label for="bucketName">Bucket name</label>
+  <input type="text" id="bucketName" placeholder="my-company-backups" autocomplete="off" spellcheck="false">
+  <p>
+    <button type="button" class="primary" id="run">Check this bucket</button>
+    <button type="button" id="load-example">Load worked example (exposed)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter a bucket name, then click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+</section>
+
+<div class="card">
+  <h2>Prefer a CLI, or hit a CORS wall in the browser?</h2>
+  <p>
+    S3 buckets don't send permissive CORS headers by default, so a browser tab often
+    <strong>cannot</strong> read a cross-origin response at all — you'll see a generic network
+    error with no HTTP status. The CLI has no such restriction and is the one path guaranteed to
+    complete:
+  </p>
+  <pre class="cmd"><code>node check.mjs my-company-backups --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/s3-bucket-exposure-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a> —
+    exit code 1 if a finding is confirmed, so you can gate a deploy or a nightly audit on it.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Does this tool show me the actual file contents in the bucket?</h3>
+  <p><strong>No, never.</strong> This tool only sends a <code>ListBucket</code> request (which returns object KEY NAMES, exactly the same names S3's own listing response includes) and a <code>GetBucketAcl</code> request (which returns grant metadata, never file content). It never fetches an object's bytes, and the report only ever displays key names and ACL grants -- never anything read from inside a file.</p>
+  <h3>Why would a bucket end up publicly listable or writable in the first place?</h3>
+  <p>Most commonly: a bucket created before S3's 2018 default-private ACL change and never revisited, a public-read ACL applied intentionally for static website hosting and left in place after the bucket started holding other data too, or S3 Block Public Access being disabled account-wide or bucket-wide for one legitimate reason and never re-enabled. AWS's own blog and IAM Access Analyzer exist specifically because this remains a common, ongoing misconfiguration.</p>
+  <h3>How is this different from AWS's own tools (Trusted Advisor, IAM Access Analyzer)?</h3>
+  <p>AWS's own tools check from the INSIDE -- they need you to be logged into the AWS account that owns the bucket. This tool checks from the OUTSIDE, the same unsigned, anonymous request any stranger on the internet can send with no AWS account or credentials at all -- useful for a quick self-check with no console access, or for a security researcher auditing a bucket they don't own an account for.</p>
+  <h3>Is it safe to point this at a bucket name?</h3>
+  <p>This tool sends only two ordinary, unsigned GET requests to the bucket name you give it -- the same requests any anonymous visitor, or curl, or the AWS CLI's --no-sign-request flag already makes. It never writes, uploads, or deletes anything, and it does not upload the bucket name or anything it finds to our servers when run in the browser. Still, only run this against a bucket you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's infrastructure.</p>
+  <h3>Does a clean report mean my bucket has no exposure at all?</h3>
+  <p>It means the two requests this run made were both cleanly denied. It does not check bucket policies that grant access under conditions this tool's plain unsigned request would not trigger, does not check object-level ACLs on individual files, and only checks the one bucket name you give it. Treat a clean report as evidence about what this run actually found, not a full audit of the bucket or the account.</p>
+</section>
+
+<script type="module">
+  import { checkBucket } from './probe.mjs';
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    bucketName: $('#bucketName'), status: $('#status'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    run: $('#run'),
+  };
+
+  const EXAMPLE_REPORT = buildReport('demo-shop-backups', {
+    listing: {
+      ok: true,
+      status: 200,
+      text: '<ListBucketResult><Contents><Key>orders-export-2026-01.csv</Key></Contents><Contents><Key>db-backup.sql</Key></Contents></ListBucketResult>',
+      error: null,
+    },
+    acl: {
+      ok: true,
+      status: 200,
+      text: '<AccessControlPolicy><AccessControlList><Grant><Grantee><URI>http://acs.amazonaws.com/groups/global/AllUsers</URI></Grantee><Permission>READ</Permission></Grant></AccessControlList></AccessControlPolicy>',
+      error: null,
+    },
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.notFound) {
+      els.verdict.textContent = `Bucket "${report.bucket}" does not exist (NoSuchBucket) -- check for a typo.`;
+    } else if (report.findings.length > 0) {
+      els.verdict.textContent = `${report.findings.length} finding(s) confirm this bucket is exposed.`;
+    } else {
+      els.verdict.textContent = 'No exposure found -- both requests were cleanly denied.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No exposed access found.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'critical' ? 'critical' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${escapeHtml(f.severity)})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          ${f.sampleKeys?.length ? `<p class="evidence">keys: ${escapeHtml(f.sampleKeys.join(', '))}</p>` : ''}
+        </div>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runLiveCheck() {
+    const bucket = els.bucketName.value.trim();
+    if (!bucket) {
+      els.status.innerHTML = '<span class="error">Enter a bucket name.</span>';
+      return;
+    }
+    els.status.textContent = 'Checking… this sends real, unsigned requests to AWS for the bucket above.';
+    els.run.disabled = true;
+    try {
+      const raw = await checkBucket(bucket);
+      const report = buildReport(bucket, raw);
+      render(report);
+      if (report.incomplete) {
+        els.status.innerHTML = `<span class="error">${report.errors.length} request(s) could not be classified — often a CORS block. Use the CLI for a guaranteed run.</span>`;
+      } else {
+        els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
+      }
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
+    } finally {
+      els.run.disabled = false;
+    }
+  }
+
+  els.run.addEventListener('click', runLiveCheck);
+
+  $('#load-example').addEventListener('click', () => {
+    render(EXAMPLE_REPORT);
+    els.status.textContent = 'Worked example: anonymous listing enabled and a public-read ACL grant.';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.bucketName.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter a bucket name, then click Check.';
+  });
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks two unsigned requests. It never
+  writes, uploads, or deletes anything, never fetches an object's file content (only key names and
+  ACL grant metadata), does not check bucket policies or object-level ACLs, and cannot see an
+  exposure this run did not check for. A clean report describes what this run found, not a
+  guarantee the bucket or account has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any bucket you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Every request goes straight from your browser
+  to AWS — never through this site, and never logged or stored by us. The only thing stored is an
+  anonymous local count of which features were used and the day — no bucket names, no findings, no
+  account, no tracking cookies, no analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your stack:
+  <a href="../supabase-rls-check/">Supabase RLS checker</a> and
+  <a href="../firebase-rules-check/">Firebase Rules checker</a> cover the same
+  "does this backend hand out data with no login" question for two other platforms,
+  <a href="../dotenv-exposure-check/">Dotenv Exposure checker</a> and
+  <a href="../git-exposure-check/">Git Exposure checker</a> cover other static-file exposure
+  classes, in the same "read what's actually there, name the exact evidence" shape as this tool.
+  To check the bucket <em>policy</em> itself, paste it into the
+  <a href="../aws-iam-policy-risk-check/">AWS IAM Policy Risk Check</a>.</p>
+</footer>
+</body>
+</html>

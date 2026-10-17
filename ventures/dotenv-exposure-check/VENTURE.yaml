@@ -1,0 +1,76 @@
+name: dotenv-exposure-check
+description: >-
+  A free browser tool + CLI: sends one GET request to each of five
+  well-known dotenv filenames (.env, .env.local, .env.production,
+  .env.production.local, .env.development.local) at a site's root and
+  names which ones are publicly readable -- verifying the response body
+  against the real KEY=VALUE line shape of a dotenv file (not just an HTTP
+  status), so a soft-404 catch-all page is never misread as an exposure.
+  Flags a likely-live-credential exposure at higher severity when an
+  exposed variable's NAME matches a common secret pattern (SECRET, TOKEN,
+  PASSWORD, API_KEY, and similar). Never reads, stores, renders, or
+  reports a variable's VALUE anywhere -- only variable names and counts.
+  Never writes, submits, or modifies anything; read-only GET requests
+  only.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, DevOps engineer, or bug-bounty researcher auditing a
+      production deployment will search a variant of "check if .env file
+      is exposed", "is my .env public", or "dotenv exposure checker" and
+      find this tool, since it needs no login and no upload -- it runs the
+      same kind of request the searcher's own browser address bar already
+      makes when they type the URL in by hand, just scripted, repeatable
+      across all five relevant filenames, and verified against the real
+      file shape rather than eyeballed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, evergreen deployment footgun rather than
+      a one-off incident: dotenv-style configuration is the documented
+      convention of Node.js's own `dotenv` package plus Next.js, Laravel,
+      Django, and Rails, and "check for exposed .env files" is a standard
+      low-effort reconnaissance step in security testing methodologies and
+      bug-bounty write-ups, the same class of evergreen-footgun check this
+      portfolio already ships for git directories, source maps, CORS, and
+      security headers.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets an exposed-dotenv finding will wire the CLI into
+      their own deploy pipeline as a regression gate, so a deploy-script
+      change, a server migration, or a CDN config change is caught the
+      same day rather than discovered by an outsider running the same
+      kind of check -- producing return usage with no action from this
+      portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Hosting platforms and frameworks converge on never reading a project-root
+    dotenv file in production by default (several already push toward
+    platform-native environment variable injection instead), at which point
+    this check would be validating a misconfiguration that can no longer
+    happen by default on those platforms rather than one many self-managed
+    deployments still ship.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dotenv-exposure-check/
+  analytics: null

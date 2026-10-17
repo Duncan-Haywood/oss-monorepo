@@ -1,0 +1,63 @@
+name: worker-classification-checker
+description: >-
+  Free browser tool that screens a 1099 contractor relationship against the IRS
+  common-law test, the DOL economic reality test and the ABC test, lists the
+  facts pointing to employee status, and estimates back payroll tax and unpaid
+  overtime as a range. Illustrative only; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a generic new-venture session. duplicate_check.py:
+# closest row was change-order-margin-calculator 0.20; no worker-classification,
+# 1099 or ABC-test tool in ventures/ or screened-out.md.
+# Employers pay misclassification penalties large enough to hire counsel, and the
+# search "is my contractor an employee" is evergreen; the paid alternatives are
+# employment-law intake forms and HR-suite questionnaires behind a signup.
+# This is the free, private, no-signup first screen.
+#
+# First visitor: r/smallbusiness, r/Entrepreneur, gig-platform and agency-owner
+# communities, and "1099 vs W-2 test" / "ABC test California" searches; volume
+# not measured.
+#
+# Privacy is the liability boundary: inputs never leave the browser (tests
+# assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet; a paid tier, if usage
+# appears, is a saved per-worker audit file and a printable memo for counsel,
+# local-first; not built. No referrals to lawyers or insurers.
+#
+# Liability: screening checklist, not a determination; never phrased as "you are
+# compliant"; explicit list of what it skips. Not reviewed by a lawyer.
+
+hypotheses:
+  - claim: >-
+      Small employers paying people on 1099s will use a free private checklist
+      that shows each legal test and the cost of being wrong, because the
+      alternative is an intake call with a lawyer or an account with an HR suite.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "facts doing the most damage" list is what owners screenshot to a
+      bookkeeper or lawyer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a test description or the Section 3509 arithmetic contradicts the cited rule without the page's stated simplifications explaining it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/worker-classification-checker/
+  analytics: null

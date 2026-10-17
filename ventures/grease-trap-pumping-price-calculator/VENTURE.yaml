@@ -1,0 +1,43 @@
+name: grease-trap-pumping-price-calculator
+description: >-
+  Free browser calculator for grease trap and interceptor pumping companies: enter the trap size, how full it was and how long that took, the truck,
+  the dump trip, crew, truck and disposal cost, and see the price per visit, the pump-out interval that keeps the trap under the 25% rule, the annual
+  price by interval, and what the disposal fee does to the bid. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Nothing in ventures/ or screened-out.md prices grease trap pumping. septic-pumping-bid-calculator (a different waste stream, no fill-rate interval) and
+# dumpster-rental-margin-calculator are the nearest shapes; none models the dump-trip share per stop, or derives a pump-out interval from a fill rate.
+#
+# First visitor: small pumping and hauling companies searching "how much to charge for grease trap pumping", "grease trap pumping price per gallon",
+# "how often should a grease trap be pumped" and "25 percent rule grease trap". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal advice and not a statement of the local FOG
+# ordinance; says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small grease trap pumpers will type a trap's size, fill rate and their dump trip into a no-signup calculator to set a visit price and a contract
+      interval, because most quote a flat per-gallon rate that ignores half-empty truckloads and how fast that particular trap fills.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grease-trap-pumping-price-calculator/
+  analytics: null

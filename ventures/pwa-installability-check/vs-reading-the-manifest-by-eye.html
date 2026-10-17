@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. reading manifest.json by eye | PWA Installability Checker</title>
+<meta name="description" content="Opening manifest.json and eyeballing name, display, and icon sizes catches the obvious cases. It misses icons that 404 or come back as the wrong content type, a sizes attribute that needs parsing per token, and the spec default that turns a missing display field into an automatic fail. This checker runs the same documented criteria without the gaps.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/pwa-installability-check/vs-reading-the-manifest-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. reading manifest.json by eye">
+<meta property="og:description" content="A developer who opens manifest.json and reads it can catch a missing name or an obviously wrong display value. What that read-through cannot do is fetch every icon to confirm it actually loads, or remember that an absent display field is a silent fail rather than a blank to skip past.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't just opening manifest.json and reading it enough?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For the fields that are obviously wrong on sight -- no name field at all, display set to something that is clearly not standalone -- yes. What a read-through cannot do without extra steps is confirm each listed icon URL actually resolves to a reachable image of the right size, or remember that a missing display field is not neutral: the spec's own default for an absent display is \"browser\", which Chrome's installability criteria explicitly exclude. A quick read tends to skip past an absent field as \"nothing to flag\" rather than resolving it to the value it defaults to." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does eyeballing the manifest miss that this checker catches?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three things in particular. First, icon reachability: a manifest can list a 192x192 icon path that looks correct in the JSON and still 404, get served with the wrong content type, or point at a build artifact nobody committed -- none of that is visible from the manifest file alone, only from actually fetching it. Second, the sizes attribute can carry several space-separated size tokens on one icon entry (\"48x48 96x96 192x192\"), and confirming at least one clears the 192px minimum means parsing every token, not just glancing at the first one. Third, the secure-origin requirement depends on how the page itself was served, which manifest.json says nothing about at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a missing display field count as a hard fail here?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because the Web App Manifest spec's own default for an absent \"display\" is \"browser\", and Chrome's installability criteria explicitly exclude \"browser\" from the modes it will install. A human reading the file sees no display key and often reads that as \"not set, move on\" -- but the browser resolves the absence to a concrete value that fails the check. This tool applies that same resolution automatically instead of relying on the reader to remember the spec's default." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is anything I paste into either process uploaded?",
+      "acceptedAnswer": { "@type": "Answer", "text": "There is nothing to upload either way. Reading manifest.json in an editor or browser tab involves no third party at all, and this checker's browser page only renders a report from JSON you paste in locally -- the CLI that actually fetches the page, manifest, and icons talks directly to the URL you name, never through this site." }
+    }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  footer { margin-top: 2.5rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; PWA Installability Checker</a></p>
+
+<h1>This checker vs. reading manifest.json by eye</h1>
+
+<p>
+  The free way to check installability is to open <code>manifest.json</code> in an editor or a
+  browser tab and read it: is there a <code>name</code>, does <code>display</code> look right, are
+  the icons roughly the expected sizes. That catches the obviously broken cases -- an empty file, a
+  <code>display</code> value that is plainly wrong -- and costs nothing but a minute of attention.
+</p>
+
+<p>
+  <strong>This checker</strong> runs the same documented criteria Chrome uses, but does two things a
+  read-through has no easy way to do. First, it actually fetches every icon the manifest lists and
+  confirms each one responds successfully as an image, rather than trusting that a path which looks
+  right in the JSON also resolves on the live site. Second, it resolves every field to its spec
+  default before judging it -- an absent <code>display</code> is not "nothing to check", it is the
+  spec's own default of <code>"browser"</code>, which fails the install criteria outright.
+</p>
+
+<h2>Which one answers your question</h2>
+
+<table>
+  <thead>
+    <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Spot-check a manifest you just hand-wrote for an obviously missing field before committing.</td>
+      <td>Reading it by eye -- fast, and good enough to catch a typo or a blank file.</td>
+    </tr>
+    <tr>
+      <td>Confirm every icon a manifest lists actually loads, at the right size, with an image content type -- not just that the path looks plausible.</td>
+      <td>This checker -- it fetches each icon and checks the response, which a read-through of the JSON cannot do at all.</td>
+    </tr>
+    <tr>
+      <td>Know whether a manifest with no <code>display</code> field passes or fails, without having to remember the spec's default.</td>
+      <td>This checker -- it resolves the absence to <code>"browser"</code> and reports the fail, the same way Chrome does.</td>
+    </tr>
+    <tr>
+      <td>Parse a <code>sizes</code> attribute that lists several tokens on one icon entry and confirm at least one clears 192px.</td>
+      <td>This checker -- it parses every token rather than relying on a glance at the first one.</td>
+    </tr>
+    <tr>
+      <td>Check whether the page itself is served over a secure origin, which the manifest file itself says nothing about.</td>
+      <td>This checker -- it checks the page's own scheme, a fact the manifest JSON cannot contain.</td>
+    </tr>
+    <tr>
+      <td>Gate a CI run on a manifest regression without opening a file in an editor at all.</td>
+      <td>This checker -- one Node command, a machine-checkable pass/fail.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  A quick read of the file is a reasonable first pass while you are still writing the manifest.
+  This checker is what you run before you trust that pass -- it fetches what the manifest points at
+  instead of assuming the paths resolve, and it applies the spec's defaults instead of relying on a
+  reader to recall them.
+</p>
+
+<h2>Common questions</h2>
+
+<h3>Isn't just opening manifest.json and reading it enough?</h3>
+<p>For the fields that are obviously wrong on sight -- no name field at all, display set to something that is clearly not standalone -- yes. What a read-through cannot do without extra steps is confirm each listed icon URL actually resolves to a reachable image of the right size, or remember that a missing display field is not neutral: the spec's own default for an absent display is "browser", which Chrome's installability criteria explicitly exclude. A quick read tends to skip past an absent field as "nothing to flag" rather than resolving it to the value it defaults to.</p>
+
+<h3>What does eyeballing the manifest miss that this checker catches?</h3>
+<p>Three things in particular. First, icon reachability: a manifest can list a 192x192 icon path that looks correct in the JSON and still 404, get served with the wrong content type, or point at a build artifact nobody committed -- none of that is visible from the manifest file alone, only from actually fetching it. Second, the sizes attribute can carry several space-separated size tokens on one icon entry ("48x48 96x96 192x192"), and confirming at least one clears the 192px minimum means parsing every token, not just glancing at the first one. Third, the secure-origin requirement depends on how the page itself was served, which manifest.json says nothing about at all.</p>
+
+<h3>Why does a missing display field count as a hard fail here?</h3>
+<p>Because the Web App Manifest spec's own default for an absent "display" is "browser", and Chrome's installability criteria explicitly exclude "browser" from the modes it will install. A human reading the file sees no display key and often reads that as "not set, move on" -- but the browser resolves the absence to a concrete value that fails the check. This tool applies that same resolution automatically instead of relying on the reader to remember the spec's default.</p>
+
+<h3>Is anything I paste into either process uploaded?</h3>
+<p>There is nothing to upload either way. Reading manifest.json in an editor or browser tab involves no third party at all, and this checker's browser page only renders a report from JSON you paste in locally -- the CLI that actually fetches the page, manifest, and icons talks directly to the URL you name, never through this site.</p>
+
+<p><a href="index.html">&larr; Back to the PWA Installability Checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checker looks at the manifest fields,
+  display mode, secure origin, and icon reachability behind Chrome's documented installability
+  criteria. It is not a full Lighthouse audit, does not render the page, and cannot see a criterion
+  browsers might add in the future.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not engineering advice, and it does not replace testing the
+  actual install prompt in a real browser. <strong>You are responsible for reviewing and
+  verifying its output before relying on it.</strong> To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

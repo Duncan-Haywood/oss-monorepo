@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_0194ZdrixJoLLD4JZ7M8bF31",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Landing pages for four app ventures with no public page",
+  "projects": [
+    "garmin-world-traveler-watchface",
+    "photos-import-tools",
+    "photo-editing",
+    "retail-pilot-intel"
+  ],
+  "pr": 7000,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first push failed 4 tests (catch-all category cap, off-site ../ repair, clauses fixture, sibling orphan budget); fixed forward",
+    "garmin page's png broke the front-door mirror fixpoint and cascaded ~100 ventures; removed the image"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "starvation checklist: gitops/tests shows 26 failures in test_worker_run.py in this sandbox (gh already present), unrelated to the change; undocumented"
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "nothing says a site/index.html page must avoid ../ back links (repairLinks sends them to GitHub) or assets the front-door mirror cannot carry (png), either of which fails tests or cascades dropped ventures"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen and node test runs exceed the 10 min tool timeout; checklist gives no timing or background advice"
+    }
+  ],
+  "goal": null,
+  "notes": "outcome success: merged with local checklist, no CI check runs existed. gitops/tests: 576 passed, 26 failed (test_worker_run.py, environmental, not touched), 25 skipped.",
+  "corrections": []
+}

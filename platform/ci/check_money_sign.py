@@ -45,7 +45,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES = REPO_ROOT / "ventures"
 
 # Only `money`-shaped names. `signedMoney` and friends already place a sign.
-NAME = r"(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd)"
+# `dollars`, `formatUsd` and `currency` were added 2026-10-15 after the first
+# red-team run found the same "$-50.00" defect under those names.
+NAME = r"(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd|dollars|fmtUsd|formatUsd|formatUSD|currency)"
 
 # `const money = (value) => `$${...}`` and `function money(value) { return `$${...}` }`,
 # in every parameter spelling the copies drifted into.
@@ -141,6 +143,8 @@ def findings_in(path: Path):
 
     for pattern in PATTERNS:
         for match in pattern.finditer(text):
+            if TAKES_MAGNITUDE.search(_body_after(text, match.end())):
+                continue  # `$${Math.abs(x)...}`: the caller places the sign
             found = report(match.start())
             if found:
                 yield found

@@ -1,0 +1,34 @@
+garment-markercost: stylised pieces, 2 cm raster, annealing 120 decodes x seeds (0, 1, 2) (best kept)
+
+Experiment A: seam allowance. Efficiency = finished-pattern area / (width x marker length).
+garment  width  allowance  marker_cm  efficiency  cloth_m2
+shirt     140        0.0        124       0.692     1.736
+shirt     140        1.0        136       0.631     1.904
+shirt     140        1.5        134       0.640     1.876
+skirt     140        0.0         82       0.707     1.148
+skirt     140        1.0        114       0.508     1.596
+skirt     140        1.5        118       0.491     1.652
+
+Experiment B: mixed sizes. Three shirts at linear scale 0.94 / 1.00 / 1.06, 1 cm allowance, width 140.
+separate markers: [122, 136, 144] cm, total 402 cm, efficiency 0.642
+one combined marker: 366 cm, efficiency 0.705
+length saved by mixing: 9.0%
+
+Experiment C: what the measured efficiencies do to teardown's fabric cost (what-if on the two coats).
+These are the coats' assumed areas and prices with the shirt/skirt efficiencies swapped in; the coats'
+own markers were not nested, so this is sensitivity, not a measurement of coat cloth use.
+garment                                   eff   fabric_cost_usd
+trench coat (cotton gabardine, $28/m2 assumed           0.800    104.54
+trench coat (cotton gabardine, $28/m2 shirt 1cm seam    0.631    132.57
+trench coat (cotton gabardine, $28/m2 skirt 1cm seam    0.508    164.55
+trench coat (cotton gabardine, $28/m2 mixed-size shirt  0.705    118.64
+long double-breasted wool-blen $70/m2 assumed           0.780    314.28
+long double-breasted wool-blen $70/m2 shirt 1cm seam    0.631    388.57
+long double-breasted wool-blen $70/m2 skirt 1cm seam    0.508    482.30
+long double-breasted wool-blen $70/m2 mixed-size shirt  0.705    347.73
+trench coat (cotton gabardine, $7/m2 assumed           0.800     26.14
+trench coat (cotton gabardine, $7/m2 shirt 1cm seam    0.631     33.14
+trench coat (cotton gabardine, $7/m2 skirt 1cm seam    0.508     41.14
+trench coat (cotton gabardine, $7/m2 mixed-size shirt  0.705     29.66
+
+elapsed 41 s

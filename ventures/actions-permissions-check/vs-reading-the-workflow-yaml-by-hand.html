@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Permissions Check vs. reading the workflow YAML by hand</title>
+  <meta name="description" content="A quick read catches an obvious missing permissions: block at the top of a short file. It does not reliably catch which of fifty jobs across a dozen files inherits that default and which overrides it. This free tool classifies every workflow-level and job-level grant by file and line, in your browser, with nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-reading-the-workflow-yaml-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Permissions Check vs. reading the workflow YAML by hand">
+  <meta property="og:description" content="Permissions inheritance in GitHub Actions is silent: a job with no permissions: key of its own takes the workflow's, and the workflow's default is whatever your repository or organization has set, which no YAML file states. Reading the file cannot show what it does not contain.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reading a workflow file by hand catch reliably?","acceptedAnswer":{"@type":"Answer","text":"An obviously missing permissions: block at the top of a short, single-job workflow, or a permissions: write-all line sitting in plain view. Those are the cases a reviewer scanning the file top to bottom is good at noticing, and this tool does not replace that kind of reading."}},{"@type":"Question","name":"Why does job-level inheritance make a manual read unreliable across a real repository?","acceptedAnswer":{"@type":"Answer","text":"Because a job with no permissions: key of its own silently inherits the workflow-level block, or the repository's ambient default if the workflow has none either -- and nothing in the file tells a reader which case applies without checking two other places first: whether the workflow itself declares permissions:, and, if not, what the repository or organization default is set to (which no workflow file states at all). A reviewer has to hold that inheritance chain in their head correctly for every job in every file; a scanner walks the same chain the same way every time and never loses count partway through a fifty-job file."}},{"@type":"Question","name":"Does file count matter, or is this only about complex single files?","acceptedAnswer":{"@type":"Answer","text":"Both. A repository with dozens of workflow files each defining several jobs turns a permissions review into checking every job in every file for an override, which is exactly the kind of exhaustive, repetitive check a reviewer's attention is worst at sustaining across many similar-looking blocks. A tool that scans every pasted file the same way does not get less careful on file thirty than it was on file one."}},{"@type":"Question","name":"Is write-all always easy to spot by eye?","acceptedAnswer":{"@type":"Answer","text":"It is easy to spot when it sits at the top of a short file. It is easy to miss when it appears on one job buried in the middle of a long file with several other jobs around it, especially if a reader has already concluded from the workflow-level block near the top that the file looks fine and stops reading job bodies closely after that."}},{"@type":"Question","name":"Does a clean scan from this tool mean my repository's default token permissions are safe?","acceptedAnswer":{"@type":"Answer","text":"No. This tool has no API access and does not know your repository's or organization's actual default GITHUB_TOKEN permissions -- there is no public API for that setting. An unspecified finding means the pasted file itself does not make permissions explicit; it does not mean the ambient default it would fall back to is necessarily broad, and a clean, all-explicit result says nothing about whether the scopes that are declared are the minimum each job actually needs."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Permissions Check</a></p>
+    <h1>Actions Permissions Check vs. reading the workflow YAML by hand</h1>
+    <p class="lede">This page names no company or product &mdash; reading a workflow file before trusting it is a
+      habit most maintainers already have, not a competing tool. The gap is not carelessness: permissions
+      inheritance in GitHub Actions is silent by design, and a manual read cannot show what a file does not
+      contain.</p>
+
+    <section class="card">
+      <h2>What a manual read catches reliably</h2>
+      <p>
+        An obviously missing <code>permissions:</code> block at the top of a short, single-job workflow, or a
+        <code>permissions: write-all</code> line sitting in plain view near the top of a file. Those are the
+        cases a reviewer scanning top to bottom notices without much effort, and this tool does not replace that
+        kind of reading.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>What a manual read struggles with, and why</h2>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where the two diverge on a real repository.</caption>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reading by hand</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>A job with no <code>permissions:</code> key of its own</td><td>Silently inherits the workflow-level block, or the repository default if there is none &mdash; a reader has to check two other places to know which, and nothing in the file states the repository default at all</td><td>Walks the exact inheritance rule for every job and reports the source explicitly: its own grant, or "inherited from the workflow-level permissions"</td></tr>
+          <tr><td>A repository with dozens of workflow files, several jobs each</td><td>Checking every job in every file for an override is repetitive and exactly the kind of check attention degrades across</td><td>Scans every pasted file identically; job fifty gets the same treatment as job one</td></tr>
+          <tr><td><code>permissions: write-all</code> on one job buried mid-file</td><td>Easy to miss once a reader has already judged the workflow-level block near the top to look fine and reads job bodies less closely afterward</td><td>Flags it by file and line regardless of where in the file it sits or what came before it</td></tr>
+          <tr><td>Distinguishing an explicit but narrow grant from an explicit but still-broad one</td><td>Requires holding "what scopes does this job actually need" in mind while reading unrelated YAML around it</td><td>Reports the exact scopes text for every explicit grant, so the narrowing judgment is made against a clean list, not while parsing indentation</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">None of this is about attention or diligence. Permissions inheritance is genuinely silent in the file format itself: a job's own missing key is not an error, it is a valid workflow that means something different depending on state the file does not contain.</p>
+      <p><a class="cta" href="./">Run the free permissions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>When to still read the file yourself</h2>
+      <p>
+        This tool only reports whether a <code>permissions:</code> key exists, whether it is
+        <code>write-all</code>, and what scopes an explicit grant lists. It does not know your repository's or
+        organization's actual default token permissions &mdash; there is no public API for that setting, and it
+        makes no network call to check. It also does not decide whether the scopes a job does declare are the
+        minimum that job needs; judging that against what each step in the job actually does is still a job for
+        reading the workflow yourself.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does reading a workflow file by hand catch reliably?</h3>
+      <p>An obviously missing permissions: block at the top of a short, single-job workflow, or a permissions: write-all line sitting in plain view. Those are the cases a reviewer scanning the file top to bottom is good at noticing, and this tool does not replace that kind of reading.</p>
+      <h3>Why does job-level inheritance make a manual read unreliable across a real repository?</h3>
+      <p>Because a job with no permissions: key of its own silently inherits the workflow-level block, or the repository's ambient default if the workflow has none either -- and nothing in the file tells a reader which case applies without checking two other places first: whether the workflow itself declares permissions:, and, if not, what the repository or organization default is set to (which no workflow file states at all). A reviewer has to hold that inheritance chain in their head correctly for every job in every file; a scanner walks the same chain the same way every time and never loses count partway through a fifty-job file.</p>
+      <h3>Does file count matter, or is this only about complex single files?</h3>
+      <p>Both. A repository with dozens of workflow files each defining several jobs turns a permissions review into checking every job in every file for an override, which is exactly the kind of exhaustive, repetitive check a reviewer's attention is worst at sustaining across many similar-looking blocks. A tool that scans every pasted file the same way does not get less careful on file thirty than it was on file one.</p>
+      <h3>Is write-all always easy to spot by eye?</h3>
+      <p>It is easy to spot when it sits at the top of a short file. It is easy to miss when it appears on one job buried in the middle of a long file with several other jobs around it, especially if a reader has already concluded from the workflow-level block near the top that the file looks fine and stops reading job bodies closely after that.</p>
+      <h3>Does a clean scan from this tool mean my repository's default token permissions are safe?</h3>
+      <p>No. This tool has no API access and does not know your repository's or organization's actual default GITHUB_TOKEN permissions -- there is no public API for that setting. An unspecified finding means the pasted file itself does not make permissions explicit; it does not mean the ambient default it would fall back to is necessarily broad, and a clean, all-explicit result says nothing about whether the scopes that are declared are the minimum each job actually needs.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including deciding what scopes a job actually needs. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no network call of its own -- it is a static page comparing this checker's own behaviour against reading a file by hand, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const DOCS_PAGE = 'why-redirect-chains-matter.html';
 const VS_PAGE = 'vs-httpstatus-io.html';
+const VS_HAND_PAGE = 'vs-checking-a-chain-by-hand.html';
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -38,7 +39,7 @@ test('index JSON-LD includes a free-priced SoftwareApplication and a FAQPage', a
 });
 
 test('every FAQPage question on every page is also present as visible text', async () => {
-  for (const file of ['index.html', DOCS_PAGE, VS_PAGE]) {
+  for (const file of ['index.html', DOCS_PAGE, VS_PAGE, VS_HAND_PAGE]) {
     const html = await read(file);
     const faqBlocks = jsonLdBlocks(html).map((b) => JSON.parse(b)).filter((b) => b['@type'] === 'FAQPage');
     for (const faq of faqBlocks) {
@@ -57,8 +58,8 @@ test('the docs page carries valid FAQPage JSON-LD', async () => {
   assert.ok(faq.mainEntity.length >= 3);
 });
 
-test('the no-warranty disclaimer is present on all three pages', async () => {
-  for (const file of ['index.html', DOCS_PAGE, VS_PAGE]) {
+test('the no-warranty disclaimer is present on all four pages', async () => {
+  for (const file of ['index.html', DOCS_PAGE, VS_PAGE, VS_HAND_PAGE]) {
     const html = await read(file);
     assert.match(html, /No warranty/, `${file} is missing the no-warranty clause`);
     assert.match(html, /provided free and as-is, without warranty/, `${file} is missing the full clause text`);
@@ -70,8 +71,8 @@ test('the privacy line states nothing is uploaded', async () => {
   assert.match(html, /never uploaded|never leaves your device/);
 });
 
-test('the sponsor link points at the correct GitHub Sponsors profile on all three pages', async () => {
-  for (const file of ['index.html', DOCS_PAGE, VS_PAGE]) {
+test('the sponsor link points at the correct GitHub Sponsors profile on all four pages', async () => {
+  for (const file of ['index.html', DOCS_PAGE, VS_PAGE, VS_HAND_PAGE]) {
     const html = await read(file);
     assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/, `${file} is missing the sponsor link`);
   }
@@ -147,4 +148,35 @@ test('the worked example demonstrates a loop and a protocol issue', async () => 
 test('the CLI file exists and the page documents it', async () => {
   const html = await read('index.html');
   assert.match(html, /node check\.mjs/);
+});
+
+test('index links to the by-hand comparison page', async () => {
+  const index = await read('index.html');
+  assert.match(index, new RegExp(`href="${VS_HAND_PAGE.replace(/\./g, '\\.')}"`));
+});
+
+test('the by-hand comparison page links back to the tool and carries required clauses', async () => {
+  const html = await read(VS_HAND_PAGE);
+  assert.match(html, /href="\.\/"/, 'must link back to the tool');
+  assert.match(html, /no warranty/i, 'missing the no-warranty clause');
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, 'missing the sponsor link');
+  assert.match(html, /names no specific product/i, 'missing the names-no-specific-product disclaimer');
+});
+
+test('the by-hand comparison page is listed in the venture sitemap', async () => {
+  const sitemap = await read('sitemap.xml');
+  assert.match(sitemap, new RegExp(VS_HAND_PAGE.replace(/\./g, '\\.')));
+});
+
+test('the by-hand comparison page does not repeat a question the index or vs-httpstatus-io page already answers', async () => {
+  const faqOf = async (name) => {
+    const html = await read(name);
+    const block = jsonLdBlocks(html).map((b) => JSON.parse(b)).find((b) => b['@type'] === 'FAQPage');
+    return new Set(block.mainEntity.map((q) => q.name));
+  };
+  const handQuestions = await faqOf(VS_HAND_PAGE);
+  const indexQuestions = await faqOf('index.html');
+  const vsQuestions = await faqOf(VS_PAGE);
+  const overlap = [...handQuestions].filter((q) => indexQuestions.has(q) || vsQuestions.has(q));
+  assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(', ')}`);
 });

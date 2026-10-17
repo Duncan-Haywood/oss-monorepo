@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dependent Care FSA vs Child Care Credit Calculator — Best Split</title>
+  <meta name="description" content="Free dependent care FSA vs child and dependent care credit calculator. Enter your income, tax rates and care costs to see which saves more and the best split between the two, using the 2026 $7,500 FSA limit. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Dependent Care FSA vs Child Care Credit — free, private, in your browser">
+  <meta property="og:description" content="FSA, credit or a split: how much tax each saves on your childcare spending.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dependent Care FSA vs Child Care Credit Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares a dependent care FSA with the child and dependent care tax credit and finds the best split of your care spending. Runs in your browser.", "featureList": "dependent care FSA, child and dependent care credit, best split, 2026 limits, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I use a dependent care FSA or the child care tax credit?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your marginal tax rate. The FSA saves your federal, state and payroll tax rates on every dollar you set aside, up to $7,500. The credit saves 20% to 50% of up to $3,000 (one child) or $6,000 (two or more) of expenses. Higher earners usually win with the FSA; lower earners often win with the credit. This tool compares them with your numbers."}}, {"@type": "Question", "name": "Can I use both the FSA and the credit?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, but not on the same dollars. Every dollar you run through the FSA reduces the expenses that count for the credit, dollar for dollar. Because the credit cap is only $3,000 or $6,000 while the FSA limit is $7,500, a large FSA election can use up the credit entirely. The tool tests every split and shows the best one."}}, {"@type": "Question", "name": "What changed for 2026?", "acceptedAnswer": {"@type": "Answer", "text": "Federal law raised the dependent care FSA limit to $7,500 per household starting in 2026 and increased the child and dependent care credit rate for tax years after 2025, up to 50% at low incomes with a 20% floor at high incomes. Check the current year's figures with a tax professional or the IRS before relying on this."}}, {"@type": "Question", "name": "Why is the lower earner's income asked for?", "acceptedAnswer": {"@type": "Answer", "text": "Both the FSA exclusion and the credit are limited to the earned income of the lower-earning spouse. If that income is smaller than your care costs, only that amount counts. Leave it blank if it is higher than your expenses."}}, {"@type": "Question", "name": "Is the credit refundable?", "acceptedAnswer": {"@type": "Answer", "text": "No. It can only reduce your federal income tax to zero. If you know your tax before credits, enter it and the tool limits the credit to it. The FSA saves tax whether or not you owe income tax."}}, {"@type": "Question", "name": "What is not modelled?", "acceptedAnswer": {"@type": "Answer", "text": "State credits, married filing separately, employer plans with lower limits, a grace period or carryover, care paid to relatives who cannot be claimed, the qualifying-person and provider rules, and tax at bracket edges. It applies flat rates you type in."}}, {"@type": "Question", "name": "Is my household information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DEPENDENT CARE FSA VS CREDIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Dependent care FSA or child care credit: which saves you more?</h1>
+    <p>Enter your childcare spending, income and tax rates. You get the <strong>tax the FSA saves</strong>, the <strong>credit you would claim instead</strong>, and the <strong>best split</strong> between them, since every FSA dollar reduces the dollars the credit can use.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your household</h2>
+    <div class="grid">
+      <div><label for="status">Filing status</label><select id="status"><option value="joint">Married filing jointly</option><option value="single">Single or head of household</option></select></div>
+      <div><label for="children">Qualifying children or dependents (1, 2, ...)</label><input type="text" id="children" inputmode="decimal" placeholder="2" autocomplete="off"></div>
+      <div><label for="expenses">Care spending for the year, dollars</label><input type="text" id="expenses" inputmode="decimal" placeholder="14000" autocomplete="off"></div>
+      <div><label for="agi">Household AGI before any FSA, dollars</label><input type="text" id="agi" inputmode="decimal" placeholder="165000" autocomplete="off"></div>
+      <div><label for="fedRate">Federal marginal rate, percent</label><input type="text" id="fedRate" inputmode="decimal" placeholder="24" autocomplete="off"></div>
+      <div><label for="stateRate">State income tax rate, percent (optional)</label><input type="text" id="stateRate" inputmode="decimal" placeholder="5" autocomplete="off"></div>
+      <div><label for="ficaRate">Payroll tax rate saved, percent (7.65 usually; 1.45 above the Social Security wage base)</label><input type="text" id="ficaRate" inputmode="decimal" placeholder="7.65" autocomplete="off"></div>
+      <div><label for="earned">Lower earner's income, dollars (optional)</label><input type="text" id="earned" inputmode="decimal" placeholder="70000" autocomplete="off"></div>
+      <div><label for="taxBefore">Federal income tax before credits, dollars (optional)</label><input type="text" id="taxBefore" inputmode="decimal" placeholder="18000" autocomplete="off"></div>
+    </div>
+    <p class="note">US federal rules for tax years after 2025: FSA limit $7,500, credit expense cap $3,000 for one child and $6,000 for two or more, rate 50% falling to 20% as income rises. Flat rates you type in; confirm current-year figures.</p>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your household, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>The options side by side</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Option</th><th class="n">FSA election</th><th class="n">FSA tax saved</th><th class="n">Credit rate</th><th class="n">Credit</th><th class="n">Total saved</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>FSA: each dollar you elect saves your federal marginal rate plus your state rate plus the payroll tax rate you enter. Credit: expenses up to the cap, less your FSA election, times a rate that starts at 50%, drops one point for each $2,000 of AGI over $15,000 to 35%, then one more point per $2,000 over $75,000 ($150,000 joint) to 20%. FSA dollars lower AGI. Both are limited to the lower earner's income. The tool tries every election in $50 steps plus the maximum and shows the best.</p>
+    <p><strong>Not modelled:</strong> state credits, married filing separately, employer plan limits, grace periods, provider and qualifying-person rules, and bracket edges. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Have a tax professional review your situation.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I use a dependent care FSA or the child care tax credit?</h3>
+    <p>It depends on your marginal tax rate. The FSA saves your federal, state and payroll tax rates on every dollar you set aside, up to $7,500. The credit saves 20% to 50% of up to $3,000 (one child) or $6,000 (two or more) of expenses. Higher earners usually win with the FSA; lower earners often win with the credit. This tool compares them with your numbers.</p>
+    <h3>Can I use both the FSA and the credit?</h3>
+    <p>Yes, but not on the same dollars. Every dollar you run through the FSA reduces the expenses that count for the credit, dollar for dollar. Because the credit cap is only $3,000 or $6,000 while the FSA limit is $7,500, a large FSA election can use up the credit entirely. The tool tests every split and shows the best one.</p>
+    <h3>What changed for 2026?</h3>
+    <p>Federal law raised the dependent care FSA limit to $7,500 per household starting in 2026 and increased the child and dependent care credit rate for tax years after 2025, up to 50% at low incomes with a 20% floor at high incomes. Check the current year's figures with a tax professional or the IRS before relying on this.</p>
+    <h3>Why is the lower earner's income asked for?</h3>
+    <p>Both the FSA exclusion and the credit are limited to the earned income of the lower-earning spouse. If that income is smaller than your care costs, only that amount counts. Leave it blank if it is higher than your expenses.</p>
+    <h3>Is the credit refundable?</h3>
+    <p>No. It can only reduce your federal income tax to zero. If you know your tax before credits, enter it and the tool limits the credit to it. The FSA saves tax whether or not you owe income tax.</p>
+    <h3>What is not modelled?</h3>
+    <p>State credits, married filing separately, employer plans with lower limits, a grace period or carryover, care paid to relatives who cannot be claimed, the qualifying-person and provider rules, and tax at bracket edges. It applies flat rates you type in.</p>
+    <h3>Is my household information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter; your real tax depends on your facts, your filing and the law in force. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the IRS, any employer, FSA administrator, childcare provider or tax software company, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../childcare-tuition-calculator/">childcare tuition calculator</a>, the <a href="../nanny-tax-calculator/">nanny tax calculator</a> and the <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["status", "children", "expenses", "agi", "fedRate", "stateRate", "ficaRate", "earned", "taxBefore"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? (k === "status" ? "joint" : ""); }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[usd(a.best.total), "Saved with the best split"], [usd(a.best.fsa), "FSA election in the best split"], [usd(a.creditOnly.total), "Credit only"], [usd(a.fsaMaxed.total), "Maximum FSA (plus leftover credit)"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Best split" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.fsa)}</td><td class="n">${usd(s.fsaSaved)}</td><td class="n">${Math.round(s.rate * 100)}%</td><td class="n">${usd(s.credit)}</td><td class="n">${usd(s.total)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("comparison_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented household, not a real family."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your household, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "dependent-care-fsa-vs-credit.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

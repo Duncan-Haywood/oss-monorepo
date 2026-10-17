@@ -69,9 +69,13 @@ def tracked_python_files(repo: Path = REPO) -> list[Path]:
 
     A walk would descend into `.venv`, `node_modules` and build output, where a
     vendored module's duplicate symbols are not ours to fix.
+
+    `research/` is excluded: its `experiments/run.py` files are top-level
+    scripts that rebind short names (`S`, `K`, `R`) as they step through an
+    experiment, which is how a script reads rather than a dead definition.
     """
     result = subprocess.run(
-        ["git", "ls-files", "-z", "*.py"],
+        ["git", "ls-files", "-z", "--", "*.py", ":(exclude)research/"],
         cwd=repo, capture_output=True, text=True, check=True,
     )
     return [repo / name for name in result.stdout.split("\0") if name]

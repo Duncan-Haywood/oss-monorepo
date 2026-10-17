@@ -1,0 +1,47 @@
+partial assemblies: 2048 subsets with the base; 2048 reachable by collision-free insertion (L0)
+
+Confusion on L0-reachable states (L1 rule vs MuJoCo settle; positive = holds)
+mu   disp_mm tilt_deg  both_hold  L1_only(L1 stable, MJ moves)  MJ_only(L1 unstable, MJ holds)  both_fail  agreement
+0.2  2.0     3.0      244        81                            10                              1713       0.956
+0.2  3.0     3.0      244        81                            10                              1713       0.956
+0.2  5.0     3.0      244        81                            10                              1713       0.956
+0.2  3.0     10.0     244        81                            17                              1706       0.952
+0.5  2.0     3.0      244        81                            10                              1713       0.956
+0.5  3.0     3.0      244        81                            10                              1713       0.956
+0.5  5.0     3.0      244        81                            10                              1713       0.956
+0.5  3.0     10.0     244        81                            17                              1706       0.952
+0.8  2.0     3.0      244        81                            10                              1713       0.956
+0.8  3.0     3.0      244        81                            10                              1713       0.956
+0.8  5.0     3.0      244        81                            10                              1713       0.956
+0.8  3.0     10.0     244        81                            17                              1706       0.952
+
+Same, with the acyclic-support variant of the rule (a part is supported only by already-grounded parts)
+mu   disp_mm tilt_deg  both_hold  rule_only  MJ_only  both_fail  agreement
+0.2  3.0     3.0      244        0          10       1794       0.995
+0.2  3.0     10.0     244        0          17       1787       0.992
+0.5  3.0     3.0      244        0          10       1794       0.995
+0.5  3.0     10.0     244        0          17       1787       0.992
+0.8  3.0     3.0      244        0          10       1794       0.995
+0.8  3.0     10.0     244        0          17       1787       0.992
+
+Disagreements at mu=0.5, 3 mm, 3 deg (first 12 of 91)
+  [L1 stable, MuJoCo moves] disp=7.72 mm tilt=8.77 deg: wall_back+shaft1+collar_f1
+  [L1 unstable, MuJoCo holds] disp=0.91 mm tilt=0.76 deg: gear1+shaft1+collar_f1
+  [L1 unstable, MuJoCo holds] disp=0.90 mm tilt=0.73 deg: wall_front+gear1+shaft1+collar_f1
+  [L1 stable, MuJoCo moves] disp=7.72 mm tilt=8.77 deg: wall_back+gear2+shaft1+collar_f1
+  [L1 unstable, MuJoCo holds] disp=0.91 mm tilt=0.76 deg: gear1+gear2+shaft1+collar_f1
+  [L1 unstable, MuJoCo holds] disp=0.90 mm tilt=0.73 deg: wall_front+gear1+gear2+shaft1+collar_f1
+  [L1 stable, MuJoCo moves] disp=7.72 mm tilt=8.77 deg: wall_back+gear2+shaft1+shaft2+collar_f1
+  [L1 stable, MuJoCo moves] disp=7.72 mm tilt=8.77 deg: wall_back+shaft2+collar_f2
+  [L1 stable, MuJoCo moves] disp=7.72 mm tilt=8.77 deg: wall_back+gear1+shaft2+collar_f2
+  [L1 unstable, MuJoCo holds] disp=0.91 mm tilt=0.76 deg: gear2+shaft2+collar_f2
+  [L1 unstable, MuJoCo holds] disp=0.90 mm tilt=0.73 deg: wall_front+gear2+shaft2+collar_f2
+  [L1 unstable, MuJoCo holds] disp=0.91 mm tilt=0.76 deg: gear1+gear2+shaft2+collar_f2
+
+Orders (exact DP over all subsets); L1 rule vs MuJoCo-settle rule in place of the support test
+  L0 (no stability): {'valid_orders': 4227168, 'min_changes': 1, 'states_reached': 2048}
+  L1 rule: {'valid_orders': 30760, 'min_changes': 1, 'states_reached': 244}
+  L1 acyclic-support variant: {'valid_orders': 30760, 'min_changes': 1, 'states_reached': 244}
+  MuJoCo settle, mu=0.2: {'valid_orders': 30760, 'min_changes': 1, 'states_reached': 244}
+  MuJoCo settle, mu=0.5: {'valid_orders': 30760, 'min_changes': 1, 'states_reached': 244}
+  MuJoCo settle, mu=0.8: {'valid_orders': 30760, 'min_changes': 1, 'states_reached': 244}

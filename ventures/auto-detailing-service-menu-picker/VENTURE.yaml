@@ -1,0 +1,49 @@
+name: auto-detailing-service-menu-picker
+description: >-
+  Free browser tool for auto detailing shops and mobile detailers with limited bay hours: enter the hours you can work, your
+  labour cost, and each service's weekly jobs, price, product cost, booking and card fees, consumables, bay minutes and own
+  monthly cost, and get the set of services that earns the most inside those hours. Checks every combination exactly (up to 14
+  services), compares it with best-profit-per-hour, biggest-profit and best-margin rules, shows each service's profit per job,
+  per bay hour and break-even jobs, what 25, 50 and 100 percent more bay hours would add, and re-solves with jobs 30 percent
+  lower and higher. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows auto-repair-effective-labor-rate (0.28) and
+# dog-grooming-profit-calculator (0.26); neither chooses which detailing services to sell under a bay-hours limit.
+#
+# Why this niche: detailers are told to "sell ceramic" because the ticket is big, but a 14-hour coating can earn less per bay
+# hour than two interior cleans and a headlight restoration. Which set to keep is a knapsack problem owners solve by feel.
+#
+# First visitor: people searching "auto detailing profit per hour", "is ceramic coating worth it detailer", "detailing pricing
+# per bay hour"; r/AutoDetailing, r/detailing, detailing business Facebook groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not business or financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid detailing shop scheduler.
+
+hypotheses:
+  - claim: >-
+      Auto detailers and mobile detailing shops will use a free tool that picks which services to sell under a bay-hours limit,
+      and will return when they consider adding or dropping a service.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auto-detailing-service-menu-picker/
+  analytics: null

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. Housecall Pro | Shop Rate Calculator</title>
+<meta name="description" content="Housecall Pro is subscription field-service management software for home-service trade contractors, and its Price Book is where a shop's prices live once they are set. This is a free, private, no-account browser calculator for the upstream question — what one billable crew hour actually costs, from your own payroll, vehicles, and overhead. Not affiliated with Housecall Pro.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-housecall-pro.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Housecall Pro">
+<meta property="og:description" content="Two different questions: Housecall Pro is account-based software for running a trade business and holding the prices you charge. This page is a free, private worksheet for what one billable hour costs before any price goes into a Price Book.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Housecall Pro?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and a growing trade contractor will likely end up touching both. Housecall Pro is field service management software for home service businesses, sold as an ongoing subscription account, covering areas such as online booking, scheduling and dispatch, a mobile app for the crew in the field, estimates and invoicing, card payments, and a Price Book that holds the prices and rates a business quotes from. It publishes that it is used by over 200,000 field service professionals across HVAC, plumbing, electrical, cleaning, and other trades. Housecall Pro's own pricing page is not reachable from this session to confirm today's exact plan names or dollar figures, so no price for it is invented here: only its well-documented identity and category — field-service management software for trade contractors, sold as a subscription account — are stated, and no dollar amount for Housecall Pro appears on this page. This calculator does one narrower thing, and it sits upstream of a price book rather than replacing one: from your own annual payroll, paid and billable hours, vehicles, insurance, rent, office cost, materials and subcontractor spend, it works out the payroll burden per billable hour, the overhead rate as a percentage of direct cost, the break-even hourly rate, and the rate a target net margin actually requires. It will also take the rate you charge today and solve backwards for the net margin that rate really earns, the annual size of the gap across your crew, and the billable hours that rate would need in order to work. A contractor who needs online booking, dispatch, invoicing, and payments across every technician and every job is better served by Housecall Pro or a comparable field-service platform; a contractor who wants to know what number belongs in a price book in the first place, privately and without an account, is in the right place here."}},{"@type":"Question","name":"Does a Price Book not already tell me my rate?","acceptedAnswer":{"@type":"Answer","text":"A price book stores and applies the price you decided on; it does not derive it from your payroll. Whatever system holds your prices — Housecall Pro's Price Book, a spreadsheet, or a laminated card in the van — something has to decide the number that goes in, and that decision is arithmetic about your business rather than about any one job. This calculator is that arithmetic. It is also why the two are complementary rather than alternatives: the output here is an hourly rate and an overhead percentage you can type into whichever system quotes from them."}},{"@type":"Question","name":"Why does this calculator say my payroll burden is far above 20%?","acceptedAnswer":{"@type":"Answer","text":"Because it counts the paid hours you never bill. The textbook burden figure — employer taxes, workers' compensation, and liability expressed as a percentage of wages — lands near 20% and assumes every paid hour is sold. A field employee is paid for roughly 2,080 hours a year; holidays and vacation come off that, and of the hours actually worked, drive time, loading, estimating, shop time, and warranty callbacks appear on nobody's invoice. Bid calculators multiply a loaded wage by the hours estimated for a job, which are billable hours, so the rate they need is the one that recovers a person's whole annual cost across only the hours that get sold. On this tool's shipped example that turns a 28-dollar wage into 53.76 per billable hour — a 92% burden, not 20%. Using 20% under-recovers labour on every job in the same direction."}},{"@type":"Question","name":"Which input changes the answer most?","acceptedAnswer":{"@type":"Answer","text":"The billable share — the fraction of paid hours that actually get sold. In this arithmetic ten points of utilization moves the required rate further than the entire target margin does, which is the argument for measuring it rather than estimating it, and it is why the tool's notes call it out when it falls below 60%. That sensitivity is also why a rate that looks survivable can stop working after a slow quarter without any wage or overhead changing."}},{"@type":"Question","name":"Is this page affiliated with Housecall Pro?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Housecall Pro. Housecall Pro is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #2f5d50; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4d5b6c; }
+  section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4e0; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b6c; }
+  .fine, .note { font-size: .88rem; color: #4d5b6c; }
+  footer { color: #4d5b6c; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Shop Rate Calculator</a></p>
+<header>
+<h1>This calculator vs. Housecall Pro</h1>
+<p class="lede">Two different questions: Housecall Pro is account-based field-service software for running a trade business, and its Price Book is where prices live once they are decided. This page is a free, private worksheet for the question that comes first &mdash; what does one billable crew hour actually cost you?</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Housecall Pro</strong> is field service management software for
+  home service businesses, sold as an ongoing subscription account. It
+  covers online booking, scheduling and dispatch, automated customer
+  texts, a mobile app that lets a crew pull up the work order in the
+  field, estimates and invoicing with automated payment reminders, card
+  payments, and a Price Book that holds the prices and rates a business
+  quotes from &mdash; a system meant to run a whole company across every
+  technician and every job. It publishes that it is used by over 200,000
+  field service professionals across HVAC, plumbing, electrical, cleaning,
+  and other trades. Housecall Pro's own pricing page is not reachable from
+  this session to confirm today's exact plan names or dollar figures, so
+  no price for it is invented here: only its well-documented identity and
+  category &mdash; field-service management software for trade
+  contractors, sold as a subscription account &mdash; are stated, and no
+  dollar amount for Housecall Pro appears on this page.
+</p>
+<p>
+  This calculator does none of what Housecall Pro does. It does not book a
+  job, dispatch a crew, send invoices, or collect payments, and it stores
+  no customer or job record on a server. It takes your own annual figures
+  &mdash; payroll, paid and billable hours, crew size, vehicles, insurance,
+  rent and office cost, materials and subcontractor spend &mdash; and turns
+  them into four numbers about your business rather than about any one
+  job: the <strong>payroll burden per billable hour</strong>, the
+  <strong>overhead rate as a percentage of direct cost</strong>, the
+  <strong>break-even hourly rate</strong>, and the rate a
+  <strong>target net margin</strong> actually requires.
+</p>
+<p>
+  It also runs the arithmetic backwards, which is the direction most
+  contractors actually need. Enter the rate you charge today and it solves
+  for the net margin that rate really earns, the annual size of the gap
+  across your crew &mdash; stated over labour revenue only, since
+  materials and subs are billed on top of the hours rather than through
+  the rate &mdash; and the billable hours that rate would need in order to
+  work. When the hours it would require exceed the hours anyone actually
+  works, the answer is that no schedule saves the rate.
+</p>
+<p>
+  The two are complementary rather than alternatives, and the relationship
+  is one-directional: <em>something</em> has to decide the number that
+  goes into a price book, and a price book does not derive that number
+  from your payroll. The output here is an hourly rate and an overhead
+  percentage you can type into whichever system quotes from them.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need online booking, scheduling, dispatch, invoicing, and payments in one system across every technician.</td><td>Housecall Pro, or a comparable field-service platform &mdash; running a whole business is not something this calculator does.</td></tr>
+<tr><td>What does one billable crew hour actually cost me, once unbilled hours and overhead are in it?</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>What number belongs in my Price Book in the first place?</td><td>This calculator, then type the result into whichever system holds your prices.</td></tr>
+<tr><td>Is the rate I already charge earning the margin I think it is?</td><td>This calculator's current-rate comparison, which solves the same arithmetic backwards.</td></tr>
+<tr><td>How much does my utilization &mdash; the share of paid hours I actually bill &mdash; move the rate I need?</td><td>This calculator; in this arithmetic it moves the answer more than the target margin does.</td></tr>
+<tr><td>How does the math behind a shop rate actually work?</td><td>This calculator's own <a href="what-should-i-charge-per-hour.html">hourly-rate walkthrough</a>.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>This calculator: no. Housecall Pro is used through a subscription account.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most trade contractors get different value from each: Housecall Pro (or
+  a comparable field-service platform) for booking, dispatch, invoicing,
+  and payments across a whole business as an ongoing subscription, and a
+  private calculator like this one for an instant, no-login answer to what
+  an hour costs before any price is committed to a system. This page's own
+  figures are a pricing model, not a quote, an invoice, or a signed
+  proposal.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Housecall Pro?</h3>
+<p>They answer different questions, and a growing trade contractor will likely end up touching both. Housecall Pro is field service management software for home service businesses, sold as an ongoing subscription account, covering areas such as online booking, scheduling and dispatch, a mobile app for the crew in the field, estimates and invoicing, card payments, and a Price Book that holds the prices and rates a business quotes from. It publishes that it is used by over 200,000 field service professionals across HVAC, plumbing, electrical, cleaning, and other trades. Housecall Pro's own pricing page is not reachable from this session to confirm today's exact plan names or dollar figures, so no price for it is invented here: only its well-documented identity and category — field-service management software for trade contractors, sold as a subscription account — are stated, and no dollar amount for Housecall Pro appears on this page. This calculator does one narrower thing, and it sits upstream of a price book rather than replacing one: from your own annual payroll, paid and billable hours, vehicles, insurance, rent, office cost, materials and subcontractor spend, it works out the payroll burden per billable hour, the overhead rate as a percentage of direct cost, the break-even hourly rate, and the rate a target net margin actually requires. It will also take the rate you charge today and solve backwards for the net margin that rate really earns, the annual size of the gap across your crew, and the billable hours that rate would need in order to work. A contractor who needs online booking, dispatch, invoicing, and payments across every technician and every job is better served by Housecall Pro or a comparable field-service platform; a contractor who wants to know what number belongs in a price book in the first place, privately and without an account, is in the right place here.</p>
+<h3>Does a Price Book not already tell me my rate?</h3>
+<p>A price book stores and applies the price you decided on; it does not derive it from your payroll. Whatever system holds your prices — Housecall Pro's Price Book, a spreadsheet, or a laminated card in the van — something has to decide the number that goes in, and that decision is arithmetic about your business rather than about any one job. This calculator is that arithmetic. It is also why the two are complementary rather than alternatives: the output here is an hourly rate and an overhead percentage you can type into whichever system quotes from them.</p>
+<h3>Why does this calculator say my payroll burden is far above 20%?</h3>
+<p>Because it counts the paid hours you never bill. The textbook burden figure — employer taxes, workers' compensation, and liability expressed as a percentage of wages — lands near 20% and assumes every paid hour is sold. A field employee is paid for roughly 2,080 hours a year; holidays and vacation come off that, and of the hours actually worked, drive time, loading, estimating, shop time, and warranty callbacks appear on nobody's invoice. Bid calculators multiply a loaded wage by the hours estimated for a job, which are billable hours, so the rate they need is the one that recovers a person's whole annual cost across only the hours that get sold. On this tool's shipped example that turns a 28-dollar wage into 53.76 per billable hour — a 92% burden, not 20%. Using 20% under-recovers labour on every job in the same direction.</p>
+<h3>Which input changes the answer most?</h3>
+<p>The billable share — the fraction of paid hours that actually get sold. In this arithmetic ten points of utilization moves the required rate further than the entire target margin does, which is the argument for measuring it rather than estimating it, and it is why the tool's notes call it out when it falls below 60%. That sensitivity is also why a rate that looks survivable can stop working after a slow quarter without any wage or overhead changing.</p>
+<h3>Is this page affiliated with Housecall Pro?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Housecall Pro. Housecall Pro is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="index.html">Shop Rate Calculator</a> to work out your own rate.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or fire-safety advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against Housecall Pro &mdash; it is a static page describing publicly documented facts.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

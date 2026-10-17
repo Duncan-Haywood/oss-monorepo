@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Liability Audit — Scan Your App for Legal and Financial Exposure (Trackers, Auto-Renew, Leaked Keys, Uncapped AI Spend)</title>
+  <meta name="description" content="Free, open-source scan of your app's code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy or terms, affiliate links with no disclosure, AI with no disclosure, live keys in the tree, LLM endpoints with no spend cap, and cloud IaC with no budget alarm. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="What in your app could cost you a fine, a chargeback or a surprise bill?">
+  <meta property="og:description" content="A free, local scan for consent, auto-renewal, disclosure, licence, leaked-key and runaway-spend problems, with the law or rule behind each finding. Observations, not legal advice.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Liability Audit", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "license": "https://opensource.org/licenses/MIT", "description": "Static scan of an application's source, built pages, IaC and lockfile for signals of legal and financial exposure (tracking without consent, recurring billing without renewal and cancellation terms, missing privacy notice or terms, undisclosed affiliate links and AI, advice-topic tools without a disclaimer, live secrets, LLM endpoints without a spend limit, cloud without a budget alarm, strong-copyleft dependencies), each with evidence and the rule behind it. Text, Markdown, JSON and SARIF output; usable as a CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does a clean report mean my app is compliant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It means none of the patterns this tool looks for were found in the files you gave it. It cannot see your servers, your contracts, what your vendors do with data, or what your pages say in images. It is a checklist that finds the common, cheap-to-fix problems early; it is not legal advice and not a compliance certificate."}}, {"@type": "Question", "name": "Why does an LLM endpoint without a rate limit count as a liability?", "acceptedAnswer": {"@type": "Answer", "text": "If your server calls a model on your own API key and anyone can reach that endpoint, one abusive user, a scraper or a stuck agent loop can run up the bill, and the provider charges the account owner. A per-user budget or rate limit in front of the call caps that exposure."}}, {"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the folder or text you choose in your own browser and never sends it anywhere. The CLI reads local files and makes no network request."}}, {"@type": "Question", "name": "Can I run it in CI?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. node cli.mjs scan . --fail-on high exits 1 on any high-severity finding, --format md writes a PR comment, and --format sarif produces a file GitHub code scanning can show inline."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #2b2150; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b2150; }
+    h3 { font-size: 1rem; margin: 0 0 6px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5670; }
+    .card { background: #fff; border: 1px solid #dad7e5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b215010; margin: 18px 0; }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #aaa6bd; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3b2f73; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e8e5f2; color: #2b2150; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; margin-right: 6px; }
+    .pill.high { background: #fde8e8; color: #7f1d1d; }
+    .pill.medium { background: #fef3c7; color: #78350f; }
+    .pill.low { background: #e8e5f2; color: #2b2150; }
+    .finding { border-top: 1px solid #ebe9f2; padding: 14px 0; }
+    .finding ul { margin: 6px 0; padding-left: 18px; font: 12px ui-monospace, monospace; }
+    .finding li { overflow-wrap: anywhere; }
+    pre.cmd { background: #f8f7fb; padding: 12px; border-radius: 8px; font-size: .85rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .big { font-size: 1.3rem; font-weight: 700; color: #2b2150; margin: 4px 0 10px; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 28px; border-top: 1px solid #dad7e5; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LIABILITY AUDIT · RUNS IN YOUR BROWSER · OPEN SOURCE</p>
+    <h1>What in your app could cost you a fine, a chargeback or a surprise bill?</h1>
+    <p>Pick your project folder or a built site. Liability Audit reads it locally and reports the common, cheap-to-fix exposures. It checks for <strong>trackers with no consent step</strong>, <strong>subscriptions with no renewal or cancellation terms</strong>, a missing <strong>privacy notice</strong> or <strong>terms</strong>, <strong>affiliate links</strong> and <strong>AI</strong> with no disclosure, and tax, legal or medical tools with no "not advice" line. It also checks for <strong>live keys in the tree</strong>, <strong>LLM endpoints anyone can spend</strong> on your key, <strong>cloud with no budget alarm</strong> and <strong>strong-copyleft dependencies</strong>. Each finding shows where it is, the law or rule behind it, and the fix.</p>
+    <p class="note">Nothing is uploaded: files are read by this page in your browser and never leave your device. Findings are observations to check, not legal advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Choose what to scan</h2>
+    <label for="folder">A project folder (source, built pages, <code>*.tf</code>, <code>package-lock.json</code>); <code>node_modules</code> and <code>.git</code> are skipped</label>
+    <input type="file" id="folder" webkitdirectory directory multiple>
+    <label for="paste">…or paste one page's HTML</label>
+    <textarea id="paste" spellcheck="false" placeholder="&lt;html&gt;…"></textarea>
+    <button type="button" id="scan">Scan</button>
+    <button type="button" class="secondary" id="load-example">Load the made-up example app</button>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>2. What it found</h2>
+    <p class="big" id="headline"></p>
+    <p class="note" id="facts"></p>
+    <div id="findings"></div>
+    <p class="note" id="na"></p>
+    <p><button type="button" class="secondary" id="copy-md">Copy as Markdown</button></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Keep it checked: CLI and CI</h2>
+<pre class="cmd">node cli.mjs scan .                       # text report
+node cli.mjs scan . --format md           # a PR comment
+node cli.mjs scan . --format sarif > la.sarif   # GitHub code scanning
+node cli.mjs scan . --fail-on high        # CI gate
+node cli.mjs rules                        # every rule and the law behind it</pre>
+    <p>Read <a href="what-a-small-app-can-be-liable-for-and-how-to-check.html">what a small app can be liable for, and how to check</a> for the reasoning behind each rule and the limits of an automated scan.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Does a clean report mean my app is compliant?</h3>
+    <p>No. It means none of the patterns this tool looks for were found in the files you gave it. It cannot see your servers, your contracts, what your vendors do with data, or what your pages say in images. It is a checklist that finds the common, cheap-to-fix problems early; it is not legal advice and not a compliance certificate.</p>
+    <h3>Why does an LLM endpoint without a rate limit count as a liability?</h3>
+    <p>If your server calls a model on your own API key and anyone can reach that endpoint, one abusive user, a scraper or a stuck agent loop can run up the bill, and the provider charges the account owner. A per-user budget or rate limit in front of the call caps that exposure.</p>
+    <h3>Is my code uploaded?</h3>
+    <p>No. The page reads the folder or text you choose in your own browser and never sends it anywhere. The CLI reads local files and makes no network request.</p>
+    <h3>Can I run it in CI?</h3>
+    <p>Yes. node cli.mjs scan . --fail-on high exits 1 on any high-severity finding, --format md writes a PR comment, and --format sarif produces a file GitHub code scanning can show inline.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or security advice, and it does not replace a qualified professional. It pattern-matches files: it can miss problems and flag non-problems, and a clear report is not a finding that anything is lawful. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own compliance. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Product and law names are used descriptively; this project is not affiliated with any vendor named in its rules.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The files you choose are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../llm-spend-guard/">LLM Spend Guard</a> enforces the spend cap this audit looks for, <a href="../affiliate-disclosure-checker/">Affiliate Disclosure Checker</a> checks one post's disclosure placement in depth, <a href="../eu-ai-act-risk-checker/">EU AI Act Risk Checker</a> works out your AI Act tier, and <a href="../lockfile-license-check/">Lockfile License Check</a> lists every dependency licence.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { auditFiles, summarise } from "./audit.mjs";
+    import { EXAMPLE_APP } from "./example.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const SKIP = /(?:^|\/)(?:node_modules|\.git|vendor|\.venv|venv|__pycache__|\.next|\.nuxt|coverage|target|\.terraform)\//;
+    const TEXT = /\.(?:m?[jt]sx?|cjs|py|rb|go|php|java|kt|swift|cs|rs|vue|svelte|astro|html?|md|mdx|txt|liquid|hbs|ejs|njk|erb|json|ya?ml|toml|tf|tofu|env|ini|cfg|conf|sh|xml)$|(?:^|\/)(?:LICEN[CS]E|COPYING)(?:\.[a-z]+)?$|(?:^|\/)\.env(?:\.[\w-]+)?$/i;
+    let lastMarkdown = "";
+
+    async function readFolder(list) {
+      const files = [];
+      for (const f of list) {
+        // webkitRelativePath starts with the folder's own name; drop it so paths read like the repo's.
+        const path = (f.webkitRelativePath || f.name).split("/").slice(f.webkitRelativePath ? 1 : 0).join("/");
+        if (SKIP.test(path) || !TEXT.test(path) || f.size > 1_500_000) continue;
+        files.push({ path, text: await f.text() });
+        if (files.length >= 20000) break;
+      }
+      return files;
+    }
+
+    function render(report, label) {
+      const s = summarise(report);
+      $("#headline").textContent = s.raised
+        ? `${s.raised} of ${s.applicable} applicable checks raised findings: ${s.high} high, ${s.medium} medium, ${s.low} low.`
+        : `None of the ${s.applicable} applicable checks raised a finding.`;
+      const f = report.facts;
+      const seen = [f.pages && `${f.pages} pages`, f.callsLlm && "LLM calls", f.takesPayments && "payments", f.recurringBilling && "recurring billing",
+        f.collectsPersonalData && "personal-data inputs", f.trackers.length && `trackers (${f.trackers.join(", ")})`, f.infrastructureAsCode && "infrastructure as code"].filter(Boolean);
+      $("#facts").textContent = `Scanned ${label}: ${f.files} files. Seen: ${seen.join(", ") || "none of the signals the rules look for"}.`;
+      $("#findings").innerHTML = report.findings.map((x) => `<div class="finding">
+        <h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3>
+        <ul>${x.evidence.slice(0, 8).map((e) => `<li>${esc(e.file)}${e.line ? `:${e.line}` : ""} — ${esc(e.match)}</li>`).join("")}${x.evidence.length > 8 ? `<li>… and ${x.evidence.length - 8} more</li>` : ""}</ul>
+        <p><strong>Why it matters:</strong> ${esc(x.why)}</p>
+        <p><strong>What to do:</strong> ${esc(x.fix)}</p>
+        <p class="note">Rule <code>${esc(x.id)}</code> · ${esc(x.category)}</p>
+      </div>`).join("");
+      const na = report.checks.filter((c) => c.status === "not-applicable").map((c) => c.id);
+      $("#na").textContent = na.length ? `Not applicable to these files: ${na.join(", ")}.` : "";
+      lastMarkdown = [`Liability Audit of ${label}: ${$("#headline").textContent}`, "",
+        ...report.findings.map((x) => `- **${x.severity}** ${x.title} (${x.evidence.slice(0, 3).map((e) => `${e.file}${e.line ? `:${e.line}` : ""}`).join(", ")})`),
+        "", "Observations from an automated scan, not legal advice."].join("\n");
+      $("#report").hidden = false;
+      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#scan").addEventListener("click", async () => {
+      const status = $("#status");
+      status.textContent = "";
+      status.className = "";
+      let files = [];
+      let label = "";
+      const picked = $("#folder").files;
+      if (picked && picked.length) {
+        status.textContent = `Reading ${picked.length} files…`;
+        files = await readFolder(picked);
+        label = (picked[0].webkitRelativePath || "").split("/")[0] || "your folder";
+      }
+      const pasted = $("#paste").value.trim();
+      if (pasted) { files.push({ path: "pasted.html", text: pasted }); label = label ? `${label} + pasted page` : "the pasted page"; }
+      if (!files.length) {
+        status.textContent = "Choose a folder or paste a page first, or load the example.";
+        status.className = "error";
+        return;
+      }
+      // A single pasted page has no repository around it, so the licence check would only be noise.
+      const report = auditFiles(files, { skip: picked && picked.length ? [] : ["no-license"] });
+      status.textContent = "";
+      render(report, label);
+      record("scan_run");
+    });
+    $("#load-example").addEventListener("click", () => {
+      render(auditFiles(EXAMPLE_APP), "the made-up example app");
+      $("#status").textContent = "A made-up app with a typical set of problems; none of its files or keys are real.";
+      record("example_loaded");
+    });
+    $("#copy-md").addEventListener("click", async (e) => {
+      try { await navigator.clipboard.writeText(lastMarkdown); e.target.textContent = "Copied"; } catch { e.target.textContent = "Copy failed"; }
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

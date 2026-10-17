@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-specialise"
+version = "0.1.0"
+description = "When does a purpose-built Cartesian gantry beat a general two-link arm at tray pick-and-place? Cost, cycle time, success and energy in a stylised model"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

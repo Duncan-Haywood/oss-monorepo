@@ -1,0 +1,37 @@
+name: schengen-90-180-day-calculator
+description: >-
+  Free browser tool for travellers, remote workers and digital nomads: paste past Schengen stays to see days used and left in the rolling 180-day window, when allowance returns, the longest trip from a planned entry date and the last permitted exit day. Nothing is uploaded. Not legal or immigration advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check found no Schengen/travel-day tool in ventures/.
+#
+# First visitor: non-EU traveller, digital nomad or UK/US retiree searching "Schengen 90/180 day calculator", "how many days left in Schengen", "Schengen overstay". Perennially high-volume search with a spike as the EU Entry/Exit System replaces passport stamps; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: saved trip planner / calendar export, and a nomad-focused tax-residency day counter behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names the EU official calculator as the source to verify, carries no-warranty and not-legal-advice clauses, and says what it does not decide (long-stay visas, bilateral waivers, member list, officer discretion). Ethical risk is false comfort; mitigated by the verify line and the overstay-history flag.
+hypotheses:
+  - claim: >-
+      Travellers and remote workers unsure how many Schengen days remain will use a free private calculator and download the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a result differs from the European Commission calculator on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/schengen-90-180-day-calculator/
+  analytics: null

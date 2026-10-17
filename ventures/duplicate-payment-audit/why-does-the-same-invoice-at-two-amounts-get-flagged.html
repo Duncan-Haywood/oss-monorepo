@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Does the Same Invoice Number at Two Different Amounts Get Flagged? | Duplicate Payment Audit</title>
+  <meta name="description" content="A duplicate payment isn't always the same amount twice. When the same invoice number gets paid at two different amounts, that's a medium-confidence flag for a partial payment or a data-entry error -- not something a spreadsheet sort would catch. Worked example.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./why-does-the-same-invoice-at-two-amounts-get-flagged.html">
+  <meta property="og:title" content="Why Does the Same Invoice Number at Two Different Amounts Get Flagged?">
+  <meta property="og:description" content="Invoice INV-88120 paid $2,450.00, then paid again at $245.00 -- same invoice, different amount. Not an exact duplicate, but worth a second look. Here's why this tier exists and what it usually means.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the same invoice number at two different amounts get flagged at all?","acceptedAnswer":{"@type":"Answer","text":"Because the same vendor paying the same invoice number twice is unusual regardless of the amount -- a real invoice normally gets paid once. A different amount on the second payment means it is not a clean exact-duplicate (same invoice, same amount), so it is ranked medium confidence rather than high, and the tool tells you to check for a partial payment or a data-entry error rather than calling it a duplicate outright."}},{"@type":"Question","name":"What does the worked example actually show?","acceptedAnswer":{"@type":"Answer","text":"Cascade Freight Lines' invoice INV-88120 was paid $2,450.00 on 2026-03-05, then paid again, same invoice number, at $245.00 on 2026-03-09. That tenfold difference is exactly the kind of gap a dropped decimal or a mistyped digit produces -- worth checking against the original bill before assuming either payment was correct."}},{"@type":"Question","name":"Could this be a legitimate partial payment instead of an error?","acceptedAnswer":{"@type":"Answer","text":"Yes -- a vendor invoice split across two payments (a deposit and a balance, for example) will also produce this exact pattern: same invoice number, two different amounts. The tool cannot tell a legitimate installment apart from a duplicate paid at the wrong amount from the CSV alone, which is why this tier is medium confidence and says to check, not high confidence saying to refund."}},{"@type":"Question","name":"How is this different from the exact-duplicate tier?","acceptedAnswer":{"@type":"Answer","text":"The exact-duplicate tier is the same vendor, same invoice number, and the same amount paid twice -- as clean a duplicate as a CSV can show, so it is ranked high confidence. This tier drops the amount match: same vendor and invoice number, but two different amounts, which could be a duplicate paid inconsistently, a partial payment, or a typo, so it is ranked one tier below and phrased as a question rather than a finding."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The CSV you check never leaves your browser -- there is no upload, no account, and no copy kept once you close the tab. Anonymous feature counts are local-only, contain no financial data, and can be turned off from the calculator's own page."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}
+    body{max-width:760px;margin:auto;padding:2rem 1rem 4rem}
+    a{color:#8a4a26;overflow-wrap:anywhere}
+    h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.08;margin:.2rem 0 1rem;color:#17324d}
+    h2{color:#17324d;margin-top:2rem}
+    h3{margin:1.4rem 0 .3rem;font-size:1rem}
+    table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+    th,td{text-align:left;border-bottom:1px solid #d8d2c8;padding:.55rem;vertical-align:top}
+    th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5d6973}
+    .cta{display:inline-block;margin:.5rem 0 1.2rem;padding:.7rem 1rem;border-radius:8px;background:#af6035;color:#fff;text-decoration:none;font-weight:700}
+    .note{font-size:.88rem;color:#5d6973}
+    footer{margin-top:2.5rem;border-top:1px solid #d8d2c8;padding-top:1rem;font-size:.88rem;color:#4d5963}
+    @media(max-width:700px){table{font-size:.85rem}}
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Duplicate payment audit</a></p>
+  <h1>Why does the same invoice number at two different amounts get flagged?</h1>
+  <p>
+    Most people picture a duplicate payment as the exact same amount going
+    out twice. It doesn't have to be. When the same vendor's invoice number
+    shows up on two payments for <strong>different</strong> amounts, that is
+    still worth a second look -- it just means something other than a
+    clean, exact repeat, so this tool ranks it medium confidence and tells
+    you what to check rather than calling it a duplicate outright.
+  </p>
+  <p><a class="cta" href="./">Open the free duplicate payment audit</a></p>
+
+  <h2>Worked example</h2>
+  <p>This is the exact pattern in the tool's own bundled worked example (click "Load a worked example" on the calculator to see it):</p>
+  <table>
+    <thead><tr><th scope="col">Vendor</th><th scope="col">Invoice</th><th scope="col">Date</th><th scope="col">Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Cascade Freight Lines</td><td>INV-88120</td><td>2026-03-05</td><td>$2,450.00</td></tr>
+      <tr><td>Cascade Freight Lines</td><td>INV-88120</td><td>2026-03-09</td><td>$245.00</td></tr>
+    </tbody>
+  </table>
+  <p>Same vendor, same invoice number, four days apart -- but the second payment is exactly a tenth of the first. That specific ratio is a signature worth recognizing: a dropped decimal point or a mistyped digit produces exactly this kind of gap. The tool's own reasoning for this pair:</p>
+  <p class="note">"Cascade Freight Lines: invoice INV-88120 was paid twice at different amounts ($2450.00 on 2026-03-05, $245.00 on 2026-03-09) — check for a partial payment or a data-entry error."</p>
+  <p>It does not tell you which one happened -- a genuine $245.00 partial payment and a $245.00 typo of a $2,450.00 bill produce the identical two rows in a CSV. Pulling the original invoice PDF is the only way to tell them apart.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why does the same invoice number at two different amounts get flagged at all?</h3>
+  <p>Because the same vendor paying the same invoice number twice is unusual regardless of the amount -- a real invoice normally gets paid once. A different amount on the second payment means it is not a clean exact-duplicate (same invoice, same amount), so it is ranked medium confidence rather than high, and the tool tells you to check for a partial payment or a data-entry error rather than calling it a duplicate outright.</p>
+  <h3>What does the worked example actually show?</h3>
+  <p>Cascade Freight Lines' invoice INV-88120 was paid $2,450.00 on 2026-03-05, then paid again, same invoice number, at $245.00 on 2026-03-09. That tenfold difference is exactly the kind of gap a dropped decimal or a mistyped digit produces -- worth checking against the original bill before assuming either payment was correct.</p>
+  <h3>Could this be a legitimate partial payment instead of an error?</h3>
+  <p>Yes -- a vendor invoice split across two payments (a deposit and a balance, for example) will also produce this exact pattern: same invoice number, two different amounts. The tool cannot tell a legitimate installment apart from a duplicate paid at the wrong amount from the CSV alone, which is why this tier is medium confidence and says to check, not high confidence saying to refund.</p>
+  <h3>How is this different from the exact-duplicate tier?</h3>
+  <p>The exact-duplicate tier is the same vendor, same invoice number, and the same amount paid twice -- as clean a duplicate as a CSV can show, so it is ranked high confidence. This tier drops the amount match: same vendor and invoice number, but two different amounts, which could be a duplicate paid inconsistently, a partial payment, or a typo, so it is ranked one tier below and phrased as a question rather than a finding.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The CSV you check never leaves your browser -- there is no upload, no account, and no copy kept once you close the tab. Anonymous feature counts are local-only, contain no financial data, and can be turned off from the calculator's own page.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, or accounting advice, and do not replace a qualified professional. This does not determine that any payment was fraudulent, wrongful, or actually duplicated -- it flags a statistical pattern in your own data for your review. <strong>You are responsible for reviewing and verifying its output</strong> against your vendor statements and accounting records before requesting a refund, credit, or correction from anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Files are never uploaded, and no copy of your data is kept once you close the tab.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p><a href="./">Back to the calculator</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,70 @@
+name: service-van-stock-optimizer
+description: >-
+  Free browser tool for HVAC, plumbing, electrical and appliance technicians:
+  paste a parts catalog (cost, shelf slots) and what past jobs used, and get the
+  van stock list that completes the most jobs on the first visit within a budget
+  and slot limit. Treats jobs as needing every part (set cover, not a frequency
+  ranking), exact for up to 20 part units. Prices the return trips it prevents
+  and the carrying cost, scores what the van carries now (dead stock), shows
+  the cost-versus-coverage curve, refits on the oldest 70% of history and scores
+  the newest 30%, and gives a resampled range. Exports the list as CSV. Nothing
+  is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "technician van stock parts reorder min max optimizer for small trades":
+# closest is shopify-inventory-reorder-planner at 0.19 (reorder points for a
+# store's SKUs, not which parts go on a truck) and cut-list-optimizer at 0.19
+# (material cutting). No venture here decides what a service vehicle carries.
+# Alternatives: a foreman's memory, "restock what we used" lists, and field-service
+# suites (ServiceTitan, Housecall Pro, Jobber) whose truck-stock and inventory
+# modules sit in higher tiers and need the whole job database in their cloud.
+#
+# First visitor: owners and lead techs of 2-15 van service shops searching "what
+# parts should an HVAC van carry", "truck stock list for plumbers", "how to
+# reduce return trips to the supply house", "first time fix rate". Reddit
+# r/HVAC / r/Plumbing / r/electricians, trade Facebook groups, and shops that
+# already export their job history. Volume not measured with an external tool.
+# Feeds from the same owners as crew-dispatch-optimizer (who goes where) and the
+# trade bid calculators (what to charge).
+#
+# Privacy is the liability boundary: parts, costs and job histories never leave
+# the browser (tests assert no network calls). No supplier or software vendor is
+# named or ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be saved multi-van plans and a parts-supplier price import;
+# not built.
+# Liability: sizes a list from the user's own history; does not assert any part is
+# code-compliant, licensed to handle or safe. The page says substitutions, lead
+# times, seasonality and regulated parts are not modelled. Unverified: tested
+# against brute force and invented data, not a real shop's history.
+
+hypotheses:
+  - claim: >-
+      Owners and lead technicians of small service shops who stock vans by habit
+      will use a private, no-signup planner that turns their own job history into
+      a stock list and a dead-stock report, and will come back when their parts
+      mix or prices change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a stock list that exceeds their stated budget or slot limit, or a completion rate the stated history does not reproduce.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/service-van-stock-optimizer/
+  analytics: null

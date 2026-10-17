@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intent-twin"
+version = "0.1.0"
+description = "Goal inference against a simulated human: an SPRT threshold tuned for a twin human of assumed rationality has exact real error 1/(1+r^h), error exponent ratio ln r/ln r_twin, population and demonstration-count effects"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

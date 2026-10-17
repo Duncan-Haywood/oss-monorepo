@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01NJgjHFbsnx5NWZQSCCfa3P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "ced6d68aa0854d5a90c02cadc79b29ae3c8b1525090aea6e0559fb21cd4e8e7b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-15T21:14:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7192",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "says publish snapshot first, but publish-branch.sh refuses until main's own reds (launched.json) are fixed"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Mileage Log phone app: work-hours cold-start rule (7 tests). Fixed three reds that were already on main (launched.json date, mileage-log privacy no-warranty clause, sibling orphan). validate job red on main: venture-scores.yaml lacks ~500 ventures (not touched). publish-branch.sh refused on launched.json; rerun after merge.",
+  "corrections": [],
+  "redteam": null
+}

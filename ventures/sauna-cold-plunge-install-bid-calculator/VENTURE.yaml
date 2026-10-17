@@ -1,0 +1,57 @@
+name: sauna-cold-plunge-install-bid-calculator
+description: >-
+  Free browser tool for backyard sauna and cold plunge installers: build and prep hours,
+  crew pay, tools, equipment and materials, electrician subcontract, drive, fixed costs, card
+  fee and target margin in; a bid price, cost breakdown, price by distance, overrun impact,
+  offered-bid check and break-even installs per month out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. No sauna or cold-plunge venture
+# exists (ls ventures | grep -i sauna|plunge returned nothing); nearest neighbours
+# deck-bid-calculator, shed-install-bid-calculator and pergola-bid-calculator price other
+# backyard builds.
+#
+# Why this niche: home sauna and cold plunge installs are a fast-growing, high-ticket
+# (several thousand dollars per job) trade where small builders, handymen and landscapers
+# are adding the service and quote by feel. The costs that sink a bid are the invisible ones:
+# the electrician pass-through, delivery of a heavy unit, a second pair of hands for a day,
+# and install days that run long. Generic estimating software is built for general
+# contractors; none answers "what do I bid for a 4-person barrel sauna 25 miles out".
+#
+# First visitor: small sauna builders, handymen and landscapers adding installs, found via
+# "how much to charge to install a sauna" searches and trade groups. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no electrical or building code,
+# clearance, permit, inspection, licensing, insurance or tax advice; defaults are
+# placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that prints a customer bid (not built).
+
+hypotheses:
+  - claim: >-
+      Small sauna and cold plunge installers will use a private bid tool that prices the
+      electrician pass-through, delivery and overrun risk, because equipment-markup rules of
+      thumb ignore all three.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A working sauna installer reports that the bid arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sauna-cold-plunge-install-bid-calculator/
+  analytics: null

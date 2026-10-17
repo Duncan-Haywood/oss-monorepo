@@ -1,0 +1,51 @@
+name: shift-rotation-schedule-generator
+description: 'Free tool that generates rotating shift calendars (Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont, 24/48, 48/96): hours per week, worst 7-day stretch, days and weekends off a year, finds your crew and cycle day from dates you remember, and exports an .ics calendar -- in the browser or as a zero-dependency Node CLI; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate. duplicate_check.py closest matches for "Pitman
+# DuPont 4-on-4-off 12-hour rotating shift pattern calendar generator with ICS
+# export" were volunteer-shift-scheduler / league-schedule-generator at 0.20
+# (different problem); none generates fixed-rotation patterns. Not in
+# screened-out.md. Free single-pattern calendar pages and paid roster apps exist;
+# this is the one place that compares the patterns on the same numbers, finds the
+# crew from remembered dates, and exports to a phone calendar. Honest revenue view:
+# lead magnet for shift workers (nurses, fire, police, dispatch, plant operators);
+# payment rails stay off, optional GitHub Sponsors only. A later paid layer
+# (team roster with coverage/overtime checks) would be a separate decision.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Date arithmetic on the visitor's device; no personal data, no network. Overtime
+# law is explicitly not asserted.
+#
+# First visitor channel: searches for "Pitman schedule calendar", "DuPont shift
+# schedule calendar", "4 on 4 off schedule", "24/48 schedule calendar",
+# "rotating shift schedule to ics".
+hypotheses:
+  - claim: 'Shift workers on a fixed rotation will generate and import a calendar file instead of copying a roster onto a phone by hand, because they work from a crew letter and a start date, not from dates.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'People offered a new pattern by an employer will use the comparison to see worst-week hours and weekends off before agreeing to it.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors engage with the tool within 90 days of it being reachable from the published site.
+  - No search impression for any pattern-name query within 90 days of indexing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shift-rotation-schedule-generator/
+  analytics: null

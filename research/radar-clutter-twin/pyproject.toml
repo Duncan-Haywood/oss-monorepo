@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "radar-clutter-twin"
+version = "0.1.0"
+description = "Sim-to-real transfer of a CA-CFAR radar detector calibrated in a Gaussian-clutter twin and deployed in gamma-textured (K-distributed) clutter: exact false-alarm law, asymptotic inflation constant, and real-cell calibration budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

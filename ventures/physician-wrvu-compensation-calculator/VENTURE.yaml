@@ -1,0 +1,76 @@
+name: physician-wrvu-compensation-calculator
+description: >-
+  Free browser tool for employed physicians and advanced practice providers
+  evaluating an offer: annual pay under base-then-productivity, pure wRVU
+  productivity and fixed salary, break-even wRVUs, effective dollars per wRVU,
+  pay per hour, shortfall repayment and signing-bonus clawback exposure, an
+  80-120% sensitivity table and a two-offer comparison. Rates are typed in;
+  no benchmark data is shipped. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. grep of ventures/ and
+# portfolio/ found no wRVU or physician-compensation tool; the nearest are
+# travel-nurse-contract-comparison-calculator (short locum/travel contracts,
+# take-home) and job-offer-total-comp-calculator (salary plus equity), neither
+# of which models a conversion factor, a threshold or a shortfall repayment.
+# Employed physicians and APPs sign multi-year contracts where the headline
+# base hides the real terms: the threshold, the factor, whether a shortfall is
+# forgiven, carried or repaid, a signing-bonus clawback, tail coverage and a
+# non-compete. The usual help is a paid contract review or a recruiter's
+# spreadsheet; this is the private, no-signup first pass.
+#
+# First visitor: r/Residency and r/medicine contract-review threads ("is this
+# wRVU offer good"), r/physicianassistant and r/nursepractitioner offer
+# threads, Doximity-style physician contract discussions, and searches like
+# "wRVU conversion factor calculator", "physician contract wRVU break even" and
+# "wRVU threshold explained". Volume not measured with an external tool.
+#
+# Privacy is the boundary that matters: an offer's numbers are sensitive, and
+# they never leave the browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet and audience for
+# clinician-income tools (locum, per-diem, licence-compact). A paid tier, if
+# usage appears, is a printable offer summary and saved scenarios, local only;
+# not built. No referral fees to recruiters or contract-review firms.
+#
+# Liability: illustrative estimates from the visitor's own numbers, not legal
+# or financial advice; it cannot read the contract, so definitions, timing and
+# enforceability are stated as out of scope on the page. No benchmark or survey
+# figure is shipped, so nothing can go stale or be invented.
+# Unverified: arithmetic checked by hand calculation and unit tests only, not
+# against a real contract. The first real contract that disagrees is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Physicians and APPs comparing offers will use a no-signup tool that
+      shows the break-even wRVUs and the shortfall exposure, not just the
+      headline base.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The two-offer comparison and the wRVU-shortfall exposure are the figures
+      people paste into a contract-review thread or send to a lawyer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure contradicts their contract's own arithmetic by more than the stated assumptions explain.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/physician-wrvu-compensation-calculator/
+  analytics: null

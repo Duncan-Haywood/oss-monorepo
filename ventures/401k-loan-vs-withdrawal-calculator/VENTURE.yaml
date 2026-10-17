@@ -1,0 +1,45 @@
+name: 401k-loan-vs-withdrawal-calculator
+description: >-
+  Free browser tool for people who need cash and have a 401(k): prices a 401(k) loan, an early withdrawal (tax and penalty
+  grossed up) and an outside loan in one unit, the after-tax shortfall at retirement, with a growth-rate sensitivity table and
+  the job-loss risk on the loan. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. The tree had no 401(k) loan tool (grep of ventures/ for 401, hardship,
+# withdraw found only retirement sequencing and solo-401k tools).
+#
+# Why this niche: "401k loan vs withdrawal" is a high-intent, evergreen search by people in a cash crunch; incumbents are broker
+# articles and single-number loan calculators that omit the after-tax repayment and lost growth. Lead magnet now; a paid
+# household-finance worksheet pack is the possible revenue path (not built).
+#
+# First visitor: someone searching "401k loan vs hardship withdrawal calculator". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no account access; rates and limits are editable inputs; page says it is
+# not tax advice and lists what it does not decide.
+
+hypotheses:
+  - claim: >-
+      People weighing a 401(k) loan will use a private side-by-side cost tool because "interest to yourself" hides the
+      after-tax repayment and lost growth.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/401k-loan-vs-withdrawal-calculator/
+  analytics: null

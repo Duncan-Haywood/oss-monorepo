@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Merchant of Record Fee Calculator — Stripe vs Paddle vs Lemon Squeezy vs Polar</title>
+  <meta name="description" content="Enter your monthly software revenue and average sale price and see what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take, your net payout, 12-month totals, and the revenue where running Stripe yourself beats a merchant of record. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Stripe or a merchant of record: what do you keep at your monthly revenue?">
+  <meta property="og:description" content="Type monthly revenue, average sale and international share, get every payment option priced side by side with sales-tax filing included, and the revenue where the cheapest one changes. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Merchant of Record Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take from your monthly software revenue, see net payout and 12-month totals, and find the revenue where running Stripe yourself beats a merchant of record. Browser tool or zero-dependency Node CLI with a --max-fee-pct gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my payment account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses only the monthly revenue, average sale price and percentages you type, and rate cards you can edit. It cannot see your processor, country, payout settings or statements. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the fee rates come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public list prices as best known in 2025, shown with an as-of line, and every number is editable. Providers add payout, currency-conversion, dispute and subscription charges and change packaging often, so check each pricing page before deciding."}}, {"@type": "Question", "name": "What does merchant of record change?", "acceptedAnswer": {"@type": "Answer", "text": "A merchant of record is the legal seller to your customer, so it calculates, collects and files sales tax and VAT itself. With Stripe you stay the seller and either file yourself or pay a service to; the calculator models that as a monthly filing cost you enter. Whether a platform removes a specific obligation for your business is a question for your accountant, not this tool."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MERCHANT OF RECORD FEE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Stripe or a merchant of record: what do you actually keep?</h1>
+    <p>Enter your <strong>monthly revenue</strong>, average sale price and international share. Get <strong>Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar</strong> priced side by side, with <strong>the cost of filing sales tax and VAT yourself</strong> counted where the platform is not the seller, plus the <strong>monthly revenue where the cheapest option changes</strong>.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your account and is not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your sales</h2>
+    <div class="grid">
+      <div><label for="rev">Revenue per month (USD)</label><input type="number" id="rev" min="0" value="0"></div>
+      <div><label for="price">Average sale price (USD)</label><input type="number" id="price" min="0.01" step="any" value="29"></div>
+      <div><label for="intl">International share of sales <span class="note">(%)</span></label><input type="number" id="intl" min="0" max="100" step="any" value="50"></div>
+      <div><label for="tax">Cost of filing sales tax and VAT yourself <span class="note">(USD/month)</span></label><input type="number" id="tax" min="0" step="any" value="100"></div>
+      <div><label for="growth">Revenue growth per month <span class="note">(%)</span></label><input type="number" id="growth" min="0" step="any" value="0"></div>
+      <div><label for="maxpct">Fee ceiling, effective % of revenue (optional)</label><input type="number" id="maxpct" min="0" step="any" placeholder="e.g. 6"></div>
+      <div><label for="provider">Ceiling applies to</label><select id="provider"><option value="">the lowest-cost option</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Comparison</h2>
+    <p id="summary"></p>
+    <table><thead><tr><th>Option</th><th>Fees per month</th><th>Your tax filing</th><th>Total per month</th><th>Effective %</th><th>You keep per month</th><th>12-month cost with growth</th></tr></thead><tbody id="rows"></tbody></table>
+    <h3>Where the lowest-cost option changes</h3>
+    <table><thead><tr><th>Revenue per month (USD)</th><th>Lowest total cost</th></tr></thead><tbody id="segs"></tbody></table>
+    <p class="note">At small revenue the fixed monthly cost of registering and filing yourself dominates, which favours a merchant of record. As revenue grows the platform's higher percentage costs more than a filing service, which favours Stripe. Fixed per-sale fees also hit small tickets hardest. Set the filing cost to what a bookkeeper or tax service would really charge you.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Rate cards (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <table><thead><tr><th>Option</th><th>% of each sale</th><th>Fixed per sale (USD)</th><th>Extra % on international</th><th>Other % add-ons</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <p class="note">Merchant-of-record options (Paddle, Lemon Squeezy, Polar) are treated as the seller, so no filing cost is added. Press Compare after changing a value.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a fee ceiling in CI?</h2>
+    <pre class="cmd">node cli.mjs compare --revenue 5000 --price 29 --intl 60 --growth 5
+node cli.mjs compare --revenue 5000 --provider paddle --max-fee-pct 6   # exit 1 over ceiling
+node cli.mjs crossover --price 29 --tax 150
+node cli.mjs compare --revenue 5000 --prices prices.json --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="stripe-vs-merchant-of-record-for-indie-saas.html">Stripe vs a merchant of record for indie SaaS</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my payment account?</h3>
+    <p>No. It uses only the monthly revenue, average sale price and percentages you type, and rate cards you can edit. It cannot see your processor, country, payout settings or statements. Treat every figure as a way to compare options, never as what you will be charged.</p>
+    <h3>Where do the fee rates come from?</h3>
+    <p>They are approximate public list prices as best known in 2025, shown with an as-of line, and every number is editable. Providers add payout, currency-conversion, dispute and subscription charges and change packaging often, so check each pricing page before deciding.</p>
+    <h3>What does merchant of record change?</h3>
+    <p>A merchant of record is the legal seller to your customer, so it calculates, collects and files sales tax and VAT itself. With Stripe you stay the seller and either file yourself or pay a service to; the calculator models that as a monthly filing cost you enter. Whether a platform removes a specific obligation for your business is a question for your accountant, not this tool.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or tax advice. It applies list prices that may be out of date and ignores payout, currency-conversion, dispute and subscription charges, negotiated rates and your own tax position; it is not a quote and not a guarantee of what any provider will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../app-store-commission-calculator/">App Store Commission Calculator</a>, <a href="../gumroad-sales-fee-analyzer/">Gumroad Sales Fee Analyzer</a>, <a href="../patreon-fee-calculator/">Patreon Fee Calculator</a>, <a href="../saas-annual-plan-discount-calculator/">SaaS Annual Plan Discount Calculator</a>, <a href="../usage-based-pricing-simulator/">Usage-Based Pricing Simulator</a>, <a href="../stripe-failed-payment-recovery-analyzer/">Stripe Failed Payment Recovery Analyzer</a>, <a href="../stripe-churn-cohort-analyzer/">Stripe Churn Cohort Analyzer</a>.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { DEFAULT_PROVIDERS, PRICES_AS_OF, compare, project, cheapestSegments, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const providers = {};
+    for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) providers[k] = { ...p };
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+    const FIELDS = [["pct", "% of each sale"], ["fixed", "fixed per sale"], ["intlPct", "extra % international"], ["extraPct", "other % add-ons"]];
+    $("#prices-rows").innerHTML = Object.entries(providers).map(([k, p]) => `<tr><td><a href="${escapeHtml(p.url)}" rel="noopener">${escapeHtml(p.label)}</a></td>` + FIELDS.map(([f, name]) => `<td><input type="number" min="0" step="any" aria-label="${escapeHtml(p.label)} ${name}" data-f="${f}" data-k="${k}" value="${p[f]}"></td>`).join("") + `</tr>`).join("");
+    $("#provider").innerHTML += Object.entries(providers).map(([k, p]) => `<option value="${k}">${escapeHtml(p.label)}</option>`).join("");
+
+    function readRates() {
+      for (const el of document.querySelectorAll("[data-f]")) providers[el.dataset.k][el.dataset.f] = Math.max(0, Number(el.value) || 0);
+    }
+
+    function render() {
+      readRates();
+      const revenue = Math.max(0, Number($("#rev").value) || 0);
+      if (!revenue) { $("#status").innerHTML = `<span class="error">Enter your monthly revenue first (or load the worked example).</span>`; return; }
+      $("#status").textContent = "";
+      const input = { revenue, avgPrice: Math.max(0.01, Number($("#price").value) || 29), intlShare: Math.min(100, Math.max(0, Number($("#intl").value) || 0)), selfTaxMonthly: Math.max(0, Number($("#tax").value) || 0) };
+      const growth = Math.max(0, Number($("#growth").value) || 0);
+      const rows = compare(input, providers);
+      const proj = project(input, growth, 12, providers);
+      const total = Object.fromEntries(proj.totals.map((t) => [t.key, t.totalCost]));
+      const m = $("#maxpct").value === "" ? null : Math.max(0, Number($("#maxpct").value) || 0);
+      const s = summarize(rows, { maxPct: m, provider: $("#provider").value || null });
+      $("#summary").innerHTML = `<span class="${s.overLimit ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#rows").innerHTML = rows.map((r) => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.fees)}</td><td>${r.mor ? "included" : fmt(r.taxCost)}</td><td>${fmt(r.total)}</td><td>${r.effectivePct}%</td><td>${fmt(r.net)}</td><td>${fmt(total[r.key])}</td></tr>`).join("");
+      $("#segs").innerHTML = cheapestSegments(input, providers).map((g) => `<tr><td>${g.from.toLocaleString("en-US")} – ${g.to.toLocaleString("en-US")}</td><td>${escapeHtml(g.label)}</td></tr>`).join("");
+      $("#estimate").textContent = `${PRICES_AS_OF}. Revenue grows from ${fmt(revenue)} to ${fmt(proj.endRevenue)} a month over 12 months. Your numbers and editable prices; not a quote, not tax advice.`;
+      $("#report-card").hidden = false;
+      record("compare_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+
+    const EXAMPLE = { revenue: 5000, growth: 5 };
+    $("#load-example").addEventListener("click", () => {
+      $("#rev").value = EXAMPLE.revenue;
+      $("#growth").value = EXAMPLE.growth;
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#rev").value = 0; $("#growth").value = 0; $("#status").textContent = ""; $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

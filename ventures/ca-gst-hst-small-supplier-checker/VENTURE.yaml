@@ -1,0 +1,39 @@
+name: ca-gst-hst-small-supplier-checker
+description: >-
+  Free browser tool for Canadian freelancers, side-hustlers and small sellers: enter taxable sales for the last eight calendar quarters to see whether the CAD 30,000 small-supplier line was crossed in one quarter or over four consecutive quarters, the date GST/HST charging starts and the 29-day registration deadline. Taxi and ride-share operators flagged from day one. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no Canadian sales-tax tool in ventures/ (ca-meal-rest-break-premium-checker is the only ca- sibling).
+#
+# First visitor: Canadian freelancer, Etsy/Shopify seller or gig worker searching "do I need to register for GST", "GST HST $30,000 threshold", "small supplier rule four quarters".
+# Audience is a large set of new small businesses every year; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a quarterly sales tracker with threshold alerts behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names the CRA as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (taxable-supply scope, associated businesses, QST, charity test, penalties). Ethical risk is false comfort from a "not required" result, mitigated by the near-threshold warnings and re-test note.
+hypotheses:
+  - claim: >-
+      Canadian small sellers approaching CAD 30,000 will use a free checker to learn when they must register and charge GST/HST.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold or date differs from CRA guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ca-gst-hst-small-supplier-checker/
+  analytics: null

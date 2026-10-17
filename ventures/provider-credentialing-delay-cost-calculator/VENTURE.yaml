@@ -1,0 +1,48 @@
+name: provider-credentialing-delay-cost-calculator
+description: >-
+  Free browser tool for medical, dental and therapy practices: list each new clinician with their payer-enrollment delay in days
+  and see lost and deferred revenue, pay going out while visits cannot be billed, and what filing earlier would have saved.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nothing scored above 0.18 for the credentialing-delay niche;
+# private-practice-payer-mix-calculator is the nearest neighbour (payer mix, not enrollment timing).
+#
+# Why this niche: every practice that hires a clinician waits weeks to months for each payer's effective date, and practice
+# managers and owners routinely start paperwork late. A new clinician with a 28-visit week and 70% of visits tied to payers that
+# need enrollment leaves roughly $1,900 a week of billing blocked. The number rarely appears in the hiring decision.
+#
+# First visitor: searches "cost of credentialing delay", "how long does insurance credentialing take", "provider enrollment delay
+# revenue loss"; practice-management forums, medical group administrator communities. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder example values labelled as such; no clinician or patient identifiers
+# (the page says so); "Not decided" section; no-advice footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid credentialing-status tracker
+# (application dates, follow-up reminders per payer) -- needs an owner decision on payment and on handling clinician data.
+
+hypotheses:
+  - claim: >-
+      Practice managers and owners will enter a new hire's expected enrollment delay into a free tool to see the revenue at stake and use the filing-earlier table to justify starting paperwork during recruiting.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from the model in README.md for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/provider-credentialing-delay-cost-calculator/
+  analytics: null

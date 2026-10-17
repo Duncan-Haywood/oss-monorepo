@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU DSA Obligations Checker — Which Digital Services Act Duties Apply to Your Platform?</title>
+  <meta name="description" content="Free EU Digital Services Act checker: enter your service type, size and EU users to get the exact list of DSA duties that apply (notice and action, complaints, marketplace trader checks, VLOP audits), with the Article for each and the small-enterprise exemption. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="DSA obligations checker: which Articles apply to your platform. Free, private">
+  <meta property="og:description" content="Pick your service type and size, get a checklist of Digital Services Act duties with Articles.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU DSA Obligations Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Digital Services Act?", "acceptedAnswer": {"@type": "Answer", "text": "Regulation (EU) 2022/2065 sets duties for online intermediaries (hosting, platforms, marketplaces, search engines) by category and size. It has applied to all in-scope services since 17 February 2024."}}, {"@type": "Question", "name": "Do small companies have to comply?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for the baseline duties (contact points, terms, notice and action for hosts). Micro and small enterprises (under 50 staff and at most EUR 10M turnover or balance sheet) are exempt from the heavier online platform and marketplace duties and from the annual transparency report, but not from publishing their monthly active EU users."}}, {"@type": "Question", "name": "What makes a platform very large?", "acceptedAnswer": {"@type": "Answer", "text": "An average of 45 million or more monthly active EU recipients, followed by a Commission designation. Duties apply four months after designation and the exemption for small enterprises does not apply."}}, {"@type": "Question", "name": "Does it apply to a company outside the EU?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if it offers intermediary services to people in the EU. Without an EU establishment, Art. 13 requires an EU legal representative."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EU DSA OBLIGATIONS CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which Digital Services Act duties apply to you?</h1>
+    <p>Say what kind of service you run, how big you are and how many EU users you have. You get a checklist of the duties that apply, each with its Article, and whether the micro and small enterprise exemption helps you.</p>
+    <p class="note">A first read written from the Regulation without a live lookup. Implementing acts and guidelines change details; confirm the current text. Not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="type">Kind of service</label><select id="type"><option value="">Choose</option></select></div>
+      <div><label for="marketplace">Consumers buy from traders on it</label><select id="marketplace"><option value="no">No</option><option value="yes">Yes (online marketplace)</option></select></div>
+      <div><label for="euBased">Established in the EU</label><select id="euBased"><option value="yes">Yes</option><option value="no">No, but offers services in the EU</option></select></div>
+      <div><label for="employees">Employees</label><input id="employees" type="number" min="0" step="1"></div>
+      <div><label for="turnover">Annual turnover (EUR)</label><input id="turnover" type="number" min="0" step="1"></div>
+      <div><label for="assets">Balance sheet total (EUR)</label><input id="assets" type="number" min="0" step="1"></div>
+      <div><label for="mau">Average monthly active EU users</label><input id="mau" type="number" min="0" step="1"></div>
+      <div><label for="ads">Shows ads</label><select id="ads"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="recommender">Recommends content</label><select id="recommender"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="minors">Known minors use it</label><select id="minors"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="designated">Designated by the Commission</label><select id="designated"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check duties</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the answers, then click Check duties.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Duties checklist</h2>
+    <div class="scroll"><table><thead><tr><th>Article</th><th>Duty</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download checklist (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the Chapter III tiers: all intermediaries, hosting, online platforms, online marketplaces, and very large platforms and search engines, plus the micro and small enterprise exemption.</li>
+      <li><strong>Gives:</strong> your category, the duties with Articles, and the penalty ceiling.</li>
+      <li><strong>Not decided:</strong> borderline calls on what counts as public dissemination, how users are counted, group and partner enterprise rules for the small test, national rules, sector law such as the GDPR, copyright and consumer law, and anything that changed after this page was written. Your Digital Services Coordinator or counsel decides these.</li>
+    </ul>
+    <p>Also see the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>, the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a> and the <a href="../nis2-scope-checker/">NIS2 scope checker</a>.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the Digital Services Act?</h3>
+    <p>Regulation (EU) 2022/2065 sets duties for online intermediaries (hosting, platforms, marketplaces, search engines) by category and size. It has applied to all in-scope services since 17 February 2024.</p>
+    <h3>Do small companies have to comply?</h3>
+    <p>Yes for the baseline duties (contact points, terms, notice and action for hosts). Micro and small enterprises (under 50 staff and at most EUR 10M turnover or balance sheet) are exempt from the heavier online platform and marketplace duties and from the annual transparency report, but not from publishing their monthly active EU users.</p>
+    <h3>What makes a platform very large?</h3>
+    <p>An average of 45 million or more monthly active EU recipients, followed by a Commission designation. Duties apply four months after designation and the exemption for small enterprises does not apply.</p>
+    <h3>Does it apply to a company outside the EU?</h3>
+    <p>Yes, if it offers intermediary services to people in the EU. Without an EU establishment, Art. 13 requires an EU legal representative.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your Digital Services Coordinator or counsel before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>, the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a>, the <a href="../eu-data-act-checker/">EU Data Act checker</a> and the <a href="../eaa-accessibility-act-checker/">EAA accessibility checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { SERVICE_TYPES, compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { type: "type", marketplace: "marketplace", euBased: "euBased", employees: "employees", turnover: "turnover", assets: "assets", mau: "mau", ads: "ads", recommender: "recommender", minors: "minors", designated: "designated" };
+    const IDLE = "Fill in the answers, then click Check duties.";
+    const DEFAULTS = { marketplace: "no", euBased: "yes", ads: "no", recommender: "no", minors: "no", designated: "no" };
+
+    $("#type").innerHTML += SERVICE_TYPES.map((t) => `<option value="${t.id}">${esc(t.label)}</option>`).join("");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${r.obligations.length} duties apply${r.small ? " (small-enterprise exemption used)" : ""}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td>${esc(o.art)}</td><td><strong>${esc(o.title)}</strong><br><span class="note">${esc(o.group)}</span></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a small public platform with 18 staff and 400,000 monthly EU users.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("dsa-obligations-check.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

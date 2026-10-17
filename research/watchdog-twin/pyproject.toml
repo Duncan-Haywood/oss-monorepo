@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "watchdog-twin"
+version = "0.1.0"
+description = "Watchdog twin: an i.i.d.-loss heartbeat twin matched to the mean loss rate says a watchdog of m missed beats almost never false-trips; on a bursty (Gilbert) link the trip rate is orders of magnitude higher and m must scale with the burst length"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

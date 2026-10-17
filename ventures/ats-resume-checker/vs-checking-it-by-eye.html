@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATS Resume Checker vs. eyeballing the copy-paste test yourself</title>
+  <meta name="description" content="The copy-paste test -- pasting your resume's text into a plain editor and looking at what comes out -- is a real technique career coaches already recommend, and you can run it with your own eyes. This page covers what an eyeball check of that pasted text usually misses: invisible icon-font characters, contact info that never gets measured for position, and mid-line whitespace gaps nobody notices scanning by eye.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-checking-it-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ATS Resume Checker vs. eyeballing the copy-paste test yourself">
+  <meta property="og:description" content="You can run the copy-paste test with your own eyes for free. This checker runs the same paste through the same well-documented rules every time, and catches a few specific things an eyeball scan tends to miss.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/vs-checking-it-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just do the copy-paste test myself without this tool?","acceptedAnswer":{"@type":"Answer","text":"Yes -- the copy-paste test is a manual technique first, and this checker only automates it. Copy the text out of your resume file, paste it into any plain-text editor, and look at what comes out. That alone catches the most obvious breakage: a paste that is almost entirely blank, or one that is visibly scrambled. What a quick look tends to miss is covered below."}},{"@type":"Question","name":"What does an eyeball scan of the pasted text usually miss?","acceptedAnswer":{"@type":"Answer","text":"Three things most often. First, icon-font characters (used for decorative bullets or checkmarks in some templates) often render as a tiny invisible box or nothing at all in a plain editor, so their presence is easy to not notice even though an ATS parser sees the same unreadable code point. Second, whether your contact info sits early enough in the extracted text is a position you would have to measure, not something that jumps out visually. Third, four or more spaces in the middle of a line -- the signature of a collapsed multi-column layout -- looks like ordinary spacing to the eye; nothing about it looks wrong until you count the spaces."}},{"@type":"Question","name":"Why would a private-use character be hard to spot by eye?","acceptedAnswer":{"@type":"Answer","text":"Characters in the Unicode Private Use Area (U+E000-U+F8FF) have no standard glyph. Outside the font that defines them, most editors render them as a small blank box, a question mark, or nothing visible at all -- so a bullet character that displayed as a checkmark icon in your resume software can paste as something that looks like empty space next to your bullet text. Scanning past a line that reads ' Led a team of six' registers as normal; only a tool that checks the character's code point, not its rendered appearance, catches it reliably."}},{"@type":"Question","name":"So is doing it by eye pointless?","acceptedAnswer":{"@type":"Answer","text":"No -- it is the same underlying technique and it is free. What changes is consistency and what gets checked. A human read is good at noticing the paste is obviously broken or clearly fine; it is not good at counting how many lines have a 4-space mid-line gap, measuring what fraction of the document your email address falls within, or reliably spotting a code point that renders as nothing. This checker runs the same fixed set of checks against the same paste every time, in the browser, with nothing uploaded -- a second pair of eyes that never gets tired of counting spaces."}}]}</script>
+  <style>
+    :root { color-scheme: light; font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; letter-spacing: -.03em; margin: 0 0 14px; color: #3a1f5d; }
+    h2 { margin-top: 30px; font-size: 1.15rem; color: #3a1f5d; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    p, li { line-height: 1.6; }
+    .eyebrow { font-size: .85rem; margin: 0 0 18px; color: #5c5468; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; background: #fff; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #ddd6e6; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #5c5468; }
+    caption { text-align: left; font-size: .82rem; color: #5c5468; padding-bottom: 8px; }
+    .cta { display: inline-block; margin: 8px 0 0; background: #5b3a8e; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .cta:hover { background: #4a2f75; }
+    .card { background: #fff; border: 1px solid #ddd6e6; border-radius: 14px; padding: 18px 20px; box-shadow: 0 8px 24px #3a1f5d10; margin: 20px 0; }
+    .note { font-size: .85rem; color: #5c5468; }
+    footer { margin-top: 34px; font-size: .82rem; color: #5c5468; border-top: 1px solid #ddd6e6; padding-top: 16px; }
+    footer a, main a { color: #5b3a8e; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; ATS resume checker</a></p>
+    <h1>ATS Resume Checker vs. eyeballing the copy-paste test yourself</h1>
+    <p class="lede">The copy-paste test is a manual technique first, and you do not need this page's tool to
+      run it: copy the text out of your resume file, paste it into a plain editor, and look at what comes out.
+      This checker only automates that same paste through the same fixed set of documented checks, so it is
+      worth being specific about what a quick look tends to miss.</p>
+
+    <section class="card">
+      <h2>Where an eyeball scan of the pasted text usually falls short</h2>
+      <div class="table-wrap">
+      <table>
+        <caption>What the same pasted text looks like read by eye vs. checked by rule.</caption>
+        <thead><tr><th scope="col">Symptom</th><th scope="col">Reading it yourself</th><th scope="col">This checker</th></tr></thead>
+        <tbody>
+          <tr><td>Icon-font / private-use characters standing in for bullets</td><td>Often renders as a tiny blank box or nothing visible, so it reads as ordinary spacing next to your bullet text.</td><td>Matches the exact Unicode range (U+E000&ndash;U+F8FF) regardless of how it renders, and counts every occurrence.</td></tr>
+          <tr><td>Contact info buried past the top of the document</td><td>Nothing to look at &mdash; you would have to manually find your email and estimate how far into the paste it sits.</td><td>Measures the exact position of the first email or phone match as a fraction of the document.</td></tr>
+          <tr><td>Mid-line gaps from a collapsed multi-column layout</td><td>Four or five spaces in the middle of a line looks like normal spacing unless you count characters.</td><td>Flags any line with four or more spaces (or a tab) mid-line, and reports how many lines are affected.</td></tr>
+          <tr><td>Missing or non-standard section headings</td><td>You know your own resume's structure, so a heading you wrote yourself never looks wrong to you.</td><td>Checks the pasted text against the specific heading phrasings a parser is documented to look for.</td></tr>
+          <tr><td>Does anything I paste get uploaded anywhere?</td><td>N/A</td><td>No. The check runs entirely in your browser; nothing you paste is sent to a server.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>
+        None of this means the manual version is wrong to try first &mdash; it is the same technique, and it is
+        free either way. A read-through is genuinely good at catching the paste that comes out almost entirely
+        blank, or one that is visibly scrambled top to bottom. What it is not good at is counting: how many
+        lines have a mid-line gap, what fraction of the document your contact info falls within, or spotting a
+        character that renders as nothing at all. This checker runs the same fixed rules against the same paste
+        every time.
+      </p>
+      <p class="note">This tool needs no account and no sign-in: it is a static page, the checker runs in your browser, and it keeps working with the connection off once loaded.</p>
+      <p><a class="cta" href="./">Run the free ATS copy-paste test</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Can't I just do the copy-paste test myself without this tool?</h3>
+      <p>Yes -- the copy-paste test is a manual technique first, and this checker only automates it. Copy the text out of your resume file, paste it into any plain-text editor, and look at what comes out. That alone catches the most obvious breakage: a paste that is almost entirely blank, or one that is visibly scrambled. What a quick look tends to miss is covered below.</p>
+      <h3>What does an eyeball scan of the pasted text usually miss?</h3>
+      <p>Three things most often. First, icon-font characters (used for decorative bullets or checkmarks in some templates) often render as a tiny invisible box or nothing at all in a plain editor, so their presence is easy to not notice even though an ATS parser sees the same unreadable code point. Second, whether your contact info sits early enough in the extracted text is a position you would have to measure, not something that jumps out visually. Third, four or more spaces in the middle of a line -- the signature of a collapsed multi-column layout -- looks like ordinary spacing to the eye; nothing about it looks wrong until you count the spaces.</p>
+      <h3>Why would a private-use character be hard to spot by eye?</h3>
+      <p>Characters in the Unicode Private Use Area (U+E000-U+F8FF) have no standard glyph. Outside the font that defines them, most editors render them as a small blank box, a question mark, or nothing visible at all -- so a bullet character that displayed as a checkmark icon in your resume software can paste as something that looks like empty space next to your bullet text. Scanning past a line that reads ' Led a team of six' registers as normal; only a tool that checks the character's code point, not its rendered appearance, catches it reliably.</p>
+      <h3>So is doing it by eye pointless?</h3>
+      <p>No -- it is the same underlying technique and it is free. What changes is consistency and what gets checked. A human read is good at noticing the paste is obviously broken or clearly fine; it is not good at counting how many lines have a 4-space mid-line gap, measuring what fraction of the document your email address falls within, or reliably spotting a code point that renders as nothing. This checker runs the same fixed set of checks against the same paste every time, in the browser, with nothing uploaded -- a second pair of eyes that never gets tired of counting spaces.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and it does not tell you whether any specific employer's applicant tracking system will accept your resume. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+      <p>Everything runs in your browser. Your resume text is never uploaded. We count only anonymous local feature events, never people or resume content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

@@ -1,0 +1,37 @@
+name: amazon-inventory-loader-check
+description: >-
+  Free browser tool that checks an Amazon Seller Central inventory file (price and quantity or
+  inventory loader flat file) before it is uploaded: comma-separated or UTF-16 files where tab-
+  delimited text is expected, UPCs that lost their leading zero in Excel, UPC, EAN and ISBN check
+  digits, scientific-notation SKUs and product ids, bad prices and quantities, add-delete codes,
+  minimum and maximum price conflicts and used items with no condition note, each with its line
+  number, plus a safe-fixes pass that converts the delimiter and restores a UPC's zero only when the
+  check digit confirms it. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Siblings read Shopify, WooCommerce, Etsy,
+# Square and similar product CSVs; none reads Amazon's tab-delimited inventory files, and
+# duplicate_check.py scored the niche below 0.25 against everything. Amazon has millions of third-
+# party sellers, most of whom move stock and prices through spreadsheets, repricers or inventory
+# tools, and a rejected file arrives as a processing report in Seller Central that names a row but
+# rarely says why.
+#
+# First visitor: sellers searching the literal symptoms ("Amazon inventory file upload error",
+# "Amazon flat file UPC leading zero", "Seller Central inventory loader processing report",
+# "Amazon price and quantity file not working"), and seller forums where Excel damage to UPCs is a
+# perennial thread. Volume not measured with an external tool.
+#
+# The UPC/EAN check digit is the part a spreadsheet cannot do by eye: it separates a typo from a
+# stripped zero, and the zero is restored only when the padded number validates.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory, with an explicit not-checked list; category listing
+# files, brand approval and restricted products are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the Amazon seller audience, cross-linked
+# to amazon-fba-calculator and amazon-seller-profit-analyzer. A paid version, if usage appears, is
+# bulk checks, category templates and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Amazon clause,
+# trademark used nominatively.

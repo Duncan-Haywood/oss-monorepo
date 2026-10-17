@@ -1,0 +1,60 @@
+Multipath twin: two-ray radar detection, lam=0.03 m, hr=30 m, ht=100 m, r_fs=10000 m; detect iff 16 sin^4(u) >= (r/r_fs)^4, u = 2 pi hr ht/(lam r)
+lobes inside r_fs: u(r_fs)/pi = 20.0
+
+== 1. Lobe statistics (exact) ==
+mean two-way power gain over a lobe period: 6.000000 (closed form 6); peak 16, null 0
+   c=(r/r_fs)^4   range/r_fs   P(real detects) = 1-(2/pi) asin((c/16)^(1/4))
+     0.25         0.707        0.7699
+     0.50         0.841        0.7237
+     1.00         1.000        0.6667
+     2.00         1.189        0.5946
+     4.00         1.414        0.5000
+     6.00         1.565        0.4278
+    10.00         1.778        0.3026
+    15.00         1.968        0.1141
+    16.00         2.000        0.0000
+
+== 2. Detection rate by range band: real vs free-space twin vs lobe-mean-gain twin (r in units of r_fs) ==
+band          real    free-space twin   mean-gain twin   integral of closed form
+0.500-0.900   0.780   1.000             1.000            0.772
+0.900-1.000   0.651   1.000             1.000            0.685
+1.000-1.100   0.717   0.000             1.000            0.648
+1.100-1.400   0.581   0.000             1.000            0.569
+1.400-1.565   0.334   0.000             1.000            0.468
+1.565-2.000   0.317   0.000             0.000            0.283
+real misses inside the free-space range (0.25-1.0 r_fs): 0.204 of ranges
+real detects beyond the free-space range (1.0-2.0 r_fs): 0.439 of ranges
+
+== 3. Deterministic two-ray twin with target-height error dh: disagreement with the real detection map ==
+r_crit = 8 hr dh/lam is the range inside which the lobes move by > pi/4 (u units)
+band 0.95-1.05 r_fs (c ~ 1); closed form = band average of shift_disagreement(c(r), u_shift(r)); the band holds only ~2 lobes, so sim and closed form differ slightly
+   dh(m)   r_crit(m)  u-shift@r_fs  disagree (sim)  closed form    free-space twin   independent twin 2f(1-f)
+   0.02       160      0.013       0.008           0.008          0.524            0.444
+   0.05       400      0.031       0.020           0.020          0.524            0.444
+   0.10       800      0.063       0.040           0.040          0.524            0.444
+   0.25      2000      0.157       0.100           0.100          0.524            0.444
+   0.50      4000      0.314       0.200           0.200          0.524            0.444
+   1.00      8000      0.628       0.413           0.400          0.524            0.444
+   2.00     16000      1.257       0.656           0.667          0.524            0.444
+   5.00     40000      3.142       0.048           0.050          0.524            0.444
+
+== 4. Disagreement versus range for a fixed height error dh=0.5 m (bands of +-5%, sim) ==
+   range/r_fs  range(m)  u-shift   disagree(2-ray twin)  disagree(free-space)  disagree(mean-gain)
+   0.20        2000    1.571         0.127                 0.063                 0.063
+   0.35        3500    0.898         0.233                 0.116                 0.116
+   0.50        5000    0.628         0.313                 0.156                 0.156
+   0.70        7000    0.449         0.286                 0.219                 0.219
+   0.85        8500    0.370         0.210                 0.239                 0.239
+   1.00       10000    0.314         0.200                 0.524                 0.333
+   1.20       12000    0.262         0.149                 0.550                 0.450
+   1.40       14000    0.224         0.152                 0.453                 0.547
+
+== 5. Brier score against the real outcomes, band 0.9-1.1 r_fs, twin height = true + 0.5 m ==
+(Brier = mean squared error of the twin's detection probability; ensemble = 200 height draws ~ N(ht_twin, sigma^2))
+free-space twin (deterministic): 0.533   mean-gain twin: 0.317
+closed form, band average of the c-dependent values: free-space 0.482, calibrated-ensemble f(1-f) 0.222
+   dh(m)   sigma=0     0.1      0.25     0.5      1.0      2.0      5.0
+   0.0   0.000    0.010    0.025    0.051    0.115    0.209    0.221  
+   0.1   0.041    0.025    0.031    0.053    0.116    0.209    0.221  
+   0.5   0.197    0.174    0.143    0.119    0.140    0.211    0.221  
+   1.0   0.392    0.370    0.337    0.275    0.209    0.218    0.220  

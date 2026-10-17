@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coffee Cart Event Quote Calculator — Flat Fee vs Percentage</title>
+  <meta name="description" content="Free calculator for mobile coffee cart owners: compare a booking fee, a percentage of sales and a prepaid drink guarantee for an event, with break-even drinks and net per hour. Runs in your browser.">
+  <meta property="og:title" content="Coffee Cart Event Quote Calculator — free, private">
+  <meta property="og:description" content="Which event deal pays a coffee cart most: booking fee, percentage or guaranteed drinks?">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Coffee Cart Event Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for mobile coffee cart and espresso trailer owners: compare a booking fee, a share of sales and a guaranteed drink count for an event, with break-even drinks and net per hour."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should a coffee cart charge for an event?", "acceptedAnswer": {"@type": "Answer", "text": "Work from your cost, not the crowd: labour for every hour including setup and teardown, travel, permit, card fees and drink cost. Then compare what each offer on the table pays at the crowd you expect. A flat booking fee protects you from a thin crowd; a share of sales rewards a big one."}}, {"@type": "Question", "name": "Is a flat fee or a percentage of sales better for a coffee cart?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on crowd size. At a small crowd a flat fee or a guaranteed number of prepaid drinks usually wins because your fixed cost is covered before the first cup. At a large crowd keeping sales and paying a percentage can win, up to the point your cart runs out of capacity. Enter the crowd and the tool shows where each deal wins."}}, {"@type": "Question", "name": "How many drinks do I need to sell to break even at an event?", "acceptedAnswer": {"@type": "Answer", "text": "Fixed event cost divided by what each drink leaves after drink cost, card fees and any host share. The tool finds the exact number of drinks for each deal and tells you when a deal never breaks even inside your cart's hourly capacity."}}, {"@type": "Question", "name": "What is a prepaid or guaranteed drink deal?", "acceptedAnswer": {"@type": "Answer", "text": "The host (a company, wedding or venue) pays for a minimum number of drinks up front at an agreed price each, whether or not guests drink them. You keep sales above the guarantee. It turns a gamble on foot traffic into a known number."}}, {"@type": "Question", "name": "Do I count setup and drive time?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Staff are paid for loading, driving, setting up and tearing down, and the host never sees those hours. The tool counts them per person so your hourly figure is honest."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. Prices, permits and tax treatment vary by place; check with your local authority and a tax adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #faf5ee; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b3f1d; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a2c17; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a2c17; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #e2d5c3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a2c1710; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c4ac90; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b3f1d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f1e6d6; color: #4a2c17; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #efe5d8; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #efe5d8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.info { background: #f1e6d6; color: #4a2c17; }
+    footer { margin-top: 28px; border-top: 1px solid #e2d5c3; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COFFEE CART EVENT QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Which event deal pays your coffee cart the most?</h1>
+    <p>Enter your cart's pace, prices and costs, the crowd you expect, and what the host is offering. You get <strong>net profit and break-even drinks for a booking fee, a share of sales and a prepaid drink guarantee</strong>, net per hour including setup, and a table of what a smaller or bigger crowd does to each deal.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your cart and the event</h2>
+    <div class="grid">
+      <div><label for="hours">Service hours at the event</label><input type="number" id="hours" min="0" step="1" value="4"></div>
+      <div><label for="cupsperhour">Drinks per hour the cart can serve</label><input type="number" id="cupsperhour" min="0" step="1" value="35"></div>
+      <div><label for="expected">Drinks you expect guests to buy</label><input type="number" id="expected" min="0" step="1" value="120"></div>
+      <div><label for="price">Average price per drink ($)</label><input type="number" id="price" min="0" step="0.05" value="5.5"></div>
+      <div><label for="cogs">Drink cost: milk, beans, cup ($)</label><input type="number" id="cogs" min="0" step="0.05" value="1.15"></div>
+      <div><label for="cardfee">Card fee (%)</label><input type="number" id="cardfee" min="0" step="0.1" value="2.9"></div>
+      <div><label for="staff">People working the cart</label><input type="number" id="staff" min="0" step="1" value="2"></div>
+      <div><label for="wage">Hourly pay per person ($)</label><input type="number" id="wage" min="0" step="1" value="20"></div>
+      <div><label for="setup">Setup, drive and teardown hours per person</label><input type="number" id="setup" min="0" step="0.5" value="2.5"></div>
+      <div><label for="travel">Fuel and generator ($)</label><input type="number" id="travel" min="0" step="1" value="45"></div>
+      <div><label for="permit">Event or health permit paid by you ($)</label><input type="number" id="permit" min="0" step="1" value="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. The three deals</h2>
+    <p class="note">Set the terms the host is offering. Leave a deal at its defaults if it is not on the table; compare the others.</p>
+    <div class="grid">
+      <div><label for="flat">Booking fee the host pays you ($), you keep sales</label><input type="number" id="flat" min="0" step="1" value="400"></div>
+      <div><label for="share">Share of sales you pay the host (%)</label><input type="number" id="share" min="0" step="0.5" value="15"></div>
+      <div><label for="gcups">Drinks the host prepays</label><input type="number" id="gcups" min="0" step="1" value="100"></div>
+      <div><label for="gprice">Price per prepaid drink ($)</label><input type="number" id="gprice" min="0" step="0.05" value="4.5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Compare the deals</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Compare the deals.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Deal</th><th class="n" scope="col">Drinks</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Host pays you</th><th class="n" scope="col">You pay host</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net/hour</th><th class="n" scope="col">Break-even drinks</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>Net if the crowd is smaller or bigger than expected</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Crowd</th><th class="n" scope="col">Booking fee</th><th class="n" scope="col">Share of sales</th><th class="n" scope="col">Prepaid drinks</th></tr></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Fixed cost</strong> = people × hourly pay × (service hours + setup hours) + fuel + permit. You pay it whatever the crowd does.</li>
+      <li><strong>Drinks served</strong> = the crowd you expect, capped at drinks per hour × service hours.</li>
+      <li><strong>Net</strong> = sales + what the host pays you − what you pay the host − card fees − drink cost − fixed cost. Prepaid drinks are paid for even if nobody drinks them and count against your capacity.</li>
+      <li><strong>Break-even drinks</strong> = the smallest crowd at which net reaches zero, up to your cart's capacity.</li>
+      <li><strong>Not modelled:</strong> tips, equipment purchase or depreciation, sales tax, multi-day events, weather, and repeat bookings that come from a good first event.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What should a coffee cart charge for an event?</h3>
+    <p>Work from your cost, not the crowd: labour for every hour including setup and teardown, travel, permit, card fees and drink cost. Then compare what each offer on the table pays at the crowd you expect. A flat booking fee protects you from a thin crowd; a share of sales rewards a big one.</p>
+    <h3>Is a flat fee or a percentage of sales better for a coffee cart?</h3>
+    <p>It depends on crowd size. At a small crowd a flat fee or a guaranteed number of prepaid drinks usually wins because your fixed cost is covered before the first cup. At a large crowd keeping sales and paying a percentage can win, up to the point your cart runs out of capacity. Enter the crowd and the tool shows where each deal wins.</p>
+    <h3>How many drinks do I need to sell to break even at an event?</h3>
+    <p>Fixed event cost divided by what each drink leaves after drink cost, card fees and any host share. The tool finds the exact number of drinks for each deal and tells you when a deal never breaks even inside your cart's hourly capacity.</p>
+    <h3>What is a prepaid or guaranteed drink deal?</h3>
+    <p>The host (a company, wedding or venue) pays for a minimum number of drinks up front at an agreed price each, whether or not guests drink them. You keep sales above the guarantee. It turns a gamble on foot traffic into a known number.</p>
+    <h3>Do I count setup and drive time?</h3>
+    <p>Yes. Staff are paid for loading, driving, setting up and tearing down, and the host never sees those hours. The tool counts them per person so your hourly figure is honest.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. Prices, permits and tax treatment vary by place; check with your local authority and a tax adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as a tax adviser or your local health authority. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any contract you sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deals_compared</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../food-truck-event-margin-calculator/">food truck event margin</a>, <a href="../catering-quote-calculator/">catering quote</a>, <a href="../farmers-market-booth-calculator/">farmers market booth</a>, <a href="../coffee-roaster-margin-calculator/">coffee roaster margin</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, crowdSensitivity, sampleInput, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { hours: "hours", cupsPerHour: "cupsperhour", expectedCups: "expected", avgPrice: "price", cogsPerCup: "cogs", cardFeePct: "cardfee", staffCount: "staff", wage: "wage", setupHours: "setup", travelCost: "travel", permitFee: "permit", flatFee: "flat", sharePct: "share", guaranteeCups: "gcups", guaranteePrice: "gprice" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      return input;
+    }
+
+    function run() {
+      const input = read();
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.anyProfit ? "info" : "high"}">${r.anyProfit ? "result" : "loss"}</span>${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.deals.map((d) => `<tr><th scope="row">${esc(d.label)}${d.key === r.best ? " ★" : ""}</th><td class="n">${Math.round(d.cups)}</td><td class="n">${money(d.revenue)}</td><td class="n">${money(d.hostIncome)}</td><td class="n">${money(d.hostCost)}</td><td class="n">${money(d.net)}</td><td class="n">${money(d.perHour)}</td><td class="n">${d.breakEvenCups ?? "never"}</td></tr>`).join("");
+      $("#sens").innerHTML = crowdSensitivity(input).map((row) => `<tr><th scope="row">${row.cups} drinks</th>${row.cells.map((c) => `<td class="n">${money(c.net)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      const b = r.deals.find((d) => d.key === r.best);
+      status.textContent = `Best: ${b.label}, net ${money(b.net)}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("deals_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) if (s[k] !== undefined) $("#" + id).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "coffee-cart-event-quote.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+== value = pass_A; arms: accel (n=6, value/1000 lines 6.39), ambient (n=19, value/1000 lines 5.73), chip (n=18, value/1000 lines 2.88), garment (n=31, value/1000 lines 7.00), robofab (n=33, value/1000 lines 3.35), selfrep (n=24, value/1000 lines 8.23), simdesign (n=29, value/1000 lines 3.66)
+oracle (all budget on best arm selfrep): 164.5 value points per 20000 lines
+uniform       mean   98.9  95% CI [  97.7,  100.0]  (60% of oracle)
+greedy        mean  136.9  95% CI [ 135.5,  138.3]  (83% of oracle)
+thompson      mean  130.5  95% CI [ 129.3,  131.8]  (79% of oracle)
+knapsack-ucb  mean  109.2  95% CI [ 108.2,  110.2]  (66% of oracle)
+
+== value = pass_B; arms: accel (n=6, value/1000 lines 5.33), ambient (n=19, value/1000 lines 4.69), chip (n=18, value/1000 lines 2.60), garment (n=31, value/1000 lines 7.12), robofab (n=33, value/1000 lines 3.03), selfrep (n=24, value/1000 lines 5.28), simdesign (n=29, value/1000 lines 2.75)
+oracle (all budget on best arm garment): 142.4 value points per 20000 lines
+uniform       mean   82.1  95% CI [  81.0,   83.2]  (58% of oracle)
+greedy        mean  112.6  95% CI [ 110.9,  114.4]  (79% of oracle)
+thompson      mean  107.5  95% CI [ 105.8,  109.2]  (75% of oracle)
+knapsack-ucb  mean   88.4  95% CI [  87.5,   89.3]  (62% of oracle)
+
+== drift check: Spearman rho of order vs value per 1000 lines, within track (pass_A); negative = diminishing returns
+accel      n=  6 rho=+0.09
+ambient    n= 19 rho=-0.51
+chip       n= 18 rho=-0.36
+garment    n= 31 rho=-0.44
+robofab    n= 33 rho=-0.57
+selfrep    n= 24 rho=+0.42
+simdesign  n= 29 rho=-0.04

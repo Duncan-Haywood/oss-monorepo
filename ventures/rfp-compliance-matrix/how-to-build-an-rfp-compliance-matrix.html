@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Build an RFP Compliance Matrix</title>
+  <meta name="description" content="A compliance matrix is how proposal teams make sure no shall or must statement goes unanswered. What columns it needs, how to find the requirements, and the mistakes that make a bid non-responsive.">
+  <meta property="og:title" content="How to Build an RFP Compliance Matrix">
+  <meta property="og:description" content="Columns, method and common mistakes, plus a free extractor that does the first pass in your browser.">
+  <link rel="canonical" href="./how-to-build-an-rfp-compliance-matrix.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What columns should an RFP compliance matrix have?","acceptedAnswer":{"@type":"Answer","text":"At minimum: a requirement ID, the solicitation section it comes from, the requirement text, who owns the response, the proposal section that answers it, and a status. Many teams add a compliance level (fully, partially, not compliant) and a notes column for assumptions."}},{"@type":"Question","name":"How do I find every requirement in an RFP?","acceptedAnswer":{"@type":"Answer","text":"Read the instructions to offerors, the statement of work and the evaluation criteria separately. Mark every sentence with shall, must, is required to, or a contractor-subject will, split lists into one row per item, and keep prohibitions and desirable (should) items distinct from mandatory ones."}},{"@type":"Question","name":"What makes a proposal non-responsive?","acceptedAnswer":{"@type":"Answer","text":"Commonly: missing a mandatory requirement, exceeding a page limit, missing a signed form or an addendum acknowledgement, submitting late or through the wrong channel. Rules vary by buyer, so read the instructions to offerors for the consequences of each."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    .cta { display: inline-block; padding: 10px 14px; border-radius: 8px; background: #0b5d7a; color: #fff; text-decoration: none; font-weight: 650; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { border: 1px solid #8884; padding: .35rem .5rem; text-align: left; }
+    footer { margin-top: 2.5em; border-top: 1px solid #8884; padding-top: 16px; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; RFP compliance matrix generator</a></p>
+  <h1>How to build an RFP compliance matrix</h1>
+  <p>A compliance matrix is a table with one row per requirement in a solicitation. It exists for one reason: a proposal that skips a mandatory requirement can be scored non-responsive before anyone reads how good the rest is. The matrix is how a team proves to itself that every <em>shall</em> has an answer.</p>
+  <p><a class="cta" href="./">Paste your RFP and get a first-pass matrix</a></p>
+
+  <h2>The columns</h2>
+  <table>
+    <tr><th>Column</th><th>What goes in it</th></tr>
+    <tr><td>ID</td><td>A stable number (REQ-001). Reviewers refer to it in comments.</td></tr>
+    <tr><td>Source section</td><td>Where the requirement appears in the solicitation (3.2.1, L.4, Attachment B). Evaluators search by this.</td></tr>
+    <tr><td>Requirement</td><td>The sentence as written. Do not paraphrase; paraphrase is where obligations get softened.</td></tr>
+    <tr><td>Owner</td><td>One named person, not a team.</td></tr>
+    <tr><td>Proposal section</td><td>The page or heading in your response that answers it.</td></tr>
+    <tr><td>Status</td><td>Not started, drafted, reviewed, done.</td></tr>
+    <tr><td>Compliance</td><td>Fully, partially, or not compliant, with a note. Say "partially" in the matrix before the evaluator says it for you.</td></tr>
+  </table>
+
+  <h2>Finding the requirements</h2>
+  <ul>
+    <li><strong>Read three parts separately:</strong> the instructions to offerors (how to respond), the statement of work (what to deliver), and the evaluation criteria (how you will be scored). Requirements hide in all three.</li>
+    <li><strong>Mark the trigger words:</strong> shall, must, is required to, will (when the contractor is the subject). Treat <em>should</em> and <em>preferred</em> as desirable, and <em>shall not</em> as a prohibition.</li>
+    <li><strong>Split lists.</strong> "The Contractor shall: (a) ...; (b) ...; (c) ..." is three requirements, each of which can be missed separately.</li>
+    <li><strong>Ignore the buyer's own duties.</strong> "The County will evaluate proposals within 30 days" is not yours to answer.</li>
+    <li><strong>Pull instructions out separately.</strong> Page limits, fonts, copies, forms, the due date and the question deadline apply to the whole package. Check them once, at the end, with a fresh pair of eyes.</li>
+  </ul>
+
+  <h2>Mistakes that cost bids</h2>
+  <ul>
+    <li>Answering the scope and forgetting the forms: signed certifications, addendum acknowledgements, a notarised affidavit.</li>
+    <li>Counting pages after the layout changed, or using a smaller font than the instructions allow.</li>
+    <li>Treating a sentence with two obligations as one row.</li>
+    <li>Reading only the statement of work, when a requirement sits in the instructions or an attachment.</li>
+    <li>Not re-running the matrix after an addendum changes the text.</li>
+  </ul>
+
+  <h2>Doing the first pass in seconds</h2>
+  <p>Typing a hundred rows is the part nobody enjoys. The <a href="./">free extractor</a> does the first pass in your browser: it keeps the section number, splits lists, separates prohibitions and desirables, drops the buyer's duties, and exports a CSV with Owner and Status columns ready for the team. It is a heuristic, so check its output against the document. Nothing is uploaded, and there is a command-line version (see the README in the repository) for your own machine.</p>
+
+  <h2>Before the matrix: should you bid at all?</h2>
+  <p>The matrix is worth building once you have decided to bid. For the earlier go/no-go on deadlines, bonds, insurance and licences, use the <a href="../tender-bid-readiness/">tender bid readiness checker</a>, and to find tenders worth reading, <a href="../tender-radar/">Tender Radar</a>.</p>
+
+  <h2>Common questions</h2>
+  <h3>What columns should an RFP compliance matrix have?</h3>
+  <p>At minimum: a requirement ID, the solicitation section it comes from, the requirement text, who owns the response, the proposal section that answers it, and a status. Many teams add a compliance level (fully, partially, not compliant) and a notes column for assumptions.</p>
+  <h3>How do I find every requirement in an RFP?</h3>
+  <p>Read the instructions to offerors, the statement of work and the evaluation criteria separately. Mark every sentence with shall, must, is required to, or a contractor-subject will, split lists into one row per item, and keep prohibitions and desirable (should) items distinct from mandatory ones.</p>
+  <h3>What makes a proposal non-responsive?</h3>
+  <p>Commonly: missing a mandatory requirement, exceeding a page limit, missing a signed form or an addendum acknowledgement, submitting late or through the wrong channel. Rules vary by buyer, so read the instructions to offerors for the consequences of each.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and tool are provided free and as-is, without warranty of any kind. Not legal or procurement advice; you are responsible for verifying everything against the solicitation and any addenda. Best-effort hosting, no SLA.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> &mdash; optional. MIT licensed.</p>
+  </footer>
+</body>
+</html>

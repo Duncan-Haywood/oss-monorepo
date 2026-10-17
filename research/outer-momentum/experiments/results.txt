@@ -1,0 +1,32 @@
+E1 inner steps precondition the outer problem, kappa=1000, eta=1/a_max: H, kappa_H, kappa/H, tuned HB rate, plain-average rate
+ H=    1 kappa_H  1000.00 kappa/H  1000.00  HB 0.9387  avg 0.9980
+ H=    4 kappa_H   250.38 kappa/H   250.00  HB 0.8811  avg 0.9920
+ H=   16 kappa_H    62.97 kappa/H    62.50  HB 0.7762  avg 0.9687
+ H=   64 kappa_H    16.12 kappa/H    15.62  HB 0.6012  avg 0.8832
+ H=  256 kappa_H     4.43 kappa/H     3.91  HB 0.3556  avg 0.6314
+ H= 1024 kappa_H     1.56 kappa/H     0.98  HB 0.1107  avg 0.2187
+ H= 4096 kappa_H     1.02 kappa/H     0.24  HB 0.0042  avg 0.0084
+
+E2 literal simulation vs exact rate (kappa=200 log-grid of 12 modes, 200-round window)
+ heavy    alpha=0.9 beta=0.6 H=  1 exact 0.9886 simulated 0.9885
+ heavy    alpha=0.9 beta=0.6 H=  7 exact 0.9086 simulated 0.9086
+ heavy    alpha=0.9 beta=0.6 H= 40 exact 0.7746 simulated 0.7739
+ nesterov alpha=0.7 beta=0.9 H=  1 exact 0.9470 simulated 0.9467
+ nesterov alpha=0.7 beta=0.9 H=  7 exact 0.9372 simulated 0.9411
+ nesterov alpha=0.7 beta=0.9 H= 40 exact 0.8863 simulated 0.8863
+
+E3 fixed DiLoCo outer optimiser (Nesterov 0.7/0.9) vs retuned heavy ball, kappa=1000: rounds to 1e-6
+ H=    1 default rate 0.9925 rounds  1845.8 | tuned rate 0.9387 rounds  218.4 (alpha*=3.76 beta*=0.881) | slowdown x8.5
+ H=   16 default rate 0.9434 rounds   237.1 | tuned rate 0.7762 rounds   54.5 (alpha*=3.15 beta*=0.602) | slowdown x4.3
+ H=   64 default rate 0.9279 rounds   184.5 | tuned rate 0.6012 rounds   27.2 (alpha*=2.56 beta*=0.361) | slowdown x6.8
+ H=  256 default rate 0.8704 rounds    99.6 | tuned rate 0.3556 rounds   13.4 (alpha*=1.84 beta*=0.126) | slowdown x7.5
+ H= 1024 default rate 0.7044 rounds    39.4 | tuned rate 0.1107 rounds    6.3 (alpha*=1.23 beta*=0.012) | slowdown x6.3
+
+E4 optimal sync interval H* for wallclock = rounds x (H + C), eps=1e-6
+ kappa    C   H*(mom)  time    H=1 time  speedup | H*(plain avg)  time
+   1000   10      10     1380      2402   x  1.7 |      152      7879
+   1000  100     104     4331     22055   x  5.1 |      579      9940
+   1000 1000    1697    12480    218588   x 17.5 |     4000     14741
+  10000   10      10     4368      7598   x  1.7 |      457     72163
+  10000  100     100    13804     69766   x  5.1 |     1522     78827
+  10000 1000    1035    43319    691443   x 16.0 |     5791     99439

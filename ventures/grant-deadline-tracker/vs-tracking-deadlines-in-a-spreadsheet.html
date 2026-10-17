@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tracker vs. tracking grant deadlines in a spreadsheet | Grant Deadline Tracker</title>
+  <meta name="description" content="A spreadsheet formula for a repeating report date is set once, for the first due date, and stops being right the moment an earlier period is missed. This free tracker recomputes the current — possibly overdue — period every time, in your browser, with no account.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-tracking-deadlines-in-a-spreadsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This tracker vs. tracking grant deadlines in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet's =EDATE(award_date,6) formula names the first report date and never moves again. This tracker recomputes the current, possibly overdue, period every time you open it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a hand-kept grant deadline spreadsheet usually get wrong?","acceptedAnswer":{"@type":"Answer","text":"Its due-date formula is set once, against the award start date, and names the first report in the series — an =EDATE(award_date, 6) style formula returns one date and never advances on its own. If that first report is filed on time the sheet stays right by luck: the next cell is usually a copy of the same formula shifted by hand. If a period is ever missed, or a whole sheet inherited mid-award, the formula still points at whichever period someone last computed, not the one that is actually due now."}},{"@type":"Question","name":"Can you show a real example of the mismatch?","acceptedAnswer":{"@type":"Answer","text":"An award started 2025-01-01 with a 6-month reporting interval. Checked on 2026-08-26, three periods have already passed: 2025-07-01, 2026-01-01, and 2026-07-01. A spreadsheet formula anchored to the award date alone reports the first due date, 2025-07-01, forever — it has no way to know two more periods have since come and gone. This tracker walks the interval forward from the award date and reports 2026-07-01: the current period, already overdue, not the one the award started with."}},{"@type":"Question","name":"Isn't a spreadsheet fine once someone updates the date by hand?","acceptedAnswer":{"@type":"Answer","text":"For one report cycle, yes. The risk is not writing the formula once — it is that nothing prompts anyone to advance it again after a coordinator changes roles, a sheet is inherited mid-award, or a period is simply missed. A cell reading 2025-07-01 looks exactly as authoritative the day it is a year stale as the day it was written. This tracker has no stored date to go stale: the current period is recomputed from the award date and interval every time the page runs."}},{"@type":"Question","name":"Does this tracker replace a spreadsheet entirely?","acceptedAnswer":{"@type":"Answer","text":"For finding the current reporting period and the cash at risk if it slips, yes — that is the one job it does. It keeps no ledger of every past report, correspondence, or budget line beyond what you type in for the awards on screen. A bookkeeper who wants a full multi-year award ledger, not just the next deadline and the money behind it, still has reasons to keep a spreadsheet alongside it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #18221d; background: #f3f5ef; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #176b53; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fff; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4c8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5d685f; }
+    code { background: #e6eee5; padding: .1em .3em; border-radius: 4px; }
+    .note, .fine { font-size: .85rem; color: #5d685f; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5d685f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Grant Deadline Tracker</a></p>
+  <h1>This tracker vs. tracking grant deadlines in a spreadsheet</h1>
+  <p>
+    A spreadsheet is how most nonprofit coordinators already do this, and it
+    can work for one report: a column for the award date, a column for the
+    interval, and a formula like <code>=EDATE(award_date, 6)</code> that names
+    the first report date. The problem is not the spreadsheet &mdash; it is
+    that the formula names one date and never advances again on its own.
+  </p>
+  <p>
+    If that first report is filed on time, the next cell is usually a copy of
+    the same formula, shifted by hand, and the sheet stays right by habit. The
+    moment a period is missed, a coordinator changes roles, or a sheet is
+    inherited mid-award, the formula still points at whichever period someone
+    last computed &mdash; not the one that is actually due today.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">What a spreadsheet formula does</th><th scope="col">What this tracker does instead</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Names the first due date from the award date and interval, and stays on that date until someone edits the cell by hand.</td>
+        <td>Recomputes the current &mdash; possibly overdue &mdash; period from the award date and interval every time the page runs, with no stored date to go stale.</td>
+      </tr>
+      <tr>
+        <td>Has no way to tell "on schedule" from "several periods behind"; a missed report just leaves the same formula pointing at the wrong date.</td>
+        <td>Flags an obligation overdue, due soon, or upcoming, and sorts overdue items to the top of the list.</td>
+      </tr>
+      <tr>
+        <td>Tracks the dollar amount at risk, if at all, as a separate manual figure nobody recalculates when the spent total changes.</td>
+        <td>Turns the award, spent amount, and next installment into a dollar figure at risk, and compares filing it yourself against hiring a contract writer.</td>
+      </tr>
+      <tr>
+        <td>Needs a separate calendar entry, made and maintained by hand, to get a reminder before the date arrives.</td>
+        <td>Exports every obligation as an .ics calendar file with a three-day-ahead reminder built in.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    A worked example. An award started 2025-01-01 with a 6-month reporting
+    interval, checked on 2026-08-26. Three periods have already passed:
+    2025-07-01, 2026-01-01, and 2026-07-01. A spreadsheet formula anchored
+    only to the award date reports the first of those, 2025-07-01, forever
+    &mdash; it has no mechanism to notice that two more periods have since
+    come and gone. This tracker walks the interval forward from the award
+    date and reports <strong>2026-07-01</strong>: the current period, already
+    overdue, not the one the award started with.
+  </p>
+  <p class="note">
+    It needs no account and no sign-in: it is a static page, the arithmetic
+    runs in your browser, and nothing you type is ever sent anywhere.
+  </p>
+  <section>
+    <h2>Common questions</h2>
+    <h3>What does a hand-kept grant deadline spreadsheet usually get wrong?</h3>
+    <p>Its due-date formula is set once, against the award start date, and names the first report in the series &mdash; an <code>=EDATE(award_date, 6)</code> style formula returns one date and never advances on its own. If that first report is filed on time the sheet stays right by luck: the next cell is usually a copy of the same formula shifted by hand. If a period is ever missed, or a whole sheet inherited mid-award, the formula still points at whichever period someone last computed, not the one that is actually due now.</p>
+    <h3>Can you show a real example of the mismatch?</h3>
+    <p>An award started 2025-01-01 with a 6-month reporting interval. Checked on 2026-08-26, three periods have already passed: 2025-07-01, 2026-01-01, and 2026-07-01. A spreadsheet formula anchored to the award date alone reports the first due date, 2025-07-01, forever &mdash; it has no way to know two more periods have since come and gone. This tracker walks the interval forward from the award date and reports 2026-07-01: the current period, already overdue, not the one the award started with.</p>
+    <h3>Isn't a spreadsheet fine once someone updates the date by hand?</h3>
+    <p>For one report cycle, yes. The risk is not writing the formula once &mdash; it is that nothing prompts anyone to advance it again after a coordinator changes roles, a sheet is inherited mid-award, or a period is simply missed. A cell reading 2025-07-01 looks exactly as authoritative the day it is a year stale as the day it was written. This tracker has no stored date to go stale: the current period is recomputed from the award date and interval every time the page runs.</p>
+    <h3>Does this tracker replace a spreadsheet entirely?</h3>
+    <p>For finding the current reporting period and the cash at risk if it slips, yes &mdash; that is the one job it does. It keeps no ledger of every past report, correspondence, or budget line beyond what you type in for the awards on screen. A bookkeeper who wants a full multi-year award ledger, not just the next deadline and the money behind it, still has reasons to keep a spreadsheet alongside it.</p>
+    <p class="fine">Nothing here says or implies that tracking grant deadlines in a spreadsheet is a mistake &mdash; it is the default most small nonprofits already use, and it works until a period is missed or a sheet changes hands. This page describes where that shortcut breaks down, not a fault in anyone who uses it. The 2025-01-01 / 6-month example above is this tracker's own arithmetic on the example described in this page, not a claim about any specific organization's real award.</p>
+  </section>
+  <p class="note">
+    Open the <a href="./">Grant Deadline Tracker</a> to add your own awards
+    and reporting dates.
+  </p>
+  <footer>
+    <p><strong>Use it safely.</strong> This is a planning record, not a grant compliance determination or filing service. Review dates and amounts against the funder's award documents.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

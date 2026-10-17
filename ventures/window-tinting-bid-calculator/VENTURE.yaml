@@ -1,0 +1,32 @@
+name: window-tinting-bid-calculator
+description: Free browser calculator for independent auto window tinting installers to price a vehicle film job from which windows are actually being tinted, film tier, cutting waste, installer rate, booth overhead, and old-tint removal time, then compares the result against a flat per-vehicle price for the same job.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent tint installers currently quote off a flat per-vehicle-size price or gut feel, and a pane-and-film-driven price for the exact same job diverges from that flat price often enough (in either direction) that seeing the gap changes how they write the quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Which windows are actually being tinted (a scope-light two-window job vs. a full seven-window kit) and whether old tint has to be stripped first are the genuinely counter-intuitive parts rather than merely tedious, because a flat per-vehicle-size price treats every job in that class the same when removal alone can add 30+ minutes on a single pane.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Search and community demand exists for tint-specific pricing help ("how much to charge for window tinting", "window tint pricing calculator", r/WindowTint and installer-forum discussion of pricing) that a free, no-account tool can capture without paid acquisition.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Installers report the pane-count/film-tier/removal distinction is not news -- the trade already prices it that way -- and the flat-per-vehicle framing this tool argues against is not what real bids look like.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/window-tinting-bid-calculator/
+  analytics: null

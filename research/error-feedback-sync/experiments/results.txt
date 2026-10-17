@@ -1,0 +1,61 @@
+== 1. Exact moment system vs literal simulation (one mode s=0.5, V=0.2; 300k rounds) ==
+N   alpha  rho    E x^2 exact  sim       ratio   E e^2 exact  sim       ratio
+4   0.50   0.25   0.05349      0.05376   1.005   0.7709       0.7690    0.997
+16  0.80   0.10   0.06049      0.06054   1.001   2.3680       2.3542    0.994
+8   0.60   0.50   0.02250      0.02265   1.007   0.2125       0.2136    1.005
+16  1.50   0.25   0.08139      0.08217   1.010   0.7253       0.7255    1.000
+
+== 2. Closed forms: stability limit z_max = 2(2-rho)N rho/(N rho^2 + 4(1-rho)) (z = alpha s) and floor ==
+N     rho    z_max EF   z_max unbiased 2/(1+w/N)   uncompressed
+1     0.50   0.667      1.000                       2
+1     0.25   0.286      0.500                       2
+1     0.05   0.051      0.100                       2
+4     0.50   2.000      1.600                       2
+4     0.25   1.077      1.143                       2
+4     0.05   0.205      0.348                       2
+16    0.50   4.000      1.882                       2
+16    0.25   3.500      1.684                       2
+16    0.05   0.813      0.914                       2
+64    0.50   5.333      1.969                       2
+64    0.25   8.000      1.910                       2
+64    0.05   3.152      1.542                       2
+1000  0.50   5.952      1.998                       2
+1000  0.25   13.359     1.994                       2
+1000  0.05   30.952     1.963                       2
+max relative gap closed form vs solved 4x4 system over the grid: 2.8e-13
+bisection z_max check (N=4, rho=0.25): 1.076923 vs closed 1.076923
+
+== 3. Floor at equal expected bytes, homogeneous quadratic (N=16), relative to uncompressed at the same alpha ==
+rho    alpha  unbiased  EF       dropped   dropped at alpha/rho (same mean speed as uncompressed)
+0.25   0.05   4.01      1.075    0.991     4.010 (alpha/rho=0.20)
+0.25   0.20   4.04      1.292    0.964     4.040 (alpha/rho=0.80)
+0.25   0.50   4.11      1.700    0.909     4.110 (alpha/rho=2.00)
+0.10   0.05   10.07     1.226    0.989     10.072 (alpha/rho=0.50)
+0.10   0.20   10.31     1.912    0.957     10.305 (alpha/rho=2.00)
+0.10   0.50   10.87     3.333    0.892     10.874 (alpha/rho=5.00)
+
+== 4. Bias: workers with optima b_i sending at unequal rates rho_i (s=0.5, V=0.05, 6 workers) ==
+true mean of optima 0.4167; rate-weighted mean 0.4902
+alpha  dropped: mean   var      MSE      | EF: mean     var      MSE
+0.400  0.4903        0.00651  0.01193  | 0.4167      0.58756  0.58756
+0.100  0.4903        0.00158  0.00700  | 0.4167      0.05944  0.05944
+0.030  0.4903        0.00047  0.00590  | 0.4167      0.00673  0.00673
+0.010  0.4903        0.00016  0.00558  | 0.4167      0.00086  0.00086
+0.003  0.4903        0.00005  0.00547  | 0.4167      0.00010  0.00010
+
+== 5. Top-k (state-dependent, no closed form) vs rand-k, D=8 modes with V_j = 0.02*2^(j/1.5), N=8, s=0.6, alpha=0.5, k=2 ==
+loss (sum s/2 Var x, with s/2 weights): uncompressed 0.04101
+  rand-k unbiased        0.17568  = 4.28x uncompressed
+  rand-k dropped         0.03676  = 0.90x uncompressed
+  rand-k + EF (exact)    0.07793  = 1.90x uncompressed
+  top-k dropped (sim)    0.03979  = 0.97x uncompressed
+  top-k + EF (sim)       0.04515  = 1.10x uncompressed
+
+== 6. Speed: slow eigenvalue of the mean dynamics (N -> infinity), x' = x - alpha rho (e + s x), e' = (1-rho)(e + s x) ==
+alpha s  rho    dominant |eigenvalue|  1 - alpha s (uncompressed)   dropped: 1 - alpha rho s
+0.02     0.25   0.9786           0.9800                       0.9950
+0.02     0.05   0.9747           0.9800                       0.9990
+0.10     0.25   0.8660           0.9000                       0.9750
+0.10     0.05   0.9747           0.9000                       0.9950
+0.40     0.25   0.8660           0.6000                       0.9000
+0.40     0.05   0.9747           0.6000                       0.9800

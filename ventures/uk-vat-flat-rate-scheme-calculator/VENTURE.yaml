@@ -1,0 +1,38 @@
+name: uk-vat-flat-rate-scheme-calculator
+description: >-
+  Free browser tool for UK VAT-registered small businesses: compare the VAT Flat Rate Scheme (sector percentage, 1% first-year discount, 16.5% limited cost trader rate) with standard VAT accounting and see which leaves less VAT to pay HMRC. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no existing venture covers the VAT Flat Rate Scheme (uk-vat-registration-checker covers the registration threshold only, eu-vat-oss-calculator is EU one-stop-shop).
+#
+# First visitor: a UK freelancer, contractor or small trader who has just registered for VAT (or is advised to "join the flat rate scheme") searching "VAT flat rate scheme calculator", "limited cost trader 16.5% test", "flat rate or standard VAT", "flat rate scheme percentage by trade".
+# Evergreen with a spike around VAT registration; volume not measured. Rivals are accountancy-firm blog posts and bookkeeping-app calculators that hide the limited cost trader test.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: quarterly VAT-return comparison tracker behind an env-var switch.
+#
+# Liability: sector percentages and thresholds are from GOV.UK VAT Notice 733 as remembered without network access this session; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses. Whether the first-year 1% applies to the 16.5% limited cost rate is flagged as an assumption to verify.
+hypotheses:
+  - claim: >-
+      Newly VAT-registered UK small businesses will use a free calculator to check whether the Flat Rate Scheme beats standard VAT, and the limited cost trader test will change some decisions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a percentage or threshold differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-vat-flat-rate-scheme-calculator/
+  analytics: null

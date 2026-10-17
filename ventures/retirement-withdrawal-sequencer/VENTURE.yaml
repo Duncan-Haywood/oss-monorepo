@@ -1,0 +1,61 @@
+name: retirement-withdrawal-sequencer
+description: >-
+  Free browser tool for people near or in retirement: enter taxable,
+  traditional and Roth balances, spending, Social Security and pension, and get
+  a year-by-year plan under 2026 US tax rules that compares withdrawal orders
+  and bracket-filling Roth-conversion strategies, ranked by what is left after
+  tax and by lifetime tax paid, re-run at lower returns. CSV schedule. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py closest was
+# backdoor-roth-pro-rata-calculator at 0.20 (a single-year pro-rata rule); the
+# nearest same-audience tools are roth-conversion-bracket-fill-calculator (one
+# year, one bracket) and rmd-calculator (one number). This one simulates the
+# whole retirement and compares sequencing policies, which none of them do.
+# Competing products are paid planners and advisor-sold software (per-seat
+# subscriptions); the gap is a private, signup-free whole-plan comparison.
+#
+# First visitor: searches "which account to withdraw from first in retirement",
+# "retirement withdrawal order calculator", "roth conversion ladder calculator",
+# "fill the 12% bracket", "tax torpedo social security"; r/financialindependence,
+# Bogleheads and r/retirement threads. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed balances under stated 2026 rules;
+# never recommends a specific action or product, says plainly it is not tax or
+# investment advice and lists what is not modelled; balances never leave the
+# browser (tests assert no network calls); no vendor named. The capital-gains
+# thresholds and RMD table are flagged unverified on the page.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved plans, survivor-year modelling, Monte Carlo returns
+# and an advisor white-label; not built.
+
+hypotheses:
+  - claim: >-
+      Pre-retirees with most savings in traditional accounts will run a private,
+      no-signup whole-retirement comparison of withdrawal orders and Roth
+      conversions, find that the textbook order is not the best for them, and
+      come back when their balances or the tax rules change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a tax figure that disagrees with the IRS rules the page states, and it is not fixed within 30 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/retirement-withdrawal-sequencer/
+  analytics: null

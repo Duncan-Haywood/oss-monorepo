@@ -1,0 +1,31 @@
+Setup: n=8 workers, curvatures a=[4.0, 3.0, 2.0, 1.0, 0.5, 0.5, 0.25, 0.25], optima c=[1.0, 0.5, -0.5, 1.5, -2.0, -1.0, 3.0, 2.0], eta=0.05. Global optimum (a-weighted) = 0.5000, unweighted mean of c = 0.5625
+
+E1. Fixed-point bias of plain averaging vs local steps H
+H                1        2        5       10       20       50      100      500     5000
+bias       -0.0000  -0.0099  -0.0355  -0.0657  -0.0939  -0.0917  -0.0447   0.0616   0.0625
+H->inf limit (unweighted mean - optimum) = 0.0625; range of c = 5.00
+worker weights w_i at H=1 / 20 / 500:
+  H=1   0.2000 0.1500 0.1000 0.0500 0.0250 0.0250 0.0125 0.0125
+  H=20  0.9885 0.9612 0.8784 0.6415 0.3973 0.3973 0.2224 0.2224
+  H=500 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 0.9981 0.9981
+
+E2. Corrected aggregation p_i ~ a_i / w_i (needs curvature knowledge): bias and contraction
+H=5    plain bias  -0.0355  corrected bias  1.11e-16  contraction plain 0.7220 corrected 0.6914
+H=50   plain bias  -0.0917  corrected bias  0.00e+00  contraction plain 0.2141 corrected 0.0843
+H=500  plain bias   0.0616  corrected bias  1.11e-16  contraction plain 0.0005 corrected 0.0001
+
+E3. Wall-clock optimal H under a bias tolerance (t_step=1, t_comm=C, contract error by 1e-3)
+C=5.0   tol=0.01: H*=140 t=335 | tol=0.05: H*=7 t=194 | tol=0.2: H*=12 t=184 | H=1 t=556
+C=20.0  tol=0.01: H*=140 t=370 | tol=0.05: H*=95 t=344 | tol=0.2: H*=29 t=304 | H=1 t=1945
+C=100.0 tol=0.01: H*=168 t=546 | tol=0.05: H*=289 t=538 | tol=0.2: H*=302 t=538 | H=1 t=9354
+C=500.0 tol=0.01: H*=168 t=1362 | tol=0.05: H*=289 t=1091 | tol=0.2: H*=1000 t=742 | H=1 t=46398
+
+E4. Heterogeneous speeds: fixed wall-clock window W, worker i does H_i = s_i * W steps (speeds s = 1..); bias and inflation
+steps per round [20, 20, 10, 10, 5, 5, 5, 5]; bias 0.0037; same total steps spread evenly (H=10) bias -0.0657
+worker 4 (a=0.5, c=-2.0): claims steps 5->x*=0.5037  20->x*=0.3122  100->x*=0.0217  1000->x*=-0.0162  
+worker 6 (a=0.25, c=3.0): claims steps 5->x*=0.5037  20->x*=0.6181  100->x*=0.9106  1000->x*=1.0487  
+
+E5. Monte Carlo check of the noise formulas (sigma=0.5, 40000 rounds; 15000 at H=30)
+H=1   mean sim   0.4998 vs exact   0.5000; var sim 0.00057 vs exact 0.00056
+H=6   mean sim   0.4574 vs exact   0.4573; var sim 0.00066 vs exact 0.00066
+H=30  mean sim   0.3996 vs exact   0.3998; var sim 0.00105 vs exact 0.00104

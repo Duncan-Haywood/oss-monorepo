@@ -1,0 +1,81 @@
+name: google-play-earnings-report-analyzer
+description: >-
+  Free browser tool that turns a Google Play Console Earnings report CSV into net
+  earnings by product, product type, country and month, the effective Google fee
+  overall and per product type, refunds netted out with a refund rate per
+  product, monthly trend and findings on concentration. Handles the older
+  Estimated sales report with a labelled fee estimate. The file is read locally
+  and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, as the Android counterpart to
+# app-store-sales-report-analyzer (merged the same day). Indie Android developers
+# get a transaction-level Earnings CSV from Play Console with a fee row per charge,
+# and the console's own graphs do not show effective fee by product type, refund
+# rate per product or a per-country net. Existing answers are spreadsheets and
+# analytics products (AppFigures, RevenueCat, Sensor Tower) that want an API key or
+# login.
+#
+# First visitor: r/androiddev and r/indiedev threads asking how to read the
+# earnings report, "google play service fee 15% vs 30%", "play console earnings
+# report analysis". Volume not measured with an external tool.
+#
+# What makes it more than a sum: the fee is read from the file's own fee rows and
+# shown per product type so the 15% versus 30% tier is visible; refunds and fee
+# refunds net together; every group table reconciles to the same net figure (a
+# test asserts it); an Estimated sales report with no fee rows gets a typed fee %
+# and every dependent figure is labelled an estimate; groups under five charges
+# never drive a finding.
+#
+# Privacy is the differentiator and the liability boundary: the report never
+# leaves the browser (a test asserts no network calls) and buyer location and
+# order fields are never read, so the portfolio holds no developer financial data
+# and asks for no API access.
+#
+# Path to revenue (payment rails stay off): lead magnet, with reciprocal links to
+# app-store-sales-report-analyzer and subscription-price-impact. A paid version, if
+# usage appears, is a multi-month history and iOS-plus-Android combined view behind
+# an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and typed assumptions, model and
+# omissions stated on the page, no tax or financial advice, no warranty,
+# independent-of-Google clause.
+#
+# Unverified: column names and transaction wording are from memory of Play
+# Console reports and matched by alias; no real report was available, so the first
+# user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Indie Android developers will run a no-login analysis of the Earnings
+      report they already download to see effective fee, refunds and net by
+      product before paying for an analytics product that needs API access.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing effective fee by product type and refund rate by product leads at
+      least one developer to act (check fee tier, fix a refund-heavy product),
+      which is the reason to return with each new monthly report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real report the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/google-play-earnings-report-analyzer/
+  analytics: null

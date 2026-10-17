@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "race-heterogeneity"
+version = "0.1.0"
+description = "Paying the first k of n workers when workers differ in speed cost: two-type exponential race, elasticity fixed point for equilibrium speeds, discouragement of slow workers, and convex speed costs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,38 @@
+name: uk-ir35-inside-outside-calculator
+description: >-
+  Free browser tool for UK contractors: compare take-home pay outside IR35 (own limited company with the best salary and dividend split) and inside IR35 (umbrella), and find the inside-IR35 day rate that matches, 2026/27 rates. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13. duplicate_check.py found no IR35 tool (closest 0.46, unrelated). Sibling of uk-sole-trader-vs-limited-company-calculator, whose tax functions it reuses.
+#
+# First visitor: a UK contractor handed an "inside IR35" rate by an agency or client, searching "inside IR35 day rate equivalent" / "IR35 calculator" and wanting the rate to counter with.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: contract-by-contract comparison with pension and multi-year modelling, behind an env-var switch.
+#
+# Liability: rates summarised from published 2026/27 sources; the page links the official source, does not decide IR35 status, and says it is an estimate, not advice.
+
+hypotheses:
+  - claim: >-
+      UK contractors offered an inside-IR35 rate will use a free calculator that shows the day rate needed to match their outside-IR35 take-home.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A UK accountant reports a rate or the inside-IR35 mechanics on the page are wrong for 2026/27.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-ir35-inside-outside-calculator/
+  analytics: null

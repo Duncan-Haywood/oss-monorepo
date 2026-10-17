@@ -1,0 +1,44 @@
+name: phone-repair-shop-profit-calculator
+description: >-
+  Free browser calculator for independent phone repair shops: enter screen, port and micro-soldering prices, bench minutes, supplies, technician pay, equipment and rent, and see
+  profit per job and per bench hour, the price each job needs for a target margin, what a prepaid protection plan earns per visit, break-even volume and the
+  season at different volumes against the bench hours available. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models a phone or device repair shop (checked ventures/ by name). Screen swaps, port repairs
+# and board-level repairs share one technician's bench hours, demand spikes after new-model launches and holiday gifting, and some shops sell a
+# prepaid protection plan. Not in screened-out.md.
+#
+# First visitor: independent phone repair shop owners searching "how much to charge for screen repair", "phone repair shop profit" and
+# "phone repair shop pricing". Timing: after fall phone launches and holiday gifting. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Phone repair shop owners will type a season's jobs, bench minutes and fixed costs into a no-signup calculator to set screen, port and micro-soldering prices and to decide
+      on a prepaid protection plan, because most price by copying the shop down the road and never cost the bench hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/phone-repair-shop-profit-calculator/
+  analytics: null

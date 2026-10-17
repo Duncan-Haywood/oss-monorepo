@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-minwall"
+version = "0.1.0"
+description = "Does relaxing the 1.2 mm minimum wall open thinner sheet gauges for the laser-cut bracket, or is the buckling floor what binds?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contest-precision"
+version = "0.1.0"
+description = "Holdout precision and effort in noisy training contests: exact effort law, a precision ceiling beyond which no pure equilibrium exists, and the optimal holdout size"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

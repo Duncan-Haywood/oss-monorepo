@@ -1,0 +1,41 @@
+robot: L=1.0 m, W=0.5 m, circumscribed diameter 1.1180 m; heading error theta ~ N(0, sigma^2)
+
+[1] closed-form pass probability vs Monte Carlo over corner geometry (60000 draws)
+gap_m sigma_rad exact   mc     theta*_rad
+0.55   0.05      0.6891  0.6877  0.0507
+0.60   0.05      0.9603  0.9608  0.1028
+0.70   0.10      0.9667  0.9680  0.2129
+0.80   0.15      0.9739  0.9728  0.3338
+0.90   0.30      0.8844  0.8851  0.4720
+
+[2] pass probability vs gap at sigma=0.05: real vs circle twins
+inscribed r=0.250; circumscribed r=0.5590; calibrated (95% at sigma=0.05) r=0.2977 (gap 0.5954)
+gap_m  real    inscribed circumscribed calibrated
+0.50  0.0000  1         0            0
+0.52  0.3124  1         0            0
+0.54  0.5811  1         0            0
+0.56  0.7773  1         0            0
+0.58  0.8980  1         0            0
+0.60  0.9603  1         0            1
+0.70  1.0000  1         0            1
+0.80  1.0000  1         0            1
+0.90  1.0000  1         0            1
+0.99  1.0000  1         0            1
+
+[3] gap needed for 95% pass vs heading-error scale; calibrated twin fixed at its sigma=0.05 gap
+calibrated twin gap 0.5954 m
+sigma  real_gap  twin_gap_error_m  real_pass_at_twin_gap
+0.02   0.5388    +0.0566           1.0000
+0.05   0.5954    +0.0000           0.9500
+0.10   0.6852    -0.0897           0.6729
+0.15   0.7683    -0.1729           0.4865
+0.20   0.8441    -0.2487           0.3759
+0.30   0.9707    -0.3753           0.2561
+
+[4] n-gap missions (independent heading errors, sigma=0.05, gap = calibrated twin gap)
+n   real_mission_success  twin_says  gap_needed_for_95%_mission
+ 1  0.9500               1.0000     0.5954
+ 3  0.8574               1.0000     0.6155
+ 5  0.7738               1.0000     0.6240
+10  0.5987               1.0000     0.6346
+20  0.3585               1.0000     0.6446

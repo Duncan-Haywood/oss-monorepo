@@ -1,0 +1,98 @@
+name: solo-401k-contribution-calculator
+description: >-
+  Free browser calculator computing the 2026 Solo 401(k) contribution limit
+  for a sole proprietor or single-member LLC: employee elective deferral
+  (up to $24,500, or $32,500/$35,750 with the standard or SECURE 2.0
+  enhanced age-60-63 catch-up), employer profit-sharing contribution (20%
+  of net self-employment earnings, itself net profit minus half of
+  self-employment tax), and the combined Section 415(c) overall limit
+  ($72,000/$80,000/$83,250). Accounts for elective-deferral room already
+  used at a separate W-2 job's plan. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-28 new-venture-first session (no build-now
+# candidate in candidates.yaml -- all 60 already graduated or
+# probe/park-status per validate_candidates.py -- so per DIRECTION.md's
+# standing owner direction a fresh gate-cleared niche ranks ahead of a
+# parity feature on an existing product). duplicate_check.py scored every
+# venture, screened-out row, and pipeline candidate at 0.25 or below for
+# the final description above -- well under the 0.45 review bar. The
+# closest existing venture, mega-backdoor-roth-calculator, is a different
+# plan type (after-tax contributions inside a large employer's 401(k), not
+# a self-employed retirement plan) with a different audience (W-2
+# employees at large tech employers vs. the self-employed) and a different
+# eligibility mechanism entirely. hsa-contribution-limit-calculator is a
+# different account type. Neither screened-out.md nor
+# ventures/ai-first-markets/src/data/ideas.ts mentions Solo 401(k), SEP-IRA,
+# or self-employed retirement contributions at all.
+#
+# Distribution channel, named rather than assumed: year-end tax planning
+# (Solo 401(k)s must be *opened* by December 31, though the employer
+# contribution can be funded until the tax filing deadline) drives a
+# predictable Q4 search spike for "solo 401k contribution limit 2026",
+# "how much can I contribute to my solo 401k", and "solo 401k calculator" --
+# this session confirmed the underlying figures changed again this year
+# (the employee deferral, both catch-ups, the overall limit, the
+# compensation limit, and the Social Security wage base all re-index
+# annually) via WebSearch and WebFetch against IRS.gov's own contribution-
+# limits page, Fidelity's solo-401(k) guide, and the Social Security
+# Administration's own 2026 COLA fact sheet. No external search-volume tool
+# was queried to confirm magnitude, matching this pipeline's standing
+# caveat for every checker at graduation.
+#
+# Liability: same shape and mitigation as hsa-contribution-limit-calculator
+# and mega-backdoor-roth-calculator (a numeric limit applied to published
+# federal figures, heavy explicit disclosure of scope). The riskiest
+# failure mode is a user over-contributing based on a wrong employer-share
+# calculation and owing excise tax on the excess, so the page states the
+# sole-proprietor-only scope in three places (the "what this does not
+# cover" section, the FAQ, and a standing finding on every result) rather
+# than only stating the benefit, and explicitly calls out that an S-corp or
+# partnership needs a different formula. Every dollar figure and rate was
+# verified against two independent named sources plus the IRS's own
+# retirement-topics page and the SSA's own wage-base announcement before
+# being committed.
+
+hypotheses:
+  - claim: >-
+      A self-employed sole proprietor or single-member LLC owner
+      maximizing retirement savings near year-end will search "solo 401k
+      contribution limit 2026" or "how much can I put in my solo 401k" and
+      return to a free, no-signup calculator that handles the
+      self-employment-tax-adjusted employer contribution correctly, rather
+      than working through IRS Publication 560's worksheet by hand or
+      guessing at the 20% effective rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A user who also has a W-2 job with its own 401(k) will be surprised
+      that the elective-deferral limit is shared across both plans rather
+      than doubled, and will use the "already deferred elsewhere" input to
+      find their true remaining room before over-contributing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page applies a fixed formula to the
+  # numbers the user types in (nothing uploaded, nothing fetched). Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports over-contributing (or under-contributing) based on this tool's output despite the disclaimers, at which point the disclosure wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/solo-401k-contribution-calculator/
+  analytics: null

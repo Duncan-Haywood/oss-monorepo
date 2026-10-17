@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an Auth Provider by Monthly Active Users</title>
+  <meta name="description" content="Why hosted authentication bills jump at certain user counts, what a monthly active user means at each vendor, and what usually costs more than the per-user line.">
+  <link rel="canonical" href="./how-to-choose-an-auth-provider-by-mau.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When does authentication become expensive?", "acceptedAnswer": {"@type": "Answer", "text": "Most hosted providers are free below a user count and then charge per monthly active user. The jump is in the pricing model, not the user count itself: a provider that is free to 50,000 users can cost nothing where another charges hundreds of dollars a month."}}, {"@type": "Question", "name": "What counts as a monthly active user?", "acceptedAnswer": {"@type": "Answer", "text": "Vendors define it differently: a user who signs in, a user who refreshes a token, or any user with an active session in the month. Read each definition before comparing, because the same app can have a different MAU count under each."}}, {"@type": "Question", "name": "What usually costs more than the per-user line?", "acceptedAnswer": {"@type": "Answer", "text": "Enterprise SSO and SAML connections, SMS multi-factor codes, B2B organization features, custom domains and support plans. A cheap per-user rate can still produce an expensive invoice once one enterprise customer asks for SAML."}}, {"@type": "Question", "name": "Should I pick the cheapest provider at my user count today?", "acceptedAnswer": {"@type": "Answer", "text": "Not on price alone. Compare the 12-month spend under your growth rate, check how hard it is to migrate users out later, and confirm the free plan includes the features you need in production."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Auth MAU Pricing Calculator</a></p>
+  <h1>How to choose an auth provider by monthly active users</h1>
+  <p>Put your user count and growth rate into the <a href="./">calculator</a> to price Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>When does authentication become expensive?</h2>
+  <p>Most hosted providers are free below a user count and then charge per monthly active user. The jump is in the pricing model, not the user count itself: a provider that is free to 50,000 users can cost nothing where another charges hundreds of dollars a month.</p>
+  <h2>What counts as a monthly active user?</h2>
+  <p>Vendors define it differently: a user who signs in, a user who refreshes a token, or any user with an active session in the month. Read each definition before comparing, because the same app can have a different MAU count under each.</p>
+  <h2>What usually costs more than the per-user line?</h2>
+  <p>Enterprise SSO and SAML connections, SMS multi-factor codes, B2B organization features, custom domains and support plans. A cheap per-user rate can still produce an expensive invoice once one enterprise customer asks for SAML.</p>
+  <h2>Should I pick the cheapest provider at my user count today?</h2>
+  <p>Not on price alone. Compare the 12-month spend under your growth rate, check how hard it is to migrate users out later, and confirm the free plan includes the features you need in production.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

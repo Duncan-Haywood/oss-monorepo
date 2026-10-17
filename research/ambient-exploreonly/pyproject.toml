@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-exploreonly"
+version = "0.1.0"
+description = "Fit on exploration windows only: an unweighted alternative to IPS for an assistant learning from its own feedback (simulated)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -58,3 +58,9 @@ test('index links one hop to the subscription-price-impact sibling', () => {
   );
   assert.match(siblingHtml, /Subscription price impact/i);
 });
+
+// The buyer cutting seats is the same buyer facing the renewal notice date.
+test('index links one hop to the saas-renewal-planner sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(siblingHtml, /href="\.\.\/saas-renewal-planner\/"/);
+});

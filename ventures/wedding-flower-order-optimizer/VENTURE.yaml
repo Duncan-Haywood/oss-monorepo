@@ -1,0 +1,50 @@
+name: wedding-flower-order-optimizer
+description: >-
+  Free browser tool for wedding and event florists: enter the stems each flower needs across every recipe, a damage allowance, and
+  the wholesaler's pack sizes and prices (a bunch and an optional bigger box), and get the cheapest order that covers every stem.
+  Tries every mix of the two packs exactly, shows spare stems, the saving over buying the small pack only, and wholesale cost as a
+  share of the client's flower budget, and exports the order as CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was wedding-florist-proposal-calculator 0.40 (prices an
+# event to the client; does not work out the wholesale buy list). Dropped before this one because the tree already has them:
+# booking-request-chooser, farmers-market-booth-calculator, freelance-project-picker, str-turnover-scheduler,
+# newsletter-sponsorship-rate-calculator, bakery-production-scheduler.
+#
+# Why this niche: florists buy by the bunch and the box, round up by feel and over-order to be safe; flowers are the largest cost
+# of an event and spare stems are cash in the bin. Florist software (Curate, Florist OS) is paid and built around proposals.
+#
+# First visitor: people searching "how many flowers do I need for a wedding", "wholesale flower order calculator", "wedding
+# florist order sheet"; r/floristry, florist Facebook groups. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not business or financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid recipe-to-order planner that
+# reads a florist's proposals (needs accounts, an owner decision).
+
+hypotheses:
+  - claim: >-
+      Independent wedding and event florists will use a free tool that turns their stem counts and wholesale pack sizes into the
+      cheapest order, and will return for each event.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-flower-order-optimizer/
+  analytics: null

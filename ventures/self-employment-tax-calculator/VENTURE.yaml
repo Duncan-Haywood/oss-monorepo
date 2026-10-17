@@ -1,0 +1,63 @@
+name: self-employment-tax-calculator
+description: >-
+  Free browser calculator for 2026 self-employment (Schedule SE) tax:
+  92.35% net earnings, 12.4% Social Security up to the $184,500 wage base
+  (reduced by W-2 wages), 2.9% Medicare, the deductible half, Additional
+  Medicare Tax (Form 8959) by filing status, the marginal SE rate on the
+  next $1,000, and a percent-of-income set-aside with a quarterly figure.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (build-now pipeline
+# empty). No existing venture computes SE tax itself: quarterly-estimated-
+# tax-calendar is a deadline calendar, qbi-deduction-calculator and
+# solo-401k-contribution-calculator take SE tax as a downstream input.
+#
+# Distribution: "self employment tax calculator" is one of the highest-
+# volume evergreen tax queries for freelancers and gig workers, peaking
+# quarterly and in filing season; the audience has income and a real problem
+# (how much to set aside). Search volume not measured with an external tool,
+# matching the pipeline's standing caveat.
+#
+# Facts verified 2026-09-29: IRS Tax Topic 554 (92.35%, 12.4% + 2.9%, $400
+# threshold, half deductible, Additional Medicare thresholds $200k/$250k/
+# $125k) and the 2026 Social Security wage base of $184,500 (SSA).
+#
+# Liability: output applies published rules to the user's own numbers,
+# never a filed return. Page states 2026-only, the simplified income-tax
+# estimate, and exclusions (clergy, farm, partnership income).
+
+hypotheses:
+  - claim: >-
+      Freelancers and sole proprietors will search for and return to a free,
+      no-signup calculator that shows self-employment tax and the percent of
+      each invoice to set aside, rather than working Schedule SE by hand or
+      guessing "30%".
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users with W-2 wages or profit near the wage base will be surprised
+      by how the base and Additional Medicare Tax change their marginal rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-employment-tax-calculator/
+  analytics: null

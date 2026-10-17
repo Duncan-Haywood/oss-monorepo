@@ -307,7 +307,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   <h3>Does a clean report mean Chrome Web Store will approve my extension?</h3>
   <p>No. This is evidence of what your code and your manifest currently say, produced by pattern-matching known chrome.* symbols -- it is not the review process, and it cannot see permissions used only by a bundled third-party library's minified code, dynamic imports, or a permission the manifest declares with no code signature this tool maps (activeTab, background, unlimitedStorage, and ChromeOS/enterprise-only permissions). Always confirm against Chrome's current documentation before submitting.</p>
   <p>More on the specific rejection code: <a href="purple-potassium-unused-permissions.html">Fixing "Purple Potassium" unused-permission rejections</a>.</p>
-  <p>Vetting an extension someone else already published instead of your own? See <a href="vs-crxcavator.html">this checker vs. CRXcavator</a>.</p>
+  <p>Vetting an extension someone else already published instead of your own? See <a href="vs-crxcavator.html">this checker vs. CRXcavator</a>. Prefer to just read the manifest? See <a href="vs-checking-the-manifest-by-hand.html">this checker vs. checking the manifest by hand</a>.</p>
 </section>
 
 <footer>

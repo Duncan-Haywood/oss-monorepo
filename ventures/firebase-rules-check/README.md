@@ -7,6 +7,8 @@ exposure documented since
 Appthority's 2018 "Firebase mismanagement" report (2,300+ apps found exposed, tens of millions of
 records) and recurring in security research and bug-bounty write-ups since.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/
+
 Both Firebase products default a new project to 30 days of **test mode** — a rule that allows any
 read and write with no authentication — so a team can build first and lock rules down later. What
 keeps a project safe after that is Security Rules, and only that: the client config
@@ -60,6 +62,13 @@ either way.
 rules source for anyone logged in as a project member. This tool sends a real, live,
 unauthenticated request to your project's actual REST endpoint from the outside — the view an
 attacker, an external auditor, or a developer without console access has.
+
+## How this compares to checking it by hand
+
+Pasting `.json` onto a Realtime Database URL or curl-ing the Firestore REST API by hand catches
+the obvious open root, but a plain request pulls real field values (not just key names), can't
+tell a blocked path from a genuinely empty one without reading the HTTP status, and checks one
+path at a time. See [how this compares to checking it by hand](vs-requesting-the-url-by-hand.html).
 
 ## Privacy
 

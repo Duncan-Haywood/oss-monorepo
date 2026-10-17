@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>eBay File Exchange Check — Find Bulk Listing CSV Errors Before You Upload</title>
+  <meta name="description" content="Free eBay File Exchange and bulk listing CSV checker: finds semicolon or UTF-16 files, titles over 80 characters, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation ItemIDs and SKUs, bad prices, quantities, durations and picture URLs, and active content in descriptions, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="eBay File Exchange Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks an eBay bulk listing upload, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "eBay File Exchange Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an eBay File Exchange or bulk listing CSV for delimiter, Action, title length, ItemID and SKU damage, UPC and EAN check digits, price, quantity, format and duration, picture URLs and active content before it is uploaded, and applies safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "eBay File Exchange validator, eBay title length checker, UPC check digit checker, Excel leading zero UPC fixer, scientific notation ItemID finder, CSV delimiter converter"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did eBay reject my File Exchange CSV?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a file saved with semicolons or as UTF-16 instead of comma-separated UTF-8, a title over 80 characters, a missing or misspelled Action, a UPC that lost its leading zero in Excel or whose check digit is wrong, ItemIDs or SKUs that Excel turned into scientific notation, prices with currency symbols or decimal commas, a Duration that does not fit the Format (an auction cannot be GTC), picture URLs separated by commas instead of pipes, and JavaScript in the description. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Why did Excel change my eBay ItemIDs and UPCs?", "acceptedAnswer": {"@type": "Answer", "text": "Excel treats long digit strings as numbers. A 12-digit ItemID becomes 1.23457E+11 and the real digits are lost, and a UPC that starts with 0 loses it. Format those columns as Text before pasting. This tool flags both, and restores a UPC's zero only when the 12-digit result passes the check digit."}}, {"@type": "Question", "name": "How do I separate multiple pictures in a File Exchange file?", "acceptedAnswer": {"@type": "Answer", "text": "From memory of eBay's documentation, PicURL takes up to twelve https addresses separated by a pipe character, not a comma. This tool reports comma-separated pictures and any address that is not https."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EBAY FILE EXCHANGE CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did eBay reject my bulk listing file?</h1>
+    <p>Paste or drop your <strong>File Exchange CSV</strong> and get every problem <strong>with its line number</strong> before you upload: <strong>titles over 80 characters</strong>, a missing or misspelled <code>Action</code>, <strong>UPCs that lost their leading zero</strong>, UPCs and EANs <strong>whose check digit is wrong</strong>, ItemIDs and SKUs Excel turned into <code>1.23457E+11</code>, prices like <code>$18.00</code> or <code>26,50</code>, an auction set to <code>GTC</code>, pictures separated by commas, and JavaScript in the description. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of eBay Inc. Column names, codes and limits are read from memory of eBay's public bulk-listing documentation; no eBay upload was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your listing file</h2>
+    <p class="note">A File Exchange or Seller Hub reports CSV, or a sheet exported from a listing or inventory tool.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="*Action(SiteID=US|Country=US|Currency=USD|Version=1193),*Category,*Title,..."></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Listings</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">SKU or ItemID</th><th scope="col">Title</th><th class="n" scope="col">Price</th></tr></thead><tbody id="products"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned file</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Comma-separated UTF-8.</strong> File Exchange reads CSV. A semicolon file (European Excel) or Excel's UTF-16 "Unicode Text" is read wrongly.</li>
+      <li><strong>Action</strong> is Add, Revise, End, Relist or VerifyAdd, and the header names the site, like <code>*Action(SiteID=US|Country=US|Currency=USD|Version=1193)</code>. Revise and End rows need an ItemID or a matching CustomLabel.</li>
+      <li><strong>Title</strong> is at most 80 characters. All-capitals and repeated punctuation are flagged because they waste the space that carries keywords.</li>
+      <li><strong>ConditionID</strong> is numeric: 1000 New, 3000 Used and so on. Which IDs a category accepts varies, so unknown ones are warnings.</li>
+      <li><strong>Format and Duration</strong>: FixedPrice listings use GTC; auctions use Days_1, 3, 5, 7 or 10 and list one item.</li>
+      <li><strong>StartPrice</strong> is digits and a decimal point only. <strong>Quantity</strong> is a whole number.</li>
+      <li><strong>PicURL</strong> takes up to twelve https addresses separated by a pipe. <strong>Description</strong> may not contain JavaScript, iframes, forms or event handlers.</li>
+      <li><strong>UPC and EAN</strong> check digits are recomputed for every row; "Does not apply" is accepted.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, stray spaces, price formatting, a quantity written as 5.0, Action and Format capitalisation, and an 11-digit UPC whose restored leading zero passes the check digit. It never edits a title's words, a description or a picture address.</li>
+      <li><strong>Not checked:</strong> that eBay will accept the file today, whether a category ID exists, item specifics, business policies, variation listings, VeRO and prohibited items, and pricing. Upload two or three rows first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did eBay reject my File Exchange CSV?</h3>
+    <p>The usual causes are a file saved with semicolons or as UTF-16 instead of comma-separated UTF-8, a title over 80 characters, a missing or misspelled Action, a UPC that lost its leading zero in Excel or whose check digit is wrong, ItemIDs or SKUs that Excel turned into scientific notation, prices with currency symbols or decimal commas, a Duration that does not fit the Format (an auction cannot be GTC), picture URLs separated by commas instead of pipes, and JavaScript in the description. This tool tests each of them and names the line.</p>
+    <h3>Why did Excel change my eBay ItemIDs and UPCs?</h3>
+    <p>Excel treats long digit strings as numbers. A 12-digit ItemID becomes 1.23457E+11 and the real digits are lost, and a UPC that starts with 0 loses it. Format those columns as Text before pasting. This tool flags both, and restores a UPC's zero only when the 12-digit result passes the check digit.</p>
+    <h3>How do I separate multiple pictures in a File Exchange file?</h3>
+    <p>From memory of eBay's documentation, PicURL takes up to twelve https addresses separated by a pipe character, not a comma. This tool reports comma-separated pictures and any address that is not https.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, stray spaces, prices like $1,299.00 to 1299.00, a quantity of 5.0 to 5, Action and Format capitalisation, and an 11-digit UPC to 12 digits when the check digit confirms the restored zero. It never edits a title's words, a description, a category or a picture address.</p>
+    <h3>Is it safe to put my listings into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether eBay will accept the file today, whether a category ID exists or accepts a condition, item specifics, business policy names, variation listings, VeRO and prohibited items, and whether the price is competitive. A clean result is not a promise of success: upload a few rows first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace eBay's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small sample first, and a clean result is not a promise that eBay will accept the file or that the listings will sell.</p>
+    <p><strong>Not affiliated with eBay.</strong> This tool is independent and is not sponsored, endorsed or connected to eBay Inc. or any listing-tool vendor. eBay is a trademark of its owner, used here only to say which file format the tool reads. The column list, codes and limits are read from memory of public sources and may be out of date or miss a variant; check them against eBay's current documentation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../ebay-fee-calculator/">eBay fee calculator</a> shows what a listing earns after fees, the <a href="../amazon-inventory-loader-check/">Amazon inventory loader check</a>, the <a href="../etsy-listing-csv-check/">Etsy listing CSV check</a> and the <a href="../shopify-product-csv-check/">Shopify product CSV check</a> do the same job for those platforms' files, and the <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks where to sell an item.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.listings} listing${s.listings === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#products").innerHTML = s.groups.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.handle)}</td><td>${esc(g.title)}</td><td class="n">${esc(g.variants)}</td></tr>`).join("") || `<tr><td colspan="4">No listings found.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. SKU characters, notes and other digits are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up seller's three listings, not real products."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of file after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("ebay-listings-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("ebay-listings-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

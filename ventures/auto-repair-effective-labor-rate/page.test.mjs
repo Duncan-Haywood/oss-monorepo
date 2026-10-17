@@ -7,6 +7,7 @@ import { ALL_INPUT_IDS, NUMERIC_IDS, calculateEffectiveLaborRate } from './calc.
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
 const guide = page('what-is-my-effective-labor-rate.html');
+const warrantyGuide = page('should-i-keep-taking-warranty-work.html');
 const ids = new Set([...markup.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
 const script = /<script type="module">([\s\S]*?)<\/script>/.exec(markup)[1];
 
@@ -195,11 +196,76 @@ test('robots and sitemap let crawlers find every page', () => {
   assert.match(sitemap, /what-is-my-effective-labor-rate\.html/);
   assert.match(sitemap, /vs-tekmetric\.html/);
   assert.match(sitemap, /vs-shop-ware\.html/);
+  assert.match(sitemap, /vs-shopmonkey\.html/);
+  assert.match(sitemap, /vs-autoleap\.html/);
   assert.match(sitemap, /vs-dividing-labor-sales-by-hours\.html/);
+  assert.match(sitemap, /should-i-keep-taking-warranty-work\.html/);
+});
+
+test('index links to the warranty-work guide, and the guide links back', () => {
+  assert.match(markup, /href="\.\/should-i-keep-taking-warranty-work\.html"/);
+  assert.match(warrantyGuide, /Should I keep taking warranty work\?/i);
+  assert.match(warrantyGuide, /No warranty/);
+  assert.match(warrantyGuide, /<link rel="canonical"/);
+  assert.match(warrantyGuide, /application\/ld\+json/);
+  assert.match(warrantyGuide, /href="\.\/"/, 'the guide must link back to the tool');
+});
+
+test('wide tables on the warranty-work guide scroll in their own box, not the page', () => {
+  const tables = [...warrantyGuide.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...warrantyGuide.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(warrantyGuide, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('the warranty-work guide quotes figures the calculator actually produces', async () => {
+  const { calculateEffectiveLaborRate } = await import('./calc.mjs');
+  const base = calculateEffectiveLaborRate(defaults);
+  assert.ok(base.ok, 'the shipped defaults must produce a result');
+  assert.equal(base.warrantyEffectiveRate, 95);
+  assert.equal(base.customerPayEffectiveRate, 145);
+
+  const idle = calculateEffectiveLaborRate({
+    ...defaults,
+    warrantyHours: 0,
+    warrantyLaborSales: 0,
+    internalHours: String(Number(defaults.internalHours) + Number(defaults.warrantyHours)),
+  });
+  const backfilledHours = Number(defaults.customerPayHours) + Number(defaults.warrantyHours);
+  const backfill = calculateEffectiveLaborRate({
+    ...defaults,
+    customerPayHours: String(backfilledHours),
+    customerPayLaborSales: String(backfilledHours * base.customerPayEffectiveRate),
+    warrantyHours: 0,
+    warrantyLaborSales: 0,
+  });
+  assert.ok(idle.ok && backfill.ok);
+  // Both alternatives land on the same rate...
+  assert.equal(idle.effectiveLaborRate, backfill.effectiveLaborRate);
+  // ...but only one of them beats keeping the warranty work on profit.
+  assert.ok(idle.netBeforeTax < base.netBeforeTax);
+  assert.ok(backfill.netBeforeTax > base.netBeforeTax);
+
+  const money0 = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const money2 = (n) => `$${n.toFixed(2)}`;
+  for (const figure of [
+    money2(base.effectiveLaborRate),
+    money0(base.laborSales),
+    money0(base.laborGrossProfitDollars),
+    money0(base.netBeforeTax),
+    money2(idle.effectiveLaborRate),
+    money0(idle.laborSales),
+    money0(idle.netBeforeTax),
+    money0(backfill.laborSales),
+    money0(backfill.netBeforeTax),
+  ]) {
+    assert.ok(warrantyGuide.includes(figure), `the guide no longer quotes ${figure} from the calculator`);
+  }
 });
 
 test('every published page carries Open Graph tags', () => {
-  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')], ['vs-dividing-labor-sales-by-hours.html', page('vs-dividing-labor-sales-by-hours.html')]]) {
+  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['should-i-keep-taking-warranty-work.html', warrantyGuide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')], ['vs-shopmonkey.html', page('vs-shopmonkey.html')], ['vs-autoleap.html', page('vs-autoleap.html')], ['vs-dividing-labor-sales-by-hours.html', page('vs-dividing-labor-sales-by-hours.html')]]) {
     assert.match(html, /property="og:title"/, `${name} has no og:title`);
     assert.match(html, /property="og:description"/, `${name} has no og:description`);
   }
@@ -244,6 +310,52 @@ test('index links to the Shop-Ware comparison page, and the comparison page link
 
 test('wide tables on the Shop-Ware comparison page scroll in their own box, not the page', () => {
   const vsPage = page('vs-shop-ware.html');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('index links to the Shopmonkey comparison page, and the comparison page links back', () => {
+  assert.match(markup, /href="vs-shopmonkey\.html"/);
+  const vsPage = page('vs-shopmonkey.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /not\s+affiliated\s+with/i);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the tool');
+  // PRODUCT_PLAYBOOK.md 5f: a vs-<competitor> page names a trademark and must
+  // say plainly it is not that product's page. Loosely matched to allow the
+  // page's own voice, mirroring platform/pages/clauses.mjs's NOT_AFFILIATED.
+  assert.match(vsPage, /Shopmonkey/);
+});
+
+test('wide tables on the Shopmonkey comparison page scroll in their own box, not the page', () => {
+  const vsPage = page('vs-shopmonkey.html');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('index links to the AutoLeap comparison page, and the comparison page links back', () => {
+  assert.match(markup, /href="vs-autoleap\.html"/);
+  const vsPage = page('vs-autoleap.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /not\s+affiliated\s+with/i);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the tool');
+  // PRODUCT_PLAYBOOK.md 5f: a vs-<competitor> page names a trademark and must
+  // say plainly it is not that product's page. Loosely matched to allow the
+  // page's own voice, mirroring platform/pages/clauses.mjs's NOT_AFFILIATED.
+  assert.match(vsPage, /AutoLeap/);
+});
+
+test('wide tables on the AutoLeap comparison page scroll in their own box, not the page', () => {
+  const vsPage = page('vs-autoleap.html');
   const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
   assert.ok(tables.length > 0);
   const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
@@ -306,7 +418,7 @@ test('index links to the divide-it-yourself comparison, and the page links back'
   // carries no trademark disclaimer and must name no management system --
   // that is the claim `COMPARISON_DISCLAIMER_EXEMPT` in clauses.mjs records
   // for it, and the reason it needs no "not affiliated with" line.
-  assert.doesNotMatch(vsPage, /Tekmetric|Shop-Ware|Mitchell|AllData|Shopmonkey/i);
+  assert.doesNotMatch(vsPage, /Tekmetric|Shop-Ware|Mitchell|AllData|Shopmonkey|AutoLeap/i);
 });
 
 test('wide tables on the divide-it-yourself page scroll in their own box, not the page', () => {
@@ -365,4 +477,11 @@ test('every figure quoted on the divide-it-yourself page is what the calculator 
     vsPage.includes(money(r.effectiveLaborRate - r.effectiveRateOnAllHours)),
     'the sold-vs-consumed difference is no longer the calculator\'s',
   );
+});
+
+// Inbound link for `tire-shop-ticket-margin-calculator`: the same shop owner,
+// selling tires and add-ons by the ticket rather than repair orders by the hour.
+test('index links one hop to the tire-shop-ticket-margin-calculator sibling', () => {
+  assert.match(markup, /href="\.\.\/tire-shop-ticket-margin-calculator\/"/);
+  assert.match(markup, /tire shop ticket margin calculator/i);
 });

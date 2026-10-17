@@ -1,0 +1,61 @@
+name: nsa-idr-offer-calculator
+description: >-
+  Free browser tool for out-of-network providers and medical billing teams disputing
+  payments under the No Surprises Act: enter billed charge, QPA and amount paid per
+  claim plus the current IDR fees and your own win-chance assumptions, and see the
+  offer with the best expected net, the win chance needed to break even, which
+  claims are worth taking to federal IDR, how much rides on the assumption, and the
+  negotiation and IDR initiation dates. No patient data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were unrelated
+# (dental-associate-pay-calculator 0.20, physician-wrvu-contract-calculator 0.16); no
+# IDR venture exists, screened-out rows not hit.
+#
+# Why this niche: IDR disputes put real money in front of small providers (emergency
+# groups, anesthesia, radiology, air ambulance) and billing firms, and each dispute
+# carries fees the filer pays whether or not it wins, so "which claims are worth
+# filing and what do I offer" is a recurring arithmetic decision. Managed IDR
+# services exist and charge a share of recovery, so willingness to pay for help here
+# is demonstrated; none is a free private page. More ambitious than a rate card: an
+# expected-value search over a user-drawn win-chance curve.
+#
+# First visitor: billing staff and practice managers searching "No Surprises Act IDR
+# offer amount", "is IDR worth the fees", "IDR batching"; revenue-cycle forums and
+# provider-group newsletters. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures and a user-drawn assumption;
+# carries no QPA, fee schedule or deadline authority; says arbitrator factors are not
+# modelled; no patient data. Not legal or billing advice.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead
+# magnet for a hosted IDR claim tracker with outcome history that calibrates the
+# win-chance curve from the practice's own results.
+
+hypotheses:
+  - claim: >-
+      Billing teams will use a private, no-signup tool to decide which claims to take
+      to IDR and what to offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nsa-idr-offer-calculator/
+  analytics: null

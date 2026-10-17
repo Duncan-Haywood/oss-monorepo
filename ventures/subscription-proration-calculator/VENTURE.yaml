@@ -1,0 +1,50 @@
+name: subscription-proration-calculator
+description: >-
+  Free browser tool for SaaS founders, billing and support teams: enter the billing period, what was billed and each mid-cycle
+  change (upgrade, downgrade, seat change, cancellation) and see day-count segments, the credit or charge due, tax, the next
+  renewal, either keeping the renewal date or restarting the period on the change date, and a table of the balance had the change
+  happened on other dates. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12. duplicate_check.py "subscription proration calculator mid-cycle upgrade downgrade credit": nearest 0.18
+# (a screened-out row), nearest venture 0.16 (subscription-audit-from-statement, which reads a customer's own card statement).
+# saas-seat-true-up is annual headcount true-up and saas-annual-plan-discount-calculator prices plan terms; neither answers
+# "what do I charge or credit when someone changes plan on day 17". Not in screened-out.md.
+#
+# First visitor: a founder or support agent answering a billing ticket; searches "prorate subscription upgrade calculator",
+# "how to calculate proration", "mid cycle upgrade credit", "cancel subscription refund unused days". Volume unmeasured.
+# Incumbents: billing providers show a preview only inside their own dashboards; generic proration pages handle one change.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A possible later version is a
+# policy-comparison sheet (day vs second proration, keep vs reset anchor) behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. Bad input is rejected instead of
+# clamped, the page says the figure must be checked against the billing provider's own preview, and carries the no-warranty
+# and not-advice clauses. It does not claim to match any named provider.
+
+hypotheses:
+  - claim: >-
+      A founder or support agent facing a mid-cycle plan change will paste the dates and amounts into a no-login page, because
+      working out day-count segments, rounding and the credit by hand in a spreadsheet is slower and easy to get a cent wrong.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the proration arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/subscription-proration-calculator/
+  analytics: null

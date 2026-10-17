@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Craft Brewery Batch Margin Calculator</title>
+  <meta name="description" content="Free craft brewery batch margin calculator: cost each beer after yield loss, labour, federal and state excise and overhead, see profit per barrel by channel (taproom, kegs, distributor cans) and which beer earns most per fermenter day. Private, runs in your browser.">
+  <meta property="og:title" content="Craft brewery batch margin by channel and fermenter day — free, private">
+  <meta property="og:description" content="See what each beer really earns in the taproom, as kegs and as distributor cans, and which one deserves the tank. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Craft Brewery Batch Margin Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the real margin on a batch of craft beer?", "acceptedAnswer": {"@type": "Answer", "text": "It depends far more on where the beer is sold than on the recipe. A barrel poured as pints in your own taproom can earn several times what the same barrel earns as kegs to a distributor. This page costs each batch after yield loss, labour, excise and a volume share of overhead, then shows profit per barrel in every channel."}}, {"@type": "Question", "name": "How much federal excise tax does a small brewery pay per barrel?", "acceptedAnswer": {"@type": "Answer", "text": "Under the Craft Beverage Modernization Act a brewer making 2 million barrels or fewer a year pays $3.50 per barrel on the first 60,000 barrels and $16 per barrel above that. The page uses that rate and lets you add your state's excise. Confirm both with TTB and your state."}}, {"@type": "Question", "name": "Which beer should I brew more of?", "acceptedAnswer": {"@type": "Answer", "text": "Rank by profit per barrel of tank per day, not profit per batch. A 60-day barrel-aged stout can show a bigger batch profit than an IPA and still earn a third as much for each day it occupies a fermenter."}}, {"@type": "Question", "name": "How many barrels is a keg?", "acceptedAnswer": {"@type": "Answer", "text": "A half-barrel keg is 15.5 US gallons, so a barrel (31 gallons) is two kegs, about 248 pints of 16 ounces or 248 cans of 16 ounces."}}, {"@type": "Question", "name": "Is my recipe data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser; nothing is sent anywhere. Downloads are files on your own device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CRAFT BREWERY BATCH MARGIN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does each beer really earn, and where should it be sold?</h1>
+    <p>Enter your beers and your sales channels. The page takes each batch through <strong>yield loss, labour, ingredients, federal and state excise and a share of overhead</strong>, then shows profit per barrel in the <strong>taproom, as kegs and as distributor cans</strong>, flags any channel that loses money, and ranks beers by <strong>profit per barrel of fermenter per day</strong>, the number that decides what deserves the tank.</p>
+    <p class="note">Your recipes and prices are used in this browser tab and never leave your device. The numbers are examples; replace them with yours.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Sales channels</h2>
+    <p class="note">One per line: name, units per barrel (248 pints or 16 oz cans, 2 half-barrel kegs), price per unit, packaging per unit, other cost per unit (delivery), percent of sales lost (bar staff, card fees).</p>
+    <label for="channels">Channels</label>
+    <textarea id="channels" spellcheck="false" wrap="off"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Beers</h2>
+    <p class="note">One per line: name, batch barrels, fermenter days, ingredient cost per batch, then where it goes as <code>channel:percent; channel:percent</code>.</p>
+    <label for="beers">Beers</label>
+    <textarea id="beers" spellcheck="false" wrap="off"></textarea>
+    <div class="grid">
+      <div><label for="loss">Loss, brewhouse to package (%)</label><input id="loss" inputmode="decimal" value="10"></div>
+      <div><label for="hours">Labour hours per batch</label><input id="hours" inputmode="decimal" value="10"></div>
+      <div><label for="rate">Labour rate per hour</label><input id="rate" inputmode="decimal" value="22"></div>
+      <div><label for="other">Utilities and cleaning per batch</label><input id="other" inputmode="decimal" value="90"></div>
+      <div><label for="overhead">Overhead per month (rent, loans, insurance, salaries)</label><input id="overhead" inputmode="decimal" value="14000"></div>
+      <div><label for="annual">Barrels sold per year</label><input id="annual" inputmode="decimal" value="1200"></div>
+      <div><label for="state">State excise per barrel</label><input id="state" inputmode="decimal" value="6"></div>
+      <div><label for="tanks">Fermenters</label><input id="tanks" inputmode="numeric" value="4"></div>
+      <div><label for="tankbbl">Fermenter size (barrels)</label><input id="tankbbl" inputmode="decimal" value="15"></div>
+      <div><label for="util">Tank time available (%)</label><input id="util" inputmode="decimal" value="85"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the margins</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Edit the channels and beers, then click Work out the margins.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="note" id="report-note"></p>
+    <div id="report-findings"></div>
+    <h3>Beers, best use of the tank first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Beer</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Profit</th><th scope="col" class="n">Margin</th><th scope="col" class="n">Per barrel</th><th scope="col" class="n">Per barrel-day</th><th scope="col">Best channel</th><th scope="col">Worst channel</th></tr></thead><tbody id="beer-rows"></tbody></table></div>
+    <h3>Every beer in every channel</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Beer</th><th scope="col">Channel</th><th scope="col" class="n">Barrels</th><th scope="col" class="n">Revenue</th><th scope="col" class="n">Profit</th><th scope="col" class="n">Per barrel</th><th scope="col" class="n">Break-even price</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="dl-text">Download summary</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it decides, and what it leaves out</h2>
+    <ul>
+      <li><strong>Batch cost:</strong> ingredients, labour hours at your rate and utilities and cleaning, divided over the barrels that reach a package after loss.</li>
+      <li><strong>Excise:</strong> federal excise at the reduced craft rates ($3.50 a barrel on the first 60,000 barrels, $16 above) averaged over the barrels you sell a year, plus the state rate you enter.</li>
+      <li><strong>Overhead:</strong> monthly overhead spread evenly per barrel. It lowers every channel by the same amount per barrel, so it does not change which channel wins, only whether it pays.</li>
+      <li><strong>Per barrel-day:</strong> profit divided by batch barrels and fermenter days, so a 60-day beer is judged by the tank time it uses.</li>
+      <li><strong>Not decided:</strong> state and local licensing, tied-house and franchise rules, sales and alcohol taxes on retail sales, tips, the real cost of keg loss and returns, working capital, and your TTB filing. Distributor prices and taproom costs here are your inputs, not market quotes.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the real margin on a batch of craft beer?</h3>
+    <p>It depends far more on where the beer is sold than on the recipe. A barrel poured as pints in your own taproom can earn several times what the same barrel earns as kegs to a distributor. This page costs each batch after yield loss, labour, excise and a volume share of overhead, then shows profit per barrel in every channel.</p>
+    <h3>How much federal excise tax does a small brewery pay per barrel?</h3>
+    <p>Under the Craft Beverage Modernization Act a brewer making 2 million barrels or fewer a year pays $3.50 per barrel on the first 60,000 barrels and $16 per barrel above that. The page uses that rate and lets you add your state's excise. Confirm both with TTB and your state.</p>
+    <h3>Which beer should I brew more of?</h3>
+    <p>Rank by profit per barrel of tank per day, not profit per batch. A 60-day barrel-aged stout can show a bigger batch profit than an IPA and still earn a third as much for each day it occupies a fermenter.</p>
+    <h3>How many barrels is a keg?</h3>
+    <p>A half-barrel keg is 15.5 US gallons, so a barrel (31 gallons) is two kegs, about 248 pints of 16 ounces or 248 cans of 16 ounces.</p>
+    <h3>Is my recipe data uploaded?</h3>
+    <p>No. Everything runs in your browser; nothing is sent anywhere. Downloads are files on your own device.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your accountant, your distributor agreement, or your own judgment. Check every figure, especially excise rates, before relying on it.</p>
+    <p><strong>Not affiliated with TTB or any agency.</strong> This tool is independent; it is not sponsored, endorsed or connected to the Alcohol and Tobacco Tax and Trade Bureau, any state authority, or any brewing software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your recipes and prices are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>margins_calculated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../kombucha-brewery-profit-calculator/">kombucha brewery profit calculator</a>, the <a href="../coffee-roaster-margin-calculator/">coffee roaster margin calculator</a>, the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a>, the <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a> and the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a> and the <a href="../grape-grower-sell-vs-bottle-calculator/">grape grower sell vs bottle calculator</a> cover other small food and drink makers. To plan which beer goes in which tank and when, use the <a href="../brewery-tank-schedule-optimizer/">brewery tank schedule optimizer</a>. For the federal excise tax built into each keg and case, use the <a href="../brewery-excise-tax-calculator/">brewery excise tax calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, DEFAULT_CHANNELS, DEFAULT_BEERS, resultCsv, summaryText, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : undefined; };
+    let last = null;
+    $("#channels").value = DEFAULT_CHANNELS;
+    $("#beers").value = DEFAULT_BEERS;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run() {
+      const r = analyze($("#channels").value, $("#beers").value, {
+        lossPct: val("#loss"), laborHours: val("#hours"), laborRate: val("#rate"), otherPerBatch: val("#other"), overheadPerMonth: val("#overhead"),
+        annualBbl: val("#annual"), stateExcisePerBbl: val("#state"), tanks: val("#tanks"), tankBbl: val("#tankbbl"), tankUtilPct: val("#util"),
+      });
+      last = r;
+      if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return false; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.beers} beers</strong> · revenue ${money(s.revenue)} · profit ${money(s.profit)} (${s.marginPct.toFixed(0)}%) after overhead · best use of the tank: <strong>${esc(s.bestPerTankDay)}</strong>, weakest: ${esc(s.worstPerTankDay)}`;
+      $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("");
+      $("#beer-rows").innerHTML = r.ranked.map((b) => `<tr><td>${esc(b.name)}</td><td class="n">${money(b.revenue)}</td><td class="n">${money(b.profit)}</td><td class="n">${b.marginPct.toFixed(0)}%</td><td class="n">${money(b.profitPerBbl)}</td><td class="n">${money(b.profitPerBblDay)}</td><td>${esc(b.best.channel)}</td><td>${esc(b.worst.channel)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.beers.flatMap((b) => b.parts.map((p) => `<tr><td>${esc(b.name)}</td><td>${esc(p.channel)}</td><td class="n">${p.bbl.toFixed(1)}</td><td class="n">${money(p.revenue)}</td><td class="n">${money(p.profit)}</td><td class="n">${money(p.profitPerBbl)}</td><td class="n">${money2(p.breakEvenPrice)}</td></tr>`)).join("");
+      report.hidden = false;
+      status.textContent = `${s.beers} beers costed.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calc").addEventListener("click", () => { if (run()) record("margins_calculated"); });
+    $("#load-ok").addEventListener("click", () => {
+      $("#channels").value = DEFAULT_CHANNELS; $("#beers").value = DEFAULT_BEERS;
+      run(); record("example_loaded"); status.textContent = "Worked example: made-up beers and prices. Look at how little a barrel earns as self-distributed kegs against the taproom, and how the 60-day stout ranks on tank time.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#channels").value = ""; $("#beers").value = ""; report.hidden = true; last = null; status.textContent = "Edit the channels and beers, then click Work out the margins."; });
+    $("#dl-csv").addEventListener("click", () => { if (last && last.summary) { record("csv_downloaded"); download("brewery-margins.csv", resultCsv(last), "text/csv"); } });
+    $("#dl-text").addEventListener("click", () => { if (last && last.summary) { record("summary_downloaded"); download("brewery-margins.txt", summaryText(last), "text/plain"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

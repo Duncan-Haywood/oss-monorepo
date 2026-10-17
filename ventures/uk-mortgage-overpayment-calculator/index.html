@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Mortgage Overpayment Calculator (interest saved, years cut)</title>
+  <meta name="description" content="Free UK mortgage overpayment calculator: interest saved, years cut off the term, overpaying vs saving, the 10% early repayment charge allowance, and the overpayment needed to be mortgage-free by a target date. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK mortgage overpayment calculator: how much interest and time will I save? Free, private">
+  <meta property="og:description" content="See what overpaying your mortgage saves, and whether it beats saving the money.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Mortgage Overpayment Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much interest does overpaying my mortgage save?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the balance, rate and term. On \u00a3200,000 at 4.5% over 25 years, overpaying \u00a3200 a month saves about \u00a336,000 of interest and clears the loan six years early. Enter your own figures to see yours."}}, {"@type": "Question", "name": "Is it better to overpay my mortgage or save?", "acceptedAnswer": {"@type": "Answer", "text": "If your mortgage rate is higher than the after-tax rate on your savings, overpaying usually wins on paper. But savings stay accessible and mortgage overpayments do not come back out, so keep an emergency fund first. The calculator compares the two at the original end date."}}, {"@type": "Question", "name": "How much can I overpay without an early repayment charge?", "acceptedAnswer": {"@type": "Answer", "text": "Most fixed and discounted deals let you overpay up to 10% of the balance a year without charge. Above that, the excess may be charged at 1% to 5%. Check your mortgage offer or ask your lender."}}, {"@type": "Question", "name": "Does overpaying shorten the term or reduce the monthly payment?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the lender. This calculator assumes your monthly payment stays the same and the term shortens, which is what saves the most interest. Ask your lender to confirm how they apply overpayments."}}, {"@type": "Question", "name": "What if my rate changes when my deal ends?", "acceptedAnswer": {"@type": "Answer", "text": "The calculation uses one rate for the whole term. Re-run it with your new rate after a remortgage; the balance and remaining term are the inputs that matter."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK MORTGAGE OVERPAYMENT CALCULATOR · REPAYMENT MORTGAGES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much will overpaying my mortgage save me?</h1>
+    <p>Enter your balance, rate and term, then a monthly overpayment, a one-off lump sum, or both. You get the interest saved, how many years come off, whether overpaying beats saving the money, and whether you stay inside the usual 10% free allowance.</p>
+    <p class="note">Estimate for a repayment mortgage at one rate. Not financial advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="balance">Mortgage balance (&pound;)</label><input id="balance" type="number" step="1" min="0"></div>
+      <div><label for="rate">Interest rate (% a year)</label><input id="rate" type="number" step="0.01" min="0"></div>
+      <div><label for="years">Years left on the mortgage</label><input id="years" type="number" step="0.5" min="0"></div>
+      <div><label for="monthly">Monthly overpayment (&pound;)</label><input id="monthly" type="number" step="1" min="0"></div>
+      <div><label for="lump">One-off lump sum now (&pound;)</label><input id="lump" type="number" step="1" min="0"></div>
+      <div><label for="savingsRate">Savings rate to compare, after tax (% a year)</label><input id="savingsRate" type="number" step="0.01" min="0"></div>
+      <div><label for="ercPct">Free overpayment allowance (% of balance a year)</label><input id="ercPct" type="number" step="1" min="0"></div>
+      <div><label for="targetYears">Target: mortgage-free in (years, optional)</label><input id="targetYears" type="number" step="0.5" min="0"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the saving</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out the saving.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>With and without overpaying</h2>
+    <div class="scroll"><table><thead><tr><th>Line</th><th class="n">No overpayment</th><th class="n">Overpaying</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>If you overpaid a different amount each month</h2>
+    <div class="scroll"><table><thead><tr><th>Per month</th><th class="n">Interest saved</th><th>Mortgage-free after</th></tr></thead><tbody id="scenarios"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> a repayment mortgage at one fixed rate, a regular monthly overpayment, a one-off lump sum, a comparison with saving the same money, the free overpayment allowance, and the monthly overpayment needed for a target payoff.</li>
+      <li><strong>Gives:</strong> interest saved, time saved, mortgage-free date, how overpaying compares with saving at the original end date, and outcomes at other overpayment sizes.</li>
+      <li><strong>Not decided:</strong> interest-only or offset mortgages, variable rates changing, fees, tax on savings interest, your lender's actual early repayment charge terms, how your lender applies overpayments, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much interest does overpaying my mortgage save?</h3>
+    <p>It depends on the balance, rate and term. On £200,000 at 4.5% over 25 years, overpaying £200 a month saves about £36,000 of interest and clears the loan six years early. Enter your own figures to see yours.</p>
+    <h3>Is it better to overpay my mortgage or save?</h3>
+    <p>If your mortgage rate is higher than the after-tax rate on your savings, overpaying usually wins on paper. But savings stay accessible and mortgage overpayments do not come back out, so keep an emergency fund first. The calculator compares the two at the original end date.</p>
+    <h3>How much can I overpay without an early repayment charge?</h3>
+    <p>Most fixed and discounted deals let you overpay up to 10% of the balance a year without charge. Above that, the excess may be charged at 1% to 5%. Check your mortgage offer or ask your lender.</p>
+    <h3>Does overpaying shorten the term or reduce the monthly payment?</h3>
+    <p>It depends on the lender. This calculator assumes your monthly payment stays the same and the term shortens, which is what saves the most interest. Ask your lender to confirm how they apply overpayments.</p>
+    <h3>What if my rate changes when my deal ends?</h3>
+    <p>The calculation uses one rate for the whole term. Re-run it with your new rate after a remortgage; the balance and remaining term are the inputs that matter.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with a qualified accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-stamp-duty-calculator/">UK stamp duty calculator</a>, the <a href="../uk-landlord-section-24-calculator/">UK landlord Section 24 calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { balance: "balance", rate: "rate", years: "years", monthly: "monthly", lump: "lump", savingsRate: "savingsRate", ercPct: "ercPct", targetYears: "targetYears" };
+    const IDLE = "Fill in the figures, then click Work out the saving.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Overpaying saves ${gbp(r.interestSaved)} of interest and clears the mortgage ${r.durText(r.monthsSaved)} early, in ${r.durText(r.over.paidOffMonth)}.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Monthly payment", r.base.pay, r.base.pay + r.v.monthly], ["Total interest", r.base.interest, r.over.interest]];
+      $("#schedule").innerHTML = rows.map(([l, a, b]) => `<tr><td>${esc(l)}</td><td class="n">${gbp(a)}</td><td class="n">${gbp(b)}</td></tr>`).join("") + `<tr><td>Mortgage-free after</td><td class="n">${r.durText(r.months)}</td><td class="n">${r.durText(r.over.paidOffMonth)}</td></tr><tr class="total"><td>Interest saved</td><td class="n"></td><td class="n">${gbp(r.interestSaved)}</td></tr>`;
+      $("#scenarios").innerHTML = r.scenarios.map((s) => `<tr><td>${gbp(s.monthly)}</td><td class="n">${gbp(s.interestSaved)}</td><td>${esc(s.payoff)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before you act.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £200,000 at 4.5% over 25 years, overpaying £200 a month.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-summary").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(summaryText(last)); status.textContent = "Summary copied."; } catch { status.textContent = "Copy failed: select the text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("mortgage-overpayment.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

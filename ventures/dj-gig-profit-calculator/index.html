@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DJ Gig Profit Calculator — profit per hour worked and price floor by package</title>
+  <meta name="description" content="DJ gig profit calculator for mobile DJs and event entertainers. Enter packages, event hours, setup time and gig costs to see profit per hour worked, the price that hits your target, and direct clients versus a lead marketplace versus an agency.">
+  <meta property="og:title" content="DJ Gig Profit Calculator — free, private, in your browser">
+  <meta property="og:description" content="Which gigs actually pay once setup and travel are counted? Profit per hour worked, the price to charge, and what a raise can cost you. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DJ Gig Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a DJ charge for a wedding?", "acceptedAnswer": {"@type": "Answer", "text": "Work backwards from the hours. Add the event hours to setup, travel and consultation time, multiply by the hourly take-home you want plus your overhead per working hour, add the gig's own costs such as fuel, a helper and lighting rental, then divide by one minus your card fee. That is the price floor. This tool does the arithmetic from your own figures; it does not know what weddings cost in your town."}}, {"@type": "Question", "name": "Why does setup and travel time matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "A five-hour reception is rarely five hours of work. Load-in, soundcheck, travel, teardown and planning calls often double the time, so an hourly rate quoted on event hours alone overstates what you earn per hour worked. Enter your real setup and prep hours and the table shows profit per hour worked."}}, {"@type": "Question", "name": "What should go in monthly overhead?", "acceptedAnswer": {"@type": "Answer", "text": "Gear replacement set-aside, insurance, music pool and software subscriptions, website, vehicle costs not tied to one gig, storage and marketing. Overhead is spread over the hours you can work each week, not the hours you happen to fill."}}, {"@type": "Question", "name": "Is a lead marketplace or an agency worth it?", "acceptedAnswer": {"@type": "Answer", "text": "The tool replays your monthly mix three ways: direct clients, a lead marketplace that takes a percentage of each booked gig, and subcontracting for an agency that keeps part of the price. It compares weekly income and income per hour worked. It does not value the extra bookings a marketplace or agency might send you, so compare the result with how many more gigs you expect."}}, {"@type": "Question", "name": "Is a price raise worth the clients I might lose?", "acceptedAnswer": {"@type": "Answer", "text": "The raise table shows the share of gigs you could lose before a price rise costs you money. Overhead does not shrink when clients leave, so the break-even loss is the extra revenue divided by the new total contribution."}}, {"@type": "Question", "name": "Does it include tips?", "acceptedAnswer": {"@type": "Answer", "text": "Enter a tip percentage and it adds tips to the model comparison. Tips are not included in the price floor."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No client or event details are needed or accepted."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DJ GIG PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your gigs actually pay?</h1>
+    <p>List your <strong>packages</strong> with price, event hours and gig costs, and your <strong>overhead</strong>. The tool shows <strong>profit per hour worked</strong> once setup, travel and planning are counted, the <strong>price that hits your hourly target</strong>, how <strong>direct clients, a lead marketplace and an agency</strong> compare, and how many clients a price raise can lose before it costs you.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your packages</h2>
+    <label for="gigs">Package, price, event hours, cost per gig, gigs per month (one per line)</label>
+    <textarea id="gigs" spellcheck="false" placeholder="Wedding reception (5h),1800,5,120,3&#10;School dance (3h),650,3,40,2"></textarea>
+    <h2 style="margin-top:18px">Your business</h2>
+    <div class="row3">
+      <div><label for="overheadMonthly">Monthly overhead: gear set-aside, insurance, music pool, software ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="bookableHoursPerWeek">Hours you can work per week</label><input id="bookableHoursPerWeek" inputmode="decimal" value="25"></div>
+      <div><label for="weeksPerYear">Weeks worked per year</label><input id="weeksPerYear" inputmode="decimal" value="50"></div>
+      <div><label for="setupHours">Setup, travel and teardown hours per gig</label><input id="setupHours" inputmode="decimal" value="2"></div>
+      <div><label for="prepHours">Planning and consultation hours per gig</label><input id="prepHours" inputmode="decimal" value="1"></div>
+      <div><label for="cardFeePct">Card fee (%)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="targetHourly">Take-home target per hour worked ($)</label><input id="targetHourly" inputmode="decimal" value="40"></div>
+      <div><label for="tipPct">Average tip (% of price)</label><input id="tipPct" inputmode="decimal" value="0"></div>
+      <div><label for="leadFeePct">Lead marketplace fee (% of price)</label><input id="leadFeePct" inputmode="decimal" value="15"></div>
+      <div><label for="agencyKeepPct">Agency: share of price you keep (%)</label><input id="agencyKeepPct" inputmode="decimal" value="55"></div>
+      <div><label for="agencyOverheadPct">Agency: share of overhead you still cover (%)</label><input id="agencyOverheadPct" inputmode="decimal" value="60"></div>
+      <div><label for="retentionIfRaised">Gigs kept after a raise (%)</label><input id="retentionIfRaised" inputmode="decimal" value="90"></div>
+    </div>
+    <p class="note">Event hours are the hours you play; setup, travel, teardown and planning hours are added to every gig. Overhead is spread over the hours you can work, not the hours you fill. Gigs per month are converted to a weekly mix using your weeks per year.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your packages, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="quote-builder">
+    <h2>Build a quote</h2>
+    <p>Price one gig from the bottom up: base package, add-ons, every unpaid hour, gear wear, mileage, fees and a second operator. You get your <strong>effective hourly</strong>, the <strong>break-even price</strong>, the price that hits your target, a <strong>deposit schedule</strong>, a <strong>good / better / best</strong> ladder and the <strong>price per gig that reaches an annual income goal</strong> with a peak and off-season split. Guide: <a href="how-much-should-a-wedding-dj-charge.html">how much should a wedding DJ charge</a>.</p>
+    <label for="addons">Add-ons: name, client price, your cost, extra hours, tier (good, better or best), one per line</label>
+    <textarea id="addons" spellcheck="false" placeholder="Uplighting,350,40,0.5,better"></textarea>
+    <div class="row3">
+      <div><label for="q_baseHours">Base package: hours you play</label><input id="q_baseHours" inputmode="decimal" value="5"></div>
+      <div><label for="q_basePrice">Base package price ($)</label><input id="q_basePrice" inputmode="decimal" value="1200"></div>
+      <div><label for="q_loadHours">Load-in, setup, teardown and load-out hours</label><input id="q_loadHours" inputmode="decimal" value="2"></div>
+      <div><label for="q_prepHours">Consultation, planning and music prep hours</label><input id="q_prepHours" inputmode="decimal" value="2"></div>
+      <div><label for="q_travelHours">Round-trip driving hours</label><input id="q_travelHours" inputmode="decimal" value="1"></div>
+      <div><label for="q_miles">Round-trip miles</label><input id="q_miles" inputmode="decimal" value="40"></div>
+      <div><label for="q_mileageRate">Vehicle cost per mile ($)</label><input id="q_mileageRate" inputmode="decimal" value="0.7"></div>
+      <div><label for="q_gearCost">Gear that goes on every gig: purchase price ($)</label><input id="q_gearCost" inputmode="decimal" value="6000"></div>
+      <div><label for="q_gearGigs">Gigs that gear should last</label><input id="q_gearGigs" inputmode="decimal" value="150"></div>
+      <div><label for="q_insuranceYear">Insurance per year ($)</label><input id="q_insuranceYear" inputmode="decimal" value="600"></div>
+      <div><label for="q_softwareYear">Software and music pool per year ($)</label><input id="q_softwareYear" inputmode="decimal" value="900"></div>
+      <div><label for="q_gigsPerYear">Gigs per year (spreads insurance and software)</label><input id="q_gigsPerYear" inputmode="decimal" value="60"></div>
+      <div><label for="q_cardFeePct">Card fee (%)</label><input id="q_cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="q_leadFeePct">Marketplace lead fee on this booking (%, 0 if direct)</label><input id="q_leadFeePct" inputmode="decimal" value="0"></div>
+      <div><label for="q_secondOpHours">Second operator hours</label><input id="q_secondOpHours" inputmode="decimal" value="0"></div>
+      <div><label for="q_secondOpRate">Second operator pay per hour ($)</label><input id="q_secondOpRate" inputmode="decimal" value="35"></div>
+      <div><label for="q_overtimeHours">Overtime hours you expect</label><input id="q_overtimeHours" inputmode="decimal" value="0"></div>
+      <div><label for="q_overtimeRate">Overtime rate you charge per hour ($)</label><input id="q_overtimeRate" inputmode="decimal" value="150"></div>
+      <div><label for="q_targetHourly">Take-home target per hour worked ($)</label><input id="q_targetHourly" inputmode="decimal" value="60"></div>
+      <div><label for="q_depositPct">Deposit (%)</label><input id="q_depositPct" inputmode="decimal" value="30"></div>
+      <div><label for="q_balanceDaysBefore">Balance due this many days before</label><input id="q_balanceDaysBefore" inputmode="decimal" value="14"></div>
+      <div><label for="q_targetIncome">Annual take-home goal ($)</label><input id="q_targetIncome" inputmode="decimal" value="60000"></div>
+      <div><label for="q_peakGigs">Peak-season gigs per year</label><input id="q_peakGigs" inputmode="decimal" value="35"></div>
+      <div><label for="q_offGigs">Off-season gigs per year</label><input id="q_offGigs" inputmode="decimal" value="25"></div>
+      <div><label for="q_peakUpliftPct">Peak-season price premium (%)</label><input id="q_peakUpliftPct" inputmode="decimal" value="20"></div>
+    </div>
+    <p class="note">The add-ons ticked below are included in the quote price; the ladder prices each tier from its own hours and costs.</p>
+    <div id="addon-picks" class="note"></div>
+    <button type="button" id="quote-run">Build the quote</button>
+    <button type="button" class="secondary" id="quote-example">Load a quote example</button>
+    <p id="quote-status" role="status" class="note">Enter your numbers, then click Build the quote.</p>
+    <div id="quote-out" hidden>
+      <div class="big" id="quote-big"></div>
+      <p id="quote-verdict"></p>
+      <h3>Where the hours and money go</h3>
+      <div class="scroll"><table id="qt"><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+      <h3>Payment schedule</h3>
+      <div class="scroll"><table id="qs"><thead><tr><th>Payment</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+      <h3>Good, better, best (price floors at your hourly target)</h3>
+      <div class="scroll"><table id="ql"><thead><tr><th>Tier</th><th>Includes</th><th class="n">Hours worked</th><th class="n">Price</th><th class="n">Profit</th><th class="n">Per hour</th></tr></thead><tbody></tbody></table></div>
+      <h3>Reaching your annual goal</h3>
+      <p id="qa"></p>
+    </div>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Profit per hour worked by package</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th>Package</th><th class="n">Price</th><th class="n">Slot (hours)</th><th class="n">Profit / hour</th><th class="n">Price for target</th><th>Vs target</th></tr></thead><tbody></tbody></table></div>
+    <h3>Direct clients, lead marketplace or agency</h3>
+    <div class="scroll"><table id="mt"><thead><tr><th>Model</th><th class="n">Per week</th><th class="n">Per hour worked</th><th class="n">Per year</th></tr></thead><tbody></tbody></table></div>
+    <h3>Raise break-even: what a price raise can cost</h3>
+    <div class="scroll"><table id="rt"><thead><tr><th class="n">Raise</th><th class="n">Extra per week</th><th class="n">Gigs you can lose first</th><th class="n">Weekly change at your retention</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Slot:</strong> event hours plus setup and planning hours. <strong>Overhead per hour:</strong> monthly overhead × 12 ÷ (hours per week × weeks per year). <strong>Contribution:</strong> price × (1 − card fee) − gig costs. <strong>Profit per hour:</strong> contribution ÷ slot hours − overhead per hour. <strong>Price for target:</strong> ((target + overhead per hour) × slot hours + gig costs) ÷ (1 − card fee). <strong>Lead marketplace:</strong> price × (1 − lead fee), then the same costs and overhead. <strong>Agency:</strong> your share of price plus tips, less gig costs and the share of overhead you still carry.</p>
+    <p><strong>Not modelled:</strong> payroll and self-employment tax, sales tax, deposits and cancellations, overtime clauses, the extra bookings a marketplace or agency may bring, seasonality, and local market prices. Unverified: tested on hand-calculated examples, not against a real DJ's books.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a DJ charge for a wedding?</h3>
+    <p>Work backwards from the hours. Add the event hours to setup, travel and consultation time, multiply by the hourly take-home you want plus your overhead per working hour, add the gig's own costs such as fuel, a helper and lighting rental, then divide by one minus your card fee. That is the price floor. This tool does the arithmetic from your own figures; it does not know what weddings cost in your town.</p>
+    <h3>Why does setup and travel time matter so much?</h3>
+    <p>A five-hour reception is rarely five hours of work. Load-in, soundcheck, travel, teardown and planning calls often double the time, so an hourly rate quoted on event hours alone overstates what you earn per hour worked. Enter your real setup and prep hours and the table shows profit per hour worked.</p>
+    <h3>What should go in monthly overhead?</h3>
+    <p>Gear replacement set-aside, insurance, music pool and software subscriptions, website, vehicle costs not tied to one gig, storage and marketing. Overhead is spread over the hours you can work each week, not the hours you happen to fill.</p>
+    <h3>Is a lead marketplace or an agency worth it?</h3>
+    <p>The tool replays your monthly mix three ways: direct clients, a lead marketplace that takes a percentage of each booked gig, and subcontracting for an agency that keeps part of the price. It compares weekly income and income per hour worked. It does not value the extra bookings a marketplace or agency might send you, so compare the result with how many more gigs you expect.</p>
+    <h3>Is a price raise worth the clients I might lose?</h3>
+    <p>The raise table shows the share of gigs you could lose before a price rise costs you money. Overhead does not shrink when clients leave, so the break-even loss is the extra revenue divided by the new total contribution.</p>
+    <h3>Does it include tips?</h3>
+    <p>Enter a tip percentage and it adds tips to the model comparison. Tips are not included in the price floor.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No client or event details are needed or accepted.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. Check them against your own books before you set a price.</p>
+    <p><strong>Independent.</strong> Not affiliated with any DJ booking platform, agency, payment processor or trade association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this page for anything you cannot afford to redo.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>quote_built</code>, <code>quote_example_loaded</code>) are counted only in this browser's local storage, never with any of your data, and never sent anywhere.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Guide: <a href="how-much-should-a-wedding-dj-charge.html">how much should a wedding DJ charge</a>.</p>
+    <p>Related tools: the <a href="../photo-booth-event-quote/">photo booth event quote calculator</a>, the <a href="../wedding-florist-proposal-calculator/">wedding florist proposal calculator</a>, the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>.</p>
+    <p>Run a charter or guided trip instead of a gig? The <a href="../fishing-charter-trip-pricing-calculator/">fishing charter trip pricing calculator</a> turns fuel, crew and weather cancellations into a break-even price per trip.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseGigs, analyze, reportCsv, sampleGigs, money, money2, pct } from "./calc.mjs";
+    import { quoteGig, tierLadder, annualPlan, overtimeFloor, parseAddons, sampleAddons, money as qmoney, money2 as qmoney2 } from "./quote.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["overheadMonthly", "bookableHoursPerWeek", "weeksPerYear", "setupHours", "prepHours", "cardFeePct", "targetHourly", "tipPct", "leadFeePct", "agencyKeepPct", "agencyOverheadPct", "retentionIfRaised"];
+    let last = null;
+
+    function run() {
+      const sv = parseGigs($("#gigs").value);
+      if (sv.error) { status.textContent = sv.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(sv.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...sv.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.week.revenue), `Weekly revenue (${r.week.gigs.toFixed(1)} gigs, ${r.week.hoursUsed.toFixed(1)} h)`],
+        [pct(r.week.utilization, 0), "Of your working hours used"],
+        [money2(r.overheadPerHour), "Overhead per working hour"],
+        [money(r.best.weekly), `Best model this week: ${r.best.key === "own" ? "direct clients" : r.best.key === "lead" ? "lead marketplace" : "agency"}`],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money2(l.price)}</td><td class="n">${l.slotHours.toFixed(1)}</td><td class="n">${money2(l.profitPerHour)}</td><td class="n">${money2(l.floorPrice)}</td><td><span class="pill ${l.meetsTarget ? "good" : "high"}">${l.meetsTarget ? "meets" : "below"}</span></td></tr>`).join("");
+      $("#mt tbody").innerHTML = r.models.map((m) => `<tr><td>${esc(m.label)}${m.key === r.best.key ? " ★" : ""}</td><td class="n">${money(m.weekly)}</td><td class="n">${money2(m.perHour)}</td><td class="n">${money(m.annual)}</td></tr>`).join("");
+      $("#rt tbody").innerHTML = r.raises.map((x) => `<tr><td class="n">+${x.pct}%</td><td class="n">${money(x.extraPerWeek)}</td><td class="n">${pct(x.breakEvenLoss)}</td><td class="n">${money(x.atRetention)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+
+    const QFIELDS = ["baseHours", "basePrice", "loadHours", "prepHours", "travelHours", "miles", "mileageRate", "gearCost", "gearGigs", "insuranceYear", "softwareYear", "gigsPerYear", "cardFeePct", "leadFeePct", "secondOpHours", "secondOpRate", "overtimeHours", "overtimeRate", "targetHourly", "depositPct", "balanceDaysBefore", "targetIncome", "peakGigs", "offGigs", "peakUpliftPct"];
+    const QSAMPLE = { addons: sampleAddons(), picks: ["Ceremony sound", "Cocktail hour music"] };
+    function renderPicks() {
+      const rows = parseAddons($("#addons").value).rows;
+      const old = new Set([...document.querySelectorAll("#addon-picks input:checked")].map((i) => i.dataset.name));
+      $("#addon-picks").innerHTML = rows.map((a, i) => `<label class="check"><input type="checkbox" id="pick${i}" aria-label="Include ${esc(a.name)}" data-name="${esc(a.name)}"${old.has(a.name) ? " checked" : ""}>${esc(a.name)} (+${qmoney(a.price)})</label>`).join("");
+    }
+    $("#addons").addEventListener("input", renderPicks);
+    function runQuote() {
+      const qs = $("#quote-status"), out = $("#quote-out");
+      const all = parseAddons($("#addons").value);
+      const picked = new Set([...document.querySelectorAll("#addon-picks input:checked")].map((i) => i.dataset.name));
+      const included = all.rows.filter((a) => picked.has(a.name));
+      const opts = {};
+      for (const k of QFIELDS) opts[k] = $("#q_" + k).value;
+      const q = quoteGig(opts, included);
+      if (q.error) { qs.textContent = q.error; out.hidden = true; return false; }
+      const ladder = tierLadder(opts, all.rows), plan = annualPlan(opts, included), ot = overtimeFloor(opts);
+      const big = [
+        [qmoney(q.price), "Quote price"],
+        [qmoney2(q.effectiveHourly), `Effective hourly over ${q.totalHours.toFixed(1)} hours worked`],
+        [qmoney(q.breakEvenPrice), "Break-even price"],
+        [qmoney(q.targetPrice), `Price for ${qmoney(q.options.targetHourly)}/hour`],
+      ];
+      $("#quote-big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#quote-verdict").textContent = `${Math.round(q.unpaidShare * 100)}% of the hours you work are not on the dance floor. You are quoting ${qmoney2(q.quotedHourly)} per playing hour but earning ${qmoney2(q.effectiveHourly)} per hour worked.` + (ot.error ? "" : ` Overtime should be at least ${qmoney2(ot.rate)} per hour to cover your target.`);
+      const rows = [["Quote price (base + add-ons)", q.price], ["Overtime you expect to bill", q.overtimeRevenue], ["Card and lead fees", -q.fees], ["Add-on costs", -q.addonCost], ["Gear wear", -q.fixed.gear], ["Insurance share", -q.fixed.insurance], ["Software share", -q.fixed.software], ["Mileage", -q.fixed.mileage], ["Second operator", -q.fixed.secondOp], ["Take-home profit", q.profit]];
+      $("#qt tbody").innerHTML = rows.map(([l, v]) => `<tr><td>${esc(l)}</td><td class="n">${qmoney2(v)}</td></tr>`).join("") + `<tr><td>Unpaid hours (load, prep, travel)</td><td class="n">${q.unpaidHours.toFixed(1)} h</td></tr>`;
+      $("#qs tbody").innerHTML = q.schedule.map((s) => `<tr><td>${esc(s.label)}</td><td class="n">${qmoney2(s.amount)}</td></tr>`).join("");
+      $("#ql tbody").innerHTML = ladder.error ? "" : ladder.tiers.map((t) => `<tr><td>${esc(t.name)}</td><td>${t.addons.length ? esc(t.addons.join(", ")) : "base package only"}</td><td class="n">${t.totalHours.toFixed(1)}</td><td class="n">${qmoney(t.price)}</td><td class="n">${qmoney(t.profit)}</td><td class="n">${qmoney2(t.effectiveHourly)}</td></tr>`).join("");
+      $("#qa").textContent = plan.error ? plan.error : `To take home ${qmoney(q.options.targetIncome)} a year over ${plan.gigs} gigs (${q.options.peakGigs} peak, ${q.options.offGigs} off-season), charge about ${qmoney(plan.offPrice)} off-season and ${qmoney(plan.peakPrice)} at peak, which works out to ${qmoney2(plan.hourly)} per hour worked. At this quote's price you would take home ${qmoney(plan.incomeAtQuotePrice)} on the same bookings` + (plan.gigsNeededAtQuotePrice ? ` and need ${plan.gigsNeededAtQuotePrice} gigs a year to reach the goal.` : ".");
+      out.hidden = false;
+      qs.textContent = "Done. Scroll down for the quote.";
+      return true;
+    }
+    $("#quote-run").addEventListener("click", () => { if (runQuote()) record("quote_built"); });
+    $("#quote-example").addEventListener("click", () => {
+      $("#addons").value = QSAMPLE.addons;
+      renderPicks();
+      for (const i of document.querySelectorAll("#addon-picks input")) i.checked = QSAMPLE.picks.includes(i.dataset.name);
+      if (runQuote()) record("quote_example_loaded");
+    });
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#gigs").value = sampleGigs();
+      $("#overheadMonthly").value = "1100";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented DJ business, not a real one."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#gigs").value = ""; report.hidden = true; last = null; status.textContent = "Add your packages, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "dj-gig-profit-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

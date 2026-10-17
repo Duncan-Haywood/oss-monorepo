@@ -1,0 +1,28 @@
+points evaluated: 800 (2 designs x sequences of length 0..3 over 7 passes); 108 failed in ABC (score = infinity, still cost one evaluation when a method draws them)
+optimum: 1062.2 um2.ns at csa:rewrite -z|rewrite -z|dch
+reference with no passes (strash; map): 1723.2; median over the table: 1396.2
+fraction of table within 1% / 5% of optimum: 0.001 / 0.007
+
+search at equal budget, 200 seeds each; value = best score found / optimum (1.000 = found the optimum)
+budget method        median  finite p90   frac<=1.01  frac==opt
+    10 random      1.135  1.00 1.255  0.000       0.000
+    10 hillclimb   1.135  1.00 1.259  0.005       0.005
+    20 random      1.117  1.00 1.144  0.005       0.005
+    20 hillclimb   1.095  1.00 1.135  0.035       0.035
+    40 random      1.095  1.00 1.124  0.025       0.025
+    40 hillclimb   1.088  1.00 1.123  0.030       0.030
+
+session-written proposals (40 in file order, one attempt, committed before any search ran; 40 distinct)
+  after 10 distinct evaluations: best/optimum = 1.123
+  after 20 distinct evaluations: best/optimum = 1.088
+  after 40 distinct evaluations: best/optimum = 1.088
+  8 proposals have length 4 and lie outside the exhaustive table
+  best proposal overall: 1155.7 (1.088 x optimum)
+
+equivalence of mapped netlists to the reference a*b+c (Yosys miter + sat, all 2^16 inputs):
+  csa:rewrite -z|rewrite -z|dch                    1062.2  equivalent=True
+  csa:rewrite -z|refactor -z|rewrite -z            1097.8  equivalent=True
+  csa:rewrite|dch|balance                          1100.1  equivalent=True
+  csa:rewrite|dch|dch                              1100.1  equivalent=True
+  csa:rewrite -z|rewrite -z|rewrite                1115.2  equivalent=True
+  csa:rewrite|refactor|balance                     1155.7  equivalent=True

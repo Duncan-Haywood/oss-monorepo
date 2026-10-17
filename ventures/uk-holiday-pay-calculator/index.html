@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Holiday Entitlement and Pay Calculator 2026</title>
+  <meta name="description" content="Free UK holiday entitlement calculator: 5.6 weeks pro-rated for part-time, starters and leavers, plus the 12.07% method for irregular hours, and what unused days are worth. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK holiday entitlement and holiday pay calculator: part-time, starters, leavers, irregular hours. Free, private">
+  <meta property="og:description" content="Statutory holiday days, the 12.07% irregular-hours method and the pay for unused days in one step.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Holiday Entitlement and Pay Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much holiday am I entitled to by law?", "acceptedAnswer": {"@type": "Answer", "text": "Most workers get 5.6 weeks a year. For someone working 5 days a week that is 28 days, which can include bank holidays. The 28-day cap means working 6 or 7 days a week does not give more."}}, {"@type": "Question", "name": "How is holiday worked out if I work part-time?", "acceptedAnswer": {"@type": "Answer", "text": "Multiply the days you work in a week by 5.6. Three days a week gives 16.8 days. Employers should round up to the next half day, not down."}}, {"@type": "Question", "name": "What if I start or leave part-way through the year?", "acceptedAnswer": {"@type": "Answer", "text": "Holiday builds up in proportion to the part of the leave year you are employed. If you leave with unused holiday your employer must pay for it in your final pay."}}, {"@type": "Question", "name": "How does the 12.07% method work?", "acceptedAnswer": {"@type": "Answer", "text": "For irregular-hours and part-year workers whose leave year starts on or after 1 April 2024, holiday is 12.07% of the hours worked. Employers may pay it as rolled-up holiday pay, shown as a separate line on each payslip."}}, {"@type": "Question", "name": "How much is a day of holiday pay?", "acceptedAnswer": {"@type": "Answer", "text": "One normal day's pay. If your pay varies, it is based on your average over the last 52 weeks in which you were paid."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK HOLIDAY PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Holiday: how many days do I get, and what are they worth?</h1>
+    <p>Enter your leave year and working pattern. You get your statutory days (pro-rated if you start or leave part-way), how many are left, and what unused days are worth in your final pay.</p>
+    <p class="note">A first read written from published rules without a live lookup. Rules change; confirm the current text. Not tax or legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="pattern">How do you work?</label><select id="pattern"><option value="regular">Regular days each week</option><option value="irregular">Irregular hours or part-year (12.07%)</option></select></div>
+      <div><label for="yearStart">First day of your leave year</label><input id="yearStart" type="date"></div>
+      <div><label for="join">Day you started (only if during this leave year)</label><input id="join" type="date"></div>
+      <div><label for="leave">Your last day (only if you are leaving)</label><input id="leave" type="date"></div>
+      <div data-for="regular"><label for="daysPerWeek">Days you work in a normal week</label><input id="daysPerWeek" type="number" min="0.5" max="7" step="0.5"></div>
+      <div data-for="regular"><label for="hoursPerDay">Hours in a normal working day (optional)</label><input id="hoursPerDay" type="number" min="0" max="24" step="0.25"></div>
+      <div data-for="regular"><label for="weeklyPay">Gross pay for a normal week (&pound;, optional)</label><input id="weeklyPay" type="number" min="0" step="0.01"></div>
+      <div data-for="regular"><label for="taken">Days of leave already taken</label><input id="taken" type="number" min="0" step="0.5"></div>
+      <div data-for="irregular"><label for="hoursWorked">Hours worked in the leave year</label><input id="hoursWorked" type="number" min="0" step="0.5"></div>
+      <div data-for="irregular"><label for="hourlyRate">Hourly pay (&pound;, optional)</label><input id="hourlyRate" type="number" min="0" step="0.01"></div>
+      <div data-for="irregular"><label for="takenHours">Hours of holiday already taken</label><input id="takenHours" type="number" min="0" step="0.5"></div>
+      <div><label for="bankHolidays">Bank holidays your employer counts as leave (optional)</label><input id="bankHolidays" type="number" min="0" max="12" step="1"></div>
+      <div><label for="contractDays">Holiday days a year in your contract (optional)</label><input id="contractDays" type="number" min="0" max="366" step="0.5"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my holiday</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my holiday.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="tests"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> statutory holiday in Great Britain under the Working Time Regulations 1998: 5.6 weeks, the 28-day cap, pro-rating for starters and leavers, and the 12.07% method for irregular hours.</li>
+      <li><strong>Gives:</strong> days accrued, days left, whether your contract meets the minimum, and what unused days are worth when you leave.</li>
+      <li><strong>Not decided:</strong> Northern Ireland, overtime and commission averaging, carry-over, accrual during sick or family leave, contractual terms, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much holiday am I entitled to by law?</h3>
+    <p>Most workers get 5.6 weeks a year. For someone working 5 days a week that is 28 days, which can include bank holidays. The 28-day cap means working 6 or 7 days a week does not give more.</p>
+    <h3>How is holiday worked out if I work part-time?</h3>
+    <p>Multiply the days you work in a week by 5.6. Three days a week gives 16.8 days. Employers should round up to the next half day, not down.</p>
+    <h3>What if I start or leave part-way through the year?</h3>
+    <p>Holiday builds up in proportion to the part of the leave year you are employed. If you leave with unused holiday your employer must pay for it in your final pay.</p>
+    <h3>How does the 12.07% method work?</h3>
+    <p>For irregular-hours and part-year workers whose leave year starts on or after 1 April 2024, holiday is 12.07% of the hours worked. Employers may pay it as rolled-up holiday pay, shown as a separate line on each payslip.</p>
+    <h3>How much is a day of holiday pay?</h3>
+    <p>One normal day's pay. If your pay varies, it is based on your average over the last 52 weeks in which you were paid.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant, Acas or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-redundancy-pay-calculator/">UK redundancy pay calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-statutory-sick-pay-calculator/">UK statutory sick pay calculator</a> the <a href="../uk-student-loan-repayment-calculator/">UK student loan repayment calculator</a> and the <a href="../uk-minimum-wage-checker/">UK minimum wage checker</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => (n < 0 ? "-" : "") + "£" + Math.abs(Number(n)).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { pattern: "pattern", yearStart: "yearStart", join: "join", leave: "leave", daysPerWeek: "daysPerWeek", hoursPerDay: "hoursPerDay", weeklyPay: "weeklyPay", taken: "taken", hoursWorked: "hoursWorked", hourlyRate: "hourlyRate", takenHours: "takenHours", bankHolidays: "bankHolidays", contractDays: "contractDays" };
+    const IDLE = "Fill in the figures, then click Work out my holiday.";
+    const DEFAULTS = { pattern: "regular" };
+    const showPattern = () => { for (const el of document.querySelectorAll("[data-for]")) el.hidden = el.dataset.for !== $("#pattern").value; };
+    $("#pattern").addEventListener("change", showPattern);
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.pattern === "regular" ? `${r.entitled} days of statutory holiday this leave year (${r.remaining} left)` : `${r.accruedHours} hours of holiday accrued (${r.remaining} left)`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = r.pattern === "regular"
+        ? [["Full-year statutory days", r.fullDays, 0], ["Days employed in leave year", `${r.employedDays} of ${r.yearDays}`, 0], ["Days accrued", r.accrued, 0], ["Entitled (rounded up to half a day)", r.entitled, 0], ["Days taken", r.taken, 0], ["Days remaining", r.remaining, 0], ["A day's holiday pay", r.dailyPay, 1], ["Value of remaining days", r.value, 1]]
+        : [["Hours worked", r.hoursYear, 0], ["Holiday accrued at 12.07% (hours)", r.accruedHours, 0], ["Hours taken", r.takenHours, 0], ["Hours remaining", r.remaining, 0], ["Value of accrued holiday", r.holidayPay, 1], ["Value of remaining holiday", r.remainingPay, 1]];
+      $("#tests").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${x[2] ? gbp(x[1]) : x[1]}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      showPattern(); run(); record("example_loaded");
+      status.textContent = "Worked example: five days a week, started 14 April 2026, three days already taken.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; showPattern(); });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-holiday-pay.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    showPattern();
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

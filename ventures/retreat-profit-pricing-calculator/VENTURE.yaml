@@ -1,0 +1,50 @@
+name: retreat-profit-pricing-calculator
+description: >-
+  Free browser tool for retreat, workshop and group-trip organizers: enter costs, early-bird and regular prices and expected guests,
+  and get profit, break-even paying guests, the cost of a venue guaranteed minimum, what the early-bird tier gives up, the regular price
+  that hits a profit target, and profit by turnout. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nothing close (boutique-fitness-studio-pricing-planner 0.35 prices
+# recurring studio classes, not a one-off residential event). A franchise fee/royalty tool was drafted first and dropped when a grep of
+# ventures/ found franchise-unit-economics-calculator already on main: duplicate_check.py scored it low on a long query, so grep the
+# slug space for two or three keywords as well.
+#
+# Why this niche: a retreat is $20k-$100k of venue and instructor commitments made months before the first guest pays, and venues bill a
+# guaranteed minimum. Organizers (yoga and wellness teachers, coaches, mastermind hosts, church and club trip leaders) work this out in
+# a spreadsheet or not at all; booking platforms (BookRetreats, Eventbrite) take a commission and give no costing.
+#
+# First visitor: searches "retreat budget template", "how much to charge for a yoga retreat", "retreat break even attendees";
+# r/yoga teachers, r/EventPlanning, coach communities. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; "Not decided" names tax, insurance, contract and refund questions; no-advice footer.
+# Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid retreat-costing template or
+# venue-contract review -- needs an owner decision. Next features: installment/deposit cash timeline, room-type tiers, add-ons.
+
+hypotheses:
+  - claim: >-
+      Retreat organizers will type their venue, instructor and meal costs into a free tool to find break-even guests before signing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a modelling error that changes the break-even number on their inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/retreat-profit-pricing-calculator/
+  analytics: null

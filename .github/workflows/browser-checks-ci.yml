@@ -119,7 +119,7 @@ concurrency:
 
 jobs:
   browser-checks:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Above the 20-30 minutes a clean run takes, and well under the 6 hours a
     # job gets by default. A suite whose whole job is to catch a page that
     # hangs must not itself hang for six hours: `browser_checks.py` gives each
@@ -128,6 +128,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # read-only job; nothing here pushes
 
       # `actions/checkout` fetches one branch, so the branch GitHub actually
       # serves is not in the clone -- and `published-base-url.mjs` reports the

@@ -1,0 +1,51 @@
+E1  log score, CARA: numerical best report vs closed form odds^(1/(1+k)), k=alpha*b
+  p=0.60 k=0.5  numeric=0.567169  closed=0.567169
+  p=0.60 k=1.0  numeric=0.550510  closed=0.550510
+  p=0.60 k=3.0  numeric=0.525320  closed=0.525320
+  p=0.90 k=0.5  numeric=0.812268  closed=0.812268
+  p=0.90 k=1.0  numeric=0.750000  closed=0.750000
+  p=0.90 k=3.0  numeric=0.633975  closed=0.633975
+  p=0.99 k=0.5  numeric=0.955358  closed=0.955358
+  p=0.99 k=1.0  numeric=0.908675  closed=0.908675
+  p=0.99 k=3.0  numeric=0.759288  closed=0.759288
+
+E2  Brier, CARA: report r solves logit p = logit r + k(2r-1); first order p - k p(1-p)(2p-1)
+  p=0.60 k=0.1  numeric=0.595412  implicit=0.595412  first-order=0.595200  debias=0.600000
+  p=0.60 k=0.5  numeric=0.580527  implicit=0.580527  first-order=0.576000  debias=0.600000
+  p=0.60 k=2.0  numeric=0.550596  implicit=0.550596  first-order=0.504000  debias=0.600000
+  p=0.90 k=0.1  numeric=0.892706  implicit=0.892706  first-order=0.892800  debias=0.900000
+  p=0.90 k=0.5  numeric=0.862342  implicit=0.862342  first-order=0.864000  debias=0.900000
+  p=0.90 k=2.0  numeric=0.760479  implicit=0.760479  first-order=0.756000  debias=0.900000
+  p=0.99 k=0.1  numeric=0.988984  implicit=0.988984  first-order=0.989030  debias=0.990000
+  p=0.99 k=0.5  numeric=0.983877  implicit=0.983877  first-order=0.985149  debias=0.990000
+  p=0.99 k=2.0  numeric=0.943753  implicit=0.943753  first-order=0.970596  debias=0.990000
+
+E3  binarised Brier lottery (prize 1): report under any utility; certainty-equivalent cost under CARA
+  neutral: p=0.1->0.10000  p=0.5->0.50000  p=0.9->0.90000
+  CARA 2: p=0.1->0.10000  p=0.5->0.50000  p=0.9->0.90000
+  sqrt: p=0.1->0.10000  p=0.5->0.50000  p=0.9->0.90000
+  alpha=0.5: truthful p=0.9, win prob 0.910, mean pay 0.910, certainty equivalent 0.8865 (risk premium 0.0235, 2.6% of mean)
+  alpha=1.0: truthful p=0.9, win prob 0.910, mean pay 0.910, certainty equivalent 0.8562 (risk premium 0.0538, 5.9% of mean)
+  alpha=3.0: truthful p=0.9, win prob 0.910, mean pay 0.910, certainty equivalent 0.6667 (risk premium 0.2433, 26.7% of mean)
+
+E4  aggregation, n=5 verifiers, signal strength mu=0.6, log-loss (nats); k = alpha*b
+  k=0.5 all            bayes=0.2137 naive-sum=0.2331 kbar-corrected=0.2137 true-k-corrected=0.2137
+  k=2 all              bayes=0.2137 naive-sum=0.3321 kbar-corrected=0.2137 true-k-corrected=0.2137
+  k in {0,0.5,1,2,4}   bayes=0.2137 naive-sum=0.2898 kbar-corrected=0.3074 true-k-corrected=0.2137
+
+E5  decision thresholding: true belief needed for a tempered log report to reach tau; expected regret band, p~U(0,1)
+  tau=0.7  k=0.5  effective threshold=0.7809  band width=0.0809  regret=0.00327
+  tau=0.7  k=1.0  effective threshold=0.8448  band width=0.1448  regret=0.01049
+  tau=0.7  k=2.0  effective threshold=0.9270  band width=0.2270  regret=0.02577
+  tau=0.9  k=0.5  effective threshold=0.9643  band width=0.0643  regret=0.00207
+  tau=0.9  k=1.0  effective threshold=0.9878  band width=0.0878  regret=0.00385
+  tau=0.9  k=2.0  effective threshold=0.9986  band width=0.0986  regret=0.00486
+  tau=0.99  k=0.5  effective threshold=0.9990  band width=0.0090  regret=0.00004
+  tau=0.99  k=1.0  effective threshold=0.9999  band width=0.0099  regret=0.00005
+  tau=0.99  k=2.0  effective threshold=1.0000  band width=0.0100  regret=0.00005
+
+E6  scale cap: largest b (in units of 1/alpha) keeping odds exponent >= 1-delta
+  delta=0.02  alpha*b <= 0.0204
+  delta=0.05  alpha*b <= 0.0526
+  delta=0.1  alpha*b <= 0.1111
+  delta=0.25  alpha*b <= 0.3333

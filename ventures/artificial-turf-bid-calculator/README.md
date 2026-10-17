@@ -6,6 +6,8 @@ versus pet versus putting-green, turf you have to buy after 15-foot-roll
 waste, crushed-rock base tons, sod demo, infill, seams, and tree wells —
 and shows the margin before the price goes out.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/artificial-turf-bid-calculator/
+
 **After using this, you can now** send a turf bid that names the type, the
 rolls you have to buy, and the walk-away number, **which used to take**
 matching a published $8-a-square-foot special and hoping the yard was a

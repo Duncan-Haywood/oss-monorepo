@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Make A Fair Staff Schedule: Rules, Rest And Open Shifts</title>
+  <meta name="description" content="How to build a weekly staff schedule that works: coverage first, then roles, days off, rest between shifts, hour limits and fair weekends. Then build yours free in your browser.">
+  <meta property="og:title" content="How To Make A Fair Staff Schedule">
+  <meta property="og:description" content="Coverage, roles, rest rules and fair hours for a small team, with what to do when you cannot cover a shift. Free and private.">
+  <link rel="canonical" href="./how-to-make-a-staff-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a weekly work schedule for my restaurant or shop staff?", "acceptedAnswer": {"@type": "Answer", "text": "List each person with their roles, weekly hour limit and days off, one per line. List the shifts you need to cover, such as Mon-Fri 10:00-16:00 server x2. Click Build the schedule and the page assigns people to every shift while respecting roles, days off, hour limits, rest between shifts and the longest run of working days. Download it as a CSV or paste the plain text into your group chat."}}, {"@type": "Question", "name": "What rules does the scheduler follow?", "acceptedAnswer": {"@type": "Answer", "text": "Every assignment must match the person's role, avoid their days off, keep them within their weekly hour limit, give them at most one shift a day, leave the minimum rest you set between a close and the next open (including Sunday night into Monday morning), and stop them working more than the longest run of days you set. A separate validator re-checks the finished schedule against the same rules."}}, {"@type": "Question", "name": "What happens if I do not have enough people for every shift?", "acceptedAnswer": {"@type": "Answer", "text": "The shifts nobody can legally take under your rules stay marked OPEN and the page says why for each one, for example that nobody with that role is free that day or that everyone eligible is at their hour limit. It never quietly breaks a rule to fill a gap."}}, {"@type": "Question", "name": "Does it follow predictive scheduling or fair workweek laws?", "acceptedAnswer": {"@type": "Answer", "text": "No. Some cities and states require advance notice of schedules, extra pay for changes, or limits on back-to-back shifts. The minimum rest setting helps with the last one, but the tool does not know your local rules and does not check them. Check them yourself before you publish a schedule."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Weekly staff schedule maker</a></p>
+  <h1>How to make a fair staff schedule, step by step</h1>
+  <p>Most small-business schedules are built on a Sunday night from memory and a group chat. They fail in the same few ways: someone is put on a close then the next open, the same two people always get Saturday, and a shift nobody can take is discovered on the day.</p>
+  <p><a class="cta" href="./">Open the free schedule maker</a></p>
+  <h2>Step by step</h2>
+  <ol>
+    <li><strong>Write the coverage first.</strong> What shifts exist, on which days, how many people and which role. Example: <code>Mon-Fri 10:30-16:00 server x2</code>. Schedule the business before you schedule the people.</li>
+    <li><strong>Write each person's limits.</strong> Roles they can work, the hours they want at most, the days they cannot work. Example: <code>Ben: server; max 32; off Sun</code>.</li>
+    <li><strong>Set the rest rule.</strong> Ten hours between the end of one shift and the start of the next removes most close-then-open schedules. Include the wrap from Sunday night into Monday morning.</li>
+    <li><strong>Fill the hardest shifts first.</strong> The shift only two people can work should be placed before the one anybody can work. Doing it the other way round is how you end up with an uncoverable Friday.</li>
+    <li><strong>Balance by share of limit.</strong> A 20-hour student and a 40-hour cook should both be at about the same fraction of what they want, and weekends should rotate.</li>
+    <li><strong>Read the open shifts.</strong> If a shift cannot be covered without breaking a rule, the honest answer is to hire, ask for a swap or change the rule on purpose, not to hide it.</li>
+  </ol>
+  <p><a class="cta" href="./">Build this week's schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How do I make a weekly work schedule for my restaurant or shop staff?</h3>
+  <p>List each person with their roles, weekly hour limit and days off, one per line. List the shifts you need to cover, such as Mon-Fri 10:00-16:00 server x2. Click Build the schedule and the page assigns people to every shift while respecting roles, days off, hour limits, rest between shifts and the longest run of working days. Download it as a CSV or paste the plain text into your group chat.</p>
+  <h3>What rules does the scheduler follow?</h3>
+  <p>Every assignment must match the person's role, avoid their days off, keep them within their weekly hour limit, give them at most one shift a day, leave the minimum rest you set between a close and the next open (including Sunday night into Monday morning), and stop them working more than the longest run of days you set. A separate validator re-checks the finished schedule against the same rules.</p>
+  <h3>What happens if I do not have enough people for every shift?</h3>
+  <p>The shifts nobody can legally take under your rules stay marked OPEN and the page says why for each one, for example that nobody with that role is free that day or that everyone eligible is at their hour limit. It never quietly breaks a rule to fill a gap.</p>
+  <h3>Does it follow predictive scheduling or fair workweek laws?</h3>
+  <p>No. Some cities and states require advance notice of schedules, extra pay for changes, or limits on back-to-back shifts. The minimum rest setting helps with the last one, but the tool does not know your local rules and does not check them. Check them yourself before you publish a schedule.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or employment advice. Check local scheduling and overtime rules, and review every shift before you share a schedule. The example names are invented.</p>
+    <p>Everything the schedule maker does runs in your browser; staff names and rates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

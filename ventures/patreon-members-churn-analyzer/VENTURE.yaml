@@ -1,0 +1,80 @@
+name: patreon-members-churn-analyzer
+description: >-
+  Free browser tool that turns a Patreon Members export CSV into active,
+  declined and former patron counts, MRR overall and by tier, tenure and churn
+  by join cohort, the monthly income at risk from declined payments, patron
+  concentration, and an estimate of Patreon's fee take and net to the creator.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Patreon creators live on
+# recurring pledges, and the question after "what do I keep per pledge" (answered
+# by patreon-fee-calculator) is "who is leaving and what is at risk". Patreon's own
+# analytics show headline counts; the export holds per-patron status, tier, join
+# date and last charge, which is enough for cohort churn, survival and the
+# declined-payment list. Existing answers are spreadsheets and paid membership
+# analytics tools that want an account. patreon-fee-calculator prices a month from
+# typed tiers; nothing reads a creator's own member list. Linked both ways.
+#
+# First visitor: r/patreon and creator-economy communities asking "how many of my
+# patrons churn" and "why did my income drop"; search phrases "patreon churn rate",
+# "patreon export analysis", "patreon declined payments". Volume not measured with
+# an external tool.
+#
+# What makes it more than a count: declined patrons are shown as recoverable
+# at-risk income and listed, not lumped in with churn; churn is cut by how long ago
+# patrons joined and as survival that counts only patrons old enough to be
+# measured; groups under five are shown but never drive a suggestion; fee
+# percentages are editable and labelled as assumptions.
+#
+# Privacy is the differentiator and the liability boundary: the file, which holds
+# patron names and emails, never leaves the browser (a test asserts the page has
+# no network calls), so the portfolio holds no creator or patron data.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to the
+# patreon-fee-calculator already published. A paid version, if usage appears, is a
+# month-over-month export diff behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and stated assumptions, model and
+# omissions stated on the page, no tax or financial advice, no warranty,
+# independent-of-Patreon clause, fee defaults flagged as assumptions to check
+# against the creator's own payout statement.
+#
+# Unverified: column names and status wording are from memory of Patreon Members
+# exports and matched by alias; no real export was available, so the first user
+# report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Patreon creators will run a no-signup analysis of the Members export they
+      already hold to see churn and declined payments before paying for a
+      membership analytics tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the declined-payment list and early-tenure drop-off leads at least
+      one creator to act (message declined patrons, add a welcome post), which is
+      the reason to return with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/patreon-members-churn-analyzer/
+  analytics: null

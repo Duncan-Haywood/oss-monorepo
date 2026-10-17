@@ -1,0 +1,62 @@
+sample: 40 projects, seed 20261015, timeout 300 s each
+
+project                            status       difflines   secs  README decimals in output
+abstention-scoring                 identical            0    1.6  2/2
+accel-sparse                       identical            0   91.0  43/51
+alias-twin                         identical            0   42.3  17/19
+ambient-dr                         identical            0   95.9  58/58
+ambient-drvalid                    timeout              0  300.0  44/48
+ambient-labelmatch                 identical            0   86.3  41/44
+ambient-pipeline                   tool-missing         0    0.5  15/21
+                                     last stderr line: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/amb/models/voice.onnx.json'
+audit-weighted-scoring             identical            0    2.1  -
+backlash-twin                      identical            0    1.5  10/12
+blur-twin                          identical            0    0.9  12/12
+delayed-routing                    identical            0    3.4  -
+dropout-twin                       identical            0   34.7  9/9
+eda-proposers                      identical            0   17.3  28/34
+explanation-twin                   identical            0   12.1  9/13
+filter-twin                        identical            0   11.0  13/20
+forecast-duel                      identical            0   22.6  0/1
+garment-markercost                 timing-only          1   34.8  21/23
+garment-nesting                    timing-only          1  112.1  22/31
+garment-twonodelag                 identical            0   39.5  51/59
+loopclosure-twin                   identical            0    3.1  7/11
+osrobot-bodysearch                 identical            0  149.4  11/15
+osrobot-morph                      identical            0  237.0  21/24
+osrobot-specialise                 identical            0   80.0  23/25
+queue-twin                         identical            0   49.1  11/15
+race-heterogeneity                 identical            0   43.3  -
+reject-surrogates                  identical            0   27.1  -
+robofab-graspoffset                identical            0    9.8  11/17
+robofab-reachorder                 identical            0    3.3  0/1
+rollout-commons                    identical            0   14.5  1/1
+saturation-twin                    identical            0   23.1  23/29
+selfrep-closure                    identical            0    0.8  6/8
+selfrep-reinvest                   identical            0   11.0  12/13
+simdesign-fidelity                 timeout              0  300.0  19/24
+simdesign-gaugemesh                identical            0   41.5  20/21
+simdesign-llm                      timeout              0  300.1  29/32
+slosh-twin                         identical            0    0.2  6/9
+speed-race                         identical            0    0.5  -
+swe-backfill                       identical            0    0.1  0/1
+tail-elicitation                   identical            0    6.1  5/5
+tail-risk-elicitation              identical            0    1.8  4/5
+
+status counts: {'identical': 34, 'timeout': 3, 'tool-missing': 1, 'timing-only': 2}
+reproduced (identical or timing-only): 36/40 = 90%  (95% Wilson 77% to 96%)
+of runs that completed: byte-identical 34/36  (95% Wilson 82% to 98%)
+
+by track (reproduced/sampled):
+  accel      1/1
+  ambient    2/4
+  eda        1/1
+  garment    3/3
+  osrobot    3/3
+  other      20/20
+  robofab    2/2
+  selfrep    2/2
+  simdesign  1/3
+  swe        1/1
+
+README decimals found verbatim in committed results files: 604/713 = 85% over 35 READMEs

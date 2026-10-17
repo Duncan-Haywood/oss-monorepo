@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Franchise Unit Economics Calculator — Free</title>
+  <meta name="description" content="Free franchise calculator: fee, build-out, loan, sales ramp, costs and royalties in; payback, IRR, break-even sales, the cash cushion you need and whether the brand beats going independent out. Nothing uploaded.">
+  <meta property="og:title" content="Will this franchise pay? Free unit economics calculator">
+  <meta property="og:description" content="Payback, IRR, break-even sales and the sales lift the brand must deliver. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 24V9h13v3H12v3h8v3h-8v6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Franchise Unit Economics Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Model one franchise unit before you sign: investment, loan, sales ramp, costs and franchisor fees in; monthly cash, payback, cash-on-cash and IRR, the break-even sales, the cash cushion you need, and the sales lift the brand must deliver to beat going independent out. Runs in your browser; nothing is uploaded.","featureList":"Payback month, IRR, break-even sales, fee load, cash cushion check, DSCR, franchise vs independent tie point, sensitivity grid"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a franchise really cost me each year?","acceptedAnswer":{"@type":"Answer","text":"Every month the franchisor takes a royalty on gross sales (not profit), usually a brand or ad fund share on top, and often a fixed technology fee and a minimum royalty. Together that is the fee load this tool prints as a percentage of sales and in dollars. Because it comes off the top, it is paid even in months you lose money."}},{"@type":"Question","name":"How much cash do I need before the unit pays me?","acceptedAnswer":{"@type":"Answer","text":"More than the franchise fee. New units ramp up, so early months can lose money while the loan payment is already due. The tool tracks your cash cushion month by month, shows the lowest point and the month it would go below zero, and how much extra cushion would have covered it."}},{"@type":"Question","name":"Is a franchise better than opening the same business on my own?","acceptedAnswer":{"@type":"Answer","text":"Only if the brand lifts your sales by more than it costs. The tool finds the share of franchise-level sales you would have to reach on your own for the two to tie. If you believe you could reach more than that without the brand, the fees are not buying you anything."}},{"@type":"Question","name":"Where do I get the numbers to put in?","acceptedAnswer":{"@type":"Answer","text":"The franchise disclosure document the franchisor must give you lists the fees, the estimated initial investment, and sometimes sales figures for existing units. Ask current and former owners what they actually earn, get a real lease and a lender's quote, and enter your own market's costs. The defaults here are placeholders."}},{"@type":"Question","name":"Is this financial or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. It does not review a franchise agreement, predict your sales, or decide financing or tax treatment, and it does not recommend any franchise."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FRANCHISE UNIT ECONOMICS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will this franchise unit actually pay you?</h1>
+    <p>Enter what it costs to open, how you would finance it, your sales and costs, and what the franchisor takes. It shows the cash month by month, when you get your money back, the sales you need to break even, whether your cash cushion survives the ramp-up, and how much the brand has to lift your sales to beat opening the same business on your own.</p>
+    <p class="note">Planning arithmetic on your own numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. What it costs to open</h2>
+      <div class="grid">
+        <div><label for="franchiseFee">Initial franchise fee ($)</label><input id="franchiseFee" type="number" step="any" value="0"></div>
+        <div><label for="buildout">Build-out and leasehold improvements ($)</label><input id="buildout" type="number" step="any" value="0"></div>
+        <div><label for="equipment">Equipment, signage and opening inventory ($)</label><input id="equipment" type="number" step="any" value="0"></div>
+        <div><label for="workingCapital">Cash cushion kept for the ramp-up ($)</label><input id="workingCapital" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. How it is paid for</h2>
+      <div class="grid">
+        <div><label for="loanAmount">Loan amount ($)</label><input id="loanAmount" type="number" step="any" value="0"></div>
+        <div><label for="loanRatePct">Loan interest rate (%)</label><input id="loanRatePct" type="number" step="any" value="0"></div>
+        <div><label for="loanYears">Loan term (years)</label><input id="loanYears" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Sales</h2>
+      <div class="grid">
+        <div><label for="annualRevenue">Annual sales once mature ($)</label><input id="annualRevenue" type="number" step="any" value="0"></div>
+        <div><label for="rampStartPct">Sales in month 1 (% of mature)</label><input id="rampStartPct" type="number" step="any" value="0"></div>
+        <div><label for="rampMonths">Months to reach mature sales</label><input id="rampMonths" type="number" step="any" value="0"></div>
+        <div><label for="growthPct">Sales growth per year after that (%)</label><input id="growthPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Running costs</h2>
+      <div class="grid">
+        <div><label for="cogsPct">Cost of goods (% of sales)</label><input id="cogsPct" type="number" step="any" value="0"></div>
+        <div><label for="laborPct">Crew labor (% of sales)</label><input id="laborPct" type="number" step="any" value="0"></div>
+        <div><label for="otherVarPct">Card fees and other variable costs (% of sales)</label><input id="otherVarPct" type="number" step="any" value="0"></div>
+        <div><label for="fixedMonthly">Rent, utilities, insurance and other fixed ($/month)</label><input id="fixedMonthly" type="number" step="any" value="0"></div>
+        <div><label for="operatorPayMonthly">Pay for whoever runs the unit ($/month)</label><input id="operatorPayMonthly" type="number" step="any" value="0"></div>
+        <div><label for="costEscPct">Fixed cost rise per year (%)</label><input id="costEscPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">5. What the franchisor takes</h2>
+      <div class="grid">
+        <div><label for="royaltyPct">Royalty (% of gross sales)</label><input id="royaltyPct" type="number" step="any" value="0"></div>
+        <div><label for="royaltyMinMonthly">Minimum royalty ($/month, 0 if none)</label><input id="royaltyMinMonthly" type="number" step="any" value="0"></div>
+        <div><label for="adFundPct">Brand or ad fund (% of gross sales)</label><input id="adFundPct" type="number" step="any" value="0"></div>
+        <div><label for="techFeeMonthly">Technology and other fixed fees ($/month)</label><input id="techFeeMonthly" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-5">
+      <h2 id="h-5">6. The question you are asking</h2>
+      <div class="grid">
+        <div><label for="years">Years you keep the unit (1-20)</label><input id="years" type="number" step="any" value="0"></div>
+        <div><label for="exitMultiple">Sale price if you sell at the end (× last year's profit, 0 for none)</label><input id="exitMultiple" type="number" step="any" value="0"></div>
+        <div><label for="targetCashFlow">Cash you need left each year after the loan ($)</label><input id="targetCashFlow" type="number" step="any" value="0"></div>
+        <div><label for="indepRevenuePct">Sales you would reach without the brand (% of franchise sales)</label><input id="indepRevenuePct" type="number" step="any" value="0"></div>
+        <div><label for="indepMarketingPct">Marketing you would pay for yourself (% of sales)</label><input id="indepMarketingPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out the unit economics</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What does a franchise really cost me each year?</h3>
+      <p>Every month the franchisor takes a royalty on gross sales (not profit), usually a brand or ad fund share on top, and often a fixed technology fee and a minimum royalty. Together that is the fee load this tool prints as a percentage of sales and in dollars. Because it comes off the top, it is paid even in months you lose money.</p>
+      <h3>How much cash do I need before the unit pays me?</h3>
+      <p>More than the franchise fee. New units ramp up, so early months can lose money while the loan payment is already due. The tool tracks your cash cushion month by month, shows the lowest point and the month it would go below zero, and how much extra cushion would have covered it.</p>
+      <h3>Is a franchise better than opening the same business on my own?</h3>
+      <p>Only if the brand lifts your sales by more than it costs. The tool finds the share of franchise-level sales you would have to reach on your own for the two to tie. If you believe you could reach more than that without the brand, the fees are not buying you anything.</p>
+      <h3>Where do I get the numbers to put in?</h3>
+      <p>The franchise disclosure document the franchisor must give you lists the fees, the estimated initial investment, and sometimes sales figures for existing units. Ask current and former owners what they actually earn, get a real lease and a lender's quote, and enter your own market's costs. The defaults here are placeholders.</p>
+      <h3>Is this financial or legal advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. It does not review a franchise agreement, predict your sales, or decide financing or tax treatment, and it does not recommend any franchise.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Income tax and depreciation, the terms of the franchise agreement (renewal, transfer, territory, required remodels), whether the franchisor's sales figures describe units like yours, your lender's real terms and personal guarantee, working-capital needs beyond what you enter, and what the unit would sell for (an estimate you make, not a measurement). The defaults are placeholders, not market figures: check every number against the disclosure document, your lease and quotes.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../franchise-item-19-reality-check/">franchise Item 19 reality check</a>, the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a>, the <a href="../sba-loan-capacity-calculator/">SBA loan capacity calculator</a> and the <a href="../business-loan-offer-comparator/">business loan offer comparator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or a franchise attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any disclosure, tax, lending or contract obligation that applies to your purchase. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const mo = (m) => m === null ? "never within the years you keep it" : "month " + m + " (about " + (m / 12).toFixed(1) + " years)";
+    function run() {
+      const o = opts();
+      if (!(o.annualRevenue > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter the annual sales you expect once the unit is mature.</div>'; $("out").hidden = false; return; }
+      const a = analyze(o), s = a.sim;
+      let h = "";
+      h += `<div class="finding"><h4>${s.payback === null ? "The unit does not pay back what you put in" : "You get your money back in " + mo(s.payback)}</h4><p class="stats">You put in <strong>${money(s.inv.equity)}</strong> of your own cash (${money(s.inv.total)} total, ${money(s.inv.loan)} borrowed at ${money(s.pmt)} a month). Over ${s.years} years it returns ${money(s.totalFree)} after the loan${s.terminal ? " plus " + money(s.terminal) + " on sale net of the loan left" : ""}: <strong>${s.multiple === null ? "n/a" : s.multiple.toFixed(1) + "x"}</strong> your cash, an annual return of <strong>${s.irr === null ? "n/a" : pct(s.irr)}</strong>. Year 1 pays ${money(s.firstYearFree)}; year ${s.years} pays ${money(s.lastYearFree)}.</p></div>`;
+      h += `<div class="finding"><h4>${s.runOut === null ? "Your cash cushion survives the ramp-up" : "You run out of cash in month " + s.runOut}</h4><p>${s.runOut === null ? "The lowest your cash gets is " + money(s.lowestCash) + " in month " + s.lowestMonth + "." : "Cash bottoms at <strong>" + money(s.lowestCash) + "</strong> in month " + s.lowestMonth + ". You would need about <strong>" + money(Math.ceil(s.extraCapital / 1000) * 1000) + "</strong> more in the cushion, or a slower loan or a faster ramp, to get through. Under-funded openings are the usual way a sound franchise fails."}</p></div>`;
+      const st = a.steady;
+      h += `<div class="finding"><h4>Break-even and your target</h4><ul><li>Break-even sales (a mature year covers every cost and the loan): <strong>${a.beRevenue === null ? "not reachable with these costs and fees" : money(a.beRevenue)}</strong> a year, against ${money(o.annualRevenue)} expected${a.beRevenue !== null ? " (" + pct(a.beRevenue / o.annualRevenue, 0) + " of it)" : ""}.</li><li>Sales needed to leave you ${money(o.targetCashFlow)} a year after the loan: <strong>${a.targetRevenue === null ? "not reachable" : money(a.targetRevenue)}</strong>.</li><li>A mature year at your expected sales leaves <strong>${money(st.afterDebt * 12)}</strong> after the loan.</li>${s.dscr === null ? "" : `<li>Loan cover in year 2: <strong>${s.dscr.toFixed(2)}x</strong> (operating profit divided by loan payments)${s.dscr < 1.25 ? ". Lenders commonly look for about 1.25x, so this may be a hard loan to get." : "."}</li>`}</ul></div>`;
+      h += `<div class="finding"><h4>What the franchisor takes</h4><p class="stats"><strong>${pct(s.feeLoad)}</strong> of all sales, <strong>${money(s.feesTotal)}</strong> over ${s.years} years in royalty, ad fund and fixed fees${s.feesTotal > s.totalFree ? " — more than the " + money(s.totalFree) + " you keep after the loan" : ""}. They are taken from sales, so they are owed in months the unit loses money too.</p></div>`;
+      const v = a.vs;
+      h += `<div class="finding"><h4>Franchise or the same business on your own?</h4><p>A mature year before the loan: franchise <strong>${money(v.franchiseOp)}</strong> (franchise fee spread over ${s.years} years), independent <strong>${money(v.indepOp)}</strong> if you reached ${o.indepRevenuePct}% of the franchise's sales with ${o.indepMarketingPct}% marketing. ${v.tiePct === null ? "The franchise cannot break even against going alone at any sales level you would reach." : "They tie if you could reach <strong>" + pct(v.tiePct, 0) + "</strong> of the franchise's sales on your own: if you think you could do better than that without the brand, the fees are not paying for themselves; if the brand really lifts sales by more than that, it is."}</p></div>`;
+      h += `<div class="finding"><h4>Year by year</h4>${table(["Year", "Sales", "Franchisor fees", "Operating profit", "Loan payments", "Left for you", "Cumulative vs cash in"], s.byYear.map((y) => [y.year, money(y.rev), money(y.fees), money(y.operating), money(y.debt), money(y.free), money(y.cum)]))}</div>`;
+      h += `<div class="finding"><h4>If sales or prime cost move: a mature year after the loan</h4>${table(["Sales \\ Cost of goods and labor", ...a.grid[0].cells.map((c) => (c.shift > 0 ? "+" : "") + c.shift + " pts")], a.grid.map((r) => [money(r.annual), ...r.cells.map((c) => money(c.afterDebt))]))}<p class="note">Negative means that year loses money after the loan. Points are of sales added to or taken off your cost of goods and labor.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

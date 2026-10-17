@@ -8,6 +8,7 @@ const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const vsAwsSeo = readFileSync(new URL("./vs-aws-pricing-calculator.html", import.meta.url), "utf8");
 const vsGoogle = readFileSync(new URL("./vs-google-cloud-pricing-calculator.html", import.meta.url), "utf8");
 const vsAzure = readFileSync(new URL("./vs-azure-pricing-calculator.html", import.meta.url), "utf8");
+const vsSpreadsheet = readFileSync(new URL("./vs-a-spreadsheet.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -74,6 +75,11 @@ test("index links the CDN extra and the sitemap lists both pages", () => {
   assert.match(sitemap, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /vs-google-cloud-pricing-calculator\.html/);
   assert.match(sitemap, /\.\//);
+});
+
+test("index links the generic-method spreadsheet comparison page and the sitemap lists it too", () => {
+  assert.match(html, /vs-a-spreadsheet\.html/);
+  assert.match(sitemap, /vs-a-spreadsheet\.html/);
 });
 
 test("index links the AWS incumbent-comparison page and the sitemap lists it too", () => {
@@ -193,6 +199,56 @@ test("the Azure comparison page's FAQ schema is visible copy, and it routes read
     "does-infrequent-access-still-beat-standard.html",
   ]) {
     assert.ok(vsAzure.includes(sibling), `${sibling} is not reachable from the Azure comparison page`);
+  }
+});
+
+test("the spreadsheet comparison page links back, carries the disclaimer, and routes to the sibling pages", () => {
+  assert.match(vsSpreadsheet, /<a href="\.\/">/);
+  assert.match(vsSpreadsheet, /No warranty/);
+  assert.match(vsSpreadsheet, /Best-effort hosting, no SLA/);
+  assert.match(vsSpreadsheet, /github\.com\/sponsors\/Duncan-Haywood/);
+  for (const sibling of [
+    "does-a-cdn-cut-s3-egress.html",
+    "does-a-replica-beat-cross-region-pull.html",
+    "does-infrequent-access-still-beat-standard.html",
+  ]) {
+    assert.ok(vsSpreadsheet.includes(sibling), `${sibling} is not reachable from the spreadsheet comparison page`);
+  }
+});
+
+test("the spreadsheet comparison page's worked example matches the arithmetic", () => {
+  const spreadsheet = compareScenarios({
+    first: { storageGb: 2000, requestsMillion: 8, egressGb: 15000, storageRate: 0.023, requestRate: 0.4, egressRate: 0.09 },
+    second: { storageGb: 2000, requestsMillion: 8, egressGb: 15000, storageRate: 0.023, requestRate: 0.4, egressRate: 0.09 },
+  }).first;
+  const calculator = compareScenarios({
+    first: {
+      storageGb: 2000, requestsMillion: 8, egressGb: 15000, storageRate: 0.023, requestRate: 0.4, egressRate: 0.09,
+      freeEgressGb: 100, egressTiers: [{ bandGb: 10240, rate: 0.09 }, { bandGb: null, rate: 0.085 }],
+    },
+    second: { storageGb: 2000, requestsMillion: 8, egressGb: 15000, storageRate: 0.023, requestRate: 0.4, egressRate: 0.09 },
+  }).first;
+  assert.equal(spreadsheet.total, 1399.2);
+  assert.equal(calculator.total, 1366.9);
+  assert.equal(Math.round((spreadsheet.total - calculator.total) * 100) / 100, 32.3);
+  assert.equal(Math.round((spreadsheet.total - calculator.total) * 12 * 100) / 100, 387.6);
+  assert.match(vsSpreadsheet, /\$1,399\.20/);
+  assert.match(vsSpreadsheet, /\$1,366\.90/);
+  assert.match(vsSpreadsheet, /\$32\.30/);
+  assert.match(vsSpreadsheet, /\$387\.60/);
+});
+
+test("the spreadsheet comparison page's FAQ schema is visible copy", () => {
+  const block = vsSpreadsheet.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(block, "no FAQPage JSON-LD found on the spreadsheet comparison page");
+  const faq = JSON.parse(block[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  assert.ok(faq.mainEntity.length >= 3);
+  const visible = vsSpreadsheet.replace(/<script[\s\S]*?<\/script>/g, "");
+  for (const entry of faq.mainEntity) {
+    assert.match(visible, new RegExp(`<h3>${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
+    const firstSentence = entry.acceptedAnswer.text.split(". ")[0];
+    assert.ok(visible.includes(firstSentence), `answer to "${entry.name}" is in the schema but not on the page`);
   }
 });
 

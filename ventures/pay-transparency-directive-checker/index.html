@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pay Transparency Directive Checker — Reporting Duties and 5% Pay Gap Test</title>
+  <meta name="description" content="Free EU Pay Transparency Directive checker for employers: which duties apply at your headcount, which are still open, and which job categories hit the 5% pay gap trigger. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU Pay Transparency Directive checker: reporting dates, open duties and the 5% gap test. Free, private">
+  <meta property="og:description" content="Headcount and a pay table in; reporting schedule, open duties and categories needing a joint pay assessment out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pay Transparency Directive Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does the EU Pay Transparency Directive apply to small employers?", "acceptedAnswer": {"@type": "Answer", "text": "Some duties do and some do not. Pay information for job applicants, the ban on asking about pay history, workers' right to information about pay, and the ban on pay secrecy clauses reach every employer. Gender pay gap reporting starts at 100 employees."}}, {"@type": "Question", "name": "When do employers have to report their gender pay gap?", "acceptedAnswer": {"@type": "Answer", "text": "Employers with 250 or more workers report every year and those with 150 to 249 every three years, both starting 7 June 2027 for 2026 data. Employers with 100 to 149 report every three years starting 7 June 2031. Check your national law for exact dates."}}, {"@type": "Question", "name": "What is the 5% pay gap rule?", "acceptedAnswer": {"@type": "Answer", "text": "If a report shows an average pay gap of 5% or more between women and men in a category of workers doing equal or equal-value work, the employer cannot justify it with objective gender-neutral factors, and it is not fixed within six months, a joint pay assessment with worker representatives is required."}}, {"@type": "Question", "name": "Can I ask a job candidate what they earn now?", "acceptedAnswer": {"@type": "Answer", "text": "No. The Directive bans asking applicants about their current or past pay. Candidates must also be told the pay or pay range before the interview."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAY TRANSPARENCY CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does the EU Pay Transparency Directive require of your company?</h1>
+    <p>Enter your headcount, mark what you already do and paste average pay by sex for each job category. You get your <strong>reporting schedule</strong>, the <strong>duties still open</strong>, and every category at or over the <strong>5% gap trigger</strong>.</p>
+    <p class="note">A first read of Directive (EU) 2023/970 (transposition deadline 7 June 2026). National laws differ. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="headcount">Number of employees</label><input id="headcount" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 180"></div>
+      <div><label for="hiring">Are you recruiting?</label><select id="hiring"><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="range">Job ads or pre-interview contact give the pay or pay range, based on objective gender-neutral criteria</label><select id="range"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="history">You never ask applicants about their current or past pay</label><select id="history"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="neutralTitles">Vacancy notices and job titles are gender-neutral and the hiring process is non-discriminatory</label><select id="neutralTitles"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="criteria">Written, gender-neutral criteria for setting pay and pay progression exist and workers can see them</label><select id="criteria"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="request">A process exists to answer a worker's request for their pay level and average pay by sex for equal work within two months</label><select id="request"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="secrecy">No contract term or policy stops workers from disclosing their pay</label><select id="secrecy"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="jobEval">Pay structures rest on a documented gender-neutral job evaluation or classification</label><select id="jobEval"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      </div>
+    <label for="payTable">Average pay by job category (optional): category, women average, men average, one per line</label>
+    <textarea id="payTable" rows="6" placeholder="Software engineer,71000,76500"></textarea>
+    <p>
+      <button type="button" id="calc">Check my company</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your number of employees, then click Check my company.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Pay gap by category</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Category</th><th scope="col" class="n">Women avg</th><th scope="col" class="n">Men avg</th><th scope="col" class="n">Gap %</th><th scope="col">5% trigger</th></tr></thead><tbody id="gap-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Reporting:</strong> 250 or more employees report every year, 150 to 249 every three years (first report 7 June 2027), 100 to 149 every three years (first 7 June 2031) (Article 9).</li>
+      <li><strong>Every employer:</strong> pay information for applicants, no questions about pay history, pay criteria, the right to request pay data, and no pay secrecy clauses (Articles 4 to 7).</li>
+      <li><strong>5% trigger:</strong> an unexplained gap of 5% or more in a category, unfixed after six months, requires a joint pay assessment (Article 10).</li>
+      <li><strong>Not decided:</strong> national penalties and deadlines, how your Member State defines pay categories, whether jobs are of equal value, and whether a gap is objectively justified.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does the EU Pay Transparency Directive apply to small employers?</h3>
+    <p>Some duties do and some do not. Pay information for job applicants, the ban on asking about pay history, workers' right to information about pay, and the ban on pay secrecy clauses reach every employer. Gender pay gap reporting starts at 100 employees.</p>
+    <h3>When do employers have to report their gender pay gap?</h3>
+    <p>Employers with 250 or more workers report every year and those with 150 to 249 every three years, both starting 7 June 2027 for 2026 data. Employers with 100 to 149 report every three years starting 7 June 2031. Check your national law for exact dates.</p>
+    <h3>What is the 5% pay gap rule?</h3>
+    <p>If a report shows an average pay gap of 5% or more between women and men in a category of workers doing equal or equal-value work, the employer cannot justify it with objective gender-neutral factors, and it is not fixed within six months, a joint pay assessment with worker representatives is required.</p>
+    <h3>Can I ask a job candidate what they earn now?</h3>
+    <p>No. The Directive bans asking applicants about their current or past pay. Candidates must also be told the pay or pay range before the interview.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>To compute the full Article 9 indicators from a payroll table, use the <a href="../eu-pay-gap-report-calculator/">EU pay gap report calculator</a>. Related tools: the <a href="../eaa-accessibility-act-checker/">European Accessibility Act checker</a>, the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a> and the <a href="../gpsr-product-safety-checker/">GPSR checker</a>.</p>
+    <p>Also for EU employers: the <a href="../eu-whistleblower-channel-checker/">EU Whistleblower Directive channel checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, gapCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { headcount: "headcount", hiring: "hiring", range: "range", history: "history", neutralTitles: "neutralTitles", criteria: "criteria", request: "request", secrecy: "secrecy", jobEval: "jobEval", payTable: "payTable" };
+    const DEFAULTS = { hiring: "yes" };
+    const IDLE = "Enter your number of employees, then click Check my company.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors?.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.reports ? "Reporting applies: " + r.reporting.cadence + ", first " + r.reporting.first : "No reporting duty under the Directive; other duties apply";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#gap-rows").innerHTML = r.table.map((t) => `<tr><td>${esc(t.category)}</td><td class="n">${t.women}</td><td class="n">${t.men}</td><td class="n">${t.gap}</td><td>${t.over ? "5% or more" : "below 5%"}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check your national law before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 180-person company. Illustrative, not a real employer.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] || ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("pay-transparency-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("pay-gap-table.csv", gapCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

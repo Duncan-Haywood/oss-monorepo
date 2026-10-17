@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01KujYppwBxUYZron47yQRqi",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "merge",
+  "projects": [
+    "tail-elicitation"
+  ],
+  "pr": null,
+  "commits": [
+    "ef2b32c747d507b08a2c52b507c7f1a7cb4eee6b"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [
+    "tail-elicitation had no references list or AI-assistance statement; added before merge"
+  ],
+  "notes": "Closed 9 open PRs whose projects were already on main (duplicates). Queue of ~300 unmerged claude/* branches not triaged this run.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

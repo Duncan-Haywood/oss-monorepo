@@ -17,7 +17,12 @@ test("docs page links back to the tool", async () => {
 });
 
 test("all pages carry the no-warranty clause", async () => {
-  for (const file of ["index.html", "why-terraform-plan-json-leaks-secrets.html", "vs-checkov.html"]) {
+  for (const file of [
+    "index.html",
+    "why-terraform-plan-json-leaks-secrets.html",
+    "vs-checkov.html",
+    "vs-manually-reading-the-plan-json.html",
+  ]) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), "utf8");
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
@@ -41,6 +46,26 @@ test("vs-checkov page carries the not-affiliated trademark disclaimer", async ()
 test("vs-checkov page is listed in the sitemap", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
   assert.match(sitemap, /vs-checkov\.html/);
+});
+
+test("index links to the vs-manually-reading-the-plan-json comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="vs-manually-reading-the-plan-json\.html"/);
+});
+
+test("vs-manually-reading-the-plan-json page links back to the tool", async () => {
+  const page = await readFile(new URL("./vs-manually-reading-the-plan-json.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/);
+});
+
+test("vs-manually-reading-the-plan-json page names no specific product", async () => {
+  const page = await readFile(new URL("./vs-manually-reading-the-plan-json.html", import.meta.url), "utf8");
+  assert.match(page, /names no specific product/i);
+});
+
+test("vs-manually-reading-the-plan-json page is listed in the sitemap", async () => {
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.match(sitemap, /vs-manually-reading-the-plan-json\.html/);
 });
 
 test("index carries the sponsor link", async () => {

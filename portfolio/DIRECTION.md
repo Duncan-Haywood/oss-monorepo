@@ -4,6 +4,14 @@
 instructions conflict, this document wins over older prose in `CLAUDE.md`, the
 ledger, or session notes that still treat policy compliance as the primary job.
 
+**Updated 2026-10-15:** `prompts/goals.md` and the ventures sub-prompt
+(`prompts/ventures/prompt-1.md`) win over this document where they differ.
+That covers the business model (one-click self-deployed copies with a donate
+link), payments (allowed on the deployer's own keys, never the owner's), and
+a preference for higher-value work over more single-page calculators. Several sections below say "the owner's own
+framing, relayed" without quoting the owner. Read them as an agent's
+interpretation (`goals.md`, "Judgment over rules").
+
 Two companion documents carry the parts this one only names:
 
 - [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md) — how to actually build one of
@@ -11,8 +19,9 @@ Two companion documents carry the parts this one only names:
     per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
     checklist, and the definition of done.
 - [`portfolio/hosting/`](hosting/README.md) — where a product goes live:
-    GitHub Pages for static tools, the existing Hetzner boxes for
-    processes. Not Cloudflare. Not Vercel.
+    GitHub Pages for static tools. The Hetzner boxes were deleted
+    2026-10-01, so processes need a new host decision. Not Cloudflare.
+    Not Vercel.
 - [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
@@ -84,6 +93,13 @@ document.
    public URL is not a product yet. `python3 platform/ci/pages_state.py`
    says whether the live snapshot matches `main`; if it says `stale`, that
    refresh outranks new work (see "Current priority" below).
+   > **Superseded 2026-10-16** ([`docs/reports/2026-10-16-calculator-glut.md`](../docs/reports/2026-10-16-calculator-glut.md)):
+   > "new ventures first" is how 121 near-identical `*-bid-calculator` ventures and
+   > 521 other calculators were built while none was ever measured. A new venture
+   > is welcome when it is a genuinely different product (web or not), never another
+   > copy of an existing template family; distribution, measurement and the
+   > router's `Consolidate:` task rank ahead of it.
+
 2. **New ventures get first call, right now, not the leftover slot — and the
    owner has a standing special interest in them, so raise the bar rather
    than the count.** `portfolio/pipeline/candidates.yaml` has **zero**
@@ -102,7 +118,7 @@ document.
    have. This is not a slowdown: it is how "more viable" differs from "more
    businesses" when the count is already 195 and none of them has a
    confirmed visitor. New ventures still beat a parity feature on a product
-   nobody has visited — see "The fleet-parity trap" below — and sourcing
+   nobody has visited — see "The fleet-parity trap" — and sourcing
    one is real product work, not meta-work to defer.
 
    **Added 2026-09-07: run `python3 portfolio/pipeline/duplicate_check.py
@@ -163,15 +179,11 @@ document.
    (`PRODUCT_PLAYBOOK.md` §5e) and the free public signals in
    `usage/README.md`'s table (stars, referrers, release downloads) — not by
    a `usage.yaml` field that cannot currently move either way.
-3. **Donations only, and most of the mechanism already ships.** Every live
-   venture carries a `github.com/sponsors/Duncan-Haywood` link (done, all
-   185) and should carry the `sponsor_link_clicked` usage counter
-   (`PRODUCT_PLAYBOOK.md` §6) — the one signal that will eventually say
-   whether the ask works. No checkout, no card fields, no billing code, not
-   even disabled behind an unset env var, anywhere outside the two flagged
-   pre-existing exceptions (`local-site-studio`, `print-atelier`); this is
-   enforced in CI by `platform/ci/check_no_payment_code.py`. A payout rail
-   is owner-only and not close — see the decision queue.
+3. **Donations on the owner's site; payments on the deployer's keys.** Every
+   live venture carries a `github.com/sponsors/Duncan-Haywood` link and the
+   `sponsor_link_clicked` counter. A product may also ship payment code that
+   is off by default and runs on the deployer's own keys
+   (`PRODUCT_PLAYBOOK.md` §6).
 4. **Happy customers come from the product working and being honest, not
    from a separate initiative.** Run the venture's own tests and the
    browser checks before calling something done; keep the
@@ -244,8 +256,8 @@ Concretely, as measured this session (`session_gate.py`, `allocate.py`,
    automatic, not a reason to under-market.** Landing pages, SEO content,
    and named-competitor comparison pages are how a free niche product gets
    found without ad spend — keep writing them. `platform/pages/clauses.mjs`
-   and `platform/ci/check_no_payment_code.py` already catch a missing
-   disclaimer or a stray payment SDK fleet-wide in CI; follow
+   and `platform/ci/check_payment_keys.py` already catch a missing
+   disclaimer or a hardcoded payment account fleet-wide in CI; follow
    `PRODUCT_PLAYBOOK.md` §5b/§5f when writing the copy and let CI be the
    backstop instead of re-deriving the rules by hand each time.
 5. **Donations are the only revenue lever agents hold, and the mechanism is
@@ -267,20 +279,27 @@ Read this section as the five-minute version of the brief; the sections
 above and below carry the reasoning and the incident history that produced
 each rule, for whenever the five-minute version isn't enough.
 
-**Fast scan for "what should this session do," in priority order:**
+**Fast scan for "what should this session do," in priority order.** Whichever
+row you pick, the session ends with its own PR **merged** — open it and merge
+it yourself (`.github/prompts/land-your-work.md`). A pushed branch is not
+shipped: on 2026-10-05, 100 branches from the prior two weeks had been pushed
+and never PR'd, four finished ventures among them.
 
 1. A live product is broken, or a fleet-wide guardrail is red
-   (`check_no_payment_code.py`, `clauses.mjs`, the accessibility/contrast
+   (`check_payment_keys.py`, `clauses.mjs`, the accessibility/contrast
    checks) — a defect or exposure on something a stranger can already reach
    outranks everything below.
-2. The published snapshot is stale (`pages_state.py --require-current`) —
+2. Finished work is stranded — a green PR whose author went quiet, or a
+   branch with no PR at all (`python3 platform/ci/unlanded_work.py --sweep`).
+   Landing a built, tested venture is cheaper than building the next one.
+3. The published snapshot is stale (`pages_state.py --require-current`) —
    refresh it; a merge nobody can see is not shipped.
-3. `usage.yaml` shows a real, nonzero signal on some product — go remove
+4. `usage.yaml` shows a real, nonzero signal on some product — go remove
    that product's actual friction.
-4. Screen and graduate a new venture (gates and process in
+5. Screen and graduate a new venture (gates and process in
    `pipeline/README.md`, rejected ideas in `screened-out.md`) — see above;
    this is not the leftover slot.
-5. Only then: parity features, comparison pages, or added depth on a
+6. Only then: parity features, comparison pages, or added depth on a
    product that has had a fair run and is still at zero.
 
 **Marketing is encouraged at every step above, and it is not where the
@@ -292,8 +311,8 @@ the five items above, not a separate, riskier track needing extra sign-off.
 once, from `portfolio-validate.yml` on any push or PR touching
 `ventures/**/*.html` — so a comparison page missing its nominative-fair-use
 disclaimer fails CI fleet-wide, not just in the venture's own workflow, the
-day it's added. `platform/ci/check_no_payment_code.py` gives the same
-fleet-wide backstop against payment-processor code. Write the copy, keep the
+day it's added. `platform/ci/check_payment_keys.py` gives the same
+fleet-wide backstop against a hardcoded payment account. Write the copy, keep the
 disclaimer wording from `PRODUCT_PLAYBOOK.md` §5b (every page) and §5f
 (comparison pages), and let CI catch a slip — do not read "legal exposure is
 the one hard stop" as a reason to under-market a product.
@@ -317,7 +336,7 @@ down on.
 
 Revenue comes later. For now:
 
-- Do **not** collect payment or wire payout rails.
+- Do **not** collect payment on, or wire payout rails to, the owner's accounts.
 - **Do** keep liability-limiting disclaimers in every user-facing product
   (see "Legal guardrails" below).
 - **Do** add GitHub Sponsors or a donation link where it fits — optional
@@ -337,6 +356,10 @@ Revenue comes later. For now:
 > `https://duncan-haywood.github.io/monorepo-projects/`, no owner action
 > pending. Stop naming that flip as a blocker and stop reading a built
 > product with no *second* URL as undeployed.
+>
+> **2026-10-01: the owner deleted the Hetzner servers, so the paragraph
+> below is history -- that route is retired, not down, its owner ask is
+> removed, and GitHub Pages is the only host.**
 >
 > What is **not** fixed by the above: the separate `marisstella.dev` /
 > Hetzner k3s route is still down (`CLAUDE.md`'s outage block has the
@@ -395,8 +418,9 @@ beats another build**:
 2. Record a usage reading that is not `null`.
 3. Only then graduate a new candidate or clone another bid calculator.
 
-The host is decided: GitHub Pages for static products, the existing
-Hetzner boxes for processes — see [`hosting/README.md`](hosting/README.md).
+The host is decided: GitHub Pages for static products. The Hetzner boxes
+for processes were deleted 2026-10-01, so processes need a new host
+decision — see [`hosting/README.md`](hosting/README.md).
 ~~The remaining owner flip is `deploy-settings` (enable GitHub Pages).~~
 **No longer true — see the "Superseded 2026-09-06" note above: `deploy-settings`
 is granted, and this line contradicted that note by still naming it as the
@@ -516,97 +540,24 @@ changes what "the next task" means. In order:
    were closed 2026-09-06; see the correction below), not waiting on an owner
    decision.
 
-## The fleet-parity trap, and where new ventures actually stand (added 2026-09-06)
+## The fleet-parity trap (rule; measurements in `docs/history/`)
 
-Measured this session: **55 of 185 ventures** now carry a `share.mjs`
-shareable-link module, added one venture at a time across dozens of sessions
-in the days since distribution was solved — a mechanical feature-parity
-pattern, not a response to anything a user asked for. `portfolio/ledger/2026-09.yaml`
-already records **274 per-venture entries** in the first six days of the
-month. In that same window `portfolio/usage/usage.yaml` has not recorded a
-single nonzero visitor count anywhere, and `session_gate.py` still reports
-**revenue recorded this month: none (0 of 756 entries)**.
-
-That is not a coincidence of timing — it is what "ship something every
-session" turns into once the two intended default candidates fill up first.
-The priority order above says step 2 is "read `usage.yaml`, work on what has
-a signal" and a product stuck at zero is supposed to fall out of rotation —
-but in practice it doesn't, because there is almost always a sibling venture
-missing a convenience feature its neighbor already has, and copying it over
-is real code, passes CI, and reads as shipped. It genuinely is real code.
-It is also not what a stranger who has never visited the product is waiting
-on, and every one of the 55 additions had zero usage signal to test it
-against — the fleet cannot know these features matter, because it does not
-yet know these products have visitors.
-
-**So, effective now: parity-for-its-own-sake is not the default job.** Before
-adding a feature to a venture *because a sibling venture already has it* (a
-share link, a save slot, an export format — anything copied fleet-wide
-rather than requested by that specific product's own users or friction),
-check that venture's row in `usage.yaml` first. Zero usage after a fair run
-(`PRODUCT_PLAYBOOK.md` §8) means spend the session on one of these instead:
-
-1. **A new venture.** Graduate a `build-now` pipeline candidate, or a strong
-   fresh niche not in `screened-out.md`. This is not the fourth-place, do-it-
-   last item the numbered list above might read as — it is where a
-   disproportionate share of session time should go, because a 56th share
-   link on an unvisited calculator teaches the portfolio nothing new, while a
-   new venture is a new shot at finding the business that actually works.
-   Score it honestly against the pipeline's liability/ethics gates and ship
-   it with the same disclaimers and usage tracking as every other product —
-   "new" buys no exception from "Legal guardrails" below — but do not let
-   "we already have 185" be a reason to defer one. New ventures compete for
-   session time on equal footing with deploy-and-measure work, not behind it.
-2. **A real discoverability defect, not a discoverability feature.** Confirm
-   a venture's sitemap entry actually resolves, its JSON-LD matches its
-   visible copy, and it is reachable from the apex catalogue's own index —
-   the kind of break `platform/ci/public_surface.py` and the browser checks
-   in `AGENTS.md` catch, which a share-link addition does nothing about and
-   which is a more plausible reason a product sits at zero than "it lacked a
-   share button."
-3. **A real correctness or accessibility defect on an already-live product,
-   not a defect on the product you happen to be adding a feature to.**
-   Added 2026-09-06: this is not hypothetical. #3530, opened the same day
-   this section was last touched, fixes 48 critical axe-detected label
-   violations across three tools already serving on the published site —
-   introduced during the same fast-build cadence this section describes,
-   never caught because nothing routes session time toward *checking* a
-   shipped product once its own PR merges. `AGENTS.md`'s browser checks
-   (`browser_checks.py`) and `ink.test.mjs`'s WCAG AA contrast check run
-   against a single venture when that venture is being edited; nothing
-   fleet-wide asks "of the ~193 already live, which ones would fail these
-   checks today." With zero traffic to any of them, this is also the one
-   quality problem an agent can find and fix *before* it costs a real
-   visitor rather than after — pick a handful of already-shipped ventures a
-   session isn't otherwise touching, run their own `node --test` suite plus
-   the browser/contrast checks, and fix what's red. This is not a call for a
-   dedicated audit initiative or a tracking spreadsheet (that is exactly the
-   meta-work this file elsewhere warns against) — it is a legitimate answer
-   to "what do I do with this session" that ranks above a parity feature,
-   the same as the two items above it.
-4. **Donation-readiness housekeeping** (next section) — so the day
-   `funding-sponsors-live` is decided, every product's footer is already
-   correct and nothing needs revisiting. **Corrected 2026-09-06:** the
-   `sponsor_link_clicked` counter is no longer a per-venture task to wire —
-   see the correction in "Revenue: donations, and keeping customers happy"
-   below — it already fires fleet-wide from the published-site build. The
-   housekeeping that remains here is the ordinary kind: a venture's footer
-   actually has the link, the disclaimer, and nothing that reads as a
-   paywall.
-
-This does not forbid fleet-parity work outright — a share link genuinely
-requested by, or built for, a product that already has visitors is exactly
-the friction-driven improvement §8 asks for. What changes is the default: a
-convenience feature copied onto a zero-usage product because a sibling has
-one is no longer, by itself, a sufficient reason to call a session's job
-done.
+Do not add a feature to a venture only because a sibling has it (a share link,
+a save slot, an export format). Check that venture's row in `usage.yaml` first.
+Zero usage after a fair run (`PRODUCT_PLAYBOOK.md` §8) means spend the session
+on a genuinely different product, a real discoverability defect (sitemap entry,
+JSON-LD, apex reachability), a correctness or accessibility defect on an
+already-live product, or donation-readiness housekeeping. A feature requested
+by, or built for, a product that has visitors is fine. The 2026-09-06 numbers
+and the long form: [`direction-fleet-parity-trap-2026-09-06.md`](../docs/history/direction-fleet-parity-trap-2026-09-06.md).
+The "new ventures first" ranking in that text was superseded 2026-10-16
+(`docs/reports/2026-10-16-calculator-glut.md`).
 
 ## Revenue: donations, and keeping customers happy
 
-The portfolio's revenue model is, and stays, **donations only** — GitHub
-Sponsors, nothing else. No payment collection, no payout rails, no merchant
-account: that is unchanged and is not up for a rescore by any session (see
-"Legal guardrails" below and `PRODUCT_PLAYBOOK.md` §6).
+The owner's own instances take donations only (GitHub Sponsors). A product
+may ship payment code that is off by default and runs on the deployer's own
+keys (`PRODUCT_PLAYBOOK.md` §6, from the owner's 2026-10-15 message).
 
 **Corrected 2026-09-06: donations are not blocked on an owner decision, and
 this section previously read as if they were.** `PRODUCT_PLAYBOOK.md` §6 has
@@ -758,15 +709,11 @@ both owner-only (`python3 portfolio/ledger/decision_queue.py`); that does
 not make everything donation-adjacent an agent can do less worth doing.
 
 **Legal exposure is the one place "build more, faster" does not apply.**
-`ventures/local-site-studio` still carries a full Stripe checkout
-integration behind unset env vars, gated on the still-open
-`local-site-studio-subtree-gate-crossing` decision (PR #731) — see "Legal
-guardrails" below. A new venture that reaches for payment collection, a
-compliance warranty, or scraped personal data to move faster is not a
-viable business here no matter how good its numbers look — it is exposure
-the owner has to resolve personally, the same way #731 still is. Donations
-only, disclaimed, evidence-not-advice: those are not friction to build
-around, they are what keeps a fast-shipping fleet an asset instead of a
+A venture that reaches for a compliance warranty, scraped personal data, or
+payments on the owner's accounts to move faster is exposure the owner has to
+resolve personally, however good its numbers look. Disclaimed,
+evidence-not-advice, and the deployer's keys for any payment: those are not
+friction to build around, they are what keeps a fast-shipping fleet an asset instead of a
 liability.
 
 **Customer happiness is still measured at zero, fleet-wide, as of this
@@ -833,7 +780,7 @@ within scope merges without waiting for human review. Iterate in production
 Still required before merge:
 
 - Relevant tests and builds green (read CI; do not hand-rebuild what CI already ran)
-- No payment collection, no new legal exposure beyond documented disclaimers
+- No payment on the owner's accounts, no new legal exposure beyond documented disclaimers
 - Usage instrumentation included for new user-facing features
 
 Still **owner-only** (flag on issue #139 / `portfolio/ledger/asks.yaml` only
@@ -867,7 +814,7 @@ reason to defer a strong, non-duplicative product.
    - `graduate_as: product-line` — add the slug under `product_lines` in
      its host venture's `VENTURE.yaml` (the host must already be routable).
      Do not open a second venture directory.
-3. Ship on GitHub Pages or the Hetzner product box; record usage, not opinions.
+3. Ship on GitHub Pages (the Hetzner product box was deleted 2026-10-01); record usage, not opinions.
 4. If the product is already on `main` and still has no public URL, **that
    deploy is the next task** — not a second product in the same niche.
 5. Let organic traffic and return usage decide what gets more investment.
@@ -892,46 +839,10 @@ These stay in every product regardless of the speed mandate:
   someone else's trademark; get it wrong and the exposure is the owner's, not
   the session's.
 
-Payment is deferred, not disclaimers.
-
-**Two existing exceptions need an owner decision, not agent judgment.**
-`ventures/local-site-studio` carries a full, working Stripe checkout/webhook
-integration (`src/app/api/stripe/`, ~2,300 lines) — real checkout sessions,
-recurring upgrades, and dispute handling — gated only by unset
-`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` env vars. That is exactly what
-`PRODUCT_PLAYBOOK.md` §6 forbids everywhere else in the fleet ("no checkout,
-no card fields, no billing code... not even disabled"), and it arrived
-through a still-open gate-crossing (`local-site-studio-subtree-gate-crossing`,
-PR #731, in `portfolio/ledger/asks.yaml`): a self-merged 1,405-commit subtree
-the owner has not yet said accept-or-revert on.
-
-**A second, previously-undocumented instance was found 2026-09-06:**
-`ventures/print-atelier` carries real Stripe checkout, Connect-payout, and
-webhook code (`src/app/api/stripe/`, `src/lib/stripe-checkout-server.ts`,
-`src/lib/commerce/stripe-connect.ts`) with the same unset-key gating and the
-same never-been-live status — but no decision-queue row existed until this
-session added one (`print-atelier-stripe-checkout`,
-`portfolio/ledger/asks.yaml`). Unlike `local-site-studio`'s bot self-merge,
-this one arrived by the owner's own direct subtree merge on 2026-07-29, four
-weeks before this donations-only policy was first written — so it is not a
-process violation, just a pre-existing venture nobody reconciled against the
-policy once it existed. That distinction does not change what an agent does
-with it: **do not extend either Stripe integration, do not supply or wire
-live keys, and do not copy this pattern into any other venture** — the
-donations-only model above governs everywhere else in the fleet regardless
-of these two unresolved cases.
-
-**This is now enforced, not just stated.**
-`platform/ci/check_no_payment_code.py` (added 2026-09-06, wired into
-`portfolio-validate.yml`) fails CI if any `ventures/*` directory outside its
-`ALLOWED_EXCEPTIONS` (currently exactly these two, each pointing at its
-decision row) imports a payment-processor SDK — Stripe, Braintree, Square,
-PayPal's server SDK, Adyen, Checkout.com, Razorpay, Klarna — or lists one as
-a dependency. Two instances existing before any check did is the reason it
-exists: the policy sentence above was already accurate reading of
-`PRODUCT_PLAYBOOK.md`, and a second venture still slipped past it undetected
-for six weeks. Run `python3 platform/ci/check_no_payment_code.py` before
-adding a payment-adjacent dependency to anything.
+Payment code is allowed off by default on the deployer's own keys, never the
+owner's (`PRODUCT_PLAYBOOK.md` §6). `local-site-studio` and `print-atelier`
+already work that way: their Stripe code reads every key from the
+environment and is inactive without one.
 
 ## Success signals
 

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Private Chef Service Price Calculator — Price Per Visit and Per Guest</title>
+  <meta name="description" content="Free private chef and meal-prep price calculator: enter guests, shopping, prep, cooking, cleanup and travel hours, groceries and overhead, and see a cost-plus price per visit and per guest. Runs in your browser.">
+  <meta property="og:title" content="Private Chef Service Price Calculator — free, private">
+  <meta property="og:description" content="Price a private dinner or meal-prep visit from every hour it really takes, and see what your current quote earns you per hour.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Private Chef Service Price Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free private chef and meal-prep price calculator: turn shopping, prep, cooking, cleanup and travel hours, groceries and overhead into a cost-plus price per visit and per guest."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a private chef service?", "acceptedAnswer": {"@type": "Answer", "text": "List every hour of the visit, not just the cooking: shopping, prep, cooking, cleanup and the drive. Multiply by your hourly pay, add groceries, mileage, equipment and insurance, then divide by one minus the profit you want above your own pay. Add a grocery markup if you shop for the client. The result is a price you can defend line by line."}}, {"@type": "Question", "name": "Why is a per-person rate a bad way to price a small dinner?", "acceptedAnswer": {"@type": "Answer", "text": "Shopping, travel and cleanup cost almost the same for two guests as for six. A flat per-person rate that works for a table of eight undercharges a table of two. The table below shows the price per guest falling as the table grows, which is what a fair quote looks like."}}, {"@type": "Question", "name": "How much should a private chef mark up groceries?", "acceptedAnswer": {"@type": "Answer", "text": "Many chefs charge cost plus 10 to 20 percent for shopping and carrying the receipt float, or bill groceries at cost and charge the time separately. Either is fine if the quote says which. Enter your markup and it is shown as its own line."}}, {"@type": "Question", "name": "Do dietary restrictions change the price?", "acceptedAnswer": {"@type": "Answer", "text": "Allergy-safe, vegan, kosher or low-FODMAP cooking usually means separate prep, clean tools and more label reading. Enter the share of guests affected and how much longer prep takes and the time is added."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, tips, special-order or rental equipment beyond the overhead you enter, staffing beyond the assistants you type, cottage-food or health-permit fees, client cancellation terms, and your own income tax. It is a quoting aid, not an estimate of record."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRIVATE CHEF SERVICE PRICE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge for this private dinner or meal-prep visit?</h1>
+    <p>Enter the guests, the hours and your costs. You get <strong>a cost-plus price, the price per guest, what your current quote earns you per hour, and how the price moves with the size of the table</strong>. A per-person rate hides that shopping, travel and cleanup do not shrink for a small table.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The table</h2>
+    <div class="grid">
+      <div><label for="guests">Guests at the table (or portions)</label><input type="number" id="guests" min="1" step="1" value="4"></div>
+      <div><label for="courses">Courses or dishes per guest</label><input type="number" id="courses" min="1" step="1" value="3"></div>
+      <div><label for="groceryPerGuest">Groceries per guest ($, at cost)</label><input type="number" id="groceryPerGuest" min="0" step="any" value="22"></div>
+      <div><label for="groceryMarkupPct">Grocery markup (%)</label><input type="number" id="groceryMarkupPct" min="0" step="any" value="15"></div>
+      <div><label for="dietPct">Guests with dietary needs (%)</label><input type="number" id="dietPct" min="0" step="any" value="25"></div>
+      <div><label for="dietUp">Dietary needs make prep this much longer (%)</label><input type="number" id="dietUp" min="0" step="any" value="25"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Hours and travel</h2>
+    <div class="grid">
+      <div><label for="shopHrs">Shopping and sourcing (hours)</label><input type="number" id="shopHrs" min="0" step="any" value="1.5"></div>
+      <div><label for="prepMinPerGuestCourse">Prep minutes per guest per course</label><input type="number" id="prepMinPerGuestCourse" min="0" step="any" value="6"></div>
+      <div><label for="cookHrs">Cooking and service (hours)</label><input type="number" id="cookHrs" min="0" step="any" value="2"></div>
+      <div><label for="cleanHrs">Cleanup (hours)</label><input type="number" id="cleanHrs" min="0" step="any" value="1"></div>
+      <div><label for="travelHrs">Travel (hours, both ways)</label><input type="number" id="travelHrs" min="0" step="any" value="1"></div>
+      <div><label for="mileage">Miles driven</label><input type="number" id="mileage" min="0" step="any" value="30"></div>
+      <div><label for="mileRate">Mileage cost ($ per mile)</label><input type="number" id="mileRate" min="0" step="any" value="0.7"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Pay and overhead</h2>
+    <div class="grid">
+      <div><label for="chefRate">Your hourly pay ($)</label><input type="number" id="chefRate" min="0" step="any" value="45"></div>
+      <div><label for="assistants">Assistants on site</label><input type="number" id="assistants" min="0" step="1" value="0"></div>
+      <div><label for="assistantRate">Assistant pay ($ per hour)</label><input type="number" id="assistantRate" min="0" step="any" value="22"></div>
+      <div><label for="overheadPerVisit">Equipment, packaging, software ($ per visit)</label><input type="number" id="overheadPerVisit" min="0" step="any" value="12"></div>
+      <div><label for="insurancePerVisit">Liability insurance ($ per visit)</label><input type="number" id="insurancePerVisit" min="0" step="any" value="6"></div>
+      <div><label for="visitsPerMonth">Visits per month at this price</label><input type="number" id="visitsPerMonth" min="0" step="1" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Margin and your current quote</h2>
+    <div class="grid">
+      <div><label for="marginPct">Profit wanted above your pay (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="20"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="200"></div>
+      <div><label for="currentPrice">What you quote today ($, optional)</label><input type="number" id="currentPrice" min="0" step="any" value="400"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price this visit</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the table and your costs, or load the example, then click Price this visit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>The price as the table changes size</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Guests</th><th scope="col">Chef hours</th><th scope="col">Cost</th><th scope="col">Price</th><th scope="col">Per guest</th><th scope="col">Profit</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Prep time is guests times courses times your minutes per guest per course, stretched by the dietary share you type. Chef hours are shopping, prep, cooking, cleanup and travel.</li>
+      <li>Cost is chef hours times your hourly pay, plus assistants for the on-site hours, groceries at cost, mileage, equipment and insurance.</li>
+      <li>The price is cost, less the grocery markup, divided by one minus your profit share, plus the markup. It is never below your minimum charge.</li>
+      <li>The current-quote line shows what you earn per chef hour at today's price after every cost but your own pay.</li>
+      <li><strong>Not modelled:</strong> sales tax, tips, rented or special-order equipment beyond the overhead you enter, permit or cottage-food fees, cancellation terms, and your own income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a private chef service?</h3>
+    <p>List every hour of the visit, not just the cooking: shopping, prep, cooking, cleanup and the drive. Multiply by your hourly pay, add groceries, mileage, equipment and insurance, then divide by one minus the profit you want above your own pay. Add a grocery markup if you shop for the client. The result is a price you can defend line by line.</p>
+    <h3>Why is a per-person rate a bad way to price a small dinner?</h3>
+    <p>Shopping, travel and cleanup cost almost the same for two guests as for six. A flat per-person rate that works for a table of eight undercharges a table of two. The table below shows the price per guest falling as the table grows, which is what a fair quote looks like.</p>
+    <h3>How much should a private chef mark up groceries?</h3>
+    <p>Many chefs charge cost plus 10 to 20 percent for shopping and carrying the receipt float, or bill groceries at cost and charge the time separately. Either is fine if the quote says which. Enter your markup and it is shown as its own line.</p>
+    <h3>Do dietary restrictions change the price?</h3>
+    <p>Allergy-safe, vegan, kosher or low-FODMAP cooking usually means separate prep, clean tools and more label reading. Enter the share of guests affected and how much longer prep takes and the time is added.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, tips, special-order or rental equipment beyond the overhead you enter, staffing beyond the assistants you type, cottage-food or health-permit fees, client cancellation terms, and your own income tax. It is a quoting aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the quotes you send.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mobile-bartender-event-quote/">mobile bartender event quote</a>, <a href="../catering-quote-calculator/">catering quote</a>, <a href="../food-truck-event-margin-calculator/">food truck event margin</a>, <a href="../house-cleaning-quote-calculator/">house cleaning quote</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["guests", "courses", "groceryPerGuest", "groceryMarkupPct", "dietPct", "dietUp", "shopHrs", "prepMinPerGuestCourse", "cookHrs", "cleanHrs", "travelHrs", "mileage", "mileRate", "chefRate", "assistants", "assistantRate", "overheadPerVisit", "insurancePerVisit", "visitsPerMonth", "marginPct", "minCharge", "currentPrice"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.guests}</th><td>${x.chefHrs}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.pricePerGuest)}</td><td>${usd(x.profit)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Quote ${usd(r.job.price)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("job_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "private-chef-price.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

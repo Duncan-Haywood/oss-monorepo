@@ -1,0 +1,25 @@
+# Compressed sync in local SGD: what a lossy pseudo-gradient costs, and why to sync less instead
+
+*Stylised: independent quadratic modes, Gaussian gradient noise, identical workers, unbiased compressors independent across workers, fixed outer step `α`, no momentum. Pure Python; every formula is checked against a literal simulation (`tests/`, `experiments/results.txt`).*
+
+## Question
+`noisy-local-sgd` fixed the stationary noise floor of DiLoCo-style local SGD when workers send exact displacements. Over a permissionless network the displacement is compressed (sparsified or quantised) before the outer average. What does compression cost in noise floor and in the largest stable outer step, does it matter *how* the error is spread over directions, and is it better than simply synchronising less often for the same bytes?
+
+## Model
+Mode `j` has curvature `a_j`. A worker runs `H` inner steps of size `η` with noise `σ²` and returns `q^H x + n`, `q = 1−ηa`, `Var n = V_w`; the outer curvature is `s = 1−q^H`. Its displacement is `d = s x − n` with `E[d²|x] = s²x² + V_w`. The server applies `x' = x − α · mean_i C(d_i)` with `C` unbiased and independent across the `N` workers.
+
+- **Coordinate-wise** (rand-k with keep-probability `ρ`, values scaled by `1/ρ`): `Var C(d)_j = ω d_j²`, `ω = (1−ρ)/ρ`.
+- **Norm-scaled** (QSGD-style; error set by the whole vector): `Var C(d)_j = κ|d|²/D` over `D` modes. Stochastic rounding to a grid of spacing `|d|/L` has `κ ≈ D/(6L²)`.
+
+## Exact results
+1. **Coordinate-wise: `Var x = α V_w (1+ω) / (N s ((2−αs) − αsω/N))`, stable iff `αs(1+ω/N) < 2`.** At small `α` the floor is exactly `(1+ω)` times the uncompressed one (4.25× at `ρ=0.25`, 24.75× at `ρ=0.05`, `N=16`, `α=0.8`; simulation within 1.7%).
+2. **Workers rescue the step but not the floor.** The stability limit is `2/(s(1+ω/N))`: for `ω=99` it is 0.47 at `N=16` and 2.44 at `N=256` (uncompressed 3.39), but the floor multiplier `1+ω = 100` does not depend on `N`. Compression noise is *relative to the noisy displacement*, so averaging more workers shrinks it no faster than it shrinks the gradient noise itself.
+3. **Norm-scaled: closed form through one scalar.** With `A_j = αs_j/(N(2−αs_j))`, `T = E|d|² = Σ V_{w,j}(1+A_j) / (1 − (κ/D)ΣA_j)`, `Var x_j = α(V_{w,j} + κT/D)/(N s_j(2−αs_j))`, stable iff `(κ/D)ΣA_j < 1` and `αs_j < 2`. It reduces to result 1 when all modes are identical (`κ=ω`). Matches simulation within 1.4% for both idealised Gaussian dithering and a real stochastic-rounding quantiser (κ from the approximation above; 1.13× and 1.54× uncompressed floor at `L=2,1`).
+4. **Where the error lands matters less than how much there is (a partly negative result).** At equal total error energy (`κ=ω`) the loss `Σ(a_j/2)Var x_j` of the two schemes is equal to four digits at `H=1` (ratio 1.0000, within 4·10⁻⁵: `a_j/s_j` is nearly constant, so only the total energy counts) and 10% higher for norm scaling at `H=16` (1.095 at `D=3`, 1.105 at `D=16`). Per mode at `H=16`, `α=0.5`, `N=8` (`a = 1, ¼, 0.05`): the stiff mode's variance doubles (×1.97, 76% of it injected by the norm) and the flattest falls (×0.81). Norm scaling therefore trades a small loss increase for a large redistribution: the stiff mode, whose noise is small, inherits the flat modes' energy.
+5. **Compress or sync less?** For equal communication per inner step, keep-fraction `ρ` at `H` costs `1/ρ` in floor at `α=1`, while syncing `1/ρ` times less often (`H → H/ρ`, uncompressed) leaves the floor *unchanged* at `α=1` (H-invariance, `noisy-local-sgd`) and lowers it at smaller steps. (`a = 1, ¼, 0.05`, `η=0.2`, `N=8`) at `α=1`: base 0.0196; compress `ρ=¼`: 0.0849; sync 4× less: 0.0196; compress `ρ=1/16`: 0.749; sync 16× less: 0.0196. At `α=0.5`: 0.0090, 0.0372, 0.0081, 0.1724, 0.0072. The per-step contraction of the flattest mode is identical, so nothing is lost in speed on a quadratic.
+
+## Limitations
+Quadratic, shared curvature across workers (no client drift, which is what actually punishes large `H`; result 5's "sync less" advantage is an upper bound and vanishes as heterogeneity grows), unbiased compressors only (biased top-k with error feedback is *not* covered; it needs a two-state analysis), independent errors across workers, Gaussian noise, the `κ` of stochastic rounding is an approximation, and the compute-bound assumption that stretching `H` costs nothing.
+
+## Relevance
+For open training networks with bandwidth-limited peers: unbiased compression multiplies the noise floor by `1+ω` regardless of cohort size and shrinks the stable outer step by `1+ω/N`, so recruit more workers to keep `α` high but expect no floor relief; before compressing 16× check whether the same bytes buy a 16× longer inner loop, which on the model here is free at `α=1`; and prefer coordinate-wise compression when stiff directions matter, since norm scaling moves noise onto them. Companion to `noisy-local-sgd`, `partial-participation`, `outer-momentum`, `local-sgd-bias` and `decentralized-verification-markets`.

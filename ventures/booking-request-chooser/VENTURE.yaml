@@ -1,0 +1,51 @@
+name: booking-request-chooser
+description: 'Free, zero-network, zero-dependency browser tool and CLI for hosts of vacation rentals, cabins, campsites, B&Bs, boats and event spaces: paste confirmed bookings and pending requests (check-in, check-out, price), set turnover cost, the value of a sellable leftover night and the minimum stay, and get the exact set of requests to accept for the highest calendar income (dynamic programming over the gaps between bookings, verified against brute force), the reason for each decline, the dead gap nights each choice strands, counter-offers one or two nights longer or earlier, and a comparison with accepting in arrival order or highest price first. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a host's own calendar earns.
+# Checked 2026-10-02: ventures/ has str-nightly-rate-optimizer (what to charge per night from
+# history), str-host-payout-calculator, str-cleaning-fee-pricing-calculator,
+# appointment-overbooking-optimizer and rental-fleet-size-optimizer; none chooses between competing
+# booking requests or scores gap nights against a minimum stay. duplicate_check.py on the niche
+# scored below the read-this-first bar (closest 0.37-0.39 str siblings, a different decision).
+# Not in screened-out.md.
+#
+# First visitor: searches "should I accept a short airbnb booking that leaves a gap", "orphan nights
+# airbnb", "minimum stay gap nights", "which booking request to accept"; r/airbnb_hosts, r/AirBnBHosts,
+# cabin/campground owner groups. Volume not measured with an external tool. Hosts with one to five
+# listings get several overlapping inquiries on direct-booking sites and cannot justify a dynamic-pricing
+# subscription. Alternatives: channel-manager orphan-night rules (built into paid PMS and pricing tools,
+# which set min-stay automatically but do not pick between concrete competing requests), a spreadsheet,
+# gut feel. A hosted version that reads an iCal feed and ranks incoming inquiries is the natural paid
+# upgrade.
+hypotheses:
+  - claim: A host with overlapping inquiries will search for how to choose between them, paste their calendar, and leave knowing which to accept and which counter-offer to send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A host will reuse the CLI each season on an exported calendar, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No host reports using a counter-offer or a declined request the tool recommended within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/
+  analytics: null

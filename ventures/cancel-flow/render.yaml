@@ -1,0 +1,38 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# It starts in DRY_RUN: set DRY_RUN=false only after you have walked through a test-mode cancellation.
+services:
+  - type: web
+    name: cancel-flow
+    runtime: docker
+    dockerContext: ventures/cancel-flow
+    dockerfilePath: ventures/cancel-flow/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: DRY_RUN
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: LINK_SECRET
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: COMPANY_NAME
+        sync: false
+      - key: BRAND_COLOR
+        sync: false
+      - key: RETURN_URL
+        sync: false
+      - key: POLICY_JSON
+        sync: false

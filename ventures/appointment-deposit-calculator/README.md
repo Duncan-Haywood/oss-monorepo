@@ -2,6 +2,8 @@
 
 A free browser calculator for salons, trainers, tutors, photographers, and other small service businesses. Set a service-specific appointment deposit, see the balance due and expected annual cash secured, check whether the deposit actually leaves you better off, then copy a transparent deposit and cancellation policy draft.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/
+
 After using this, you can now choose and explain an upfront booking deposit, and see whether it pays for itself — both of which used to take guessing or adapting a generic policy.
 
 ## Does the deposit pay for itself?
@@ -37,6 +39,10 @@ The target user is an independent appointment business owner searching for “ho
 Everything runs in your browser. Data is never uploaded. The optional local counter records only event names and dates (`deposit_calculated`, `policy_copied`, and one of `deposit_pays_off` / `deposit_costs_money` recording only which side of break-even a run landed on), never prices, names, or identifiers, and can be disabled in the page footer. Counting honors Do Not Track and Global Privacy Control. See `portfolio/usage/README.md` for the portfolio measurement rules.
 
 Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood). Refusing does not change the calculator.
+
+## Related
+
+To measure your own no-show rate from a booking export first, see [`appointment-no-show-analyzer`](../appointment-no-show-analyzer/): it reads the export in the browser, nothing uploaded.
 
 ## License
 

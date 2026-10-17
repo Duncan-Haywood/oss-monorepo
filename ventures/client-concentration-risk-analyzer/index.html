@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Concentration Risk Analyzer — How Dependent Is Your Revenue on One Client</title>
+  <meta name="description" content="Paste an invoice export and see each client's share of revenue, your top-three share, whether dependence is rising, and whether you survive losing your biggest client. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="How dependent is your revenue on one client?">
+  <meta property="og:description" content="Paste invoices, see every client's share, the Herfindahl index, and what happens if the biggest client leaves. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Client Concentration Risk Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste an invoice export and see how much of your revenue depends on your biggest clients, whether that dependence is rising, and whether you survive losing the largest one. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my accounting software?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the invoice rows you paste and never contacts QuickBooks, Xero, FreshBooks, Stripe or any bank. Every figure is arithmetic on the rows you gave it, so nothing here leaves your device."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Export an invoice or sales-by-customer report from your accounting tool and keep three columns: customer, invoice date and amount. A header row is read by name, so most exports paste as they are. Date is optional; with dates the last 12 months are used."}}, {"@type": "Question", "name": "What counts as too concentrated?", "acceptedAnswer": {"@type": "Answer", "text": "There is no legal line. Lenders, acquirers and insurers each pick their own, and 25% of revenue from one client is a common level at which they start asking questions, 40% a level at which they often price the risk in. The tool uses 25/40 for one client and 60/80 for the top three as defaults you can change."}}, {"@type": "Question", "name": "What is the effective number of clients?", "acceptedAnswer": {"@type": "Answer", "text": "One divided by the sum of each client's squared share. Ten clients of equal size give 10; one client at 70% and nine small ones give about 1.9. It says how many equal clients your revenue behaves like, which is a better guide than a raw count."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  
+    tr.flag td { background: #fdf0ee; }
+    .bar { display: inline-block; height: .7em; background: #1a4560; border-radius: 3px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CLIENT CONCENTRATION RISK ANALYZER · RUNS IN YOUR BROWSER</p>
+    <h1>How much of your revenue could walk out the door with one client?</h1>
+    <p>Paste your invoices — client, date, amount — and see <strong>every client's share of revenue</strong>, <strong>whether you are getting more or less dependent</strong>, and <strong>whether you would cover your costs without your biggest client</strong>. The same numbers a lender, buyer or insurer will look at.</p>
+    <p class="note">Nothing is uploaded and no accounting tool is contacted. The text box is analysed in this browser and never leaves your device. The warning levels are common rules of thumb, not a standard, and you can change them.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your invoices</h2>
+    <label for="invoices-input">One invoice per line: client, then (optional) date, then amount. A header row is read by name.</label>
+    <textarea id="invoices-input" spellcheck="false" placeholder="Acme Corp,2026-03-14,4200.00"></textarea>
+    <div class="inputs">
+      <div><label for="in-costs">Average monthly costs ($, optional)</label><input type="number" id="in-costs" min="0" step="100"></div>
+      <div><label for="in-months">Months of dates to use</label><input type="number" id="in-months" min="1" max="120" step="1" value="12"></div>
+      <div><label for="in-warn1">Warn above, one client (%)</label><input type="number" id="in-warn1" min="1" max="100" step="1" value="25"></div>
+      <div><label for="in-err1">Error above, one client (%)</label><input type="number" id="in-err1" min="1" max="100" step="1" value="40"></div>
+      <div><label for="in-warn3">Warn above, top three (%)</label><input type="number" id="in-warn3" min="1" max="100" step="1" value="60"></div>
+      <div><label for="in-err3">Error above, top three (%)</label><input type="number" id="in-err3" min="1" max="100" step="1" value="80"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Clients by share of revenue</h3>
+    <table id="client-table" hidden>
+      <thead><tr><th>Client</th><th class="num">Revenue</th><th class="num">Share</th><th></th></tr></thead>
+      <tbody id="client-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a monthly check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze invoices.csv
+cat invoices.csv | node cli.mjs analyze -
+node cli.mjs analyze invoices.csv --costs 24000 --months 12
+node cli.mjs analyze invoices.csv --warn-top1 20 --json --fail-on warn</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. Exit code 1 on a finding, so a cron job or CI step can tell you the month a client crosses the line. More: <a href="client-concentration-guide.html">How much revenue from one client is too much, and what to do about it</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Warning levels are rules of thumb (25% / 40% for one client, 60% / 80% for the top three); invoice date, not payment date, is used; contract length, churn risk and how easily a client could be replaced are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my accounting software?</h3>
+    <p>No. It reads the invoice rows you paste and never contacts QuickBooks, Xero, FreshBooks, Stripe or any bank. Every figure is arithmetic on the rows you gave it, so nothing here leaves your device.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>Export an invoice or sales-by-customer report from your accounting tool and keep three columns: customer, invoice date and amount. A header row is read by name, so most exports paste as they are. Date is optional; with dates the last 12 months are used.</p>
+    <h3>What counts as too concentrated?</h3>
+    <p>There is no legal line. Lenders, acquirers and insurers each pick their own, and 25% of revenue from one client is a common level at which they start asking questions, 40% a level at which they often price the risk in. The tool uses 25/40 for one client and 60/80 for the top three as defaults you can change.</p>
+    <h3>What is the effective number of clients?</h3>
+    <p>One divided by the sum of each client's squared share. Ten clients of equal size give 10; one client at 70% and nine small ones give about 1.9. It says how many equal clients your revenue behaves like, which is a better guide than a raw count.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on invoice rows you paste; it is not a credit assessment, a valuation or a forecast of whether any client will stay. Lenders, buyers and insurers use their own criteria. QuickBooks, Xero, FreshBooks and other product names are trademarks of their owners, used only to describe where numbers come from.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../invoice-aging-late-payer-analyzer/">Invoice Aging &amp; Late Payer Analyzer</a>, the <a href="../cash-runway-planner/">Cash Runway Planner</a>, the <a href="../client-profitability-time-analyzer/">Client Profitability Time Analyzer</a> and the <a href="../freelance-rate-increase-calculator/">Freelance Rate Increase Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInvoices, analyze, summarize, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#invoices-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), clientT: $("#client-table"), clientR: $("#client-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      costs: $("#in-costs"), months: $("#in-months"), warn1: $("#in-warn1"), err1: $("#in-err1"), warn3: $("#in-warn3"), err3: $("#in-err3"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const num = (el) => (el.value.trim() === "" ? undefined : Number(el.value));
+    function options() {
+      const o = {};
+      const c = num(els.costs), m = num(els.months);
+      if (c > 0) o.monthlyCosts = c;
+      if (Number.isInteger(m) && m >= 1 && m <= 120) o.windowMonths = m;
+      for (const [el, key] of [[els.warn1, "warnTop1"], [els.err1, "errorTop1"], [els.warn3, "warnTop3"], [els.err3, "errorTop3"]]) {
+        const v = num(el);
+        if (v > 0 && v <= 100) o[key] = v / 100;
+      }
+      return o;
+    }
+    const usd = (n) => {
+      const format = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some invoice rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const report = analyze(parseInvoices(text), options());
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.clientT.hidden = !report.count;
+      els.clientR.innerHTML = report.count ? report.list.map((e, i) => `<tr class="${i === 0 && report.top1 >= report.options.warnTop1 ? "flag" : ""}"><td>${escapeHtml(e.client)}</td><td class="num">${usd(e.total)}</td><td class="num">${(e.share * 100).toFixed(1)}%</td><td><span class="bar" style="width:${Math.max(2, Math.round(e.share * 120))}px"></span></td></tr>`).join("") : "";
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${MODEL_NOTE}.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `client,date,amount
+Kestrel Outdoors,2025-08-02,3463.60
+Northwind Logistics,2025-08-02,3620.96
+Harbor & Pine Realty,2025-08-03,2571.44
+Delta Tile Co,2025-08-05,1024.40
+Northwind Logistics,2025-08-05,4184.24
+Lumen Yoga Studios,2025-08-08,1925.44
+Summit Credit Union,2025-08-08,2121.36
+Bluebird Dental Group,2025-08-12,3471.28
+Harbor & Pine Realty,2025-08-14,2086.40
+Bluebird Dental Group,2025-08-17,2976.56
+Summit Credit Union,2025-08-19,1712.64
+Bluebird Dental Group,2025-09-02,3340.48
+Delta Tile Co,2025-09-02,810.24
+Bluebird Dental Group,2025-09-03,3318.80
+Kestrel Outdoors,2025-09-05,3543.76
+Orchard Street Cafe,2025-09-10,1749.52
+Harbor & Pine Realty,2025-09-13,2727.68
+Summit Credit Union,2025-09-14,3711.12
+Harbor & Pine Realty,2025-09-15,2632.56
+Lumen Yoga Studios,2025-09-18,2092.72
+Northwind Logistics,2025-09-18,4877.84
+Northwind Logistics,2025-09-21,4137.04
+Fig & Fern Florist,2025-09-24,605.36
+Kestrel Outdoors,2025-10-01,3501.28
+Summit Credit Union,2025-10-08,3785.60
+Bluebird Dental Group,2025-10-10,2951.60
+Delta Tile Co,2025-10-12,1044.64
+Northwind Logistics,2025-10-13,4174.32
+Fig & Fern Florist,2025-10-14,584.48
+Harbor & Pine Realty,2025-10-14,1978.40
+Harbor & Pine Realty,2025-10-15,2467.20
+Lumen Yoga Studios,2025-10-18,2630.24
+Northwind Logistics,2025-10-21,4252.96
+Bluebird Dental Group,2025-10-25,3626.80
+Harbor & Pine Realty,2025-11-04,2623.20
+Orchard Street Cafe,2025-11-05,1245.52
+Summit Credit Union,2025-11-08,4029.12
+Bluebird Dental Group,2025-11-12,2916.80
+Harbor & Pine Realty,2025-11-12,2372.16
+Lumen Yoga Studios,2025-11-12,2507.44
+Northwind Logistics,2025-11-15,4523.36
+Northwind Logistics,2025-11-24,5025.28
+Fig & Fern Florist,2025-11-26,615.68
+Bluebird Dental Group,2025-11-27,3045.60
+Fig & Fern Florist,2025-11-30,583.84
+Northwind Logistics,2025-11-30,5035.52
+Lumen Yoga Studios,2025-12-01,1789.12
+Delta Tile Co,2025-12-03,750.00
+Bluebird Dental Group,2025-12-04,3170.96
+Kestrel Outdoors,2025-12-12,2566.16
+Bluebird Dental Group,2025-12-16,3477.12
+Northwind Logistics,2025-12-17,5560.24
+Harbor & Pine Realty,2025-12-23,1858.08
+Summit Credit Union,2025-12-25,3704.24
+Harbor & Pine Realty,2025-12-27,2514.80
+Northwind Logistics,2026-01-02,7176.48
+Harbor & Pine Realty,2026-01-03,2503.52
+Bluebird Dental Group,2026-01-04,2995.92
+Summit Credit Union,2026-01-04,2955.76
+Kestrel Outdoors,2026-01-08,2946.88
+Bluebird Dental Group,2026-01-11,2959.36
+Northwind Logistics,2026-01-11,6525.84
+Harbor & Pine Realty,2026-01-14,2179.68
+Lumen Yoga Studios,2026-01-16,1589.60
+Fig & Fern Florist,2026-01-17,632.72
+Bluebird Dental Group,2026-02-04,2581.52
+Northwind Logistics,2026-02-08,7883.04
+Harbor & Pine Realty,2026-02-09,2248.72
+Orchard Street Cafe,2026-02-10,1327.04
+Bluebird Dental Group,2026-02-15,2593.60
+Harbor & Pine Realty,2026-02-16,2370.32
+Kestrel Outdoors,2026-02-24,2593.04
+Lumen Yoga Studios,2026-02-24,1680.56
+Summit Credit Union,2026-02-24,4073.44
+Northwind Logistics,2026-02-26,5534.16
+Kestrel Outdoors,2026-03-01,2794.08
+Harbor & Pine Realty,2026-03-07,2053.36
+Northwind Logistics,2026-03-07,7529.76
+Bluebird Dental Group,2026-03-12,2194.00
+Bluebird Dental Group,2026-03-12,3116.08
+Northwind Logistics,2026-03-12,6843.84
+Delta Tile Co,2026-03-13,719.12
+Harbor & Pine Realty,2026-03-16,1816.88
+Lumen Yoga Studios,2026-03-26,1912.80
+Summit Credit Union,2026-04-05,3321.36
+Harbor & Pine Realty,2026-04-06,3477.36
+Northwind Logistics,2026-04-06,7171.44
+Bluebird Dental Group,2026-04-13,2779.52
+Fig & Fern Florist,2026-04-18,474.24
+Kestrel Outdoors,2026-04-21,2351.92
+Northwind Logistics,2026-04-21,6872.64
+Bluebird Dental Group,2026-04-24,2427.36
+Harbor & Pine Realty,2026-05-01,3492.08
+Bluebird Dental Group,2026-05-05,2365.20
+Summit Credit Union,2026-05-08,3428.64
+Kestrel Outdoors,2026-05-18,2575.92
+Orchard Street Cafe,2026-05-19,1105.92
+Northwind Logistics,2026-05-21,6510.96
+Lumen Yoga Studios,2026-05-24,1557.44
+Northwind Logistics,2026-05-26,9198.96
+Bluebird Dental Group,2026-05-28,2132.96
+Bluebird Dental Group,2026-06-01,2582.96
+Delta Tile Co,2026-06-02,544.56
+Harbor & Pine Realty,2026-06-05,3707.92
+Northwind Logistics,2026-06-05,8219.04
+Kestrel Outdoors,2026-06-17,2641.92
+Northwind Logistics,2026-06-17,8149.92
+Orchard Street Cafe,2026-06-18,744.24
+Summit Credit Union,2026-06-18,2472.56
+Bluebird Dental Group,2026-06-25,2031.28
+Northwind Logistics,2026-07-03,8297.76
+Bluebird Dental Group,2026-07-07,2394.16
+Summit Credit Union,2026-07-08,3125.44
+Delta Tile Co,2026-07-15,375.60
+Fig & Fern Florist,2026-07-15,359.12
+Bluebird Dental Group,2026-07-17,2317.12
+Harbor & Pine Realty,2026-07-18,4063.36
+Orchard Street Cafe,2026-07-18,957.04
+Northwind Logistics,2026-07-25,9828.56
+Kestrel Outdoors,2026-08-03,2330.64
+Harbor & Pine Realty,2026-08-08,4023.52
+Delta Tile Co,2026-08-13,340.48
+Northwind Logistics,2026-08-13,7351.44
+Orchard Street Cafe,2026-08-13,897.68
+Lumen Yoga Studios,2026-08-21,1610.56
+Northwind Logistics,2026-08-21,8165.84
+Bluebird Dental Group,2026-08-22,2241.04
+Fig & Fern Florist,2026-08-23,342.48
+Bluebird Dental Group,2026-08-24,1826.48
+Northwind Logistics,2026-08-31,8812.56
+Bluebird Dental Group,2026-09-02,1703.84
+Delta Tile Co,2026-09-04,340.88
+Harbor & Pine Realty,2026-09-07,3993.92
+Summit Credit Union,2026-09-08,2442.80
+Bluebird Dental Group,2026-09-09,2025.92
+Northwind Logistics,2026-09-14,9019.92
+Orchard Street Cafe,2026-09-21,757.76
+Lumen Yoga Studios,2026-09-24,1144.88`;
+    const EXAMPLE_SETTINGS = { costs: 24000 };
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      els.costs.value = EXAMPLE_SETTINGS.costs;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

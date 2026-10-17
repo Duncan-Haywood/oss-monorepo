@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ActiveCampaign Import CSV Check — Find Contact, Account and Deal Errors Before You Upload</title>
+  <meta name="description" content="Free ActiveCampaign contacts, accounts and deals CSV checker: finds contacts with no or invalid email, duplicate emails, tags separated by semicolons, deals with a Value like $12,000 or a Status that is not Open, Won or Lost, Excel-damaged phone numbers and date format problems, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="ActiveCampaign Import CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks an ActiveCampaign contacts, accounts or deals import, with the line number, before you upload. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ActiveCampaign Import CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an ActiveCampaign import CSV of contacts, accounts or deals for missing or invalid emails, duplicate emails, tag separators, deal Value, Currency and Status problems, Excel damage to phone numbers, date formats and heading names before it is imported, and applies formatting-only safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "ActiveCampaign contacts import CSV validator, ActiveCampaign deals import CSV validator, ActiveCampaign accounts import CSV validator, duplicate email finder, invalid email finder, tag separator checker, deal value and currency checker, scientific notation phone number finder, date format checker, semicolon CSV fix"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my ActiveCampaign import skip contacts or create duplicates?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a row with no email or an invalid one, the same email on more than one row, tags separated by semicolons so the whole text becomes one tag, a deal Value with a currency symbol or thousands separator, dates in an order the import misreads, and an Excel save that damaged phone numbers. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "How do I check an ActiveCampaign import CSV before uploading it?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the file or drop it onto this page. It reads the headings against ActiveCampaign contact, account or deal field names, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded."}}, {"@type": "Question", "name": "How should I write tags in an ActiveCampaign contacts CSV?", "acceptedAnswer": {"@type": "Answer", "text": "From memory, several tags in one cell are separated by commas, so the cell must be quoted, for example \"newsletter,wholesale\". Semicolons or pipes would make one long tag. The tool flags them and leaves the cell for you to change."}}, {"@type": "Question", "name": "How should I write a deal Value and currency for an ActiveCampaign import?", "acceptedAnswer": {"@type": "Answer", "text": "Write the Value as a plain number such as 1200.50, with no currency symbol, thousands separator or k or M suffix, and put a 3-letter ISO code such as USD, EUR or GBP in a Currency column. Without a Currency column every deal takes your account's currency."}}, {"@type": "Question", "name": "What date format does an ActiveCampaign import want?", "acceptedAnswer": {"@type": "Answer", "text": "From memory, the import asks you to choose the date format used in the file, so the file must use one layout throughout. YYYY-MM-DD has a single reading and is the safest. Month names, two-digit years, dots and Excel serial numbers are flagged, and a column that mixes day-first and month-first dates cannot be read correctly under either choice."}}, {"@type": "Question", "name": "Why did my phone numbers turn into 4.41175E+11?", "acceptedAnswer": {"@type": "Answer", "text": "Excel stored a long number in a cell formatted as General or Number and shortened it. Scientific notation loses digits for good, so the tool flags it as an error and leaves the cell alone."}}, {"@type": "Question", "name": "What does Apply safe fixes change?", "acceptedAnswer": {"@type": "Answer", "text": "Only formatting with one reasonable reading: the separator, heading spelling to the field name, stray spaces, a mailto: prefix, upper or lower case in an email, a trailing .0 or apostrophe on a phone number, a deal Status written as Open, Won or Lost, currency codes in capitals, and blank rows. Every change is listed with its line. It never changes names, values, dates, IDs or the digits of a phone number."}}, {"@type": "Question", "name": "Is it safe to put my contact list into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies still decide what you may open in a browser."}}, {"@type": "Question", "name": "Does this check whether I may email these contacts?", "acceptedAnswer": {"@type": "Answer", "text": "No. It checks file formatting only. Whether a contact has consented, unsubscribed or bounced, and what the law requires for your audience, is for you and your own advisers to decide."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Your custom fields, whether a pipeline or stage exists, whether an owner matches a user, whether a contact already exists and which update setting you pick, suppression and consent status, whether a currency is enabled, your plan's contact and file limits, the date and number formats you choose in the import, and anything ActiveCampaign changed after these rules were read. A clean result is not a promise of success: import a handful of rows first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ACTIVECAMPAIGN IMPORT CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why did my ActiveCampaign import go wrong?</h1>
+    <p>Paste or drop your <strong>contacts, accounts or deals CSV</strong> and get every problem <strong>with its line number</strong> before you import: <strong>contacts with no email or an invalid one</strong>, the same email on two rows, tags separated by semicolons, a deal Value like <code>$12,000</code>, a Status that is not Open, Won or Lost, phone numbers Excel turned into <code>4.41175E+11</code>, dates in an order the import will misread, and headings ActiveCampaign will not match. Then download a cleaned copy with every change listed.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of ActiveCampaign. Field names, deal statuses and limits are read from memory of ActiveCampaign's public import help pages; no ActiveCampaign account or import was available when this was built.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your import CSV</h2>
+    <p class="note">The file from a spreadsheet, a mailing platform or another CRM, saved as CSV, that you plan to upload under Contacts, Accounts or Deals in ActiveCampaign.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Email,First Name,Last Name,Tags,..."></textarea>
+    <div class="grid">
+      <div><label for="kind">What are you importing?</label>
+        <select id="kind"><option value="auto">Work it out from the headings</option><option value="contacts">Contacts</option><option value="accounts">Accounts</option><option value="deals">Deals</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Records</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Name</th><th scope="col" id="th-email">Email</th><th scope="col">Phone</th><th scope="col" id="th-co">Organization</th></tr></thead><tbody id="contacts"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what is not checked</h2>
+    <p class="note">Stated as read from memory of ActiveCampaign's public import help. ActiveCampaign can change them, and your account can differ.</p>
+    <ul>
+      <li><strong>Required:</strong> a contact needs an Email, an account an Account Name, a deal a Title.</li>
+      <li><strong>Headings:</strong> ActiveCampaign lets you map columns by hand, but a heading that matches a field name is matched for you. Other spellings are noted, and a column that matches no standard field is a note, since it may be a custom field.</li>
+      <li><strong>Emails:</strong> one valid address per cell. The same email twice is a duplicate unless the import's update setting catches it.</li>
+      <li><strong>Tags:</strong> several tags in one cell are comma-separated and the cell is quoted; semicolons or pipes become one tag.</li>
+      <li><strong>Deals:</strong> Value is a plain number such as 1200.50, Currency a 3-letter code, Status Open, Won or Lost. Stage names belong to your pipeline, so they are listed for you to compare and never judged.</li>
+      <li><strong>Dates:</strong> one layout per file, ideally YYYY-MM-DD; month names, two-digit years, dots and Excel serial numbers are flagged, and a column that mixes day-first and month-first is an error.</li>
+      <li><strong>Excel damage:</strong> scientific notation is unrecoverable and flagged; a phone number is never rewritten beyond a trailing .0 or apostrophe.</li>
+      <li><strong>Safe fixes</strong> change formatting only: the separator, heading spelling to the field name, stray spaces, a mailto: prefix, email case, a trailing .0 or apostrophe on phone cells, a deal Status written as Open, Won or Lost, currency codes in capitals, and blank rows. Every change is listed with its line. Names, values, dates, IDs and phone digits are never edited, and duplicates are reported, not deleted.</li>
+    </ul>
+    <h3>Not checked</h3>
+    <ul>
+      <li>Custom fields your account created in ActiveCampaign, and how you map them in the import</li>
+      <li>Whether a Pipeline exists, or a Stage belongs to the Pipeline it sits on</li>
+      <li>Whether an Owner matches a user in your account</li>
+      <li>Whether a contact already exists, and what the update-existing choice in the import will do</li>
+      <li>Whether a contact is already unsubscribed, bounced or on a suppression list, and whether it may lawfully be mailed</li>
+      <li>The list, tags and automations you choose to apply in the import's own steps</li>
+      <li>Whether a currency is enabled in your account</li>
+      <li>The date format and decimal separator you choose in the import's mapping step</li>
+      <li>Whether an email address can actually receive mail</li>
+      <li>Your plan's limits on contacts and file size per import</li>
+      <li>Anything ActiveCampaign has changed in its importer since these rules were read</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my ActiveCampaign import skip contacts or create duplicates?</h3>
+    <p>The usual causes are a row with no email or an invalid one, the same email on more than one row, tags separated by semicolons so the whole text becomes one tag, a deal Value with a currency symbol or thousands separator, dates in an order the import misreads, and an Excel save that damaged phone numbers. This tool tests each of them and names the line.</p>
+    <h3>How do I check an ActiveCampaign import CSV before uploading it?</h3>
+    <p>Paste the file or drop it onto this page. It reads the headings against ActiveCampaign contact, account or deal field names, then lists every problem with its line number as errors, warnings and notes. Nothing is uploaded.</p>
+    <h3>How should I write tags in an ActiveCampaign contacts CSV?</h3>
+    <p>From memory, several tags in one cell are separated by commas, so the cell must be quoted, for example "newsletter,wholesale". Semicolons or pipes would make one long tag. The tool flags them and leaves the cell for you to change.</p>
+    <h3>How should I write a deal Value and currency for an ActiveCampaign import?</h3>
+    <p>Write the Value as a plain number such as 1200.50, with no currency symbol, thousands separator or k or M suffix, and put a 3-letter ISO code such as USD, EUR or GBP in a Currency column. Without a Currency column every deal takes your account's currency.</p>
+    <h3>What date format does an ActiveCampaign import want?</h3>
+    <p>From memory, the import asks you to choose the date format used in the file, so the file must use one layout throughout. YYYY-MM-DD has a single reading and is the safest. Month names, two-digit years, dots and Excel serial numbers are flagged, and a column that mixes day-first and month-first dates cannot be read correctly under either choice.</p>
+    <h3>Why did my phone numbers turn into 4.41175E+11?</h3>
+    <p>Excel stored a long number in a cell formatted as General or Number and shortened it. Scientific notation loses digits for good, so the tool flags it as an error and leaves the cell alone.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only formatting with one reasonable reading: the separator, heading spelling to the field name, stray spaces, a mailto: prefix, upper or lower case in an email, a trailing .0 or apostrophe on a phone number, a deal Status written as Open, Won or Lost, currency codes in capitals, and blank rows. Every change is listed with its line. It never changes names, values, dates, IDs or the digits of a phone number.</p>
+    <h3>Is it safe to put my contact list into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own policies still decide what you may open in a browser.</p>
+    <h3>Does this check whether I may email these contacts?</h3>
+    <p>No. It checks file formatting only. Whether a contact has consented, unsubscribed or bounced, and what the law requires for your audience, is for you and your own advisers to decide.</p>
+    <h3>What does this not check?</h3>
+    <p>Your custom fields, whether a pipeline or stage exists, whether an owner matches a user, whether a contact already exists and which update setting you pick, suppression and consent status, whether a currency is enabled, your plan's contact and file limits, the date and number formats you choose in the import, and anything ActiveCampaign changed after these rules were read. A clean result is not a promise of success: import a handful of rows first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace ActiveCampaign's own import checks, and it does not tell you whether you may email anyone. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before anything is imported into your ActiveCampaign records.</p>
+    <p><strong>Not affiliated with ActiveCampaign.</strong> This tool is independent and is not sponsored, endorsed or connected to ActiveCampaign or any CRM, marketing or marketplace vendor. ActiveCampaign is a trademark of its owner, used here only to say which file format the tool reads. The field names, deal statuses and limits are read from memory of public sources and may be out of date or miss a variant; check them against ActiveCampaign's current import help.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a>, the <a href="../zoho-crm-import-csv-check/">Zoho CRM import CSV check</a> and the <a href="../pipedrive-import-csv-check/">Pipedrive import CSV check</a> do the same for those CRMs, the <a href="../email-list-csv-check/">email list CSV check</a> cleans a mailing list before it goes into an email platform, and the <a href="../shopify-customer-csv-check/">Shopify customer CSV check</a> covers a store's customer file.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, sampleDealsFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const opts = { kind: $("#kind").value };
+      const r = validate(text, opts);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      const noun = { deals: "deal", accounts: "account", contacts: "contact" }[s.kind];
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as a ${s.kind} file · ${s.records} record${s.records === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#th-email").textContent = s.kind === "deals" ? "Value" : s.kind === "accounts" ? "Website" : "Email";
+      $("#th-co").textContent = s.kind === "deals" ? "Stage" : s.kind === "accounts" ? "City" : "Organization";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#contacts").innerHTML = s.list.slice(0, 500).map((c) => `<tr><td>${c.line}</td><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${esc(c.company)}</td></tr>`).join("") || `<tr><td colspan="5">No records found.</td></tr>`;
+      const fix = repair(text, opts);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} formatting change${fix.changes.length === 1 ? "" : "s"} available, each listed below. Names, addresses, phone and ZIP digits and dates are left exactly as they are.`
+        : "Nothing here has a formatting-only fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.records} ${noun + (s.records === 1 ? "" : "s")}.` : `No errors in ${s.records} ${noun + (s.records === 1 ? "" : "s")}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = $("#kind").value === "deals" ? sampleDealsFile() : sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: made-up people and businesses, not real customers."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: the same kind of list after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("activecampaign-import-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("activecampaign-import-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
+

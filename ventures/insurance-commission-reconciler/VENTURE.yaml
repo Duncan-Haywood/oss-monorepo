@@ -1,0 +1,69 @@
+name: insurance-commission-reconciler
+description: >-
+  Free browser tool for independent insurance agencies and brokerages: load the policy book exported from the agency
+  management system and the commission statements carriers send, in any CSV layout. It matches each statement line to a
+  policy (punctuation, case, leading zeros and term suffixes ignored, carrier-scoped), prices what each policy should
+  have paid from the book rate or a per-carrier rate table, and reports policies with no commission, commission paid
+  below the agreed rate, chargebacks on policies still in force, duplicate lines, statement totals that do not match
+  their lines, and a rate that differs from what the carrier usually pays on that line. Writes one review request per
+  carrier and downloads findings and carrier summaries as CSV. Both files are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: insurance-agency commission reconciliation
+# scored 0.23 at most (home-care-agency-margin-calculator, insurance-agency-book-valuation-calculator); the closest
+# real neighbour is era-835-underpayment-finder (0.47 for a medical-claims phrasing), which does the same job for
+# health-care remittances, not for agency commissions. No venture here reconciles carrier commission statements.
+# Search phrases: "commission statement reconciliation insurance agency", "missing commissions insurance agency",
+# "carrier commission audit", "agency management system commission reconciliation", "chargeback commission dispute".
+# Volume not measured with an external tool. Independent agencies (roughly 35,000 in the US) reconcile by hand in a
+# spreadsheet, or pay for the reconciliation module of Applied Epic, Vertafore AMS360, HawkSoft or EZLynx, or for a
+# service such as Insly or Ivans-fed tools. The first visitor is the agency's operations manager or bookkeeper
+# searching "how to reconcile carrier commission statements" or posting in an agency-owner group.
+#
+# Who: independent agencies and MGAs of 3 to 50 people with several carrier relationships, where the commission
+# statements arrive as PDFs or CSVs and a missed policy is a 10-15% leak on its premium with nobody assigned to find
+# it. The paying buyer, if there is one, is the agency owner or a producer-support vendor.
+#
+# What makes it more than a spreadsheet match: the tolerant policy-number match, the due-date window so a policy
+# written last week is not called missing, the refusal to call a charged-back policy missing, the carrier's own usual
+# rate as a yardstick when the agency has no rate on file, the total-versus-lines completeness check, and a request
+# per carrier that lists only that carrier's items and states a total.
+#
+# Path to revenue (payment rails stay off): lead magnet for agency-operations and producer-support audiences. A paid
+# version, if usage appears, is saved carrier column mappings, a rolling multi-month ledger and an AMS-export adapter
+# behind an env-var switch; not built.
+#
+# Liability: it reads the user's own two files, shows the figures it used, states what it does not decide (the
+# producer agreement, earned versus unearned commission, anything a carrier owes), words every request as a question
+# and carries the no-warranty and no-affiliation clauses. It never contacts a carrier.
+#
+# Unverified: column names are alias-matched and were not run against a real AMS export or carrier statement; PDF
+# statements must first be converted to CSV. The first report of a mismatch that is not one is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An agency operations manager will load a month of carrier statements and the policy book into a no-upload page to
+      find unpaid and underpaid commissions, because the reconciliation module of an AMS is a paid add-on, carriers
+      format statements differently, and a spreadsheet match on policy number misses suffixes and renewals.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool by 2027-02-15.
+  - A user reports a mismatch the tool raised that was not one on a normal export, at which point the matching rules need revisiting before more features.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/insurance-commission-reconciler/
+  analytics: null

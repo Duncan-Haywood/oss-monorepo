@@ -1,0 +1,25 @@
+E1  naive scheme under audit rate g(r)=a+b r: report shift vs first-order formula (a=0.2)
+  b=0.1 p=0.2: report 0.1627  shift -0.0373  first-order -0.0364  excess Brier 0.00139
+  b=0.1 p=0.5: report 0.4484  shift -0.0516  first-order -0.0500  excess Brier 0.00266
+  b=0.1 p=0.9: report 0.8844  shift -0.0156  first-order -0.0155  excess Brier 0.00024
+  b=0.3 p=0.2: report 0.0847  shift -0.1153  first-order -0.0923  excess Brier 0.01330
+  b=0.3 p=0.5: report 0.3717  shift -0.1283  first-order -0.1071  excess Brier 0.01646
+  b=0.3 p=0.9: report 0.8704  shift -0.0296  first-order -0.0287  excess Brier 0.00087
+  b=0.6 p=0.2: report 0.0000  shift -0.2000  first-order -0.1500  excess Brier 0.04000
+  b=0.6 p=0.5: report 0.0000  shift -0.5000  first-order -0.1500  excess Brier 0.25000
+  b=0.6 p=0.9: report 0.8617  shift -0.0383  first-order -0.0365  excess Brier 0.00146
+
+E2  IPW: mean and variance by Monte Carlo (g(r)=0.1+0.8r, r=0.7, p=0.4, 600000 tasks)
+  mean sim 0.3301 exact 0.3300   var sim 0.1142 exact 0.1143
+
+E3  Neyman audit allocation vs uniform, p~Beta(a,b), budget gamma=0.1
+  Beta(1,1): variance ratio 0.971
+  Beta(2,2): variance ratio 0.994
+  Beta(0.5,0.5): variance ratio 0.888
+  Beta(1,5): variance ratio 0.937
+
+E4  audit-rate floor (payout cap 1/gmin) vs variance, p~U(0,1), gamma=0.1
+  gmin=0.0: max payout inf  variance ratio vs uniform 0.971
+  gmin=0.02: max payout 50  variance ratio vs uniform 0.971
+  gmin=0.05: max payout 20  variance ratio vs uniform 0.973
+  gmin=0.08: max payout 12  variance ratio vs uniform 0.983

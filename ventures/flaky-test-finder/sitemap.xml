@@ -3,4 +3,5 @@
   <url><loc>./index.html</loc></url>
   <url><loc>./why-are-my-tests-flaky-in-ci.html</loc></url>
   <url><loc>./vs-buildpulse.html</loc></url>
+  <url><loc>./vs-eyeballing-two-ci-logs-by-hand.html</loc></url>
 </urlset>

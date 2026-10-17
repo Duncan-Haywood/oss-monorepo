@@ -1,0 +1,39 @@
+name: uk-landlord-section-24-calculator
+description: >-
+  Free browser tool for UK landlords with a mortgage: enter rent, running costs, mortgage interest and other income to see your 2025/26 or 2026/27 tax bill with the 20 percent finance cost credit, the extra Section 24 costs you versus full deduction, and your tax as a share of real profit. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no UK landlord Section 24 tool in ventures/ (checked by name; uk-capital-gains-tax-calculator covers sale gains only).
+#
+# First visitor: a UK buy-to-let landlord searching "section 24 calculator", "mortgage interest tax relief landlord calculator", "buy to let tax calculator".
+# Evergreen high-intent search from a large, tax-motivated audience; volume not measured. Landlords are also a natural audience for a future incorporation-comparison product.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a landlord incorporate-or-not planner behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names GOV.UK as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (Scottish bands, companies, losses, carried-forward costs). Ethical risk is an understated bill; mitigated by naming the unmodelled items and sourcing.
+hypotheses:
+  - claim: >-
+      UK landlords will use a free calculator to see what Section 24 costs them in extra tax and how much of their real profit goes to tax.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, rate or date differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-landlord-section-24-calculator/
+  analytics: null

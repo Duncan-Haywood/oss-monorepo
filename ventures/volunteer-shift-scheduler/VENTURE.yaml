@@ -1,0 +1,66 @@
+name: volunteer-shift-scheduler
+description: >-
+  Free browser tool for church, school PTA, food bank, youth sports and event
+  volunteer coordinators: paste the volunteers with the days they can do, their
+  maximum shifts and any roles they cannot do, list the shifts that need
+  covering, and get a fair roster nobody is double-booked on, with unfilled
+  places and over- or under-loaded volunteers reported. Exports a CSV, a
+  calendar (.ics) file per volunteer, plain-text reminder messages and a share
+  link. No account, nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a new-venture session.
+# duplicate_check.py: closest was league-schedule-generator at about 0.12-0.19 (fixtures
+# for teams, a different job); shift-roster-builder 0.10 (paid staff rosters with wages
+# and hour limits). Nothing near the 0.45 line; screened-out.md has no volunteer row.
+#
+# Why this niche: volunteer coordinators at churches, school PTAs, food banks, youth
+# sports clubs and one-off events spend an evening with a spreadsheet or a group chat
+# every month. The popular sign-up tools make every volunteer create an account or hand
+# an email address to a vendor, and a sign-up sheet leaves the coordinator to fix the
+# gaps by hand and to notice who is doing everything. A free, private tool that takes
+# availability and limits and returns a fair roster, with the gaps named, saves that
+# evening and avoids the volunteer who quietly burns out. Coordinators often hold a
+# budget line or sit in groups with one, so the audience is real.
+#
+# First visitor: people searching "volunteer schedule maker", "volunteer shift
+# scheduler free", "volunteer sign up sheet without accounts"; coordinators asking in
+# r/nonprofit and r/churchtech how to schedule volunteers. Volume not measured with an
+# external tool.
+#
+# Liability boundary: scheduling arithmetic only. No payments, no accounts, no
+# background checks, no safeguarding or labour-law advice, nothing stored or uploaded.
+# The coordinator still decides who is suited to which role and checks every name and
+# date before sending. The share link carries the typed names in the URL fragment and
+# says so beside the button.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front
+# end for a paid volunteer-management referral.
+
+hypotheses:
+  - claim: >-
+      Volunteer coordinators will paste a volunteer list into a private, no-signup tool
+      and use the roster it makes (fair loads, gaps named, per-person calendar and
+      reminder messages) instead of building one by hand, and will come back each term.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a roster that double-books a volunteer, exceeds a stated maximum or places someone on a role they excluded.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/
+  analytics: null

@@ -1,0 +1,56 @@
+assumed inputs: a=1.0; W=50.0 h per copy (selfrep-growth); T=600 h; fleet starts at 1; failure 0; cash never binds; Euler step 1 h
+table = DP value at the start; J = Euler value of the DP's own feedback policy; bb = best bang-bang switch (1 h grid)
+gap = (table - J)/J; rows sorted by grid size; 21 control levels unless stated
+
+== c=10000, s=50: best bang-bang ts=600, J_bb=7228914.1
+  interp=index n_points=  100: table=    5795760.1 J=    7008437.8 gap= -17.30%  J/J_bb=  96.95%  (   0s)
+  interp=index n_points=  200: table=    6163388.3 J=    7138362.7 gap= -13.66%  J/J_bb=  98.75%  (   0s)
+  interp=index n_points=  400: table=    6623288.5 J=    7208647.1 gap=  -8.12%  J/J_bb=  99.72%  (   1s)
+  interp=index n_points=  800: table=    6937383.8 J=    7215104.2 gap=  -3.85%  J/J_bb=  99.81%  (   1s)
+  interp=index n_points= 1600: table=    7090716.7 J=    7225818.6 gap=  -1.87%  J/J_bb=  99.96%  (   2s)
+  interp=n     n_points=  100: table=    4422034.2 J=    7006134.2 gap= -36.88%  J/J_bb=  96.92%  (   0s)
+  interp=n     n_points=  200: table=    5476561.5 J=    7138604.2 gap= -23.28%  J/J_bb=  98.75%  (   0s)
+  interp=n     n_points=  400: table=    6406992.2 J=    7208647.1 gap= -11.12%  J/J_bb=  99.72%  (   1s)
+  interp=n     n_points=  800: table=    6874950.8 J=    7215104.2 gap=  -4.71%  J/J_bb=  99.81%  (   1s)
+  interp=n     n_points= 1600: table=    7073128.0 J=    7225818.6 gap=  -2.11%  J/J_bb=  99.96%  (   2s)
+  Richardson (first-order) extrapolation of the table, interp=index:     7244049.6 =  100.21% of J_bb
+  Richardson (first-order) extrapolation of the table, interp=n:     7271305.2 =  100.59% of J_bb
+  interp=n     n_points=  400, u_levels=81: table=    6407794.2 J=    7209205.2 gap= -11.12%  J/J_bb=  99.73%
+
+== c=1000, s=12.5: best bang-bang ts=600, J_bb=1807228.5
+  interp=index n_points=  100: table=    1417898.4 J=    1749812.8 gap= -18.97%  J/J_bb=  96.82%  (   0s)
+  interp=index n_points=  200: table=    1521145.1 J=    1790688.9 gap= -15.05%  J/J_bb=  99.08%  (   0s)
+  interp=index n_points=  400: table=    1647581.5 J=    1808625.9 gap=  -8.90%  J/J_bb= 100.08%  (   1s)
+  interp=index n_points=  800: table=    1730824.9 J=    1808463.7 gap=  -4.29%  J/J_bb= 100.07%  (   1s)
+  interp=index n_points= 1600: table=    1772682.2 J=    1809147.8 gap=  -2.02%  J/J_bb= 100.11%  (   2s)
+  interp=n     n_points=  100: table=    1094706.4 J=    1753192.0 gap= -37.56%  J/J_bb=  97.01%  (   0s)
+  interp=n     n_points=  200: table=    1358041.8 J=    1792131.2 gap= -24.22%  J/J_bb=  99.16%  (   0s)
+  interp=n     n_points=  400: table=    1595257.4 J=    1810795.9 gap= -11.90%  J/J_bb= 100.20%  (   1s)
+  interp=n     n_points=  800: table=    1715518.8 J=    1808300.8 gap=  -5.13%  J/J_bb= 100.06%  (   1s)
+  interp=n     n_points= 1600: table=    1768242.8 J=    1808694.2 gap=  -2.24%  J/J_bb= 100.08%  (   2s)
+  Richardson (first-order) extrapolation of the table, interp=index:     1814539.4 =  100.40% of J_bb
+  Richardson (first-order) extrapolation of the table, interp=n:     1820966.8 =  100.76% of J_bb
+  interp=n     n_points=  400, u_levels=81: table=    1606029.0 J=    1814300.7 gap= -11.48%  J/J_bb= 100.39%
+
+== c=1000, s=50: best bang-bang ts=600, J_bb=7228914.1
+  interp=index n_points=  100: table=    5457539.8 J=    6950472.4 gap= -21.48%  J/J_bb=  96.15%  (   0s)
+  interp=index n_points=  200: table=    5904576.1 J=    7104919.4 gap= -16.89%  J/J_bb=  98.28%  (   0s)
+  interp=index n_points=  400: table=    6451521.4 J=    7182451.6 gap= -10.18%  J/J_bb=  99.36%  (   1s)
+  interp=index n_points=  800: table=    6812446.0 J=    7199347.0 gap=  -5.37%  J/J_bb=  99.59%  (   1s)
+  interp=index n_points= 1600: table=    7014777.1 J=    7218064.5 gap=  -2.82%  J/J_bb=  99.85%  (   2s)
+  interp=n     n_points=  100: table=    4256721.0 J=    6950416.9 gap= -38.76%  J/J_bb=  96.15%  (   0s)
+  interp=n     n_points=  200: table=    5308825.1 J=    7104919.4 gap= -25.28%  J/J_bb=  98.28%  (   0s)
+  interp=n     n_points=  400: table=    6267817.2 J=    7182451.6 gap= -12.73%  J/J_bb=  99.36%  (   1s)
+  interp=n     n_points=  800: table=    6761677.7 J=    7199333.6 gap=  -6.08%  J/J_bb=  99.59%  (   1s)
+  interp=n     n_points= 1600: table=    7000882.7 J=    7218064.5 gap=  -3.01%  J/J_bb=  99.85%  (   2s)
+  Richardson (first-order) extrapolation of the table, interp=index:     7217108.2 =   99.84% of J_bb
+  Richardson (first-order) extrapolation of the table, interp=n:     7240087.7 =  100.15% of J_bb
+  interp=n     n_points=  400, u_levels=81: table=    6270429.4 J=    7184294.1 gap= -12.72%  J/J_bb=  99.38%
+
+== linear market, s=50: exact all-copy value 7228914.1
+  interp=index n_points=  100: table=    8583350.4 (+18.74% of all-copy value)
+  interp=index n_points=  400: table=    7420438.6 ( +2.65% of all-copy value)
+  interp=index n_points= 1600: table=    7244089.3 ( +0.21% of all-copy value)
+  interp=n     n_points=  100: table=    5753676.0 (-20.41% of all-copy value)
+  interp=n     n_points=  400: table=    7047501.8 ( -2.51% of all-copy value)
+  interp=n     n_points= 1600: table=    7218255.4 ( -0.15% of all-copy value)

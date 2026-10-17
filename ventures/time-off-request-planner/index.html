@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Time-Off Request Planner — approve the most vacation requests without leaving a shift short</title>
+  <meta name="description" content="Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Time-Off Request Planner — free, private, in your browser">
+  <meta property="og:description" content="Resolve competing vacation requests against minimum staffing: the most approvals, a reason and alternative dates for the rest.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Time-Off Request Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste your team with roles and the vacation requests you have received, set the minimum people on duty per role, and get the set of requests to approve that never breaks cover, with the reason and a nearest alternative for each one it cannot approve, a day-by-day cover calendar and a CSV. Runs entirely in your browser.","featureList":"vacation request planner, time off approval, PTO conflict resolver, minimum staffing rules, blackout dates, alternative dates, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide which vacation requests to approve when too many people ask for the same week?","acceptedAnswer":{"@type":"Answer","text":"List each request with its dates and how much it matters, say how many people each role needs on duty, and approve the set that never drops a role below that number on any working day. Do it by priority first, then by how many requests or days off you can say yes to. This tool searches every combination and shows the plan, and for each request it cannot approve, the day it breaks the rule and who is already off."}},{"@type":"Question","name":"Is first come, first served the fairest way to approve time off?","acceptedAnswer":{"@type":"Answer","text":"It is simple and easy to defend, but it can be wasteful: one early request for three weeks can block three people who each wanted a few days in the same stretch. The planner shows what first come, first served would approve next to the best plan so you can see what the rule costs, and then you choose the rule you want to run by."}},{"@type":"Question","name":"How does the planner choose between requests that cannot all be approved?","acceptedAnswer":{"@type":"Answer","text":"Every request has a priority from 1 to 5 (3 if you leave it blank). The plan maximises priority-weighted requests, or priority-weighted days off if you pick that, and breaks ties toward more approvals and then toward the request listed first. It is an exact search, so on up to about forty competing requests it is proven best for the rule you chose. Put your own seniority or first-come order into the priority column if that is your policy."}},{"@type":"Question","name":"What counts as minimum cover?","acceptedAnswer":{"@type":"Answer","text":"For each role you give the least number of people who must be at work on every working day. If you have four baristas and need two on duty, at most two can be off at once. You can also cap the total number of people off per day across the whole team, and mark blackout dates such as a holiday weekend or stocktake when nobody is off."}},{"@type":"Question","name":"What if a request is denied?","acceptedAnswer":{"@type":"Answer","text":"The tool gives the first working day that breaks the cover rule, names the approved people already off that day, and suggests the nearest window of the same length, up to six weeks either side, that would fit the approved plan. That turns a flat no into an offer of different dates."}},{"@type":"Question","name":"Does this follow my local leave law or contract?","acceptedAnswer":{"@type":"Answer","text":"No. It does not know statutory leave, notice periods, accrual balances, carry-over, unpaid leave rules, union agreements or any rule about who must be granted leave. It only checks the cover rules you type in. Check the plan against the rules that apply to you before telling anyone."}},{"@type":"Question","name":"Is my team list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Names, roles and dates are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your plan. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TIME-OFF REQUEST PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Too many people want the same week off? Settle it in a minute.</h1>
+    <p>Paste <strong>your team with their roles</strong> and <strong>the time-off requests you have</strong>, say <strong>how many of each role must be on duty</strong>, and the tool picks the set of requests to approve that <strong>never drops a role below its minimum</strong> on any working day. Each request it cannot approve comes back with the day it clashes, <strong>who is already off</strong> and <strong>the nearest dates that would work</strong>. See what first come, first served would have cost you, and download the decisions as a CSV.</p>
+    <p class="note">Your team list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your leave law, contract or balances. See <a href="how-to-approve-vacation-requests-fairly.html">how to approve vacation requests fairly</a> for the method.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your team</h2>
+    <label for="staff">One person per line: name, role</label>
+    <textarea id="staff" spellcheck="false" placeholder="Ana, Barista&#10;Ben, Barista&#10;Eli, Cook"></textarea>
+    <h2>Requests</h2>
+    <label for="reqs">One request per line: name, first day off, last day off, priority (1 low to 5 high, optional)</label>
+    <textarea id="reqs" spellcheck="false" placeholder="Ana, 2026-07-06, 2026-07-17, 2&#10;Eli, 2026-07-08, 2026-07-14, 5"></textarea>
+    <p class="note">Dates look like <code>2026-07-06</code> or <code>7/6/2026</code>. Both ends are days off. Put your own policy (seniority, who asked first, who had the last holiday) into the priority column. Lines starting with # are ignored.</p>
+    <label for="mins">Minimum on duty: one role per line, role, number</label>
+    <textarea id="mins" spellcheck="false" style="min-height:80px" placeholder="Barista, 2&#10;Cook, 2"></textarea>
+    <label for="file">…or upload a requests CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="workdays">Days people work</label><input id="workdays" value="Mon-Fri"></div>
+      <div><label for="maxoff">Most people off on one day (blank = no limit)</label><input id="maxoff" inputmode="numeric" value=""></div>
+      <div><label for="mode">Maximise</label><select id="mode"><option value="requests">number of requests approved</option><option value="days">number of days off granted</option></select></div>
+    </div>
+    <label for="black">Blackout dates, nobody off (optional): one range per line</label>
+    <textarea id="black" spellcheck="false" style="min-height:60px" placeholder="2026-12-23 to 2026-12-26"></textarea>
+    <button type="button" id="analyze">Plan the approvals</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your team, the requests and your minimums, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Decision for every request</h3>
+    <div class="scroll"><table id="dec"><thead><tr><th>Person</th><th>Dates</th><th class="n">Days off</th><th class="n">Priority</th><th>Decision</th><th>Why, and what would work</th></tr></thead><tbody></tbody></table></div>
+    <h3>Against first come, first served</h3>
+    <p class="note">What you get by going through the requests in the order you listed them and approving each one that still fits.</p>
+    <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Requests approved</th><th class="n">Working days off</th><th class="n">Priority score</th></tr></thead><tbody></tbody></table></div>
+    <h3>Cover on every day someone is off</h3>
+    <p class="note">Highlighted rows are days where a role is down to exactly its minimum.</p>
+    <div class="scroll"><table id="cal"><thead><tr><th>Day</th><th>Off</th><th>On duty by role</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download decisions CSV</button>
+    <button type="button" class="secondary" id="download-cal">Download calendar CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Hard rules</strong> (never broken): on every working day, the people on duty in each role stay at or above the minimum you gave (so at most headcount − minimum can be off); the total off on one day stays at or under your cap; nobody is approved off on a blackout date; one person is never counted off twice on the same day. Days outside the working days you listed never use cover. <strong>Objective:</strong> maximise the sum over approved requests of priority (times working days off, if you chose days), with ties going to more approvals and then to the request listed first. <strong>Search:</strong> an exact branch-and-bound over every combination of requests, started from the first-come, first-served answer and pruned by the best possible remaining weight, so on the sizes this page accepts the plan is the best for the rule you chose. If a very large set hits the search limit the page says so. The tests compare it with a brute-force search of every subset on random problems.</p>
+    <p><strong>Not modelled:</strong> statutory or contractual leave rights, notice periods, accrued balances and carry-over, sick leave, part-time and shift patterns inside a working day, skills beyond a single role per person, and people who can cover two roles. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real workplace's policy or a leave law.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I decide which vacation requests to approve when too many people ask for the same week?</h3>
+    <p>List each request with its dates and how much it matters, say how many people each role needs on duty, and approve the set that never drops a role below that number on any working day. Do it by priority first, then by how many requests or days off you can say yes to. This tool searches every combination and shows the plan, and for each request it cannot approve, the day it breaks the rule and who is already off.</p>
+    <h3>Is first come, first served the fairest way to approve time off?</h3>
+    <p>It is simple and easy to defend, but it can be wasteful: one early request for three weeks can block three people who each wanted a few days in the same stretch. The planner shows what first come, first served would approve next to the best plan so you can see what the rule costs, and then you choose the rule you want to run by.</p>
+    <h3>How does the planner choose between requests that cannot all be approved?</h3>
+    <p>Every request has a priority from 1 to 5 (3 if you leave it blank). The plan maximises priority-weighted requests, or priority-weighted days off if you pick that, and breaks ties toward more approvals and then toward the request listed first. It is an exact search, so on up to about forty competing requests it is proven best for the rule you chose. Put your own seniority or first-come order into the priority column if that is your policy.</p>
+    <h3>What counts as minimum cover?</h3>
+    <p>For each role you give the least number of people who must be at work on every working day. If you have four baristas and need two on duty, at most two can be off at once. You can also cap the total number of people off per day across the whole team, and mark blackout dates such as a holiday weekend or stocktake when nobody is off.</p>
+    <h3>What if a request is denied?</h3>
+    <p>The tool gives the first working day that breaks the cover rule, names the approved people already off that day, and suggests the nearest window of the same length, up to six weeks either side, that would fit the approved plan. That turns a flat no into an offer of different dates.</p>
+    <h3>Does this follow my local leave law or contract?</h3>
+    <p>No. It does not know statutory leave, notice periods, accrual balances, carry-over, unpaid leave rules, union agreements or any rule about who must be granted leave. It only checks the cover rules you type in. Check the plan against the rules that apply to you before telling anyone.</p>
+    <h3>Is my team list uploaded anywhere?</h3>
+    <p>No. Names, roles and dates are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your plan. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the leave rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or HR vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your team list and requests are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shift-roster-builder/">shift roster builder</a> (who works which shift this week), the <a href="../shift-cover-optimizer/">shift-cover optimizer</a> and the <a href="../final-paycheck-deadline-calculator/">final paycheck deadline calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePeople, parseRequests, parseMinimums, parseBlackouts, parseWorkdays, solve, decisionsCsv, calendarCsv, samplePeople, sampleRequests, sampleMinimums, fmtDate, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const p = parsePeople($("#staff").value), q = parseRequests($("#reqs").value), m = parseMinimums($("#mins").value), b = parseBlackouts($("#black").value);
+      const wd = parseWorkdays($("#workdays").value);
+      const errors = [...p.errors, ...q.errors, ...m.errors, ...b.errors];
+      if (!wd) errors.push('Days people work: try "Mon-Fri" or "Tue-Sat".');
+      if (errors.length) { status.textContent = errors.slice(0, 4).join(" · ") + (errors.length > 4 ? ` · and ${errors.length - 4} more` : ""); report.hidden = true; return false; }
+      const mo = $("#maxoff").value.trim();
+      status.textContent = "Planning…";
+      const r = solve(p.people, q.requests, { minimums: m.mins, blackouts: b.ranges, workdays: wd, mode: $("#mode").value, maxOffPerDay: mo === "" ? Infinity : Number(mo) });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [`${r.counts.approved} of ${r.counts.requests}`, "Requests approved"],
+        [String(r.counts.approvedDays), "Working days off granted"],
+        [String(r.counts.denied), r.counts.denied ? "Requests that cannot all be approved" : "Requests denied"],
+        [r.exact ? "Proven" : "Best found", r.exact ? "Best plan for your rule (exact search)" : "Search was cut off on a very large set"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#dec tbody").innerHTML = r.decisions.map((d) => {
+        const pill = d.decision === "approved" ? '<span class="pill good">approve</span>' : '<span class="pill high">can\'t approve</span>';
+        const alt = d.alt ? ` Would work: ${fmtDate(d.alt.start)} to ${fmtDate(d.alt.end)}.` : (d.decision === "denied" && d.kind !== "unknown" && d.kind !== "blackout" ? " No window of the same length within six weeks works." : "");
+        return `<tr><td>${esc(d.name)}${d.roleLabel ? ` <span class="note">${esc(d.roleLabel)}</span>` : ""}</td><td>${fmtDate(d.start)} to ${fmtDate(d.end)}</td><td class="n">${d.days.length}</td><td class="n">${d.priority}</td><td>${pill}</td><td>${esc(d.reason)}${esc(alt)}</td></tr>`;
+      }).join("");
+      $("#cmp tbody").innerHTML = [["This plan", r.plan], ["First come, first served", r.fcfs]].map(([n, x]) => `<tr><td>${n}</td><td class="n">${x.approved}</td><td class="n">${x.days}</td><td class="n">${x.score}</td></tr>`).join("");
+      $("#cal tbody").innerHTML = r.calendar.length ? r.calendar.map((c) => `<tr${c.perRole.some((x) => x.tight) ? ' style="background:#fdf0d5"' : ""}><td>${esc(c.label)}</td><td>${esc(c.names.join(", "))}</td><td>${c.perRole.map((x) => `${esc(x.role)} ${x.onDuty} (min ${x.min})`).join(" · ")}</td></tr>`).join("") : '<tr><td colspan="3">Nobody is off on a working day.</td></tr>';
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the decisions.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    }
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_built"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#staff").value = samplePeople(); $("#reqs").value = sampleRequests(); $("#mins").value = sampleMinimums();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café with nine people and eleven July requests."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#reqs").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name} into the requests box. Add your team and minimums, then click the button.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["staff", "reqs", "mins", "black"]) $("#" + id).value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your team, the requests and your minimums, then click the button."; });
+    $("#download").addEventListener("click", () => { if (last) download("time-off-decisions.csv", decisionsCsv(last)); });
+    $("#download-cal").addEventListener("click", () => { if (last) download("time-off-calendar.csv", calendarCsv(last)); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

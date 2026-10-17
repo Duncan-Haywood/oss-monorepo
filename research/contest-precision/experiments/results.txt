@@ -1,0 +1,39 @@
+E1  a_n = slope of win probability (units of sigma); effort e* = V a_n / sigma
+  n= 2  a_n=0.28209   2/(n a_n^2)=12.566
+  n= 3  a_n=0.28209   2/(n a_n^2)=8.378
+  n= 4  a_n=0.25734   2/(n a_n^2)=7.550
+  n= 5  a_n=0.23259   2/(n a_n^2)=7.394
+  n=10  a_n=0.15388   2/(n a_n^2)=8.447
+  n=20  a_n=0.09337   2/(n a_n^2)=11.470
+  closed form a_2 = 1/(2 sqrt(pi)) = 0.28209; a_3 equals a_2 exactly
+
+E2  precision ceiling: largest lam=V/sigma^2 with a pure symmetric equilibrium
+  n= 2  lam_max=12.351  participation limit=12.566  ratio=0.983
+  n= 3  lam_max=7.780  participation limit=8.378  ratio=0.929
+  n= 5  lam_max=6.106  participation limit=7.394  ratio=0.826
+  n=10  lam_max=5.605  participation limit=8.447  ratio=0.664
+  n=20  lam_max=5.800  participation limit=11.470  ratio=0.506
+
+E3  holdout size m at V=1, s=1, n=5 (sigma=1/sqrt(m)); effort and rent, with equilibrium check
+  m_cap = lam_max*s^2/V = 6.11
+  m= 1  sigma=1.000  e*=0.233  rent/player=0.173  pure_eq=True  best deviation gain=0.0000
+  m= 2  sigma=0.707  e*=0.329  rent/player=0.146  pure_eq=True  best deviation gain=0.0000
+  m= 4  sigma=0.500  e*=0.465  rent/player=0.092  pure_eq=True  best deviation gain=0.0000
+  m= 6  sigma=0.408  e*=0.570  rent/player=0.038  pure_eq=True  best deviation gain=0.0000
+  m= 8  sigma=0.354  e*=0.658  rent/player=-0.016  pure_eq=False  best deviation gain=0.0267
+
+E4  above the ceiling: best-reply of everyone to the others' FOC effort (n=5, V=1, s=1)
+  m= 6  FOC effort 0.570  best reply 0.573  gain -0.0000
+  m= 8  FOC effort 0.658  best reply 0.085  gain 0.0267
+  m=12  FOC effort 0.806  best reply 0.007  gain 0.1253
+
+E5  organiser: w*e* - V - kappa*m with w=3 (n=5, s=1, V=1)
+  kappa=0.5     m*=0.49 (cap 6.11, unconstrained 0.49)  binding=cost  net value=-0.757
+  kappa=0.2     m*=3.04 (cap 6.11, unconstrained 3.04)  binding=cost  net value=-0.391
+  kappa=0.05    m*=6.11 (cap 6.11, unconstrained 48.69)  binding=cap  net value=0.419
+  kappa=0.001   m*=6.11 (cap 6.11, unconstrained 121723.77)  binding=cap  net value=0.718
+
+E6  Monte Carlo check of win probability (n=4)
+  d=0.0  integral=0.2500  MC(2e5)=0.2511
+  d=0.5  integral=0.3933  MC(2e5)=0.3953
+  d=1.5  integral=0.7019  MC(2e5)=0.7012

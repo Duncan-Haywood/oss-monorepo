@@ -26,6 +26,14 @@
 # The 2026-08-24 "may agents merge product PRs?" row is gone: answered yes
 # on 2026-08-25. Do not put it back. Product PRs merge; they are not a
 # queue item.
+# Rows `hetzner-ssh-key-is-a-public-key`, `codex-governor-enable` and
+# `portfolio-site-hetzner-deploy` are gone: the owner deleted the Hetzner
+# servers (89.167.29.39, 157.180.80.188) on 2026-10-01, so the k3s/Argo
+# cluster route is retired, not down. Do not put them back or ask for
+# HETZNERSSHKEY; GitHub Pages is the only host.
+# Row `print-atelier-stripe-checkout` is gone: the owner's 2026-10-15 rule
+# answers it (payment code is fine off by default on the deployer's keys;
+# `PRODUCT_PLAYBOOK.md` §6). Its Stripe code already works that way.
 #   - `exposure` -- what granting it actually costs the owner in risk. A repo
 #     Settings toggle and opening a merchant-of-record account are adjacent
 #     rows in a cheapest-first table and are not the same kind of decision.
@@ -60,317 +68,6 @@
 
 decisions:
 
-- id: hetzner-ssh-key-is-a-public-key
-  asks: []
-  prs: [3184]
-  gates: deployment
-  exposure: credential
-  opened: "2026-09-04"
-  # Measured, current loss of the public surface: run 33887885219, all three
-  # hostnames refusing on 443. See OUTAGE in decision_queue.py for how narrow
-  # this flag is meant to be -- it is not a way to say "important".
-  outage: true
-  runner_free: >-
-    `bootstrap/restore-cluster.sh` run from the owner's own machine. It takes
-    the SSH key from the local agent and the Argo credential from
-    `ARGOCD_REPO_TOKEN` in the environment, so it needs no GitHub Actions
-    runner and no repository secret at all. That matters as of 2026-09-05,
-    because the workflow route below is deadlocked: every job in
-    `hetzner-gitops CI` runs on `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`,
-    runner assignment stopped again on 2026-09-04, and the self-hosted
-    fallback runs as pods on the very cluster this row exists to restore.
-  action: >-
-    **Do this from your own machine, not from Settings — as of 2026-09-05 the
-    GitHub route cannot work.** Put the private key (the one matching the
-    public half already installed on `root@89.167.29.39` and
-    `root@157.180.80.188`) and the Argo token into the local secret store
-    once, then run the recovery:
-    `bootstrap/scripts/load-secrets.sh --put HETZNERSSHKEY < ~/.ssh/<key>`,
-    `bootstrap/scripts/load-secrets.sh --put ARGOCD_REPO_TOKEN`, then
-    `bootstrap/scripts/load-secrets.sh --exec -- env CONFIRM=restore-cluster
-    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
-    WITH_PORTFOLIO_SITE_HOST=1
-    SITE_GH_TOKEN=<pat> SITE_TLS_EMAIL=<your address>
-    bootstrap/restore-cluster.sh`
-    — that is the whole recovery, end to end, and it needs no runner and no
-    repository secret. Add `DRY_RUN=1` to the `env` for the plan and the
-    detected addressing mode without changing anything.
-    **Rehearse that dry run today, before you go looking for the key**
-    (changed 2026-09-10): it used to stop at the SSH gate and print
-    nothing, so the only way to see the plan was to already hold the
-    private key — during the one session this whole recovery gets. It now
-    prints the half that needs no SSH *first*: which extras were asked
-    for, and which credential is standing behind each. Run `DRY_RUN=1
-    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
-    WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` with your env
-    set and read that block. It still exits 1 without the key — it
-    genuinely could not probe the boxes — but it names what it did check,
-    so the mistake worth catching early is catchable early. The expensive
-    one is setting `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant:
-    both credential the Codex worker, and only the second draws on your
-    plan's included quota. Pass `CODEX_ENABLED=1` to the rehearsal too,
-    so the dry run prints the state the real run will leave behind rather
-    than a held one you would then have to go back and change.
-    **Two more `--put`s are worth making before that run, and as of 2026-09-10
-    they finish the job rather than starting a second one.**
-    `bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
-    (after `codex login`, on a machine where you are signed in) and
-    `bootstrap/scripts/load-secrets.sh --put RUNNER_TOKEN`. `--exec` exports
-    both into the recovery, and `restore-cluster.sh` now hands each one to its
-    installer over stdin in the same run — so the Codex worker comes back
-    credentialed against your ChatGPT plan's *included* quota, and the
-    self-hosted runner comes back registered. Until that change the two steps
-    installed and then told you to come back with the SSH key a second time,
-    which for the one key every route here is blocked on is the expensive kind
-    of friction. `CODEX_AUTH_JSON` is the credential to prefer: `worker.sh`
-    resolves it before `OPENAI_API_KEY` and withholds the API key when both are
-    present, so a tick on the plan's quota costs nothing extra where a tick on
-    the API key is billed per token.
-    **`CODEX_ENABLED=1` is in the command above as of 2026-09-17, and leaving
-    it out is what this row used to ask for.** Authorising unattended spend is
-    still a separate act from installing and credentialing — that has not
-    changed, and it must not. What changed is *where* the owner performs it:
-    typing the flag is the authorisation, and typing it in the recovery command
-    authorises it in the one session this whole recovery gets, instead of
-    behind a second SSH trip for the one key every route here is blocked on.
-    The account owner has since asked, in the standing scheduled brief, for the
-    Codex worker to be doing dev work against the ChatGPT plan's *included*
-    quota — so a recovery that installs the worker and leaves it held does not
-    deliver what was asked, and the previous wording of this row guaranteed
-    exactly that outcome for anyone who followed it verbatim.
-    Omit the flag and nothing is lost but time: the worker installs, holds,
-    spends nothing, and
-    `./bootstrap/scripts/enable-codex-governor.sh --host-only` plus a re-run of
-    the installer still turns it on later. `CODEX_ENABLED=1` is also ignored,
-    with a warning, when no credential was supplied — an enabled governor with
-    nothing to authenticate against only loops into a six-hour auth cooldown —
-    so the flag cannot start spend that the credentials do not already permit.
-    The store is why this is now two pastes and not six: it lives on the
-    machine that runs your agents (`infra/SECRETS.md`), so Cursor and a local
-    Claude Code session can drive the same recovery without you re-pasting
-    anything, and `--exec` holds the credentials in one child process rather
-    than in your shell, your history, or `ps`. It also loads the key into a
-    throwaway `ssh-agent`, so there is nothing to `ssh-add` first, and
-    `bootstrap/scripts/load-secrets.sh` on its own will tell you *before* the
-    run whether what you stored is a private key — the check this row exists
-    because nobody could make.
-    The older form still works if you prefer it:
-    `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1
-    CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1 bootstrap/restore-cluster.sh`,
-    with the key in your own SSH agent.
-    `WITH_CODEX_HOST=1` is optional and worth taking while you are already
-    holding the key. It installs the Codex worker's systemd-timer scheduler
-    (`gitops/agents/host/`) on the agent box: the same governor, running with
-    no k3s underneath it. When this cluster died it took the worker's only
-    scheduler with it, and the fallback — self-hosted runners in `gitops/ci/`
-    — died too, because those run as pods in this same cluster. That step is
-    what makes the *next* cluster loss survivable instead of another week with
-    nowhere to run anything. It runs last, cannot fail the restore, and
-    enables nothing: the policy still ships `"enabled": false`, so it holds
-    until credentials and the switch arrive.
-    Changed 2026-09-06, and it matters for the run you are about to make: the
-    three host-mode steps now also run when the **cluster** restore fails.
-    They used to sit after `set -euo pipefail`, so a fault anywhere in the k3s
-    rebuild ended the script before them — and none of the three needs k3s.
-    Nobody has ever executed this script against these boxes and the private
-    network was never applied, so the addressing steps are its least-proven
-    part; the shape that was waiting was a run that dies at node readiness and
-    hands you no cluster, no Codex worker, no runner and no public surface,
-    with the key in your hand for all four. Now a partial failure still leaves
-    you the capacity that never depended on what broke. The script still exits
-    non-zero — it tells you the cluster failed and reports each host-mode step
-    on its own terms — and every host-mode installer is idempotent, so
-    re-running after you fix the cluster fault costs nothing.
-    `WITH_GITHUB_RUNNER_HOST=1` is the same fix for the *other* tenant of that
-    same cluster: `gitops/ci/`'s self-hosted Actions runners also run as pods
-    there, so metered-CI insurance was equally downstream of this outage. It
-    installs a GitHub Actions runner as a systemd service on the agent box
-    (`gitops/ci/host/`) — no k3s, no Argo, no image pull — and registers with
-    GitHub only once you hand it a registration-token PAT via
-    `--credentials`; add it while you are already holding the SSH key, for the
-    same reason as the Codex step. The `<pat>` is a
-    fine-grained PAT with **Contents: Read** on this repository; the script
-    masks it and ships it to the box as a mode-600 file rather than putting it
-    in argv. Without it the restore *succeeds and the site stays dark*, which
-    is the worst outcome available here — the GitOps repository is private, so
-    Argo CD would install, apply the root Application, and then fail every
-    sync on repository authentication with no error anywhere except Argo's own
-    Application status. It cannot be a sealed secret, because sealed-secrets
-    is itself deployed by Argo from `gitops/apps` — the credential has to
-    exist before the first sync it enables. The same token works for the
-    `portfolio-site-repo` seal, so one PAT covers both.
-    `WITH_PORTFOLIO_SITE_HOST=1` is the one whose result a stranger can see,
-    and it was added on 2026-09-06 (#3468). The two flags above restore what
-    *builds*; this restores what *serves* — the portfolio site out of the
-    control-plane box's own nginx (`gitops/prod/host/`), downstream of neither
-    k3s, Argo, nor a Pages runner. Without it the recovery can finish every
-    other step and still leave a visitor to `marisstella.dev` on a refused
-    connection. `SITE_GH_TOKEN` is the **same PAT** as above (Contents: Read),
-    and unlike the other two this step needs it up front rather than after: the
-    origin is private, so the deploy checkout cannot be cloned without it, and
-    the step skips rather than half-installing. It reaches the box over stdin,
-    never argv. `SITE_TLS_EMAIL` is optional — without it the site serves over
-    HTTP and you add the certificate later with `--tls`. Note what running it
-    means: on a domain whose DNS already points here, this **is** the decision
-    to publish under the portfolio's public name. That is the intent; there is
-    deliberately no second gate after it.
-    **You do not have to rebuild the cluster to get that one.** Added
-    2026-09-10: `bootstrap/scripts/setup-portfolio-site-from-laptop.sh` runs
-    the site step on its own, from your machine, in one command — the same
-    shape as the Codex and runner drivers, which had one and this route did
-    not. It needs no k3s, no Argo and no runner, so it is not downstream of
-    the least-proven part of the restore above (the addressing steps). If the
-    only thing you want today is `marisstella.dev` answering, run that instead
-    and skip the rest; the full recovery stays the right call when you want
-    the dev capacity and CI back in the same pass.
-    **And that escape is not the site's alone — all three host-mode routes
-    have it.** Added 2026-09-17, because the paragraph above named the
-    standalone driver for the one route it was written about and left the
-    other two as "the Codex and runner drivers", never naming them or saying
-    they can be run the same way. Each is one command from your machine,
-    needing the private SSH key and nothing else — no k3s, no Argo, no
-    runner, no repository secret, no seal:
-
-        ./bootstrap/scripts/setup-runner-from-laptop.sh
-        ./bootstrap/scripts/setup-codex-host-from-laptop.sh
-        ./bootstrap/scripts/setup-portfolio-site-from-laptop.sh
-
-    All three take `--check` to report without changing anything, and all
-    three are idempotent, so running one today does not cost you anything if
-    you run the full recovery later. Which to reach for depends on what you
-    want back:
-
-      - **CI, and an end to the metered-Actions cycle** — the runner one.
-        Actions is starved again as of 2026-09-17 (every check arriving
-        `runner_id: 0`, no step executed), and a self-hosted runner is not
-        metered, so this is what makes the next starvation window a
-        non-event rather than another week of local-only verification.
-      - **Unattended dev capacity on the box** — the Codex one. It installs
-        the host-mode systemd timer, which prefers the subscription
-        credential (`CODEX_AUTH_JSON` from your own `codex login`) and
-        actively withholds `OPENAI_API_KEY` from the CLI when both are
-        present, so a tick spends the plan's included quota and cannot bill
-        per token. It installs held: `policy.json` ships `"enabled": false`
-        and the timer ticks and holds until `enable-codex-governor.sh
-        --host-only`, so installing it does not start anything spending.
-      - **A stranger seeing `marisstella.dev`** — the site one, as above.
-
-    Ranked against each other rather than against the cluster: the runner
-    and Codex drivers are the two whose value does not depend on the k3s
-    restore working at all, and the runner is the one that changes what
-    *every other* row here is downstream of.
-    **The GitHub route, for when runners come back:** paste that same private
-    key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
-    OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as
-    `ARGOCDREPOTOKEN`, then dispatch `hetzner-gitops CI` with `preflight:
-    true` to confirm, and again with `restore: restore-cluster`. It reaches
-    the same script, and, as of 2026-09-06 (#3543), the same host-mode flags:
-    the dispatch form itself now carries `with_codex_host`,
-    `with_github_runner_host`, `with_portfolio_site_host` and `site_tls_email`
-    inputs, forwarded into the script's env exactly as the laptop route's
-    env vars are — tick the boxes you want on the one `restore` dispatch
-    rather than re-running it. Before #3543 this route could only ever reach
-    steps 1-8 (the k3s/Argo restore): the three flags above existed in the
-    script but had no workflow_dispatch input and were never forwarded, so a
-    dispatch from here alone left the Codex worker, the self-hosted runner
-    and the portfolio site all uninstalled regardless of what was ticked.
-    It is worth doing eventually so the recovery is repeatable without a
-    laptop, but it buys nothing today: both dispatches return `runner_id: 0`.
-    **Why this row was rewritten on 2026-09-05:** it used to lead with the
-    Settings route and declared no prerequisites, so the queue rendered it
-    `up` and the banner named it as the one row that "can be granted now and
-    will change something". Every route it described needed a runner. An owner
-    acting on it would have pasted a private key into Settings and then
-    watched both dispatches come back `runner_id: 0` — the identical mistake
-    `infra_state.yaml` was written to prevent, one row above the row it was
-    written about. `check()` now refuses a row whose action says to dispatch a
-    workflow unless it declares the dependency or names a runner-free route.
-    What did not change is the shape of the recovery:
-    `bootstrap/restore-cluster.sh` does it end to end (server,
-    agent join, Argo CD, then a Host-header curl for what the apex actually
-    returns), refuses to start without the typed confirmation, and never
-    overwrites a cluster that is already there. It touches no Hetzner API, so
-    the read-only token policy is untouched. It also fixes a trap nobody had
-    hit yet, because nobody had got far enough to hit it: the *documented*
-    order does not work today. `install-k3s-server.sh` defaults
-    `ADVERTISE_IP` to `10.10.0.10` and `install-k3s-agent.sh` defaults
-    `SERVER_URL` to `https://10.10.0.10:6443` — addresses on a private network
-    `infra/inventory.tf:53` records was **never applied** (`tofu` cannot
-    create it with a read-only token), so the server install would have burned
-    its 180-second readiness wait and exited 1 while the agent retried a join
-    against an address on no interface. The script probes for the NIC and
-    falls back to public addressing with `flannel-backend=wireguard-native`,
-    so node-to-node traffic is still encrypted.
-    **Measured, not inferred:** that dispatch on 2026-09-04 (run 33884253173,
-    job 101060068559) exits in under a second on the workflow's own format
-    classifier — `HETZNERSSHKEY holds a public key, not a private key` — so
-    the preflight has never produced a single reading, and every "SSH to the
-    boxes and see" instruction in this repo has been unfollowable since it was
-    written. The workflow already normalises literal `\n` escapes and CRLF, so
-    a plain paste is fine; the failure is the key half, not the formatting.
-    **Re-ranked to first, hours after this row was written, by the measurement
-    the same PR made possible.** It said "deliberately ranked below the two
-    seals ... this one only lets us look inside a cluster that is already
-    serving". The cluster is not already serving. `Public surface check` (run
-    33887885219) got `Connection refused` from all three hostnames and 0 of 24
-    sampled sitemap URLs — DNS resolves and the IP answers, but nothing is
-    listening on 443. So this row is no longer diagnosis-of-a-healthy-system;
-    it is the only way to find out why the portfolio's entire public surface
-    is down, and `portfolio-site-repo` now ranks *below* it (sealing a clone
-    token for a cluster that serves nothing changes nothing a stranger can
-    see). Do this one first.
-    **Confirmed sufficient 2026-09-04 by `Outage triage` (run 33889983086,
-    PR #3188) — this row is no longer a hopeful ask.** A key rotation would
-    have bought nothing had sshd been down, and nothing had checked. It is up:
-    port 22 accepts connections on both boxes, so the rotated key will get in.
-    The same run ruled out every cheaper cause — both servers report `running`
-    to the Hetzner read API, and all three hostnames resolve to
-    `89.167.29.39`, which is ours — so this is not a power, DNS, firewall or
-    TLS problem, and no console visit is needed. **6443 is refused on the
-    control plane**, which sharpens the hypothesis before anyone logs in: the
-    k3s API server itself is not listening, so this is not a crashed ingress
-    but an absent or dead cluster, and no pods exist to serve 80 or 443.
-    **Sharpened again 2026-09-04 by PR #3195, and this changes what you should
-    expect to find.** `Outage triage` now reads the Hetzner *action log*
-    (read-only, same token), which no session had ever queried. Both machines
-    return nothing but their own creation burst — `create_server`,
-    `enable_backup` and the `start_server` that first boots them, all inside
-    fifteen seconds, on 2026-08-24T11:15Z and 2026-08-25T15:29Z. There has
-    been **no reboot, no rebuild and no rescue boot on either box since it was
-    created**. So k3s did not fail to survive a restart: there has been no
-    restart. Combined with this row's own finding — `bootstrap/` is the only
-    documented install path, it needs SSH, and `HETZNERSSHKEY` has never held
-    a usable key — the leading hypothesis is now that **k3s was never
-    installed and the public surface has never once been up**, rather than
-    that a working catalogue went dark. Expect a **first bootstrap**, not a
-    repair. `ls -l /etc/rancher/k3s/k3s.yaml` settles it in one line the
-    moment SSH works; absent means run `bootstrap/install-k3s-server.sh` then
-    `install-argocd.sh`, and Argo takes it from there.
-  unlocks:
-    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box. **'Only SSH can say why k3s is dead' was too strong (corrected #3195):** the Hetzner action log says both boxes have been untouched since creation — no reboot, no rebuild — which eliminates 'k3s did not come back from a restart' without a shell and makes 'never installed' the leading hypothesis. SSH is still what confirms it and what runs the install."
-    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
-    - "#3186 raised a third candidate — a healthy cluster with the fault in front of it (the ingress, a load balancer, or DNS at the node) — and was right that `Connection refused` alone does not choose between the three. #3188 measured it away rather than argued it away: DNS resolves to our own address, both servers report `running`, and :6443 is refused on the control plane itself, which no fault *in front of* a healthy cluster produces. Kept here because the reasoning is the reusable part — a bare status code never picks a cause, and the fix was to go and take a second reading."
-  blocked_by: []
-  note: >-
-    Found by dispatching the preflight rather than by reading anything — no
-    document in the repo recorded this, and three of them (`OWNER_CHECKLIST`,
-    `bootstrap/README`, `infra/README`) actively said the dispatch was
-    available. All three corrected in the same change that opened this row.
-    The owner was debugging exactly this on 2026-08-24 via the one-shot
-    `tmp/ssh-key-smoke` branch; that diagnostic was folded into the preflight
-    job afterwards and then nobody dispatched it again, so the secret has sat
-    wrong for eleven days with the repo asserting otherwise.
-
-    **Not a one-off blip, as of 2026-09-04.** The `action` above cites the
-    first `Public surface check` run (33887885219); it has since run twice
-    more (33888988972, 33888990022), independently `workflow_dispatch`ed,
-    same result each time — all three hostnames `Connection refused`. Three
-    consistent readings rule out a transient network hiccup at measurement
-    time; they don't yet distinguish which of the causes `unlocks` above
-    lists. `HETZNERSSHKEY` was still the wrong half of the keypair as of the
-    third run. Rerun `Public surface check` (`workflow_dispatch`, no inputs)
-    to see if this has since self-resolved before assuming it is still down.
-
 - id: actions-runners-unavailable
   asks: []
   prs: [1842, 2021, 2022]
@@ -390,12 +87,12 @@ decisions:
     exactly as `gitops/ci/README.md` predicted it would once the metered
     allowance was spent again. A row that announces its own irrelevance ages
     the most dangerously of any row here, because nobody re-reads it.
-    What is blocked on this: the GitHub route in
-    `hetzner-ssh-key-is-a-public-key`, all of `deploy-settings`, and the
-    self-hosted fallback in `gitops/ci/` (its runners are pods on the dead
-    cluster, so it cannot substitute). The one route out that needs no runner
-    is the laptop command in `hetzner-ssh-key-is-a-public-key` —
-    prefer it to waiting for this row. If the August window is a guide, the
+    What is blocked on this: the Actions-built half of `deploy-settings`
+    (the runner-free `gh-pages` branch route is not). **Corrected
+    2026-10-01:** the owner deleted the Hetzner servers that day, so the
+    self-hosted fallback in `gitops/ci/` and the host-mode runner are gone
+    for good, not merely down; option (b) below is retired and the only
+    unblocks left are billing or a new runner host. If the August window is a guide, the
     allowance resets on 2026-10-01; the owner can lift it sooner from
     Settings → Billing.
     For history, the earlier recovery really did happen on its own: GitHub
@@ -793,15 +490,14 @@ decisions:
     anything else here, because the answer decides whether this row belongs
     in the outage set. `portfolio/hosting/README.md` has carried the
     private-repo constraint since 2026-09-01; this row had not caught up.
-    The Hetzner route in `hetzner-ssh-key-is-a-public-key` has neither
-    constraint and, as of 2026-09-05, is one command from the owner's own
-    machine. The host is already decided (GitHub Pages + existing Hetzner
-    boxes; see `portfolio/hosting/README.md`) — do not add Cloudflare or
+    (2026-10-01: the Hetzner route this paragraph used to offer as the
+    alternative is gone -- the owner deleted the servers -- so GitHub Pages
+    is the only host; see `portfolio/hosting/README.md`.) Do not add Cloudflare or
     Vercel secrets as the way the portfolio goes live.
   unlocks:
     - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
     - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
-    - "**This is the cheaper of the two routes to a public surface, and the only one that asks the owner for nothing they have to find.** `hetzner-ssh-key-is-a-public-key` needs the private half of a keypair installed on two boxes in August -- if that file is gone, the row cannot be completed at all and the recovery is a Hetzner console visit or a rebuild. This row is two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`. Neither route is a prerequisite for the other."
+    - "**This is the only route to a public surface** (corrected 2026-10-01: the Hetzner servers behind the other route were deleted by the owner that day). It asks the owner for nothing they have to find: two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`."
     - "The artifact is **already built and validated on every merge to `main`** -- `portfolio-pages.yml`'s `build` job runs the builder, the integrity check and `upload-pages-artifact`, and succeeds; only the `deploy` job is gated on `vars.PAGES_ENABLED == 'true'` and it is skipped every time (measured: run 33910587055, `deploy` conclusion `skipped`, `build` conclusion `success` on the same run). So the flip publishes something that has already passed its checks, rather than starting a build that might not."
     - "The flip is self-verifying: `portfolio-pages.yml`'s deploy job ends by fetching `/`, both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, `feed.xml` and one real product page through the live public URL, and fails if any returns non-200. `Public surface check` (no credential) then re-measures the same origin on demand, so \"it worked\" is a reading rather than an inference."
     - Three ventures whose builds already pass but which deploy nothing.
@@ -848,17 +544,12 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    **Read this first: you probably do not need this row.** If what you
-    want is "Codex spends the plan quota on a Hetzner box", seal
-    `CODEX_AUTH_JSON` under `codex-governor-enable` instead — that route
-    runs on the cpx22 the cluster already owns and needs no new machine.
-    This row is the *separate* LAN / Tailscale single-box runner, and it
-    is only worth doing if you actually want a second, non-Hetzner
-    machine running agents. `ventures/ubuntu-agent-server/README.md` is
-    explicit that the Hetzner boxes belong to the k3s + Argo path and
-    that a host must not be driven by both ("Do not dual-drive the same
-    host with both"), so do **not** point `make provision` at cpx22 or
-    cpx52. Then, per that README ("Guardrails, in order of how hard they
+    **Corrected 2026-10-01: the owner deleted the Hetzner servers (cpx22
+    and cpx52) that day, so the k3s `codex-governor-enable` route this
+    paragraph used to prefer is gone and that row has been removed.** This
+    LAN / Tailscale single-box runner is now the only queued route for
+    unattended Codex work, and it needs a machine you choose. Per
+    `ventures/ubuntu-agent-server/README.md` ("Guardrails, in order of how hard they
     are to bypass by accident") and `config/repos.yml`'s comments: (1)
     provision that LAN/Tailscale box (`make provision`, after filling in
     `inventory.ini`, which ships as `REPLACE_ME`); (2) on that box, run
@@ -880,7 +571,8 @@ decisions:
       supervised session, same as every other agent in this repo.
   blocked_by: []
   note: >-
-    Not a duplicate of `codex-governor-enable`, but the line between them
+    (History below; `codex-governor-enable` was removed 2026-10-01 when the
+    Hetzner servers were deleted.) Not a duplicate of `codex-governor-enable`, but the line between them
     moved and this note used to draw it in the wrong place. It said that
     row was "metered by an OpenAI project API key" and *this* row was the
     subscription one, so the two were told apart by **which budget they
@@ -1187,304 +879,6 @@ decisions:
     rewritten for the current state; `prs` now also names #3024, the PR that
     actually shipped what #870 proposed.
 
-- id: codex-governor-enable
-  asks: []
-  prs: [1996]
-  # Downstream of the outage (measured 2026-09-04, run 33889983086): the
-  # governor and its workers schedule onto the k3s cluster, whose API server
-  # is not listening -- :6443 refused on both boxes. Sealing the credential is
-  # durable preparation and does not expire, so it is not wasted, but nothing
-  # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
-  # Declared as well as described (2026-09-05): the paragraph above has been
-  # right since 2026-09-04, but `viability()` reads `requires` and cannot read
-  # a comment, so this row still rendered `up` and sorted among the grantable
-  # ones. The owner asked for the Codex loop specifically; telling them it is
-  # ready to enable, while the cluster it schedules onto is not listening, is
-  # the wrong answer to that question.
-  requires: [k3s-cluster]
-  # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
-  # it next syncs, so it is genuinely doable today -- just not observable.
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-29"
-  action: >-
-    Three linked owner steps, per `infra/OWNER_CHECKLIST.md`. (1) Choose a
-    credential. **Either** `CODEX_AUTH_JSON` -- the whole contents of
-    `~/.codex/auth.json` after one `codex login` -- which draws on a
-    ChatGPT plan's *included* usage, so a tick costs nothing extra; this is
-    the "use the built-in quota" route and it needs no OpenAI org, no API
-    key and no billing change. **Or** `OPENAI_API_KEY`, a project key
-    (never an Admin key) on a separate OpenAI org whose dashboard monthly
-    spend limit is set to "Enforce a hard limit"; this bills per token but
-    has a euro ceiling, which a plan does not -- a plan is capped only by
-    its 5-hour/weekly windows, shared with whoever is signed into that
-    account, so use a seat that is not your day-to-day login. Sealing both
-    is allowed and the subscription wins, because it is the one that does
-    not bill; the worker logs which mode it used on every run.
-    (2) Seal the chosen credential, with a scoped `GH_TOKEN` (Contents
-    read/write, Pull requests write, Metadata read only; no
-    Administration/Secrets/Workflows/Actions/Environments/Pages), into the
-    `codex-secrets` Kubernetes Secret per
-    `gitops/agents/secrets/codex-token.template.yaml`. (3) Only after that
-    seal, run `./bootstrap/scripts/enable-codex-governor.sh`, which flips
-    both switches (`gitops/agents/governor/cronjob.yaml` `suspend: false`
-    and `gitops/agents/governor/policy.json` `"enabled": true`) in one
-    command. Step 3 used to be two hand-edits in two file formats, either
-    of which is silent when done alone -- the CronJob alone wakes every
-    five minutes to read a disabled policy, the policy alone is never read
-    by anything. The script refuses to enable until the step-2 Secret is
-    committed and listed in `gitops/agents/kustomization.yaml`, so running
-    it early is safe and the ordering is enforced rather than only
-    documented; `--check` reports the state without writing and
-    `--disable` reverses it.
-  unlocks:
-    - >-
-      A working, already-built "Codex CLI does unattended dev work on the
-      Hetzner agent box" pipeline: a budget-governed CronJob
-      (`gitops/agents/governor/governor.py`) that starts at most one Codex
-      worker Job every 5 minutes inside a 5-hour utilization window and a
-      weekly budget fraction, backs off on 429s, and picks work from
-      `gitops/agents/queue/*.yaml`. All of the code, RBAC, and tests for
-      this already exist and are unused -- `policy.json` reads `"enabled":
-      false` and the CronJob reads `suspend: true` today, exactly as
-      `OWNER_CHECKLIST.md` left them pending this ask.
-  blocked_by: []
-  note: >-
-    Not a duplicate of `routine-trigger-cadence` (which is about Claude
-    Code's own scheduled routine and its Anthropic-side spend) or of
-    `agent-cross-review-automerge` (unattended auto-*merge*, closed). This
-    is the third, distinct "unattended automation that spends paid API
-    budget" surface CLAUDE.md gates to the owner, and it had no queue row
-    of its own before this entry.
-
-    IMPORTANT correction to how this is sometimes described verbally: a
-    2026-08-29 scheduled session was asked to "set up the codex cli to use
-    up the built-in quota for dev work" on the Hetzner VM. `infra/
-    OWNER_CHECKLIST.md` line 80 already says, in the owner's own words,
-    "Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
-    burns the personal 5-hour / weekly quota and has no euro hard stop." A
-    personal-plan login is exactly what a literal reading of "use up the
-    built-in quota" would do, and it is the one path this checklist singles
-    out as wrong: no spend cap, and it competes with interactive use of the
-    same account. The already-built governor instead uses a project API key
-    under a *separate* org with a hard dollar limit -- metered spend with a
-    ceiling, not a personal-plan quota. No session should implement the
-    personal-login shape; this row exists so the owner chooses the
-    already-designed one deliberately rather than by default.
-
-    Also checked and not duplicative: 0 open PRs and no unmerged branch
-    with meaningful, non-superseded work were found in a 2026-08-29 queue-
-    drain pass (see the 2026-08.yaml ledger entry for that session), so
-    there was no existing PR to review, fix, or merge toward this.
-
-    UPDATE 2026-08-29 (later session, PR #2012). The paragraph above framed
-    this as "metered key, correct" vs "personal login, wrong". That framing
-    held partly because the subscription route did not work: the worker
-    checked that `CODEX_ACCESS_TOKEN` was set and never handed it to the
-    CLI, which reads a whole auth file from `$CODEX_HOME`. A
-    subscription-only Secret would have failed at the first API call. That
-    is fixed -- `CODEX_AUTH_JSON` is now a real, tested option, persisted
-    on a PVC because Codex rotates the credential on use.
-
-    What did NOT change, and is still this row's decision: which credential
-    to seal, and on which account. The checklist's objection to a *personal*
-    plan login stands verbatim in `infra/OWNER_CHECKLIST.md` -- no euro hard
-    stop, and the 5-hour/weekly windows are shared with the owner's own
-    interactive use. The metered-key path is untouched and still starts on a
-    Secret carrying only `OPENAI_API_KEY`. Both are documented with their
-    trade-offs in `gitops/agents/secrets/README.md`; the owner picks by
-    choosing what to seal, and the governor stays `suspend: true` /
-    `enabled: false` either way. No agent flipped anything.
-
-    UPDATE 2026-09-06: this row's `requires: [k3s-cluster]` is correct for
-    its own mechanism (a Kubernetes CronJob reading a Kubernetes Secret) but
-    is no longer the only way to grant what the row is actually for. A
-    2026-09-06 scheduled session was asked, again, to get the Codex CLI
-    "set up to use up the built-in quota for dev work ... on the hetzner
-    vm" and found that `gitops/agents/host/` -- built 2026-09-05/06,
-    specifically because this row's own mechanism sits downstream of the
-    outage -- runs the identical governor and worker as a systemd timer
-    directly on either box, no k3s, no Argo, no runner. It is already
-    reachable from `hetzner-ssh-key-is-a-public-key` above as the optional
-    `WITH_CODEX_HOST=1` flag on a full cluster restore, but that bundles it
-    with standing up Argo and the runner host too. An owner who wants only
-    "Codex spends its quota on Hetzner" and nothing else can skip the
-    cluster restore entirely: `./bootstrap/scripts/setup-codex-host-from-
-    laptop.sh` (or `install-codex-host.sh` by hand, per
-    `gitops/agents/host/README.md`) installs it alone, needing only the
-    `:22` access that same row already established is credible. It prompts
-    for the same two credentials this row describes and, like this row's
-    CronJob, ships with `policy.json` `"enabled": false` -- installing does
-    not start it; `enable-codex-governor.sh` still does that, deliberately,
-    as its own step. Not a new decision, and not a reason to add a second
-    row: the choice of credential and account is identical to this one, only
-    the machine differs, so this paragraph is the whole update.
-
-- id: portfolio-site-hetzner-deploy
-  asks: []
-  prs: [1999]
-  # Downstream of the outage, exactly as `codex-governor-enable` above: this
-  # seals a clone token for an in-cluster workload, and the cluster's API
-  # server is not listening (run 33889983086, :6443 refused on both boxes).
-  # The seal is durable and worth doing, but it publishes nothing while k3s
-  # is down -- so do not read a completed seal as a live `tools.` hostname
-  # until `Public surface check` says a host answers.
-  requires: [k3s-cluster]
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-29"
-  action: >-
-    ONE owner step remains -- fewer than this row used to say -- typed out
-    with a verification command under "Publish `tools.marisstella.dev`" in
-    `infra/OWNER_CHECKLIST.md` (the rationale is in `gitops/README.md`):
-    mint a fine-grained GitHub token scoped to this one repository with
-    Contents:Read-only and nothing else, then seal it into
-    `prod/kustomization.yaml` per
-    `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous). Every other step
-    this row used to list is gone and needs no action. DNS:
-    `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
-    2026-08-29 with `getent hosts tools.marisstella.dev`) --
-    `marisstella.dev`'s existing wildcard `A/*` record already covers the
-    subdomain. ACME contact: dropped 2026-08-30 -- an ACME account contact
-    is optional (RFC 8555 makes `contact` optional and cert-manager's
-    `email` follows), so `platform/cert-manager/issuer.yaml` omits `email`
-    entirely and registers normally. Adding a real one later, purely to
-    receive Let's Encrypt's expiry warnings, is a one-line change per
-    issuer that cert-manager applies by updating the existing account
-    registration; it is optional and does not block anything. **The
-    Ingress issuer flip is also done (#2545, 2026-08-31)** -- this row used
-    to describe it as a follow-up code change still waiting on "once you
-    confirm the staging certificate issued", but DNS resolving on
-    2026-08-29 retired that precondition before the wait ever mattered, so
-    the flip was made ahead of the seal rather than behind it. Both
-    `gitops/prod/portfolio-site.yaml` and `gitops/prod/portfolio-apex.yaml`
-    already carry `cert-manager.io/cluster-issuer: letsencrypt-prod`, and
-    `gitops/tests/test_manifests.py` pins it. So the token is now the only
-    remaining step, full stop -- after it the site issues straight to a
-    publicly trusted certificate, not a staging one browsers warn about.
-  unlocks:
-    - >-
-      A public URL for 164 finished, tested, free tools at once --
-      `gitops/prod/portfolio-site.yaml` already builds `platform/pages/
-      build.mjs`'s output inside the k3s cluster and serves it through
-      ingress-nginx and cert-manager that are already running on the paid-
-      for cpx52 box. This path depends on neither GitHub Actions (dark
-      2026-08-26 to 2026-09-01 and working again since, see
-      `actions-runners-unavailable` — this path never needed it either
-      way) nor GitHub
-      Pages (not enabled, and would not serve a private repo's Pages site
-      publicly even if it were -- see `deploy-settings`'s note). Of the
-      two live deploy asks, this is the cheaper one to grant: no billing
-      change, no new account -- DNS already resolves and the issuer is
-      already pointed at prod, so it is down to a single scoped read-only
-      token.
-  blocked_by: []
-  note: >-
-    Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
-    2026-08-19). That ask is now known to be insufficient on its own --
-    `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
-    stacked blockers on the Pages route (not enabled, repo is private so
-    Pages would not go public on the free tier, and — from 2026-08-26 to
-    2026-09-01, no longer true — no Actions runner to build the artifact).
-    Two of those three still stand. This row is the separate Hetzner
-    path merged in #1999, which shares none of those three blockers and
-    was not represented in this file before. Until any of these four steps
-    land, Argo syncs the manifests and the pods crash-loop on the missing
-    secret by design (fail closed), and `tools.marisstella.dev` serves
-    whatever placeholder currently answers for the cpx52.
-
-
-    This row is the one entry for the Hetzner site deploy. Do not add a
-    second. #2003 opened it; hours later #2006 added
-    `hetzner-portfolio-site-live` -- the same four owner steps, the same
-    #1999, written by a session that read `gitops/README.md` and did not
-    read this file. Two rows claiming PR 1999 trips
-    `decision_queue.py`'s own duplicate guard, so from that merge until
-    2026-08-29 the tool exited on `PR 1999 claimed by both ...` and
-    printed no queue at all: the owner could not read the deployment asks
-    that gate every live URL in the portfolio. The duplicate was removed
-    and its only unique claim is folded in above (that this path is a
-    second, independent route to the same outcome `deploy-settings`
-    targets, sharing none of its blockers). Before adding any deployment
-    ask, run `python3 portfolio/ledger/decision_queue.py` and read what is
-    already here.
-
-
-    Verified 2026-08-29 by a scheduled session, ahead of the owner steps:
-    the in-cluster build the pod runs was rehearsed locally with the
-    manifest's exact commands and `PAGES_BASE_URL=https://
-    tools.marisstella.dev/`. `build.mjs --out=` then `check.mjs --dist=`
-    produced 164 products / 446 pages / no dead links, with zero
-    `duncan-haywood.github.io` URLs surviving in the output, so the
-    canonical, `og:url` and sitemap entries stamp the Hetzner host and
-    not the dark Pages origin. `check.mjs` also exits 1 on both a missing
-    and an empty site directory, which is what makes the build container
-    fail the pod rather than serve an empty site. Nothing in the build
-    half of this deploy is waiting on anything; the one remaining step is
-    the owner's (three others this note used to count -- DNS, the ACME
-    contact, and the issuer flip -- have since landed with no owner action,
-    see `action` above).
-
-- id: print-atelier-stripe-checkout
-  asks: []
-  prs: [481]
-  gates: revenue
-  exposure: legal-person
-  opened: "2026-09-06"
-  action: >-
-    Say accept-and-fund or revert on `ventures/print-atelier`'s Stripe
-    checkout/webhook/payout integration
-    (`src/app/api/stripe/{checkout,webhook,bootstrap-prices,billing-portal}/route.ts`,
-    `src/lib/stripe-checkout-server.ts`, `src/lib/commerce/stripe-connect.ts`,
-    `src/lib/stripe-ledger.ts`) before any session wires a real
-    `STRIPE_SECRET_KEY` to it. Accept-and-fund means opening the
-    merchant-of-record account, the Stripe Connect platform application (this
-    venture pays artists 30% of net profit through Connect transfers, which
-    is its own onboarding and compliance surface beyond plain checkout), and
-    the tax identity that real checkout requires -- the same class of
-    decision `payout-rail` already names, not something this row invents.
-    Revert means removing the routes and the `stripe` dependency rather than
-    leaving them dormant on `main`.
-  unlocks:
-    - >-
-      Closes the one venture-code gap in "donations only, no payment
-      collection" (`portfolio/DIRECTION.md` "Legal guardrails") that this
-      session found undocumented: real `stripe.checkout.sessions.create` and
-      `stripe.accounts` (Connect) calls, gated only by the same unset-env-var
-      pattern as the already-flagged `local-site-studio` exception, with no
-      decision-queue row and no mention in `DIRECTION.md` until this session
-      added one.
-  blocked_by: []
-  note: >-
-    Found this session while looking for what "without creating legal
-    liabilities" actually covers today, not from a report. The provenance is
-    different from `local-site-studio` and worth being precise about: the
-    Stripe integration arrived via `db5e9bb5`, "Merge print-atelier into
-    ventures/", a subtree merge committed directly by the owner's own account
-    on 2026-07-29 -- a full four weeks *before* `portfolio/DIRECTION.md`'s
-    donations-only policy existed (first stated 2026-08-24). This is not an
-    agent gate-crossing like `local-site-studio-subtree-gate-crossing` (#731,
-    self-merged by a bot against an explicit "flagging for review"); it is a
-    pre-existing venture nobody reconciled against a policy written after it
-    landed. PR #481 (self-merged 2026-08-21 as an agent-decidable bug fix, a
-    webhook-retry dedup guard against double fulfillment orders) is the only
-    later touch to this code and is cited here as the nearest real PR number
-    the schema can point at -- it fixed a bug in the existing integration, it
-    did not introduce or extend it, and self-merging it was reasonable
-    regardless of how this row resolves. `stage: idea` in `VENTURE.yaml` and
-    exclusion from the GitHub Pages build (`platform/pages/build.mjs` treats
-    it as a preflight app, not a static page) mean it has never been
-    reachable by a stranger and `STRIPE_SECRET_KEY` is unset, so nobody has
-    hit "Pay" -- real mitigation, but not the same as gated: unset stops the
-    route from running, not from existing, and this had no decision-queue row
-    at all until now. `platform/ci/check_no_payment_code.py`, added the same
-    session, now fails CI if a third venture adds payment-SDK code without a
-    matching row here -- see its `ALLOWED_EXCEPTIONS` for both current
-    entries. Do not
-    read the new check as license to extend either exception; it exists so a
-    third instance is a red build instead of a third silent one.
-
 - id: pages-custom-domain
   asks: []
   prs: [4427]
@@ -1492,7 +886,14 @@ decisions:
   exposure: none
   opened: "2026-09-10"
   action: >-
-    **Point `marisstella.dev` at GitHub Pages instead of the dead cluster, at
+    **URGENT as of 2026-10-01 -- domain-takeover risk.** The owner deleted the
+    Hetzner servers that day, but `marisstella.dev`, `www`, `tools` and the
+    wildcard `A *` record (`portfolio/hosting/README.md`) still resolve to the
+    released IP `89.167.29.39`. If Hetzner reassigns that address, a stranger
+    serves content under the portfolio's name. Repoint the records as below,
+    or delete them (including the wildcard) if you are not ready to; do not
+    leave them pointing at the released IP.
+    **Point `marisstella.dev` at GitHub Pages instead of the deleted servers, at
     your registrar's DNS panel, then set it as this repository's custom domain
     in Settings → Pages.** Two records, both replacing what is there now: the
     apex `A` records (and `AAAA` if the panel offers them) at GitHub's Pages
@@ -1550,13 +951,11 @@ decisions:
       the `keyLocation` override.
   blocked_by: []
   note: >-
-    **This does not replace `hetzner-ssh-key-is-a-public-key`, and it is not a
-    second route to the same thing.** That row restores the cluster, and with
-    it the Codex worker (`gitops/agents/host/`) and the self-hosted runner
-    fallback (`gitops/ci/`) -- capacity, which this buys none of. This row
-    buys *discovery* for a catalogue that is already served and already
-    current. They are independent, and this one is cheaper by a wide margin:
-    no SSH key, no sealed secret, no runner, no cluster, nothing pasted.
+    2026-10-01: the cluster route (`hetzner-ssh-key-is-a-public-key`) this
+    note used to contrast with is gone -- the servers were deleted -- so this
+    row now also closes the dangling-DNS exposure described in `action`.
+    It buys *discovery* for a catalogue that is already served and already
+    current: no SSH key, no sealed secret, no runner, no cluster, nothing pasted.
     Why it had no row until now, which is the reusable part. The queue's
     outage banner has said since 2026-09-04 that "every other row here is
     downstream of a host answering at all", and that sentence assumed the

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Estimated Tax Penalty Calculator — Form 2210 Underpayment, Free</title>
+  <meta name="description" content="Free estimated tax penalty calculator: see your IRS Form 2210 underpayment penalty installment by installment, check the 90% and prior-year safe harbors, and get a catch-up plan. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Estimated Tax Penalty Calculator — Form 2210 underpayment, free">
+  <meta property="og:description" content="Estimate the underpayment penalty on estimated taxes, check the safe harbor, and see what to pay to stop it growing. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Estimated Tax Penalty Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimates the IRS underpayment of estimated tax penalty (Form 2210 regular method) installment by installment, checks the 90% and prior-year safe harbors, and shows what to pay to catch up. Entirely client-side; nothing is uploaded.", "featureList": "Form 2210 penalty estimate, 90% and 100/110% safe harbor, per-installment shortfall, catch-up plan, withholding treatment"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is the underpayment penalty on estimated taxes calculated?", "acceptedAnswer": {"@type": "Answer", "text": "For each of the four installments (Apr 15, Jun 15, Sep 15, Jan 15) the IRS takes your required payment, subtracts what you paid by the due date, and charges the underpayment rate (federal short-term rate plus 3 points, 7% for recent quarters) on the shortfall for each day it stayed unpaid, until you paid it or the return due date. A payment is applied to the oldest unpaid installment first."}}, {"@type": "Question", "name": "What is the safe harbor to avoid the penalty?", "acceptedAnswer": {"@type": "Answer", "text": "Pay at least the smaller of 90% of this year's tax or 100% of last year's tax. If last year's adjusted gross income was over $150,000 ($75,000 if married filing separately), last year's tax must be multiplied by 110%. There is also no penalty if you owe under $1,000 after withholding and credits."}}, {"@type": "Question", "name": "Does withholding count the same as estimated payments?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, and it is treated as paid evenly on each due date unless you choose otherwise, even if it was withheld late in the year. That is why raising Q4 withholding can erase a penalty that estimated payments could not."}}, {"@type": "Question", "name": "Can I reduce the penalty if my income came late in the year?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Form 2210 Schedule AI, the annualized income installment method, matches required payments to when you earned income. This calculator uses the regular method only, so it can overstate the penalty for seasonal or lumpy income."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published IRS rules to the numbers you enter and does not replace Form 2210 and its instructions or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ESTIMATED TAX PENALTY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will you owe an underpayment penalty on your estimated taxes?</h1>
+    <p>Pay the smaller of <strong>90% of this year's tax</strong> or <strong>100% of last year's</strong>
+    (110% for higher earners) across four installments, or the IRS charges interest on each shortfall.
+    Enter your numbers to see the Form 2210 penalty by installment and what to pay to stop it.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. This year and last year</h2>
+    <div class="grid">
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year"><option value="2026" selected>2026 (due Apr 2026 – Jan 2027)</option><option value="2025">2025 (due Apr 2025 – Jan 2026)</option></select>
+      </div>
+      <div>
+        <label for="current-tax">Total tax you expect this year, incl. self-employment tax ($)</label>
+        <input type="number" id="current-tax" min="0" step="1" placeholder="e.g. 20000">
+      </div>
+      <div>
+        <label for="withholding">Income tax withheld and refundable credits ($)</label>
+        <input type="number" id="withholding" min="0" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="prior-tax">Total tax on last year's return ($)</label>
+        <input type="number" id="prior-tax" min="0" step="1" placeholder="e.g. 15000">
+      </div>
+      <div>
+        <label for="prior-agi">Last year's adjusted gross income ($)</label>
+        <input type="number" id="prior-agi" min="0" step="1" placeholder="e.g. 100000">
+      </div>
+      <div>
+        <label for="rate">Underpayment interest rate (%)</label>
+        <input type="number" id="rate" min="0" step="1" placeholder="7">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="mfs"><label for="mfs">Married filing separately</label></div>
+    <p class="note">Rate: the IRS republishes it each quarter (federal short-term rate plus 3 points). Check irs.gov/payments/quarterly-interest-rates and edit it if it differs.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Estimated payments you made</h2>
+    <p class="note">Leave a date blank to use that installment's due date (Apr 15, Jun 15, Sep 15, Jan 15). Payments are applied to the oldest unpaid installment first.</p>
+    <div class="grid">
+      <div>
+        <label for="pay1">Payment 1 amount ($)</label>
+        <input type="number" id="pay1" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="pay1-date">Payment 1 date</label>
+        <input type="date" id="pay1-date">
+      </div>
+      <div>
+        <label for="pay2">Payment 2 amount ($)</label>
+        <input type="number" id="pay2" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="pay2-date">Payment 2 date</label>
+        <input type="date" id="pay2-date">
+      </div>
+      <div>
+        <label for="pay3">Payment 3 amount ($)</label>
+        <input type="number" id="pay3" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="pay3-date">Payment 3 date</label>
+        <input type="date" id="pay3-date">
+      </div>
+      <div>
+        <label for="pay4">Payment 4 amount ($)</label>
+        <input type="number" id="pay4" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="pay4-date">Payment 4 date</label>
+        <input type="date" id="pay4-date">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Estimate penalty</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter this year's expected tax, then click Estimate penalty.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Installment</th><th scope="col">Due</th><th scope="col">Required</th><th scope="col">Paid on time</th><th scope="col">Still owed to be current</th><th scope="col">Penalty</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Regular method only.</strong> The annualized income installment method (Form 2210 Schedule AI) can lower the penalty for uneven income and is not modelled.</li>
+      <li><strong>One interest rate.</strong> The IRS rate can change each quarter; this uses the single rate you enter for the whole period.</li>
+      <li><strong>Withholding is treated as paid evenly</strong> on the four due dates, the Form 2210 default.</li>
+      <li><strong>Farmers, fishers, waivers</strong> (disaster, retirement, disability) and state penalties are not modelled.</li>
+      <li><strong>Estimate, not a bill.</strong> The IRS computes the final figure on your return; use Form 2210 and its instructions to confirm.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is the underpayment penalty on estimated taxes calculated?</h3>
+    <p>For each of the four installments (Apr 15, Jun 15, Sep 15, Jan 15) the IRS takes your required payment, subtracts what you paid by the due date, and charges the underpayment rate (federal short-term rate plus 3 points, 7% for recent quarters) on the shortfall for each day it stayed unpaid, until you paid it or the return due date. A payment is applied to the oldest unpaid installment first.</p>
+    <h3>What is the safe harbor to avoid the penalty?</h3>
+    <p>Pay at least the smaller of 90% of this year's tax or 100% of last year's tax. If last year's adjusted gross income was over $150,000 ($75,000 if married filing separately), last year's tax must be multiplied by 110%. There is also no penalty if you owe under $1,000 after withholding and credits.</p>
+    <h3>Does withholding count the same as estimated payments?</h3>
+    <p>Yes, and it is treated as paid evenly on each due date unless you choose otherwise, even if it was withheld late in the year. That is why raising Q4 withholding can erase a penalty that estimated payments could not.</p>
+    <h3>Can I reduce the penalty if my income came late in the year?</h3>
+    <p>Yes. Form 2210 Schedule AI, the annualized income installment method, matches required payments to when you earned income. This calculator uses the regular method only, so it can overstate the penalty for seasonal or lumpy income.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies published IRS rules to the numbers you enter and does not replace Form 2210 and its instructions or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>penalty_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also self-employed? See the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> and the <a href="../home-office-deduction-calculator/">home office deduction calculator</a>. Paid in RSUs? The <a href="../rsu-withholding-gap-calculator/">RSU withholding gap calculator</a> shows how far the flat 22% falls short.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { underpaymentPenalty, money, DUE_DATES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["current-tax","withholding","prior-tax","prior-agi","rate","pay1","pay2","pay3","pay4","pay1-date","pay2-date","pay3-date","pay4-date"];
+    const v = (id) => Number($("#" + id).value) || 0;
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const year = Number($("#tax-year").value);
+      const payments = [1, 2, 3, 4].map((n) => ({ amount: v("pay" + n), date: $("#pay" + n + "-date").value || DUE_DATES[year][n - 1] }));
+      const r = underpaymentPenalty({
+        taxYear: year, currentTax: v("current-tax"), withholding: v("withholding"),
+        priorTax: $("#prior-tax").value, priorAgi: v("prior-agi"), marriedFilingSeparately: $("#mfs").checked,
+        rate: (v("rate") || 7) / 100, payments,
+      });
+      if (r.invalid) {
+        status.textContent = "Enter the total tax you expect this year.";
+        report.hidden = true;
+        return;
+      }
+      const basis = r.basis === "prior-year" ? "last year's tax" + (r.priorPct > 1 ? " x 110%" : "") : "90% of this year's tax";
+      $("#report-stats").innerHTML = `Estimated penalty: <strong>${money(r.penalty)}</strong>. Required annual payment: <strong>${money(r.required)}</strong> (${basis}, the smaller of ${money(r.ninetyPct)} and ${money(r.priorYear)}).`;
+      $("#result-table").innerHTML = r.installments.map((x, i) => `<tr><th scope="row">${x.label}</th><td>${x.due}</td><td>${money(x.required)}</td><td>${money(x.paidOnTime)}</td><td>${money(r.plan[i].catchUp)}</td><td>${money(r.exempt ? 0 : x.penalty)}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("penalty_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "current-tax": 20000, "withholding": 0, "prior-tax": 15000, "prior-agi": 100000, "rate": 7, "pay1": 3750, "pay2": 3750 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $20,000 tax, $15,000 last year, two of four installments paid on time.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter this year's expected tax, then click Estimate penalty.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

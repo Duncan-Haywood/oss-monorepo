@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "timestep-twin"
+version = "0.1.0"
+description = "Overshoot of a controller tuned in a twin whose fixed-step integrator adds numerical damping: exact per-step decay laws for explicit, semi-implicit and implicit Euler, sign flip at zeta=1/sqrt(2), first-order convergence and repairs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

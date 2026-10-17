@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QCD Calculator: Qualified Charitable Distribution vs Cash Gift — Free</title>
+  <meta name="description" content="Free QCD calculator: compare a qualified charitable distribution from your IRA with giving cash. See the effect on AGI, taxable Social Security, the senior deduction, federal and state tax, and what the gift really costs. Nothing uploaded.">
+  <meta property="og:title" content="QCD calculator">
+  <meta property="og:description" content="Is a qualified charitable distribution better than donating cash? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M16 25s-8-5-8-11a4.500 4.500 0 0 1 8-2.500A4.500 4.500 0 0 1 24 14c0 6-8 11-8 11z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "QCD Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Qualified charitable distribution versus cash gift calculator: AGI, taxable Social Security, senior deduction, federal and state tax and the real cost of the gift. Runs in your browser.", "featureList": "QCD vs cash gift, taxable Social Security effect, RMD coverage, gift-size sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a qualified charitable distribution (QCD)?", "acceptedAnswer": {"@type": "Answer", "text": "A direct transfer from your IRA to a qualifying public charity, available once you are 70 1/2 or older. The amount is not included in your income, counts toward your required minimum distribution, and you do not need to itemize. The check must go from the IRA custodian to the charity; money you withdraw first and then give does not qualify."}}, {"@type": "Question", "name": "Is a QCD better than donating cash and taking the deduction?", "acceptedAnswer": {"@type": "Answer", "text": "Usually, and more so if you take the standard deduction. A QCD lowers AGI, which also lowers how much of your Social Security is taxed and can shrink the Medicare IRMAA surcharge, while a cash gift only helps if it is itemized or fits the small non-itemizer deduction. The calculator runs both with your numbers so you can see the gap."}}, {"@type": "Question", "name": "How much can I give as a QCD?", "acceptedAnswer": {"@type": "Answer", "text": "Up to an annual limit per person, indexed for inflation ($111,000 for 2026 in this tool, and editable). A married couple can each give up to their own limit from their own IRAs. Only the part that comes out of an IRA counts; 401(k) money must be rolled to an IRA first."}}, {"@type": "Question", "name": "Does a QCD count toward my RMD?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A QCD made in the year counts toward that year's required minimum distribution, up to the RMD amount, and the first dollars out of the IRA each year are treated as the RMD. A QCD larger than the RMD is allowed but only the RMD-sized part satisfies it."}}, {"@type": "Question", "name": "Can a QCD go to a donor-advised fund?", "acceptedAnswer": {"@type": "Answer", "text": "No. QCDs cannot go to donor-advised funds, private non-operating foundations or supporting organizations. They must go to a public charity eligible to receive deductible gifts, and you cannot receive anything of value in return."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, using ordinary-income brackets and the tax-year figures shown in the code. Check the IRS Publication 590-B and your return with a qualified professional before you give."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">QCD CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is a QCD better than giving cash? Put your numbers in.</h1>
+    <p>Type your IRA distribution, Social Security, other income and the gift you plan to make. The tool compares a qualified charitable distribution with the same gift in cash, including the knock-on effect on taxable Social Security and the senior deduction, and shows what the gift really costs after tax.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not your return; tax-year figures are for 2026; confirm them against IRS publications.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your IRA</h2>
+      <div class="grid">
+        <div><label for="age">Your age</label><input id="age" type="number" step="any" value="0"></div>
+        <div><label for="iraDistribution">IRA distribution this year, before any QCD ($)</label><input id="iraDistribution" type="number" step="any" value="0"></div>
+        <div><label for="rmd">Required minimum distribution this year ($)</label><input id="rmd" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Other income and deductions</h2>
+      <div class="grid">
+        <div><label for="otherIncome">Pension, interest, dividends and other taxable income ($)</label><input id="otherIncome" type="number" step="any" value="0"></div>
+        <div><label for="ssBenefits">Social Security benefits received ($)</label><input id="ssBenefits" type="number" step="any" value="0"></div>
+        <div><label for="itemizedOther">Itemized deductions other than charity ($)</label><input id="itemizedOther" type="number" step="any" value="0"></div>
+        <div><label for="stateRate">State income tax rate (decimal, 0.05 = 5%)</label><input id="stateRate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Filing status and the gift</h2>
+      <div class="grid">
+        <div><label for="filingStatus">Filing status</label><select id="filingStatus"><option value="single">Single or head of household</option><option value="mfj">Married filing jointly</option></select></div>
+        <div><label for="numOver65">People on the return who are 65 or older</label><input id="numOver65" type="number" step="any" value="0"></div>
+        <div><label for="giving">Gift to charity this year ($)</label><input id="giving" type="number" step="any" value="0"></div>
+        <div><label for="qcdLimit">QCD annual limit ($)</label><input id="qcdLimit" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare QCD and cash</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a qualified charitable distribution (QCD)?</h3>
+      <p>A direct transfer from your IRA to a qualifying public charity, available once you are 70 1/2 or older. The amount is not included in your income, counts toward your required minimum distribution, and you do not need to itemize. The check must go from the IRA custodian to the charity; money you withdraw first and then give does not qualify.</p>
+      <h3>Is a QCD better than donating cash and taking the deduction?</h3>
+      <p>Usually, and more so if you take the standard deduction. A QCD lowers AGI, which also lowers how much of your Social Security is taxed and can shrink the Medicare IRMAA surcharge, while a cash gift only helps if it is itemized or fits the small non-itemizer deduction. The calculator runs both with your numbers so you can see the gap.</p>
+      <h3>How much can I give as a QCD?</h3>
+      <p>Up to an annual limit per person, indexed for inflation ($111,000 for 2026 in this tool, and editable). A married couple can each give up to their own limit from their own IRAs. Only the part that comes out of an IRA counts; 401(k) money must be rolled to an IRA first.</p>
+      <h3>Does a QCD count toward my RMD?</h3>
+      <p>Yes. A QCD made in the year counts toward that year's required minimum distribution, up to the RMD amount, and the first dollars out of the IRA each year are treated as the RMD. A QCD larger than the RMD is allowed but only the RMD-sized part satisfies it.</p>
+      <h3>Can a QCD go to a donor-advised fund?</h3>
+      <p>No. QCDs cannot go to donor-advised funds, private non-operating foundations or supporting organizations. They must go to a public charity eligible to receive deductible gifts, and you cannot receive anything of value in return.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type, using ordinary-income brackets and the tax-year figures shown in the code. Check the IRS Publication 590-B and your return with a qualified professional before you give.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Medicare IRMAA (it uses your AGI from two years earlier), NIIT, AMT, gifts of appreciated stock, donor-advised funds, state rules that differ from federal, the 35% cap on itemized benefit at the top bracket, preferential rates on gains and dividends, and each spouse's separate QCD limit. Rates and thresholds can change by law.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../rmd-calculator/">RMD calculator</a>, the <a href="../charity-bunching-planner/">charity bunching planner</a>, the <a href="../medicare-irmaa-cliff-calculator/">Medicare IRMAA cliff calculator</a> and the <a href="../social-security-benefits-tax-calculator/">Social Security benefits tax calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with IRS Publication 590-B and a qualified professional before you give or file.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { if (k === "filingStatus") { o[k] = $(k).value; continue; } o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const o = a.opts;
+      if (a.advantage > 0.5) h += `<div class="finding"><h4>A QCD saves ${money(a.advantage)} of tax versus giving cash</h4><p>Sending ${money(a.qcd.qcd)} straight from the IRA lowers AGI by ${money(a.agiDrop)}. After tax, the gift costs you ${money(a.costQcd)} as a QCD and ${money(a.costCash)} as a cash gift.${a.overCap > 0 ? " " + money(a.overCap) + " of the gift is over what can go out as a QCD and is treated as cash here." : ""}</p></div>`;
+      else h += `<div class="finding"><h4>No tax difference on these figures</h4><p>With no gift, or no IRA distribution to send, the two routes are the same.</p></div>`;
+      h += `<div class="finding"><h4>Side by side</h4>${table(["", "No gift", "Cash gift", "QCD"], [
+        ["AGI", money(a.none.agi), money(a.cash.agi), money(a.qcd.agi)],
+        ["Taxable Social Security", money(a.none.ssTaxable), money(a.cash.ssTaxable), money(a.qcd.ssTaxable)],
+        ["Deduction used", money(a.none.deduction), money(a.cash.deduction) + (a.cash.itemizes ? " (itemized)" : " (standard)"), money(a.qcd.deduction)],
+        ["Senior deduction", money(a.none.senior), money(a.cash.senior), money(a.qcd.senior)],
+        ["Federal tax", money(a.none.tax), money(a.cash.tax), money(a.qcd.tax)],
+        ["State tax (flat rate on AGI)", money(a.none.state), money(a.cash.state), money(a.qcd.state)],
+      ])}<p>Your RMD of ${money(o.rmd)} has ${money(a.rmdLeft)} left to take after the QCD. For Medicare IRMAA, compare the AGI above with the brackets for the year two years from now.</p></div>`;
+      h += `<div class="finding"><h4>If the gift were a different size</h4>${table(["Gift", "Total tax, cash", "Total tax, QCD", "QCD saves"], a.grid.map((g) => [money(g.gift), money(g.cashTotal), money(g.qcdTotal), money(g.advantage)]))}</div>`;
+      h += `<div class="finding"><h4>Lines to check against your return</h4>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "qcd-vs-cash.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

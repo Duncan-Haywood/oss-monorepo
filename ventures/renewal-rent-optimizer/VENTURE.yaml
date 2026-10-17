@@ -1,0 +1,71 @@
+name: renewal-rent-optimizer
+description: >-
+  Free browser tool for small landlords and property managers: paste or upload
+  past lease renewals as current rent, offered rent and renewed or left, enter
+  vacancy days and turnover cost, and get a renewal-chance curve by rent
+  increase (logistic regression with an interval), what one move-out costs, the
+  increase with the highest expected income over the next lease searched only
+  inside the range actually offered, bootstrap ranges and a hold-out back-test
+  that says when the increase does not explain who stayed. Refuses a history
+  where offers never varied. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "landlord lease renewal rent increase vs vacancy turnover break-even": closest
+# is booth-rent-vs-commission at 0.29 and self-storage-rate-increase-calculator at
+# 0.23, far below the read-this-first bar. Adjacent: self-storage-rate-increase-
+# calculator (a storage operator's increase and expected move-outs from an assumed
+# churn, no fit to history), rental-dscr-calculator (financing), bid-win-rate-
+# optimizer (same logistic machinery, but quotes and a markup rather than tenants
+# and a rent increase, and no vacancy or turnover economics). Alternatives: a
+# spreadsheet of renewals by increase band (no uncertainty, no cost of a
+# vacancy), rule-of-thumb "3-5%" advice, and property-management suites
+# (AppFolio, Buildium, RentRedi, RealPage) whose pricing modules are sold to large
+# operators and need the rent roll in their cloud.
+#
+# First visitor: searches "how much to raise rent at lease renewal", "rent
+# increase calculator for landlords", "lease renewal rent increase vs vacancy
+# cost", "what does tenant turnover cost"; r/landlord, r/realestateinvesting and
+# BiggerPockets threads, local landlord associations. Volume not measured with an
+# external tool. Small landlords (1-50 units) hold the bulk of US rental stock and
+# are the segment large-vendor pricing tools ignore.
+#
+# Privacy is the liability boundary: rent rolls never leave the browser (tests
+# assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved multi-year renewal log with market-rent
+# comparables from a licensed data source; not built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# "unidentified" and refuses when the data cannot support an answer, and states
+# that it does not know any rent-control cap or notice rule, which the user must
+# check. Unverified: tested on simulated renewals with known curves, not on a
+# published dataset.
+
+hypotheses:
+  - claim: >-
+      Landlords with 25 or more past renewals will use a private, no-signup tool
+      that turns them into a rent-increase recommendation, and will return as
+      their renewal log grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the slope or the best increase disagrees with a standard logistic regression on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/renewal-rent-optimizer/
+  analytics: null

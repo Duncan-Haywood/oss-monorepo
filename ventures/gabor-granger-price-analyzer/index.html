@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gabor-Granger Price Analyzer — Demand Curve and Best Price from Survey Data</title>
+  <meta name="description" content="Free Gabor-Granger price analyzer. Paste the highest price each survey respondent would buy at and get the demand curve, the revenue-maximising price, the profit-maximising price for your unit cost, and bootstrap bands. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Gabor-Granger Price Analyzer — free, private, in your browser">
+  <meta property="og:description" content="Turn willingness-to-pay survey answers into a demand curve and the price that earns the most.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gabor-Granger Price Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste willingness-to-pay survey responses and get a demand curve, the revenue-maximising price, the profit-maximising price for a unit cost you enter, and bootstrap bands. Runs in your browser.", "featureList": "Gabor-Granger willingness to pay analysis, demand curve, revenue maximising price, profit maximising price, price elasticity, bootstrap confidence bands, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Gabor-Granger method?", "acceptedAnswer": {"@type": "Answer", "text": "A pricing survey method from 1966. You show each respondent a series of prices for the same product and ask whether they would buy at each one. The share who say yes at each price gives a demand curve, and multiplying price by that share gives revenue per respondent, so you can see which price earns the most."}}, {"@type": "Question", "name": "What data does it need?", "acceptedAnswer": {"@type": "Answer", "text": "One line per respondent with the highest price that respondent said yes to. Write none, no or 0 for someone who refused even the lowest price. Currency symbols are ignored, an optional header row is skipped, and thousands separators are not supported."}}, {"@type": "Question", "name": "How is the best price chosen?", "acceptedAnswer": {"@type": "Answer", "text": "Demand is a step function that only changes at the prices you tested, so the best price is always one of them. The tool computes price times demand for each tested price and picks the highest, and on a tie it picks the lower price because it has more buyers. If you enter a unit cost it also finds the price with the highest profit."}}, {"@type": "Question", "name": "How many respondents do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Aim for at least 100 in the segment you sell to. This tool runs from 5 respondents and warns below 30. It also resamples your respondents 300 times and shows how often each price wins, so you can see how much a small sample moves the answer."}}, {"@type": "Question", "name": "Is stated willingness to pay reliable?", "acceptedAnswer": {"@type": "Answer", "text": "Not as an absolute number. People say yes to hypothetical prices more often than they buy, and the gap varies by price. The ranking of prices and the shape of the curve are more trustworthy than the exact share who say yes, and a real price test is better than either."}}, {"@type": "Question", "name": "What is the difference from Van Westendorp?", "acceptedAnswer": {"@type": "Answer", "text": "Van Westendorp asks four open price questions and finds a range of acceptable prices, but says nothing about demand or revenue. Gabor-Granger asks yes or no at specific prices and gives a demand curve, so it can rank prices by revenue or profit. Many teams use Van Westendorp to choose the ladder and Gabor-Granger to pick from it."}}, {"@type": "Question", "name": "Is my survey data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you paste stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+      </style>
+</head>
+<body>
+  <header>
+    <p class="note">GABOR-GRANGER PRICE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which price earns the most?</h1>
+    <p>Paste the highest price each survey respondent said they would buy at. You get the <strong>demand curve</strong>, the <strong>revenue-maximising price</strong>, the <strong>profit-maximising price</strong> if you enter a unit cost, price elasticity between tested prices, and a <strong>bootstrap band</strong> that shows how often each price would win with a different sample.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Illustrative analysis of stated opinions, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your survey responses</h2>
+    <label for="data">One respondent per line: the highest price they would buy at</label>
+    <textarea id="data" spellcheck="false" placeholder="highest price accepted&#10;29&#10;19&#10;none&#10;35"></textarea>
+    <div class="grid">
+      <div><label for="cost">Unit cost (optional)</label><input id="cost" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <p class="note">Show each respondent a ladder of prices for the same product, ask yes or no at each, and record the highest price they said yes to. Write none, no or 0 for someone who refused even the lowest price; they count as zero demand at every price. Currency symbols are ignored. No thousands separators. A header row is skipped. Unit cost is what each sale costs you to serve; leave it blank to see revenue only.</p>
+    <button type="button" id="analyze">Analyze</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste responses, then click Analyze.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+    <div id="report-findings"></div>
+    <div class="scroll"><table id="points"><thead><tr><th class="n">Price</th><th class="n">Would buy</th><th class="n">Demand</th><th class="n">Revenue per respondent</th><th class="n">Profit per respondent</th><th class="n">Elasticity</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Demand at a price is the share of all respondents whose highest accepted price is at least that price, with refusers counted in the total. Revenue per respondent is price times demand; profit is price minus unit cost, times demand. Demand only changes at the prices in your data, so the best price is always one of them, and a tie goes to the lower price. Elasticity between two adjacent prices is the arc elasticity: the change in demand over its average, divided by the change in price over its average; below -1 means demand falls faster than price rises. Bands come from 300 resamples of your respondents with replacement, with a fixed random seed, recomputing the best price each time.</p>
+    <p><strong>Not modelled:</strong> competitor prices, discounts, churn, purchase frequency, and who was surveyed. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Stated willingness to pay overstates real purchases, so test any price before committing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the Gabor-Granger method?</h3>
+    <p>A pricing survey method from 1966. You show each respondent a series of prices for the same product and ask whether they would buy at each one. The share who say yes at each price gives a demand curve, and multiplying price by that share gives revenue per respondent, so you can see which price earns the most.</p>
+    <h3>What data does it need?</h3>
+    <p>One line per respondent with the highest price that respondent said yes to. Write none, no or 0 for someone who refused even the lowest price. Currency symbols are ignored, an optional header row is skipped, and thousands separators are not supported.</p>
+    <h3>How is the best price chosen?</h3>
+    <p>Demand is a step function that only changes at the prices you tested, so the best price is always one of them. The tool computes price times demand for each tested price and picks the highest, and on a tie it picks the lower price because it has more buyers. If you enter a unit cost it also finds the price with the highest profit.</p>
+    <h3>How many respondents do I need?</h3>
+    <p>Aim for at least 100 in the segment you sell to. This tool runs from 5 respondents and warns below 30. It also resamples your respondents 300 times and shows how often each price wins, so you can see how much a small sample moves the answer.</p>
+    <h3>Is stated willingness to pay reliable?</h3>
+    <p>Not as an absolute number. People say yes to hypothetical prices more often than they buy, and the gap varies by price. The ranking of prices and the shape of the curve are more trustworthy than the exact share who say yes, and a real price test is better than either.</p>
+    <h3>What is the difference from Van Westendorp?</h3>
+    <p>Van Westendorp asks four open price questions and finds a range of acceptable prices, but says nothing about demand or revenue. Gabor-Granger asks yes or no at specific prices and gives a demand curve, so it can rank prices by revenue or profit. Many teams use Van Westendorp to choose the ladder and Gabor-Granger to pick from it.</p>
+    <h3>Is my survey data uploaded anywhere?</h3>
+    <p>No. Everything you paste stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates of stated survey opinions; they do not predict what customers will pay. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any survey platform, pricing consultancy or research firm, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you paste, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your responses are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Setting a subscription price? See the <a href="../van-westendorp-pricing-analyzer/">Van Westendorp pricing analyzer</a>, the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a> the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a> and, to test the price you pick, the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Have real sales history with a price that changed? The <a href="../price-elasticity-estimator/">price elasticity estimator</a> measures how your units actually responded and finds the best price inside what you have charged.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(a) {
+      const W = 640, H = 300, L = 44, B = 30, T = 10, R = 12;
+      const ps = a.rows.map((r) => r.price), lo = ps[0], hi = ps[ps.length - 1];
+      const maxRev = Math.max(...a.rows.map((r) => r.revenue)) || 1;
+      const x = (p) => L + ((p - lo) / (hi - lo || 1)) * (W - L - R);
+      const y = (v) => T + (1 - v) * (H - T - B);
+      let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Demand curve and revenue per respondent by price">`;
+      for (const v of [0, .25, .5, .75, 1]) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#d9dfe6"/><text x="${L - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(v * 100)}%</text>`;
+      s += `<polyline fill="none" stroke="#2e7d4f" stroke-width="2.2" points="${a.rows.map((r) => `${x(r.price).toFixed(1)},${y(r.demand).toFixed(1)}`).join(" ")}"/>`;
+      s += `<polyline fill="none" stroke="#c27a12" stroke-width="2.2" stroke-dasharray="6 3" points="${a.rows.map((r) => `${x(r.price).toFixed(1)},${y(r.revenue / maxRev).toFixed(1)}`).join(" ")}"/>`;
+      for (const r of a.rows) s += `<text x="${x(r.price)}" y="${H - B + 14}" font-size="11" text-anchor="middle" fill="#4c5a68">${money(r.price)}</text>`;
+      if (a.revenue) s += `<line x1="${x(a.revenue.price)}" x2="${x(a.revenue.price)}" y1="${T}" y2="${H - B}" stroke="#1f4a5d" stroke-dasharray="4 3"/>`;
+      return s + "</svg>";
+    }
+
+    function run() {
+      const a = analyze($("#data").value, { unitCost: parseFloat($("#cost").value) });
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const r = a.revenue, p = a.profit, b = a.bands.revenue;
+      $("#big").innerHTML = [
+        [r ? money(r.price) : "n/a", "Revenue-maximising price"],
+        [r ? pct(r.demand) : "n/a", "Say yes at that price"],
+        [a.unitCost > 0 ? (p ? money(p.price) : "none") : "add a unit cost", "Profit-maximising price"],
+        [b ? money(b.low) + " – " + money(b.high) : "n/a", "Best price, 5th–95th percentile"],
+        [String(a.n), "Respondents"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#chart").innerHTML = chart(a);
+      $("#legend").innerHTML = '<span><b style="color:#2e7d4f">━</b> Demand (share who buy)</span><span><b style="color:#c27a12">┅</b> Revenue, scaled to its peak</span><span>Dashed line: revenue-maximising price</span>';
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#points tbody").innerHTML = a.rows.map((x) => `<tr><td class="n">${money(x.price)}</td><td class="n">${x.buyers}</td><td class="n">${pct(x.demand)}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.profit)}</td><td class="n">${x.elasticity == null ? "n/a" : x.elasticity.toFixed(2)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#data").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 80 invented respondents, not a real survey."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#data").value = ""; report.hidden = true; last = null; status.textContent = "Paste responses, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "gabor-granger-demand-table.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+name: appointment-overbooking-optimizer
+description: >-
+  Free browser tool for appointment-based businesses: enter slots, revenue per
+  visit and the cost of an over-full day, plus a no-show rate or a history of
+  booked and showed counts per day, and get the profit-maximising number of
+  extra bookings from the exact show-up distribution (binomial, or
+  beta-binomial when bad days cluster), the chance anyone is over capacity, the
+  uncertainty in the no-show rate integrated out on a fixed grid, an optional
+  overflow-probability cap, and a hold-out check of its own forecast. Only
+  daily counts are used. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "appointment overbooking optimizer from no-show rate": closest are
+# cut-list-optimizer (0.21, unrelated), appointment-deposit-calculator,
+# appointment-no-show-analyzer and no-show-fee-calculator (0.20 each, all price
+# or measure no-shows and none decides how many extra patients to book).
+# Alternatives are a rule of thumb ("book 10% over"), which ignores the cost
+# asymmetry and clustering, and paid scheduling suites (Zocdoc, NexHealth,
+# Phreesia) that bundle overbooking inside a practice-management contract.
+#
+# First visitor: searches "how many patients to overbook", "appointment
+# overbooking calculator", "overbooking formula no show rate", "dental
+# overbooking"; practice-manager, r/dentistry, r/salons and r/smallbusiness
+# threads on no-shows. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: only daily counts are entered, never
+# patient names, and they never leave the browser (tests assert no network
+# calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a per-weekday / per-provider planner; not built.
+# Liability: a planning estimate; the page says overbooking is subject to
+# professional and regulatory rules and is the user's responsibility.
+# Unverified: tested on reference calculations and simulated histories, not on
+# a real practice's results.
+
+hypotheses:
+  - claim: >-
+      Practice managers will use a private overbooking calculator that turns
+      their own booked/showed counts into a number of extra bookings with a
+      stated overflow risk, and will re-run it as their history grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the expected profit or overflow probability disagrees with a direct binomial or beta-binomial calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/appointment-overbooking-optimizer/
+  analytics: null

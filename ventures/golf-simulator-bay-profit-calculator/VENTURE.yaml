@@ -1,0 +1,55 @@
+name: golf-simulator-bay-profit-calculator
+description: >-
+  Free browser tool for people planning or running an indoor golf simulator lounge or other
+  bay-rental venue: enter bays, open hours, peak and off-peak rates and utilization, members,
+  food and drink, league nights, staff, rent, software per bay, the build cost and any loan and
+  see monthly profit, margin, months to pay back the build, break-even utilization, the lowest
+  rates for a target margin, the lowest peak rate for a payback target, profit per bay, a
+  sensitivity check at 10% and 20% fewer bookings, and a two-scenario comparison (for example three bays against five). Copy, CSV, save and load.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.30,
+# pickleball-facility-pro-forma; no simulator or bay-rental venture existed). Why this niche:
+# indoor golf lounges cost $100k-$400k to build and are being opened by first-time owners who
+# price bay hours by looking at the competitor down the road. The money question is
+# utilization: how many of the available bay hours must be booked, and at what peak and
+# off-peak rate, before rent, staff and the loan are covered, and whether members eat the
+# hours walk-ins would have paid for. Franchise pro formas answer it only after a sales call.
+# This is the lead magnet for a later paid multi-venue planner (payment rails stay off).
+#
+# First visitor: prospective and new simulator-lounge owners searching how much a golf
+# simulator business makes. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, lending or
+# financial advice; says so. Names no simulator maker, franchise or software vendor. No data
+# fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Prospective simulator-lounge owners will enter their bays, rates and costs into a
+      no-signup tool and use the break-even utilization and payback numbers to decide on
+      a lease or the number of bays.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports lowest rates that do not reproduce the tool's own target margin when typed back in as the rates.
+  - A user reports a lowest peak rate that does not reproduce their payback target when typed back in as the peak rate.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/golf-simulator-bay-profit-calculator/
+  analytics: null

@@ -65,7 +65,7 @@
     {
       "@type": "Question",
       "name": "Does a clean report mean the site has no security-header issues?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see sri-check for that last one). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy and Referrer-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see referrer-permissions-policy-check for the first two and sri-check for the last). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure." }
     }
   ]
 }
@@ -151,7 +151,7 @@
   <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
   <p>Nothing stops a browser page from making the request itself for a same-origin target, but checking an arbitrary third-party URL from inside a browser tab runs into the same CORS and mixed-content restrictions the page you're checking is designed to resist -- and a page that could reach any URL you type would itself be a server-side request forgery risk. A small local CLI with no such restriction, run from your own machine, is the same shape every other tool in this class (curl, securityheaders-style scanners) uses.</p>
   <h3>Does a clean report mean the site has no security-header issues?</h3>
-  <p>No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see <a href="../sri-check/">sri-check</a> for that last one). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure.</p>
+  <p>No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy and Referrer-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see <a href="../referrer-permissions-policy-check/">referrer-permissions-policy-check</a> for the first two and <a href="../sri-check/">sri-check</a> for the last). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure.</p>
 </section>
 
 <script type="module">
@@ -313,7 +313,14 @@
   its own, while still serving a 200.</p>
   <p>Prefer a hosted, single-grade outside read of a public site instead? See
   <a href="vs-securityheaders.html">how this checker compares to Security Headers
-  (securityheaders.com)</a> -- different shapes, and when to reach for each.</p>
+  (securityheaders.com)</a> -- different shapes, and when to reach for each. Already have DevTools
+  open? See <a href="vs-checking-headers-by-eye-in-devtools.html">how this checker compares to
+  checking headers by eye in DevTools</a>.</p>
+  <p>This tool's own CSP and clickjacking checks stop at frame and script policy -- for where a
+  page's outbound <code>Referer</code> goes and which powerful features (camera, microphone,
+  geolocation) a page and its embedded third parties may use, see
+  <a href="../referrer-permissions-policy-check/">Referrer-Policy &amp; Permissions-Policy
+  checker</a>, the same one-request, plain-English-report shape as this tool.</p>
 </footer>
 </body>
 </html>

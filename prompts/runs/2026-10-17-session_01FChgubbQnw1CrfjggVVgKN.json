@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01FChgubbQnw1CrfjggVVgKN",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T04:17:37Z",
+  "ended": "2026-10-17T04:23:02Z",
+  "wall_minutes": 5.54,
+  "tokens_in": 1659916,
+  "tokens_out": 16856,
+  "cost_usd": 0.8103,
+  "tool_calls": 23,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7643",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Said research/PROJECTS.md lists milestones; track 12 next step had to be found in house-costsens README, and the repo list is 500+ dirs so claim checks by slug are slow."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Built research/house-sobol (Sobol sensitivity for house-cost). Saltelli S1 needed output centring; fixed and noted in README.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eff03026-769f-58ca-b53c-29d25613e154",
+    "transcripts": 1,
+    "first": "2026-10-17T04:17:37Z",
+    "last": "2026-10-17T04:23:09Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 16856,
+        "thinking": 2532,
+        "cache_read": 1578376,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81500,
+        "api_equivalent_usd": 0.8103,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 16856,
+      "thinking": 2532,
+      "cache_read": 1578376,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81500,
+      "api_equivalent_usd": 0.8103,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.951,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 20,
+      "Read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.54,
+      "active_minutes": 5.54,
+      "model_minutes": 1.97,
+      "tool_minutes": 3.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researcher writing and validating a Sobol analysis plus README",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 740.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

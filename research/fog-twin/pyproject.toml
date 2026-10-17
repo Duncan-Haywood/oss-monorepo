@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fog-twin"
+version = "0.1.0"
+description = "Fog twin: lidar detection range in extinction is r = W(alpha r0)/alpha, so a clear-air twin overstates range by exp(alpha r); range error is always less than the extinction error (elasticity W/(1+W)), and a single-extinction twin calibrated on a bright target is unsafe for a dark one when fog is patchy"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

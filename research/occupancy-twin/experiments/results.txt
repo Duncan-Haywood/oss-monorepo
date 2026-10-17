@@ -1,0 +1,31 @@
+twin: a=2.7726 b=1.5581  design A=6.907  target eps=0.001
+
+1. FREE cell, real false-hit rate p0 (twin says 0.05): exact error vs sandwich vs simulation
+   p0  theta*      lower      exact      upper   MC(2e4)    infl   E[T]
+ 0.05   1.000   6.25e-05   2.18e-04   1.00e-03  2.50e-04     0.2    5.8
+ 0.10   0.701   1.12e-03   2.83e-03   7.88e-03  3.30e-03     2.8    6.9
+ 0.15   0.509   7.02e-03   1.45e-02   2.93e-02  1.32e-02    14.5    8.2
+ 0.20   0.361   2.79e-02   4.85e-02   7.90e-02  4.52e-02    48.5   10.0
+ 0.30   0.124   1.99e-01   2.60e-01   3.25e-01  2.63e-01   260.4   13.6
+
+2. OCCUPIED cell, real hit rate p1 (twin says 0.80): missed-detection error
+   p1  theta*      exact    infl
+ 0.80   1.000   4.19e-04     0.4
+ 0.70   0.706   4.31e-03     4.3
+ 0.60   0.476   2.58e-02    25.8
+ 0.50   0.274   1.13e-01   112.8
+
+3. Tempering: commit at A/theta* instead of A (free cell, real p0)
+   p0  A_temp      error  E[T] plain  E[T] temp  delay x
+ 0.10    9.86   4.11e-04         6.9        9.6     1.40
+ 0.15   13.56   5.40e-04         8.2       15.8     1.92
+ 0.20   19.13   6.60e-04        10.0       28.7     2.88
+ 0.30   55.88   8.71e-04        13.6      218.3    16.03
+
+4. Calibration budget: estimate p0 from n known-free real observations, plug in theta*, commit at ln(1/eps)/theta_hat (p0=0.15)
+true theta*=0.509; 300 replicates per n
+    n sd(th) sim sd(th) delta  mean err/eps  P(err>2eps)  P(err>eps)
+   20      1.331        0.263          8.45         0.39        0.39
+   50      0.181        0.166          2.17         0.22        0.38
+  200      0.084        0.083          0.87         0.10        0.26
+ 1000      0.038        0.037          0.60         0.01        0.07

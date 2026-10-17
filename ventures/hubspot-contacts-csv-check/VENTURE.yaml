@@ -1,0 +1,44 @@
+name: hubspot-contacts-csv-check
+description: >-
+  Free browser tool that checks a HubSpot contacts or companies import CSV before it is uploaded:
+  duplicate and invalid emails, phone numbers and ZIP codes Excel damaged (scientific notation,
+  lost leading zeros), date formats the import will misread, lifecycle stage and lead status values
+  that are not HubSpot internal values, headings that do not match property labels or internal
+  names, semicolon-delimited files, over-limit and blank rows, each with its line number, plus a
+  formatting-only safe-fixes pass that lists every change. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio has Xero, QuickBooks, Shopify-
+# style and email-list import checkers; none covers HubSpot, whose free CRM is the first CRM most
+# small businesses load a spreadsheet into. HubSpot's import wizard matches on email, maps columns
+# by property label or internal name, and rejects or silently merges on what a spreadsheet round
+# trip tends to produce, so the audience (sales ops, marketers, agencies migrating a client list)
+# hits the same handful of faults every time.
+#
+# First visitor: people searching the literal problems ("HubSpot import contacts CSV error",
+# "HubSpot import duplicate email", "HubSpot lifecycle stage import internal value", "HubSpot
+# import date format", "Excel phone number E+11 CSV") and HubSpot Community threads, r/hubspot and
+# r/sales. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it knows the default contact and company property labels
+# and internal names, the default lifecycle stage and lead status internal values, and the three
+# import date layouts, and it refuses to repair what cannot be recovered: a number already shortened
+# to 4.41E+11 or a ZIP that lost its zero is flagged, never invented. Its safe-fixes pass is
+# formatting-only and lists every change with its line.
+#
+# Privacy is the liability boundary: a contact list names people, emails and phones, so the file
+# never leaves the browser (a test asserts no network calls).
+#
+# Rules are stated as read from memory of HubSpot's public import help pages, with an explicit
+# not-checked list shown on the page and returned with every result: owner emails (cannot be
+# matched to users without an account), custom properties and options, existing records, backwards
+# lifecycle moves, the date format chosen at import, deliverability, account validation rules.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-migration and sales-ops
+# audience, sibling to the Xero, QuickBooks and email-list checkers. A paid version, if usage
+# appears, is bulk checks across client files with saved rules behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-HubSpot clause, trademark used nominatively.

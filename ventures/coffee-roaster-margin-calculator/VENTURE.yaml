@@ -1,0 +1,60 @@
+name: coffee-roaster-margin-calculator
+description: >-
+  Free browser tool for small and micro coffee roasters: type the green coffee price
+  and roast loss and it shows cost per roasted pound, margin by channel (retail,
+  subscription, wholesale, market) with fees and postage, profit per roasting hour,
+  the cheapest blend of your green coffees that still meets a target cup score, a
+  weekly green-coffee order plan and a break-even volume. CSV export. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session.
+# duplicate_check.py: closest row was subscription-audit-from-statement / storage-auction
+# 0.16 (word overlap only); nothing near the 0.45 line. screened-out.md has no coffee row.
+#
+# Why this niche: thousands of micro-roasters (a roaster, a few wholesale cafes, an
+# online store) price by looking at competitors. Roast loss of 12-20% silently raises
+# every pound's cost, postage can wipe out an online bag's margin, and nobody checks
+# whether a high-scoring lot blended with a cheap one reaches the same cup score for
+# less. The owner is the buyer and the person with the problem, and every point of
+# margin is their own money, so the tool saves real dollars without needing a sales team.
+#
+# First visitor: people searching "coffee roasting cost calculator", "wholesale coffee
+# pricing", "how much does roasted coffee cost per pound", "coffee blend cost"; roasters
+# asking in r/roasting, r/coffeestartups and Home-Barista forums.
+# Volume not measured with an external tool.
+#
+# Liability boundary: pricing arithmetic only. No payments, no accounts, nothing stored
+# or uploaded. Cup score is the user's own input; no taste prediction is claimed.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end
+# for a paid roast-profile logging or inventory product, or a referral to a green coffee
+# importer.
+
+hypotheses:
+  - claim: >-
+      Small roasters will type their costs into a private no-signup calculator and use
+      the channel margin and blend suggestions to change a price or a blend, and come
+      back when green prices move.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a blend whose cost or score does not match a hand calculation.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/coffee-roaster-margin-calculator/
+  analytics: null

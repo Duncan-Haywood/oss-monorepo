@@ -1,0 +1,37 @@
+name: sg-freelancer-tax-set-aside-calculator
+description: >-
+  Free browser tool for Singapore freelancers and sole proprietors: enter income and expenses to see income tax after earned income relief and other reliefs, a MediSave flag and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; sibling set-aside tools exist for Australia, Canada, New Zealand, Ireland and South Africa, none for Singapore.
+#
+# First visitor: Singapore freelancers, consultants, gig workers and one-person businesses searching "freelancer tax Singapore" and "how much tax self employed Singapore". Peaks around the 18 April Form B deadline; volume not measured. Rivals are IRAS's generic personal tax calculator and accountant blog posts, which do not net expenses or give a per-invoice set-aside.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: MediSave amounts, spouse/child reliefs, CPF/SRS relief detail, non-residents, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: YA2024+ IRAS resident bands and earned income relief written from published tables and memory; every result tells the reader to verify on iras.gov.sg, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      Singapore freelancers will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own expenses, reliefs and the graduated bands.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: SGD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an IRAS figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sg-freelancer-tax-set-aside-calculator/
+  analytics: null

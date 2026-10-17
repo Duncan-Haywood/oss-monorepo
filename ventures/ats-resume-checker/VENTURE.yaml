@@ -1,5 +1,5 @@
 name: ats-resume-checker
-description: Free, no-upload tool that runs the "copy-paste test" career coaches already recommend by hand — paste the text copied out of your resume file and it flags the specific, well-documented symptoms of an ATS-breaking format (icon-font bullets, corrupted characters, missing section headings, buried contact info, missing dates, collapsed multi-column layouts) — entirely client-side, nothing uploaded.
+description: 'Free, no-upload tool that runs the "copy-paste test" career coaches already recommend by hand — paste the text copied out of your resume file and it flags the specific, well-documented symptoms of an ATS-breaking format (icon-font bullets, corrupted characters, missing section headings, buried contact info, missing dates, collapsed multi-column layouts) — entirely client-side, nothing uploaded. Also matches the resume against a pasted job posting (weighted keyword coverage, years and degree requirements), and suggests truthful wording changes: no-key line matches, or a model rewrite on the user''s own key from any provider.'
 stage: prototype
 
 owner: duncan

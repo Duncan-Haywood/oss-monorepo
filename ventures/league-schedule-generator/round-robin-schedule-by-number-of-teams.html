@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robin Schedule By Number Of Teams: Rounds And Games For 3 To 16 Teams</title>
+  <meta name="description" content="How many rounds and games a round robin needs for 3 to 16 teams, single or double, with byes and the fewest home and away breaks. Table computed by the generator. Then build your schedule free.">
+  <meta property="og:title" content="Round Robin Schedule By Number Of Teams (3 To 16)">
+  <meta property="og:description" content="Rounds, games per round, total games and byes for every league size from 3 to 16 teams. Free, private, in your browser.">
+  <link rel="canonical" href="./round-robin-schedule-by-number-of-teams.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many weeks does a round robin take?","acceptedAnswer":{"@type":"Answer","text":"With an even number of teams, one fewer week than there are teams (8 teams: 7 weeks); with an odd number, as many weeks as teams (7 teams: 7 weeks), because one team has a bye each week. A double round robin takes twice as many. If you have fewer courts than matches per round, a round needs more than one night; the generator spreads courts and time slots for you."}},{"@type":"Question","name":"How many games does each team play?","acceptedAnswer":{"@type":"Answer","text":"In a single round robin, every team plays every other team once, so n-1 games for n teams (a team with a bye plays one fewer than the number of rounds). In a double round robin, 2(n-1)."}},{"@type":"Question","name":"Is it better to have an even or an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"Even is simpler: nobody sits out. Odd leagues give every team exactly one bye in a single round robin and a perfect home and away pattern with no two home or two away games in a row. Neither is unfair; both are fully balanced."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Round robin schedule by number of teams</h1>
+  <p>Planning a season and need to know how many weeks, rounds and games it takes? Find your team count below. Every figure is computed by the same circle-method code the generator uses, and the test suite recomputes this table, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build the schedule for your teams</a></p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Teams</th><th>Rounds (single)</th><th>Games per round</th><th>Total games (single)</th><th>Rounds (double)</th><th>Total games (double)</th><th>Bye each round</th><th>Home/away breaks</th></tr></thead>
+    <tbody>
+      <tr><td>3</td><td>3</td><td>1</td><td>3</td><td>6</td><td>6</td><td>1 team</td><td>0</td></tr>
+      <tr><td>4</td><td>3</td><td>2</td><td>6</td><td>6</td><td>12</td><td>none</td><td>2</td></tr>
+      <tr><td>5</td><td>5</td><td>2</td><td>10</td><td>10</td><td>20</td><td>1 team</td><td>0</td></tr>
+      <tr><td>6</td><td>5</td><td>3</td><td>15</td><td>10</td><td>30</td><td>none</td><td>4</td></tr>
+      <tr><td>7</td><td>7</td><td>3</td><td>21</td><td>14</td><td>42</td><td>1 team</td><td>0</td></tr>
+      <tr><td>8</td><td>7</td><td>4</td><td>28</td><td>14</td><td>56</td><td>none</td><td>6</td></tr>
+      <tr><td>9</td><td>9</td><td>4</td><td>36</td><td>18</td><td>72</td><td>1 team</td><td>0</td></tr>
+      <tr><td>10</td><td>9</td><td>5</td><td>45</td><td>18</td><td>90</td><td>none</td><td>8</td></tr>
+      <tr><td>11</td><td>11</td><td>5</td><td>55</td><td>22</td><td>110</td><td>1 team</td><td>0</td></tr>
+      <tr><td>12</td><td>11</td><td>6</td><td>66</td><td>22</td><td>132</td><td>none</td><td>10</td></tr>
+      <tr><td>13</td><td>13</td><td>6</td><td>78</td><td>26</td><td>156</td><td>1 team</td><td>0</td></tr>
+      <tr><td>14</td><td>13</td><td>7</td><td>91</td><td>26</td><td>182</td><td>none</td><td>12</td></tr>
+      <tr><td>15</td><td>15</td><td>7</td><td>105</td><td>30</td><td>210</td><td>1 team</td><td>0</td></tr>
+      <tr><td>16</td><td>15</td><td>8</td><td>120</td><td>30</td><td>240</td><td>none</td><td>14</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>A round is one set of games in which every team plays at most once, usually one night or one weekend. "Home/away breaks" counts the times a team has two home or two away games in a row across the whole single round robin; for an even league the minimum possible is the number of teams minus two, and the generator reaches it. A double round robin repeats the rounds with every venue reversed. If you have fewer courts than games per round, a round takes more than one night, so check the number of courts against the "games per round" column before you book.</p>
+  <h2>Questions</h2>
+  <h3>How many weeks does a round robin take?</h3>
+  <p>With an even number of teams, one fewer week than there are teams (8 teams: 7 weeks); with an odd number, as many weeks as teams (7 teams: 7 weeks), because one team has a bye each week. A double round robin takes twice as many. If you have fewer courts than matches per round, a round needs more than one night; the generator spreads courts and time slots for you.</p>
+  <h3>How many games does each team play?</h3>
+  <p>In a single round robin, every team plays every other team once, so n-1 games for n teams (a team with a bye plays one fewer than the number of rounds). In a double round robin, 2(n-1).</p>
+  <h3>Is it better to have an even or an odd number of teams?</h3>
+  <p>Even is simpler: nobody sits out. Odd leagues give every team exactly one bye in a single round robin and a perfect home and away pattern with no two home or two away games in a row. Neither is unfair; both are fully balanced.</p>
+  <p>For the method itself with a worked five-team example, read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every date, court and pairing before you send a schedule to a league.</p>
+    <p>Everything the generator does runs in your browser; team names and dates are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

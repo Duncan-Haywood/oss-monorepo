@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Childcare Enrollment Mix Optimizer: Best Children per Age Group — Free</title>
+  <meta name="description" content="Free tool for childcare center and daycare owners: enter floor space, ratios, tuition and waiting lists by age group and get the enrolment mix with the highest weekly profit, checked exactly, with every staffing step shown. Nothing uploaded.">
+  <meta property="og:title" content="Childcare enrollment mix optimizer">
+  <meta property="og:description" content="How many infants, toddlers and preschoolers should I enrol? The most profitable mix for your space and ratios, checked exactly, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a6b8e'/%3E%3Ccircle cx='11' cy='13' r='3.500' fill='%23fff'/%3E%3Ccircle cx='21' cy='13' r='3.500' fill='%23fff'/%3E%3Cpath d='M7 25c1-5 5-6 9-6s8 1 9 6z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Childcare Enrollment Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Choose how many children to enrol in each age group at a childcare center to maximise weekly profit given floor space, licensing ratios, group sizes, tuition and waiting lists, checked exactly. Runs in your browser.","featureList":"Exact best enrolment mix, ratio staircase and hire points, next-child profit, comparison with fill-the-highest-tuition-room-first, value of extra floor space, stricter-ratio and wage sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many children should a childcare center enrol in each age group?","acceptedAnswer":{"@type":"Answer","text":"It depends on your floor space, the ratios you must staff to, tuition by age and how many families want a place. Infant rooms charge the most but need a teacher for every few children and the most space, so filling them first is often not the most profitable plan. This tool checks every combination of enrolment across your age groups and shows the one with the highest weekly profit that fits the space."}},{"@type":"Question","name":"Why does one more child sometimes lose money?","acceptedAnswer":{"@type":"Answer","text":"Staffing is a staircase. If a room is exactly at its ratio, the next child needs another teacher on the floor, and one child's tuition rarely covers a teacher. The results show, for each age group, what the next child adds or costs and how many places remain before the next hire."}},{"@type":"Question","name":"What do I enter for staff-to-child ratio and group size?","acceptedAnswer":{"@type":"Answer","text":"The limits your state licensing agency sets for each age group, or tighter ones you choose to staff to. Rules differ by state and change; this tool does not look them up. Check them with your licensing office."}},{"@type":"Question","name":"What cost per teacher hour should I use?","acceptedAnswer":{"@type":"Answer","text":"Hourly wage plus employer payroll taxes, workers' compensation and any benefits. The coverage factor multiplies teacher hours to cover breaks, planning time and absences, so 1.15 means 15 percent extra paid hours beyond the hours you are open."}},{"@type":"Question","name":"Does it tell me what more space or a stricter ratio rule would do?","acceptedAnswer":{"@type":"Answer","text":"Yes. It reports the next amount of extra floor space that would raise weekly profit, and re-solves with every ratio one child tighter and with wages 10 percent higher so you can see how exposed the plan is."}},{"@type":"Question","name":"Is this financial or licensing advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. It does not know your licensing rules, subsidy contracts, enrolment timing or payroll law, and it does not replace your licensing office or an accountant."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .scroll { overflow-x: auto; }
+    th.n, td.n { text-align: right; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHILDCARE ENROLLMENT MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which children should I enrol to make the most from my space?</h1>
+    <p>Enter your usable floor space, what a teacher costs, and for each age group the tuition, the licensing ratio and group size, the space each child needs and how many families want a place. The tool checks every possible enrolment mix and shows the one with the highest weekly profit, where each extra teacher is triggered, and what the usual fill-the-expensive-room-first approach leaves behind.</p>
+    <p class="note">Arithmetic on figures you type. Not licensing, financial or tax advice. The example figures are placeholders, not any centre's tuition or wages, and not any state's rules.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your centre</h2>
+      <div class="grid">
+        <div><label for="areaSqft">Usable floor space for children (sq ft)</label><input id="areaSqft" type="number" step="any" value="0"><p class="note">Classroom space your licence counts toward children, not offices or halls.</p></div>
+        <div><label for="licensedCap">Licensed capacity (children)</label><input id="licensedCap" type="number" step="any" value="0"><p class="note">Fire or licence limit on total children. 0 means no separate limit.</p></div>
+        <div><label for="wage">Teacher cost per hour ($)</label><input id="wage" type="number" step="any" value="0"><p class="note">Wage plus payroll taxes, workers' comp and benefits.</p></div>
+        <div><label for="openHours">Hours open per week</label><input id="openHours" type="number" step="any" value="0"><p class="note">Hours a teacher must be on the floor.</p></div>
+        <div><label for="coverage">Coverage factor</label><input id="coverage" type="number" step="any" value="0"><p class="note">Paid hours per open hour for breaks, planning and absences. 1.15 is typical.</p></div>
+        <div><label for="collectionPct">Share of tuition collected (%)</label><input id="collectionPct" type="number" step="any" value="0"><p class="note">After discounts, subsidy gaps and bad debt. 95 is common.</p></div>
+        <div><label for="fixedWeekly">Fixed costs per week ($)</label><input id="fixedWeekly" type="number" step="any" value="0"><p class="note">Rent, director, insurance, utilities. Shown after the plan; it does not change the choice.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Age group 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Age group</label><input id="t0_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t0_tuition">Tuition per child per week ($)</label><input id="t0_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t0_ratio">Children per teacher</label><input id="t0_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t0_maxGroup">Largest group in one room</label><input id="t0_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t0_sqftPerChild">Floor space per child (sq ft)</label><input id="t0_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t0_demand">Children who want a place</label><input id="t0_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t0_varCost">Other cost per child per week ($)</label><input id="t0_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Age group 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Age group</label><input id="t1_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t1_tuition">Tuition per child per week ($)</label><input id="t1_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t1_ratio">Children per teacher</label><input id="t1_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t1_maxGroup">Largest group in one room</label><input id="t1_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t1_sqftPerChild">Floor space per child (sq ft)</label><input id="t1_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t1_demand">Children who want a place</label><input id="t1_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t1_varCost">Other cost per child per week ($)</label><input id="t1_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Age group 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Age group</label><input id="t2_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t2_tuition">Tuition per child per week ($)</label><input id="t2_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t2_ratio">Children per teacher</label><input id="t2_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t2_maxGroup">Largest group in one room</label><input id="t2_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t2_sqftPerChild">Floor space per child (sq ft)</label><input id="t2_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t2_demand">Children who want a place</label><input id="t2_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t2_varCost">Other cost per child per week ($)</label><input id="t2_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Age group 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Age group</label><input id="t3_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t3_tuition">Tuition per child per week ($)</label><input id="t3_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t3_ratio">Children per teacher</label><input id="t3_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t3_maxGroup">Largest group in one room</label><input id="t3_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t3_sqftPerChild">Floor space per child (sq ft)</label><input id="t3_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t3_demand">Children who want a place</label><input id="t3_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t3_varCost">Other cost per child per week ($)</label><input id="t3_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Age group 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Age group</label><input id="t4_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t4_tuition">Tuition per child per week ($)</label><input id="t4_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t4_ratio">Children per teacher</label><input id="t4_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t4_maxGroup">Largest group in one room</label><input id="t4_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t4_sqftPerChild">Floor space per child (sq ft)</label><input id="t4_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t4_demand">Children who want a place</label><input id="t4_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t4_varCost">Other cost per child per week ($)</label><input id="t4_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Age group 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Age group</label><input id="t5_name" type="text" value=""><p class="note">What you call it, for example Toddlers.</p></div>
+        <div><label for="t5_tuition">Tuition per child per week ($)</label><input id="t5_tuition" type="number" step="any" value=""><p class="note">Full-time weekly rate.</p></div>
+        <div><label for="t5_ratio">Children per teacher</label><input id="t5_ratio" type="number" step="any" value=""><p class="note">The most children one teacher may supervise.</p></div>
+        <div><label for="t5_maxGroup">Largest group in one room</label><input id="t5_maxGroup" type="number" step="any" value=""><p class="note">Licence limit on group size. Blank or 0 for no limit.</p></div>
+        <div><label for="t5_sqftPerChild">Floor space per child (sq ft)</label><input id="t5_sqftPerChild" type="number" step="any" value=""><p class="note">Licence minimum, for example 35.</p></div>
+        <div><label for="t5_demand">Children who want a place</label><input id="t5_demand" type="number" step="any" value=""><p class="note">Enrolled now plus waiting list. The most you could fill.</p></div>
+        <div><label for="t5_varCost">Other cost per child per week ($)</label><input id="t5_varCost" type="number" step="any" value=""><p class="note">Food, supplies, curriculum.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best enrolment mix</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">An age group needs a tuition, a ratio, floor space per child and a number of children who want a place. Leave a group blank to leave it out. Up to 6 groups.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions owners ask</h2>
+      <h3>How many children should a childcare center enrol in each age group?</h3>
+      <p>It depends on your floor space, the ratios you must staff to, tuition by age and how many families want a place. Infant rooms charge the most but need a teacher for every few children and the most space, so filling them first is often not the most profitable plan. This tool checks every combination of enrolment across your age groups and shows the one with the highest weekly profit that fits the space.</p>
+      <h3>Why does one more child sometimes lose money?</h3>
+      <p>Staffing is a staircase. If a room is exactly at its ratio, the next child needs another teacher on the floor, and one child's tuition rarely covers a teacher. The results show, for each age group, what the next child adds or costs and how many places remain before the next hire.</p>
+      <h3>What do I enter for staff-to-child ratio and group size?</h3>
+      <p>The limits your state licensing agency sets for each age group, or tighter ones you choose to staff to. Rules differ by state and change; this tool does not look them up. Check them with your licensing office.</p>
+      <h3>What cost per teacher hour should I use?</h3>
+      <p>Hourly wage plus employer payroll taxes, workers' compensation and any benefits. The coverage factor multiplies teacher hours to cover breaks, planning time and absences, so 1.15 means 15 percent extra paid hours beyond the hours you are open.</p>
+      <h3>Does it tell me what more space or a stricter ratio rule would do?</h3>
+      <p>Yes. It reports the next amount of extra floor space that would raise weekly profit, and re-solves with every ratio one child tighter and with wages 10 percent higher so you can see how exposed the plan is.</p>
+      <h3>Is this financial or licensing advice?</h3>
+      <p>No. It is arithmetic on figures you type. It does not know your licensing rules, subsidy contracts, enrolment timing or payroll law, and it does not replace your licensing office or an accountant.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your state's actual ratios and space rules, mixed-age rooms and ratio blending, part-time and drop-in enrolment, subsidy rates and payment delays, enrolment timing and turnover, a director or cook who counts toward ratio, and which children you can actually find. Every figure is treated as a steady weekly average, and teachers are assumed to be hired in whole numbers.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with your licensing office and a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Already know your enrolment? The <a href="../childcare-center-break-even-calculator/">childcare center break-even calculator</a> shows break-even enrollment and ratio cliffs, and the <a href="../childcare-tuition-calculator/">childcare tuition calculator</a> works the per-family side.</p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, MAX_GROUPS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = MAX_GROUPS, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const BLANK = { name: "", tuition: "", ratio: "", maxGroup: "", sqftPerChild: "", demand: "", varCost: "" };
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || BLANK)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const wk = (n) => money(n) + " a week";
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill info">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += `<div class="finding"><h4>Enrol ${a.children} children: ${a.rows.filter((r) => r.children).map((r) => r.children + " " + esc(r.name)).join(", ") || "none"}</h4><p>That is ${a.rooms} room${a.rooms === 1 ? "" : "s"} and ${a.teachers} teacher${a.teachers === 1 ? "" : "s"} on the floor, using ${a.spaceUsed.toLocaleString("en-US")} of ${a.shared.areaSqft.toLocaleString("en-US")} sq ft. It earns ${wk(a.profit)} after teachers and per-child costs, which is ${a.net >= 0 ? wk(a.net) + " after" : money(-a.net) + " a week short of"} your ${money(a.shared.fixedWeekly)} of fixed costs (${money(a.netYear)} a year).</p></div>`;
+      h += `<div class="finding"><h4>Against the usual way of filling rooms</h4><p>Filling the highest-tuition group first gives ${wk(a.byTuition.profit)} (${a.byTuition.names.join(", ")}). Filling by tuition per square foot first gives ${wk(a.bySpace.profit)} (${a.bySpace.names.join(", ")}). ${a.shortcutLoss > 0.5 ? "The exact plan earns " + wk(a.shortcutLoss) + " more than the better of the two, " + money(a.shortcutLoss * 52) + " a year." : "Here both shortcuts find the same profit."}</p></div>`;
+      h += `<div class="finding"><h4>What more space would do</h4><p>${a.nextSpace ? "With " + a.nextSpace.extraSqft.toLocaleString("en-US") + " more sq ft the best plan earns " + wk(a.nextSpace.extraProfit) + " more." : "More floor space would not raise profit here: demand, the licensed capacity or staffing costs already limit the plan."}</p></div>`;
+      h += `<div class="finding"><h4>How exposed is this?</h4><p>If every ratio tightened by one child per teacher, the best plan would earn ${wk(a.stricter.profit)} (${a.stricter.change <= -0.5 ? money(-a.stricter.change) + " less" : "no change"}). If teacher cost rose 10%, it would earn ${wk(a.dearer.profit)} (${a.dearer.change <= -0.5 ? money(-a.dearer.change) + " less" : "no change"}).</p></div>`;
+      if (a.losing.length) h += `<div class="finding"><span class="pill info">Check</span> ${esc(a.losing.join(", "))} loses money on its own but is in the plan; check the inputs.</div>`;
+      if (a.unfilled.length) h += `<div class="finding"><span class="pill info">Note</span> Not filled to demand: ${esc(a.unfilled.join(", "))}. Either space, the capacity limit or the cost of the extra teacher makes the last places unprofitable.</div>`;
+      h += `<div class="finding"><h4>Every age group</h4>${table(["Group", "Children", "Rooms", "Teachers", "Weekly profit", "Next child", "Places before next hire", "Teachers added at"], a.rows.map((r) => [esc(r.name), r.children + " of " + r.demand, r.rooms, r.teachers, money(r.profit), r.nextChild == null ? "n/a" : (r.nextChild >= 0 ? "+" : "") + money(r.nextChild), r.freeBeforeHire == null ? "n/a" : r.freeBeforeHire, r.hires.slice(0, 8).join(", ") + " children"]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "enrollment-mix.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

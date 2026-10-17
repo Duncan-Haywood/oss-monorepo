@@ -1,0 +1,24 @@
+{
+  "id": "P029",
+  "title": "eBay fee defaults in reverb-fee-calculator: 13.6% FVF and tiered per-order fee (split from P025)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "ebay-fee-calculator, marketplace-fee-compare, where-to-sell-calculator and reverb-fee-calculator default to a 13.25% final value fee and a flat $0.30 per-order fee. eBay's selling-fees help page (https://www.ebay.com/help/selling/fees-credits-invoices/selling-fees?id=4822, fetched 2026-10-16) lists 13.6% of the total sale up to $7,500 plus 2.35% above it, and a per-order fee of $0.30 for orders of $10.00 or less and $0.40 above. This row covers only reverb-fee-calculator: calc.mjs and the pages that quote eBay as the comparison.",
+  "evidence": [
+    "eBay selling-fees page, fetched 2026-10-16 by a ventures run (no effective date shown on the page)",
+    "Probe 2026-10-16 (P025 split run): in ebay-fee-calculator, sed 13.25->13.6 over calc.mjs, *.html and README leaves 498 of 499 tests passing (only the 'documented defaults' test fails), because the explainer page tests do not pin the derived dollar figures. The pages' 'On the defaults ... leftover $X' prose therefore goes stale silently: recompute each from the engine, do not hand-edit."
+  ],
+  "change": "Same change as P026 (rate 13.6, per-order 0.30/0.40, 2.35% band over $7,500), reusing P026's figures so the ventures agree. Recompute derived prose from the engine; do not hand-edit.",
+  "touches": [
+    "ventures/reverb-fee-calculator"
+  ],
+  "metric": "grep -rl '13\\.25' ventures/reverb-fee-calculator returns nothing and its suite passes",
+  "baseline": "see P025 (76 files across four ventures)",
+  "opened": "2026-10-16",
+  "source": "process run 2026-10-16, split of P025",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7542",
+  "result": "reverb-fee-calculator: 13.6% FVF, $0.40 per order (over $10; $0.30 tier and 2.35% band above $7,500 noted, not modelled). grep 13.25 returns nothing; suite 112/112; derived prose recomputed from the engine (also fixed stale README figures).",
+  "history": []
+}

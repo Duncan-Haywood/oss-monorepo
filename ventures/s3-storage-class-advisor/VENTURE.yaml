@@ -1,0 +1,52 @@
+name: s3-storage-class-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that takes per-bucket S3 size, object count and read activity (from Storage Lens or Inventory) and prices the same data in Standard, Standard-IA, Intelligent-Tiering and Glacier Instant Retrieval, including the 128 KB minimum billable size, retrieval fees and 30/90-day minimum-duration traps; usable as a CI check. Intelligent-Tiering is modelled, prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself"),
+# sibling of dynamodb-capacity-mode-advisor and lambda-memory-rightsizer.
+# duplicate_check.py (run 2026-10-02) found no S3 storage-class venture; the
+# nearest, cloud-egress-calculator and aws-commitment-breakeven-calculator,
+# price transfer and commitments, not storage class. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "s3
+# standard vs intelligent-tiering", "s3 standard-ia vs standard cost", "s3
+# storage class calculator", "s3 glacier instant retrieval vs standard-ia",
+# "s3 lifecycle policy cost"; r/aws and Stack Overflow threads about a bill
+# that rose after a lifecycle rule. The reader is a platform engineer or
+# FinOps owner with a four- to six-figure monthly S3 bill. The AWS pricing
+# calculator needs hand-typed volumes and models no minimum-size or
+# minimum-duration billing; vendor FinOps tools need an IAM role and a
+# contract -- this works on pasted Storage Lens numbers with no access, the
+# wedge. A hosted multi-account scanner with PR comments is the natural paid
+# upgrade.
+hypotheses:
+  - claim: An engineer with a large S3 bill will search for storage-class comparisons, paste per-bucket Storage Lens numbers, and learn which buckets belong in which class and what the small-object and minimum-duration traps cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI against a Storage Lens export with --fail-on warn so a bucket left in the wrong class is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/
+  analytics: null

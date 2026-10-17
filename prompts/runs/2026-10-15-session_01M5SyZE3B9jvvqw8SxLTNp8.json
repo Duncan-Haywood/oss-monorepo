@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01M5SyZE3B9jvvqw8SxLTNp8",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "task": "extend",
+  "projects": [
+    "simdesign-loadbind"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/595",
+  "commits": [
+    "1af8101f991534c198a0d3403829b6a107aaf497"
+  ],
+  "merged": null,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Left PRs 587 and 593 (other runs' fresh claims, failing placeholder CI) alone. Buckling closed-form references carried over from buckleguard, not re-read. Token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

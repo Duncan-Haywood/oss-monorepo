@@ -1,0 +1,44 @@
+name: eudr-scope-checker
+description: >-
+  Free browser tool that applies the EU Deforestation Regulation (Regulation (EU) 2023/1115, as amended) to a business: whether its role, size and commodities (cattle, cocoa, coffee, oil palm, rubber, soya, wood) bring it in scope, its duties by Article (due diligence statement, geolocation, risk assessment, record keeping, penalties), how country risk changes them, and its application date. Also screens customs codes against Annex I headings. Nothing is uploaded. A first read of the Regulation, not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no EUDR tool in ventures/ (grep for EUDR and 2023/1115 empty). Not in screened-out.md.
+#
+# First visitor: an importer, roaster, chocolatier, furniture maker, tyre or timber trader in or selling into the EU, asked by a customer or
+# auditor "are you EUDR compliant and what do you file?"; search phrases "EUDR scope", "does EUDR apply to me", "EUDR HS codes list", "EUDR
+# due diligence statement who files". Volume not measured with an external tool. Application is 30 Dec 2026, so questions are rising now.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be a supplier data-collection pack
+# (geolocation CSV validator, due diligence statement draft) behind an env-var switch.
+#
+# Liability: encodes the Regulation's own Articles (1, 3, 4, 5, 8-13, 16, 25) and an Annex I heading screen, every result naming its Article. It
+# reads only what the user ticks, states that the screen is by 4-digit heading and the 8-digit code decides, states that dates and scope have
+# changed and may change again, and carries the no-warranty and not-legal-advice clauses. Ethical risk is false comfort from an "out of scope"
+# result; the page says to confirm against Annex I and the current text.
+
+hypotheses:
+  - claim: >-
+      EU importers and traders of EUDR commodities will use a free tool that names their duties, Article and application date, and screens their customs codes, instead of paying for a first consultation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a duty, Article reference or date differs from the Regulation's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eudr-scope-checker/
+  analytics: null

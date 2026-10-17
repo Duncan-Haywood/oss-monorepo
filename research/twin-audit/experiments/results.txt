@@ -1,0 +1,57 @@
+plant a=0.9 q=1.0 r=0.1; twin gain bh=1.0, deployed k*(bh)=0.8233; alpha=0.05, mixture prior N(0,1) on the gain error
+
+== 1. Validity under H0 (twin exact): e-process vs a z-test that is looked at after every step ==
+false alarms within 3000 steps over 1000 audits: e-process 0.024 (Ville bound 0.05), peeking z-test at 1.96: 0.581
+
+== 2. Detection delay in closed loop: simulation vs the noiseless-drift prediction ==
+db      U=E u^2   predicted n   mean n   median n   sim/pred(mean)   detected
++0.1    0.678       1945.2      1593.0    1441.5    0.819            400/400
++0.2    0.683        428.7       363.9     328.5    0.849            400/400
++0.3    0.698        173.2       162.0     135.0    0.935            400/400
+-0.2    0.720        406.9       404.1     358.0    0.993            400/400
+-0.3    0.757        159.7       155.6     130.0    0.974            400/400
+
+== 3. Regret paid before detection = per-step regret x delay: nearly independent of the gap size ==
+db      regret/step   predicted n   regret x predicted n   regret x mean n   small-gap constant J_kk k'(b)^2 ln(1/alpha)/U
++0.05   0.00142         8646.2      12.272                  10.177             4.992
++0.10   0.00571         1945.2      11.116                  9.104             4.998
++0.20   0.02336          428.7      10.012                  8.412             4.960
++0.30   0.05434          173.2      9.413                  8.390             4.853
+
+== 4. A cautious (expensive-control) operator hides twin error: same gap db=0.2 at r = 0.01, 0.1, 1, 10 (twin bh=1) ==
+r       k*(bh)   U=E u^2   predicted n   mean n   regret/step   regret x mean n
+0.01    0.8912   0.8176        358.2       324.5   0.03213       10.426
+0.1     0.8233   0.6832        428.7       384.2   0.02336       8.974
+1       0.5377   0.3092        947.3       778.0   0.00497       3.868
+10      0.1938   0.0677       4324.1      3730.3   0.00031       1.174
+
+== 5. Does dither (added probing) pay? Both regret and dither cost are per-step, information is linear in dither variance v ==
+regret per unit info rho/U0 vs dither price kappa_c/kappa_u (dither lowers expected cost before detection iff rho/U0 > price)
+db      rho/U0    price    pays?
+-0.8    0.3114    0.1767   yes
+-0.7    0.2891    0.2322   yes
+-0.6    0.2365    0.2905   no
+-0.3    0.0694    0.4722   no
+-0.1    0.0081    0.5955   no
++0.1    0.0084    0.7197   no
++0.3    0.0778    0.8443   no
++0.6    0.3198    1.0318   no
++1.0    0.9096    1.2822   no
++1.2    1.3211    1.4076   no
++1.3    1.5563    1.4703   yes
+dither pays only for db > 1.252 (true gain 2.252 = 2.25x the twin) or db < -0.647 (true gain 0.353 = 0.35x the twin)
+
+simulated check: total expected cost before detection = (regret + dither cost)(v) x mean n, at a moderate gap (0.2), a gross gap below the threshold (-0.8) and one above (1.3)
+db     v      mean n   predicted n   rate (regret+dither)   rate x mean n
++0.2   0.00     409.8      428.7      0.02336              9.572
++0.2   0.25     220.0      248.4      0.41117              90.449
++0.2   1.00     101.3      109.8      1.57460              159.517
++0.2   4.00      32.4       34.0      6.22833              202.088
+-0.8   0.00      17.0        9.9      0.45960              7.792
+-0.8   0.25      12.3        8.4      0.50637              6.252
+-0.8   1.00       9.1        5.8      0.64669              5.902
+-0.8   4.00       4.4        2.6      1.20796              5.347
++1.3   0.00       2.3        1.0      83.92958              193.598
++1.3   0.25       1.4        1.0      189.16185              272.393
++1.3   1.00       1.2        1.0      504.85866              609.196
++1.3   4.00       1.1        1.0      1767.64590              1932.626

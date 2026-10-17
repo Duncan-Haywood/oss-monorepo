@@ -235,3 +235,9 @@ test('index links one hop to the equipment-auction-buyer-premium-calculator sibl
     'index must link ../equipment-auction-buyer-premium-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// Inbound link for `auction-car-flip-calculator`: the same buy-at-auction-to-resell
+// max-bid question, for a vehicle with a repair bill instead of a unit's contents.
+test('index links one hop to the auction-car-flip-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/auction-car-flip-calculator\/"/);
+});

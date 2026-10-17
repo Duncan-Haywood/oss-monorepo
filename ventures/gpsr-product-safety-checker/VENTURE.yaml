@@ -1,0 +1,43 @@
+name: gpsr-product-safety-checker
+description: >-
+  Free browser tool that gives a first read of the EU General Product Safety Regulation (Regulation (EU) 2023/988) for a seller of consumer goods: whether the product is in scope, whether an EU-established responsible person stands behind it (the gap that stops non-EU sellers on Amazon, Etsy and Shopify), and the basic duties still open for the seller's role. Nothing is uploaded. Not legal advice and not a sector-law conformity check.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no GPSR tool in ventures/ (nearest: eaa-accessibility-act-checker, cra-evidence-desk). Not in screened-out.md.
+#
+# First visitor: a non-EU (or small EU) online seller told by a marketplace "add an EU responsible person or your listings come down"; search phrases
+# "GPSR EU responsible person", "do I need GPSR compliance", "GPSR Etsy Amazon". The Regulation has applied since 13 December 2024, so demand is current.
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: GPSR label and listing-text generator and a per-SKU
+# evidence binder, behind an env-var switch.
+#
+# Liability: first read of the Regulation's scope and operator roles; rejects bad input, says plainly that sector law and national enforcement decide, carries
+# no-warranty and not-legal-advice clauses. Article numbers were written from memory of the published text without network access to EUR-Lex in the
+# building session and must be verified; ethical risk is false comfort from an "out" result.
+
+hypotheses:
+  - claim: >-
+      Online sellers asked by a marketplace for GPSR compliance will use a free checker to learn whether they need an EU responsible person and what is missing from their listing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that scope, an Article reference or the responsible-person rule differs from the Regulation's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gpsr-product-safety-checker/
+  analytics: null

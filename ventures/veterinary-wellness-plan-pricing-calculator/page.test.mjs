@@ -1,0 +1,57 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { SHARED_DEFAULTS } from "./calc.mjs";
+
+const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+
+test("index page carries the disclaimer, privacy line and sponsor link", () => {
+  const html = page("index.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, accounting, compliance, or financial advice/);
+  assert.match(html, /Everything runs in your browser/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<script type="application\/ld\+json">/);
+});
+
+test("every input has a label and nothing can send data anywhere", () => {
+  const html = page("index.html");
+  for (const id of Object.keys(SHARED_DEFAULTS)) assert.match(html, new RegExp(`<label (class="sr" )?for="${id}">`), id);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+  assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+});
+
+test("the module scripts import only local files", () => {
+  const html = page("index.html");
+  const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(imports.sort(), ["./calc.mjs", "./usage.mjs"]);
+  assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
+});
+
+test("page states what it does not decide and that its figures are placeholders", () => {
+  assert.match(page("index.html"), /Not decided/);
+  assert.match(page("index.html"), /placeholder data, not/i);
+});
+
+test("usage events named on the page are the ones the code records", () => {
+  const html = page("index.html");
+  const named = [...html.matchAll(/<code>([a-z_]+)<\/code>/g)].map((m) => m[1]).sort();
+  const recorded = [...html.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]);
+  assert.deepEqual(named, [...new Set(recorded)].sort());
+});
+
+
+
+test("the inline module script parses", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(`${tmpdir()}/vet-page-`);
+  const file = `${dir}/inline.mjs`;
+  writeFileSync(file, page("index.html").match(/<script type="module">([\s\S]*?)<\/script>/)[1]);
+  assert.doesNotThrow(() => execFileSync(process.execPath, ["--check", file], { stdio: "pipe" }));
+});
+
+test("footer links to the mobile vet house-call fee calculator", () => {
+  assert.match(page("index.html"), /href="\.\.\/mobile-vet-house-call-fee-calculator\/"/);
+});

@@ -289,7 +289,10 @@ export function pageHasOwnShareLink(html) {
   if (typeof html !== 'string') return false;
   return /id="copyShare"/.test(html)
     || /share\.mjs/.test(html)
-    || /Copy share link/.test(html);
+    || /Copy share link/.test(html)
+    // The inline-calculator template (powder-coating, grease-trap-pumping) keeps its own
+    // encodeShare in calc.mjs and a plain `#share` button, so none of the three above match.
+    || /<button[^>]*\bid="share"/.test(html);
 }
 
 /**

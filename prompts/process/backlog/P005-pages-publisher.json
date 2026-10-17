@@ -1,0 +1,24 @@
+{
+  "id": "P005",
+  "title": "Decide who publishes the gh-pages snapshot",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The gh-pages snapshot lags main (`pages-freshness` red in the tree sweep). Sub-prompts ask every session to publish by hand, which nobody reliably does.",
+  "evidence": [
+    "pages-freshness: 'built from fdae045c, but the default branch is now at 6fdb61c4': prompts/process/reports/2026-10-15-addendum.md"
+  ],
+  "change": "Owner sets PAGES_BRANCH_PUBLISH=true so publish-pages-branch.yml does it, then agents delete the by-hand publish instructions.",
+  "touches": [
+    ".github/workflows/publish-pages-branch.yml",
+    "CLAUDE.md"
+  ],
+  "metric": "`pages_state.py` current/stale at the start of a run",
+  "baseline": "stale",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

@@ -1,0 +1,40 @@
+name: uk-sole-trader-vs-limited-company-calculator
+description: >-
+  Free browser tool for UK freelancers and small-business owners: compare what you keep from the same profit as a sole trader or through a limited company, with the best director salary and dividend split found for you, 2026/27 rates. Shows every tax line, a profit-level table and the Making Tax Digital threshold. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. The catalogue is US-heavy (1,100+ tools) and has no UK sole-trader-vs-company tool; "limited company vs sole trader calculator"
+# is a high-volume UK search. Not in screened-out.md. Rates for 2026/27 were checked via web search in the building session; dividend rates rose 2 points in April 2026,
+# which made most older calculators on this question stale, and is the page's reason to exist.
+#
+# First visitor: a UK contractor or freelancer at £40k-£100k profit asking whether incorporating still pays after the April 2026 dividend rise and Making Tax Digital.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year planner with pension and retained-profit modelling, behind an env-var switch.
+#
+# Liability: tax rules are summarised from published 2026/27 sources, the page says so and links the official source to check; output is an estimate, not advice.
+
+hypotheses:
+  - claim: >-
+      UK sole traders deciding whether to incorporate will use a free calculator with current 2026/27 dividend and NI rates and the best salary found automatically.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: GBP
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A UK accountant reports a rate or threshold on the page that is wrong for 2026/27.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-sole-trader-vs-limited-company-calculator/
+  analytics: null

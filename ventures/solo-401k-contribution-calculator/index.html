@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
+  <meta name="description" content="Free calculator for the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC — employee elective deferral (up to $24,500, or $32,500/$35,750 with catch-up), employer profit-sharing contribution (20% of net self-employment earnings), and the combined $72,000/$80,000/$83,250 overall limit. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Solo 401(k) Contribution Calculator — free, 2026">
+  <meta property="og:description" content="Computes the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC: employee elective deferral, employer profit-sharing contribution from net self-employment earnings, and the combined overall limit. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Solo 401(k) Contribution Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC: employee elective deferral ($24,500, or $32,500 with the age-50 catch-up, or $35,750 with the SECURE 2.0 age-60-63 enhanced catch-up), employer profit-sharing contribution (20% of net self-employment earnings, itself net profit minus half of self-employment tax), and the combined Section 415(c) overall limit ($72,000, $80,000, or $83,250). Entirely client-side; nothing is uploaded.","featureList":"2026 elective-deferral limits by age, self-employment tax and net earnings calculation, employer profit-sharing contribution, combined overall limit, shared-deferral-room adjustment for a separate W-2 401(k)"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 Solo 401(k) contribution limit?","acceptedAnswer":{"@type":"Answer","text":"The employee elective deferral is $24,500 for 2026 ($32,500 with the age-50 catch-up, or $35,750 with the SECURE 2.0 enhanced catch-up for ages 60-63). Added to a 20% employer profit-sharing contribution from net self-employment earnings, the combined total is capped at $72,000, or $80,000 with the standard catch-up, or $83,250 with the enhanced 60-63 catch-up."}},{"@type":"Question","name":"How is the employer profit-sharing contribution calculated for a sole proprietor?","acceptedAnswer":{"@type":"Answer","text":"Net profit minus half of self-employment tax gives net earnings from self-employment. A plan stating a 25% employer contribution rate converts to an effective 20% rate applied to that net-earnings figure for a sole proprietor or single-member LLC, because the contribution is itself computed on earnings net of the contribution."}},{"@type":"Question","name":"Does the elective-deferral limit apply separately to a Solo 401(k) and a W-2 job's 401(k)?","acceptedAnswer":{"@type":"Answer","text":"No. The elective-deferral limit applies per person across every 401(k) plan combined, including a separate employer's plan. Deferrals already made at a W-2 job reduce the room left for the Solo 401(k) dollar for dollar."}},{"@type":"Question","name":"What is the enhanced catch-up for ages 60-63?","acceptedAnswer":{"@type":"Answer","text":"SECURE 2.0 gives ages 60, 61, 62, and 63 an $11,250 catch-up for 2026 instead of the standard $8,000 catch-up — it replaces rather than stacks with the standard amount, and the plan document must specifically allow it."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC with no W-2 wages from the business. It does not replace IRS Publication 560 or a qualified tax professional, and an S-corp or partnership uses a different formula entirely."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOLO 401(K) CONTRIBUTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you put in your Solo 401(k) in 2026?</h1>
+    <p>For a sole proprietor or single-member LLC: an employee elective
+    deferral of up to <strong>$24,500</strong> (more with a catch-up),
+    plus an employer profit-sharing contribution of <strong>20%</strong>
+    of your net self-employment earnings, combined up to
+    <strong>$72,000</strong> (more with a catch-up) for 2026.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your business and age</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net profit from your business in 2026 ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 150000">
+      </div>
+      <div>
+        <label for="age">Your age at the end of 2026</label>
+        <input type="number" id="age" min="0" max="120" step="1" placeholder="e.g. 52">
+      </div>
+    </div>
+    <p class="note">Net profit is your Schedule C net profit (or a
+    single-member LLC's equivalent), before this retirement contribution —
+    not gross revenue.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Optional adjustments</h2>
+    <div class="grid">
+      <div>
+        <label for="deferral-elsewhere">Elective deferral already made to another 401(k) this year ($)</label>
+        <input type="number" id="deferral-elsewhere" min="0" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="custom-deferral">Elective deferral you want to make (leave blank for the maximum) ($)</label>
+        <input type="number" id="custom-deferral" min="0" step="1" placeholder="leave blank for max">
+      </div>
+    </div>
+    <p class="note">The elective-deferral limit is shared across every
+    401(k) you contribute to — including a separate W-2 employer's plan —
+    not per plan. Enter what you have already deferred elsewhere this year
+    if any.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your net profit and age, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Sole proprietor / single-member LLC only.</strong> This
+      applies the net-self-employment-earnings formula for a Schedule C
+      filer with no W-2 wages from the business. An S-corp or partnership
+      uses a different formula (W-2 wages or a K-1 allocation) and this
+      tool does not compute it.</li>
+      <li><strong>Not a Schedule SE substitute.</strong> This ignores the
+      additional 0.9% Medicare surtax above $200,000/$250,000 and does not
+      account for multiple businesses or controlled-group rules.</li>
+      <li><strong>Roth, after-tax, and mega-backdoor splits are not
+      modelled.</strong> This computes the total contribution room, not
+      how to split it between traditional, Roth, or (if your plan allows
+      it) after-tax employee contributions.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> These limits are
+      re-indexed annually; confirm the current year's figures before
+      relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 Solo 401(k) contribution limit?</h3>
+    <p>The employee elective deferral is $24,500 for 2026 ($32,500 with the age-50 catch-up, or $35,750 with the SECURE 2.0 enhanced catch-up for ages 60-63). Added to a 20% employer profit-sharing contribution from net self-employment earnings, the combined total is capped at $72,000, or $80,000 with the standard catch-up, or $83,250 with the enhanced 60-63 catch-up.</p>
+    <h3>How is the employer profit-sharing contribution calculated for a sole proprietor?</h3>
+    <p>Net profit minus half of self-employment tax gives net earnings from self-employment. A plan stating a 25% employer contribution rate converts to an effective 20% rate applied to that net-earnings figure for a sole proprietor or single-member LLC, because the contribution is itself computed on earnings net of the contribution.</p>
+    <h3>Does the elective-deferral limit apply separately to a Solo 401(k) and a W-2 job's 401(k)?</h3>
+    <p>No. The elective-deferral limit applies per person across every 401(k) plan combined, including a separate employer's plan. Deferrals already made at a W-2 job reduce the room left for the Solo 401(k) dollar for dollar.</p>
+    <h3>What is the enhanced catch-up for ages 60-63?</h3>
+    <p>SECURE 2.0 gives ages 60, 61, 62, and 63 an $11,250 catch-up for 2026 instead of the standard $8,000 catch-up — it replaces rather than stacks with the standard amount, and the plan document must specifically allow it.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC with no W-2 wages from the business. It does not replace IRS Publication 560 or a qualified tax professional, and an S-corp or partnership uses a different formula entirely.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own plan's terms before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>limit_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Prefer a simpler plan? The <a href="../sep-ira-contribution-calculator/">SEP-IRA contribution calculator</a> shows the employer-only limit for the same earnings.</p>
+    <p>Not sure a Solo 401(k) beats a SEP-IRA for you? The <a href="../sep-ira-vs-solo-401k-calculator/">SEP-IRA vs Solo 401(k) calculator</a> compares the two at your profit and shows what the gap is worth in tax.</p>
+    <p>Wondering why not just work the IRS worksheet yourself? See <a href="vs-irs-publication-560-by-hand.html">this calculator vs. IRS Publication 560 by hand</a>.</p>
+    <p>High income and over 40? A <a href="../cash-balance-plan-calculator/">cash balance plan calculator</a> estimates a much larger deductible contribution alongside a 401(k).</p>
+    <p>Maximizing an after-tax 401(k) at a W-2 job instead? The <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a> is the one for that — a different plan type and a different eligibility mechanism entirely.</p>
+    <p>Deducting a business car as a self-employed filer? The <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a> compares the 2026 standard mileage rate with actual vehicle expenses.</p>
+    <p>Setting up a plan for your staff? The <a href="../retirement-plan-startup-credit-calculator/">retirement plan startup credit calculator</a> shows how much of the setup and employer contributions the IRS credit covers.</p>
+    <p>Run a business with employees? The <a href="../401k-plan-fee-calculator/">401(k) plan fee calculator</a> adds up a plan's all-in cost and compares it with an editable size benchmark.</p>
+    <p>Missed the Form 5500 deadline for a plan like this? The <a href="../form-5500-late-filing-calculator/">Form 5500 late filing calculator</a> shows the due date and the DFVC cost against IRS and DOL penalty exposure.</p>
+    <p>Deducting a home office too? The <a href="../home-office-deduction-calculator/">home office deduction calculator</a> compares the simplified and regular methods.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solo401kContributionOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      netProfit: $("#net-profit"), age: $("#age"),
+      deferralElsewhere: $("#deferral-elsewhere"), customDeferral: $("#custom-deferral"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const customDeferral = els.customDeferral.value === "" ? null : Number(els.customDeferral.value);
+      const result = solo401kContributionOutcome({
+        netProfit: Number(els.netProfit.value) || 0,
+        age: Number(els.age.value) || 0,
+        deferralUsedElsewhere: Number(els.deferralElsewhere.value) || 0,
+        electiveDeferral: customDeferral,
+      });
+
+      els.stats.innerHTML = `2026 total Solo 401(k) contribution: <strong>${money(result.totalContribution)}</strong>.`;
+
+      const rows = [
+        `<tr><th scope="row">Net self-employment earnings</th><td>${money(result.earnings)}</td></tr>`,
+        `<tr><th scope="row">Employee elective deferral</th><td>${money(result.deferral)}</td></tr>`,
+        `<tr><th scope="row">Employer profit-sharing contribution</th><td>${money(result.employerContribution)}</td></tr>`,
+        `<tr><th scope="row"><strong>Total 2026 contribution</strong></th><td><strong>${money(result.totalContribution)}</strong></td></tr>`,
+        `<tr><th scope="row">Overall combined limit that applies to you</th><td>${money(result.overallLimit)}</td></tr>`,
+      ];
+
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("limit_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.netProfit.value = "150000";
+      els.age.value = "52";
+      els.deferralElsewhere.value = "";
+      els.customDeferral.value = "";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $150,000 net profit, age 52 — net self-employment earnings of $139,402.84, a $32,500 max elective deferral (with the age-50 catch-up), and a $27,880.57 employer contribution, $60,380.57 total.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.netProfit.value = "";
+      els.age.value = "";
+      els.deferralElsewhere.value = "";
+      els.customDeferral.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter your net profit and age, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

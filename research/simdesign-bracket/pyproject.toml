@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-bracket"
+version = "0.1.0"
+description = "Parametric L-bracket: scikit-fem analysis, optimisation under a stress limit, printability check, STL export"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

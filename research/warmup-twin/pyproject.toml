@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "warmup-twin"
+version = "0.1.0"
+description = "Initial-transient bias in a digital-twin run started from a convenient state: exact AR(1) bias and MSE-optimal warm-up, M/M/1 empty-start bias, MSER-5 truncation, and false SLA certification"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

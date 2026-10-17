@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Triage pip-audit Findings Without Ignoring Real Risk</title>
+  <meta name="description" content="A practical order of operations for a long pip-audit report: what to upgrade first, what is test or tooling noise, and why not imported does not mean safe.">
+  <link rel="canonical" href="./how-to-triage-pip-audit-findings.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to triage pip-audit findings without ignoring real risk","about":"Prioritising pip-audit vulnerabilities by whether Python code imports the package","author":{"@type":"Organization","name":"pip-audit Triage"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← pip-audit Triage</a></p>
+  <h1>How to triage pip-audit findings without ignoring real risk</h1>
+  <p><code>pip-audit</code> checks every package in an environment or requirements file against a vulnerability database and prints them in the order it found them, with no severity. On a service with a few hundred transitive dependencies that is a list nobody can act on in one sitting. Sorting it by whether your code imports the package turns it into a short first pass.</p>
+
+  <h2>The three buckets this tool uses</h2>
+  <ul>
+    <li><strong>imported</strong> — runtime code imports the vulnerable package directly. Read these first; the exposure depends on whether you call the affected function, but this is where a real code path can exist.</li>
+    <li><strong>test-only</strong> — only tests, docs, <code>conftest.py</code>, <code>noxfile.py</code> or scripts import it. The risk is mostly to developer machines and CI, not to your users.</li>
+    <li><strong>not-referenced</strong> — nothing scanned imports it. It is usually a transitive dependency of something you do import, so it can still be loaded at runtime.</li>
+  </ul>
+
+  <h2>A sensible order</h2>
+  <ol>
+    <li>Run <code>pip-audit -f json</code> against the environment you deploy, then feed it and your source to the triage.</li>
+    <li>Upgrade the imported packages first, using the fix versions pip-audit lists. When a package has several advisories, pick a version that clears all of them.</li>
+    <li>Use <code>--fail-on-imported</code> in CI so a newly vulnerable package your code imports blocks the merge while unreferenced noise does not.</li>
+    <li>For not-referenced packages, find the parent with <code>pipdeptree -r -p &lt;package&gt;</code>. If the parent is something you import, treat the finding as reachable.</li>
+    <li>Batch the test-only upgrades into your normal dependency-update cadence. Do not defer one that runs in CI with deploy secrets.</li>
+  </ol>
+
+  <h2>What this ranking cannot tell you</h2>
+  <p>It reads import statements as text. It cannot see an import built from a variable, a plugin loaded through an entry point, or whether the vulnerable function is ever called. It also cannot see the dependency graph, so a package your code reaches only through another package is labelled not-referenced. Not imported lowers the urgency; it is not a certificate of safety, and this is not a security audit.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is not security advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the triage</a>.</p>
+  </footer>
+</body>
+</html>

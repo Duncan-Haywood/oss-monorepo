@@ -1,0 +1,57 @@
+name: maple-syrup-sugarbush-profit-calculator
+description: >-
+  Free browser tool for maple sugarmakers: enter taps, sap per tap, sugar content (Brix), fuel, labour and sales channels
+  and it turns sap into syrup by the rule of 86, costs fuel (from the heat to evaporate the water), supplies, equipment wear,
+  fees and labour, and shows profit per tap, per hour and per gallon, a poor and a good season, a by-channel breakdown, and
+  a with-and-without reverse osmosis comparison with payback in years. Downloads a CSV and a summary. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py: top hit 0.19 (driving-instructor, firewood);
+# no maple, sugarbush or syrup venture exists. A greenhouse crop-profit tool built first this session was dropped when
+# a concurrent session landed greenhouse-bench-planner in the same niche.
+# Search phrases: "maple syrup profit per tap", "is reverse osmosis worth it maple syrup", "how many taps to make money
+# maple syrup", "maple syrup cost per gallon", "rule of 86 maple". Volume not measured with an external tool.
+# Channels: r/maplesyrup, state maple producer association newsletters and forums, extension-service pages.
+#
+# Who: roughly ten thousand US and Canadian commercial and hobby-to-commercial sugarmakers, many deciding whether to add
+# taps, buy reverse osmosis ($5,000-$30,000) or switch fuel. The decision costs real money and is usually made from a
+# neighbour's rule of thumb. Equipment vendors publish brochures, not the arithmetic.
+#
+# What makes it more than a formula: fuel comes from the heat to evaporate the water at the user's efficiency, so reverse
+# osmosis savings are computed rather than quoted; labour is shown before and after a wage; and three seasons show how a
+# poor sap year hits a fixed-cost operation.
+#
+# Path to revenue (payment rails stay off): lead magnet for producers and equipment dealers' customers. A paid tier, if
+# usage appears, is saved seasons and multi-year sap logs; not built.
+#
+# Liability: arithmetic on the user's own inputs. No grading, licensing or food-safety content beyond a pointer to the
+# state agriculture department. Nothing stored.
+#
+# Unverified: no sugarmaker has used it. Defaults are illustrative (10 gallons of sap per tap, 2.2 Brix, 55% evaporator
+# efficiency, $9,000 reverse osmosis unit are plausible, not measured). Vacuum, sap-quality decline late in the season,
+# and per-hour labour that varies with scale are simplified; the 1,150 BTU per pound heat figure is an approximation.
+
+hypotheses:
+  - claim: >-
+      A maple sugarmaker will enter their own taps, sap and costs into a no-upload page to see profit per hour and a
+      reverse osmosis payback, because the decision is expensive and currently made from rules of thumb.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "is reverse osmosis worth it maple syrup" prefer a tool that uses their own numbers to a forum
+      thread of anecdotes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

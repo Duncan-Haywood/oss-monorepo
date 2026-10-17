@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PTO Accrual Liability Calculator: What You Owe in Unused Vacation — Free</title>
+  <meta name="description" content="Free calculator for small employers: paste your roster and get the dollar liability of unused PTO today, projected forward with accrual caps, the payout rule for your state, and the cost of balances above a target. Nothing uploaded.">
+  <meta property="og:title" content="PTO accrual liability calculator">
+  <meta property="og:description" content="What unused vacation and PTO balances cost you now and in a year, by employee, with state payout rules. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PTO Accrual Liability Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a roster of PTO balances and get the dollar liability now and projected, with caps, state payout rules and cost above a target balance. Runs in your browser.", "featureList": "PTO liability by employee, projection with accrual caps, months to cap, payout rule for CA CO IL MA, employer payroll tax load, cost above a target balance, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is accrued PTO liability?", "acceptedAnswer": {"@type": "Answer", "text": "The cash value of paid time off employees have earned and not used: balance hours times hourly rate. Under accrual accounting many employers record it as a liability, and in some states it is a wage debt that becomes due the day someone leaves. This tool adds the employer payroll tax that a payout would also trigger."}}, {"@type": "Question", "name": "Does my state require paying out unused PTO?", "acceptedAnswer": {"@type": "Answer", "text": "A few states treat earned vacation or PTO as wages: this tool lists California, Colorado, Illinois and Massachusetts. In most other states your written policy decides, and a policy that promises payout creates the obligation. Some states have narrower rules not listed here, so check your state labor department or an employment lawyer before relying on any answer."}}, {"@type": "Question", "name": "Why does a cap matter?", "acceptedAnswer": {"@type": "Answer", "text": "Without a cap, a balance grows for as long as the employee stays, and so does what you owe. A cap stops accrual at a number of hours. Employees at their cap stop earning, which is the usual nudge to take time off. The tool shows who is at the cap and how many months until the rest get there."}}, {"@type": "Question", "name": "What is a sensible target balance?", "acceptedAnswer": {"@type": "Answer", "text": "There is no legal number. Many employers aim for balances under a year or so of accrual. Type your own hours and the tool prices everything above it, which is the cash you would be sitting on if everyone used their time down to that level."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PTO ACCRUAL LIABILITY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do your employees' unused vacation balances cost you?</h1>
+    <p>Paste your roster with each person's hourly rate, PTO balance and accrual. The tool prices every balance in dollars (with the employer payroll tax a payout triggers), projects it forward up to each person's cap, shows who is at the cap, and prices the hours above a balance you would be comfortable with.</p>
+    <p class="note">Arithmetic on the roster you paste. Not legal, payroll or accounting advice. The example roster is made-up placeholder data, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Settings</h2>
+      <div class="grid">
+        <div><label for="asof">As-of date (for your own record)</label><input id="asof" type="text" value=""></div>
+        <div><label for="state">State (two letters)</label><input id="state" type="text" value="" maxlength="2"></div>
+        <div><label for="policy">Is unused PTO paid out when someone leaves?</label><select id="policy"><option value="state">Use the state rule</option><option value="always">Always owed (my policy or practice)</option><option value="never">Never owed</option></select></div>
+        <div><label for="ppy">Pay periods per year</label><input id="ppy" type="text" value=""><p class="note">52 weekly, 26 biweekly, 24 semi-monthly, 12 monthly.</p></div>
+        <div><label for="horizon">Months to project</label><input id="horizon" type="text" value=""></div>
+        <div><label for="burden">Employer payroll tax on a payout (%)</label><input id="burden" type="text" value=""><p class="note">Social Security and Medicare are 7.65%. Add unemployment tax if relevant.</p></div>
+        <div><label for="target">Comfortable balance per person (hours, optional)</label><input id="target" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Roster (one employee per line)</h2>
+      <p class="note">Each line: name, hourly rate, balance hours, accrual hours per pay period, optional cap hours. A first line with column titles is ignored. Up to 500 lines.</p>
+      <label for="roster">Employees</label>
+      <textarea id="roster" rows="10" spellcheck="false"></textarea>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Calculate the liability</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions employers ask</h2>
+      <h3>What is accrued PTO liability?</h3>
+      <p>The cash value of paid time off employees have earned and not used: balance hours times hourly rate. Under accrual accounting many employers record it as a liability, and in some states it is a wage debt that becomes due the day someone leaves. This tool adds the employer payroll tax that a payout would also trigger.</p>
+      <h3>Does my state require paying out unused PTO?</h3>
+      <p>A few states treat earned vacation or PTO as wages: this tool lists California, Colorado, Illinois and Massachusetts. In most other states your written policy decides, and a policy that promises payout creates the obligation. Some states have narrower rules not listed here, so check your state labor department or an employment lawyer before relying on any answer.</p>
+      <h3>Why does a cap matter?</h3>
+      <p>Without a cap, a balance grows for as long as the employee stays, and so does what you owe. A cap stops accrual at a number of hours. Employees at their cap stop earning, which is the usual nudge to take time off. The tool shows who is at the cap and how many months until the rest get there.</p>
+      <h3>What is a sensible target balance?</h3>
+      <p>There is no legal number. Many employers aim for balances under a year or so of accrual. Type your own hours and the tool prices everything above it, which is the cash you would be sitting on if everyone used their time down to that level.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your state or local law requires a payout, paid sick leave rules that differ from vacation, collective-bargaining terms, the accounting treatment under your standards, rate of pay used at separation (some states use the final rate), or the tax treatment of cash-outs. Treat the output as arithmetic on your roster and confirm the rules with your state labor department or an employment lawyer.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../final-paycheck-deadline-calculator/">final paycheck deadline calculator</a>, the <a href="../paid-sick-leave-accrual-calculator/">paid sick leave accrual calculator</a>, the <a href="../employee-cost-calculator/">employee cost calculator</a> and the <a href="../worker-classification-checker/">worker classification checker</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Roster data stays on your device. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, hrs, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>Liability today: ' + money(t.now) + "</h4><p>" + t.employees + " employees hold " + hrs(t.hours) + " hours, worth " + money(t.wages) + " in wages" + (a.owed ? ", or " + money(t.now) + " with " + a.burden + "% employer payroll tax if all of it were paid out" : "") + ". " + (a.owed ? (a.rule ? "Payout rule for " + esc(a.state) + ": " + esc(a.rule.law) + "." : "You said unused PTO is always owed.") : "No payout is assumed; your written policy decides.") + "</p></div>";
+      h += '<div class="finding"><h4>In ' + a.horizon + " months: " + money(t.projected) + "</h4><p>" + (t.growth >= 0 ? "Up " : "Down ") + money(Math.abs(t.growth)) + " from accrual, stopping each person at their cap. " + t.atCap + " of " + t.employees + " already at or above their cap.</p></div>";
+      if (a.target != null) h += '<div class="finding"><h4>Above your ' + hrs(a.target) + "-hour comfort level: " + money(t.excessValue) + "</h4><p>" + hrs(t.excessHours) + " hours across the team. That is the cash exposure you would remove by having people use their time down to that balance.</p></div>";
+      h += '<div class="finding"><h4>By employee</h4>' + table(["Employee", "Rate", "Balance", "Liability now", "In " + a.horizon + " mo", "Cap", "Months to cap"], a.per.map((r) => [esc(r.name), money(r.rate), hrs(r.bal), money(r.now), money(r.projected), r.cap == null ? "none" : hrs(r.cap), r.capped ? "at cap" : r.monthsToCap == null ? "—" : String(Math.round(r.monthsToCap * 10) / 10)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "pto-liability.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

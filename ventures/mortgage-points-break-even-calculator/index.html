@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mortgage Points Break-Even Calculator (Are Points Worth It?) — Free</title>
+  <meta name="description" content="Free mortgage points calculator: break-even month, return on the points, how far ahead or behind you are when you sell or refinance, and the chance you finish ahead. Nothing uploaded.">
+  <meta property="og:title" content="Are mortgage points worth it? Free calculator">
+  <meta property="og:description" content="Break-even month, return on the points and the chance you finish ahead. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M8 24h16M10 24V12M16 24V12M22 24V12M7 12l9-6 9 6' stroke='%23fff' stroke-width='1.800' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mortgage Points Break-Even Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Are mortgage discount points worth it? Simple and true break-even month, implied return on the points, advantage at the year you sell or refinance, chance of finishing ahead and a horizon grid. Runs in your browser; nothing is uploaded.", "featureList": "Break-even month, implied return on points, lender credit comparison, tax on interest deduction, sell or refinance probability, horizon by return grid"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are mortgage points worth it?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how long you keep the loan. Points are paid at closing and the lower payment pays them back slowly, so they win if you keep the loan past the break-even month and lose if you sell or refinance first. This tool shows the simple break-even (points divided by the monthly saving), the break-even after counting what the cash could have earned, and how much ahead or behind you are at the year you expect to sell or refinance."}}, {"@type": "Question", "name": "How do I calculate the break-even on mortgage points?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the cost of the points by the drop in the monthly payment. $4,000 of points that cut the payment by $99 breaks even in about 40 months. That simple figure ignores two things this tool adds: the cash you spent on points could have been invested, and a lower rate also pays the loan down slightly faster, so the true break-even is usually a little earlier or later than the simple one depending on your assumptions."}}, {"@type": "Question", "name": "What is the implied return on mortgage points?", "acceptedAnswer": {"@type": "Answer", "text": "It is the yearly return you earn on the cash you spend on points, counting the payment savings and the lower balance you owe if the loan ends at your horizon. Compare it with what you could earn on that cash elsewhere, such as paying down a higher-rate debt or keeping an emergency fund. A return that is low at your realistic horizon is a sign the points are not worth buying."}}, {"@type": "Question", "name": "What is the chance of selling or refinancing in the model?", "acceptedAnswer": {"@type": "Answer", "text": "You type the yearly chance you will sell or refinance. The tool turns it into a monthly chance and weighs every possible end month by how likely it is, giving the expected advantage and the chance you finish ahead. Most mortgages end long before the full term, so a break-even of seven years with a ten percent yearly chance of moving is less safe than it looks."}}, {"@type": "Question", "name": "How do I compare a lender credit instead of points?", "acceptedAnswer": {"@type": "Answer", "text": "A lender credit is the same trade run the other way. Put the rate you would get with the credit in the no-points rate box, put the lower rate you would get without it in the points rate box, and enter the credit as the points cost. The result tells you whether the credit is worth the higher rate you would carry."}}, {"@type": "Question", "name": "How is tax handled?", "acceptedAnswer": {"@type": "Answer", "text": "The tool takes one marginal tax rate on mortgage interest. If you itemize, a lower interest bill means a smaller deduction, so the tax rate reduces the saving; if you take the standard deduction, leave it at 0. It does not model deducting the points themselves, which depends on your loan and your return. Confirm with a tax professional."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type from your loan estimate, with simplified assumptions: a fixed-rate loan, points paid in cash at closing, a constant return on cash and a constant yearly chance of moving. Real rates, fees and your plans change. Check the figures against your Loan Estimate and consider a licensed adviser."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">MORTGAGE POINTS BREAK-EVEN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Are mortgage points worth buying?</h1>
+    <p>Type the two offers from your Loan Estimate: the rate with no points and the lower rate you get for paying points. It shows the month the points pay for themselves, the return you earn on that cash, how far ahead or behind you are when you sell or refinance, and the chance you come out ahead.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a real offer.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your loan</h2>
+      <div class="grid">
+        <div><label for="loan">Loan amount ($)</label><input id="loan" type="number" step="any" value="0"></div>
+        <div><label for="term">Loan term (years)</label><input id="term" type="number" step="any" value="0"></div>
+        <div><label for="baseRate">Rate with no points (%)</label><input id="baseRate" type="number" step="any" value="0"></div>
+        <div><label for="pointsRate">Lower rate if you buy the points (%)</label><input id="pointsRate" type="number" step="any" value="0"></div>
+        <div><label for="pointsPct">Cost of the points (% of the loan, 1 point = 1)</label><input id="pointsPct" type="number" step="any" value="0"></div>
+        <div><label for="horizon">Years you expect to keep the loan</label><input id="horizon" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Your assumptions</h2>
+      <div class="grid">
+        <div><label for="investReturn">Yearly return on cash you would otherwise keep (%)</label><input id="investReturn" type="number" step="any" value="0"></div>
+        <div><label for="taxRate">Tax rate on mortgage interest (%, 0 if you take the standard deduction)</label><input id="taxRate" type="number" step="any" value="0"></div>
+        <div><label for="moveChance">Yearly chance you sell or refinance (%)</label><input id="moveChance" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare the two loans</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Are mortgage points worth it?</h3>
+      <p>It depends on how long you keep the loan. Points are paid at closing and the lower payment pays them back slowly, so they win if you keep the loan past the break-even month and lose if you sell or refinance first. This tool shows the simple break-even (points divided by the monthly saving), the break-even after counting what the cash could have earned, and how much ahead or behind you are at the year you expect to sell or refinance.</p>
+      <h3>How do I calculate the break-even on mortgage points?</h3>
+      <p>Divide the cost of the points by the drop in the monthly payment. $4,000 of points that cut the payment by $99 breaks even in about 40 months. That simple figure ignores two things this tool adds: the cash you spent on points could have been invested, and a lower rate also pays the loan down slightly faster, so the true break-even is usually a little earlier or later than the simple one depending on your assumptions.</p>
+      <h3>What is the implied return on mortgage points?</h3>
+      <p>It is the yearly return you earn on the cash you spend on points, counting the payment savings and the lower balance you owe if the loan ends at your horizon. Compare it with what you could earn on that cash elsewhere, such as paying down a higher-rate debt or keeping an emergency fund. A return that is low at your realistic horizon is a sign the points are not worth buying.</p>
+      <h3>What is the chance of selling or refinancing in the model?</h3>
+      <p>You type the yearly chance you will sell or refinance. The tool turns it into a monthly chance and weighs every possible end month by how likely it is, giving the expected advantage and the chance you finish ahead. Most mortgages end long before the full term, so a break-even of seven years with a ten percent yearly chance of moving is less safe than it looks.</p>
+      <h3>How do I compare a lender credit instead of points?</h3>
+      <p>A lender credit is the same trade run the other way. Put the rate you would get with the credit in the no-points rate box, put the lower rate you would get without it in the points rate box, and enter the credit as the points cost. The result tells you whether the credit is worth the higher rate you would carry.</p>
+      <h3>How is tax handled?</h3>
+      <p>The tool takes one marginal tax rate on mortgage interest. If you itemize, a lower interest bill means a smaller deduction, so the tax rate reduces the saving; if you take the standard deduction, leave it at 0. It does not model deducting the points themselves, which depends on your loan and your return. Confirm with a tax professional.</p>
+      <h3>Is this financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type from your loan estimate, with simplified assumptions: a fixed-rate loan, points paid in cash at closing, a constant return on cash and a constant yearly chance of moving. Real rates, fees and your plans change. Check the figures against your Loan Estimate and consider a licensed adviser.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you can get the lower rate by shopping lenders instead of paying points, your credit and loan fees, whether the points are deductible for you, adjustable-rate loans, loans where points are rolled into the balance, prepayment you may make, what the cash could do if you need it for the down payment or an emergency, and whether you will really stay. Fixed-rate loan, points paid in cash at closing, constant return on cash, constant yearly chance of moving.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../heloc-vs-cash-out-refinance-calculator/">HELOC vs cash-out refinance calculator</a>, the <a href="../mortgage-extra-payment-vs-invest-calculator/">mortgage extra payment vs invest calculator</a>, the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a> and the <a href="../mortgage-escrow-analysis-checker/">mortgage escrow analysis checker</a> for other parts of owning property.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not investment, lending or mortgage-brokerage advice. Results are arithmetic on figures you type; nothing here is a loan offer or a rate quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const mo = (m) => (m === null ? "not within the loan term" : "month " + m + " (" + (m / 12).toFixed(1) + " years)");
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const a = analyze(o);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const verdict = a.atHorizon >= 0
+        ? "If you keep the loan " + a.horizon + " years, buying the points leaves you " + money(a.atHorizon) + " ahead."
+        : "If you keep the loan " + a.horizon + " years, buying the points leaves you " + money(-a.atHorizon) + " behind.";
+      h += `<div class="finding"><h4>Points against no points</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [
+        ["Cost of the points", money(a.points)],
+        ["Payment with points / without", money(a.payA) + " / " + money(a.payB)],
+        ["Monthly saving before tax", money(a.monthlySaving)],
+        ["Rate drop per point bought", a.dropPerPoint === null ? "n/a" : pct(a.dropPerPoint, 3)],
+        ["Simple break-even (points / monthly saving)", a.simpleBreakEven === null ? "never" : a.simpleBreakEven.toFixed(1) + " months"],
+        ["Break-even counting what the cash could earn", mo(a.trueBreakEven)],
+        ["Interest you avoid by your horizon", money(a.interestSavedAtHorizon)],
+        ["Yearly return on the points cash at your horizon", a.irr === null ? "n/a" : pct(a.irr, 1)]])}</div>`;
+      h += `<div class="finding"><h4>Counting the chance you sell or refinance</h4>${table(["Measure", "Result"], [
+        ["Chance you still hold the loan at break-even", pct(a.reachBreakEven * 100, 0)],
+        ["Chance you finish ahead", pct(a.pWin * 100, 0)],
+        ["Expected advantage across possible end dates", money(a.expected)]])}</div>`;
+      h += `<div class="finding"><h4>Ahead (+) or behind (-) by the year the loan ends</h4>${table(["Years kept", ...a.returns.map((r) => "cash earns " + r + "%")], a.grid.map((g) => [g.years + " years", ...g.values.map(money)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+E1 bimodal drift 0.7*N(0,1)+0.3*N(mu,1), alpha=1: mean vs alpha-mode
+ mu   mean    alpha-mode  window mass at mode / at mean   sq-regret of mode (mean elicited)
+ 3     0.90      0.053   0.485 / 0.398           0.717
+ 4     1.20      0.004   0.478 / 0.296           1.430
+ 6     1.80      0.000   0.478 / 0.147           3.240
+ 10    3.00      0.000   0.478 / 0.016           9.000
+
+E2 critical window: 50/50 N(0,1)+N(mu,1); alpha* solves ln((a+al)/(a-al)) = 2*a*al, a=mu/2
+ mu=2.5  alpha*=1.0997   mode(0.9a*)=0.605  mode(1.1a*)=1.250  (mu/2=1.25)
+ mu=3    alpha*=1.4632   mode(0.9a*)=0.426  mode(1.1a*)=1.500  (mu/2=1.5)
+ mu=4    alpha*=1.9987   mode(0.9a*)=0.182  mode(1.1a*)=2.000  (mu/2=2.0)
+ mu=6    alpha*=3.0000   mode(0.9a*)=0.034  mode(1.1a*)=3.000  (mu/2=3.0)
+ mu=10   alpha*=5.0000   mode(0.9a*)=0.001  mode(1.1a*)=5.000  (mu/2=5.0)
+
+E3 curvature (regret/delta^2) at the mode and best window
+ normal: best alpha=1.0000  curvature=0.2420
+   alpha=0.250  curvature=0.0967  ratio to best=0.399
+   alpha=0.500  curvature=0.1760  ratio to best=0.727
+   alpha=1.000  curvature=0.2420  ratio to best=1.000
+   alpha=2.000  curvature=0.1080  ratio to best=0.446
+   alpha=4.000  curvature=0.0005  ratio to best=0.002
+ cauchy: best alpha=0.5774  curvature=0.2067
+   alpha=0.250  curvature=0.1410  ratio to best=0.682
+   alpha=0.500  curvature=0.2037  ratio to best=0.985
+   alpha=0.577  curvature=0.2067  ratio to best=1.000
+   alpha=2.000  curvature=0.0509  ratio to best=0.246
+   alpha=4.000  curvature=0.0088  ratio to best=0.043
+
+E4 detection: report 1.0 above the alpha-mode, 0.7*N(0,1)+0.3*N(4,1), alpha=1, z=1.645
+ shift 0.25  regret=0.01031  var=0.0851  n=2165
+ shift 0.5   regret=0.03977  var=0.1691  n=289
+ shift 1     regret=0.13829  var=0.3214  n=45
+ shift 2     regret=0.32136  var=0.5319  n=14
+
+E5 estimation from n=2000 samples, contamination eps at +5 sigma (N(0,1)), alpha=1, 200 runs
+ eps    mean bias   alpha-mode bias   RMSE(mean)  RMSE(mode)
+ 0         0.003       -0.012        0.021      0.078
+ 0.1       0.501       -0.011        0.503      0.085
+ 0.2       1.001       -0.015        1.002      0.090
+ 0.3       1.493       -0.001        1.494      0.100
+ 0.4       1.997       -0.000        1.998      0.095

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_011XcF2XgaRwegfo7Ks9NnSP",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-14T00:00:00Z",
+  "ended": "2026-10-14T00:20:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-graspfast"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/385",
+  "commits": [
+    "83f4193afdb81f9f9cfd7aa0a5cbd75a2e38d531"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 6,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "no routing.json on main: used prompt 0; mujoco was installed for python3.13 but python3 is 3.11"
+  ],
+  "integrity_issues": [],
+  "notes": "Open queue empty: no open PRs; old claude/* branches share no history with rewritten main. Track 4 picked by random draw; started times approximate.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

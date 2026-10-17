@@ -1,0 +1,29 @@
+E1 range R_eps = ln((1-eps)/eps)+1/(1-eps) vs plain log clip ln(1/eps)
+ eps=0.2 R=  2.6363  loss(0,1)=  2.6363  clip ln(1/eps)=  1.6094
+ eps=0.05 R=  3.9971  loss(0,1)=  3.9971  clip ln(1/eps)=  2.9957
+ eps=0.01 R=  5.6052  loss(0,1)=  5.6052  clip ln(1/eps)=  4.6052
+ eps=0.001 R=  7.9078  loss(0,1)=  7.9078  clip ln(1/eps)=  6.9078
+ eps=0.0001 R= 10.2103  loss(0,1)= 10.2103  clip ln(1/eps)=  9.2103
+ eps=1e-06 R= 14.8155  loss(0,1)= 14.8155  clip ln(1/eps)= 13.8155
+
+E2 curvature per unit range (Brier = 2.0) at truth p, eps=1e-3
+ p=0.0001 tangent-log   126.58  brier 2.00  ratio   63.29
+ p=0.001 tangent-log   126.58  brier 2.00  ratio   63.29
+ p=0.01 tangent-log    12.77  brier 2.00  ratio    6.39
+ p=0.1 tangent-log     1.41  brier 2.00  ratio    0.70
+ p=0.5 tangent-log     0.51  brier 2.00  ratio    0.25
+ crossover p (tangent better below): {0.2: 0.2544, 0.05: 0.1466, 0.01: 0.099, 0.001: 0.0678}
+
+E3 worst-case misreport: expected loss of report r when truth p=1e-3 (eps=1e-4)
+ r=0.001: tangent 0.0079   log 0.0079
+ r=0.0001: tangent 0.0093   log 0.0093
+ r=1e-06: tangent 0.0102   log 0.0138
+ r=1e-09: tangent 0.0102   log 0.0207
+ r=0: tangent 0.0102   log inf
+
+E4 best eps for curvature per range at truth p is eps=p
+ p=0.3: eps*=0.300000  efficiency=2.092  at eps=p/3: 1.439  at 3p: 1.424
+ p=0.05: eps*=0.050000  efficiency=5.267  at eps=p/3: 4.132  at 3p: 2.694
+ p=0.001: eps*=0.001000  efficiency=126.585  at eps=p/3: 111.144  at 3p: 49.101
+
+kappa_eps (constant offset vs -ln r): {0.2: -0.098144, 0.05: -0.024978, 0.001: -0.0005}

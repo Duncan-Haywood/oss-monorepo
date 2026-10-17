@@ -1,0 +1,41 @@
+name: uptime-monitoring-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices uptime monitoring (UptimeRobot, Better Stack, Hyperping, Pingdom, self-hosted Uptime Kuma) for a monitor count, check interval and optional status page from editable approximate plan tables, projects 12 months of spend as monitors grow, and finds the monitor counts where the cheapest option changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of error-tracking-pricing-calculator and object-storage-pricing-calculator.
+# Vendor pages show one rate card each; none compares tiered plans at one monitor count and interval with a
+# crossover, which is the wedge. Where the first real visitor would come from: "uptimerobot alternatives",
+# "uptimerobot vs better stack pricing", "cheapest uptime monitoring", r/selfhosted and r/sysadmin threads
+# after a plan change. The reader is a founder or dev ops lead picking or leaving a monitor. A hosted
+# plan-change monitor is the natural paid path later.
+hypotheses:
+  - claim: A founder or ops lead picking or leaving an uptime monitor will search for a price comparison at their monitor count and check interval, enter both, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will add the CLI to CI as a budget gate on monitoring spend because it needs no account or network.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uptime-monitoring-pricing-calculator/
+  analytics: null

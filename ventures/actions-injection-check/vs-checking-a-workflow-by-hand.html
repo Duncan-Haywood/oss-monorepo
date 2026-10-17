@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actions Injection Check vs. reading a workflow by hand</title>
+<meta name="description" content="Skimming a workflow file for pull_request_target/workflow_run checkouts and unsafe ${{ github.event.* }} interpolation catches the obvious case. It also depends on remembering which two triggers are privileged, which event-context suffixes actually carry attacker content, and not missing a line buried inside a multi-line run: block.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-a-workflow-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Actions Injection Check vs. reading a workflow by hand">
+<meta property="og:description" content="A careful read of a workflow file catches an obvious pwn-request checkout or script injection. This tool checks every line the same way every time, against the same documented list of untrusted event-context suffixes.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/vs-checking-a-workflow-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does reading a workflow file by hand actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A careful reviewer who knows GitHub's own guidance can spot both patterns this tool checks: a pull_request_target or workflow_run workflow that checks out an untrusted head, and a run: step that drops an attacker-controlled ${{ github.event.* }} value straight into a shell command. That review genuinely works when the file is short and the reviewer already has both patterns in mind -- the same two patterns this tool's classify.mjs looks for." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is the untrusted-checkout pattern easy to miss on a skim?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Spotting it requires remembering that exactly two triggers -- pull_request_target and workflow_run -- run with the base repository's secrets even though a stranger's fork raised the event, and then tracing forward from that trigger line to a checkout step's ref:, which can sit many lines later inside a with: block nested under a job with several other steps. A reviewer skimming for anything that looks obviously dangerous has no reason to single out an ordinary-looking actions/checkout@v4 step unless they already made that trigger-to-checkout connection at the top of the file. This tool tracks the connection mechanically: it notes the trigger once, then flags any checkout ref matching the untrusted-head pattern regardless of how many steps or lines separate the two." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is knowing which github.event.* fields are untrusted hard to keep in your head?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not every github.event.* path carries attacker content -- github.event.repository.name is set by GitHub itself, while github.event.pull_request.title is text the pull request's author wrote. GitHub's own script-injection guidance names the specific suffixes that carry untrusted content (title, body, message, label, ref, head_ref, and a handful more); a reviewer has to either memorize that list or look it up every time, and getting it wrong runs in both directions -- flagging a safe field wastes review time, missing an unsafe one is the actual injection. This tool checks every github.event.* path found anywhere in a run: step, including inside format() calls and comparisons, against that same fixed suffix list every time." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a multi-line run: block easy to under-review?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A run: step written as a YAML block scalar (run: |) can run many lines of shell, and an untrusted expression on line eight of a twelve-line script is easy to miss once a reviewer's attention has settled after the first few, ordinary-looking lines. This tool scans every line inside the block at the block's own indentation, not just its first line, so a path buried on the last line is caught the same as one on the first." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace understanding why a workflow needs pull_request_target at all?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. pull_request_target has legitimate uses -- commenting on a PR with a label based on the base branch, for instance -- and this tool has no opinion on whether a given workflow should use it. It only flags the specific combination of that trigger with an untrusted checkout ref, or an untrusted value spliced into a shell command. Deciding whether the trigger itself is warranted, and catching variants this tool does not attempt (a hand-rolled git checkout instead of actions/checkout, an expression built by unusual string concatenation), is still a job for reading the workflow yourself." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to Actions Injection Check</a></p>
+<h1>Actions Injection Check vs. reading a workflow by hand</h1>
+<p>
+  Reading a workflow file with both patterns already in mind -- a <code>pull_request_target</code>
+  or <code>workflow_run</code> trigger checking out an untrusted head, and a <code>run:</code> step
+  interpolating an attacker-controlled <code>${{ github.event.* }}</code> value -- genuinely works,
+  and it is the method most people already use. This page names no product or company being
+  compared against: "reading the workflow by hand" is a generic manual habit, not a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Reading the workflow by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>An untrusted checkout ref sits a few lines below the trigger, in an otherwise short workflow</td><td>Correctly caught by a reviewer who already knows the pattern</td><td>Correctly caught the same way</td></tr>
+    <tr><td>The same ref buried many steps into a long job, under a nested <code>with:</code> block</td><td>Easy to skip once attention has moved past the trigger line -- nothing highlights the connection</td><td>Tracks the trigger once and matches any checkout ref against it regardless of distance</td></tr>
+    <tr><td>Deciding whether a specific <code>github.event.*</code> path carries attacker content</td><td>Requires memorizing or looking up which suffixes (<code>title</code>, <code>body</code>, <code>ref</code>, <code>head_ref</code>, …) are untrusted -- getting it wrong either over-flags a safe field or misses an unsafe one</td><td>Checks every path found against the same fixed, documented suffix list every time</td></tr>
+    <tr><td>An untrusted expression on line eight of a twelve-line <code>run: |</code> block</td><td>Easy to under-review once the first few lines look ordinary</td><td>Scans every line inside the block at its own indentation, not just the first</td></tr>
+    <tr><td>An expression embedded inside <code>format()</code> or a comparison rather than standing alone</td><td>Easy to miss if scanning for a bare <code>${{ github.event... }}</code> only</td><td>Matches the context path wherever it occurs in the line, not only as a standalone expression</td></tr>
+    <tr><td>Checking every workflow file in a repository on every dependency-bump PR</td><td>Manual, and the first thing skipped under time pressure</td><td>CLI scans a whole checkout in one pass; <code>--fail-on-risk</code> blocks CI, SARIF output attaches findings to the PR diff</td></tr>
+  </tbody>
+</table>
+
+<h2>The gap that matters most: the trigger-to-checkout connection, at any distance</h2>
+<p>
+  The pwn-request pattern is not one dangerous line, it is a relationship between two lines that
+  can be far apart: a trigger declaration at the top of the file, and a checkout <code>ref:</code>
+  possibly dozens of lines later inside a job's steps. A reviewer has to hold the trigger in mind
+  while reading every subsequent step to notice the connection, and a workflow with several jobs
+  and many steps makes that easy to lose. This tool notes the trigger once when it scans the file
+  and then checks every subsequent checkout step's <code>ref:</code> against it, so the distance
+  between the two lines never matters.
+</p>
+
+<h2>The gap that matters second: which fields are actually untrusted</h2>
+<p>
+  Not every <code>github.event.*</code> path is attacker-controlled -- <code>github.event.repository.name</code>
+  is set by GitHub, <code>github.event.pull_request.title</code> is text the PR's author wrote. GitHub's
+  own guidance names the specific suffixes that carry untrusted content, and a reviewer without that
+  list memorized either has to look it up every time or guess. This tool checks every matched path's
+  suffix against that same fixed list, so the answer does not depend on what a reviewer happens to
+  remember that day.
+</p>
+
+<h2>When to still read the workflow yourself</h2>
+<p>
+  This tool has no opinion on whether a workflow should use <code>pull_request_target</code> at all --
+  it has legitimate uses, such as labeling a PR based on its base branch. Deciding whether the trigger
+  is warranted, and catching variants this tool does not attempt (a hand-rolled <code>git checkout</code>
+  instead of <code>actions/checkout</code>, or an expression built by unusual string concatenation), is
+  still a job for reading the workflow yourself.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does reading a workflow file by hand actually catch?</h3>
+<p>A careful reviewer who knows GitHub's own guidance can spot both patterns this tool checks: a pull_request_target or workflow_run workflow that checks out an untrusted head, and a run: step that drops an attacker-controlled ${{ github.event.* }} value straight into a shell command. That review genuinely works when the file is short and the reviewer already has both patterns in mind -- the same two patterns this tool's classify.mjs looks for.</p>
+<h3>Why is the untrusted-checkout pattern easy to miss on a skim?</h3>
+<p>Spotting it requires remembering that exactly two triggers -- pull_request_target and workflow_run -- run with the base repository's secrets even though a stranger's fork raised the event, and then tracing forward from that trigger line to a checkout step's ref:, which can sit many lines later inside a with: block nested under a job with several other steps. A reviewer skimming for anything that looks obviously dangerous has no reason to single out an ordinary-looking actions/checkout@v4 step unless they already made that trigger-to-checkout connection at the top of the file. This tool tracks the connection mechanically: it notes the trigger once, then flags any checkout ref matching the untrusted-head pattern regardless of how many steps or lines separate the two.</p>
+<h3>Why is knowing which github.event.* fields are untrusted hard to keep in your head?</h3>
+<p>Not every github.event.* path carries attacker content -- github.event.repository.name is set by GitHub itself, while github.event.pull_request.title is text the pull request's author wrote. GitHub's own script-injection guidance names the specific suffixes that carry untrusted content (title, body, message, label, ref, head_ref, and a handful more); a reviewer has to either memorize that list or look it up every time, and getting it wrong runs in both directions -- flagging a safe field wastes review time, missing an unsafe one is the actual injection. This tool checks every github.event.* path found anywhere in a run: step, including inside format() calls and comparisons, against that same fixed suffix list every time.</p>
+<h3>Why is a multi-line run: block easy to under-review?</h3>
+<p>A run: step written as a YAML block scalar (run: |) can run many lines of shell, and an untrusted expression on line eight of a twelve-line script is easy to miss once a reviewer's attention has settled after the first few, ordinary-looking lines. This tool scans every line inside the block at the block's own indentation, not just its first line, so a path buried on the last line is caught the same as one on the first.</p>
+<h3>Does this replace understanding why a workflow needs pull_request_target at all?</h3>
+<p>No. pull_request_target has legitimate uses -- commenting on a PR with a label based on the base branch, for instance -- and this tool has no opinion on whether a given workflow should use it. It only flags the specific combination of that trigger with an untrusted checkout ref, or an untrusted value spliced into a shell command. Deciding whether the trigger itself is warranted, and catching variants this tool does not attempt (a hand-rolled git checkout instead of actions/checkout, an expression built by unusual string concatenation), is still a job for reading the workflow yourself.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks two specific, well-documented
+  injection patterns. A clean report describes what those two checks found, not a guarantee your
+  workflows are safe from injection attacks generally.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it. To the maximum extent permitted by law, the authors accept no liability for any loss or
+  damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

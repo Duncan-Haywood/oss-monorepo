@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Water Damage Drying Estimate Calculator — Equipment Count, Invoice and Margin</title>
+  <meta name="description" content="Free water damage drying estimate calculator: enter the wet area and water class, get air movers and dehumidifiers, the equipment-day bill, job margin and what an extra drying day or a short carrier approval costs. Runs in your browser.">
+  <meta property="og:title" content="Water Damage Drying Estimate Calculator — free, private">
+  <meta property="og:description" content="Size the drying equipment and see the margin before the carrier approves fewer days.">
+  <link rel="canonical" href="./index.html">
+      <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Water Damage Drying Estimate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free water damage drying estimate calculator: size air movers and dehumidifiers from the wet area and class, then see the equipment bill, job margin and the cost of extra drying days."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many air movers and dehumidifiers does a water loss need?", "acceptedAnswer": {"@type": "Answer", "text": "A common starting point is one air mover per 50 to 70 square feet of wet floor, one per 10 to 16 linear feet of wet wall and one per 100 to 150 square feet of wet ceiling, and enough dehumidifier pints to cover the room's cubic feet divided by a class factor (roughly 100, 50, 40 and 40 for classes 1 to 4 with an LGR unit). The ratios here are inputs because your drying plan, your equipment and your adjuster may use different ones."}}, {"@type": "Question", "name": "What do the water classes mean?", "acceptedAnswer": {"@type": "Answer", "text": "Class 1 is little absorption, class 2 is wet carpet and cushion or some wall wicking, class 3 is water from above that saturates ceilings, walls and insulation, and class 4 is deeply held water in low-permeance materials like hardwood, plaster or concrete. The class sets the dehumidifier factor here."}}, {"@type": "Question", "name": "Why does the extra drying day cost more than it bills?", "acceptedAnswer": {"@type": "Answer", "text": "Insurers often approve equipment days against a drying log. A day past the approval still costs you the equipment, the monitoring visit and the drive, but bills nothing, so margin falls each day. The table shows the margin at two to seven days."}}, {"@type": "Question", "name": "How is the margin computed?", "acceptedAnswer": {"@type": "Answer", "text": "Billed amount is equipment day rates times billed days, plus extraction and demo labour at your billing rate, plus consumables at twice cost. Cost is your own equipment cost per day for every day it sits there, technician time for set, pickup, monitoring and drives, labour at wage cost and consumables. Margin is profit over billed amount."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Category 2 and 3 contamination protocols, containment, air scrubbers, content handling, mould, asbestos or lead testing, subcontractors, permits, overhead and profit markups, price-list differences by region and the carrier's specific rules. It is a planning estimate, not an invoice, a drying plan or a statement of an industry standard."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WATER DAMAGE DRYING ESTIMATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>How much drying equipment is this loss, and what does it earn you?</h1>
+    <p>Enter the wet area, the water class and your rates. You get <strong>air movers and dehumidifiers, the equipment-day bill, the job margin, and what an extra drying day or a short carrier approval does to it</strong>. Days that run past the approval are where restoration jobs quietly lose money.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not an invoice or a drying plan.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Affected areas</h2>
+    <div class="grid">
+      <div><label for="floorSf">Wet floor area (sq ft)</label><input type="number" id="floorSf" min="0" step="any" value="600"></div>
+      <div><label for="ceilingFt">Ceiling height (ft)</label><input type="number" id="ceilingFt" min="0" step="any" value="8"></div>
+      <div><label for="wallLf">Wet wall length above 2 ft (linear ft)</label><input type="number" id="wallLf" min="0" step="any" value="70"></div>
+      <div><label for="ceilingSf">Wet ceiling area (sq ft)</label><input type="number" id="ceilingSf" min="0" step="any" value="0"></div>
+      <div><label for="waterClass">Water class (1 to 4)</label><input type="number" id="waterClass" min="0" step="any" value="2"></div>
+    </div>
+    <h2 style="margin-top:22px">2. Drying plan and carrier</h2>
+    <div class="grid">
+      <div><label for="sfPerMover">Floor sq ft per air mover</label><input type="number" id="sfPerMover" min="0" step="any" value="50"></div>
+      <div><label for="lfPerMover">Wall linear ft per air mover</label><input type="number" id="lfPerMover" min="0" step="any" value="14"></div>
+      <div><label for="ceilingSfPerMover">Ceiling sq ft per air mover</label><input type="number" id="ceilingSfPerMover" min="0" step="any" value="150"></div>
+      <div><label for="dehuPints">Dehumidifier rating (pints/day per unit)</label><input type="number" id="dehuPints" min="0" step="any" value="70"></div>
+      <div><label for="dryDays">Planned drying days</label><input type="number" id="dryDays" min="0" step="any" value="4"></div>
+      <div><label for="approvedDays">Days the carrier approved (0 = no cap)</label><input type="number" id="approvedDays" min="0" step="any" value="3"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Rates and costs</h2>
+    <div class="grid">
+      <div><label for="moverRate">Air mover billed ($/day)</label><input type="number" id="moverRate" min="0" step="any" value="28"></div>
+      <div><label for="dehuRate">Dehumidifier billed ($/day)</label><input type="number" id="dehuRate" min="0" step="any" value="85"></div>
+      <div><label for="moverCost">Air mover cost to you ($/day)</label><input type="number" id="moverCost" min="0" step="any" value="5"></div>
+      <div><label for="dehuCost">Dehumidifier cost to you ($/day)</label><input type="number" id="dehuCost" min="0" step="any" value="16"></div>
+      <div><label for="setupMinPerUnit">Minutes to set each unit</label><input type="number" id="setupMinPerUnit" min="0" step="any" value="10"></div>
+      <div><label for="monitorMin">Monitoring minutes per visit</label><input type="number" id="monitorMin" min="0" step="any" value="30"></div>
+      <div><label for="techRate">Technician cost ($/hour)</label><input type="number" id="techRate" min="0" step="any" value="38"></div>
+      <div><label for="driveHours">Drive per visit (hours)</label><input type="number" id="driveHours" min="0" step="any" value="1"></div>
+      <div><label for="extractHours">Extraction hours (per person)</label><input type="number" id="extractHours" min="0" step="any" value="2"></div>
+      <div><label for="demoHours">Demo hours (per person)</label><input type="number" id="demoHours" min="0" step="any" value="3"></div>
+      <div><label for="laborBill">Labour billed ($/hour per person)</label><input type="number" id="laborBill" min="0" step="any" value="75"></div>
+      <div><label for="laborCrew">People on extraction and demo</label><input type="number" id="laborCrew" min="0" step="any" value="2"></div>
+      <div><label for="consumables">Consumables at cost ($)</label><input type="number" id="consumables" min="0" step="any" value="40"></div>
+      <div><label for="targetMarginPct">Margin target (% of billed)</label><input type="number" id="targetMarginPct" min="0" step="any" value="35"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Estimate this loss</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the wet area and your rates, or load the example, then click Estimate this loss.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Margin by number of drying days</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Drying days</th><th scope="col">Billed days</th><th scope="col">Invoice</th><th scope="col">Your cost</th><th scope="col">Profit</th><th scope="col">Margin</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Air movers are floor area over square feet per mover, plus wall length over feet per mover, plus ceiling area over square feet per mover, rounded up.</li>
+      <li>Dehumidifiers are floor area times ceiling height, divided by the class factor (100, 50, 40, 40), divided by the pints one unit removes, rounded up.</li>
+      <li>Equipment bills the day rate for each approved day (all days if no cap). Your cost counts every day the equipment sits there.</li>
+      <li>Technician time is setting and picking up each unit, a monitoring visit each day and the drive for each visit plus pickup.</li>
+      <li><strong>Not modelled:</strong> category 2 and 3 contamination protocols, containment, air scrubbers, contents, mould, asbestos or lead testing, subcontractors, permits, overhead and profit markups, regional price lists and your carrier's rules.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many air movers and dehumidifiers does a water loss need?</h3>
+    <p>A common starting point is one air mover per 50 to 70 square feet of wet floor, one per 10 to 16 linear feet of wet wall and one per 100 to 150 square feet of wet ceiling, and enough dehumidifier pints to cover the room's cubic feet divided by a class factor (roughly 100, 50, 40 and 40 for classes 1 to 4 with an LGR unit). The ratios here are inputs because your drying plan, your equipment and your adjuster may use different ones.</p>
+    <h3>What do the water classes mean?</h3>
+    <p>Class 1 is little absorption, class 2 is wet carpet and cushion or some wall wicking, class 3 is water from above that saturates ceilings, walls and insulation, and class 4 is deeply held water in low-permeance materials like hardwood, plaster or concrete. The class sets the dehumidifier factor here.</p>
+    <h3>Why does the extra drying day cost more than it bills?</h3>
+    <p>Insurers often approve equipment days against a drying log. A day past the approval still costs you the equipment, the monitoring visit and the drive, but bills nothing, so margin falls each day. The table shows the margin at two to seven days.</p>
+    <h3>How is the margin computed?</h3>
+    <p>Billed amount is equipment day rates times billed days, plus extraction and demo labour at your billing rate, plus consumables at twice cost. Cost is your own equipment cost per day for every day it sits there, technician time for set, pickup, monitoring and drives, labour at wage cost and consumables. Margin is profit over billed amount.</p>
+    <h3>What does this leave out?</h3>
+    <p>Category 2 and 3 contamination protocols, containment, air scrubbers, content handling, mould, asbestos or lead testing, subcontractors, permits, overhead and profit markups, price-list differences by region and the carrier's specific rules. It is a planning estimate, not an invoice, a drying plan or a statement of an industry standard.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written drying plan, your carrier's guidelines or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the drying you perform.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_estimated</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../mold-remediation-bid-calculator/">mold remediation bid</a>, <a href="../asbestos-abatement-bid-calculator/">asbestos abatement bid</a>, <a href="../septic-pumping-bid-calculator/">septic pumping bid</a>, <a href="../shop-rate-calculator/">shop rate</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["floorSf", "ceilingFt", "wallLf", "ceilingSf", "waterClass", "sfPerMover", "lfPerMover", "ceilingSfPerMover", "dehuPints", "dryDays", "approvedDays", "moverRate", "dehuRate", "moverCost", "dehuCost", "setupMinPerUnit", "monitorMin", "techRate", "driveHours", "extractHours", "demoHours", "laborBill", "laborCrew", "consumables", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr class="${x.current ? "drive" : ""}"><th scope="row">${x.days}${x.current ? " (planned)" : ""}</th><td>${x.billedDays}</td><td>${usd(x.bill)}</td><td>${usd(x.cost)}</td><td>${usd(x.profit)}</td><td>${x.marginPct}%</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.eq.movers} air movers, ${r.eq.dehus} dehumidifiers, ${r.job.marginPct}% margin.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("job_estimated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "water-damage-drying-estimate.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

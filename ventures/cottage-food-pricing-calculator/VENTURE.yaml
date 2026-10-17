@@ -1,0 +1,62 @@
+name: cottage-food-pricing-calculator
+description: >-
+  Free browser tool for home bakers and cottage-food makers: paste one row per
+  product (ingredients per batch, units, minutes, packaging, current price) and
+  see the full cost per sellable unit with your time, overhead and unsold goods,
+  the price to charge online, at a farmers market and wholesale, and what you
+  really earn per hour at today's price. No accounts, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). Catalogue check: the trades and creator niches are
+# saturated (bid calculators, sponsorship rates); nothing prices homemade food.
+# Nearest: menu-engineering-calculator (restaurant menu mix),
+# craft-fair-booth-calculator (booth profit) and food-truck-event-margin-calculator
+# (catering events). Screened-out rows were not hit.
+#
+# Why this niche: cottage-food and home-baking sellers number in the hundreds of
+# thousands in the US alone (most states permit home-kitchen sales), selling at
+# farmers markets, online and to cafes. Pricing from the grocery bill is the
+# defining beginner error and recurs constantly in baking and small-business
+# communities. Buyers already pay for POS, label and recipe-costing software.
+#
+# Alternatives: recipe-costing apps (ingredient-level, subscription), generic
+# markup spreadsheets, and rules of thumb ("triple the ingredients").
+#
+# First visitor: searches like "how to price baked goods", "cottage food pricing
+# calculator", "how much to charge for sourdough". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; the
+# natural paid step is ingredient-level recipe costing with saved price history,
+# which needs accounts and is out of scope until the free tool shows return use.
+# Liability: arithmetic on user-typed figures; not tax, legal, licensing or
+# food-safety advice; cottage-food rules differ by jurisdiction and are not
+# modelled. Unverified: hand-calculated examples, not a real kitchen's books.
+
+hypotheses:
+  - claim: >-
+      Home bakers who price from the grocery bill will use a private no-signup
+      tool that adds their time, overhead, waste and fees, and will return when
+      ingredient prices or a market fee change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a price or hourly figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cottage-food-pricing-calculator/
+  analytics: null

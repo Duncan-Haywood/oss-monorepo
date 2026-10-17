@@ -1,0 +1,84 @@
+name: shopify-inventory-reorder-planner
+description: >-
+  Free browser tool for small online sellers. Drop a Shopify orders export (or
+  any date/SKU/quantity sheet) and a stock export and get, per SKU, daily sales
+  velocity, a reorder point with safety stock at a chosen service level, how
+  many to order and what it costs, days of cover, the sales at risk before a
+  reorder can land, ABC class, and the cash sitting in overstock and dead
+  stock, plus the order list as a CSV. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Sellers with a few dozen
+# to a few thousand SKUs run out of the products that pay the bills and sit on
+# ones that do not move, and the paid answers (Inventory Planner, Cin7, Katana,
+# Shopify's own Stocky app, which is being retired -- unverified, from memory)
+# start in the tens of dollars a month behind an account and an app install.
+# Nothing free reads the two CSVs a seller already has and answers "what do I
+# order today, how many, and which stock is dead cash".
+#
+# Distinct from the Shopify fee/payout/discount analyzers (what a sale nets):
+# this is the buying side. Two of them are linked from the page.
+#
+# First visitor: searches like "reorder point calculator", "shopify inventory
+# planning", "how much safety stock", "dead stock report" and r/shopify and
+# r/ecommerce threads on stock-outs. Search volume not measured.
+#
+# What makes it more than a formula: velocity weights the last 28 days against
+# the whole file once there are 8 weeks (so a surge is not planned at its old
+# pace), safety stock comes from each SKU's own weekly variation rather than a
+# blanket percentage, incoming stock counts toward position but not toward
+# cover, revenue at risk is priced from the order lines, and overstock counts
+# only the units beyond N days of cover as excess cash.
+#
+# Privacy: nothing is uploaded (a test asserts no network calls); the portfolio
+# holds no order or customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet into the Shopify
+# analyzers; GitHub Sponsors. A paid tier, if usage appears, would be saved
+# supplier lead times and scheduled reorder digests, local-only, behind an
+# env-var switch; not built. Not built: a Shopify app / API connection, which
+# needs an app listing and OAuth.
+#
+# Liability: arithmetic on user-supplied files and typed settings, model and
+# omissions stated on the page, not advice, no warranty, independent of Shopify.
+#
+# Unverified: column aliases were written from memory of Shopify's Orders and
+# inventory export headers, not checked against a real export; the page says so
+# and lists unreadable rows. The z-score/safety-stock model assumes roughly
+# normal weekly demand, which small sellers' lumpy sales only approximate;
+# seasonality, promotions and censored (out-of-stock) demand are not modelled.
+
+hypotheses:
+  - claim: >-
+      Small Shopify sellers will run a no-signup plan from the two exports they
+      already have to see what to reorder and what is dead stock, instead of
+      paying for an inventory-planning app.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing revenue at risk and stranded cash per SKU leads a seller to place
+      a reorder or discount a slow line, which is the reason to return with
+      each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real Shopify export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-reorder-planner/
+  analytics: null

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ticket Resale Profit Calculator — Break-Even List Price After Seller Fees</title>
+  <meta name="description" content="Find the list price that breaks even or hits your profit target after StubHub, SeatGeek, Vivid Seats or Ticketmaster seller fees, see whether a listing pays once you allow for the chance it does not sell, and audit your past sales by marketplace. Free, runs in your browser.">
+  <meta property="og:title" content="What should you list your tickets for?">
+  <meta property="og:description" content="Break-even list price, net payout and expected profit across StubHub, SeatGeek, Vivid Seats and Ticketmaster. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ticket Resale Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the list price that breaks even or hits a profit target after marketplace seller fees, see whether a listing is worth it once you allow for the chance it does not sell, and audit past sales by marketplace. Free, runs in your browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What fees does this include?", "acceptedAnswer": {"@type": "Answer", "text": "The seller-side fee you set (presets of about 10% for StubHub, SeatGeek and Vivid Seats and 15% for Ticketmaster resale, which you can overwrite), an optional flat fee per ticket, and an optional delivery cost per order. Buyer fees are paid by the buyer on top of your list price and are not in the maths."}}, {"@type": "Question", "name": "Are the fee presets exact?", "acceptedAnswer": {"@type": "Answer", "text": "No. Marketplaces change seller fees, vary them by country, event and account, and sometimes show the buyer an all-in price. Check the payout shown on the real listing screen and type that percentage in; the tool is arithmetic on whatever you enter."}}, {"@type": "Question", "name": "Why does a 12% margin lose money?", "acceptedAnswer": {"@type": "Answer", "text": "Because unsold tickets are a total loss for the order. If a listing only sells 8 times in 10, a 12% margin on the sales that happen does not cover the 100% loss on the two that do not. The expected-profit line shows the sale chance you need to break even."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. Resale profit can be taxable income and marketplaces may report it. The tool does not model tax; keep your own records."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page runs in your browser on what you type or paste and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  
+    tr.flag td { background: #fdf0ee; }
+    .bar { display: inline-block; height: .7em; background: #1a4560; border-radius: 3px; vertical-align: middle; }
+  
+    .pill.loss { background: #fde8e8; color: #7f1d1d; }
+    tr.neg td { background: #fdf0ee; }
+    .out { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TICKET RESALE PROFIT CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What do you actually take home when you resell tickets?</h1>
+    <p>Enter what you paid and what you plan to list for. See your <strong>payout after the seller fee</strong>, the <strong>break-even list price</strong>, the same order on <strong>four marketplaces</strong>, and — the part spreadsheets skip — your <strong>expected profit once some listings do not sell</strong>.</p>
+    <p class="note">Nothing is uploaded. Fee presets are typical rates and marketplaces change them, so type the percentage your listing screen shows. Not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Price a listing</h2>
+    <div class="inputs">
+      <div><label for="in-cost">Paid per ticket ($)</label><input type="number" id="in-cost" min="0" step="1" value="120"></div>
+      <div><label for="in-qty">Tickets</label><input type="number" id="in-qty" min="1" step="1" value="2"></div>
+      <div><label for="in-list">List price per ticket ($)</label><input type="number" id="in-list" min="0" step="1" value="150"></div>
+      <div><label for="in-fee">Seller fee (%)</label><input type="number" id="in-fee" min="0" max="99" step="0.5" value="10"></div>
+      <div><label for="in-flat">Flat fee per ticket ($)</label><input type="number" id="in-flat" min="0" step="0.5" value="0"></div>
+      <div><label for="in-delivery">Delivery cost per order ($)</label><input type="number" id="in-delivery" min="0" step="1" value="0"></div>
+      <div><label for="in-target">Profit target, whole order ($)</label><input type="number" id="in-target" min="0" step="10" value="100"></div>
+      <div><label for="in-psell">Chance it sells (%)</label><input type="number" id="in-psell" min="0" max="100" step="5" value="80"></div>
+      <div><label for="in-salvage">Value if unsold, per ticket ($)</label><input type="number" id="in-salvage" min="0" step="5" value="0"></div>
+    </div>
+    <p><button type="button" id="price">Calculate</button><button type="button" class="secondary" id="price-reset">Reset</button></p>
+    <p class="note" id="price-status"></p>
+  </section>
+
+  <section class="card out" id="price-card" hidden aria-live="polite">
+    <h2>2. What it means</h2>
+    <p id="price-summary"></p>
+    <h3>Same order on each marketplace</h3>
+    <table><thead><tr><th>Marketplace</th><th class="num">Fee</th><th class="num">Payout</th><th class="num">Profit</th></tr></thead><tbody id="platform-rows"></tbody></table>
+    <h3>Profit at different list prices</h3>
+    <table><thead><tr><th class="num">List / ticket</th><th class="num">Payout</th><th class="num">Profit if sold</th><th class="num">ROI</th></tr></thead><tbody id="sweep-rows"></tbody></table>
+    <p id="price-estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Audit your past sales</h2>
+    <label for="sales-input">One sale per line: event, marketplace, tickets, total cost, sale price, fees kept. A header row is read by name (a payout column can replace sale + fees).</label>
+    <textarea id="sales-input" spellcheck="false" placeholder="Playoff Game 3,SeatGeek,2,520.00,760.00,76.00"></textarea>
+    <p><button type="button" id="analyze">Analyze sales</button><button type="button" class="secondary" id="load-example">Load worked example</button><button type="button" class="secondary" id="clear">Clear</button></p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>4. Which marketplace pays you</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden><thead><tr><th>Marketplace</th><th class="num">Sales</th><th class="num">Fees</th><th class="num">Profit</th><th class="num">ROI</th></tr></thead><tbody id="results-rows"></tbody></table>
+    <h3>Sales that lost money</h3>
+    <p id="losers" class="note"></p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <pre class="cmd">node cli.mjs price --cost 120 --qty 2 --list 150 --p-sell 0.8
+node cli.mjs price --cost 120 --qty 2 --target-profit 100 --fee 15
+node cli.mjs log sales.csv --min-roi 10</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. <code>log</code> exits 1 when your overall ROI is under <code>--min-roi</code>. More: <a href="ticket-resale-guide.html">How to price resale tickets so you do not lose money on the unsold ones</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised in a sales log</h2>
+    <table><thead><tr><th>Input</th><th>Handling</th></tr></thead><tbody id="patterns-rows"></tbody></table>
+    <p class="note" id="model-note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What fees does this include?</h3>
+    <p>The seller-side fee you set (presets of about 10% for StubHub, SeatGeek and Vivid Seats and 15% for Ticketmaster resale, which you can overwrite), an optional flat fee per ticket, and an optional delivery cost per order. Buyer fees are paid by the buyer on top of your list price and are not in the maths.</p>
+    <h3>Are the fee presets exact?</h3>
+    <p>No. Marketplaces change seller fees, vary them by country, event and account, and sometimes show the buyer an all-in price. Check the payout shown on the real listing screen and type that percentage in; the tool is arithmetic on whatever you enter.</p>
+    <h3>Why does a 12% margin lose money?</h3>
+    <p>Because unsold tickets are a total loss for the order. If a listing only sells 8 times in 10, a 12% margin on the sales that happen does not cover the 100% loss on the two that do not. The expected-profit line shows the sale chance you need to break even.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. Resale profit can be taxable income and marketplaces may report it. The tool does not model tax; keep your own records.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The page runs in your browser on what you type or paste and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on numbers you enter; it does not forecast demand, guarantee a sale, or know what any marketplace will charge you. Check local rules on ticket resale and price caps before listing. StubHub, SeatGeek, Vivid Seats, Ticketmaster and other product names are trademarks of their owners, used only to describe where fees come from; this site is not affiliated with them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>price_run</code>, <code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../stockx-seller-payout-calculator/">StockX Seller Payout Calculator</a>, the <a href="../where-to-sell-calculator/">Where To Sell Calculator</a>, the <a href="../ebay-fee-calculator/">eBay Fee Calculator</a> and the <a href="../depop-fee-calculator/">Depop Fee Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { netIfSold, listForProfit, breakEvenList, expectedProfit, priceSweep, comparePlatforms, parseSales, analyzeSales, summarizeSales, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    $("#model-note").textContent = MODEL_NOTE + ".";
+
+    const val = (id) => { const v = $(id).value.trim(); return v === "" ? 0 : Number(v); };
+    const DEFAULTS = { "#in-cost": 120, "#in-qty": 2, "#in-list": 150, "#in-fee": 10, "#in-flat": 0, "#in-delivery": 0, "#in-target": 100, "#in-psell": 80, "#in-salvage": 0 };
+
+    function renderPrice() {
+      const status = $("#price-status");
+      try {
+        const input = { qty: val("#in-qty"), costPerTicket: val("#in-cost"), feePct: val("#in-fee"), flatFeePerTicket: val("#in-flat"), deliveryPerOrder: val("#in-delivery") };
+        const list = val("#in-list");
+        const pSell = Math.min(100, Math.max(0, val("#in-psell"))) / 100;
+        const sold = netIfSold(list, input);
+        const be = breakEvenList(input);
+        const target = listForProfit(val("#in-target"), input);
+        const ev = expectedProfit(list, input, { pSell, salvagePerTicket: val("#in-salvage") });
+        status.textContent = "";
+        const cls = ev.expected >= 0 ? "ok" : "changed";
+        $("#price-summary").innerHTML = `Listing at <strong>${usd(list)}</strong> each nets <strong>${usd(sold.payout)}</strong> and a profit of <strong>${usd(sold.profit)}</strong>${sold.roi === null ? "" : ` (${sold.roi}% ROI)`} if it sells. You break even at <strong>${usd(be)}</strong> each, and need <strong>${usd(target)}</strong> each for a ${usd(val("#in-target"))} profit. <span class="${cls}">With a ${Math.round(pSell * 100)}% chance of selling, the expected profit is ${usd(ev.expected)}${ev.breakEvenPSell === null ? "" : `; you need about ${Math.round(ev.breakEvenPSell * 100)}% to break even`}.</span>`;
+        $("#platform-rows").innerHTML = comparePlatforms(list, input).map((p) => `<tr class="${p.profit < 0 ? "neg" : ""}"><td>${escapeHtml(p.label)}</td><td class="num">${p.feePct}%</td><td class="num">${usd(p.payout)}</td><td class="num">${usd(p.profit)}</td></tr>`).join("");
+        $("#sweep-rows").innerHTML = priceSweep(input).map((r) => `<tr class="${r.profit < 0 ? "neg" : ""}"><td class="num">${usd(r.price)}</td><td class="num">${usd(r.payout)}</td><td class="num">${usd(r.profit)}</td><td class="num">${r.roi === null ? "-" : r.roi + "%"}</td></tr>`).join("");
+        $("#price-estimate").textContent = MODEL_NOTE + ".";
+        $("#price-card").hidden = false;
+        record("price_run");
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+      }
+    }
+    $("#price").addEventListener("click", renderPrice);
+    $("#price-reset").addEventListener("click", () => { for (const [k, v] of Object.entries(DEFAULTS)) $(k).value = v; $("#price-card").hidden = true; $("#price-status").textContent = ""; });
+
+    function renderReport() {
+      const text = $("#sales-input").value;
+      if (!text.trim()) { $("#status").innerHTML = `<span class="error">Paste some sales rows first (or load the worked example).</span>`; return; }
+      $("#status").textContent = "";
+      const report = analyzeSales(parseSales(text));
+      const { status, text: summaryText } = summarizeSales(report);
+      $("#summary").innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      $("#results-table").hidden = !report.count;
+      $("#results-rows").innerHTML = report.platforms.map((p) => `<tr class="${p.profit < 0 ? "neg" : ""}"><td>${escapeHtml(p.platform)}</td><td class="num">${p.sales}</td><td class="num">${p.feePct === null ? "-" : p.feePct + "%"}</td><td class="num">${usd(p.profit)}</td><td class="num">${p.roi === null ? "-" : p.roi + "%"}</td></tr>`).join("");
+      $("#losers").textContent = report.losers.length ? report.losers.map((l) => `${l.event || l.platform} (${usd(-l.loss)})`).join(", ") : "None.";
+      $("#estimate").textContent = report.count ? MODEL_NOTE + (report.skipped ? `; ${report.skipped} unreadable row(s) skipped` : "") + "." : "";
+      $("#report-card").hidden = false;
+      record("analyze_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `event,platform,qty,cost,sale,fees
+Taylor Concert Sec 112,StubHub,2,640.00,980.00,98.00
+Playoff Game 3,SeatGeek,2,520.00,760.00,76.00
+Playoff Game 3,Vivid Seats,2,520.00,610.00,61.00
+Comedy Tour Night 2,StubHub,4,380.00,540.00,54.00
+Arena Rock Floor,Ticketmaster,2,410.00,620.00,93.00
+Arena Rock Floor,Ticketmaster,2,410.00,455.00,68.25
+Musical Matinee,SeatGeek,3,330.00,300.00,30.00
+Festival Day Pass,Vivid Seats,2,290.00,505.00,50.50
+Hockey Opener,StubHub,4,360.00,330.00,33.00
+Hockey Opener,SeatGeek,2,180.00,310.00,31.00
+Taylor Concert Sec 308,StubHub,2,420.00,690.00,69.00
+Football Sunday,Vivid Seats,2,270.00,215.00,21.50`;
+
+    $("#load-example").addEventListener("click", () => { $("#sales-input").value = EXAMPLE_SOURCE; renderReport(); record("example_loaded"); });
+    $("#clear").addEventListener("click", () => { $("#sales-input").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true; });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

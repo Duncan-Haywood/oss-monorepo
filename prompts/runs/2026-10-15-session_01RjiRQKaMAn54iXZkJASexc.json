@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01RjiRQKaMAn54iXZkJASexc",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "Step 0 says research lands upstream, yet the standing mirror-sync milestone is done here; fine but the two instructions need reading together."
+    },
+    {
+      "file": "prompts/runs/2026-10-15-session_017kshovpXgesG9ENxQMjKAX.json",
+      "issue": "Another run's record has an invalid outcome and doc_friction shape, so promptctl validate fails on main."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "mirror-sync milestone 1 only; upstream HEAD 76dae087c9f7.",
+  "corrections": [],
+  "redteam": null
+}

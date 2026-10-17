@@ -1,0 +1,49 @@
+v_u = 10.0 m/s, sigma = 0.10 m/s, n = 30 targets, azimuth uniform +-60 deg, 300 trials per row
+
+1. Exact naive bias (noiseless, n = 4000 random azimuths, mean over 20 scenes) vs closed form
+   v    closed-form    simulated
+     8     -0.0000      0.0000
+    10     -0.0000      0.0000
+    12    -14.9376    -14.9162
+    15    -20.1419    -20.1478
+    20    -23.4028    -23.4100
+    30    -23.4028    -23.3973
+    50    -45.0213    -45.0232
+
+2. Twin vs real RMSE of the naive estimator (folded vs unfolded measurements, same scenes and noise)
+   v   twin-pred  twin-sim   real-naive   real-unfold   unfold-mode-errors
+   2.0    0.0218    0.0224       0.0224        0.0224   0/300
+   5.0    0.0217    0.0212       0.0212        0.0212   0/300
+   8.0    0.0218    0.0220       0.0220        0.0220   0/300
+   9.0    0.0218    0.0223       0.0223        0.0223   0/300
+   9.5    0.0218    0.0220       0.0220        0.0220   0/300
+   9.8    0.0218    0.0213       0.1830        0.0213   0/300
+  10.0    0.0218    0.0205       1.8979        0.0205   0/300
+  10.5    0.0218    0.0199       8.3143        0.0199   0/300
+  12.0    0.0218    0.0215      14.9290        0.0215   0/300
+  15.0    0.0217    0.0213      20.1511        0.0213   0/300
+  20.0    0.0217    0.0241      23.3972        0.0241   0/300
+  30.0    0.0217    0.0225      24.3995        0.0225   0/300
+  45.0    0.0217    0.0218      43.4963        0.0218   0/300
+  60.0    0.0218    0.0215      61.7631        0.0215   0/300
+   naive estimator exceeds RMSE 0.05 m/s from v = 9.8 (twin: never)
+
+3. Mode confusion vs field of view: pairwise prediction Phi(-sqrt(E_1)/(2 sigma)) vs Monte Carlo of the two costs,
+   and error rate of the full grid search (true v = 25 m/s; |v_hat - v| > 0.5 counts as a mode error)
+   fov  E_1(mean)  D(mean)   pair-pred  pair-sim   grid-search-error
+    3      0.002    20.01     0.4133    0.3985   218/300
+    5      0.015    20.03     0.2719    0.2645   120/300
+    8      0.099    20.07     0.0612    0.0535   21/300
+   12      0.502    20.15     0.0005    0.0010   0/300
+   20      3.924    20.41     0.0000    0.0000   0/300
+   30     20.481    20.91     0.0000    0.0000   0/300
+   60    380.876    23.48     0.0000    0.0000   0/300
+
+4. Targets needed to unfold at a fixed FOV (+-20 deg, v = 25): grid-search mode-error rate vs n, pairwise prediction
+    n   pair-pred   grid-search-error
+    5     0.0150   7/300
+   10     0.0001   0/300
+   20     0.0000   0/300
+   40     0.0000   0/300
+   80     0.0000   0/300
+  160     0.0000   0/300

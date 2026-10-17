@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-pilot"
+version = "0.1.0"
+description = "How big a pilot decides whether a biased digital twin is worth using for policy evaluation: closed-form correlation threshold, exact decision-regret law, plug-in allocation regret, and adaptive two-stage coverage"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

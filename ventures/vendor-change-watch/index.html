@@ -147,7 +147,8 @@ vendor-watch check</code></pre>
     <p>Text is grouped under the nearest preceding heading. Pasted HTML uses its real <code>h1</code>–<code>h6</code> headings; pasted plain text treats a short standalone line above a paragraph as a heading. Anything before the first heading is grouped under <code>(page)</code>.</p>
     <h3>Is this the same as the command-line tool?</h3>
     <p>It shares the diff logic and the exact status vocabulary — <code>observed</code>, <code>inconclusive</code> and <code>unknown</code> mean the same thing in both. The CLI adds the part a browser cannot do: it fetches the pages you configure on a schedule from your own machine, so you are not the one remembering to check.</p>
-    <p class="note">Already using a general-purpose page watcher? See <a href="./vs-changedetection-io.html">this tool vs. changedetection.io</a>.</p>
+    <p class="note">Not sure how often to check a given vendor? See <a href="./how-often-to-recheck-vendor-pages.html">how often should you re-check a vendor's terms and privacy pages</a>.</p>
+    <p class="note">Already using a general-purpose page watcher? See <a href="./vs-changedetection-io.html">this tool vs. changedetection.io</a>. Still checking vendor pages by memory? See <a href="./vs-checking-vendor-pages-by-hand.html">this tool vs. checking vendor pages by hand</a>.</p>
     <p class="note">Already holding two dated JSON snapshots of the same vendor page? The <a href="../vendor-change-evidence/">vendor change evidence</a> tool compares a before and after snapshot into a portable review record — nothing uploaded.</p>
   </section>
 
@@ -156,6 +157,7 @@ vendor-watch check</code></pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your reports and run the CLI yourself.</p>
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>page_captured</code>, <code>report_built</code>, <code>example_loaded</code>, <code>report_copied</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button above. Do Not Track and Global Privacy Control are honoured.</p>
     <p class="support">Free and open source. If it caught a vendor change before it mattered, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="note">Want a command-line diff you can run from cron? See <a href="../vendor-watch/">Vendor Watch</a>.</p>
   </footer>
 
   <script type="module">

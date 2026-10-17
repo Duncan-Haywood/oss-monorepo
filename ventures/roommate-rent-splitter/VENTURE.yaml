@@ -1,0 +1,57 @@
+name: roommate-rent-splitter
+description: >-
+  Free browser tool for roommates in unequal rooms: each person says what every
+  room is worth to them, and the tool assigns rooms and sets rents that add up to
+  the total so nobody would swap (envy-free rent division, maximin). Optional
+  shared costs, whole-dollar or cent rents, copy for the group chat, CSV, save and
+  load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: no row above
+# 0.22 for roommate rent splitting; screened-out.md has no row for it. The nearest
+# neighbours (event-seating-chart-optimizer, rent-vs-buy-breakeven-calculator) are
+# different questions.
+#
+# Why this niche: "roommate rent calculator" and "how to split rent fairly with
+# different sized rooms" are evergreen searches that spike every lease season, and
+# the common answers are an equal split or a square-footage split, both of which
+# ignore what the rooms are worth to the people in them. Envy-free rent division
+# (Su 1999; Gal et al. 2017) is the known fix, and the free implementations are a
+# single university demo. This ships it with no account and a copy-to-chat result.
+#
+# First visitor: r/roommates, r/personalfinance and r/Apartmentliving have a rent
+# split thread most weeks; student housing groups every August. Volume not measured
+# with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers between roommates. Not
+# tenancy, legal or tax advice; says so. No payments, no accounts, nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a move-in checklist or renters-insurance referral later.
+
+hypotheses:
+  - claim: >-
+      Roommates will each type private room values into a no-signup tool and use
+      the resulting split to settle a lease, and will share the link.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a split whose rents do not add up to the entered total, or a split where someone would clearly prefer another room at its price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/roommate-rent-splitter/
+  analytics: null

@@ -1,0 +1,7 @@
+volume,type,size_gb,provisioned_iops,provisioned_mibps,peak_iops,peak_mibps,state
+vol-0a1,gp2,500,,,900,60,in-use
+vol-0a2,gp2,4000,,,14000,200,in-use
+vol-0a3,io1,1000,20000,,6000,150,in-use
+vol-0a4,st1,8000,,,300,400,in-use
+vol-0a5,gp3,200,6000,250,800,40,in-use
+vol-0a6,gp2,300,,,0,0,available

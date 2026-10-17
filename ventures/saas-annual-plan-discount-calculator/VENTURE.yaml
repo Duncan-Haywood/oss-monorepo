@@ -1,0 +1,66 @@
+name: saas-annual-plan-discount-calculator
+description: >-
+  Free browser calculator for SaaS and subscription founders that finds the
+  annual-prepay discount worth offering: present value of a customer on the
+  monthly plan versus the annual plan (geometric monthly churn, annual
+  renewal rate, cost of capital, gross margin, optional payment fee and
+  switch share), cash collected up front, the NPV-neutral maximum discount by
+  bisection, the months-free equivalent, and a discount by churn sensitivity
+  table. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py
+# scored every venture at 0.19 or below. Neighbours read by hand:
+# subscription-price-impact (price increases vs churn), mrr-waterfall-calculator
+# (retention accounting), saas-seat-true-up (seat waste at renewal) and
+# cash-runway-planner (runway) each answer a different question; none values
+# an annual-prepay discount against monthly billing.
+#
+# Distribution: "annual plan discount SaaS", "how much to discount annual
+# pricing" and "2 months free annual plan" are recurring founder queries, and
+# the audience earns money from the answer. Search volume was not measured
+# with an external tool, matching the pipeline's standing caveat.
+#
+# Model is documented on the page and in the README: geometric monthly churn,
+# annual paid up front with churn only at renewal, monthly cost to serve,
+# no expansion revenue, taxes or refunds. The break-even is found by
+# bisection and cross-checked against the closed form in the tests.
+#
+# Liability: arithmetic on the user's own inputs, never a pricing
+# recommendation; the page states the selection effect and the omissions.
+
+hypotheses:
+  - claim: >-
+      SaaS founders choosing an annual-prepay discount will search for and
+      return to a free, no-signup calculator that shows the break-even
+      discount and months-free equivalent on their own churn and margin,
+      rather than guessing "two months free".
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing the discount by churn sensitivity table changes which discount
+      a founder picks, because the break-even moves materially with churn and
+      renewal assumptions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong break-even from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/saas-annual-plan-discount-calculator/
+  analytics: null

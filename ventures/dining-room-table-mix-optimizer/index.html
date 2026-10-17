@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dining Room Table Mix Optimizer: 2-Tops vs 4-Tops — Free</title>
+  <meta name="description" content="Free restaurant table mix tool: enter your floor area, table sizes and party-size mix, and get the number of 2-tops, 4-tops and 6-tops that seats the most guests, from simulated busy services. Nothing uploaded.">
+  <meta property="og:title" content="Dining room table mix optimizer">
+  <meta property="og:description" content="How many 2-tops, 4-tops and 6-tops should your restaurant have? Simulated services find the mix that seats the most guests. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dining Room Table Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find how many 2-tops, 4-tops and 6-tops fit a restaurant floor to seat the most guests, by simulating busy services. Runs in your browser.","featureList":"Party-size mix, dwell times, simulated services, table combining, best mix under floor area, paired gain with standard error, value of one more table, CSV"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many 2-tops and 4-tops should a restaurant have?","acceptedAnswer":{"@type":"Answer","text":"It depends on the sizes of the parties that actually come, how long each size stays, and how much floor you have. Enter your floor area, each table type's seats and footprint, and your party-size mix. The tool runs hundreds of simulated services, seating each party at the smallest free table (or two pushed together), and searches for the mix that seats the most guests in the floor you have."}},{"@type":"Question","name":"Why does a room full of four-tops lose guests?","acceptedAnswer":{"@type":"Answer","text":"A couple at a four-top wastes two seats for the whole meal. If most of your parties are twos, those seats are empty while a pair waits at the door. Swapping some four-tops for two-tops (which take less floor) often seats more guests; the tool measures how many more on identical simulated nights."}},{"@type":"Question","name":"How accurate is the result?","acceptedAnswer":{"@type":"Answer","text":"It is a simulation of one busy service from the figures you type, not a forecast. Parties arrive at random at the average rate you enter, stay for a random time around the average, and leave if the wait passes your tolerance. The gain is shown with its standard error so you can see whether it is clearly more than noise. Check the party mix against a week of your own reservation or POS data."}},{"@type":"Question","name":"Does it design the floor plan?","acceptedAnswer":{"@type":"Answer","text":"No. It chooses how many of each table type, using the square footage you give each. Aisles, ADA clearances, exits, fire-code occupancy, service stations and the bar are yours to decide and to check with your local authority."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. It runs in your browser; nothing you type leaves your device."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">DINING ROOM TABLE MIX OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many 2-tops, 4-tops and 6-tops should my restaurant have?</h1>
+    <p>Enter your dining floor, the table types you can buy, and who actually walks in: the share of parties of each size and how long they stay. The tool simulates hundreds of busy services and returns the table mix that seats the most guests in the floor you have, how many more guests a night that is, and what it is worth a month.</p>
+    <p class="note">Arithmetic and simulation on figures you type. Not design, fire-code or accessibility advice. The example room, parties and prices are placeholders, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-g">
+      <h2 id="h-g">Your service</h2>
+      <div class="grid">
+        <div><label for="areaSqFt">Dining floor for tables (sq ft)</label><input id="areaSqFt" type="text" value=""><p class="note">Only the part you could fill with tables; leave out the bar, aisles you must keep, and service stations.</p></div>
+        <div><label for="windowHours">Busy service length (hours)</label><input id="windowHours" type="text" value=""><p class="note">The stretch in which people arrive, such as 3 for a Friday dinner rush.</p></div>
+        <div><label for="partiesPerService">Parties wanting a table in that window</label><input id="partiesPerService" type="text" value=""><p class="note">Walk-ins plus reservations, including those you turn away. Count the door, not just the seated.</p></div>
+        <div><label for="patienceMin">Minutes a party will wait</label><input id="patienceMin" type="text" value=""><p class="note">0 means anyone who cannot be seated at once leaves.</p></div>
+        <div><label for="combine">Push two tables together for big parties? (yes or no)</label><input id="combine" type="text" value=""><p class="note">If yes, a party can take any two free tables whose seats add up to enough.</p></div>
+        <div><label for="spendPerGuest">Spend per guest ($)</label><input id="spendPerGuest" type="text" value=""><p class="note">Food and drink, before tax and tip.</p></div>
+        <div><label for="marginPct">Contribution margin (%)</label><input id="marginPct" type="text" value=""><p class="note">What is left of a sale after food, drink and variable labor. Optional.</p></div>
+        <div><label for="servicesPerMonth">Busy services a month</label><input id="servicesPerMonth" type="text" value=""><p class="note">Used to turn a night into a month.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t">
+      <h2 id="h-t">Table types (up to 6)</h2>
+      <p class="note">Footprint is the floor each table really takes: the table, the chairs pulled out, and its share of walking room. Put today's count in "Have now" (0 if you would start fresh). "Most" caps how many of that type you would ever use, such as 1 for the one big round.</p>
+      <div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Seats</th><th>Sq ft each</th><th>Have now</th><th>Most</th></tr></thead><tbody>
+<tr><th scope="row">1</th><td><input id="t0_name" type="text" aria-label="Table type 1 name" value=""></td><td><input id="t0_seats" type="text" aria-label="Table type 1 seats" value=""></td><td><input id="t0_sqft" type="text" aria-label="Table type 1 square feet each" value=""></td><td><input id="t0_count" type="text" aria-label="Table type 1 tables you have today" value=""></td><td><input id="t0_max" type="text" aria-label="Table type 1 most you would use" value=""></td></tr>
+<tr><th scope="row">2</th><td><input id="t1_name" type="text" aria-label="Table type 2 name" value=""></td><td><input id="t1_seats" type="text" aria-label="Table type 2 seats" value=""></td><td><input id="t1_sqft" type="text" aria-label="Table type 2 square feet each" value=""></td><td><input id="t1_count" type="text" aria-label="Table type 2 tables you have today" value=""></td><td><input id="t1_max" type="text" aria-label="Table type 2 most you would use" value=""></td></tr>
+<tr><th scope="row">3</th><td><input id="t2_name" type="text" aria-label="Table type 3 name" value=""></td><td><input id="t2_seats" type="text" aria-label="Table type 3 seats" value=""></td><td><input id="t2_sqft" type="text" aria-label="Table type 3 square feet each" value=""></td><td><input id="t2_count" type="text" aria-label="Table type 3 tables you have today" value=""></td><td><input id="t2_max" type="text" aria-label="Table type 3 most you would use" value=""></td></tr>
+<tr><th scope="row">4</th><td><input id="t3_name" type="text" aria-label="Table type 4 name" value=""></td><td><input id="t3_seats" type="text" aria-label="Table type 4 seats" value=""></td><td><input id="t3_sqft" type="text" aria-label="Table type 4 square feet each" value=""></td><td><input id="t3_count" type="text" aria-label="Table type 4 tables you have today" value=""></td><td><input id="t3_max" type="text" aria-label="Table type 4 most you would use" value=""></td></tr>
+<tr><th scope="row">5</th><td><input id="t4_name" type="text" aria-label="Table type 5 name" value=""></td><td><input id="t4_seats" type="text" aria-label="Table type 5 seats" value=""></td><td><input id="t4_sqft" type="text" aria-label="Table type 5 square feet each" value=""></td><td><input id="t4_count" type="text" aria-label="Table type 5 tables you have today" value=""></td><td><input id="t4_max" type="text" aria-label="Table type 5 most you would use" value=""></td></tr>
+<tr><th scope="row">6</th><td><input id="t5_name" type="text" aria-label="Table type 6 name" value=""></td><td><input id="t5_seats" type="text" aria-label="Table type 6 seats" value=""></td><td><input id="t5_sqft" type="text" aria-label="Table type 6 square feet each" value=""></td><td><input id="t5_count" type="text" aria-label="Table type 6 tables you have today" value=""></td><td><input id="t5_max" type="text" aria-label="Table type 6 most you would use" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Who comes in</h2>
+      <p class="note">Share is any scale (counts or percentages); it is normalised. Stay is the average minutes from seating to leaving. Use a week of reservation or POS cover counts if you have them.</p>
+      <div class="scroll"><table><thead><tr><th>Party</th><th>Share</th><th>Stay (min)</th></tr></thead><tbody>
+<tr><th scope="row">Party of 1</th><td><input id="p0_share" type="text" aria-label="Share of parties of 1" value=""></td><td><input id="p0_dwell" type="text" aria-label="Minutes a party of 1 stays" value=""></td></tr>
+<tr><th scope="row">Party of 2</th><td><input id="p1_share" type="text" aria-label="Share of parties of 2" value=""></td><td><input id="p1_dwell" type="text" aria-label="Minutes a party of 2 stays" value=""></td></tr>
+<tr><th scope="row">Party of 3</th><td><input id="p2_share" type="text" aria-label="Share of parties of 3" value=""></td><td><input id="p2_dwell" type="text" aria-label="Minutes a party of 3 stays" value=""></td></tr>
+<tr><th scope="row">Party of 4</th><td><input id="p3_share" type="text" aria-label="Share of parties of 4" value=""></td><td><input id="p3_dwell" type="text" aria-label="Minutes a party of 4 stays" value=""></td></tr>
+<tr><th scope="row">Party of 5</th><td><input id="p4_share" type="text" aria-label="Share of parties of 5" value=""></td><td><input id="p4_dwell" type="text" aria-label="Minutes a party of 5 stays" value=""></td></tr>
+<tr><th scope="row">Party of 6</th><td><input id="p5_share" type="text" aria-label="Share of parties of 6" value=""></td><td><input id="p5_dwell" type="text" aria-label="Minutes a party of 6 stays" value=""></td></tr>
+<tr><th scope="row">Party of 7</th><td><input id="p6_share" type="text" aria-label="Share of parties of 7" value=""></td><td><input id="p6_dwell" type="text" aria-label="Minutes a party of 7 stays" value=""></td></tr>
+<tr><th scope="row">Party of 8</th><td><input id="p7_share" type="text" aria-label="Share of parties of 8" value=""></td><td><input id="p7_dwell" type="text" aria-label="Minutes a party of 8 stays" value=""></td></tr>
+</tbody></table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best table mix</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">Takes about a second. The same figures always give the same answer.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions restaurant owners ask</h2>
+      <h3>How many 2-tops and 4-tops should a restaurant have?</h3>
+      <p>It depends on the sizes of the parties that actually come, how long each size stays, and how much floor you have. Enter your floor area, each table type's seats and footprint, and your party-size mix. The tool runs hundreds of simulated services, seating each party at the smallest free table (or two pushed together), and searches for the mix that seats the most guests in the floor you have.</p>
+      <h3>Why does a room full of four-tops lose guests?</h3>
+      <p>A couple at a four-top wastes two seats for the whole meal. If most of your parties are twos, those seats are empty while a pair waits at the door. Swapping some four-tops for two-tops (which take less floor) often seats more guests; the tool measures how many more on identical simulated nights.</p>
+      <h3>How accurate is the result?</h3>
+      <p>It is a simulation of one busy service from the figures you type, not a forecast. Parties arrive at random at the average rate you enter, stay for a random time around the average, and leave if the wait passes your tolerance. The gain is shown with its standard error so you can see whether it is clearly more than noise. Check the party mix against a week of your own reservation or POS data.</p>
+      <h3>Does it design the floor plan?</h3>
+      <p>No. It chooses how many of each table type, using the square footage you give each. Aisles, ADA clearances, exits, fire-code occupancy, service stations and the bar are yours to decide and to check with your local authority.</p>
+      <h3>Is my data uploaded?</h3>
+      <p>No. It runs in your browser; nothing you type leaves your device.</p>
+      </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Where tables go, aisle widths, accessible seating, exits and occupancy limits under your local fire and building codes, the bar and booths, table and chair cost, reservations versus walk-ins policy, check size by party size, and seasonal or day-of-week swings. The simulation uses one average busy service and one stay length per party size, with random variation around both, and seats parties first-come among those who fit. Real guests linger, split, and arrive in waves.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost by daypart analyzer</a>, the <a href="../menu-engineering-calculator/">menu engineering calculator</a> and the <a href="../shift-cover-optimizer/">shift-cover optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are simulation and arithmetic on figures you type; verify with a qualified professional before relying on them, and check any layout against your local fire, building and accessibility rules. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in this browser's local storage, can be switched off below, and honour Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, TABLE_DEFAULTS, PARTY_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_TABLES, EXAMPLE_PARTIES, money, one, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const NT = 6, NP = 8, SKEYS = Object.keys(SHARED_DEFAULTS), TKEYS = Object.keys(TABLE_DEFAULTS), PKEYS = Object.keys(PARTY_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < NT; i++) for (const k of TKEYS) $("t" + i + "_" + k).value = (EXAMPLE_TABLES[i] || TABLE_DEFAULTS)[k];
+      for (let i = 0; i < NP; i++) for (const k of PKEYS) $("p" + i + "_" + k).value = (EXAMPLE_PARTIES[i] || PARTY_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const tables = []; for (let i = 0; i < NT; i++) { const t = {}; for (const k of TKEYS) t[k] = $("t" + i + "_" + k).value; tables.push(t); }
+      const parties = []; for (let i = 0; i < NP; i++) { const p = {}; for (const k of PKEYS) p[k] = $("p" + i + "_" + k).value; parties.push(p); }
+      return { shared, tables, parties };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i > 0 ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i > 0 ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const input = readAll();
+      const a = analyze(input.tables, input.parties, input.shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const d = a.deltaGuests, se = a.deltaSe;
+      const verdict = d > 0 && a.significant ? "seats about " + one(d) + " more guests a service" : d < 0 && a.significant ? "seats fewer guests than today" : "is not clearly different from today";
+      h += `<div class="finding"><h4>The recommended mix ${verdict}</h4><p>${one(a.cur.meanGuests)} guests a service today, ${one(a.rec.meanGuests)} with the recommended mix (difference ${one(d)} ± ${one(se)}, one standard error, over identical simulated services). Parties turned away fall from ${one(a.cur.lostPerService)} to ${one(a.rec.lostPerService)} a service. Worth about ${money(a.monthlyRevenue)} a month in sales${a.shared.marginPct > 0 ? " and " + money(a.monthlyContribution) + " in contribution" : ""}, if demand is what you entered.</p></div>`;
+      h += table(["Table type", "Seats", "Sq ft each", "Today", "Recommended", "Change"], a.types.map((t, i) => [esc(t.name), t.seats, t.sqft, a.currentCounts[i], a.recCounts[i], (a.recCounts[i] - a.currentCounts[i] > 0 ? "+" : "") + (a.recCounts[i] - a.currentCounts[i])]));
+      h += `<div class="finding"><h4>Floor and seats</h4><p>Today: ${Math.round(a.areaUsedCur)} sq ft, ${a.cur.seats} seats. Recommended: ${Math.round(a.areaUsedRec)} of ${Math.round(a.shared.areaSqFt)} sq ft, ${a.rec.seats} seats. Demand in the window is about ${one(a.demandGuests)} guests.</p></div>`;
+      h += `<div class="finding"><h4>Waiting</h4><p>Average wait for a seated party: ${one(a.cur.meanWaitMin)} minutes today, ${one(a.rec.meanWaitMin)} recommended.</p></div>`;
+      h += `<div class="finding"><h4>What one more or one fewer table does</h4>${table(["Table type", "Add one (guests / service)", "Remove one (guests / service)"], a.marginal.map((m) => [esc(m.name), m.addFits ? (m.addDelta >= 0 ? "+" : "") + one(m.addDelta) : "does not fit", m.removeDelta === null ? "-" : (m.removeDelta >= 0 ? "+" : "") + one(m.removeDelta)]))}<p class="note">Measured from the recommended mix. A change near zero means that table type is not what limits the room.</p></div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download the mix (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "table-mix.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

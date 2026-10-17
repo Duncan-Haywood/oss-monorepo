@@ -1,0 +1,62 @@
+name: studio-class-slot-optimizer
+description: >-
+  Free browser tool for fitness, yoga, pilates and dance studios: paste or upload
+  a class attendance log (slot, attended, capacity) and see which timetable slots
+  lose money, the break-even class size, the gain from cutting each slot once
+  regulars switch to another class, and which slots are full enough to double.
+  Empirical-Bayes shrinkage so a few quiet weeks do not condemn a slot, seeded
+  bootstrap ranges, and it refuses a log too small to compare slots. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "class schedule optimizer which timeslots to keep or cut from attendance history
+# fitness studio": closest is personal-trainer-package-pricing-calculator at 0.13,
+# far below the read-this-first bar. Alternatives: studio-management reports
+# (Mindbody, Mariana Tek, Momence, WellnessLiving attendance reports) show
+# attendance per class but not whether a slot pays for its instructor, and a
+# spreadsheet average treats three quiet weeks like thirty.
+#
+# First visitor: studio owners and managers searching "which classes should I cut",
+# "break even class size fitness studio", "how many people per class to be
+# profitable"; r/yoga teacher and r/fitness business threads, boutique-studio
+# owner groups. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: attendance logs never leave the browser
+# (tests assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved multi-studio dashboard fed by a booking-system
+# export; not built.
+# Liability: statistical estimate of supplied data, not advice; refuses when the
+# data cannot support a comparison and says what it does not model.
+# Unverified: tested on simulated timetables with known slot means, not a real
+# studio's log.
+
+hypotheses:
+  - claim: >-
+      Boutique studio owners with a few months of attendance exports will use a
+      private, no-signup tool that says which slots pay for their instructors and
+      which are full, and will return each term as the log grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a slot's adjusted average or the cut gain disagrees with a hand calculation from the same log and inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/studio-class-slot-optimizer/
+  analytics: null

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01TcGWqRUNZzB37dY1iKkkmh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "webhook-relay: Paddle Billing and Typeform signature schemes; republish gh-pages",
+  "projects": [
+    "webhook-relay"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py output",
+      "issue": "build-now queue empty; allocate.py top-20 is all *-calculator ventures, contradicting the ventures prompt ban on new calculators, so I deepened an existing server venture instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Ignored its calculator-only top candidates per prompts/ventures/prompt-1.md; deepened webhook-relay instead"
+    }
+  ],
+  "goal": null,
+  "notes": "Also republished gh-pages (stale snapshot per session gate). Scheme formats for Paddle/Typeform written from memory of the public docs and covered by self-consistency tests only, not against real provider payloads.",
+  "corrections": [],
+  "redteam": null
+}

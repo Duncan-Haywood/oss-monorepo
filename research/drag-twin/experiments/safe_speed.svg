@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Error of the linear-drag twin's safe initial speed against the quadratic-drag truth, by the speed at which the twin was fitted: negative is conservative, positive overstates safety">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Twin's safe speed vs real, by drag-fit speed (stylised)</text>
+<line x1="64" x2="624" y1="328.0" y2="328.0" stroke="#ddd"/><text x="58" y="332.0" text-anchor="end" font-family="sans-serif" font-size="11">-30</text>
+<line x1="64" x2="624" y1="256.0" y2="256.0" stroke="#ddd"/><text x="58" y="260.0" text-anchor="end" font-family="sans-serif" font-size="11">-10</text>
+<line x1="64" x2="624" y1="220.0" y2="220.0" stroke="#ddd"/><text x="58" y="224.0" text-anchor="end" font-family="sans-serif" font-size="11">+0</text>
+<line x1="64" x2="624" y1="184.0" y2="184.0" stroke="#ddd"/><text x="58" y="188.0" text-anchor="end" font-family="sans-serif" font-size="11">+10</text>
+<line x1="64" x2="624" y1="112.0" y2="112.0" stroke="#ddd"/><text x="58" y="116.0" text-anchor="end" font-family="sans-serif" font-size="11">+30</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#ddd"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">+50</text>
+<text x="120.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="232.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="456.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="568.0" y="344" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="220.0" y2="220.0" stroke="#888" stroke-dasharray="4 3"/><text x="620" y="216.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#555">0 = matches real</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">twin fitted at speed v_fit (m/s)</text>
+<text x="14" y="184.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 184.0)">twin safe speed vs real (%)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="120.0,294.9 232.0,284.4 344.0,252.0 456.0,194.8 568.0,72.0"/>
+<circle cx="120.0" cy="294.9" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="284.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="252.0" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="194.8" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="72.0" r="3" fill="#c0392b"/>
+<line x1="390" x2="414" y1="74" y2="74" stroke="#c0392b" stroke-width="2"/><text x="420" y="78" font-family="sans-serif" font-size="11">twin error</text>
+</svg>

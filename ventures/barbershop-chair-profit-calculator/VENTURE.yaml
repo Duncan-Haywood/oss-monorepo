@@ -1,0 +1,46 @@
+name: barbershop-chair-profit-calculator
+description: >-
+  Free browser calculator for independent barbershop owners: enter haircut, beard and premium-combo prices, chair minutes, supplies, no-show rate, rent, equipment and retail
+  attach, and see profit per cut and per chair hour, the price each service needs for a target margin, break-even cuts per week, what no-shows cost, and what the same chair
+  nets cut by the owner, employing a barber on commission, or rented by the week. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models a barbershop or barber chair (checked ventures/ by name: `ls ventures | grep -i barber` is empty).
+# Haircuts, beard work and a premium combo share one chair's hours, a share of customers never show, and the owner's recurring decision is whether to cut, employ a barber
+# on commission or rent the chair out by the week. Not in screened-out.md. Sits beside nail-tech-booth-rent-calculator (the booth-rent side) rather than duplicating it:
+# this one prices the barber's own services and compares the three ways to run a chair.
+#
+# First visitor: independent barbershop owners searching "barbershop profit per chair", "booth rent vs commission barber" and "how much to charge for a haircut".
+# Timing: year-round, with pre-holiday and back-to-school demand. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; tips are ignored;
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent barbershop owners will type a typical week's bookings, chair minutes and rent into a no-signup calculator to set haircut, beard and combo prices and to
+      decide between cutting, employing a barber on commission and renting the chair, because most set prices by copying the shop down the road and never cost the chair hour
+      or the no-shows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/barbershop-chair-profit-calculator/
+  analytics: null

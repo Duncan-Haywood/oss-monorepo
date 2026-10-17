@@ -1,0 +1,106 @@
+name: auto-loan-interest-deduction-calculator
+description: Free browser calculator for the new federal "qualified passenger vehicle loan interest" deduction (One Big Beautiful Bill Act, tax years 2025-2028), applying the $10,000 cap (shared, not doubled, for joint filers), the $200-per-$1,000 MAGI phase-out, and the full 8-item eligibility checklist -- including the married-filing-separately treatment, which runs opposite to this portfolio's own tips/overtime deduction calculator. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-24 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict, main advancing under heavy
+# concurrency; DIRECTION.md's 2026-09-06 owner direction ranks a fresh
+# gate-cleared niche ahead of a parity feature). duplicate_check.py scored
+# every venture, screened-out row, ai-first-markets idea, and pipeline
+# candidate at 0.24 or below for "OBBBA 2025-2028 new-vehicle auto loan
+# interest above-the-line tax deduction... combined with the no-tax-on-tips
+# and no-tax-on-overtime deductions" -- well under the 0.45 review bar, and
+# the closest match (no-tax-on-tips-overtime-calculator, 0.24) is a
+# different statutory deduction (IRC 224/225 vs. this venture's IRC
+# 163(h)(4)) with different mechanics, confirmed by grepping that venture's
+# own source for "auto loan"/"vehicle loan"/"final assembly" (no matches).
+# Not in portfolio/pipeline/screened-out.md: no row mentions auto loan
+# interest, vehicle loan interest, QPVLI, or car loan deduction.
+#
+# Same regulatory-threshold-change shape that graduated
+# no-tax-on-tips-overtime-calculator, 1099-vendor-tracker, and
+# str-occupancy-tax-calculator the same weeks -- a specific, brand-new
+# OBBBA provision nobody in this portfolio had built a dedicated, private,
+# no-signup tool for -- with mechanics verified via WebSearch on 2026-09-24
+# (not screening-estimate figures): RSM's and H&R Block's own OBBBA
+# explainers, Thomson Reuters Tax & Accounting, the Federal Register's own
+# proposed-regulations notice (2026-01-02, docket 2025-24154), Drake
+# Software's practitioner knowledge base (for the MFS treatment
+# specifically), and several independent CPA-firm summaries, cross-checked
+# against each other: $10,000/year cap on INTEREST (not principal, and NOT
+# doubled for a joint return -- confirmed independently by multiple
+# sources), phase-out of $200 per $1,000 of MAGI over $100,000
+# single/head-of-household/MFS or $200,000 joint (zero-crossing points
+# $150,000 / $250,000, self-consistent with the $10,000/$200-per-$1,000
+# formula), and the 8-item eligibility list (new, US final assembly,
+# personal use, first-lien-secured loan, not a lease, not salvage/parts,
+# vehicle type + GVWR under 14,000 lbs with RVs/campers excluded even as a
+# primary residence, debt incurred after 2024-12-31).
+#
+# Differentiation from existing finance-blog calculators found during
+# research (nationaltaxtools.com and others each carry a QPVLI calculator
+# or guide, ad/content-marketing supported): this is privacy-first with no
+# upsell, applies the full 8-item eligibility checklist rather than only
+# the cap/phase-out arithmetic, and explicitly calls out the one thing a
+# visitor coming from this portfolio's own tips/overtime calculator is
+# statistically likely to get backwards -- that MFS does NOT exclude this
+# deduction, the opposite of the tips/overtime rule -- which no competitor
+# page has a reason to mention and this portfolio's own prior calculator
+# creates the exact misconception for.
+
+hypotheses:
+  - claim: >-
+      New and prospective car-loan borrowers, and the payroll/tax-prep
+      professionals fielding their questions, will search plain-language
+      phrases ("auto loan interest deduction calculator", "is car loan
+      interest tax deductible", "no tax on car loans calculator") as 2026
+      vehicle purchases are planned and 2025 filers discover this deduction
+      for the first time, and some will prefer a free, private, no-signup,
+      no-upsell calculator over a paid tax-prep marketing page or an
+      ad-supported finance blog's embedded widget.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published finance-blog calculators
+      and guides for this exact deduction (nationaltaxtools.com and others,
+      found during WebSearch research 2026-09-24) is evidence of real,
+      proven search volume for these phrases; the MFS-differs-from-siblings
+      framing and the full 8-item eligibility checklist (rather than cap/
+      phase-out arithmetic alone) is a real differentiation, not just a
+      duplicate entrant into a crowded field.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who land here from this portfolio's own
+      no-tax-on-tips-overtime-calculator (or vice versa) -- both new 2025
+      OBBBA deductions likely to be claimed by the same filer in the same
+      season -- will follow the one-hop cross-link between the two, a
+      cross-venture return-visit signal this portfolio does not yet have
+      evidence for on any pair of siblings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic by the end of the
+    2027 April filing season (the first full season under this deduction and
+    this venture's natural traffic peak).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of the 2027 April filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auto-loan-interest-deduction-calculator/
+  analytics: null

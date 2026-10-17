@@ -1,0 +1,5 @@
+gauge b=2 sub-search, peak measure, h=2.5 mm, seeds 0-19
+rules: infeasible (missed) 1 of 20; feasible masses g: 33.32 33.32 33.46 33.49 33.52 33.60 33.60 33.65 33.70 34.02 35.29 35.29 35.34 35.37 35.42 35.55 35.57 35.59 35.62
+rules: missed seeds: [0]
+free: infeasible (missed) 0 of 20; feasible masses g: 33.32 33.32 33.44 33.46 33.48 33.49 33.50 33.60 33.60 34.02 35.31 35.34 35.34 35.34 35.37 35.38 35.42 35.49 35.51 35.57
+free: missed seeds: []

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dotenv Exposure Checker vs. Checking By Hand</title>
+<meta name="description" content="Typing yoursite.com/.env into a browser tab catches an obvious exposure. It misses a soft-404 page that looks plausible, four other common dotenv filenames, and a clear signal for which exposed variable is actually a live credential -- what a scripted, repeatable check catches instead.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/dotenv-exposure-check/vs-checking-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does typing the URL into a browser tab actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Typing yoursite.com/.env into a browser tab is a fast, real check for the single obvious case: a plainly readable file full of KEY=VALUE lines. If that's what comes back, you don't need a tool to tell you it's exposed -- though you may not notice which of the lines is actually a live credential versus an innocuous setting." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick manual look easily misses: (1) a server that returns its normal 200 page (a single-page app's fallback route, a themed 404) for literally any path -- glancing at a response that looks like plausible text can be misread either way without checking its actual line shape. (2) Checking only the bare .env and not the four other common filenames (.env.local, .env.production, .env.production.local, .env.development.local) that frameworks like Next.js define and that often carry the developer's own real secrets rather than committed defaults. (3) A page full of variable names is easy to skim past without noticing which ones look like a real credential -- this tool names them explicitly by pattern (SECRET, TOKEN, PASSWORD, API_KEY, and similar) as a separate, higher severity." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A manual check is a point-in-time look. A new deploy script, a server migration, or a CDN configuration change can reintroduce this exposure at any point after the last time someone happened to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the Dotenv Exposure Checker</a></p>
+<h1>Dotenv Exposure Checker vs. checking by hand</h1>
+<p>
+  Typing <code>yoursite.com/.env</code> into a browser tab is a real, fast way to spot the single
+  obvious case: a plainly readable file full of <code>KEY=VALUE</code> lines. It is also the method
+  most developers already reach for first, and it genuinely works for that case.
+</p>
+
+<table>
+  <thead><tr><th>Check</th><th>Typing the URL by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Obvious plainly-readable .env file</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>A server that returns 200 with a generic page for any path (soft-404)</td><td>Can look plausible enough to misread either way</td><td>Verified against the real KEY=VALUE line shape before calling anything exposed</td></tr>
+    <tr><td>Checking all five common dotenv filenames, not just one</td><td>Manual, easy to stop after trying the bare .env</td><td>Checks .env, .env.local, .env.production, .env.production.local, and .env.development.local every run</td></tr>
+    <tr><td>Telling a live credential apart from an innocuous setting</td><td>Easy to skim past in a wall of variable names</td><td>Flags a variable NAME that matches a common secret pattern (SECRET, TOKEN, PASSWORD, API_KEY) at a higher severity</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+  </tbody>
+</table>
+
+<h2>When to still just look</h2>
+<p>
+  If you only need a one-off sanity check on a URL you're already typing into the address bar,
+  looking is fine — it's free and you're already there. The gap this tool closes is coverage and
+  confidence: all five relevant filenames, not just the one you thought to try, each verified
+  against the real file shape rather than eyeballed, every time a deploy happens, with an exit code
+  a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does typing the URL into a browser tab actually show you?</h3>
+<p>Typing yoursite.com/.env into a browser tab is a fast, real check for the single obvious case: a plainly readable file full of KEY=VALUE lines. If that's what comes back, you don't need a tool to tell you it's exposed -- though you may not notice which of the lines is actually a live credential versus an innocuous setting.</p>
+<h3>Where does the by-hand check fall short?</h3>
+<p>Three ways this scripted check catches and a quick manual look easily misses: (1) a server that returns its normal 200 page (a single-page app's fallback route, a themed 404) for literally any path -- glancing at a response that looks like plausible text can be misread either way without checking its actual line shape. (2) Checking only the bare .env and not the four other common filenames (.env.local, .env.production, .env.production.local, .env.development.local) that frameworks like Next.js define and that often carry the developer's own real secrets rather than committed defaults. (3) A page full of variable names is easy to skim past without noticing which ones look like a real credential -- this tool names them explicitly by pattern (SECRET, TOKEN, PASSWORD, API_KEY, and similar) as a separate, higher severity.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A manual check is a point-in-time look. A new deploy script, a server migration, or a CDN configuration change can reintroduce this exposure at any point after the last time someone happened to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to check by hand.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it, and for having authorisation to test any site you point it at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+</body>
+</html>

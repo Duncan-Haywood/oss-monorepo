@@ -2,4 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./vs-a-vulnerability-scanner.html</loc></url>
+  <url><loc>./vs-checking-eol-dates-by-hand.html</loc></url>
+  <url><loc>./what-to-do-when-a-base-image-is-eol.html</loc></url>
 </urlset>

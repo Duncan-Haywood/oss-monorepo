@@ -1,0 +1,35 @@
+name: patreon-fee-calculator
+description: A private browser calculator for Patreon creators to find real monthly payout from three pledge tiers after their plan's platform fee (10% Standard, or legacy 5%/8%/12% Lite/Pro/Premium) and per-charge payment processing fees, and to see whether billing patrons "per creation" instead of monthly is quietly costing more in processing fees for the same total pledge.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Patreon creators will use a payout calculator that turns pledge tiers into real net payout, because the dashboard's pledge total does not show the platform fee or the per-charge processing fee that come out before it reaches them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators billing "per creation" will change how they price a per-post pledge once shown that splitting the same total pledge into more, smaller charges pays a fixed processing fee every time and can trigger the $3 micropayment rate on each one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators approaching a plan-tier decision (Lite/Pro/Premium) will use this calculator to see the platform-fee cost of the tools each tier adds, rather than guessing the dollar impact from the percentage alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators will return month over month to check net payout against an income goal and see how many more tier-1 patrons close the gap, the same way streamers return to the portfolio's twitch-payout-calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/
+  analytics: null

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hunting Lease Income Calculator — What Will My Land Net?</title>
+  <meta name="description" content="Free hunting lease income calculator for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts after insurance, upkeep and lost use, and see the break-even rate per acre. Runs in your browser.">
+  <meta property="og:title" content="Hunting Lease Income Calculator — free, private">
+  <meta property="og:description" content="Compare three ways to lease land for hunting on your own prices and costs. Net per acre and break-even rate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Hunting Lease Income Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for landowners: compare a flat club lease, per-hunter seasonal leases and paid day hunts on your own prices and costs, and see net income per acre and the break-even lease rate. Runs in your browser; nothing is uploaded.", "featureList": "Three lease models compared, net after insurance and upkeep, break-even rate per acre, seat-fill sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much can a landowner charge for a hunting lease?", "acceptedAnswer": {"@type": "Answer", "text": "It depends heavily on region, game, habitat and access, so this tool holds no market rates. Enter the per-acre or per-hunter price you are actually being offered or that neighbours report, and it shows the net after your insurance, upkeep, admin and lost-use costs."}}, {"@type": "Question", "name": "Is a flat club lease or per-hunter leasing better?", "acceptedAnswer": {"@type": "Answer", "text": "Per-hunter leasing usually grosses more when seats fill but carries vacancy risk and more admin; one club lease is steadier and simpler. The tool compares both, plus paid day hunts, on your numbers and shows how net changes if only half the seats fill."}}, {"@type": "Question", "name": "What does a hunting lease cost me as the landowner?", "acceptedAnswer": {"@type": "Answer", "text": "Typically liability insurance or an umbrella extension, signage and boundary upkeep, roads, food plots or stands you provide, your time, and any use you give up such as grazing or your own hunting. Enter each; the tool subtracts them."}}, {"@type": "Question", "name": "Does leasing land for hunting create liability?", "acceptedAnswer": {"@type": "Answer", "text": "It can. Recreational-use statutes in some states limit a landowner's liability but often not when you charge a fee, so the rules for paid leases differ. Ask your insurer and an attorney, and use a written lease with a hold-harmless clause reviewed locally. This tool does not assess any of that."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal, tax or insurance advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. Lease contracts, liability, insurance and the tax treatment of lease income need a qualified attorney, insurer or tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #5a4a1f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2f12; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2f12; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2f1210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5a4a1f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #3b2f12; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #3b2f12; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HUNTING LEASE INCOME CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What would leasing your land for hunting actually net you?</h1>
+    <p>Enter your acres, the prices you are offered and your own costs. You get <strong>net income for three arrangements</strong> — one club on a flat lease, individual per-hunter seasonal leases, and paid day hunts — plus the <strong>break-even rate per acre</strong> and what happens if only some seats fill.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool contains no market rates; the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your land and your numbers</h2>
+    <div class="grid">
+      <div><label for="acres">Acres you would lease</label><input type="number" id="acres" min="0" step="any" value="200"></div>
+      <div><label for="ratePerAcre">Club lease rate ($ per acre per year)</label><input type="number" id="ratePerAcre" min="0" step="any" value="12"></div>
+      <div><label for="hunters">Hunter seats you would sell</label><input type="number" id="hunters" min="0" step="any" value="6"></div>
+      <div><label for="perHunterFee">Fee per hunter per season ($)</label><input type="number" id="perHunterFee" min="0" step="any" value="600"></div>
+      <div><label for="fillPct">Share of seats that fill (%)</label><input type="number" id="fillPct" min="0" step="any" value="80"></div>
+      <div><label for="dayRate">Paid day-hunt rate ($ per hunter-day)</label><input type="number" id="dayRate" min="0" step="any" value="150"></div>
+      <div><label for="daysSold">Hunter-days you expect to sell</label><input type="number" id="daysSold" min="0" step="any" value="14"></div>
+      <div><label for="insuranceCost">Added liability insurance ($ per year)</label><input type="number" id="insuranceCost" min="0" step="any" value="350"></div>
+      <div><label for="upkeepCost">Signs, roads, stands, plots ($ per year)</label><input type="number" id="upkeepCost" min="0" step="any" value="400"></div>
+      <div><label for="adminCost">Your admin time and contracts ($ per year)</label><input type="number" id="adminCost" min="0" step="any" value="120"></div>
+      <div><label for="lostUseCost">Income given up, e.g. grazing ($ per year)</label><input type="number" id="lostUseCost" min="0" step="any" value="300"></div>
+      <div><label for="taxSavings">Property-tax savings, if any ($ per year)</label><input type="number" id="taxSavings" min="0" step="any" value="0"></div>
+      <div><label for="platformFeePct">Listing or platform fee (%)</label><input type="number" id="platformFeePct" min="0" step="any" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Compare the arrangements</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the numbers or load the example, then click Compare.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>The three arrangements</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Arrangement</th><th class="n" scope="col">Gross</th><th class="n" scope="col">Costs</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net / acre</th></tr></thead><tbody id="results"></tbody></table></div>
+    <h3>Per-hunter leasing if seats fill less</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Seats filled</th><th class="n" scope="col">Net</th></tr></thead><tbody id="fill"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li><strong>Club lease</strong> = acres × rate per acre. <strong>Per-hunter</strong> = seats × share filled × fee. <strong>Day hunts</strong> = hunter-days × day rate.</li>
+      <li><strong>Net</strong> = gross + tax savings − insurance − upkeep − admin − lost use − platform fee.</li>
+      <li><strong>Break-even rate</strong> = (costs − tax savings) ÷ (1 − platform fee) ÷ acres.</li>
+      <li><strong>Not modelled:</strong> liability exposure and its legal limits in your state, the lease contract, game-law and licensing rules, income tax on lease income, damage deposits, wildlife damage to crops, and the effect on neighbours or on resale value.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much can a landowner charge for a hunting lease?</h3>
+    <p>It depends heavily on region, game, habitat and access, so this tool holds no market rates. Enter the per-acre or per-hunter price you are actually being offered or that neighbours report, and it shows the net after your insurance, upkeep, admin and lost-use costs.</p>
+    <h3>Is a flat club lease or per-hunter leasing better?</h3>
+    <p>Per-hunter leasing usually grosses more when seats fill but carries vacancy risk and more admin; one club lease is steadier and simpler. The tool compares both, plus paid day hunts, on your numbers and shows how net changes if only half the seats fill.</p>
+    <h3>What does a hunting lease cost me as the landowner?</h3>
+    <p>Typically liability insurance or an umbrella extension, signage and boundary upkeep, roads, food plots or stands you provide, your time, and any use you give up such as grazing or your own hunting. Enter each; the tool subtracts them.</p>
+    <h3>Does leasing land for hunting create liability?</h3>
+    <p>It can. Recreational-use statutes in some states limit a landowner's liability but often not when you charge a fee, so the rules for paid leases differ. Ask your insurer and an attorney, and use a written lease with a hold-harmless clause reviewed locally. This tool does not assess any of that.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this legal, tax or insurance advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. Lease contracts, liability, insurance and the tax treatment of lease income need a qualified attorney, insurer or tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as an attorney, insurer or tax adviser. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any lease decision you make.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>lease_compared</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../timber-sale-offer-checker/">timber sale offer checker</a> and <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, fillSensitivity, sampleInputs, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const KEYS = Object.keys(sampleInputs());
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    const read = () => Object.fromEntries(KEYS.map((k) => [k, Number($("#" + k).value || 0)]));
+
+    function run() {
+      const input = read();
+      const c = compare(input);
+      if (c.error) { status.textContent = c.error; report.hidden = true; return false; }
+      last = c;
+      $("#advice").innerHTML = c.advice.map((a) => `<div class="finding"><span class="pill info">result</span>${esc(a)}</div>`).join("");
+      $("#results").innerHTML = c.results.map((r) => `<tr><th scope="row">${esc(r.label)}</th><td class="n">${money(r.gross)}</td><td class="n">${money(r.costs)}</td><td class="n">${money(r.net)}</td><td class="n">${r.netPerAcre === null ? "—" : "$" + r.netPerAcre.toFixed(2)}</td></tr>`).join("");
+      $("#fill").innerHTML = fillSensitivity(input).map((s) => `<tr><th scope="row">${s.fillPct}%</th><td class="n">${money(s.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Best at your inputs: ${c.results.find((r) => r.model === c.best).label}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("lease_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      for (const [k, v] of Object.entries(sampleInputs())) $("#" + k).value = v;
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up acres, prices and costs."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const k of KEYS) $("#" + k).value = ""; report.hidden = true; last = null; status.textContent = "Fill in the numbers or load the example, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "hunting-lease-comparison.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

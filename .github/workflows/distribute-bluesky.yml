@@ -1,0 +1,26 @@
+# Announce newly launched tools from a labelled bot account on Bluesky.
+# Off by default: with vars.DISTRIBUTE_BLUESKY unset this only prints a dry run.
+# Free API, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-bluesky
+on:
+  schedule:
+    - cron: '17 14 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  announce:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node platform/distribution/bluesky.mjs
+        env:
+          DISTRIBUTE_BLUESKY: ${{ vars.DISTRIBUTE_BLUESKY }}
+          BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+          BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}

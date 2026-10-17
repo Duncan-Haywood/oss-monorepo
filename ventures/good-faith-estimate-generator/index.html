@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Good Faith Estimate Generator for Self-Pay Patients — Free</title>
+  <meta name="description" content="Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400 dispute check and a review of your past estimates. Runs in your browser; no patient data leaves it.">
+  <meta property="og:title" content="Good Faith Estimate generator for self-pay patients — free, private">
+  <meta property="og:description" content="Build the estimate, see when it is due, and catch missing items before it goes out. Nothing is uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f5f5a'/%3E%3Crect x='9' y='6' width='14' height='20' rx='2' fill='%23fff'/%3E%3Cpath d='M12 12h8M12 16h8M12 20h5' stroke='%230f5f5a' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Good Faith Estimate Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Build a No Surprises Act Good Faith Estimate for self-pay patients: service lines with codes and charges, co-provider subtotals, a delivery deadline, a completeness check, a $400 dispute check and a review of past estimates. Runs in your browser; no patient data is uploaded.", "featureList": "Good faith estimate document, delivery deadline, completeness check, per-provider subtotals, dispute threshold check, estimate accuracy review"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Who has to give a Good Faith Estimate?", "acceptedAnswer": {"@type": "Answer", "text": "Under the No Surprises Act, a provider or facility that schedules care for an uninsured patient, or for a patient who is insured but not using insurance, has to give an estimate of expected charges. The generator builds the document and works out when it is due. Whether a given patient or service is covered is for you and your advisor to decide."}}, {"@type": "Question", "name": "When does the estimate have to be delivered?", "acceptedAnswer": {"@type": "Answer", "text": "The tool uses the commonly stated timing: within 3 business days of scheduling when care is booked 10 or more business days ahead, within 1 business day when it is booked 3 to 9 business days ahead, and within 3 business days of a request when the patient asks before scheduling. Care booked under 3 business days ahead is outside the scheduled-care rule. It counts the days strictly between scheduling and service and can treat federal holidays as non-business days. Check the dates against the current rule."}}, {"@type": "Question", "name": "What is the $400 dispute threshold?", "acceptedAnswer": {"@type": "Answer", "text": "If a provider or facility bills the patient $400 or more above its estimate, the patient may start the patient-provider dispute resolution process, within 120 calendar days of the date of the bill. The bill-versus-estimate check on this page applies that test to one provider at a time."}}, {"@type": "Question", "name": "What does the history check do?", "acceptedAnswer": {"@type": "Answer", "text": "Paste past estimates and what you actually billed, one line per service: case, code, estimate, actual. It shows how many of those cases would have crossed the $400 line and which codes you most often under-quote, so you can correct the basis of your estimates. It does not tell you what to charge."}}, {"@type": "Question", "name": "Is this legal advice, and is this the official CMS form?", "acceptedAnswer": {"@type": "Answer", "text": "No to both. It lists the items the rule asks for in one document you can print or paste into your own system. CMS publishes its own template and notice wording; compare the output with it. Coding, charges, co-provider rules and enforcement are yours to confirm."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2321; background: #f2f7f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #0b5550; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d3a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d3a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5551; }
+    .card { background: #fff; border: 1px solid #cfe0dd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d3a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 130px; font-family: ui-monospace, monospace; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 2fr 1fr .6fr .9fr 1.2fr auto; gap: 8px; margin: 8px 0; align-items: center; }
+    .rowhead { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5551; font-weight: 700; }
+    @media (max-width: 760px) { .row { grid-template-columns: 1fr 1fr; } .rowhead { display: none; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f5f5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebe8; color: #0b3d3a; }
+    button.small { margin: 0; padding: 8px 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eeec; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5551; }
+    .finding { border-bottom: 1px solid #e3eeec; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #d8efec; color: #0b5550; }
+    .pill.missing { background: #fbe3e0; color: #8a1c10; }
+    .pill.warn { background: #fdf0cf; color: #6b4a00; }
+    pre.doc { white-space: pre-wrap; background: #fbfdfc; border: 1px solid #cfe0dd; border-radius: 8px; padding: 16px; font: 13px/1.5 ui-monospace, monospace; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0dd; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 600; margin: 12px 0 4px; }
+    .check input { width: auto; }
+    #printable[hidden] { display: none; }
+    @media print { body { background: #fff; padding: 0; } body > *:not(#printable), main > *:not(#printable) { display: none !important; } #printable { display: block !important; border: 0; box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GOOD FAITH ESTIMATE GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build a Good Faith Estimate for a self-pay patient, and know when it is due.</h1>
+    <p>List the services with codes and charges. You get a printable estimate, per-provider subtotals, the delivery deadline, a list of anything missing, a check of a bill against the $400 dispute line, and a review of which of your past estimates came in low.</p>
+    <p class="note">Patient names and dates stay on this page. Nothing is sent anywhere, and nothing is saved.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Provider or facility</h2>
+      <div class="grid">
+        <div><label for="pname">Name</label><input id="pname" autocomplete="off"></div>
+        <div><label for="pnpi">NPI (10 digits)</label><input id="pnpi" inputmode="numeric" autocomplete="off"></div>
+        <div><label for="ptin">Tax ID (TIN)</label><input id="ptin" autocomplete="off"></div>
+        <div><label for="paddr">Address</label><input id="paddr" autocomplete="off"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Patient and dates</h2>
+      <div class="grid">
+        <div><label for="ptname">Patient name</label><input id="ptname" autocomplete="off"></div>
+        <div><label for="ptdob">Date of birth</label><input id="ptdob" type="date"></div>
+        <div><label for="kind">How did this come about?</label><select id="kind"><option value="scheduled">Care was scheduled</option><option value="request">Patient asked for an estimate, nothing scheduled</option></select></div>
+        <div><label for="scheduledOn">Date scheduled (or date the patient asked)</label><input id="scheduledOn" type="date"></div>
+        <div><label for="serviceOn">Expected date of service</label><input id="serviceOn" type="date"></div>
+        <div><label for="preparedOn">Date prepared</label><input id="preparedOn" type="date"></div>
+      </div>
+      <div class="check"><input id="holidays" type="checkbox" checked><label for="holidays" style="margin:0">Treat U.S. federal holidays as non-business days (an assumption; untick to count them)</label></div>
+      <label for="primary">Primary service, in plain language</label>
+      <input id="primary" autocomplete="off">
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Expected items and services</h2>
+      <p class="note">One line per item you expect to bill. Put a name in the last column when a different provider or facility will bill that line; their lines are totalled separately, because the $400 dispute test applies to each biller on its own.</p>
+      <div class="row rowhead" aria-hidden="true"><span>Code</span><span>Description</span><span>Diagnosis</span><span>Qty</span><span>Charge each ($)</span><span>Billed by (if not you)</span><span></span></div>
+      <div id="lines"></div>
+      <button type="button" class="secondary" id="addline">Add a line</button>
+      <div class="check"><input id="others" type="checkbox"><label for="others" style="margin:0">Other providers or facilities may also bill for this care</label></div>
+      <label for="otherProviders">Who they are and what they may bill</label>
+      <textarea id="otherProviders" style="min-height:70px;font-family:system-ui,sans-serif"></textarea>
+      <label for="notes">Notes for the patient (optional)</label>
+      <textarea id="notes" style="min-height:70px;font-family:system-ui,sans-serif"></textarea>
+      <button type="button" id="run">Build the estimate</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card" id="printable" hidden>
+      <h2>The estimate</h2>
+      <pre class="doc" id="doc"></pre>
+      <button type="button" id="copy">Copy as text</button>
+      <button type="button" class="secondary" id="print">Print</button>
+      <span id="copied" class="note" role="status"></span>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">Check a bill against an estimate</h2>
+      <div class="grid">
+        <div><label for="dEst">Estimated by this provider or facility ($)</label><input id="dEst" type="number" step="any"></div>
+        <div><label for="dBill">Billed by that provider or facility ($)</label><input id="dBill" type="number" step="any"></div>
+        <div><label for="dDate">Date of the bill (optional)</label><input id="dDate" type="date"></div>
+      </div>
+      <button type="button" id="dRun">Check</button>
+      <div id="dOut" aria-live="polite"></div>
+    </section>
+    <section class="card" aria-labelledby="h-5">
+      <h2 id="h-5">Learn from your past estimates</h2>
+      <p class="note">One line per service, as <code>case, code, estimate, actual</code>. Use any case label; it is only used to add up lines that belong together. Remove patient names.</p>
+      <label for="hist">Past estimates and what was billed</label>
+      <textarea id="hist"></textarea>
+      <button type="button" id="hRun">Review</button>
+      <div id="hOut" aria-live="polite"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Who has to give a Good Faith Estimate?</h3>
+      <p>Under the No Surprises Act, a provider or facility that schedules care for an uninsured patient, or for a patient who is insured but not using insurance, has to give an estimate of expected charges. The generator builds the document and works out when it is due. Whether a given patient or service is covered is for you and your advisor to decide.</p>
+      <h3>When does the estimate have to be delivered?</h3>
+      <p>The tool uses the commonly stated timing: within 3 business days of scheduling when care is booked 10 or more business days ahead, within 1 business day when it is booked 3 to 9 business days ahead, and within 3 business days of a request when the patient asks before scheduling. Care booked under 3 business days ahead is outside the scheduled-care rule. It counts the days strictly between scheduling and service and can treat federal holidays as non-business days. Check the dates against the current rule.</p>
+      <h3>What is the $400 dispute threshold?</h3>
+      <p>If a provider or facility bills the patient $400 or more above its estimate, the patient may start the patient-provider dispute resolution process, within 120 calendar days of the date of the bill. The bill-versus-estimate check on this page applies that test to one provider at a time.</p>
+      <h3>What does the history check do?</h3>
+      <p>Paste past estimates and what you actually billed, one line per service: case, code, estimate, actual. It shows how many of those cases would have crossed the $400 line and which codes you most often under-quote, so you can correct the basis of your estimates. It does not tell you what to charge.</p>
+      <h3>Is this legal advice, and is this the official CMS form?</h3>
+      <p>No to both. It lists the items the rule asks for in one document you can print or paste into your own system. CMS publishes its own template and notice wording; compare the output with it. Coding, charges, co-provider rules and enforcement are yours to confirm.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a patient or a service is covered by the rule, the correct codes and charges, the exact required notice wording (compare with the template CMS publishes), the separate co-provider estimate rules, state requirements, and how the delivery days are counted by a regulator. The deadline is an assumption you can see, not a ruling. Defaults are placeholders, not a fee schedule.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../nsa-idr-offer-calculator/">No Surprises Act IDR offer calculator</a>, the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a> and the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any notice, timing or content requirement it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_built</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped your practice, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { EXAMPLE, num, money, gfeDeadline, checkEstimate, disputeCheck, parseHistory, exceedanceReport, renderText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const COLS = [["code", "Code"], ["description", "Description"], ["dx", "Diagnosis"], ["qty", "Qty"], ["charge", "Charge each"], ["billedBy", "Billed by"]];
+    const today = () => new Date().toISOString().slice(0, 10);
+    function addLine(l = {}) {
+      const row = document.createElement("div");
+      row.className = "row";
+      for (const [k, name] of COLS) {
+        const i = document.createElement("input");
+        i.dataset.k = k;
+        i.setAttribute("aria-label", name);
+        i.value = l[k] ?? (k === "qty" ? "1" : "");
+        if (k === "charge" || k === "qty") i.inputMode = "decimal";
+        row.append(i);
+      }
+      const rm = document.createElement("button");
+      rm.type = "button"; rm.className = "secondary small"; rm.textContent = "Remove";
+      rm.setAttribute("aria-label", "Remove this line");
+      rm.addEventListener("click", () => row.remove());
+      row.append(rm);
+      $("lines").append(row);
+    }
+    const readLines = () => [...$("lines").children].map((row) => Object.fromEntries([...row.querySelectorAll("input")].map((i) => [i.dataset.k, i.value])));
+    function read() {
+      return {
+        provider: { name: $("pname").value, npi: $("pnpi").value, tin: $("ptin").value, address: $("paddr").value },
+        patient: { name: $("ptname").value, dob: $("ptdob").value },
+        kind: $("kind").value, scheduledOn: $("scheduledOn").value, serviceOn: $("serviceOn").value, preparedOn: $("preparedOn").value,
+        primaryService: $("primary").value, lines: readLines(),
+        expectsOtherProviders: $("others").checked, otherProviders: $("otherProviders").value, notes: $("notes").value,
+      };
+    }
+    function load(g) {
+      $("pname").value = g.provider.name; $("pnpi").value = g.provider.npi; $("ptin").value = g.provider.tin; $("paddr").value = g.provider.address;
+      $("ptname").value = g.patient.name; $("ptdob").value = g.patient.dob; $("kind").value = "scheduled";
+      $("scheduledOn").value = g.scheduledOn; $("serviceOn").value = g.serviceOn; $("preparedOn").value = g.preparedOn; $("primary").value = g.primaryService;
+      $("lines").replaceChildren(); g.lines.forEach(addLine);
+      $("others").checked = g.expectsOtherProviders; $("otherProviders").value = g.otherProviders; $("notes").value = g.notes;
+      $("hist").value = g.history;
+    }
+    function run() {
+      const g = read();
+      const dl = gfeDeadline({ kind: g.kind, scheduledOn: g.scheduledOn, requestedOn: g.scheduledOn, serviceOn: g.serviceOn, useHolidays: $("holidays").checked });
+      const chk = checkEstimate(g);
+      let h = "";
+      h += `<div class="finding"><h4>Delivery deadline</h4><p>` + (dl.ok ? (dl.required ? `Give the patient the estimate by <strong>${esc(dl.dueBy)}</strong>. ` : "") + esc(dl.note) : esc(dl.error)) + `</p></div>`;
+      h += `<div class="finding"><h4>Total expected charges</h4><p class="stats"><strong>${money(chk.totals.total)}</strong></p>` +
+        `<div class="scroll"><table><thead><tr><th>Billed by</th><th class="n">Subtotal</th></tr></thead><tbody>${chk.totals.byProvider.map((b) => `<tr><td>${esc(b.name)}</td><td class="n">${money(b.amount)}</td></tr>`).join("")}</tbody></table></div>` +
+        `<p class="note">The patient may dispute a bill from any one of these that comes in $400 or more above its own subtotal.</p></div>`;
+      h += `<div class="finding"><h4>Before it goes out</h4>` + (chk.findings.length
+        ? chk.findings.map((f) => `<p><span class="pill ${f.level}">${f.level === "missing" ? "Missing" : "Check"}</span>${esc(f.text)}</p>`).join("")
+        : `<p><span class="pill">Complete</span>Every item the tool checks for is present. It cannot tell whether the codes and charges are right.</p>`) + `</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("doc").textContent = renderText({ ...g, lines: g.lines }, dl);
+      $("printable").hidden = false;
+      record("estimate_built");
+    }
+    $("addline").addEventListener("click", () => addLine());
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { load(EXAMPLE); record("example_loaded"); run(); });
+    $("copy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("doc").textContent); $("copied").textContent = "Copied."; } catch { $("copied").textContent = "Copy failed; select the text instead."; }
+    });
+    $("print").addEventListener("click", () => window.print());
+    $("dRun").addEventListener("click", () => {
+      const r = disputeCheck({ estimated: $("dEst").value, billed: $("dBill").value, billDate: $("dDate").value, today: today() });
+      if (!r.ok) { $("dOut").innerHTML = `<p>${esc(r.error)}</p>`; return; }
+      let t = r.over >= 0 ? `The bill is ${money(r.over)} above the estimate. ` : `The bill is ${money(-r.over)} below the estimate. `;
+      t += r.eligible ? `That is <strong>${money(r.threshold)} or more</strong>, so the patient may be able to start the patient-provider dispute resolution process.` : `That is under the ${money(r.threshold)} line, with ${money(r.headroom)} to spare.`;
+      if (r.eligible && r.deadline) t += ` The 120-day window from that bill ends ${esc(r.deadline)}` + (r.daysLeft !== undefined ? (r.daysLeft >= 0 ? ` (${r.daysLeft} days left).` : ` (it has passed).`) : ".");
+      $("dOut").innerHTML = `<p>${t}</p>`;
+    });
+    $("hRun").addEventListener("click", () => {
+      const { rows, bad } = parseHistory($("hist").value);
+      if (!rows.length) { $("hOut").innerHTML = "<p>Paste at least one line: case, code, estimate, actual.</p>"; return; }
+      const r = exceedanceReport(rows);
+      const pct = (x) => (x === null ? "–" : (x * 100).toFixed(0) + "%");
+      let h = `<p><strong>${r.disputable} of ${r.cases} cases</strong> (${(r.disputableRate * 100).toFixed(0)}%) came in $400 or more over their estimate; the average case was ${money(r.meanOver)} over.</p>`;
+      h += `<div class="scroll"><table><thead><tr><th>Code</th><th class="n">Lines</th><th class="n">Avg estimated</th><th class="n">Avg billed</th><th class="n">Drift</th><th class="n">Billed above estimate</th></tr></thead><tbody>${r.codes.map((c) => `<tr><td>${esc(c.code)}</td><td class="n">${c.n}</td><td class="n">${money(c.meanEstimate)}</td><td class="n">${money(c.meanActual)}</td><td class="n">${pct(c.driftPct)}</td><td class="n">${c.underEstimated} of ${c.n}</td></tr>`).join("")}</tbody></table></div>`;
+      h += `<p class="note">Worst cases: ${r.worst.filter((c) => c.over > 0).map((c) => `${esc(c.caseId)} (${money(c.over)} over)`).join(", ")}. Codes with positive drift are the ones whose estimate basis is worth correcting. ` + (bad.length ? `${bad.length} line(s) could not be read and were skipped.` : "") + `</p>`;
+      $("hOut").innerHTML = h;
+    });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    $("preparedOn").value = today();
+    addLine(); addLine();
+  </script>
+</body>
+</html>

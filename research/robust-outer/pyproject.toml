@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robust-outer"
+version = "0.1.0"
+description = "Byzantine-robust outer aggregation in DiLoCo-style local SGD: exact stationary floor and bias for median and trimmed-mean aggregators, the price of robustness with no attackers, and why more workers cannot remove the attack bias"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

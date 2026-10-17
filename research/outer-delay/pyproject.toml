@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "outer-delay"
+version = "0.1.0"
+description = "Overlapped (delayed) outer updates in DiLoCo-style training on quadratics: exact stability bound 2 sin(pi/(4 tau+2)), delayed heavy-ball rates, and when hiding communication behind compute pays"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

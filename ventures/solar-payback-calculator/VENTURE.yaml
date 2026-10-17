@@ -1,0 +1,60 @@
+name: solar-payback-calculator
+description: >-
+  Free browser tool for homeowners that turns a solar quote (size, cost,
+  incentives, production) and their electricity import and export rates into
+  payback year, 25-year net gain, NPV and IRR, and re-runs it under net
+  billing, price and production scenarios. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session, after the agent-brokerage
+# idea was found already merged by a concurrent session (#6056) and dropped.
+# duplicate_check.py: top match 0.15 (unrelated). The only solar venture,
+# solar-pv-bid-calculator, is installer-side; this is the homeowner side.
+# The decision is five figures and is made from an installer's payback claim.
+# The tool's edge is the export-credit sensitivity: net billing changes payback
+# by years and quotes often assume full net metering.
+#
+# First visitor: r/solar and r/SolarDIY threads "is this quote fair" and "net
+# billing payback", homeowner forums, searches "solar payback calculator" and
+# "solar panel payback period"; volume not measured with an external tool.
+#
+# Privacy is the liability boundary: quotes and bills never leave the browser
+# (tests assert no network calls). No installer, lender or utility is named.
+# Incentives are a user-entered dollar amount: the tool states no incentive rule.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Homeowners holding a solar quote will use a no-signup tool that shows how
+      a lower export credit changes payback, not a single-scenario answer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The payback year and the net-billing scenario row are what people
+      screenshot or quote when discussing a quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the payback contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/solar-payback-calculator/
+  analytics: null

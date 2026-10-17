@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_014MecnyqeQc8uQXyLhMczLw",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "review due counter said 25 runs since the last review although #7034 merged an hour earlier; no open 'prompts: review' PR existed to signal the claim, so a second review ran"
+    },
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "step 2 audit gives no command to pick random local outputs and most records are mirrored; skipped"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "what": "skipped audit and candidate writing",
+      "why": "#7034 did both an hour ago and no track has ~10 new runs",
+      "result": "small review: prompt trimmed to budget, merged filled on 4 records"
+    }
+  ],
+  "goal": null,
+  "notes": "small follow-up review; trimmed review/prompt-1 to 128 lines, filled merged on 4 records",
+  "corrections": [],
+  "redteam": null
+}

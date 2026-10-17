@@ -1,0 +1,51 @@
+name: ice-cream-shop-seasonal-profit-calculator
+description: >-
+  Free browser tool for owners and would-be owners of seasonal ice cream, frozen-dessert and snow-cone shops: enter days open and customers
+  per open day for all twelve months plus spend per customer, product cost, labor, utilities, fixed costs and a loan, then see profit by
+  month, break-even customers per day, an open, close or closed verdict for every month, loan coverage, the cash reserve the slow months
+  need, payback on start-up cost, and price and traffic sweeps. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. portfolio/pipeline/duplicate_check.py scored the nearest venture 0.32
+# (snow-plow-contract-calculator, a vocabulary match on "seasonal"). cafe-drink-margin-calculator is per-drink margin for a year-round cafe;
+# this is the seasonal shop's twelve-month P&L with an open-or-close decision per month. Not in screened-out.md.
+#
+# First visitor: someone pricing a lakeside, boardwalk or main-street ice cream shop; search phrases "ice cream shop profit margin",
+# "ice cream shop break even", "should I close my ice cream shop in winter". Volume not measured with an external tool.
+#
+# Who: independent ice cream, frozen yogurt and shaved-ice owners and buyers of such shops. The decisions (a lease, a $90k loan, whether
+# to stay open in March and October) are five-figure and recur every year.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saving scenarios, importing a POS monthly sales
+# export and a lender-ready PDF behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No market rate, traffic level or lender standard is
+# claimed, sample figures are labelled illustrative, bad input is rejected instead of clamped, and the page carries the no-warranty and
+# not-advice clauses and lists what it does not decide (weather, tax, permits, owner salary, equipment replacement, lender terms).
+
+hypotheses:
+  - claim: >-
+      A seasonal shop owner or buyer will type twelve months of traffic into a worksheet to decide on a loan or on which months to open,
+      because a yearly average hides the months that lose money and the winter cash gap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the profit, break-even or reserve arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ice-cream-shop-seasonal-profit-calculator/
+  analytics: null

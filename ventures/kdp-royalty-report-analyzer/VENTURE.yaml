@@ -1,0 +1,76 @@
+name: kdp-royalty-report-analyzer
+description: >-
+  Free browser tool that turns a KDP royalty report CSV into net royalty per
+  book, marketplace, royalty option and month, refund rates, Kindle Unlimited
+  pages read (valued at a rate the author types), delivery and printing costs, a
+  70% price-band what-if and what ad spend left. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Sibling kdp-royalty-calculator
+# prices one hypothetical 90-day window from typed inputs (exclusive vs wide);
+# nothing in the tree reads an author's own royalty report. Self-publishers on
+# r/selfpublish, r/KDP and author forums routinely say the KDP dashboard shows
+# totals but not per-title refund rates, delivery-cost drag, or KU value.
+#
+# First visitor: those communities and the searches "kdp royalty report
+# analyzer", "kdp sales report per book", "how much are my kindle unlimited
+# pages worth". Volume not measured with an external tool.
+#
+# What makes it more than a sum: per-title refund rate and delivery-cost share,
+# per-marketplace and per-royalty-option splits, single-currency analysis (never
+# a silent mix), KENP value only at a rate the author enters, an editable 70%
+# price-band what-if for 35% sales, and ad spend break-even.
+#
+# Privacy is the differentiator and the liability boundary: the file never
+# leaves the browser (a test asserts the page has no network calls), so the
+# portfolio holds no author or sales data and needs no Amazon API.
+#
+# Path to revenue (payment rails stay off): lead magnet with a cross-link to
+# kdp-royalty-calculator; GitHub Sponsors. Nothing paid is built. A later paid
+# shape could be a saved-report history, which would need storage and is not
+# built.
+#
+# Liability: arithmetic on the user's file and typed figures, model and
+# omissions stated, no tax or financial advice, no warranty, independent-of-
+# Amazon clause, 70% eligibility and price range explicitly Amazon's rules.
+#
+# Unverified: column names are matched by alias from memory of the KDP report
+# layout; no real export was available, so the first user report of an unread
+# file is the priority fix. Amazon's royalty rules and the 70% price range are
+# not asserted; the range is a user-editable starting value.
+
+hypotheses:
+  - claim: >-
+      Self-published authors will drop a KDP royalty report into a no-signup
+      tool to see per-title refunds, delivery-cost drag and KU value, before
+      building a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing 35%-option sales priced inside the 70% range, or a title with a high
+      refund rate, changes at least one title's price or listing, which is the
+      reason to come back with each new report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong royalty total, or a real KDP report the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-report-analyzer/
+  analytics: null

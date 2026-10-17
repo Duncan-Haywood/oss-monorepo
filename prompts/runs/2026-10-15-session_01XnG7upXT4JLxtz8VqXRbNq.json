@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01XnG7upXT4JLxtz8VqXRbNq",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror-sync",
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_mirror/mirror.py",
+      "issue": "convert_runs copied upstream prompt_version 'research/1' verbatim, so validate failed after sync; fixed in this PR."
+    },
+    {
+      "file": "prompts/research/prompt-1.md",
+      "issue": "Step 0 says commit no run record here for research work, but mirror-sync is oss-monorepo work and needs one."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "mirror-sync gives no way to see that a sibling session synced the same upstream commit minutes earlier; I built and CI-waited ~30 min on a sync that landed first. Fetch origin main and compare state.json upstream_commit just before opening the PR."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "My sync PR 7159 was superseded by an identical sync already on main (aec6c98); closed. Shipped the root-cause fix in mirror.py with a test instead.",
+  "corrections": [],
+  "redteam": null
+}

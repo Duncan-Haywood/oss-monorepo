@@ -1,0 +1,43 @@
+name: scope-creep-change-order-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices a client''s extra requests on a fixed-price project as a change order (rate implied by the quote, optional rush premium and free allowance), shows what absorbing the work would cost the effective hourly rate and the schedule slip, and outputs a client-ready Markdown/CSV message; has a --max-creep-pct / --max-absorbed gate. Arithmetic on the user''s own estimates, not a contract.'
+stage: prototype
+
+owner: duncan
+
+# CLI + browser archetype. duplicate_check: no existing venture prices scope creep
+# (closest: freelance-retainer-vs-hourly-calculator, a different decision).
+#
+# Where the first real visitor would come from: search phrases "change order template",
+# "how to charge for scope creep", "client asked for extra work fixed price", "change order
+# calculator freelance"; r/freelance, r/webdev, r/graphic_design threads on scope creep.
+# The reader is a freelancer or small agency with a fixed-price quote who needs a number and
+# a polite message. Paid path later: a hosted change-order tracker per client project with
+# e-signature-free approval links.
+hypotheses:
+  - claim: A freelancer facing an extra request will search for how to price scope creep, enter their quote, and send the generated change order text.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the absorbed cost and rate drop makes freelancers more likely to send a change order than to say yes for free.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: arithmetic runs in the visitor's browser or on their machine.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted change order) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository or document is found using the generated change-order text within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/scope-creep-change-order-calculator/
+  analytics: null

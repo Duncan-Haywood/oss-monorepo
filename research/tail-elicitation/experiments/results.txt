@@ -1,0 +1,41 @@
+== 1. joint minimiser = (VaR, ES); profile score = ln ES
+tau=0.7 lam=0.0: argmin=(3.000,13.133) truth=(3,13.133) min score 2.5752 ln ES 2.5752
+tau=0.7 lam=1.0: argmin=(3.000,13.133) truth=(3,13.133) min score 5.1082 ln ES 2.5752
+tau=0.9 lam=0.0: argmin=(7.000,29.400) truth=(7,29.400) min score 3.3810 ln ES 3.3810
+tau=0.9 lam=1.0: argmin=(7.000,29.400) truth=(7,29.400) min score 5.8520 ln ES 3.3810
+tau=0.97 lam=0.0: argmin=(20.000,60.000) truth=(20,60.000) min score 4.0943 ln ES 4.0943
+tau=0.97 lam=1.0: argmin=(20.000,60.000) truth=(20,60.000) min score 5.7536 ln ES 4.0943
+
+== 2. ES alone is not elicitable (Osband): level set of ES is not convex
+ES(P0)=10.0 ES(P1)=10.000000000000002 ES(0.5P0+0.5P1)=12.5  (ES is concave in the distribution)
+
+== 3. excess score, closed forms (exact on finite d, tau=0.9)
+ES x0.5: excess 0.30685 closed 0.30685
+ES x0.7: excess 0.07190 closed 0.07190
+ES x0.9: excess 0.00575 closed 0.00575
+ES x1.1: excess 0.00440 closed 0.00440
+ES x1.5: excess 0.07213 closed 0.07213
+VaR -> 1.0: excess 0.34014 closed 0.34014
+VaR -> 3.0: excess 0.13605 closed 0.13605
+VaR -> 20.0: excess 0.08844 closed 0.08844
+VaR -> 80.0: excess 1.72109 closed 1.72109
+
+== 4. detection: forecaster with correct VaR, ES scaled by r. pinball difference is exactly 0.
+n needed for paired score diff to reach 2 standard errors (n=4 sd^2/mean^2); 200k sims
+lognormal s=1 tau=0.9 VaR=3.60 ES=6.42 | r=0.9: mean 0.0060 (theory 0.0058) n=7,293 | r=0.7: mean 0.0691 (theory 0.0719) n=804 | r=0.5: mean 0.3003 (theory 0.3069) n=227
+lognormal s=1 tau=0.95 VaR=5.18 ES=8.56 | r=0.9: mean 0.0060 (theory 0.0058) n=12,116 | r=0.7: mean 0.0701 (theory 0.0719) n=1,243 | r=0.5: mean 0.3010 (theory 0.3069) n=371
+lognormal s=1 tau=0.99 VaR=10.24 ES=15.23 | r=0.9: mean 0.0043 (theory 0.0058) n=65,979 | r=0.7: mean 0.0834 (theory 0.0719) n=3,650 | r=0.5: mean 0.3119 (theory 0.3069) n=1,176
+Pareto a=3 tau=0.9 VaR=2.15 ES=3.23 | r=0.9: mean 0.0052 (theory 0.0058) n=6,943 | r=0.7: mean 0.0719 (theory 0.0719) n=566 | r=0.5: mean 0.3101 (theory 0.3069) n=179
+Pareto a=3 tau=0.95 VaR=2.71 ES=4.07 | r=0.9: mean 0.0060 (theory 0.0058) n=10,111 | r=0.7: mean 0.0739 (theory 0.0719) n=1,145 | r=0.5: mean 0.3074 (theory 0.3069) n=345
+Pareto a=3 tau=0.99 VaR=4.64 ES=6.96 | r=0.9: mean 0.0049 (theory 0.0058) n=64,774 | r=0.7: mean 0.0814 (theory 0.0719) n=6,809 | r=0.5: mean 0.2972 (theory 0.3069) n=1,480
+
+== 5. quantile-part weight lam: cancels exactly when only ES is misreported, matters when VaR is misreported
+(lognormal s=1, tau=0.95, common random numbers, 200k sims; forecaster B vs truth A)
+ES x0.7, VaR right: lam=0.0: mean 0.0637 sd 1.1960 n(2se)=1,411
+ES x0.7, VaR right: lam=0.25: mean 0.0637 sd 1.1960 n(2se)=1,411
+ES x0.7, VaR right: lam=1.0: mean 0.0637 sd 1.1960 n(2se)=1,411
+ES x0.7, VaR right: lam=4.0: mean 0.0637 sd 1.1960 n(2se)=1,411
+VaR x0.8, ES right: lam=0.0: mean 0.0294 sd 0.5609 n(2se)=1,458
+VaR x0.8, ES right: lam=0.25: mean 0.0325 sd 0.6209 n(2se)=1,458
+VaR x0.8, ES right: lam=1.0: mean 0.0419 sd 0.8009 n(2se)=1,458
+VaR x0.8, ES right: lam=4.0: mean 0.0796 sd 1.5208 n(2se)=1,458

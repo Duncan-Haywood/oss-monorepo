@@ -14,6 +14,7 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -45,7 +46,7 @@ import {
   ROUTABLE_SUBPATH,
   STRIPPED_LINK_RELS,
   blankStrippedLinks,
-  OUTPUT_DIR,
+  writeMirror,
   FRONT_DOOR_DEPLOYMENT,
   renderMountSources,
   writeMountList,
@@ -107,7 +108,21 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 // #3257 and #3258 each did on 2026-09-05. See platform/marketing/regen.mjs.
 const REGENERATE = 'node platform/marketing/regen.mjs';
 
-test('the committed mirror matches what the generator produces', async () => {
+// The mirror is built into a scratch directory, never read from the committed
+// gitops/prod/front-door-tools tree, so these tests keep passing when that
+// tree is removed (process backlog P014 / P022). One build is shared.
+let scratch;
+const scratchMirror = () => (scratch ??= (async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'front-door-mirror-'));
+  await writeMirror(dir);
+  return dir;
+})());
+process.on('exit', () => {
+  // best effort; the OS tmp cleaner covers a crash
+  if (scratch) scratch.then((d) => fsSync.rmSync(d, { recursive: true, force: true }), () => {});
+});
+
+test('the written mirror holds what the generator produces', async () => {
   // `stored`, not `files`: a file whose bytes are byte-identical to one already
   // in the mirror is deliberately not written at all — `00-mirror-alias.conf`
   // points its name at the copy that is. The two tests below cover the aliased
@@ -115,7 +130,7 @@ test('the committed mirror matches what the generator produces', async () => {
   // disk.
   const { stored } = await buildMirror();
   for (const file of stored) {
-    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.stored)).catch(() => null);
+    const onDisk = await fs.readFile(path.join(await scratchMirror(), file.stored)).catch(() => null);
     assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
     assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
     // What is committed is compressed, so a byte comparison alone would pass
@@ -129,10 +144,10 @@ test('the committed mirror matches what the generator produces', async () => {
   }
 });
 
-test('the mirror directory holds nothing the generator did not write', async () => {
+test('the written mirror directory holds nothing the generator did not list', async () => {
   const { stored } = await buildMirror();
   const expected = new Set([...stored.map((f) => f.stored), 'kustomization.yaml']);
-  const actual = await fs.readdir(OUTPUT_DIR);
+  const actual = await fs.readdir(await scratchMirror());
   for (const name of actual) {
     assert.ok(
       expected.has(name),
@@ -256,9 +271,9 @@ test('an empty mirror still renders a usable alias map', () => {
   assert.match(rendered, /^ {2}default \$fd_flat;$/m);
 });
 
-test('the committed kustomization matches the file list', async () => {
+test('the written kustomization matches the file list', async () => {
   const { shards } = await buildMirror();
-  const onDisk = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const onDisk = await fs.readFile(path.join(await scratchMirror(), 'kustomization.yaml'), 'utf8');
   assert.equal(onDisk, renderKustomization(shards), `stale — run \`${REGENERATE}\``);
 });
 
@@ -289,8 +304,15 @@ test('every mirrored page carries the robots directive and canonical the switch 
       page.contents.includes(`<link rel="canonical" href="${canonical}">`),
       `${page.key} should be canonical to ${canonical}`,
     );
+    // Anchored to an actual <link> tag, not a bare `rel="canonical"`
+    // substring -- a guide page that discusses canonical tags in its own
+    // prose (escaped as `&lt;link rel="canonical"...&gt;`) legitimately
+    // contains that substring without shipping a second real tag. Measured
+    // 2026-09-24 on canonical-tag-check/why-two-canonical-tags-is-worse-
+    // than-none.html: the unanchored regex counted 5, the mirrored page
+    // ships 1.
     assert.equal(
-      page.contents.match(/rel=["']canonical["']/g).length,
+      (page.contents.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/g) ?? []).length,
       1,
       `${page.key} has more than one canonical, which leaves the crawler to pick`,
     );
@@ -806,9 +828,12 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   const redirectBlocks = allToolBlocks.filter((b) => /return 301/.test(b));
   const toolBlocks = allToolBlocks.filter((b) => !/return 301/.test(b));
   assert.equal(redirectBlocks.length, 1, 'exactly one /tools/ block is a redirect');
-  // Eight since page subdirectories landed: four for a flat venture (root,
-  // `.mjs`, `LICENSE`, anything else) and the same four one level down.
-  assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
+  // Nine since 18 ventures' own pages started offering a same-origin `.py`
+  // CLI download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`): five for a flat
+  // venture (root, `.mjs`, `LICENSE`, `.py`, anything else) and the same
+  // four one level down -- no venture nests its downloadable CLI inside a
+  // page subdirectory, so there is no tenth block for that shape yet.
+  assert.equal(toolBlocks.length, 9, 'the mirror is routed by nine location blocks');
   for (const block of toolBlocks) {
     // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
     // the client sent `Accept-Encoding: gzip`, and falls through to a plain
@@ -1180,6 +1205,25 @@ test('the return link sits inside the body it belongs to', () => {
   assert.ok(out.includes('All 7 free tools'));
 });
 
+test('a quoted "<body>" inside a script does not fool the return-link injector', () => {
+  // git-exposure-check's own soft-404 guide (2026-09-23): its FAQ answer
+  // quotes literal markup, `<html><body>404 Not Found</body></html>`, inside
+  // a <script type="application/ld+json"> block in <head> -- text describing
+  // markup, not markup. A raw regex over the whole document matched that
+  // quoted "<body>" first (it sits before the page's real one) and spliced
+  // the return-link anchor into the middle of the JSON string.
+  const html =
+    '<html><head><script type="application/ld+json">' +
+    '{"a":"an error page such as <html><body>404 Not Found</body></html>"}' +
+    '</script></head><body class="x"><header>h</header></body></html>';
+  const out = injectMirrorNav(html, { toolCount: 7 });
+
+  const script = out.match(/<script type="application\/ld\+json">(.*?)<\/script>/s);
+  JSON.parse(script[1]); // throws if the anchor landed inside the JSON string
+  assert.ok(out.indexOf('<body class="x">') < out.indexOf(`class="${NAV_CLASS}"`));
+  assert.ok(out.indexOf(`class="${NAV_CLASS}"`) < out.indexOf('<header>'));
+});
+
 test('injectMirrorNav refuses a document with no body rather than inventing one', () => {
   // Prepending to a bodyless file would put the anchor outside <html>, where
   // it renders but no stylesheet in the document reaches it.
@@ -1506,7 +1550,7 @@ test('the committed Deployment already mounts exactly the committed shards', asy
   // The staleness assertion for this file, matching how the mirror's own
   // freshness is pinned above: the real file must equal what the writer would
   // produce from the shards actually committed in kustomization.yaml.
-  const kustomization = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const kustomization = await fs.readFile(path.join(await scratchMirror(), 'kustomization.yaml'), 'utf8');
   const generated = [...new Set(kustomization.match(/portfolio-front-tools-\d+/g) || [])].sort(
     (a, b) => Number(a.split('-').pop()) - Number(b.split('-').pop()),
   );

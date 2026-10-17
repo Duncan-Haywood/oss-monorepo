@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Real Estate Brokerage Split Calculator — Compare Splits, Caps and Fees</title>
+  <meta name="description" content="Free real estate brokerage split calculator for agents. Compare up to three brokerages by what you net after the split, cap, transaction and monthly fees, franchise royalty and referral fees, and see the deal count where each plan wins. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Real Estate Brokerage Split Calculator — free, private, in your browser">
+  <meta property="og:description" content="Compare traditional, capped and flat-fee brokerages by what you keep, and where each one wins.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Real Estate Brokerage Split Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares up to three real estate brokerages by what an agent nets after splits, caps, transaction fees, monthly fees, royalties and referral fees, and finds the deal count where each plan overtakes another. Runs in your browser.", "featureList": "split and cap comparison, transaction and monthly fees, franchise royalty, referral fee, crossover deal count, split needed to match, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I compare real estate brokerage splits?", "acceptedAnswer": {"@type": "Answer", "text": "Put each brokerage's split, yearly cap, transaction fees, monthly fees and any franchise royalty on one footing, then run your own expected deals through all of them. This tool does that for up to three brokerages and shows what you keep after each one takes its share."}}, {"@type": "Question", "name": "Is a traditional 70/30 split or a capped split better?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how many deals you close. A capped plan usually costs more per deal until you hit the cap and less after it, so it wins at higher volume. The tool finds the deal count where one plan overtakes another using your own commission and fees."}}, {"@type": "Question", "name": "What does a brokerage cap mean?", "acceptedAnswer": {"@type": "Answer", "text": "A cap is a yearly dollar limit on what the brokerage keeps of your commissions. After you have paid that much, you keep close to all of each commission, usually less a small per-transaction fee. Some plans reset the cap on your anniversary date rather than in January; this tool assumes a single year."}}, {"@type": "Question", "name": "What is a 100 percent commission brokerage?", "acceptedAnswer": {"@type": "Answer", "text": "A plan where you keep the whole commission and pay flat fees instead, such as a per-transaction fee and a monthly fee. It tends to win when you close many deals and lose when you close few, because the fixed costs are spread over fewer sales."}}, {"@type": "Question", "name": "How many deals do I need to make a capped brokerage worth it?", "acceptedAnswer": {"@type": "Answer", "text": "Enter your average price and commission, then look at the crossover finding and the by-volume table. The answer changes with your commission and the cap, which is why a rule of thumb is unreliable."}}, {"@type": "Question", "name": "Are franchise royalties and referral fees counted?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A franchise royalty is a percent of your commission held under its own yearly cap, and a referral fee comes off the commission before the split is applied."}}, {"@type": "Question", "name": "Does this include taxes, MLS dues or E&O insurance?", "acceptedAnswer": {"@type": "Answer", "text": "No. Results are before tax. Add MLS, association dues and errors-and-omissions insurance into the monthly or yearly fee fields if the brokerage does not cover them, so plans compare fairly."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REAL ESTATE BROKERAGE SPLIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which brokerage lets you keep the most?</h1>
+    <p>A better split can still cost you money. Enter your average sale, your commission and how many deals you close, then up to three brokerages. Get what you <strong>net after splits, caps and fees</strong>, the <strong>deal count where each plan overtakes another</strong>, and the <strong>split you would need to ask for</strong> to match the best one.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your business</h2>
+    <div class="grid">
+      <div><label for="price">Average sale price</label><input type="text" id="price" inputmode="decimal" placeholder="450000" autocomplete="off"></div>
+      <div><label for="commissionPct">Commission you earn on your side, percent of price</label><input type="text" id="commissionPct" inputmode="decimal" placeholder="2.5" autocomplete="off"></div>
+      <div><label for="deals">Deals you expect to close in a year</label><input type="text" id="deals" inputmode="decimal" placeholder="14" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Brokerage 1</h2>
+    <div class="grid">
+      <div><label for="p1_name">Name of the brokerage</label><input type="text" id="p1_name" placeholder="Brokerage A" autocomplete="off"></div>
+      <div><label for="p1_split">Your split, percent you keep before the cap</label><input type="text" id="p1_split" inputmode="decimal" placeholder="70" autocomplete="off"></div>
+      <div><label for="p1_cap">Yearly cap on what the brokerage keeps, dollars (optional)</label><input type="text" id="p1_cap" inputmode="decimal" placeholder="16000" autocomplete="off"></div>
+      <div><label for="p1_postCapSplit">Your percent after the cap (blank means 100)</label><input type="text" id="p1_postCapSplit" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p1_txnFee">Fee per transaction, dollars</label><input type="text" id="p1_txnFee" inputmode="decimal" placeholder="395" autocomplete="off"></div>
+      <div><label for="p1_postCapTxnFee">Fee per transaction after the cap (blank means same)</label><input type="text" id="p1_postCapTxnFee" inputmode="decimal" placeholder="75" autocomplete="off"></div>
+      <div><label for="p1_royaltyPct">Franchise royalty, percent of commission</label><input type="text" id="p1_royaltyPct" inputmode="decimal" placeholder="6" autocomplete="off"></div>
+      <div><label for="p1_royaltyCap">Yearly royalty cap, dollars</label><input type="text" id="p1_royaltyCap" inputmode="decimal" placeholder="3000" autocomplete="off"></div>
+      <div><label for="p1_monthlyFee">Monthly fee, dollars (desk, tech, MLS)</label><input type="text" id="p1_monthlyFee" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p1_annualFee">Yearly fee, dollars</label><input type="text" id="p1_annualFee" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="p1_referralPct">Referral fee off the top, percent</label><input type="text" id="p1_referralPct" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Brokerage 2 (optional)</h2>
+    <div class="grid">
+      <div><label for="p2_name">Name of the brokerage</label><input type="text" id="p2_name" placeholder="Brokerage A" autocomplete="off"></div>
+      <div><label for="p2_split">Your split, percent you keep before the cap</label><input type="text" id="p2_split" inputmode="decimal" placeholder="70" autocomplete="off"></div>
+      <div><label for="p2_cap">Yearly cap on what the brokerage keeps, dollars (optional)</label><input type="text" id="p2_cap" inputmode="decimal" placeholder="16000" autocomplete="off"></div>
+      <div><label for="p2_postCapSplit">Your percent after the cap (blank means 100)</label><input type="text" id="p2_postCapSplit" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p2_txnFee">Fee per transaction, dollars</label><input type="text" id="p2_txnFee" inputmode="decimal" placeholder="395" autocomplete="off"></div>
+      <div><label for="p2_postCapTxnFee">Fee per transaction after the cap (blank means same)</label><input type="text" id="p2_postCapTxnFee" inputmode="decimal" placeholder="75" autocomplete="off"></div>
+      <div><label for="p2_royaltyPct">Franchise royalty, percent of commission</label><input type="text" id="p2_royaltyPct" inputmode="decimal" placeholder="6" autocomplete="off"></div>
+      <div><label for="p2_royaltyCap">Yearly royalty cap, dollars</label><input type="text" id="p2_royaltyCap" inputmode="decimal" placeholder="3000" autocomplete="off"></div>
+      <div><label for="p2_monthlyFee">Monthly fee, dollars (desk, tech, MLS)</label><input type="text" id="p2_monthlyFee" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p2_annualFee">Yearly fee, dollars</label><input type="text" id="p2_annualFee" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="p2_referralPct">Referral fee off the top, percent</label><input type="text" id="p2_referralPct" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Brokerage 3 (optional)</h2>
+    <div class="grid">
+      <div><label for="p3_name">Name of the brokerage</label><input type="text" id="p3_name" placeholder="Brokerage A" autocomplete="off"></div>
+      <div><label for="p3_split">Your split, percent you keep before the cap</label><input type="text" id="p3_split" inputmode="decimal" placeholder="70" autocomplete="off"></div>
+      <div><label for="p3_cap">Yearly cap on what the brokerage keeps, dollars (optional)</label><input type="text" id="p3_cap" inputmode="decimal" placeholder="16000" autocomplete="off"></div>
+      <div><label for="p3_postCapSplit">Your percent after the cap (blank means 100)</label><input type="text" id="p3_postCapSplit" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p3_txnFee">Fee per transaction, dollars</label><input type="text" id="p3_txnFee" inputmode="decimal" placeholder="395" autocomplete="off"></div>
+      <div><label for="p3_postCapTxnFee">Fee per transaction after the cap (blank means same)</label><input type="text" id="p3_postCapTxnFee" inputmode="decimal" placeholder="75" autocomplete="off"></div>
+      <div><label for="p3_royaltyPct">Franchise royalty, percent of commission</label><input type="text" id="p3_royaltyPct" inputmode="decimal" placeholder="6" autocomplete="off"></div>
+      <div><label for="p3_royaltyCap">Yearly royalty cap, dollars</label><input type="text" id="p3_royaltyCap" inputmode="decimal" placeholder="3000" autocomplete="off"></div>
+      <div><label for="p3_monthlyFee">Monthly fee, dollars (desk, tech, MLS)</label><input type="text" id="p3_monthlyFee" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="p3_annualFee">Yearly fee, dollars</label><input type="text" id="p3_annualFee" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="p3_referralPct">Referral fee off the top, percent</label><input type="text" id="p3_referralPct" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare brokerages</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your business and at least one brokerage, then click Compare brokerages.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Brokerages compared</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Brokerage</th><th class="n">You net</th><th class="n">Kept of commission</th><th class="n">Cost of brokerage</th><th class="n">Cap reached</th></tr></thead><tbody></tbody></table></div>
+    <h3>What you would net at other volumes</h3>
+    <div class="scroll"><table id="sens-table"><thead></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Each deal earns your commission (price x commission percent). A referral fee comes off first. The brokerage keeps its share of what is left, (100 - your split) percent, until it has been paid the yearly cap; after that you keep your post-cap percent. A deal that crosses the cap is split in two. Transaction fees apply to every deal, at the post-cap amount once the cap is full. A franchise royalty is a percent of your total commission up to its own yearly cap, and monthly and yearly fees are subtracted once. All deals are assumed to be the same size and to close in a single year.</p>
+    <p><strong>Not modelled:</strong> tax, anniversary-date cap resets, tiered splits that change with volume, team splits, stock or revenue-share programs, sign-up incentives, and the value of leads, training or brand. <strong>Unverified:</strong> results were checked by hand calculation and unit tests only, not against any brokerage's own statement, so check your own agreement, because the terms in it decide what you actually pay.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I compare real estate brokerage splits?</h3>
+    <p>Put each brokerage's split, yearly cap, transaction fees, monthly fees and any franchise royalty on one footing, then run your own expected deals through all of them. This tool does that for up to three brokerages and shows what you keep after each one takes its share.</p>
+    <h3>Is a traditional 70/30 split or a capped split better?</h3>
+    <p>It depends on how many deals you close. A capped plan usually costs more per deal until you hit the cap and less after it, so it wins at higher volume. The tool finds the deal count where one plan overtakes another using your own commission and fees.</p>
+    <h3>What does a brokerage cap mean?</h3>
+    <p>A cap is a yearly dollar limit on what the brokerage keeps of your commissions. After you have paid that much, you keep close to all of each commission, usually less a small per-transaction fee. Some plans reset the cap on your anniversary date rather than in January; this tool assumes a single year.</p>
+    <h3>What is a 100 percent commission brokerage?</h3>
+    <p>A plan where you keep the whole commission and pay flat fees instead, such as a per-transaction fee and a monthly fee. It tends to win when you close many deals and lose when you close few, because the fixed costs are spread over fewer sales.</p>
+    <h3>How many deals do I need to make a capped brokerage worth it?</h3>
+    <p>Enter your average price and commission, then look at the crossover finding and the by-volume table. The answer changes with your commission and the cap, which is why a rule of thumb is unreliable.</p>
+    <h3>Are franchise royalties and referral fees counted?</h3>
+    <p>Yes. A franchise royalty is a percent of your commission held under its own yearly cap, and a referral fee comes off the commission before the split is applied.</p>
+    <h3>Does this include taxes, MLS dues or E&O insurance?</h3>
+    <p>No. Results are before tax. Add MLS, association dues and errors-and-omissions insurance into the monthly or yearly fee fields if the brokerage does not cover them, so plans compare fairly.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the values you enter and the simplifications listed above. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before signing any brokerage agreement.</p>
+    <p><strong>Independent.</strong> Not affiliated with any brokerage, franchise, MLS or real estate association.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plans_compared</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling or buying a renewal book? The <a href="../insurance-agency-book-valuation-calculator/">insurance agency book valuation calculator</a> compares an offer with keeping the book.</p>
+    <p>Self-employed? The <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a> cover what comes after the split.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money, SENS_DEALS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const PLANS = [1, 2, 3];
+    const KEYS = ["name", "split", "cap", "postCapSplit", "txnFee", "postCapTxnFee", "royaltyPct", "royaltyCap", "monthlyFee", "annualFee", "referralPct"];
+    const TOP = ["price", "commissionPct", "deals"];
+    let last = null;
+
+    function read() {
+      const o = Object.fromEntries(TOP.map((k) => [k, $("#" + k).value]));
+      o.plans = PLANS.map((i) => Object.fromEntries(KEYS.map((k) => [k, $("#p" + i + "_" + k).value])));
+      return o;
+    }
+    function fill(x) {
+      TOP.forEach((k) => { $("#" + k).value = x[k] ?? ""; });
+      PLANS.forEach((i, n) => KEYS.forEach((k) => { $("#p" + i + "_" + k).value = (x.plans && x.plans[n] && x.plans[n][k]) ?? ""; }));
+    }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.best;
+      const tiles = [[b.plan.label, "nets you the most"], [usd(b.net), "you keep in a year, before tax"], [(b.keptPct * 100).toFixed(0) + "%", "of your commission kept"], [usd(b.brokerageCost), "goes to the brokerage and fees"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.results.map((r) => `<tr class="${r === b ? "best" : ""}"><td>${esc(r.plan.label)}</td><td class="n">${usd(r.net)}</td><td class="n">${(r.keptPct * 100).toFixed(1)}%</td><td class="n">${usd(r.brokerageCost)}</td><td class="n">${r.capHitDeal ? "deal " + r.capHitDeal : "no"}</td></tr>`).join("");
+      $("#sens-table thead").innerHTML = "<tr><th>Brokerage</th>" + SENS_DEALS.map((d) => `<th class="n">${d} deals</th>`).join("") + "</tr>";
+      $("#sens-table tbody").innerHTML = a.results.map((r) => `<tr><td>${esc(r.plan.label)}</td>` + r.table.map((t, i) => { const top = Math.max(...a.results.map((x) => x.table[i].net)); return `<td class="n${t.net === top ? " hot" : ""}">${usd(t.net)}</td>`; }).join("") + "</tr>").join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plans_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: three invented brokerage plans, not real companies."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your business and at least one brokerage, then click Compare brokerages."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "brokerage-split-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

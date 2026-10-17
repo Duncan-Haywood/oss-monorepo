@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stripe Churn and Cohort Analyzer — Free CSV Retention Tool</title>
+  <meta name="description" content="Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Stripe Churn and Cohort Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="MRR waterfall, churn, cohort retention and findings from a Stripe subscriptions export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stripe Churn & Cohort Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe subscriptions CSV export into an MRR waterfall, monthly churn, cohort retention table and plain-language findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "price-rise simulator with break-even cancellation share, MRR waterfall, logo and revenue churn, cohort retention heatmap, tenure at cancellation, concentration and plan-gap findings"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I get churn and cohort retention out of Stripe without a paid analytics tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export your subscriptions from the Stripe Dashboard (Billing, Subscriptions, Export) as CSV and drop it here. The tool computes MRR, new and churned MRR, monthly churn and a cohort retention table from the start and cancel dates in the file. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How is MRR calculated from the export?", "acceptedAnswer": {"@type": "Answer", "text": "Each subscription's amount is normalised to a monthly figure (yearly divided by 12, weekly times 52/12) and multiplied by quantity if the file has a quantity column. Each subscription's MRR is held constant at that value, because a subscription export has no history of upgrades, downgrades or discounts."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Expansion and contraction between plans, coupons, tax, refunds, failed payments and usage billing. A customer who cancels and resubscribes appears as one churn and one new subscription. Treat the numbers as an estimate from the dates and amounts in your file."}}, {"@type": "Question", "name": "What is the difference between logo churn and revenue churn?", "acceptedAnswer": {"@type": "Answer", "text": "Logo churn is the share of customers who left in a month; revenue churn is the share of MRR they represented. If small plans leave more than large ones, revenue churn is the lower of the two."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STRIPE CHURN AND COHORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where do your Stripe subscribers actually leave?</h1>
+    <p>Drop in the CSV you exported from Stripe and get your <strong>MRR waterfall</strong>, <strong>monthly churn</strong>, a <strong>cohort retention table</strong> and plain-language findings, without connecting an analytics vendor to your billing account or sending anyone your customer list.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Customer IDs and emails in it are not sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your subscriptions export</h2>
+    <p class="note">Stripe Dashboard → Billing → Subscriptions → Export (all columns). Needs a start or created date and an amount; canceled or ended dates, interval, quantity, customer and plan columns are used when present. Other tools' exports work if the headers are similar.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder="id,Customer ID,Status,Start Date (UTC),Canceled At (UTC),Plan,Amount,Interval"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>MRR waterfall by month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Start MRR</th><th class="n" scope="col">New</th><th class="n" scope="col">Churned</th><th class="n" scope="col">End MRR</th><th class="n" scope="col">Customers</th><th class="n" scope="col">Logo churn</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Cohort retention (share of each start month still subscribed)</h3>
+    <p class="note">Rows are the month a subscription started. Columns are months since. Green is retained; a cell is blank until that month has happened.</p>
+    <div class="scroll"><table><thead id="cohort-head"></thead><tbody id="cohort-body"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the monthly table as CSV</button></p>
+  </section>
+
+  <section class="card" id="simulator" hidden>
+    <h2>What would a price rise do?</h2>
+    <p class="note">Uses the active subscriptions and each plan's own recent churn from your file. The two sliders are your assumptions, not predictions: nobody can know how many customers a rise will lose until it happens.</p>
+    <label for="sim-plan">Plan</label>
+    <select id="sim-plan"></select>
+    <label for="sim-pct">Price rise (%)</label>
+    <input type="number" id="sim-pct" value="15" min="0" max="200" step="1">
+    <label for="sim-loss">Customers who cancel because of it (%)</label>
+    <input type="number" id="sim-loss" value="5" min="0" max="100" step="1">
+    <label for="sim-lift">Extra monthly churn afterwards (points)</label>
+    <input type="number" id="sim-lift" value="0" min="0" max="20" step="0.1">
+    <p class="stats" id="sim-out"></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>MRR per subscription</strong> is the export's amount normalised to a month (yearly ÷ 12, weekly × 52/12) times quantity when present, held constant for the subscription's life.</li>
+      <li><strong>Waterfall.</strong> Start MRR + new − churned = end MRR every month. A subscription that starts and ends in the same month counts in both, so the table always reconciles.</li>
+      <li><strong>Logo churn</strong> is subscriptions ended in a month divided by subscriptions active at its start; the summary uses the last three complete months.</li>
+      <li><strong>Lifetime</strong> is 1 ÷ monthly logo churn and <strong>revenue LTV</strong> is average revenue per subscription × lifetime. It is revenue, not profit, and is unreliable when churn is near zero.</li>
+      <li><strong>Price-rise simulator.</strong> Takes the subscriptions active now on one plan, applies your rise, removes the share you say cancels at once, then decays the rest at that plan's own recent monthly churn (plus any lift you add) for 12 months, and compares with no rise. Break-even is the cancelled share at which the two totals are equal. It is arithmetic on your assumptions, not a forecast; it ignores grandfathering, annual contracts that renew later, and customers who downgrade instead of leaving.</li>
+      <li><strong>Not modelled:</strong> upgrades and downgrades, coupons, tax, refunds, failed-payment recovery, usage billing. A customer who cancels and resubscribes shows as one churn and one new subscription.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I get churn and cohort retention out of Stripe without a paid analytics tool?</h3>
+    <p>Yes. Export your subscriptions from the Stripe Dashboard (Billing, Subscriptions, Export) as CSV and drop it here. The tool computes MRR, new and churned MRR, monthly churn and a cohort retention table from the start and cancel dates in the file. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>How is MRR calculated from the export?</h3>
+    <p>Each subscription's amount is normalised to a monthly figure (yearly divided by 12, weekly times 52/12) and multiplied by quantity if the file has a quantity column. Each subscription's MRR is held constant at that value, because a subscription export has no history of upgrades, downgrades or discounts.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Expansion and contraction between plans, coupons, tax, refunds, failed payments and usage billing. A customer who cancels and resubscribes appears as one churn and one new subscription. Treat the numbers as an estimate from the dates and amounts in your file.</p>
+    <h3>What is the difference between logo churn and revenue churn?</h3>
+    <p>Logo churn is the share of customers who left in a month; revenue churn is the share of MRR they represented. If small plans leave more than large ones, revenue churn is the lower of the two.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running a subscription business? See the <a href="../stripe-failed-payment-recovery-analyzer/">Stripe failed payment recovery analyzer</a>, <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a>, the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a> the <a href="../subscription-price-impact/">subscription price impact calculator</a> and, for shops without subscriptions, the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>.</p>
+    <p>Keeping your own books? The <a href="../stripe-payout-to-journal/">Stripe payout to journal converter</a> turns a payout report into month-split Xero or QuickBooks journals, checked against the payout.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct, simulatePriceIncrease } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastMonths = [], lastSubs = [];
+    function simulate() {
+      const r = simulatePriceIncrease(lastSubs, { plan: $("#sim-plan").value, increasePct: Number($("#sim-pct").value), extraLossPct: Number($("#sim-loss").value), churnLiftPts: Number($("#sim-lift").value) });
+      $("#sim-out").innerHTML = r.invalid ? esc(r.invalid) : `${r.subscriptions} active subscriptions, ${money(r.currentMrr)} MRR, plan churn ${pct(r.baselineChurn)}/month. Over ${r.months} months: <strong>${money(r.withRevenue)}</strong> with the rise against ${money(r.withoutRevenue)} without, a ${r.delta >= 0 ? "gain" : "loss"} of <strong>${money(Math.abs(r.delta))}</strong>. The rise stops paying if more than <strong>${r.breakevenLossPct.toFixed(1)}%</strong> of these customers cancel because of it.`;
+    }
+    for (const id of ["#sim-plan", "#sim-pct", "#sim-loss", "#sim-lift"]) $(id).addEventListener("input", simulate);
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.subs);
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary;
+      lastMonths = r.months; lastSubs = n.subs;
+      const plans = [...new Set(n.subs.map((x) => x.plan))].sort();
+      $("#sim-plan").innerHTML = ["all", ...plans].map((p) => `<option value="${esc(p)}">${p === "all" ? "All plans" : esc(p)}</option>`).join("");
+      $("#simulator").hidden = false; simulate();
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.currentMrr)} MRR</strong> across ${s.currentCustomers} active subscriptions (average ${money(s.arpa)}). Last 3 complete months (${esc(s.windowLabel)}): logo churn <strong>${pct(s.logoChurn)}</strong>/month, revenue churn ${pct(s.revenueChurn)}/month`
+        + (s.lifetimeMonths ? `, implied lifetime ${s.lifetimeMonths.toFixed(1)} months, revenue LTV ${money(s.revenueLtv)}` : "")
+        + (s.quickRatio ? `, quick ratio ${s.quickRatio.toFixed(1)}` : "") + ".";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#waterfall").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${money(m.startMrr)}</td><td class="n">${money(m.newMrr)}</td><td class="n">${money(-m.churnedMrr)}</td><td class="n">${money(m.endMrr)}</td><td class="n">${m.endCustomers}</td><td class="n">${m.startCustomers ? pct(m.churnedCustomers / m.startCustomers) : "–"}</td></tr>`).join("");
+      const maxK = Math.max(...r.cohorts.map((c) => c.logo.length));
+      $("#cohort-head").innerHTML = `<tr><th scope="col">Cohort</th><th class="n" scope="col">Subs</th>${Array.from({ length: maxK }, (_, k) => `<th class="n" scope="col">M${k}</th>`).join("")}</tr>`;
+      const shade = (v) => `background:rgba(42,140,90,${(0.12 + 0.7 * v).toFixed(2)});color:${v > 0.55 ? "#fff" : "#1b1f2a"}`;
+      $("#cohort-body").innerHTML = r.cohorts.map((c) => `<tr><th scope="row">${c.key}</th><td class="n">${c.size}</td>${Array.from({ length: maxK }, (_, k) => c.logo[k] === undefined ? "<td></td>" : `<td class="heat" style="${shade(c.logo[k])}">${Math.round(c.logo[k] * 100)}%</td>`).join("")}</tr>`).join("");
+      $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      status.textContent = `Read ${n.subs.length} subscriptions.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small SaaS with three plans. Not real customers."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; $("#simulator").hidden = true; lastMonths = []; lastSubs = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      const rows = ["month,start_mrr,new_mrr,churned_mrr,end_mrr,customers,churned_customers"].concat(lastMonths.map((m) => [m.key, m.startMrr, m.newMrr, m.churnedMrr, m.endMrr, m.endCustomers, m.churnedCustomers].map((v) => typeof v === "number" ? Math.round(v * 100) / 100 : v).join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "mrr-by-month.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

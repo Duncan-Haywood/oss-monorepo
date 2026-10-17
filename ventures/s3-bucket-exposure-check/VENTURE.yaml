@@ -1,0 +1,89 @@
+name: s3-bucket-exposure-check
+description: >-
+  A free browser tool + CLI: sends two unsigned GET requests to a named
+  AWS S3 bucket's own REST endpoint -- a ListBucket request and a
+  GetBucketAcl request -- and names whether the bucket allows anonymous
+  listing, and whether its ACL grants read or write access to the
+  AllUsers group (anyone on the internet) or the AuthenticatedUsers group
+  (any AWS account holder anywhere, not just the bucket owner's own
+  users -- a commonly misunderstood setting). Retries once against the
+  bucket's own region endpoint on a region-mismatch response, the same
+  approach the well-known open-source S3Scanner CLI uses. Never fetches
+  an object's file content -- only the key (file) names S3's own listing
+  response already returns, and ACL grant metadata. Never writes,
+  uploads, or modifies anything; unsigned GET requests only.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, DevOps engineer, or bug-bounty/security researcher
+      auditing an AWS deployment will search a variant of "s3 bucket
+      checker", "check if s3 bucket is public", or "is my s3 bucket
+      public" and find this tool, since it needs no AWS login and no
+      credentials at all -- it runs the same kind of unsigned request the
+      searcher's own curl or the AWS CLI's --no-sign-request flag already
+      makes, just scripted, repeatable across both the listing and ACL
+      checks, and with the AuthenticatedUsers-is-not-your-own-users trap
+      named explicitly.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, evergreen cloud-configuration footgun
+      with a real, currently active channel, not a one-off incident. The
+      open-source CLI sa7mon/S3Scanner -- which performs the same
+      external, unsigned bucket check this tool does -- carries 3,176
+      GitHub stars, 412 forks, and the topics `aws`, `bugbounty`,
+      `infosec`, `s3`, `s3scanner` (measured via the GitHub API
+      2026-09-23), and is under active development (last updated the same
+      day). At least three named hosted competitors target the identical
+      search intent with no-login online tools: BreachFocus
+      (breachfocus.com/tools/s3-checker), S4E.io
+      (s4e.io/tools/amazon-s3-bucket-detection-scanner), and GrayHatWarfare
+      (buckets.grayhatwarfare.com). AWS's own blog
+      (aws.amazon.com/blogs/storage/find-public-s3-buckets-in-your-aws-account)
+      and multiple official docs pages exist specifically because this
+      remains a common, ongoing misconfiguration rather than a closed
+      incident -- the same reading this portfolio's own README already
+      gives a named hosted competitor as evidence of real demand, not
+      evidence the niche is unserved (see supabase-rls-check's write-up
+      for the identical argument applied to VibeAppScanner).
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets a finding will wire the CLI into a nightly audit
+      or their own CI as a regression gate, so a bucket created from a
+      script, a Block Public Access setting toggled off for a one-time
+      migration and never reverted, or an ACL widened by a later object
+      upload is caught the same day rather than discovered by an outsider
+      running the same kind of check -- producing return usage with no
+      action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - AWS changes S3's default anonymous-access behaviour so an unsigned
+    ListBucket/GetBucketAcl request can no longer distinguish a public
+    bucket from a private one (e.g. anonymous requests are refused
+    account-wide regardless of ACL/policy state), at which point this
+    check would be validating a misconfiguration that can no longer be
+    observed this way rather than one many accounts still carry.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s3-bucket-exposure-check/
+  analytics: null

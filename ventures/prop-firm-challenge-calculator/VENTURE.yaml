@@ -1,0 +1,60 @@
+name: prop-firm-challenge-calculator
+description: >-
+  Free browser simulator for funded-trader challenge entrants: enter the rules (profit target, daily loss limit, static or trailing
+  max drawdown, time limit, minimum days) and your own win rate, reward:risk and risk per trade, and it plays the evaluation thousands
+  of times to report pass probability, how failed attempts ended, expected fees to pass, funded-phase payouts, the break-even win rate
+  and a risk-per-trade sweep. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Inspiration only, not copied and not named on any page: the free pass-probability and drawdown calculators that trader communities
+# share as spreadsheets. This is the no-signup, deterministic-seed, rules-aware version that also prices the fee.
+#
+# Neighbours in this repo: none cover trading. startup-exit-waterfall-calculator and the bid calculators are different decisions.
+#
+# Why this niche: tens of thousands of retail traders buy challenge accounts each month, most fail, and the fee is the product's
+# revenue. A trader deciding whether a $540 evaluation is worth buying has no tool that turns their own win rate and risk into
+# an expected cost. People who search for it are already spending money, which is the signal this portfolio looks for.
+#
+# First visitor: someone searching "prop firm challenge calculator", "prop firm pass probability" or "trailing drawdown calculator".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later firm-specific rule presets and a saved-strategy
+# library behind an env-var switch. Neither is built. No affiliate link to any firm is added.
+#
+# Liability: the risk is a trader relying on a simulation to buy a challenge or to size trades. Mitigations: every figure is a
+# deterministic function of the user's own inputs and the seed, hand-checked in unit tests (all-win, all-loss, gambler's-ruin
+# closed forms), bad input throws instead of clamping, the page states it is a simulation of assumed inputs and not a forecast,
+# states trading carries a risk of loss, names no firm and claims no affiliation, and promises no income. Nothing is stored or sent.
+
+hypotheses:
+  - claim: >-
+      A trader weighing a challenge fee will enter their own win rate and risk into a free simulator and use the expected cost to
+      pass, and the risk-per-trade table, to change what they buy or how they size.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing that a zero-expectancy strategy cannot be fixed by any rule set, and where pass rate peaks across risk sizes, is more
+      useful to entrants than a single pass percentage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports buying a challenge or sizing trades on the strength of the output -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/prop-firm-challenge-calculator/
+  analytics: null

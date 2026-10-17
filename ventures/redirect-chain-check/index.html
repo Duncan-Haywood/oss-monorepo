@@ -113,7 +113,7 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
         </tbody>
       </table>
     </div>
-    <p class="note">More: <a href="why-redirect-chains-matter.html">why redirect chains matter, and the most common ways they break</a>. See also: <a href="vs-httpstatus-io.html">how this differs from httpstatus.io's free redirect checker</a>.</p>
+    <p class="note">More: <a href="why-redirect-chains-matter.html">why redirect chains matter, and the most common ways they break</a>. See also: <a href="vs-httpstatus-io.html">how this differs from httpstatus.io's free redirect checker</a>, and <a href="vs-checking-a-chain-by-hand.html">what checking a chain by hand with curl or DevTools misses</a>.</p>
   </section>
 
   <section class="card">
@@ -133,7 +133,7 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
     <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
-    <p>Also worth a pass over the same URL: <a href="../canonical-tag-check/">Canonical Tag Checker</a> checks which URL a page's own <code>rel=canonical</code> link names as authoritative. <a href="../security-headers-check/">Security Headers Checker</a> checks a page's response-header security posture. <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a> checks whether a sitemap's own freshness dates hold up.</p>
+    <p>Planning a migration? <a href="../redirect-map-check/">Redirect Map Checker</a> checks a whole old-to-new redirect map for loops, chains and 404 targets before anything is deployed. Also worth a pass over the same URL: <a href="../canonical-tag-check/">Canonical Tag Checker</a> checks which URL a page's own <code>rel=canonical</code> link names as authoritative. <a href="../security-headers-check/">Security Headers Checker</a> checks a page's response-header security posture. <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a> checks whether a sitemap's own freshness dates hold up.</p>
     <p class="support">Free and open source. If this caught a redirect loop before your visitors did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

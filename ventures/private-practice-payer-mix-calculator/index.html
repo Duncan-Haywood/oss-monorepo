@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Private Practice Payer Mix Calculator — insurance panels vs cash pay per hour</title>
+  <meta name="description" content="Payer mix calculator for therapists and counselors in private practice. See what each insurance panel and your cash fee really net per session and per clinical hour after denials, billing time and slow payment, and what dropping a panel is worth. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Private Practice Payer Mix Calculator — free, private, in your browser">
+  <meta property="og:description" content="Compare insurance panels with cash pay per clinical hour and see the refill rate that makes dropping a panel break even. No client data, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Private Practice Payer Mix Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the payers a therapy or counseling private practice bills (allowed amount, sessions, share of claims paid, days to payment, billing minutes). Shows net per session and per clinical hour for each panel and for cash pay, the break-even refill share if a panel is dropped, annual results at several refill rates, and the contract rate that would match cash. Runs entirely in your browser; nothing is uploaded.", "featureList": "insurance panel vs cash pay, net per clinical hour, denial and billing cost, break-even refill rate, rate negotiation target, receivables, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I drop an insurance panel and go cash-only?", "acceptedAnswer": {"@type": "Answer", "text": "Not from a single number. A panel's net per session has to be compared with what the freed slots would earn, and they only earn it if cash clients actually take them. This tool shows the break-even refill share: the fraction of the freed slots that cash clients must fill for dropping the panel to break even, and the annual result at 25, 50, 75 and 100 percent refill. You supply the refill estimate, because only you know your local market."}}, {"@type": "Question", "name": "How much does an insurance panel really pay per session?", "acceptedAnswer": {"@type": "Answer", "text": "Less than the contracted rate. Multiply the allowed amount by the share of claims actually paid after denials and write-offs, subtract any billing-service percentage, and subtract the cost of the time you spend on claims at your own hourly value. Paste your allowed amounts, paid shares and billing minutes and the tool does it for every payer, per session and per clinical hour."}}, {"@type": "Question", "name": "How do I compare cash pay and insurance per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Divide each net-per-session figure by the hours a session takes including notes. A $160 cash session and a $118 panel session are not 36 percent apart once denials, slow payment and billing time are counted. The tool puts every payer on the same net-per-hour footing so the comparison is one column."}}, {"@type": "Question", "name": "What rate should I ask an insurance panel for?", "acceptedAnswer": {"@type": "Answer", "text": "The rate at which that panel would net you the same per hour as your cash fee, or any target you enter. The tool solves it from the paid share, billing minutes and any billing fee, and shows the gap to your current contract rate. It is a figure to take into a rate negotiation, not a promise that a payer will agree."}}, {"@type": "Question", "name": "What counts as a cash row?", "acceptedAnswer": {"@type": "Answer", "text": "Any row whose name starts with cash, private pay, self-pay, out-of-pocket or sliding. Those rows have no billing-service percentage applied. Add your standard fee and, if you use one, a sliding-scale row, and the refill comparison uses your best cash row."}}, {"@type": "Question", "name": "How should I count denials and slow payment?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the share of claims that are eventually paid, for example 92 percent, from your own remittances over a recent quarter, and the average days from the session to the money arriving. Days to payment do not change the net per session; they raise the receivables you carry and the tool flags payers that pay in 45 days or more."}}, {"@type": "Question", "name": "Is client information involved, and is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No client-level data is needed or accepted by design: every row is a payer with period totals. Nothing you type is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded."}}, {"@type": "Question", "name": "Does this replace billing software or an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does arithmetic on figures you type. It does not file claims, read contracts, track credentialing, or give tax, legal or clinical advice, and it does not tell you which networks to join."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRIVATE PRACTICE PAYER MIX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does each panel really pay you per hour?</h1>
+    <p>Paste <strong>one row per payer</strong>: allowed amount, sessions a month, share of claims paid, days to payment and billing minutes. The tool puts every insurance panel and your <strong>cash fee on the same net-per-clinical-hour footing</strong>, shows the <strong>refill rate that makes dropping a panel break even</strong>, and solves the contract rate that would match cash.</p>
+    <p class="note">Payer-level totals only, no client information. Arithmetic on figures you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your payers</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (payer, allowed per session, sessions per month, share of claims paid, days to payment, admin minutes per session)</label>
+    <textarea id="rows" spellcheck="false" placeholder="payer,allowed,sessions,paid,days,admin&#10;Blue Cross PPO,118,38,96%,21,4&#10;Cash / private pay,160,34,100%,0,0"></textarea>
+    <p class="note">Name your own fee row “cash”, “private pay”, “self-pay” or “sliding”. The last three columns may be blank (100% paid, 30 days, 0 minutes). Use your own remittances for the paid share.</p>
+    <h2 style="margin-top:18px">Your time</h2>
+    <div class="row3">
+      <div><label for="sessionMinutes">Session minutes</label><input id="sessionMinutes" inputmode="decimal" value="60"></div>
+      <div><label for="notesMinutes">Notes and prep minutes per session</label><input id="notesMinutes" inputmode="decimal" value="15"></div>
+      <div><label for="adminHourly">What an hour of billing time is worth to you ($)</label><input id="adminHourly" inputmode="decimal" value="40"></div>
+      <div><label for="billingFeePct">Billing service fee on panels (%)</label><input id="billingFeePct" inputmode="decimal" value="0"></div>
+      <div><label for="targetHourly">Target net per hour ($, blank = your cash net)</label><input id="targetHourly" inputmode="decimal" placeholder="optional"></div>
+    </div>
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your payers, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Net per clinical hour, by payer</h3>
+    <div id="chart"></div>
+    <div class="scroll"><table id="pt"><thead><tr><th>Payer</th><th class="n">Allowed</th><th class="n">Paid share</th><th class="n">Net per session</th><th class="n">Net per hour</th><th class="n">Lost to denials, billing, admin</th><th class="n">Monthly net</th><th class="n">Owed to you</th></tr></thead><tbody></tbody></table></div>
+    <h3>If you dropped a panel</h3>
+    <p class="note" id="sc-note"></p>
+    <div class="scroll"><table id="st"><thead><tr><th>Panel</th><th class="n">Break-even refill</th><th class="n">Per year at 25%</th><th class="n">at 50%</th><th class="n">at 75%</th><th class="n">at 100%</th><th class="n">Rate to match</th><th>Read</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the comparison (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Net per session:</strong> allowed amount × share of claims paid × (1 − billing fee) − billing minutes ÷ 60 × the hourly value you set. Cash rows pay no billing fee. <strong>Net per hour:</strong> net per session ÷ ((session minutes + notes minutes) ÷ 60). <strong>Break-even refill:</strong> a panel's net per session ÷ your best cash net per session, the share of the freed slots cash clients must take for dropping the panel to break even; an empty slot earns nothing. <strong>Rate to match:</strong> (target × hours + billing cost) ÷ (paid share × (1 − billing fee)).</p>
+    <p><strong>Not modelled:</strong> referral flow and the clients a panel brings you, client attrition when you move to cash, credentialing and contract costs, rate changes mid-year, no-shows and late cancels (these differ by payer), supervision and group rates, taxes, and whether your contract lets you leave or change terms. Unverified: tested on hand-calculated examples, not on a real practice's books. It tells you the cost of keeping a panel, not whether to keep it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I drop an insurance panel and go cash-only?</h3>
+    <p>Not from a single number. A panel's net per session has to be compared with what the freed slots would earn, and they only earn it if cash clients actually take them. This tool shows the break-even refill share: the fraction of the freed slots that cash clients must fill for dropping the panel to break even, and the annual result at 25, 50, 75 and 100 percent refill. You supply the refill estimate, because only you know your local market.</p>
+    <h3>How much does an insurance panel really pay per session?</h3>
+    <p>Less than the contracted rate. Multiply the allowed amount by the share of claims actually paid after denials and write-offs, subtract any billing-service percentage, and subtract the cost of the time you spend on claims at your own hourly value. Paste your allowed amounts, paid shares and billing minutes and the tool does it for every payer, per session and per clinical hour.</p>
+    <h3>How do I compare cash pay and insurance per hour?</h3>
+    <p>Divide each net-per-session figure by the hours a session takes including notes. A $160 cash session and a $118 panel session are not 36 percent apart once denials, slow payment and billing time are counted. The tool puts every payer on the same net-per-hour footing so the comparison is one column.</p>
+    <h3>What rate should I ask an insurance panel for?</h3>
+    <p>The rate at which that panel would net you the same per hour as your cash fee, or any target you enter. The tool solves it from the paid share, billing minutes and any billing fee, and shows the gap to your current contract rate. It is a figure to take into a rate negotiation, not a promise that a payer will agree.</p>
+    <h3>What counts as a cash row?</h3>
+    <p>Any row whose name starts with cash, private pay, self-pay, out-of-pocket or sliding. Those rows have no billing-service percentage applied. Add your standard fee and, if you use one, a sliding-scale row, and the refill comparison uses your best cash row.</p>
+    <h3>How should I count denials and slow payment?</h3>
+    <p>Enter the share of claims that are eventually paid, for example 92 percent, from your own remittances over a recent quarter, and the average days from the session to the money arriving. Days to payment do not change the net per session; they raise the receivables you carry and the tool flags payers that pay in 45 days or more.</p>
+    <h3>Is client information involved, and is my data uploaded?</h3>
+    <p>No client-level data is needed or accepted by design: every row is a payer with period totals. Nothing you type is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded.</p>
+    <h3>Does this replace billing software or an accountant?</h3>
+    <p>No. It does arithmetic on figures you type. It does not file claims, read contracts, track credentialing, or give tax, legal or clinical advice, and it does not tell you which networks to join.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, it is not billing, credentialing or clinical advice, and it does not replace a qualified professional or your payer contract. Results are arithmetic on the figures you type; they do not predict whether clients will fill freed slots. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any insurance payer, billing service or practice-management vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../provider-credentialing-delay-cost-calculator/">provider credentialing delay cost calculator</a>, the <a href="../therapy-8-minute-rule-calculator/">therapy 8-minute rule calculator</a>, the <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a>, the <a href="../no-show-fee-calculator/">no-show fee calculator</a> the <a href="../appointment-no-show-analyzer/">appointment no-show analyzer</a> the <a href="../nsa-idr-offer-calculator/">No Surprises Act IDR offer calculator</a> the <a href="../good-faith-estimate-generator/">Good Faith Estimate generator</a> and, for therapy practices, the <a href="../aba-authorization-tracker/">ABA authorization tracker</a>. Pricing billing services to practices? See the <a href="../medical-billing-pricing-calculator/">medical billing pricing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(rows) {
+      const W = 900, rowH = 30, L = 190, R = 70, H = rows.length * rowH + 10;
+      const max = Math.max(...rows.map((r) => r.netPerHour), 1);
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Net per clinical hour by payer">` + rows.map((r, i) => {
+        const w = Math.max(0, (W - L - R) * r.netPerHour / max), y = 5 + i * rowH;
+        return `<text x="${L - 8}" y="${y + 17}" font-size="12" text-anchor="end" fill="#1b1f2a">${esc(r.payer.slice(0, 28))}</text><rect x="${L}" y="${y + 3}" width="${w.toFixed(1)}" height="18" fill="${r.cash ? "#1d5a24" : "#1f5f86"}"/><text x="${(L + w + 6).toFixed(1)}" y="${y + 17}" font-size="12" fill="#4c5a68">${money2(r.netPerHour)}</text>`;
+      }).join("") + `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { sessionMinutes: $("#sessionMinutes").value, notesMinutes: $("#notesMinutes").value, adminHourly: $("#adminHourly").value, billingFeePct: $("#billingFeePct").value, targetHourly: $("#targetHourly").value });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...(parsed.warnings || []), ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const worst = r.rows[r.rows.length - 1], best = r.rows[0];
+      const big = [
+        [money2(r.totals.blendedNetPerHour), "Blended net per clinical hour across all payers"],
+        [money(r.totals.annualNet), `Net per year at ${r.totals.sessions} sessions a month`],
+        [money2(best.netPerHour), `Best: ${best.payer}`],
+        [money2(worst.netPerHour), `Lowest: ${worst.payer}`],
+        [money(r.totals.receivables), "Owed to you at any time, given days to payment"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#chart").innerHTML = chart(r.rows);
+      $("#pt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.payer)}</td><td class="n">${money2(x.allowed)}</td><td class="n">${pct(x.collect, 0)}</td><td class="n">${money2(x.netPerSession)}</td><td class="n">${money2(x.netPerHour)}</td><td class="n">${pct(x.leak, 0)}</td><td class="n">${money(x.monthlyNet)}</td><td class="n">${money(x.receivables)}</td></tr>`).join("");
+      $("#sc-note").textContent = r.cashRef
+        ? `Dropping a panel frees its slots. Cash clients (your best cash row, ${r.cashRef}) must take the break-even share of them for you to come out even; an empty slot earns nothing. Annual figures are the change in net pay per year, negative means you lose money.`
+        : "Add a row named cash or private pay to see the refill comparison.";
+      const money0 = (v) => (v === undefined ? "—" : money(v));
+      $("#st tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${esc(s.payer)}</td><td class="n">${s.breakEvenRefill === null ? "—" : pct(s.breakEvenRefill, 0)}</td><td class="n">${money0(s.annual[0.25])}</td><td class="n">${money0(s.annual[0.5])}</td><td class="n">${money0(s.annual[0.75])}</td><td class="n">${money0(s.annual[1])}</td><td class="n">${s.targetAllowed === null ? "—" : money2(s.targetAllowed)}</td><td>${esc(s.verdict)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: six invented payers, not a real practice."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Compare.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste your payers, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "payer-mix-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

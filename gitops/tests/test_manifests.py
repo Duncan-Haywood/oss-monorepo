@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 
 import yaml
+from front_door_mirror import all_kustomizations, mirror_kustomization as _mirror_kustomization
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "agents"
@@ -87,7 +88,10 @@ def test_no_live_secrets_in_git() -> None:
     ):
         if not path.is_file():
             continue
-        if path.suffix in {".png", ".jpg"}:
+        # Compressed bytes decoded as text can contain "ghp_" by chance (it fired
+        # on a regenerated front-door .gz, 2026-10-04); the plain sources the .gz
+        # files are built from are scanned as ordinary files.
+        if path.suffix in {".png", ".jpg", ".gz"}:
             continue
         if "tests" in path.parts:
             continue
@@ -1156,15 +1160,13 @@ def test_portfolio_front_mounts_only_generated_configmaps() -> None:
 # `front-door-tools/` is a nested one (its file list is machine-written, one
 # line per mirrored file, so it lives in its own directory rather than
 # inflating `prod/kustomization.yaml`), and it is still a generator.
-_FRONT_DOOR_KUSTOMIZATIONS = (
-    ROOT / "prod" / "kustomization.yaml",
-    ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
-)
+def _front_door_kustomizations() -> tuple:
+    return (ROOT / "prod" / "kustomization.yaml", _mirror_kustomization())
 
 
 def _front_door_generated_configmaps() -> set:
     generated = set()
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
     return generated
@@ -1181,7 +1183,7 @@ def _front_door_mounted_configmaps(pod: dict) -> set:
 def _mirror_shard_names() -> list:
     """Shard ConfigMaps in the order `front-door-tools/kustomization.yaml` declares them."""
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     return [entry["name"] for entry in parsed["configMapGenerator"]]
 
@@ -1232,7 +1234,7 @@ def _mirrored_venture_slugs() -> set:
     contains that separator itself.
     """
     parsed = yaml.safe_load(
-        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+        _mirror_kustomization().read_text()
     )
     slugs = set()
     for entry in parsed["configMapGenerator"]:
@@ -2184,19 +2186,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
     #
-    # 335 since this merge: `podcast-feed-check` graduated -- a
-    # zero-dependency CLI + browser checker parsing a podcast's RSS 2.0 +
-    # iTunes/Podcast-namespace feed against Apple Podcasts' documented
-    # requirements and the RSS spec's RFC 822 pubDate format, with a static
-    # `index.html` from its first commit, same shape as the rest of this
-    # running count. This branch only ever knew its own predecessor's
-    # number (333, before `source-map-leak-check` and
-    # `sign-language-interpreter-rate-calculator` landed) until this merge
-    # -- the same ordinary collision shape recorded throughout this list,
-    # and re-derived here by `sync_tree_counts.py` against the fully merged
+    # 335 since this merge: `graphql-introspection-exposure-check` also
+    # graduated, concurrently -- a checker for GraphQL introspection left
+    # enabled in production, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count. This branch
+    # only ever knew its own predecessor's number (331) until this merge --
+    # the same ordinary collision shape recorded throughout this list,
+    # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
     #
-    # 336 since this merge: `git-exposure-check` also graduated,
+    # 336 since this merge: `podcast-feed-check` also graduated,
+    # concurrently -- a zero-dependency CLI + browser checker parsing a
+    # podcast's RSS 2.0 + iTunes/Podcast-namespace feed against Apple
+    # Podcasts' documented requirements and the RSS spec's RFC 822 pubDate
+    # format, with a static `index.html` from its first commit, same shape
+    # as the rest of this running count. This branch only ever knew its
+    # own predecessor's number (333, before `source-map-leak-check` and
+    # `sign-language-interpreter-rate-calculator` landed) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list, re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    #
+    # 337 since this merge: `git-exposure-check` also graduated,
     # concurrently -- a zero-dependency CLI + browser report viewer sending
     # two real GET requests (.git/HEAD, .git/config) and classifying the
     # response body against the exact grammar of a real git-internal file
@@ -2212,7 +2223,899 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # collision shape recorded throughout this list. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 336  # `infra/OWNER_CHECKLIST.md`'s own "N of the 336 tools" wording.
+    #
+    # 337 since this merge: `dotenv-exposure-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI sending real GET
+    # requests to five well-known dotenv paths (.env, .env.local,
+    # .env.production, .env.production.local, .env.development.local),
+    # verifying the response body against the real KEY=VALUE line shape
+    # rather than just an HTTP status, and never reading, storing, or
+    # rendering a variable's VALUE anywhere -- only its name. Same "read
+    # what's actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `source-map-leak-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (335, before `git-exposure-check` landed) until this merge --
+    # the same ordinary collision shape recorded throughout this list, and
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # `graphql-introspection-exposure-check` also graduated on `main`,
+    # concurrently with both of the above -- a zero-dependency CLI +
+    # browser checker for a GraphQL endpoint's introspection query being
+    # left enabled in production, same shape as the rest of this running
+    # count. Its own PR did not carry a comment entry here; re-derived
+    # (this merge) by `sync_tree_counts.py` against the fully merged tree
+    # rather than by hand.
+    #
+    # 339 since this merge: `subdomain-takeover-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI following a
+    # hostname's real CNAME chain over public DNS-over-HTTPS, matching the
+    # final target against 25 known takeover-prone hosting providers, and
+    # confirming with one live GET checked against that provider's own
+    # "unclaimed" fingerprint page rather than escalating a DNS-only match.
+    # Same "read what's actually there, name the exact evidence" checker
+    # shape as `git-exposure-check` and `dotenv-exposure-check`, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    #
+    # 340 since this merge: `slopsquatting-check` graduated (this branch) --
+    # a zero-dependency browser tool + CLI flagging an npm dependency name
+    # that looks hallucinated or freshly squatted. The browser page is
+    # fully offline (an edit-distance heuristic against a bundled list of
+    # well-known names, no network call); the CLI's one live check is a
+    # read-only GET per dependency to the public npm registry. Same
+    # "browser-local checker plus a matching CLI, run against a manifest
+    # the maintainer already has" shape as `npm-lifecycle-script-check` and
+    # `dependency-confusion-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 341 since this merge: `cloud-bucket-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # one real, read-only, unauthenticated GET to a cloud provider's own
+    # anonymous bucket-listing endpoint across AWS S3, Google Cloud
+    # Storage, and Azure Blob Storage, classifying the response body
+    # against each provider's own documented listing-or-error XML shape
+    # rather than trusting a bare status code. Same "read what's actually
+    # there, name the exact evidence" checker shape as `git-exposure-check`
+    # and `subdomain-takeover-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch only ever knew its own predecessor's number (340, before
+    # `slopsquatting-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    #
+    # 342 since this merge: `window-tinting-bid-calculator` graduated -- a
+    # deterministic bid calculator for independent auto window tinting
+    # installers pricing a vehicle film job by pane count, film tier, and
+    # old-tint removal time rather than a flat per-vehicle-size price. Same
+    # "browser-local bid worksheet, no AI, no network call" shape as
+    # `land-survey-bid-calculator` and `biohazard-cleanup-bid-calculator`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 343 since this merge: `backup-file-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # real GET requests to eight well-known backup-file paths (backup.zip,
+    # backup.sql, db.sql, and more), classifying the response against a
+    # real archive's magic bytes or a real SQL dump's line shape rather
+    # than a bare status code, and never quoting a SQL dump's row-data
+    # statements or extracting a matched archive. Same "read what's
+    # actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `dotenv-exposure-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (342, before `window-tinting-bid-calculator` landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    #
+    # 344 since this merge: `employee-cost-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator comparing the
+    # fully-loaded annual cost of a W-2 employee against a 1099 contractor
+    # for the same role (capped FUTA/SUTA employer-burden arithmetic,
+    # ongoing-vs-year-one cost split, a break-even contractor rate), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch only ever knew its own predecessor's
+    # number (343, before `backup-file-exposure-check` landed on this side)
+    # until this merge -- the same ordinary collision shape recorded
+    # throughout this list.
+    #
+    # 345 on this merge: `str-occupancy-tax-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # splitting one short-term-rental stay's occupancy tax into up to four
+    # named layers plus a flat per-night fee, each split between what a
+    # platform's collection agreement already remits and what is left for
+    # the host to self-file. Static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (341, before `window-tinting-bid-
+    # calculator`, `backup-file-exposure-check`, and `employee-cost-
+    # calculator` each landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three-wide this time.
+    #
+    # 346 on this merge: `llm-api-pricing-calculator` also graduated -- a
+    # zero-dependency browser calculator comparing the monthly dollar cost
+    # of calling different LLM APIs (Claude, GPT, Gemini, or a custom
+    # provider) for a given workload, pricing fresh input, cached input, and
+    # output tokens separately rather than one blended per-token rate.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    #
+    # 347 on this merge: `mcp-config-risk-check` also graduated -- a
+    # zero-dependency browser checker that audits a single pasted MCP server
+    # config (mcp.json / claude_desktop_config.json / VS Code's servers
+    # shape) for structural risk patterns: broad filesystem/shell access,
+    # secrets hardcoded instead of referenced from an environment variable,
+    # missing version pins on npx/uvx/pipx/docker launches, and shadowed
+    # tool names across servers. Different scope from the already-mirrored
+    # `mcp-supply-chain-watch` (which diffs two captured manifests over
+    # time). Static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 348 on this merge: `kickstarter-fee-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # pricing a Kickstarter campaign's net payout after the 5% platform
+    # fee and per-pledge payment processing, and why more, smaller pledges
+    # keep less of an identical total raised than fewer, larger ones. This
+    # branch only ever knew its own predecessor's number (346, before
+    # `mcp-config-risk-check` landed) until this merge -- the same
+    # ordinary collision shape recorded throughout this list. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 349 on this merge: `auto-glass-bid-calculator` also graduated -- a
+    # zero-dependency browser calculator pricing a mobile or in-shop
+    # auto-glass replacement from glass position/source, ADAS camera or
+    # sensor calibration (dynamic, static, or both), a mobile trip fee,
+    # and cash-discount versus insurance-deductible billing, with a
+    # mechanical flag when a selected calibration requirement was never
+    # actually priced. Static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    #
+    # 350 on this merge: `depop-fee-calculator` also graduated -- a
+    # zero-dependency browser calculator pricing a Depop sale against the
+    # 0%-selling-fee-plus-processing schedule US and UK sellers now run,
+    # the older flat 10% schedule still used elsewhere, and the Boosted
+    # Listings surcharge, keeping the buyer-paid Marketplace fee separate
+    # from seller payout. Static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    #
+    # 351 on this merge: `hidden-unicode-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that scans pasted text
+    # (CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a
+    # README, or any text) for zero-width/invisible Unicode characters,
+    # Unicode Tag characters (decoding any hidden ASCII message they spell
+    # out), and bidirectional override/control characters from the Trojan
+    # Source family -- the technique behind current AI-agent
+    # prompt-injection attacks. Static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 352 on this merge: `skill-manifest-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that lints one or more
+    # pasted SKILL.md agent-skill manifests (the frontmatter-plus-Markdown
+    # format Claude Code and similar agent systems use) for missing/
+    # malformed frontmatter, a description too vague to trigger reliably,
+    # overlapping triggers between two or more pasted skills, and a
+    # body-size context-budget caution. Static `index.html` from its first
+    # commit, same shape as the rest of this running count. That merge
+    # also gzip-compressed `llms.txt` (joining `catalog.json`,
+    # `sitemap.xml`, and this branch's own `about.html`) to buy back
+    # etcd-object headroom -- see `llmsStoredKey` and `aboutStoredKey` in
+    # `platform/marketing/front-door.mjs`.
+    #
+    # 353 on this merge: `salary-range-posting-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser + CLI tool that
+    # scans pasted job-posting text for a stated dollar range and
+    # cross-references a chosen set of US states against a fixed table of
+    # which ones currently require a posted pay range. Static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    # That merge separately, and independently, also gzip-compressed
+    # `llms.txt` for the identical etcd-headroom reason as the merge two
+    # entries above -- the second write is a no-op once the first is
+    # already committed.
+    #
+    # 354 on this merge: `economic-nexus-threshold-tracker` also
+    # graduated -- a zero-dependency browser tracker letting a
+    # multi-state online seller enter trailing-12-month sales by state
+    # and flag which states' economic-nexus sales-tax-registration
+    # thresholds they've crossed, against each state's own published
+    # revenue figure ($100k/$250k/$500k) and, where the state pairs one
+    # on, its transaction-count test (AND or OR). Static `index.html`
+    # from its first commit, same shape as the rest of this running
+    # count.
+    #
+    # 355 on this merge: `k8s-resource-limits-check` also graduates -- a
+    # zero-dependency browser + CLI checker that reads Kubernetes workload
+    # YAML and reports every container missing a memory limit, memory
+    # request, CPU request, or ephemeral-storage limit, plus any request set
+    # above its own limit. This branch only ever knew its own predecessor's
+    # number (349, before any of the five merges above landed) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list. Static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 356 on this merge: `s-corp-reasonable-compensation-calculator` also
+    # graduates -- a zero-dependency browser calculator for single-
+    # shareholder S-corp owners that compares a planned W-2 salary against
+    # a comparable-wage figure the owner supplies, using the IRS's actual
+    # multi-factor reasonable-compensation test, reports the FICA-tax cost
+    # of closing the gap, and prints a nine-factor documentation checklist.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    #
+    # 357 on this merge: `auto-loan-interest-deduction-calculator` also
+    # graduated, concurrently -- a browser-local calculator for the new
+    # federal "qualified passenger vehicle loan interest" deduction (OBBBA,
+    # tax years 2025-2028). This branch only ever knew its own predecessor's
+    # number (356, from the graduation two entries above) until this merge --
+    # the same ordinary collision shape recorded throughout this list; a
+    # sibling branch independently reached the same 357 and the same
+    # narration one merge later (#5733), which is why this entry is the one
+    # that survived reconciling the two.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    #
+    # 358 on this merge: `tip-pool-compliance-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator for
+    # restaurant/bar owners that checks a mandatory tip pool against the
+    # two federal FLSA tip-pooling rules (a manager/supervisor is never
+    # eligible; back-of-house staff are eligible only when no tip credit
+    # is taken) and computes the tip-credit back-wage exposure a
+    # violation creates. Static `index.html` and a
+    # `vs-guessing-from-a-staff-meeting.html` comparison page, both from
+    # their first commit, same shape as the rest of this running count.
+    # This branch only ever knew its own predecessor's number (357) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    #
+    # 359: `caa-record-check` graduates -- a browser tool + CLI resolving
+    # the CAA DNS record set that governs certificate issuance, following
+    # RFC 8659's tree-walk. Static `index.html`, a HowTo guide page and a
+    # generic-method comparison page, all from its first commit.
+    #
+    # 360 on this merge: `claude-code-settings-check` also graduated,
+    # concurrently on `main` -- a browser tool checking a pasted Claude
+    # Code settings.json for structural mistakes in hooks and permissions.
+    # This branch only ever knew its own predecessor's number (359, from
+    # `caa-record-check` above) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
+    #
+    # 361 on a later merge: `claude-code-subagent-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser checker for
+    # Claude Code subagent definitions (.claude/agents/*.md) that flags a
+    # malformed/mismatched name, a description too vague for reliable
+    # orchestrator delegation, a malformed `tools` list, an unrecognized
+    # `model` alias, and a missing or near-empty system prompt. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 362 on a later merge: `claude-skill-scaffold-generator` also
+    # graduated, concurrently on `main` -- a zero-dependency browser tool
+    # that turns a plain-language description of a Claude Agent Skill into
+    # a starter SKILL.md with valid YAML frontmatter and a suggested folder
+    # layout, flagging a non-slug name, a first-person description, and a
+    # missing trigger condition. The generator half of the pair
+    # `skill-manifest-check` started as the checker half. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 363 on a later merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator computing after-tax
+    # 401(k) headroom under the IRS 415(c) limit, static index.html plus a
+    # which-conversion-cadence-should-i-use.html guide page, both from
+    # their first commit. This branch only ever knew its own predecessor's
+    # number (360, from `claude-code-settings-check` above) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list.
+    #
+    # 362 on this merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser-local calculator computing
+    # after-tax 401(k)/415(c) contribution headroom for the mega-backdoor
+    # Roth strategy against the published, dated IRS dollar limits. Static
+    # `index.html` plus a `which-conversion-cadence-should-i-use.html`
+    # guide page, both from their first commit, same shape as the rest of
+    # this running count.
+    #
+    # 363 on this merge: `senior-deduction-calculator` also graduated
+    # (#5765), concurrently on `main` -- a browser-local calculator for the
+    # new federal "senior bonus" deduction (OBBBA, tax years 2025-2028),
+    # including the married-filing-separately exclusion and the per-spouse
+    # MAGI phase-out. Static `index.html` from its first commit, same shape
+    # as the rest of this running count. Two separate concurrent sessions
+    # each recorded their own half of this transition independently, one
+    # only seeing claude-skill-scaffold-generator and the other only
+    # seeing claude-code-subagent-check -- neither could see the other's
+    # addition. All four additions above are real.
+    #
+    # 364 on this later merge: `facebook-marketplace-fee-calculator` also
+    # graduated -- a browser-local calculator that prices a Facebook
+    # Marketplace sale against the current shipped-checkout 10% fee (with
+    # an $0.80 minimum) vs. the $0 local-pickup fee, plus the flat $20
+    # dispute penalty. Static `index.html` and a
+    # `vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html`
+    # comparison page, both from their first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (362, from its own earlier merges of
+    # `mega-backdoor-roth-calculator` and `senior-deduction-calculator`)
+    # until this merge revealed two further concurrent graduations
+    # (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it
+    # had never observed -- the same ordinary collision shape recorded
+    # throughout this list, one merge later. `senior-deduction-calculator`
+    # was independently recorded again by a fourth concurrent session at
+    # this same 364; the addition is the same one already counted above,
+    # not a fifth.
+    #
+    # 365 on this later merge: `caa-record-check` also graduated,
+    # concurrently on `main` -- a browser checker for CAA (Certification
+    # Authority Authorization) DNS records, static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 367 on this merge: two further ventures graduated concurrently on
+    # `main`, neither visible to the other branch until this merge -- this
+    # branch's own `npm-provenance-check` (a browser/CLI checker reporting
+    # which packages in a pasted lockfile carry an npm provenance
+    # attestation, trusted publishing / --provenance, with a
+    # why-not-just-npm-audit-signatures.html docs page) and
+    # `trump-account-calculator` (a browser-local calculator projecting a
+    # federal "Trump Account" child savings account, One Big Beautiful
+    # Bill Act, 26 U.S.C. 530A, to age 18 or later, with a
+    # vs-doing-the-math-by-hand.html comparison page). Each is static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than
+    # by hand.
+    #
+    # 367 -> 368: `claude-code-hooks-security-check` also graduated -- a
+    # browser tool scanning the command strings inside a pasted Claude
+    # Code hooks configuration for known-dangerous shapes (remote
+    # pipe-to-shell, credential exfiltration, unguarded recursive delete,
+    # and others), complementing the portfolio's existing structural
+    # checkers for the same ecosystem (`claude-code-settings-check`,
+    # `claude-code-subagent-check`, `mcp-config-risk-check`,
+    # `skill-manifest-check`). Static `index.html` plus one docs page from
+    # its first commit, same shape as the rest of this running count.
+    #
+    # 369 -> 370 on this merge: `section-174a-catchup-calculator` also
+    # graduated -- a browser-local calculator comparing the two
+    # Rev. Proc. 2025-28 Section 174A domestic R&E catch-up election paths
+    # (deduct the whole remaining unamortized 2022-2024 balance in 2025, or
+    # split it over 2025-2026), with an NOL flag and a present-value
+    # comparison, plus a vs-doing-the-math-by-hand.html comparison page.
+    # Static `index.html` plus one docs/comparison page from its first
+    # commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # 371 -> 372 on that merge: `patreon-fee-calculator` also graduated,
+    # concurrently and invisibly to the `mrr-waterfall-calculator` branch
+    # above -- a browser-local calculator finding a Patreon creator's real
+    # monthly payout from three pledge tiers after the plan's platform fee
+    # (10% Standard, or legacy 5%/8%/12% Lite/Pro/Premium) and per-charge
+    # payment processing, with a docs/comparison page showing when
+    # per-creation billing costs more in fees than monthly billing for
+    # the same total pledge. Static `index.html` plus one docs/comparison
+    # page from its first commit, same shape as the rest of this running
+    # count. Both additions are real, taking 370 to 372.
+    #
+    # 372 -> 373 on this merge: `bonus-depreciation-calculator` also
+    # graduated, concurrently and invisibly to both branches above -- a
+    # browser-local calculator comparing 100% bonus depreciation, a
+    # Section 179 election (with the 2025/2026 dollar limit and
+    # phase-out), and plain MACRS for a new equipment purchase, flagging
+    # whether an over-large deduction creates an NOL or a Section 179
+    # carryforward, plus a vs-doing-the-math-by-hand.html comparison page.
+    # Static `index.html` plus one docs/comparison page from its first
+    # commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # 373 -> 374: `salt-cap-calculator` also graduated -- a browser-local
+    # calculator computing the SALT itemized-deduction cap after its
+    # 2025/2026 MAGI-based phase-out (30 cents per dollar of excess MAGI,
+    # floored at a fixed dollar amount rather than phasing to zero), plus
+    # a vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 374 -> 375: `charitable-deduction-calculator` also graduated -- a
+    # browser-local calculator comparing the new 2026 non-itemizer
+    # above-the-line charitable deduction against itemizing cash gifts
+    # after the new 0.5%-of-AGI floor and the permanent 60%-of-AGI
+    # ceiling, plus a vs-doing-the-math-by-hand.html comparison page.
+    # Static `index.html` plus one docs/comparison page from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 375 -> 376: `gambling-loss-deduction-calculator` also graduated,
+    # concurrently with and invisibly to the five ventures below -- a
+    # browser-local calculator computing the allowable gambling-loss
+    # deduction under OBBBA's new 90%-of-winnings cap (IRC Section 165(d)),
+    # plus a vs-doing-the-math-by-hand.html comparison page. Static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 376 -> 377: `estate-tax-exemption-calculator` also graduated -- a
+    # browser-local calculator projecting federal estate tax exposure
+    # under OBBBA's permanent 2026 $15,000,000 basic exclusion amount
+    # (up to $30,000,000 married with portability), plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 377 -> 378: `excess-business-loss-calculator` also graduated,
+    # concurrently -- a browser-local calculator computing the IRC 461(l)
+    # excess business loss threshold (permanent under OBBBA, with a 2026
+    # figure that counterintuitively falls below 2025's rather than
+    # rising) and the resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 378 -> 379: `qsbs-exclusion-calculator` also graduated, also
+    # concurrently -- a browser-local calculator computing the Section
+    # 1202 QSBS capital-gain exclusion, expanded by OBBBA for stock
+    # acquired after July 4, 2025 (a new tiered 3/4/5-year schedule and a
+    # higher per-issuer cap, replacing the old all-or-nothing 5-year cliff
+    # for earlier stock), plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 379 -> 380: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to the entries above -- a
+    # zero-dependency CLI + browser report viewer sending one real GET
+    # request and classifying the response's Referrer-Policy (an
+    # unsafe-url full-URL leak, a missing or unrecognised value, the
+    # legacy no-referrer-when-downgrade value) and Permissions-Policy (a
+    # malformed structured-field allowlist, a wildcard on a sensitive
+    # feature like camera/microphone, reliance on the deprecated
+    # Feature-Policy header alone). Static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 380 -> 381: `exempt-salary-threshold-checker` also graduated,
+    # concurrently and invisibly to the entries above -- a browser-local
+    # calculator checking a weekly salary against the 2026 federal FLSA
+    # white-collar exemption threshold and the higher state figure in
+    # California, Washington, Maine, Alaska, or New York (including New
+    # York's carve-out excluding the professional exemption from its
+    # higher figure). Static `index.html` only, no comparison page, from
+    # its first commit.
+    #
+    # 381 -> 382: `final-paycheck-deadline-calculator` also graduated,
+    # concurrently and invisibly to the entry above -- a browser-local
+    # calculator computing the legal deadline for a departing employee's
+    # final paycheck by US state and separation type (fired/laid off vs.
+    # quit), including California's notice-based rule and Minnesota's
+    # demand-triggered 24-hour rule, plus whether the state requires
+    # accrued unused vacation/PTO to be paid out as wages. Static
+    # `index.html` only, no comparison page, from its first commit. Its
+    # own merge into `main` left its mirror files written but its
+    # `gitops/prod/front-door-tools/kustomization.yaml` mount ABSENT --
+    # neither `regen.mjs --verify` nor a partial `regen.mjs` run inside a
+    # conflicted merge caught it, because `git checkout --ours` had
+    # already replaced the just-regenerated `front-door-tools/` directory
+    # with this branch's own stale pre-merge copy immediately afterward;
+    # `_mirrored_venture_slugs()` (this file) is what actually caught the
+    # gap, one commit short of shipping a venture nobody could reach.
+    # Fixed by re-running `front-door-tools.mjs --write` and
+    # `front-door.mjs --write` directly, after the `--ours` checkout, so
+    # the freshly-regenerated files are what actually get committed.
+    #
+    # 382 -> 383: `boi-reporting-exemption-checker` also graduated,
+    # concurrently -- a browser-local checker for whether an entity still
+    # owes a federal Corporate Transparency Act beneficial ownership
+    # report after FinCEN's August 2026 final rule permanently exempted
+    # every U.S.-formed entity, applying only to foreign-formed entities
+    # registered to do business in the U.S. Static `index.html` only, no
+    # comparison page, from its first commit.
+    #
+    # 383 -> 384: `child-tax-credit-calculator` also graduated,
+    # concurrently and invisibly to the two entries above -- a
+    # browser-local calculator applying the permanent $2,200-per-child
+    # Child Tax Credit, the $500 Credit for Other Dependents, their
+    # combined MAGI phase-out, and the refundable Additional Child Tax
+    # Credit ceiling, plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 384 -> 385: `eitc-calculator` also graduated -- a browser-local
+    # calculator for the federal Earned Income Tax Credit, applying the
+    # phase-in/plateau/phase-out formula by qualifying-child count and
+    # filing status, the investment income limit, and IRS Publication
+    # 596's own dual earned-income/AGI lookup, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 385 -> 386: `freelance-writer-rate-calculator` also graduated,
+    # concurrently -- a browser-local calculator comparing a freelance
+    # writer's per-word rate against a flat per-project fee for the same
+    # job by effective hourly rate, counting research and revision hours
+    # (which a per-word rate does not separately compensate) alongside
+    # writing time. Static `index.html` from its first commit. `boi-
+    # reporting-exemption-checker` and `final-paycheck-deadline-
+    # calculator` are NOT re-added here -- both are already counted above,
+    # at 382 -> 383 and 381 -> 382 respectively; a sibling merge of this
+    # same conflict independently re-narrated them as new, which this
+    # resolution does not repeat.
+    #
+    # 386 -> 387: `hsa-contribution-limit-calculator` also graduated,
+    # concurrently on `origin/main` -- a browser-local calculator computing
+    # the 2026 HSA contribution limit for self-only or family HDHP
+    # coverage, prorated by months of eligibility or the full amount under
+    # the last-month rule, plus the fixed $1,000 age-55 catch-up and an
+    # HDHP-qualification check. Static `index.html` only, no comparison
+    # page, from its first commit.
+    #
+    # 387 -> 388: `solo-401k-contribution-calculator` also graduated -- a
+    # browser-local calculator computing the 2026 Solo 401(k) contribution
+    # limit for a sole proprietor or single-member LLC: employee elective
+    # deferral, employer profit-sharing contribution derived from net
+    # self-employment earnings, and the combined Section 415(c) overall
+    # limit. Static `index.html` only, no comparison page, from its first
+    # commit. Total re-derived here by `sync_tree_counts.py` against the
+    # fully merged tree rather than by hand.
+    #
+    # 388 -> 389: `mileage-deduction-method-calculator` graduated -- a
+    # browser-local calculator comparing the 2026 IRS standard mileage rate
+    # (72.5 then 76 cents) with actual vehicle expenses. Static `index.html`
+    # only, from its first commit. Total re-derived by `sync_tree_counts.py`.
+    # 389 -> 390: `home-office-deduction-calculator` also graduated -- a
+    # browser-local simplified-vs-regular (Form 8829) home office deduction
+    # comparison. Static `index.html` only.
+    # 390 -> 391: `str-tax-loophole-calculator` also graduated -- a
+    # browser-local short-term-rental passive/non-passive and cost
+    # segregation calculator. Static `index.html` only.
+    # 391 -> 392: `estimated-tax-penalty-calculator` also graduated -- a
+    # browser-local Form 2210 underpayment penalty estimator. Static `index.html` only.
+    # 392 -> 393: `self-employment-tax-calculator` also graduated -- a
+    # browser-local 2026 Schedule SE tax calculator. Static `index.html` only.
+    # 393 -> 394: `backdoor-roth-pro-rata-calculator` graduated (browser-local
+    # Form 8606 pro-rata calculator, static `index.html` only).
+    # 397 -> 398: `dependabot-config-check` graduated (Node CLI + browser
+    # page that lints dependabot.yml; static `index.html` plus ES modules).
+    # 400 -> 401: `roth-conversion-bracket-fill-calculator` graduated (browser-local
+    # 2026 Roth conversion calculator, static `index.html` only).
+    # 403 -> 404: `etsy-statement-profit-analyzer` graduated (browser-local Etsy
+    # statement CSV analyzer, static `index.html` plus ES modules).
+    # 404 -> 405: `google-ads-wasted-spend-analyzer` graduated (browser-local Google Ads
+    # search terms report analyzer, static `index.html` plus ES modules).
+    # 405 -> 406: `shopify-discount-leakage-analyzer` graduated (browser-local Shopify
+    # orders export analyzer, static `index.html` plus ES modules).
+    # 407 -> 408: `airbnb-earnings-report-analyzer` graduated (browser-local Airbnb
+    # Transaction history analyzer, static `index.html` plus ES modules).
+    # 409 -> 410: `ebay-transaction-report-analyzer` graduated (browser-local eBay
+    # Transaction report analyzer, static `index.html` plus ES modules).
+    # 410 -> 411: `shopify-payments-fee-analyzer` graduated (browser-local Shopify
+    # Payments transactions fee-rate analyzer, static `index.html` plus ES modules).
+    # 412 -> 413: `upwork-earnings-fee-analyzer` graduated (browser-local Upwork
+    # transaction history fee analyzer, static `index.html` plus ES modules).
+    # 413 -> 414: `meta-ads-fatigue-analyzer` graduated (browser-local Meta Ads Manager
+    # export analyzer, static `index.html` plus ES modules).
+    # +1: `turo-earnings-report-analyzer` graduated (browser-local Turo earnings
+    # CSV analyzer, static `index.html` plus ES modules).
+    # +1: `fiverr-earnings-fee-analyzer` graduated (browser-local Fiverr earnings
+    # CSV analyzer, static `index.html` plus ES modules).
+    # +1: `kdp-royalty-report-analyzer` graduated (browser-local KDP royalty
+    # report analyzer, static `index.html` plus ES modules).
+    # +1: `poshmark-sales-report-analyzer` graduated (browser-local Poshmark My
+    # Sales Report CSV analyzer, static `index.html` plus ES modules).
+    # +1: `patreon-members-churn-analyzer` graduated (browser-local Patreon Members export analyzer).
+    # +1: `whatnot-sales-report-analyzer` graduated (browser-local Whatnot orders CSV analyzer).
+    # +1: `tiktok-shop-settlement-analyzer` graduated (browser-local TikTok Shop
+    # settlement CSV analyzer, static `index.html` plus ES modules).
+    # +1: `substack-subscriber-export-analyzer` graduated.
+    # +1: `app-store-sales-report-analyzer` graduated.
+    # +1: `bandcamp-sales-report-analyzer` graduated.
+    # +1: `google-play-earnings-report-analyzer` graduated.
+    # +1: `indie-game-payout-calculator` graduated.
+    # +1: `home-service-lead-roi-analyzer` graduated (browser-local lead log analyzer).
+    # +1: `rent-roll-delinquency-analyzer` graduated (browser-local rent ledger analyzer).
+    # +1: `fba-aged-inventory-fee-analyzer` graduated.
+    # +1: `ghost-members-export-analyzer` graduated.
+    # +1: `restaurant-pos-menu-mix-analyzer` graduated (browser-local POS export analyzer).
+    # +1: `rental-property-schedule-e-categorizer` graduated (browser-local bank CSV to Schedule E lines).
+    # +1: `property-tax-appeal-calculator` graduated (browser-local property tax appeal comps and equity check).
+    # +1: `appointment-no-show-analyzer` graduated (browser-local booking export analyzer).
+    # +1: `freelancer-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
+    # +1: `self-employed-schedule-c-categorizer` graduated (browser-local bank CSV to Schedule C lines).
+    # +1: `late-invoice-collections-kit` graduated (browser-local late-invoice fee, letters and break-even plan).
+    # +1: `print-on-demand-profit-calculator` graduated (browser-local print-on-demand profit, target price and ad limit).
+    # +1: `service-hourly-yield-analyzer` graduated (browser-local booking export revenue-per-hour analyzer).
+    # +1: `medical-bill-error-checker` graduated (browser-local itemized medical bill checker).
+    # +1: `mortgage-escrow-analysis-checker` graduated (browser-local mortgage escrow statement checker).
+    # +1: `shopify-inventory-reorder-planner` graduated (browser-local reorder-point and dead-stock planner).
+    # +1: `like-kind-exchange-1031-calculator` graduated (browser-local 1031 exchange deadline, boot and basis calculator).
+    # +1: `aca-subsidy-cliff-calculator` graduated (browser-local 2026 ACA premium tax credit and 400% FPL cliff).
+    # +1: `wage-garnishment-limit-calculator` graduated (browser-local federal wage garnishment cap calculator).
+    # +1: `medicare-irmaa-cliff-calculator` graduated (browser-local 2026 Medicare IRMAA tier, cliff distance and SSA-44 checklist).
+    # +1: `rmd-calculator` graduated (browser-local required minimum distribution planner).
+    # +1: `rsu-withholding-gap-calculator` graduated (browser-local RSU withholding gap calculator).
+    # +1: `espp-tax-calculator` graduated (browser-local ESPP sell-or-hold tax calculator).
+    # +1: `agent-brokerage-split-calculator` graduated (browser-local brokerage split and cap comparison for real estate agents).
+    # +1: `tax-loss-harvesting-calculator` graduated (browser-local tax-loss harvesting calculator).
+    # +1: `solar-payback-calculator` graduated (browser-local homeowner solar payback calculator).
+    # +1: `rental-dscr-calculator` graduated (browser-local rental DSCR and cash-on-cash calculator).
+    # +1: `heat-pump-vs-furnace-calculator` graduated (browser-local homeowner heat pump vs gas furnace calculator).
+    # +1: `van-westendorp-pricing-analyzer` graduated (browser-local Van Westendorp price survey analyzer).
+    # +1: `gabor-granger-price-analyzer` graduated (browser-local Gabor-Granger willingness-to-pay analyzer).
+    # +1: `sales-commission-plan-comparison-calculator` graduated (browser-local sales offer comparison across quota attainment).
+    # +1: `merchant-cash-advance-true-cost-calculator` graduated (browser-local MCA and invoice-factoring annualised cost calculator).
+    # +1: `usage-based-pricing-simulator` graduated (browser-local metered pricing plan simulator against a usage distribution).
+    # +1: `locum-tenens-vs-employed-calculator` graduated (browser-local locum tenens 1099 vs employed W-2 comparison with break-even rate).
+    # +1: `startup-exit-waterfall-calculator` graduated (browser-local exit waterfall with liquidation preferences, participation caps and seniority).
+    # +1: `insurance-agency-book-valuation-calculator` graduated (browser-local insurance book of business sell-or-keep valuation).
+    # +1: `ab-test-significance-calculator` graduated (browser-local A/B test significance, SRM and sequential calculator).
+    # +1: `online-business-valuation-calculator` graduated (browser-local small online business valuation).
+    # +1: `fix-and-flip-deal-analyzer` graduated (browser-local fix-and-flip max offer, profit and hard-money cost analyzer).
+    # +1: `customer-lifetime-value-predictor` graduated (browser-local CLV predictor, BG/NBD and Gamma-Gamma).
+    # +1: `commercial-lease-effective-rent-calculator` graduated (browser-local commercial lease offer comparison).
+    # +1: `sales-seasonality-forecaster` graduated (browser-local seasonal sales forecast, Holt-Winters, cash cushion).
+    # +1: `clearance-markdown-planner` graduated (browser-local markdown schedule planner, price elasticity and dynamic programming).
+    # +1: `bid-win-rate-optimizer` graduated (browser-local bid win-probability curve and best markup, logistic regression).
+    # +1: `liquidation-pallet-bid-calculator` graduated (browser-local liquidation pallet max bid, Monte Carlo recovery simulation).
+    # +1: `appointment-overbooking-optimizer` graduated (browser-local overbooking planner, beta-binomial show-ups, overflow risk).
+    # +1: `shift-cover-optimizer` graduated (browser-local shift plan, exact min-cost-flow cover of hourly staffing needs).
+    # +1: `client-rebooking-predictor` graduated (browser-local client rebooking rhythm, who is overdue versus lost).
+    # +1: `crew-dispatch-optimizer` graduated (browser-local dispatch planner, exact Held-Karp plus subset DP for up to 12 jobs).
+    # +1: `service-van-stock-optimizer` graduated (browser-local van stock planner, exact subset enumeration for up to 20 part units).
+    # +1: `renewal-rent-optimizer` graduated (browser-local lease renewal rent optimizer, logistic regression, vacancy and turnover economics).
+    # +1: `trial-conversion-timing-analyzer` graduated (browser-local free-trial conversion timing, what a shorter trial would have lost).
+    # +1: `str-nightly-rate-optimizer` graduated (browser-local STR nightly price optimizer, logistic booking curve, fee and turnover economics).
+    # +1: `quote-follow-up-timing` graduated (browser-local quote follow-up timing, Aalen-Johansen competing risks over open/won/lost quotes).
+    # +1: `rental-rent-optimizer` graduated (browser-local asking-rent optimizer from own listing history).
+    # +1: `mechanics-lien-deadline-calculator` graduated (browser-local mechanics-lien notice and filing deadline lookup, five states).
+    # +1: `donor-retention-analyzer` graduated (browser-local nonprofit donor retention and ranked LYBUNT/SYBUNT lists from own gift history).
+    # +1: `workers-comp-premium-calculator` graduated (browser-local workers' comp premium and audit true-up from user-supplied class rates).
+    # +1: `market-garden-bed-planner` graduated (browser-local crop-mix planner: exact LP over beds, labor and demand, with shadow prices).
+    # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
+    # +1: `private-practice-payer-mix-calculator` graduated (browser-local therapy-practice payer mix: net per clinical hour by panel and cash, break-even refill).
+    # +1: `cottage-food-pricing-calculator` graduated (browser-local cottage-food pricing: full cost per sellable unit, online/market/wholesale prices, earned per hour).
+    # +1: `contractor-wip-schedule` graduated (browser-local percent-of-completion WIP schedule: over/under billing, loss provision, cash still to come).
+    # +1: `freelance-retainer-vs-hourly-calculator` graduated (browser-local retainer-versus-hourly replay of a proposed retainer against the user's own time log).
+    # +1: `payroll-tax-deposit-penalty-calculator` graduated (browser-local payroll tax deposit due dates and failure-to-deposit penalty with cheapest designation).
+    # +1: `home-care-agency-margin-calculator` graduated (browser-local home care agency margin per billed hour by payer, bill rate for a target margin).
+    # +1: `family-child-care-time-space-calculator` graduated (browser-local home day care time-space percentage, exclusive-use rooms, simplified-method comparison).
+    # +1: `adu-payback-calculator` graduated (browser-local ADU payback: yield on cost, equity IRR/NPV, break-even rent, rent and cost sensitivity).
+    # +1: `massage-therapist-profit-calculator` graduated (browser-local massage profit per hour by session, no-show-adjusted price floor, practice vs room rent vs split).
+    # +1: `wedding-photographer-profit-calculator` graduated (browser-local wedding photographer profit per hour worked with editing time, price floor, own clients vs marketplace vs studio associate).
+    # +1: `dj-gig-profit-calculator` graduated (browser-local DJ profit per hour worked and price floor by package; landed in #6139 without its own line here).
+    # +1: `shipping-box-size-optimizer` graduated (browser-local carton assortment optimizer: which box sizes to stock, p-median over dimensional-weight landed cost).
+    # +1: `container-load-planner` graduated (browser-local 3D container/pallet load planner: units packed and left over, containers for the whole load, to-scale views, loose-versus-pallets comparison).
+    # +1: `crypto-cost-basis-calculator` graduated (browser-local crypto lot matcher: FIFO/LIFO/HIFO/LOFO/tax-aware, short/long rows, Form 8949 style export).
+    # +1: `rental-fleet-size-optimizer` graduated (browser-local rental fleet size: Erlang loss plus seeded day-by-day simulation, how many identical units to own).
+    # +1: `tile-layout-planner` graduated (browser-local tile layout planner: exact polygon clipping, offcut reuse, search over starting positions, to-scale plan and cut list).
+    # +1: `event-seating-chart-optimizer` graduated (browser-local seating chart optimizer: simulated annealing over guest wishes, tables balanced, pins honoured).
+    # +1: `state-residency-day-counter` graduated (browser-local multi-state residency day counter: 183-day tests, crossing date, workday wage split).
+    # +1: `league-schedule-generator` graduated (browser-local round-robin league schedule generator: dates, home/away balance, courts and time slots, blackouts, play-offs).
+    # +1: `shift-roster-builder` graduated (browser-local weekly shift roster builder: availability, rest, hour caps, overtime, who-is-critical).
+    # +1: `time-off-request-planner` graduated (browser-local time-off request planner: exact search for the leave requests that fit minimum cover per role).
+    # +1: `cheap-meal-plan-optimizer` graduated (browser-local minimum-cost diet solver: simplex plus branch and bound, price of each nutrient target).
+    # +1: `coffee-roaster-margin-calculator` graduated (browser-local coffee roaster margin, channel and blend-cost calculator).
+    # +1: `nsa-idr-offer-calculator` graduated (browser-local NSA IDR offer sizing and file-or-skip by claim).
+    # +1: `house-cleaning-quote-calculator` graduated (browser-local house cleaning price floor, frequency discount limit and profit per visit calculator).
+    # +1: `handyman-minimum-job-calculator` graduated (browser-local handyman minimum trip charge, smallest job and effective hourly calculator).
+    # +1: `tattoo-piece-profit-calculator` graduated (browser-local tattoo piece lowest price, effective hourly and shop minimum calculator).
+    # +1: `regex-redos-check` graduated (browser + CLI ReDoS regex scanner).
+    # +1: `freelance-rate-increase-calculator` graduated (browser-local freelance rate increase break-even client loss, hours freed and raise ladder calculator).
+    # +1: `course-launch-revenue-calculator` graduated (browser-local online course launch net profit, break-even list size and scenario calculator).
+    # +1: `postgres-explain-analyzer` graduated (browser + CLI PostgreSQL EXPLAIN ANALYZE plan analyzer).
+    # +1: `lambda-memory-rightsizer` graduated (browser + CLI Lambda memory right-sizer from CloudWatch REPORT lines).
+    # +1: `dynamodb-capacity-mode-advisor` graduated (browser + CLI DynamoDB on-demand vs provisioned cost advisor from CloudWatch consumed capacity).
+    # +1: `nat-gateway-cost-advisor` graduated (browser + CLI NAT gateway vs VPC endpoint cost advisor from GB per destination).
+    # +1: `s3-storage-class-advisor` graduated (browser + CLI S3 storage-class cost advisor from per-bucket Storage Lens numbers).
+    # +1: `bigquery-query-cost-advisor` graduated (browser + CLI BigQuery on-demand vs Editions cost advisor).
+    # +1: `snowflake-warehouse-cost-advisor` graduated (browser + CLI Snowflake warehouse cost advisor).
+    # +1: `databricks-cluster-cost-advisor` graduated (browser + CLI Databricks cluster cost advisor).
+    # +1: `k8s-requests-rightsizer` graduated (browser + CLI Kubernetes requests right-sizer from kubectl top / pods JSON / CSV).
+    # +1: `lambda-vs-fargate-cost-breakeven` graduated (browser + CLI Lambda / Cloud Run / Fargate / EC2 cost break-even).
+    # +1: `rds-instance-rightsizer` graduated (browser + CLI RDS/Aurora instance right-sizer from CloudWatch metrics).
+    # +1: `booking-request-chooser` graduated (browser + CLI booking-request chooser for rental hosts, exact DP over gap nights).
+    # +1: `free-shipping-threshold-optimizer` graduated (browser + CLI free-shipping minimum sweep from an orders export).
+    # +1: `returns-policy-cost-analyzer` graduated (browser + CLI returns-cost and return-fee analyzer).
+    # +1: `card-grading-submission-picker` graduated (browser + CLI which-cards-to-grade picker with exact break-even and budgeted subset).
+    # +1: `appraisal-assignment-picker` graduated (browser + CLI which-assignments-to-accept picker with exact deadline-capacity search and break-even fee).
+    # +1: `saas-renewal-planner` graduated (browser + CLI SaaS renewal notice-deadline and negotiation planner).
+    # +1: `thrift-haul-buy-picker` graduated (browser + CLI thrift/estate-sale buy picker with walk-away price and exact best set under cash or hours caps).
+    # +1: `bookkeeping-client-fee-calculator` graduated (browser + CLI bookkeeping retainer, cleanup and walk-away fee calculator with a client roster ranked by effective hourly).
+    # +1: `owner-operator-load-chain-planner` graduated (browser + CLI best chain of paid loads with exact walk-away rate per load).
+    # +1: `translation-job-picker` graduated (browser + CLI which-translation-jobs-to-accept picker).
+    # +1: `tax-season-client-picker` graduated (browser + CLI late-season tax client picker).
+    # +1: `interior-design-fee-calculator` graduated (browser + CLI interior design fee-model comparator with overrun scenarios and a past-project audit by fee model).
+    # +1: `snow-plow-contract-calculator` graduated (browser + CLI snow plow contract-model comparator across low/normal/high snow years with a past-season audit).
+    # +1: `pool-service-route-calculator` graduated (browser + CLI pool route audit: per-account true hourly, reprice/drop, route density and CSV export).
+    # +1: `nail-tech-booth-rent-calculator` graduated (browser + CLI booth rent vs commission vs employee take-home per hour worked, with break-even clients and a past-week audit).
+    # +1: `grant-indirect-cost-calculator` graduated (browser MTDC, indirect cost and award-cap fit calculator).
+    # +1: `docker-compose-security-check` graduated (browser + CLI risky-settings scanner for docker-compose.yml).
+    # +1: `dog-grooming-price-calculator` graduated (browser + CLI dog grooming price by breed class and time, with a past-appointment audit).
+    # +1: `k8s-pod-security-check` graduated (browser + CLI risky pod and container security-settings scanner for Kubernetes manifests).
+    # +1: `terraform-plan-cost-estimate` graduated (browser + CLI monthly AWS cost delta estimate for a Terraform plan, from an approximate bundled price table).
+    # +1: `aws-bill-change-explainer` graduated (browser + CLI explainer for an AWS Cost Explorer CSV: ranked movers, partial-month normalisation, cause checklist, CI gate).
+    # +1: `lockfile-license-check` graduated (browser + CLI licence audit of an npm package-lock.json).
+    # +1: `firewood-profit-calculator` graduated (browser firewood profit per cord and hour, price needed for a wage, delivery distance).
+    # +1: `feie-physical-presence-calculator` graduated (browser Form 2555 physical presence 330-day counter).
+    # +1: `ci-test-shard-balancer` graduated (browser + CLI balanced CI test sharding from JUnit XML timings, with shard-count sweep and Actions matrix).
+    # +1: `webhook-signature-debugger` graduated (browser + CLI webhook HMAC signature verification and mismatch diagnosis).
+    # +1: `hvac-repair-tier-price-calculator` graduated (browser HVAC Good/Better/Best repair pricing, diagnostic fee and average-call model).
+    # +1: `training-gpu-pricing-calculator` graduated (browser + CLI GPU cloud pricing with idle time and rent-versus-buy breakeven).
+    # +1: `era-835-underpayment-finder` graduated (browser 835 remittance parser: payments below contract rates, denials, takebacks).
+    # +1: `nacha-file-validator` graduated (browser ACH/NACHA file validator: record layout, check digits, control totals, control-record rebuild).
+    # +1: `cobra-vs-marketplace-calculator` graduated (browser + CLI COBRA vs marketplace total cost, break-even and election deadlines).
+    # +1: `sepa-pain001-validator` graduated (browser SEPA pain.001/pain.008 XML validator: control sums, IBAN, dates, character set, totals repair).
+    # +1: `eu-vat-oss-calculator` graduated (browser EU VAT OSS calculator: EUR 10,000 threshold date and the quarterly return per country and rate from a sales CSV).
+    # +1: `form-5500-late-filing-calculator` graduated (browser Form 5500 due date, days late, DFVC cost against IRS and DOL penalty exposure).
+    # +1: `irs-iris-1099-csv-check` graduated (browser IRS IRIS 1099-NEC/MISC bulk CSV checker: TIN formats, thresholds, duplicates, totals, safe fixes).
+    # +1: `edi-x12-order-checker` graduated (browser X12 EDI 850/810/856/997 checker: envelope counts, UPC/SSCC check digits, invoice totals, 997 translation).
+    # +1: `xero-invoice-csv-check` graduated (browser Xero sales invoice CSV checker: per-invoice agreement, date order, Excel damage, safe fixes, 500-line splitter).
+    # +1: `quickbooks-chart-of-accounts-csv-check` graduated (browser QuickBooks Online chart of accounts import checker: account types, detail types, duplicates, sub-account order, balances and dates).
+    # +1: `xero-contacts-csv-check` graduated (browser Xero contacts import checker: duplicate names, emails, Excel damage, payment terms, safe fixes, splitter).
+    # +1: `hubspot-contacts-csv-check` graduated (browser HubSpot contacts/companies import checker: duplicate and invalid emails, Excel damage, date formats, lifecycle stage and lead status values, formatting-only safe fixes).
+    # +1: `pipedrive-import-csv-check` graduated (browser Pipedrive deals/people/organizations import checker: deal status, value and currency, probability, duplicate deals and emails, Excel damage, date formats, safe fixes).
+    # +1: `zoho-crm-import-csv-check` graduated (browser Zoho CRM leads/contacts/accounts/deals import checker: required fields, Stage and Lead Status picklists, amount and currency, probability, duplicates, Excel damage, date formats, safe fixes).
+    # +1: `klaviyo-profile-csv-check` graduated (browser Klaviyo profile import checker: identifiers, E.164 phones, Excel damage, near-miss headers, lat/long/timezone, mixed dates, safe fixes).
+    # +1: `mailchimp-audience-csv-check` graduated (browser Mailchimp audience import checker: no-email rows, duplicate emails, unquoted Tags commas, birthday format, Excel phone damage, mixed dates, safe fixes).
+    # +1: `shopify-inventory-csv-check` graduated (browser Shopify inventory import checker: On hand (new) column, text/fraction/thousands-comma quantities, tenfold jumps, duplicate variant+location rows, handles, location spelling, Excel SKU damage, safe fixes).
+    # +1: `payroll-hours-csv-check` graduated (browser payroll hours / timesheet CSV checker: decimal vs h:mm, Excel date serials, duplicate person-days, hours over 24, Start/End arithmetic, safe fixes).
+    # +1: `shopify-customer-csv-check` graduated (browser Shopify customer import checker: emails, E.164 phones, Excel zip and phone damage, country and province codes, consent values, tags, safe fixes).
+    # +1: `teachers-pay-teachers-earnings-analyzer` graduated (browser TPT sales CSV analyzer: observed fee incl. flat per-sale fee, per-resource take-home, repeat buyers, break-even price).
+    # +1: `google-ads-editor-csv-check` graduated (browser Google Ads Editor import checker: headline/description limits, RSA counts, keyword symbols and match types, URLs, budgets, safe fixes).
+    # +1: `meta-catalog-csv-check` graduated (browser Meta catalog feed checker: required fields, ids, price and sale price, availability, links, images, GTIN check digits, item groups, Excel damage, safe fixes).
+    # +1: `youtube-chapters-check` graduated (browser YouTube chapter-list checker: 0:00 start, three-chapter and 10-second rules, ordering and format fixes, marker-export conversion to chapters.json, FFmetadata, WebVTT).
+    # +1: `quickbooks-iif-file-check` graduated (browser QuickBooks Desktop IIF checker: ENDTRNS, TRNS/SPL balance, stray tabs, dates, Excel quotes, safe fixes).
+    # +1: `mt940-statement-check` graduated (browser SWIFT MT940 statement checker: balance arithmetic, statement continuity, :61: layout, comma decimals, repeats, closing -, CSV conversion).
+    # +1: `bank-statement-pdf-to-csv` graduated (browser bank/credit card statement PDF to CSV with a balance proof: opening + rows = closing, running-balance sign check, Xero/QuickBooks layouts).
+    # +1: `coi-expiry-gap-checker` graduated (browser subcontractor certificate-of-insurance list checker: expiry and lead time, limits with umbrella make-up, endorsements, renewal gaps, chase list and .ics).
+    # +1: `pickleball-facility-pro-forma` graduated (browser indoor pickleball/padel facility pro-forma: steady-state P&L, break-even utilization and members, 24-month ramp cash curve, sensitivities, profit-lever ranking).
+    # +1: `lemonsqueezy-payout-to-journal` graduated (browser Lemon Squeezy order/payout export to month-split Xero/QuickBooks journals).
+    # +1: `ko-fi-payout-to-journal` graduated (browser Ko-fi transactions export to month-split Xero/QuickBooks journals, income by transaction type, derived fee).
+    # +1: `buymeacoffee-payout-to-journal` graduated (browser Buy Me a Coffee export to month-split Xero/QuickBooks journals).
+    # +1: `teachable-payout-to-journal` graduated (browser Teachable transactions export to month-split Xero/QuickBooks journals).
+    # +1: `fiverr-earnings-to-journal` graduated (browser Fiverr earnings history to month-split Xero/QuickBooks journals, gross revenue and 20% fee split, with a running-balance completeness check).
+    # +1: `kdp-royalty-to-journal` graduated (browser Amazon KDP royalty report to month-split Xero/QuickBooks journals, gross by marketplace and format, printing cost and tax withheld as expenses, per-currency, with row and report total checks).
+    # +1: `distrokid-royalty-to-journal` graduated (browser DistroKid earnings report to month-split Xero/QuickBooks journals, by store and kind, songwriter royalties withheld as a deduction, per-currency, with row and report total checks).
+    # +1: `upwork-earnings-to-journal` graduated (browser Upwork transaction history to month-split Xero/QuickBooks journals with a running-balance completeness check).
+    # +1: `youtube-adsense-payout-to-journal` graduated (browser AdSense payments export to month-split Xero/QuickBooks journals with US withholding receivable and realised FX).
+    # +1: `revolut-business-statement-to-journal` graduated (browser Revolut Business currency statement to month-split Xero/QuickBooks journals with realised FX).
+    # +1: `syndication-waterfall-calculator` graduated (browser-local GP/LP waterfall with preferred return and promote tiers).
+    # +1: `donor-acknowledgment-letter-generator` graduated (browser gift list to per-donor IRS acknowledgment letters, per-gift $250 rule and $75 quid pro quo statement).
+    # +1: `exemption-certificate-audit-check` graduated (browser exempt sales matched to certificates on file, tax at stake by customer and state).
+    # +1: `rent-increase-notice-checker` graduated (browser rent roll to per-unit cap, notice period and earliest effective date).
+    # +1: `supplier-price-creep-checker` graduated (browser supplier invoice lines to per-item creep, one-off spikes, contract overcharges and credit requests).
+    # +1: `restaurant-tip-pool-calculator` graduated (browser shift list to tip pool payouts by hours, points or tip-out).
+    # +1: `greenhouse-bench-planner` graduated (browser crop list to sow dates, weekly bench and germination space, what does not fit and what extra space is worth).
+    # +1: `mushroom-fruiting-room-planner` graduated (browser flush, slot and cash planner for small mushroom farms).
+    # +1: `lien-waiver-checker` graduated (browser pasted lien waiver to red flags and the change to ask for).
+    # +1: `cash-flow-risk-forecaster` graduated (browser invoices and bills to the odds of a cash shortfall, cushion and biggest lever).
+    # +1: `wholesale-line-sheet-maker` graduated (browser product list to wholesale prices, retailer and own margin, tiers, minimums, order simulator and a printable line sheet).
+    # +1: `str-turnover-scheduler` graduated (browser iCal feeds to turnover cleaning schedule, same-day window checks, double bookings and minimum crew).
+    # +1: `mobile-detailing-day-planner` graduated (browser pending detailing jobs to the most profitable set for the day, take-home per hour and the price each job needs).
+    # +1: `craft-brewery-batch-margin-calculator` graduated (browser beers and sales channels to batch profit per barrel by channel, break-even prices and profit per fermenter day).
+    # +1: `midterm-rental-calculator` graduated (furnished 30-day-plus rental against a long-term lease and nightly renting, with rate, vacancy and furnishing payback crossing points).
+    # +1: `maple-syrup-sugarbush-profit-calculator` graduated (browser taps, sap and costs to maple profit per tap and per hour, poor and good seasons and a reverse osmosis payback).
+    # +1: `u-pick-farm-profit-planner` graduated (browser season days, visitors, admission, picking and extras to break-even attendance and admission and a rainy-season check).
+    # +1: `sheep-goat-flock-profit-planner` graduated (browser ewes or does, weaning rate, prices and hay to a multi-year flock projection, break-even flock and weaning rate).
+    # +1: `waterfront-rental-season-planner` graduated (browser kayak and boat fleets, demand, weather days and costs to season profit, weather break-even, turn-aways and one-more-boat payback).
+    # +1: `property-management-profit-calculator` graduated (browser doors, fee, staffing and owner inputs to monthly profit, break-even doors, the next-hire cliff and a fee search).
+    # +1: `mobile-welding-job-price-calculator` graduated (browser mobile welding hours, drive, rig, materials and margin to a job price, distance table, overrun check and break-even jobs).
+    # +1: `sauna-cold-plunge-install-bid-calculator` graduated (browser sauna and cold plunge install hours, crew, equipment, electrician and drive to a bid price, distance table, overrun check and break-even installs).
+    # +1: `good-faith-estimate-generator` graduated (browser service lines, codes and charges to a printable Good Faith Estimate, delivery deadline, per-biller totals, a $400 dispute check and a past-estimate drift review).
+    # +1: `collision-shop-drp-profit-calculator` graduated (browser collision shop retail and insurer-program terms, repriced and promised jobs to profit with and without the program, break-even orders and a lowest labor rate).
+    # +1: `volunteer-shift-scheduler` graduated (browser volunteers with availability, max shifts and excluded roles, plus shifts with headcounts, to a fair roster, unfilled-place report, per-volunteer calendars and reminder messages).
+    # +1: `appointment-no-show-cost-calculator` graduated (browser practice schedule, no-show and late-cancel rates, refills, fee and reminders to yearly cost, best overbooking level and break-even fee and reminder price).
+    # +1: `franchise-unit-economics-calculator` graduated (browser franchise fee, build-out, loan, sales ramp, costs and royalties to payback, IRR, break-even sales, a cash-cushion check and the sales lift the brand must deliver against going independent).
+    # +1: `home-inspection-report-builder` graduated (browser home inspection findings, severity, notes and cost ranges to a printable report, with a generic editable comment library).
+    # +1: `pte-tax-election-calculator` graduated (browser state pass-through entity tax election vs none: federal plus state tax, SALT cap phase-out, lost 20% deduction, income where it first pays).
+    # +1: `container-demurrage-detention-calculator` graduated (browser ocean-container dates, free days and tiered per-day rates to demurrage and detention per box, last free days, one more day's cost and the value of an earlier pickup).
+    # +1: `bonus-take-home-gross-up-calculator` graduated (browser bonus take-home after supplemental withholding, FICA caps and state tax, refund or balance due, 401(k) deferral comparison, exact employer gross-up).
+    # +1: `farmland-lease-cash-rent-vs-crop-share-calculator` graduated (browser cash rent vs crop share vs flex farmland lease comparison with break-even yield and risk grid).
+    # +1: `tip-fica-credit-calculator` graduated (browser employer FICA tip credit per employee from cash wage, hours and tips, with after-tax value and prior-year look-back).
+    # +1: `contract-vs-fte-rate-calculator` graduated (browser W-2 offer to the hourly 1099 rate leaving the same cash, with a step-by-step gap table).
+    # +1: `covered-call-wheel-calculator` graduated (browser covered call and cash-secured put quotes ranked by annualized yield, assignment chance and breakeven).
+    # +1: `medical-billing-pricing-calculator` graduated (browser billing-company pricing: percent of collections vs per-claim vs flat against cost to serve).
+    # +1: `scrap-gold-buy-price-calculator` graduated (browser scrap gold karat and weight lot, refiner terms and gold price to break-even and target-margin offer, offer ladder and price-drop risk).
+    # +1: `pawn-loan-profit-calculator` graduated (pawn loan book profit: redemption rate, loan-to-value, forfeit resale, largest loan and smallest ticket that pay).
+    # +1: `card-bonus-planner` graduated (browser credit card sign-up bonus tracker with 5/24 and issuer velocity status, net bonus value and a spend-feasible application schedule).
+    # +1: `water-well-drilling-bid-calculator` graduated (browser well depth by formation, casing, pump system, trench, rig hours and dry-hole chance to a bid, break-even, price per foot and the cost of a dry hole).
+    # +1: `adjunct-course-offer-calculator` graduated (browser adjunct and part-time course offers to real hourly pay after prep, grading, unpaid hours, commute and cancellation risk, ranked side by side).
+    # +1: `lash-studio-service-profit-calculator` graduated (browser lash service take-home per chair hour after supplies, card fees, no-shows and studio rent, ranked side by side).
+    # +1: `self-storage-unit-mix-optimizer` graduated (browser exact unit-size mix for a self-storage building, bounded knapsack under demand limits).
+    # +1: `wedding-venue-date-pricing-optimizer` graduated (browser exact price per date type for a wedding venue).
+    # +1: `farm-crop-mix-optimizer` graduated (browser exact crop-acreage plan, linear program under land, labor and capital limits).
+    # +1: `ev-charging-site-roi-calculator` graduated (browser EV charging site payback, NPV, IRR and break-even utilization with demand charges).
+    # +1: `tutor-weekly-schedule-optimizer` graduated (browser exact weekly timetable for one-to-one teachers from each student's available times, gaps, day costs and must-keep students).
+    # +1: `surety-bond-capacity-calculator` graduated (browser surety bond premium priced into the bid, bonding capacity from working capital, and the bids to submit).
+    # +1: `optical-dispensary-margin-calculator` graduated (browser eyeglass sale margin after frame, lenses, remakes, plan and card fees and optician time).
+    # +1: `therapy-8-minute-rule-calculator` graduated (browser Medicare 8-minute rule billable units from timed therapy minutes, assigned to CPT codes, with a per-code comparison and revenue).
+    # +1: `bid-leveling-worksheet` graduated (browser subcontractor bid table leveled to one scope: excluded and unaddressed items priced at the buyer's estimate, a ranking, and whether the low bid survives).
+    # +1: `fixed-bid-overrun-forecaster` graduated (browser fixed-price project price, cost budget, percent complete and cost to date to earned value, CPI/SPI, three finish forecasts, projected margin and the point the job stops paying).
+    # +1: `timber-sale-offer-checker` graduated (browser timber-offer checker: logs scaled under Doyle, Scribner and International rules, valued at the owner's own prices, compared with a logger's offer).
+    # +1: `pollination-contract-checker` graduated (browser pollination-contract checker: net per hive and break-even fee for beekeepers, cost per acre for growers).
+    # +1: `oyster-farm-growout-planner` graduated (browser oyster-crop planner: seed, survival, gear, lease and grade prices to net per crop, break-even price and survival, and cash before first sale).
+    # +1: `form-2290-hvut-calculator` graduated (browser Form 2290 heavy vehicle use tax per truck: weight category, proration, suspension and due date).
+    # +1: `eu-pay-gap-report-calculator` graduated (browser EU Pay Transparency Directive indicators: mean and median pay gap, variable pay, quartiles and 5% category flags from a pasted payroll table).
+    # +1: `laser-cutting-engraving-job-price-calculator` graduated (browser laser cut and engrave job price: nesting, laser time, labour and setup to a price per piece, quantity breaks and a target-price check).
+    # +1: `fair-workweek-schedule-checker` graduated (browser predictive scheduling check: late postings, short-notice add, move and cancel premium pay, and rest-period violations from a pasted schedule and change log).
+    # +1: `json-ld-rich-result-validator` graduated (browser JSON-LD validator and builder).
+    # +1: `amusement-route-location-calculator` graduated (browser coin-op route location check: take, commission, visits and miles to profit per route hour, the weekly take needed and the highest commission worth paying).
+    # +1: `courier-van-route-profit-calculator` graduated (browser delivery van route check: route pay, stops, miles and van costs to true profit per route, per hour and per stop, break-even stops, the lowest route pay for a target hourly and a two-offer comparison).
+    # +1: `pilot-car-escort-run-profit-calculator` graduated (browser pilot car and oversize-load escort run check: per-mile or day quote, minimum charge, deadhead, hours, hotel and yearly overhead to true profit per run and per driver hour, the lowest quote for a target margin, break-even runs and a two-run comparison).
+    # +1: `climbing-gym-profit-calculator` graduated (browser climbing and bouldering gym day passes, members, youth programs, parties, staff, route setting and rent to monthly profit, build payback, break-even members and the lowest day pass and membership fee for a target margin).
+    # +1: `percentage-rent-audit-checker` graduated (browser percentage-rent statement check for retail and restaurant tenants: natural or stated breakpoint, landlord versus own sales, lease exclusions, cap and estimates paid to the overcharge, line by line, with a review note).
+    # +1: `release-notes-generator` graduated (browser and zero-dependency CLI that turn git log into grouped release notes with a suggested semver bump).
+    # +1: `3pl-invoice-audit-checker` graduated (browser 3PL invoice audit: rate card, WMS and order-export counts and invoice lines to recoverable overcharges, proving records and a dispute note).
+    # +1: `glamping-unit-payback-calculator` graduated (browser glamping worksheet: build and shared cost, seasonal rates and occupancy, loan, to payback, debt coverage and break-even occupancy).
+    # +1: `mini-golf-course-profit-calculator` graduated (browser mini-golf and small fun-center pro forma).
+    # +1: `rv-boat-storage-lot-calculator` graduated (browser RV and boat storage lot: acres, land, site cost, rent and occupancy to spaces, NOI, yield on cost, debt coverage, lease-up cash and equity IRR).
+    # +1: `arcade-game-payback-calculator` graduated (browser arcade and family-entertainment-center worksheet: per-game plays, credits and tickets to weekly profit, payback, break-even plays and a keep, watch or cut verdict).
+    # +1: `self-serve-dog-wash-profit-calculator` graduated (browser dog wash pro forma: tub capacity, traffic by weekday and season, break-even washes per day, ramp and payback).
+    # +1: `convenience-store-gas-station-profit-calculator` graduated (browser c-store and gas station P&L: fuel margin after card fees, inside sales, labor, loan, break-even gallons and debt coverage).
+    # +1: `nis2-scope-checker` graduated (browser EU NIS2 scope check: sector and size to essential, important or out of scope, with the Article).
+    # +1: `eaa-accessibility-act-checker` graduated (browser European Accessibility Act check: product or service, role and size to in scope, microenterprise-exempt or out, with the Article).
+    # +1: `indoor-play-center-profit-calculator` graduated (browser indoor play centre pro forma: visits, memberships, parties, cafe and staffing to profit, break-even visits, ramp-up reserve and payback).
+    # +1: `gpsr-product-safety-checker` graduated (browser EU General Product Safety Regulation check).
+    # +1: `eu-battery-regulation-checker` graduated (browser EU Batteries Regulation duty timeline).
+    # +1: `padel-club-profit-calculator` graduated (browser padel club pro forma: courts, peak and off-peak utilisation, members, coaching, food and drink and staffing to profit, break-even utilisation, ramp-up reserve and payback).
+    # +1: `pay-transparency-directive-checker` graduated (browser EU Pay Transparency Directive check).
+    # +1: `eu-whistleblower-channel-checker` graduated (browser EU Whistleblower Directive channel check and report clocks).
+    # +1: `eu-einvoicing-mandate-checker` graduated (browser EU e-invoicing mandate dates by country).
+    # +1: `eu-product-liability-directive-checker` graduated (browser EU Product Liability Directive scope, liability chain and time limits).
+    # +1: `dac7-seller-reporting-checker` graduated (browser EU DAC7 platform seller reporting check).
+    # +1: `eu-platform-work-directive-checker` graduated (browser EU Platform Work Directive scope, employment presumption and algorithmic-management check).
+    # +1: `eu-price-reduction-claim-checker` graduated (browser EU 30-day lowest price rule check for sale prices).
+    # +1: `eu-dora-readiness-checker` graduated (browser EU DORA scope, duty areas, Article 30 contract terms and major-incident report clocks).
+    # +1: `ugc-creator-rate-calculator` graduated (browser UGC creator rate calculator: content plus ad usage rights, whitelisting, exclusivity).
+    # +1: `uk-sole-trader-vs-limited-company-calculator` graduated (browser UK sole trader vs limited company take-home, best salary and dividend split, 2026/27).
+    # +1: `eu-espr-readiness-checker` graduated (browser EU ESPR unsold-apparel destruction ban, disclosure table and Digital Product Passport data checklist).
+    # +1: `uk-tax-free-childcare-calculator` graduated (browser UK Tax-Free Childcare, 15/30 free hours and Universal Credit childcare comparison for England).
+    # +1: `uk-savings-interest-tax-calculator` graduated (browser UK savings interest tax, starting rate, Personal Savings Allowance and cash ISA saving).
+    # +1: `sg-freelancer-tax-set-aside-calculator` graduated (browser Singapore freelancer income tax after earned income relief, MediSave flag and set-aside per invoice).
+    # +1: `de-freiberufler-tax-set-aside-calculator` graduated (browser Germany freelancer tax: section 32a tariff, Soli, Kirchensteuer, Gewerbesteuer and set-aside per invoice).
+    # +1: `us-freelancer-tax-set-aside-calculator` graduated (browser US freelancer SE tax, federal tax with QBI, state tax and 1040-ES set-aside). #6981 and #6982 each wrote 1223 against a base without the other; re-synced after both merged.
+    # +1: `cancel-flow` graduated (self-hosted Stripe cancellation flow: reason-matched save offers, browser simulator plus zero-dependency server).
+    # +1: `dunning-engine` graduated (self-hosted Stripe failed-payment recovery: browser plan simulator plus zero-dependency server).
+    # +1: `webhook-relay` graduated (self-hosted webhook relay: verify, store, retry, replay; browser outage simulator plus zero-dependency server).
+    # +1: `visit-keeper` graduated (self-hosted cookie-free web analytics: snippet, daily-rotating visitor hashes, goals credited to source; browser setup page plus zero-dependency server).
+    # +1: `rev-rec` graduated (self-hosted Stripe revenue recognition: deferred revenue schedule and journal CSV, browser demo plus zero-dependency server).
+    # +1: `actions-checkout-credentials-check` graduated (browser persist-credentials scan of pasted workflow YAML, ported from its CLI).
+    # +1: `support-desk` graduated (self-hosted shared support inbox: email and form tickets, threading, triage, reply targets, saved-reply suggestions).
+    # +1: `slot-keeper` graduated (self-hosted booking pages: weekly hours, busy time from an iCal feed, visitor time zones, invitations, reminders, reschedule links).
+    # +1: `help-keeper` graduated (self-hosted help center: Markdown articles, typo-tolerant ranked search, helpful votes, content-gap report).
+    # +1: `deal-keeper` graduated (self-hosted pipeline forecaster: learned stage win rates, backtested forecast band, stale/slipped deal hygiene list, signed alert webhook).
+    # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
+    # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
+    # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
+    total = 1278  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1278 tools" wording.
+    # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
+    # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
+    # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).
+    # +1: `yoga-pilates-studio-class-profit-calculator` graduated (browser yoga, pilates and barre studio classes, reservations, drop-in, pack and membership mix, late cancels and teacher pay to profit per class and per room hour, with a teach, hire or rent-a-room comparison).
+    # +1: `home-inspection-business-profit-calculator` graduated (browser home inspector fees, add-ons, hours, mileage, fall-through and fixed cost to profit per inspection and per hour, fee for a target margin, break-even and a solo versus associate comparison).
+    # +1: `ball-python-morph-pairing-planner` graduated (browser ball python females, males, morphs and prices to Mendelian odds for every pairing, clutch profit and a ranking).
+    # +1: `ag-spray-drone-quote-calculator` graduated (browser spray-drone fields, tank, battery and cost inputs to real time per field, cost per acre, recommended quote and break-even).
+    # +1: `stump-grinding-price-calculator` graduated (browser stump diameters, wood hardness, grinder speed, crew and drive time to a price, per-stump prices and a per-inch quote check).
+    # +1: `freelance-dashboard` graduated (browser hub reading the four freelancer tools' saved data: owed, unbilled, pipeline, profit and a ranked do-this-next list).
+    # +1: `horse-boarding-stall-profit-calculator` graduated (browser barn stalls, occupancy and costs to monthly profit, break-even occupancy and board price).
+    # +1: `pet-waste-removal-route-calculator` graduated (browser pet waste route clients, price and drive time to monthly profit, hourly pay and break-even clients).
+    # +1: `tow-truck-rate-calculator` graduated (browser tow job price: hook-up, loaded rate, deadhead, surcharges, storage).
+    # +1: `dog-grooming-day-planner` graduated (browser + CLI groom quote by table hour and best-dogs-for-a-day planner).
+    # +1: `insurance-denial-appeal-builder` graduated (browser denial-letter reader, appeal deadline, letter and reminder calendar).
+    # +1: `ticket-resale-profit-calculator` graduated (browser + CLI ticket resale payout, break-even and sales-log audit).
+    # +1: `catering-quote-calculator` graduated (browser + CLI per-guest catering quote, tier table and break-even guest count).
+    # +1: `breakeven-roas-calculator` graduated (browser-local break-even ROAS, max CPA and LTV-adjusted ad economics calculator).
+    # +1: `market-event-picker` graduated (browser + CLI market/festival picker for vendors, exact search over overlapping events).
+    # +1: `lot-split-calculator` graduated (browser + CLI sell-the-lot-whole-or-split-it decision for resellers).
+    # +1: `trade-show-roi-calculator` graduated (browser + CLI trade show ROI, break-even leads and budget-constrained show picker).
+    # +1: `csa-share-pricing-calculator` graduated (browser + CLI CSA share price, wage price, break-even shares and price sweep).
+    # +1: `support-staffing-planner` graduated (browser + CLI Erlang C agents per interval and exact cheapest shift cover).
+    # +1: `embroidery-shop-quote-calculator` graduated (browser + CLI embroidery job quote, quantity breaks and per-1000-stitches rule check).
+    # +1: `worker-classification-checker` graduated (browser-local 1099-vs-W-2 screen: IRS, DOL and ABC tests, facts to fix, back-tax and overtime exposure range).
+    # +1: `ad-slot-sell-through-planner` graduated (browser-local newsletter/podcast ad-slot sell-through, price-response and booking-pace planner).
+    # +1: `ca-meal-rest-break-premium-checker` graduated (browser California meal and rest break premium audit: late, short and missed meals, rest shortfalls, waivers and the Labor Code 226.7 premium per workday from pasted timecards).
+    # +1: `prop-firm-challenge-calculator` graduated (browser Monte Carlo of a funded-trader challenge: pass probability, expected fees to pass, funded payouts, break-even win rate).
+    # +1: `youtube-sponsorship-rate-calculator` reached the mirror (its page landed after #7000 set 1232; counted by sync_tree_counts.py at the merge).
+    # +1: `self-hosted-saas-stack` graduated (browser directory of the 27 self-hosted small-SaaS tools, grouped by job and named against the paid products they replace).
+    # +1: `trial-converter` graduated (self-hosted Stripe trial-to-paid conversion: card and no-card plans, browser simulator plus zero-dependency server).
+    # +1: `survey-keeper` reached the mirror (it landed on main without its count bump; counted by sync_tree_counts.py while merging main into #7632).
+    # +1: `review-reply-desk` graduated (browser local-business review reply writer: rating-aware replies, risky-review triage, health-privacy-safe mode, reply checker, optional own-key AI).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -2325,7 +3228,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # content or a regenerated page never reaches a running pod. The usage
     # script is the deliberate exception: a CronJob names it directly.
     by_name = {}
-    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+    for kustomization in _front_door_kustomizations():
         parsed = yaml.safe_load(kustomization.read_text())
         # A nested kustomization can set the option globally rather than per
         # entry, so fold `generatorOptions` down onto each generator before
@@ -2336,7 +3239,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
             merged = dict(entry)
             merged["options"] = {**shared, **entry.get("options", {})}
             by_name[entry["name"]] = merged
-    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
+    for name in ("portfolio-front-html", "portfolio-front-html-index", "portfolio-front-nginx", *_mirror_shard_names()):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "
@@ -2388,7 +3291,7 @@ def _generated_configmaps() -> list[tuple[str, Path, bytes, dict[str, str]]]:
     under-measuring — the good direction for that bug to fail in.
     """
     found = []
-    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+    for kustomization in all_kustomizations(ROOT):
         parsed = yaml.safe_load(kustomization.read_text()) or {}
         shared = parsed.get("generatorOptions", {})
         for entry in parsed.get("configMapGenerator", []):
@@ -2648,10 +3551,14 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     # than by it breaking: `platform/pages/check.mjs` now fails the build when
     # the site emits an extension neither nginx nor this ConfigMap types, so a
     # fourth cannot reach production the quiet way the first two did.
+    #
+    # `.py` is the fourth: 18 ventures' own pages offer a specific CLI as a
+    # same-origin download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`).
     for suffix, mime in (
         (r"\.mjs$", "text/javascript"),
         (r"\.webmanifest$", "application/manifest+json"),
         (r"\.csv$", "text/csv"),
+        (r"\.py$", "text/plain"),
     ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
@@ -2685,14 +3592,15 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 7 today (.mjs, .webmanifest, .csv, /feed.xml, /sw.js,
+    # reading this: 8 today (.mjs, .webmanifest, .csv, .py, /feed.xml, /sw.js,
     # /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
     # both written with their three headers because this test refused the
-    # block without them.
+    # block without them. `.py` (added when 18 ventures' own pages started
+    # offering a same-origin CLI download) is the third.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 7, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 8, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

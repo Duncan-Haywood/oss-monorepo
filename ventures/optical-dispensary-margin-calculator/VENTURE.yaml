@@ -1,0 +1,51 @@
+name: optical-dispensary-margin-calculator
+description: >-
+  Free browser tool for optical shops and optometry practices: enter each eyeglass sale type's patient payment, vision plan payment,
+  frame and lens cost, remake rate, claim and card fees and optician wage, and get what every sale earns, profit per optician-hour,
+  the patient price that reaches a target margin, plan versus cash sales, break-even sales per month and cost sensitivity.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: best match 0.18 (drone-mapping-job-calculator), nothing for
+# optical retail; dental-ppo-writeoff-calculator is the nearest neighbour (insurance write-offs, not goods margin).
+#
+# Why this niche: a US optical dispensary earns most of a practice's retail profit on frames and lenses, but vision plans
+# (VSP, EyeMed and others) pay fixed amounts and withhold fees, remakes eat lab cost twice, and an optician spends 25-40
+# minutes on a sale. Practice-management reports show revenue per sale, not what a progressive on a low plan earns after the
+# remake rate and the optician's time. About 40,000 US optical retail locations; owners spend real money and a few dollars a
+# sale is thousands a month.
+#
+# First visitor: searches "optical shop profit margin", "eyeglass frame markup", "how much do vision plans pay opticians",
+# "optical dispensary break even"; r/optometry, r/opticianry. Volume not measured.
+#
+# Liability boundary: arithmetic on typed numbers; placeholder values labelled as such; "Not decided" section; no-advice
+# footer. Nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid plan-remittance (835/EOB)
+# analyzer that finds under-paid claims -- needs an owner decision on payment.
+
+hypotheses:
+  - claim: >-
+      Optical dispensary owners and managers will type their sale costs into a free tool to see which plan and cash sales earn the least after remakes, fees and optician time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a modelling error that changes which sale type looks unprofitable on their numbers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/optical-dispensary-margin-calculator/
+  analytics: null

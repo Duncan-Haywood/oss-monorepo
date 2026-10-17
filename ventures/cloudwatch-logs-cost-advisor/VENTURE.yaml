@@ -1,0 +1,51 @@
+name: cloudwatch-logs-cost-advisor
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a list of CloudWatch log groups (stored GB, retention, GB ingested per month, age, class), prices ingestion and storage per group, flags never-expire and over-long retention with the live `aws logs put-retention-policy` command, dead groups still billing storage, and Infrequent Access candidates, and says plainly when ingestion rather than retention is the line to attack; usable as a CI check. Numbers are supplied by the user and prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of ebs-volume-cost-advisor, lambda-memory-rightsizer and
+# dynamodb-capacity-mode-advisor in the cloud-cost-from-pasted-numbers family.
+# Checked 2026-10-02: nothing in ventures/ prices CloudWatch Logs. Not in
+# screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "cloudwatch
+# logs cost", "reduce cloudwatch logs bill", "cloudwatch log group retention
+# never expire", "cloudwatch logs infrequent access"; r/aws and Stack Overflow
+# threads about a CloudWatch line on the bill. The reader is a platform
+# engineer or FinOps owner whose CloudWatch line is four to six figures a
+# month. Adjacent tools (AWS pricing calculator, Cost Explorer, vendor FinOps
+# suites) need an AWS account or a paid contract; this works on pasted rows
+# with no access and emits the retention command -- the wedge. A hosted
+# multi-account monitor with alerts on new never-expire groups is the natural
+# paid upgrade.
+hypotheses:
+  - claim: An engineer with a CloudWatch Logs line on the bill will search for it, paste a log group list, and leave knowing whether retention or ingestion is the cost and with a retention command per group.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will run the CLI on a schedule against describe-log-groups plus IncomingBytes with --fail-on warn so a new never-expire or dead group is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cloudwatch-logs-cost-advisor/
+  analytics: null

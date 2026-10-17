@@ -1,0 +1,107 @@
+name: child-tax-credit-calculator
+description: >-
+  Free browser calculator for the federal Child Tax Credit and Credit for
+  Other Dependents (One Big Beautiful Bill Act, permanent from tax year
+  2025) -- applies the $2,200-per-child CTC, the $500-per-dependent ODC,
+  the combined $50-per-$1,000 MAGI phase-out, the OBBBA filer-SSN
+  requirement, and the refundable Additional Child Tax Credit ceiling.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no open PRs and no in-progress
+# venture work at the time; DIRECTION.md's 2026-09-06 owner direction ranks
+# a fresh gate-cleared niche ahead of a parity feature in that situation).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.32 or below for "Calculate the 2025/2026 Child Tax Credit
+# under OBBBA: the permanent $2,200 base credit per qualifying child ...
+# phased out above $200,000 (single) or $400,000 (married filing jointly)
+# MAGI, and the $1,700 refundable Additional Child Tax Credit portion" --
+# well under the 0.45 review bar, and the closest match
+# (senior-deduction-calculator, 0.32) is a different federal provision
+# entirely (a temporary age-65+ deduction vs. a permanent per-child credit).
+# Not in portfolio/pipeline/screened-out.md: no row mentions the Child Tax
+# Credit, CTC, ACTC, or Schedule 8812.
+#
+# Same regulatory-provision shape that graduated
+# senior-deduction-calculator, auto-loan-interest-deduction-calculator,
+# trump-account-calculator, salt-cap-calculator, charitable-deduction-
+# calculator, estate-tax-exemption-calculator, excess-business-loss-
+# calculator, qsbs-exclusion-calculator, and exempt-salary-threshold-checker
+# the same weeks -- a specific, widely-searched federal provision nobody in
+# this portfolio had built a dedicated, private, no-signup tool for -- with
+# mechanics verified via WebSearch on 2026-09-25 (not screening-estimate
+# figures): the IRS's own newsroom release on 2026 inflation adjustments
+# (confirming $2,200 CTC / $1,700 ACTC unchanged from 2025, Rev. Proc.
+# 2025-32), Kiplinger, Jackson Hewitt, the Tax Policy Center, Congress.gov's
+# CRS product on taxpayer ID requirements (the OBBBA filer-SSN change), and
+# several independent CPA/payroll-firm summaries, cross-checked against
+# each other for the mechanics that matter: the $500 Credit for Other
+# Dependents for ITIN-only or age-17+ dependents, the $50-per-$1,000
+# stepped rounding rule ("or fraction thereof"), and the three-way minimum
+# that caps the refundable Additional Child Tax Credit.
+#
+# Differentiation from existing finance-blog/CPA-firm CTC explainers and
+# calculators found during research (several independent sites, most
+# ad-supported or written as static prose/tables without modeling the
+# ODC-vs-CTC phase-out split): this is privacy-first with no upsell, models
+# the ODC/CTC phase-out split via the same residual method the IRS's own
+# worksheet uses (derived and proven in calc.mjs's header comment, not
+# assumed), explicitly labels the refundable ACTC figure as a ceiling
+# rather than a guaranteed refund, and surfaces the OBBBA filer-SSN
+# requirement most existing calculators do not model at all.
+
+hypotheses:
+  - claim: >-
+      Parents and the tax-prep professionals fielding their questions will
+      search plain-language phrases ("child tax credit calculator 2026",
+      "child tax credit phase out", "how much is the child tax credit per
+      child") every tax season, and some will prefer a free, private,
+      no-signup, no-upsell calculator that models the ODC/CTC split and the
+      refundable ceiling correctly over a static explainer or a calculator
+      that ignores the Credit for Other Dependents entirely.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published CTC calculators and
+      explainer sites (found during WebSearch research 2026-09-25) is
+      evidence of real, proven, high search volume for these phrases; the
+      ODC/CTC phase-out split (derived from the IRS's own residual-worksheet
+      method rather than guessed) and the explicit refundable-ceiling
+      framing are real differentiation, not just a duplicate entrant into an
+      already-crowded field.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who assume a dependent without an SSN gets nothing, or who
+      treat the refundable ACTC ceiling as a guaranteed refund, will get a
+      materially wrong estimate from a naive hand calculation, and a
+      calculator that surfaces both distinctions explicitly prevents those
+      specific, high-consequence mistakes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the first tax-filing season in which this calculator has been live
+    a full season (April 2027).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/child-tax-credit-calculator/
+  analytics: null

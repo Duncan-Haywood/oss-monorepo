@@ -42,7 +42,7 @@
   <header>
     <p>FOR SMALL IMPORTERS &amp; E-COMMERCE SELLERS</p>
     <h1>What does this shipment actually cost, landed?</h1>
-    <p>Enter your item cost, freight, and the duty and supplemental tariff rates from your own HTS lookup or broker to see total landed cost, cost per unit, and the tariff burden as a percent of your invoice price — the number that turns a profitable-looking import into a loss when it shows up at customs instead of at pricing time. See <a href="does-the-de-minimis-exemption-still-apply.html">whether the $800 de minimis exemption still applies to your shipment</a> before you assume the old duty-free math still holds. Compare this against tracking landed cost by hand on <a href="vs-tracking-landed-cost-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>, or against booking through a freight forwarder on <a href="vs-flexport.html">this calculator vs. Flexport</a>.</p>
+    <p>Enter your item cost, freight, and the duty and supplemental tariff rates from your own HTS lookup or broker to see total landed cost, cost per unit, and the tariff burden as a percent of your invoice price — the number that turns a profitable-looking import into a loss when it shows up at customs instead of at pricing time. See <a href="does-the-de-minimis-exemption-still-apply.html">whether the $800 de minimis exemption still applies to your shipment</a> before you assume the old duty-free math still holds, and <a href="formal-vs-informal-entry.html">why the processing fee jumps $30 the moment an entry is formal instead of informal</a>, regardless of how close the shipment sits to the value line. Compare this against tracking landed cost by hand on <a href="vs-tracking-landed-cost-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>, or against booking through a freight forwarder on <a href="vs-flexport.html">this calculator vs. Flexport</a>.</p>
     <p class="callout"><strong>Not a customs broker or compliance service.</strong> This tool is not a customs broker, freight forwarder, or licensed customs classification service. It does not determine your HTS code, your duty rate, or your compliance obligations — you must verify those with a licensed customs broker or CBP. This tool only performs the arithmetic once you supply the rates and fees.</p>
   </header>
   <main class="layout">
@@ -72,6 +72,12 @@
           </select>
           <span class="field-note">Formal entries pay a percentage-based Merchandise Processing Fee (floor/ceiling apply); informal entries pay a flat fee. Ask your broker which applies to you.</span>
         </label>
+        <label>Your selling price per unit ($, optional)
+          <input id="sellPricePerUnit" type="number" min="0" step="0.01" value="24" placeholder="leave blank to skip margin">
+        </label>
+        <label>Target gross margin (%)
+          <input id="targetMarginPct" type="number" min="0" max="99.9" step="0.1" value="30">
+        </label>
         <label class="checkbox-field"><input id="oceanFreight" type="checkbox" checked> Shipped by ocean freight (Harbor Maintenance Fee applies)</label>
       </div>
     </section>
@@ -84,6 +90,15 @@
         <dt>Effective tariff burden</dt><dd id="tariffBurdenPct"></dd>
         <dt>Customs value (item + freight)</dt><dd id="customsValue"></dd>
       </dl>
+      <h3>Pricing</h3>
+      <dl>
+        <dt>Break-even price per unit</dt><dd id="breakEvenPrice"></dd>
+        <dt id="minPriceLabel">Minimum price for target margin</dt><dd id="minPrice"></dd>
+        <dt>Profit per unit at your price</dt><dd id="profitPerUnit"></dd>
+        <dt>Gross margin at your price</dt><dd id="marginPct"></dd>
+        <dt>Profit on the whole shipment</dt><dd id="totalProfit"></dd>
+      </dl>
+      <p class="note">Gross margin = (price − landed cost) ÷ price, before marketplace fees, shipping to customers, returns and ad spend.</p>
       <hr>
       <table>
         <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
@@ -119,7 +134,9 @@
       maximum of $634.62 per entry. Informal entries (typically lower-value, more casual shipments) pay a flat
       fee instead, currently around $2.62. These are published, indexed figures &mdash; confirm the current
       numbers at <a href="https://www.cbp.gov" target="_blank" rel="noopener">cbp.gov</a> before relying on them
-      for a real entry, since CBP periodically adjusts them.</p>
+      for a real entry, since CBP periodically adjusts them. See
+      <a href="formal-vs-informal-entry.html">formal vs. informal entry</a> for what decides which one you are
+      and why the fee does not scale smoothly across that line.</p>
 
     <h3>What is the Harbor Maintenance Fee, and why does it only sometimes apply?</h3>
     <p>It is 0.125% of the customs value, charged on shipments that move by ocean freight &mdash; not on air or
@@ -145,6 +162,8 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not customs, legal, tax, or financial advice, and it does not replace a licensed customs broker or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Already know your landed cost and need to check the freight quote itself? The <a href="../3pl-quote-normalizer/">3PL quote normalizer</a> compares carrier and fulfillment quotes on the other leg of the same shipment.</p>
+    <p>Containers sitting at the port? See the <a href="../container-demurrage-detention-calculator/">container demurrage &amp; detention calculator</a> — what the dwell time costs on your tariff, and what an earlier pickup is worth.</p>
+    <p>Deciding between shared and full-container freight? The <a href="../lcl-vs-fcl-container-calculator/">LCL vs FCL container calculator</a> finds the break-even volume and the freight cost per unit.</p>
     <p>Free and open source. If it kept a lowball tariff estimate from turning your shipment into a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
@@ -212,6 +231,13 @@
       field('perUnit').textContent = `${money(result.perUnitLandedCost)} per unit`;
       field('tariffBurdenPct').textContent = `${result.effectiveTariffBurdenPct.toFixed(2)}% of item cost`;
       field('customsValue').textContent = money(result.customsValue);
+      const p = result.pricing;
+      field('breakEvenPrice').textContent = money(p.breakEvenPrice);
+      field('minPriceLabel').textContent = `Minimum price for ${p.targetMarginPct}% margin`;
+      field('minPrice').textContent = money(p.minPriceForTarget);
+      field('profitPerUnit').textContent = p.profitPerUnit === null ? '—' : money(p.profitPerUnit);
+      field('marginPct').textContent = p.marginPct === null ? '—' : `${p.marginPct.toFixed(1)}%`;
+      field('totalProfit').textContent = p.totalProfit === null ? '—' : money(p.totalProfit);
 
       const rows = breakdownRows(result);
       field('breakdown').innerHTML = rows.map(([label, amount], i) =>

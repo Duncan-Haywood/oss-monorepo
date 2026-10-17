@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01MBWoCS62cedQzBkt6fsegi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror-sync",
+  "projects": [],
+  "pr": 7019,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate rejected a mirrored upstream run record with null date/session (upstream runs.jsonl line 173); mirror sync could not pass validate without a code change."
+    },
+    {
+      "file": "research/_mirror/README.md",
+      "issue": "Sync steps do not say what to do when a converted run record is invalid; also `git fetch --unshallow origin main` took over 5 minutes."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Very long starvation-era prose; most of it irrelevant to a research/mirror run."
+    }
+  ],
+  "goal": null,
+  "notes": "Mirror sync to upstream 5cd9598. merged left null: record is committed before the merge.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR confirmed merged on main (review run)"
+    }
+  ],
+  "redteam": null
+}

@@ -1,0 +1,63 @@
+name: ebay-promoted-listings-roi-analyzer
+description: >-
+  Free browser tool that turns an eBay Promoted Listings report CSV into
+  per-listing profit after ad fees, the share of credited sales the ad must
+  have caused to break even, and a ranked list of listings to lower or drop.
+  The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. Shape copied from
+# stripe-churn-cohort-analyzer (the user's own data file is the input), not
+# another arithmetic calculator. duplicate_check: no existing venture reads a
+# Promoted Listings report; ebay-transaction-report-analyzer reads orders.
+#
+# Market: eBay sellers spend a double-digit share of sales on Promoted
+# Listings Standard (pay-per-sale, ad rate 2-15%+) and the Seller Hub report
+# shows sales and fees but never the item cost, so "is this ad paying?" is not
+# answerable from eBay. Paid incumbents (Terapeak is eBay's own research tool,
+# third-party listing managers) sell this inside subscriptions; this is the
+# no-signup, file-stays-local version for one question.
+#
+# First visitor: resellers on r/Flipping, r/ebaysellers and eBay community
+# forums asking whether Promoted Listings is worth it; search phrases "are
+# ebay promoted listings worth it", "ebay promoted listings break even ad
+# rate". Volume not measured with an external tool.
+#
+# Liability: arithmetic on the user's file and margin, assumptions and
+# omissions stated on the page, no advice, no warranty, not affiliated with
+# eBay. Margin and sold-anyway share are the user's inputs, labelled as such.
+
+hypotheses:
+  - claim: >-
+      eBay resellers will prefer a no-signup tool that reads their downloaded
+      Promoted Listings report locally and subtracts their own margin over
+      judging ads by eBay's attributed-sales figure alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The per-listing "share of sales the ad must have caused" figure changes
+      which ad rates a seller lowers, which is the reason to return after each
+      month's report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from a real Promoted Listings export, or a column layout the parser cannot read, at which point the aliases need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ebay-promoted-listings-roi-analyzer/
+  analytics: null

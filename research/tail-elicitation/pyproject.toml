@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tail-elicitation"
+version = "0.1.0"
+description = "Jointly eliciting VaR and expected shortfall of benign training drift: scale-invariant Fissler-Ziegel scores for verifier tolerance forecasts"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

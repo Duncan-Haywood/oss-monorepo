@@ -1,0 +1,47 @@
+name: birth-doula-package-pricing-calculator
+description: >-
+  Free browser tool for birth doulas: pay per worked hour after labor length, driving, on-call days, backup cover and
+  overhead, the package price that reaches a target hourly rate, and births per year for an income goal. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ had no doula, midwife or birth-support pricing tool (the closest
+# are nail-tech-booth-rent-calculator and boutique-fitness-studio-pricing-planner, different buyers).
+#
+# Why this niche: "how much should a birth doula charge" and "doula pricing" are searched by new and independent doulas
+# who set a package price by copying a neighbour and then discover a 30-hour labor paid $1,200. Incumbents are doula
+# association blog posts and CRM tools (Doula Biz, Bloom) that sell scheduling and contracts, not a price-from-hourly-rate
+# number. Free tool is a lead magnet; a paid contract/invoice template pack or a CRM referral are later revenue paths
+# (not built; any referral needs a disclosure and owner approval).
+#
+# First visitor: a doula searching "how much to charge as a doula" or "doula hourly rate". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; not business, tax or financial advice; no medical content,
+# no client data stored; no filing or payments.
+
+hypotheses:
+  - claim: >-
+      Independent birth doulas will use a private calculator that turns a target hourly rate into a package price,
+      because the alternatives are peer rate surveys that ignore labor length, on-call days and backup cover.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/birth-doula-package-pricing-calculator/
+  analytics: null

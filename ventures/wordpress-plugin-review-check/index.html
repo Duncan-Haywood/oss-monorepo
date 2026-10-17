@@ -322,7 +322,8 @@ function example_save_settings() {
   <p>No. This is evidence from pattern-matching your readme.txt, plugin header, and PHP source against known field names and function calls -- it is not the review process, and it is a line-level heuristic, not data-flow analysis. It can miss an escaping function applied a few lines away from the echo, a nonce check that exists but never actually runs before the $_POST read it's meant to guard, or a field spelled non-standardly. Always re-check against the Plugin Directory's own current guidelines before submitting.</p>
   <p>More on the most common of these: <a href="stable-tag-mismatch.html">Fixing a readme.txt "Stable tag" mismatch</a>.
   Already run wordpress.org's own <a href="vs-plugin-check.html">Plugin Check</a>? See how it compares to this
-  checker.</p>
+  checker. Just reading the guidelines and checking your own files by eye? See
+  <a href="vs-manually-checking-against-the-guidelines.html">what that read-through is most likely to miss</a>.</p>
 </section>
 
 <footer>

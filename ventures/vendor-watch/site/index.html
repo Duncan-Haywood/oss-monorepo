@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vendor Watch | Get a source-linked diff when a vendor changes its terms</title>
+  <meta name="description" content="Watch a vendor's public terms, privacy policy or subprocessor page and get a timestamped, word-level diff when the text changes. Open source, free, runs from a cron job on your own machine.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Vendor Watch | Vendor terms change tracker">
+  <meta property="og:description" content="A timestamped, source-linked diff of vendor terms, privacy and subprocessor pages. Failed fetches are never reported as no change.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Watch","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Open-source tool and command line that diffs a vendor's public terms, privacy policy or subprocessor page against the last snapshot."}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink)}
+    main{max-width:860px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:0 0 1rem}
+    h2{margin-top:0}p.lede{font-size:1.15rem;color:var(--muted)}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
+    pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:.75rem;overflow:auto;font-size:.85rem}
+    a{color:var(--accent)}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Know when a vendor changes its terms.</h1>
+  <p class="lede">Point Vendor Watch at a public terms, privacy policy or subprocessor page. It keeps a snapshot and, next time, shows what changed word by word, with the time and the source URL.</p>
+  <section>
+    <h2>What it does</h2>
+    <ul>
+      <li>Word-level diff against your last snapshot, timestamped and linked to the source page.</li>
+      <li>A failed or non-2xx fetch is labelled <strong>inconclusive</strong>. It never overwrites a good snapshot and is never reported as "no change".</li>
+      <li>Command line exits non-zero on a change, so a cron job or CI step can watch a page.</li>
+      <li>Private, loopback and link-local addresses are refused; only public http/https pages are supported.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Run it yourself</h2>
+    <p>The CLI needs only Node. Baselines are stored on your own disk.</p>
+<pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/vendor-watch
+npm install
+npm run watch -- https://vendor.example/terms</pre>
+    <p>The browser version needs a server, because fetching an arbitrary vendor page from a tab is blocked by CORS. See the README in the venture folder for both.</p>
+  </section>
+  <section>
+    <h2>Privacy and usage</h2>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you. The browser tool keeps its snapshots in your own browser's local storage; the server does not persist them.</p>
+  </section>
+  <section>
+    <h2>Disclaimer</h2>
+    <p>Vendor Watch is an evidence feed, not legal, compliance or contract-review advice. Only monitor pages you are authorized to monitor, and confirm any change against the vendor's original page.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  </section>
+  <footer><p>Prefer to paste a page in your browser and build an evidence report? Try <a href="../vendor-change-watch/">Vendor Change Watch</a>.</p>Open source under the MIT license. Part of the open-source tool catalogue.</footer>
+</main>
+</body>
+</html>

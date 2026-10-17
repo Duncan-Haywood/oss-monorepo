@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is a Bus Factor (Truck Factor) and How Do You Raise It?</title>
+  <meta name="description" content="What a bus factor is, how it is measured from git history, what orphaned and single-owner folders mean, and five practical ways to raise it without slowing the team down.">
+  <link rel="canonical" href="./what-is-bus-factor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"What is a bus factor (truck factor), and how do you raise it?","about":"Measuring and raising the bus factor of a git repository from its commit history","author":{"@type":"Organization","name":"Git Bus Factor Check"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Git Bus Factor Check</a></p>
+  <h1>What is a bus factor (truck factor), and how do you raise it?</h1>
+  <p>The bus factor is the smallest number of people who would have to leave before a project stalls because nobody left understands the code. It is a grim name for a planning question: <em>where is our knowledge held by one head?</em></p>
+
+  <h2>How it is measured from git history</h2>
+  <p>Commit history cannot show who understands a file, but it shows who changed it. This tool adds up, per folder, the lines each person added and deleted. A single commit is capped at 500 lines per file so a generated or vendored dump cannot own a folder, and each change loses half its weight every 180 days so recent work counts for more. Bots, lock files, <code>node_modules</code>, <code>vendor</code>, <code>dist</code> and minified files are ignored. The folder's bus factor is the fewest people whose weighted changes reach half of its total. This is a heuristic line scan of history, not a measure of understanding.</p>
+
+  <h2>The three statuses</h2>
+  <ul>
+    <li><strong>orphaned</strong> — the largest contributor to a folder (at least half of it) has made no commit anywhere in the last 90 days. They may have left, moved teams or be on long leave. Find out, and assign an owner.</li>
+    <li><strong>single-owner</strong> — one still-active person holds at least 80 percent of a folder. Nothing is wrong today; one absence away from a problem.</li>
+    <li><strong>shared</strong> — more than one person carries the folder, or no one dominates it.</li>
+  </ul>
+
+  <h2>Five ways to raise it</h2>
+  <ol>
+    <li>Make the second person the reviewer on the next change in every single-owner folder.</li>
+    <li>Pair on one real change there instead of scheduling a handover meeting.</li>
+    <li>Write down what history cannot show: why it was built this way, how it is deployed, where the credentials live.</li>
+    <li>Hand the next bug or on-call rotation for that area to someone new.</li>
+    <li>Re-run the check monthly and watch the flagged list shrink; <code>python3 busfactor.py --fail-on-orphaned</code> works as a CI gate.</li>
+  </ol>
+
+  <h2>What this number does not tell you</h2>
+  <p>Squashed commits credit one author for a team's work, pair programming credits one of two people, a contributor who commits under two emails counts as two, and an expert who reviews but rarely commits is invisible. Use the output to start a conversation about a folder, never to judge a person.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. It is a heuristic and must not be used on its own to make decisions about hiring, firing, pay or performance. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Run the check</a>.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelance Proposal Maker — Free Proposal Generator With Pricing Options, No Signup</title>
+  <meta name="description" content="Free freelance proposal generator: state the client's problem, list deliverables, set a dated timeline and offer up to three priced options with deposits and an expiry date. Print, save as PDF or copy. No account, nothing uploaded.">
+  <meta property="og:title" content="Freelance Proposal Maker — free proposal generator, no signup">
+  <meta property="og:description" content="Write a client proposal in minutes: problem, deliverables, dated timeline, good-better-best pricing and an expiry date. Free, private, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelance Proposal Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A free freelance proposal generator that runs in your browser: the client's problem, deliverables, a dated timeline, up to three priced options with deposits, an expiry date and next steps, printed or downloaded. No account; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this proposal maker really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. There is no account, no watermark and no paywall on printing or downloading. It runs in your browser, so it costs nothing to serve, and it stays free."}},{"@type":"Question","name":"What should a freelance proposal include?","acceptedAnswer":{"@type":"Answer","text":"The client's problem in their words, what you will deliver, a timeline with dates, a price, what you are assuming, why you, and what happens next. Put the problem first: a proposal that opens with your bio reads like a quote."}},{"@type":"Question","name":"Why offer three options instead of one price?","acceptedAnswer":{"@type":"Answer","text":"One price invites a yes or no. Three options (a smaller scope, a standard one and a fuller one) turn the question into which one, and the middle option usually wins. The tool shows how far apart your options are so the top one is clearly bigger."}},{"@type":"Question","name":"How long should a proposal be valid?","acceptedAnswer":{"@type":"Answer","text":"Fourteen days is common. An expiry date gives the client a reason to answer this week and protects you if your rates or calendar change. Set a proposal date and the tool works out the date for you."}},{"@type":"Question","name":"How are the timeline dates worked out?","acceptedAnswer":{"@type":"Answer","text":"Each phase starts the day the previous one ends, counted in calendar days from your start date, so two weeks is fourteen days. The finish date is shown at the bottom. Weekends and holidays are not skipped."}},{"@type":"Question","name":"Is a proposal a contract?","acceptedAnswer":{"@type":"Answer","text":"No. A proposal is an offer and a plan. Once the client picks an option, send a signed service agreement; Freelance Contract Maker builds one from the same details."}},{"@type":"Question","name":"Where are my drafts stored?","acceptedAnswer":{"@type":"Answer","text":"In your browser on this device only. Clearing site data removes them, so use Download backup now and then. Nothing you type is uploaded."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f4fa; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3a3fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #23277a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #23277a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f6a; }
+    .card { background: #fff; border: 1px solid #dcdcee; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #23277a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b3b5d3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3a3fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e7f6; color: #23277a; }
+    button.danger { background: #fde8e8; color: #9a3412; }
+    button.stop { background: #b42318; }
+    button.small { padding: 5px 9px; margin: 0 4px 0 0; font-size: .8rem; }
+    button:disabled { opacity: .5; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ebebf5; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a4f6a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+    .kpi { background: #eeeffb; border-radius: 10px; padding: 12px; }
+    .kpi b { display: block; font-size: 1.3rem; color: #23277a; }
+    .kpi span { font-size: .8rem; color: #4a4f6a; }
+    .clock { font-size: clamp(2.2rem, 8vw, 3.6rem); font-variant-numeric: tabular-nums; font-weight: 800; color: #23277a; margin: 4px 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: #e6e7f6; color: #23277a; }
+    .pill.billed { background: #d8f0e2; color: #14503a; }
+    .pill.nb { background: #eee; color: #555; }
+    .issues li { color: #7c4a10; }
+    .bars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin: 10px 0 4px; }
+    .bar { flex: 1; background: #c9cbf0; border-radius: 4px 4px 0 0; min-height: 2px; }
+    .barlabels { display: flex; gap: 6px; font-size: .72rem; color: #4a4f6a; text-align: center; }
+    .barlabels span { flex: 1; }
+    .sr { position: absolute; left: -9999px; }
+    .running { outline: 3px solid #b42318; }
+    #doc { background: #fff; color: #111; padding: 18px; border: 1px solid #dcdcee; border-radius: 6px; margin-top: 12px; }
+    #doc h2 { margin: 0 0 6px; color: #111; }
+    @media print { body > :not(#doc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #doc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #doc-card .noprint { display: none !important; } #doc { border: 0; padding: 0; } }
+    footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Freelance Proposal Maker: win the job before you write the contract</h1>
+    <p>Describe the client's problem, list what you will deliver, and get a <strong>proposal with a dated timeline, up to three priced options</strong>, deposits worked out to the cent and an <strong>expiry date</strong>. Print it, save it as PDF or copy the text. No account, no watermark, and <strong>nothing leaves your device</strong>.</p>
+  </header>
+
+  <section class="card" aria-label="Client and project">
+    <h2>1. Who and why</h2>
+    <div class="grid">
+      <div><label for="f-contractor">Your name or business</label><input id="f-contractor" autocomplete="organization"></div>
+      <div><label for="f-client">Client name</label><input id="f-client" autocomplete="off"></div>
+      <div><label for="f-title">Proposal title</label><input id="f-title" placeholder="e.g. New marketing website"></div>
+      <div><label for="f-proposalDate">Proposal date</label><input id="f-proposalDate" type="date"></div>
+      <div><label for="f-validDays">Valid for (days)</label><input id="f-validDays" inputmode="numeric"></div>
+    </div>
+    <label for="f-problem">What the client is trying to achieve or fix</label>
+    <textarea id="f-problem" rows="3" placeholder="Their words, not yours: what is not working today, and what good looks like"></textarea>
+    <label for="f-approach">How you would approach it (optional)</label>
+    <textarea id="f-approach" rows="3"></textarea>
+    <label for="f-deliverables">Deliverables (one per line)</label>
+    <textarea id="f-deliverables" rows="4" placeholder="Home page&#10;Pricing page&#10;Contact form"></textarea>
+  </section>
+
+  <section class="card" aria-label="Timeline">
+    <h2>2. Timeline</h2>
+    <div class="grid"><div><label for="f-startDate">Start date</label><input id="f-startDate" type="date"></div></div>
+    <label for="f-phases">Phases (one per line: name | weeks)</label>
+    <textarea id="f-phases" rows="3" placeholder="Discovery | 1&#10;Design | 2&#10;Build | 3"></textarea>
+    <div class="kpis" id="timeline" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-label="Pricing options">
+    <h2>3. Price and options</h2>
+    <label for="f-options">Options (one per line: name | price | what is included). Three works best.</label>
+    <textarea id="f-options" rows="4" placeholder="Essentials | 3000 | Three pages, one revision round&#10;Standard | 6000 | Five pages, two revision rounds&#10;Premium | 11000 | Ten pages, SEO setup, a month of support"></textarea>
+    <div class="grid">
+      <div><label for="f-currency">Currency</label><select id="f-currency"><option>USD</option><option>CAD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>MXN</option><option>INR</option></select></div>
+      <div><label for="f-depositPct">Deposit on acceptance (%)</label><input id="f-depositPct" inputmode="decimal"></div>
+      <div><label for="f-payDays">Invoices due in (days, 0 = on receipt)</label><input id="f-payDays" inputmode="numeric"></div>
+    </div>
+    <div class="grid">
+      <div><label for="f-targetRate">Your target hourly rate (private, never printed)</label><input id="f-targetRate" inputmode="decimal" placeholder="0.00"></div>
+      <div><label for="f-hours">Your hours estimate per option (private, one number per line, same order)</label><textarea id="f-hours" rows="3" placeholder="30&#10;55&#10;90"></textarea></div>
+    </div>
+    <div class="scroll"><table id="ladder"><caption class="sr">Options with deposit, balance and distance from the middle option</caption></table></div>
+  </section>
+
+  <section class="card" aria-label="Credibility and next steps">
+    <h2>4. Why you, and what you are assuming</h2>
+    <label for="f-whyMe">Why you (one or two lines, ideally a similar past result)</label>
+    <textarea id="f-whyMe" rows="2"></textarea>
+    <label for="f-assumptions">Assumptions (one per line)</label>
+    <textarea id="f-assumptions" rows="3" placeholder="Client supplies all copy and images&#10;Feedback within 5 business days"></textarea>
+    <label for="f-contact">How to reach you</label>
+    <input id="f-contact" placeholder="email or phone">
+  </section>
+
+  <section class="card" id="doc-card" aria-label="Your proposal">
+    <h2 class="noprint">Your proposal</h2>
+    <ul class="issues noprint" id="issues" aria-live="polite"></ul>
+    <ul class="noprint" id="notes"></ul>
+    <p class="noprint"><button type="button" id="print">Print / Save as PDF</button><button type="button" class="secondary" id="copy">Copy text</button><button type="button" class="secondary" id="dl-txt">Download .txt</button></p>
+    <p class="noprint" id="handoff" hidden>The client said yes? Turn an option into a draft agreement, or bill its deposit: <span id="handoff-links"></span></p>
+    <p class="note noprint" id="copy-status" aria-live="polite"></p>
+    <div id="doc"></div>
+  </section>
+
+  <section class="card" aria-label="Back up and restore">
+    <h2>Back up, restore</h2>
+    <p><button type="button" class="secondary" id="export-json">Download backup</button><button type="button" class="secondary" id="import-btn">Restore from backup</button><button type="button" class="secondary" id="load-example">Load an example</button><button type="button" class="danger" id="clear-all">Clear everything on this device</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden aria-label="Backup file to restore"></p>
+    <p class="note" id="io-status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>What it does and does not do</h2>
+    <ul>
+      <li><strong>Plain-language sections, fixed rules.</strong> The proposal is assembled from your answers by a template, not by a model, so the same answers always give the same text.</li>
+      <li><strong>Dates and money to the cent.</strong> Phases chain from your start date, the expiry date is counted from the proposal date, and each option's deposit and balance add up to its price exactly.</li>
+      <li><strong>A private rate check.</strong> Enter your own hours for each option and a target hourly rate, and it shows what each option pays an hour and warns when one is under target. Neither number ever appears in the proposal.</li>
+      <li><strong>Checks before you send.</strong> It tells you what is missing and flags what tends to lose or under-price a job: a single option, options priced too close together, no expiry, no timeline.</li>
+      <li><strong>Not modelled:</strong> e-signature, tracking whether the client opened it, tax or VAT lines, discounts, and translation. A proposal is an offer, not a contract; use the contract maker once they say yes.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this proposal maker really free?</h3>
+    <p>Yes. There is no account, no watermark and no paywall on printing or downloading. It runs in your browser, so it costs nothing to serve, and it stays free.</p>
+    <h3>What should a freelance proposal include?</h3>
+    <p>The client's problem in their words, what you will deliver, a timeline with dates, a price, what you are assuming, why you, and what happens next. Put the problem first: a proposal that opens with your bio reads like a quote.</p>
+    <h3>Why offer three options instead of one price?</h3>
+    <p>One price invites a yes or no. Three options (a smaller scope, a standard one and a fuller one) turn the question into which one, and the middle option usually wins. The tool shows how far apart your options are so the top one is clearly bigger.</p>
+    <h3>How long should a proposal be valid?</h3>
+    <p>Fourteen days is common. An expiry date gives the client a reason to answer this week and protects you if your rates or calendar change. Set a proposal date and the tool works out the date for you.</p>
+    <h3>How are the timeline dates worked out?</h3>
+    <p>Each phase starts the day the previous one ends, counted in calendar days from your start date, so two weeks is fourteen days. The finish date is shown at the bottom. Weekends and holidays are not skipped.</p>
+    <h3>Is a proposal a contract?</h3>
+    <p>No. A proposal is an offer and a plan. Once the client picks an option, send a signed service agreement; Freelance Contract Maker builds one from the same details.</p>
+    <h3>Where are my drafts stored?</h3>
+    <p>In your browser on this device only. Clearing site data removes them, so use Download backup now and then. Nothing you type is uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The text it produces is a template built from your answers; the prices, dates and terms in it are yours, and you are responsible for checking them before you send it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as your only record: download a backup.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>proposal_printed</code>, <code>proposal_copied</code>, <code>proposal_downloaded</code>, <code>example_loaded</code>) are counted only in local storage on your device, never the content. Turn it off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Keep prospects in the <a href="../freelance-lead-tracker/">Freelance Lead Tracker</a>. When the client says yes, write the <a href="../freelance-contract-maker/">service agreement</a>, break the price down in <a href="../estimate-maker/">Estimate Maker</a>, track hours with <a href="../time-tracker/">Time Tracker</a>, bill with <a href="../invoice-maker/">Invoice Maker</a>, and see what to do next on the <a href="../freelance-dashboard/">Freelance Dashboard</a>. Check a contract a client sends with the <a href="../freelance-contract-checker/">Freelance Contract Checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLeadHandoff, contractHandoffHash, invoiceHandoffHash, DEFAULTS, optionTerms, ladder, rateCheck, parsePhases, check, buildProposal, proposalText, reviewNotes, formatMoney, formatDate } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const KEY = "freelance-proposal-maker-data";
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const TEXT = ["contractor", "client", "title", "proposalDate", "validDays", "problem", "approach", "deliverables", "phases", "startDate", "options", "currency", "depositPct", "payDays", "whyMe", "assumptions", "contact", "hours", "targetRate"];
+    const BOOL = [];
+    let data = load();
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (d && typeof d === "object" && !Array.isArray(d)) return { ...DEFAULTS, ...d };
+      } catch { /* storage is optional */ }
+      return { ...DEFAULTS };
+    }
+    function persist() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { $("#io-status").textContent = "Could not save: browser storage is full or blocked. Download a backup."; } }
+    function fill() { for (const k of TEXT) $("#f-" + k).value = data[k] ?? ""; }
+    for (const k of TEXT) $("#f-" + k).addEventListener("input", () => { data[k] = $("#f-" + k).value; persist(); render(); });
+
+    function render() {
+      const m = (c) => formatMoney(c, data.currency);
+      const ph = parsePhases(data.phases, data.startDate);
+      const tl = ph.rows.length ? [[`${ph.totalWeeks} wk`, "total duration"]] : [];
+      if (ph.finish) tl.push([formatDate(ph.finish), "finish date"]);
+      $("#timeline").innerHTML = tl.map(([b, l]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(l)}</span></div>`).join("");
+      const lad = ladder(data);
+      const vs = (name) => lad.find((x) => x.name === name)?.vsMidPct;
+      const rc = rateCheck(data);
+      const rows = optionTerms(data).map((o, i) => {
+        const v = vs(o.name);
+        const r = rc[i];
+        const rate = r && r.rate !== null ? m(r.rate) + "/h" + (r.belowTarget ? " ⚠" : "") : "—";
+        return `<tr><td>${esc(o.name)}</td><td class="n">${esc(m(o.cents))}</td><td class="n">${esc(m(o.deposit))}</td><td class="n">${esc(m(o.balance))}</td><td class="n">${v === undefined ? "" : esc((v > 0 ? "+" : "") + v + "%")}</td><td class="n">${esc(rate)}</td></tr>`;
+      }).join("");
+      const lt = $("#ladder");
+      lt.innerHTML = rows ? `<caption class="sr">Options with deposit, balance and distance from the middle option</caption><thead><tr><th>Option</th><th class="n">Price</th><th class="n">Deposit</th><th class="n">Balance</th><th class="n">vs middle</th><th class="n">Your rate (private)</th></tr></thead><tbody></tbody>` : "";
+      if (rows) lt.querySelector("tbody").innerHTML = rows;
+      $("#issues").innerHTML = check(data).map((w) => `<li>${esc(w)}</li>`).join("");
+      $("#notes").innerHTML = reviewNotes(data).map((w) => `<li>${esc(w)}</li>`).join("");
+      const doc = $("#doc");
+      doc.textContent = "";
+      const h = document.createElement("h2"); h.textContent = String(data.title).trim() || "Proposal"; doc.append(h);
+      for (const s of buildProposal(data)) {
+        const h3 = document.createElement("h3"); h3.textContent = s.title; doc.append(h3);
+        for (const para of s.body) { const p = document.createElement("p"); p.style.whiteSpace = "pre-wrap"; p.textContent = para; doc.append(p); }
+      }
+      const opts = optionTerms(data);
+      $("#handoff").hidden = !opts.length;
+      $("#handoff-links").innerHTML = opts.map((o, i) => `<a href="../freelance-contract-maker/${esc(contractHandoffHash(data, i))}">${esc(o.name)}</a> (<a href="../invoice-maker/${esc(invoiceHandoffHash(data, i))}">deposit invoice</a>)`).join(" · ");
+    }
+    const text = () => proposalText(String(data.title).trim() || "Proposal", buildProposal(data));
+    function download(name, body, type) {
+      const url = URL.createObjectURL(new Blob([body], { type }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    $("#print").onclick = () => { record("proposal_printed"); window.print(); };
+    $("#dl-txt").onclick = () => { download("proposal.txt", text(), "text/plain"); record("proposal_downloaded"); };
+    $("#copy").onclick = async () => {
+      try { await navigator.clipboard.writeText(text()); $("#copy-status").textContent = "Copied."; record("proposal_copied"); }
+      catch { $("#copy-status").textContent = "Your browser blocked copying. Select the text below, or use Download .txt."; }
+    };
+    $("#export-json").onclick = () => download("freelance-proposal-maker-backup.json", JSON.stringify(data, null, 2), "application/json");
+    $("#import-btn").onclick = () => $("#import-file").click();
+    $("#import-file").onchange = async (ev) => {
+      try {
+        const d = JSON.parse(await ev.target.files[0].text());
+        if (!d || typeof d !== "object" || Array.isArray(d) || !("options" in d)) throw new Error("shape");
+        data = { ...DEFAULTS, ...d }; persist(); fill(); render(); $("#io-status").textContent = "Backup restored.";
+      } catch { $("#io-status").textContent = "That file is not a Freelance Proposal Maker backup."; }
+      ev.target.value = "";
+    };
+    $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = { ...DEFAULTS }; persist(); fill(); render(); };
+    $("#load-example").onclick = () => {
+      const today = new Date().toISOString().slice(0, 10);
+      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", title: "New marketing website", proposalDate: today,
+        problem: "Most of your visitors arrive on a phone and leave before the pricing page loads. You want a site that turns them into booked calls.",
+        approach: "Start with a short discovery call and a review of your analytics, then design and build mobile first.",
+        deliverables: "Home page\nPricing page\nContact form with booking\nHandover document",
+        phases: "Discovery | 1\nDesign | 2\nBuild | 3", startDate: "",
+        options: "Essentials | 3000 | Three pages, one revision round\nStandard | 6000 | Five pages, two revision rounds, analytics setup\nPremium | 11000 | Ten pages, SEO setup, a month of support",
+        depositPct: "40", whyMe: "I rebuilt a similar site for a local clinic and bookings doubled in two months.",
+        assumptions: "Client supplies all copy and images\nFeedback within 5 business days", contact: "ada@example.com", hours: "30\n55\n90", targetRate: "100" };
+      persist(); fill(); render(); record("example_loaded");
+    };
+    $("#optout").onclick = () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; };
+    if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+    const lead = parseLeadHandoff(location.hash);
+    if (lead) {
+      data = { ...DEFAULTS, ...lead }; persist();
+      history.replaceState(null, "", location.pathname + location.search);
+      $("#io-status").textContent = "Filled in from your lead. Review every field before you send it.";
+    }
+    fill(); render();
+  </script>
+</body>
+</html>

@@ -111,3 +111,9 @@ test('index links one hop to the wildlife-exclusion-bid-calculator sibling', () 
   );
   assert.match(page, /wildlife exclusion bid calculator/i);
 });
+
+// A one-day heat job is a different shape from the recurring route priced here; the link is the one-hop route for a crawler.
+test('index links one hop to the bed-bug-heat-treatment-price-calculator sibling', () => {
+  assert.match(page, /href="\.\.\/bed-bug-heat-treatment-price-calculator\/"/);
+  assert.match(page, /bed bug heat treatment price calculator/i);
+});

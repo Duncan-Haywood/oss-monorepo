@@ -1,0 +1,47 @@
+name: app-listing-metadata-check
+description: >-
+  Free browser tool and zero-dependency CLI for iOS and Android indie developers: paste or point at the text of an App
+  Store or Google Play listing and see which fields are over their character limits, how many of the 100 App Store
+  keyword characters are wasted on spaces, repeats, plurals and words already in the name, and which lines carry
+  promotional claims, placeholder text, keyword stuffing, other-platform mentions or terms you asked to avoid. The CLI
+  reads a fastlane metadata folder and fails the build. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest are app-store-screenshot-check (images,
+# 0.35) and app-store-commission-calculator (0.13); no listing-text linter exists in ventures/. Checker/CLI archetype,
+# not another trade calculator.
+#
+# Who: indie iOS and Android developers and small studios shipping with fastlane (deliver / supply).
+# First visitor: a developer at r/iOSProgramming, r/androiddev, Indie Hackers or the fastlane issue tracker searching
+# "app store keywords 100 characters", "app store metadata character limit", "fastlane metadata lint".
+#
+# Path to revenue (payment rails stay off): lead magnet and donations via GitHub Sponsors. A paid version (keyword
+# rank tracking, localisation helper, AI-drafted listing copy behind an API-key env switch) is possible, not built.
+#
+# Liability: arithmetic and string rules on the user's own text; limits are failures, everything else is a notice that
+# names its evidence. Carries the no-warranty, not-review-advice and not-affiliated clauses. Rules dated.
+#
+# Unverified: the store rules are transcribed from public guidelines on the review date and may drift.
+
+hypotheses:
+  - claim: >-
+      Indie app developers will paste their listing text into a free checker, or add a CLI step to fastlane, to avoid a
+      resubmission cycle and to recover wasted keyword characters.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that a limit or a rule differs from the stated store documentation on the same input.

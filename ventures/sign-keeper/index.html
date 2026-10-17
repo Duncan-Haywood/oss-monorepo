@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign Keeper — Free Self-Hosted E-Signature Links with a Tamper-Evident Audit Trail</title>
+  <meta name="description" content="Send a signing link, collect a typed signature with consent, and keep a certificate anyone can re-verify. A free, open-source, self-hosted alternative to per-envelope e-signature pricing.">
+  <meta property="og:title" content="Sign Keeper — self-hosted e-signature with a verifiable certificate">
+  <meta property="og:description" content="One link, one typed signature, one hash-chained audit trail. MIT, zero dependencies, your server.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sign Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Node.js 20+ server; any modern browser for signers", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a typed-name signature legally valid?", "acceptedAnswer": {"@type": "Answer", "text": "In many places, including the US (ESIGN Act and UETA) and the EU/UK (eIDAS/ECA as a simple electronic signature), a typed name with clear intent to sign and a record of it is generally accepted for ordinary contracts. Some documents are excluded (wills, certain family-law and real-estate papers, notices a statute says must be on paper). Sign Keeper is not legal advice; check what your document needs."}}, {"@type": "Question", "name": "Can someone alter a document after it is signed?", "acceptedAnswer": {"@type": "Answer", "text": "Not undetectably. The text has a SHA-256 fingerprint and every audit event hashes the one before it. The certificate page and /c/<token>.json recompute all of it from stored data and report any mismatch. It is tamper-evident, not tamper-proof: whoever controls your server can still delete the file, so keep certificate copies."}}, {"@type": "Question", "name": "What does it store about the signer?", "acceptedAnswer": {"@type": "Answer", "text": "The typed name, the time, the consent wording they ticked and a salted HMAC of their network address that cannot be turned back into the address. Not a raw IP, not a device fingerprint."}}, {"@type": "Question", "name": "How is this different from DocuSign or PandaDoc?", "acceptedAnswer": {"@type": "Answer", "text": "Those add identity checks, templates, bulk send, field placement and qualified signatures. Sign Keeper does one thing: send a link, collect a typed signature with consent, keep a verifiable certificate, on a server you own with no per-envelope fee."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #12201e; background: #f2f8f7; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0f766e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b4f4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b4f4a; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5563; }
+    .card { background: #fff; border: 1px solid #cfe4e1; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e1efed; vertical-align: top; }
+    pre { background: #eef6f5; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    textarea, input { font: inherit; width: 100%; box-sizing: border-box; padding: .5rem; border: 1px solid #9ca3af; border-radius: 8px; }
+    button { font: inherit; padding: .5rem .9rem; border-radius: 8px; border: 0; background: #0f766e; color: #fff; font-weight: 700; cursor: pointer; margin: .5rem .4rem 0 0; }
+    button.alt { background: #fff; color: #0b4f4a; border: 1px solid #0f766e; }
+    code { word-break: break-all; font-size: .8rem; }
+    .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #ccfbf1; font-size: .8rem; font-weight: 700; }
+    .bad { color: #b91c1c; font-weight: 700; } .good { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>Send a contract link. Get a signature you can prove wasn't changed.</h1>
+  <p>Paste the text, send the link. The signer reads it, types their name and ticks a consent box. You get a certificate with the document's SHA-256 fingerprint and a hash-chained audit trail that anyone can re-check. It runs on your own server, with no per-envelope fee and no account for the signer.</p>
+
+  <section class="card" aria-labelledby="demo">
+    <h2 id="demo">Try the tamper check in your browser <span class="tag">sample data</span></h2>
+    <p class="note">This runs entirely on this page with your browser's own crypto. Nothing is uploaded. The names and text are invented.</p>
+    <label for="doc">Document text</label>
+    <textarea id="doc" rows="4">Sample: Acme will pay Example Studio $2,000 on delivery of the logo files. Both sides agree this is the whole deal.</textarea>
+    <button id="sign" type="button">Sign as "Sample Person"</button>
+    <button id="verify" type="button" class="alt">Verify now</button>
+    <p class="note">After signing, edit the text above and press Verify: the fingerprint will no longer match.</p>
+    <pre id="out" aria-live="polite">Not signed yet.</pre>
+  </section>
+
+  <section class="card">
+    <h2>Why use this instead of what you do today</h2>
+    <table>
+      <tr><th>Today</th><th>Catch</th><th>Sign Keeper</th></tr>
+      <tr><td>DocuSign, PandaDoc, Dropbox Sign</td><td>Per-user or per-envelope plans; documents and audit trail live in their account</td><td>Unlimited requests, one JSON file you own, no fee</td></tr>
+      <tr><td>"Reply YES to confirm" by email</td><td>No fingerprint of what was agreed, no recorded consent to e-sign</td><td>Exact text hashed, consent wording stored, certificate to keep</td></tr>
+      <tr><td>Print, sign, scan</td><td>Slow, easy to lose, no integrity check</td><td>Link, ninety seconds, verifiable record</td></tr>
+    </table>
+    <p class="note">Honest limits: typed-name (simple) signatures only; no identity verification, templates, field placement, PDF upload, reminders or multi-signer routing; one admin key. For regulated or high-value documents use a qualified provider.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/sign-keeper
+ADMIN_KEY=$(openssl rand -hex 16) PUBLIC_URL=https://sign.example.com COMPANY_NAME=Acme node server.mjs
+
+# create:   open https://sign.example.com/admin, paste the text, copy the signing link
+# verify:   https://sign.example.com/c/&lt;token&gt;.json</pre>
+    <p class="note">One-click Render deploy and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Related tools</h2>
+    <p>Pair with <a href="../testimonial-keeper/">Testimonial Keeper</a> to collect proof after the job and <a href="../dunning-engine/">Dunning Engine</a> to chase late invoices. Publishing a release? <a href="../changelog-keeper/">Changelog Keeper</a> is the same self-hosted shape for release notes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is a typed-name signature legally valid?</h3>
+    <p>In many places, including the US (ESIGN Act and UETA) and the EU/UK (eIDAS/ECA as a simple electronic signature), a typed name with clear intent to sign and a record of it is generally accepted for ordinary contracts. Some documents are excluded (wills, certain family-law and real-estate papers, notices a statute says must be on paper). Sign Keeper is not legal advice; check what your document needs.</p>
+    <h3>Can someone alter a document after it is signed?</h3>
+    <p>Not undetectably. The text has a SHA-256 fingerprint and every audit event hashes the one before it. The certificate page and /c/&lt;token&gt;.json recompute all of it from stored data and report any mismatch. It is tamper-evident, not tamper-proof: whoever controls your server can still delete the file, so keep certificate copies.</p>
+    <h3>What does it store about the signer?</h3>
+    <p>The typed name, the time, the consent wording they ticked and a salted HMAC of their network address that cannot be turned back into the address. Not a raw IP, not a device fingerprint.</p>
+    <h3>How is this different from DocuSign or PandaDoc?</h3>
+    <p>Those add identity checks, templates, bulk send, field placement and qualified signatures. Sign Keeper does one thing: send a link, collect a typed signature with consent, keep a verifiable certificate, on a server you own with no per-envelope fee.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. It is software, not legal advice, and it does not make any document enforceable. You are the operator: you decide whether an electronic signature is valid for your document and place.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+  </main>
+  <script type="module">
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const hex = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    const doc = document.getElementById("doc"), out = document.getElementById("out");
+    let signed = null;
+    document.getElementById("sign").addEventListener("click", async () => {
+      const text = doc.value.trim(); if (text.length < 20) { out.textContent = "Type at least 20 characters."; return; }
+      const docHash = await hex(text), at = new Date().toISOString();
+      const created = await hex("0".repeat(64) + "\ncreated" + at + docHash);
+      const sig = await hex(created + "\nsigned" + at + docHash);
+      signed = { docHash, head: sig };
+      out.textContent = "Signed by Sample Person at " + at + "\nDocument SHA-256: " + docHash + "\nAudit chain head:  " + sig;
+      record("demo-sign");
+    });
+    document.getElementById("verify").addEventListener("click", async () => {
+      if (!signed) { out.textContent = "Sign first."; return; }
+      const now = await hex(doc.value.trim());
+      const ok = now === signed.docHash;
+      out.textContent = (ok ? "INTACT: " : "ALTERED: ") + "fingerprint now " + now + "\nrecorded fingerprint " + signed.docHash;
+      record("demo-verify");
+    });
+    const o = document.getElementById("optout");
+    o.checked = usageOptedOut();
+    o.addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+    record("demo");
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+name: paintless-dent-repair-quote-calculator
+description: >-
+  Free browser calculator for paintless dent repair and hail techs: enter dents by size, the share on aluminum and body lines, tech time, stall
+  overhead and comeback rate, and see a cost-plus price, whether your per-dent matrix covers it, tech days, and how the quote moves with the hail
+  count. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. auto-glass-bid-calculator and collision-shop-drp-profit-calculator price adjacent auto repair; none models
+# paintless dent repair: dent counts by coin-size band, aluminum and body-line time uplifts, a flat per-dent hail matrix checked against cost, tech days,
+# or the total-loss line. PDR is a high-ticket, seasonal trade (hail) with many small independent techs quoting from a matrix.
+#
+# First visitor: PDR techs and hail-season crews searching "how much to charge for paintless dent repair", "hail damage pricing matrix" and "PDR
+# estimate per dent". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      PDR and hail techs will type a car's dent counts, aluminum share and overhead into a no-signup calculator to set a price, because most quote
+      from a flat per-dent matrix that ignores aluminum, body lines and remove-and-install time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/paintless-dent-repair-quote-calculator/
+  analytics: null

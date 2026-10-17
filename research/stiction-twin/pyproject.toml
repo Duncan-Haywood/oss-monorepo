@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stiction-twin"
+version = "0.1.0"
+description = "Static friction a twin does not model: stick-slip hunting of a PID loop whose sliding friction is correctly identified, exact scaling, amplitude map and bistable starts"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

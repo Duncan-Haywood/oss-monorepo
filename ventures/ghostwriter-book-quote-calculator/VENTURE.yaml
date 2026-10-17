@@ -1,0 +1,49 @@
+name: ghostwriter-book-quote-calculator
+description: >-
+  Free browser tool for freelance ghostwriters: builds a flat book fee from drafting, interview, research, revision and
+  management hours, adds confidentiality and rush premiums and any marketplace commission, and shows the per-word and
+  per-page rate, a payment schedule, the real hourly if the job overruns, and what a client's lower budget actually
+  pays. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled new-venture session. duplicate_check.py: closest were translator-project-quote
+# (0.38) and freelance-writer-rate-calculator; neither prices a book-length, interview-driven job with an overrun and
+# budget check, and none covers ghostwriting.
+#
+# Why this niche: a book is the largest single quote a freelance writer gives, five figures and up, priced mostly by
+# gut. The failure is a flat fee that ignores interview time and revision rounds, so the writer earns far below their
+# rate on the biggest job of the year. Hours-first pricing with an overrun stress test and a "what does their budget
+# really buy" view is the gap; incumbents are blog posts with a price range and marketplace commission pages.
+#
+# First visitor: someone searching "how much does a ghostwriter charge", "ghostwriting rates per word" or "how to
+# quote a ghostwriting project"; also r/ghostwriting and r/freelanceWriters threads that ask the same. Volume not
+# measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no market data claims, no contract text, no tax advice.
+
+hypotheses:
+  - claim: >-
+      Freelance ghostwriters will use a private hours-first quote that shows the effective hourly under overrun and
+      at the client's budget, because posted rate ranges do not tell them what their own job costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ghostwriter-book-quote-calculator/
+  analytics: null

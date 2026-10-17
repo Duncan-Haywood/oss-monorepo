@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodeoptics"
+version = "0.1.0"
+description = "Do garment-thermal fabric-optics conclusions survive switching two-node design choices?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

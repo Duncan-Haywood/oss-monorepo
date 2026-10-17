@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01BgdJUpffqP2A1bbyjS9Hfq",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": "2026-10-13T22:11:59.164939Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "simdesign-gaugemesh"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/376",
+  "commits": [
+    "daeb4ea"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 4,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "pip installed into a different interpreter than python; fixed"
+  ],
+  "integrity_issues": [],
+  "notes": "No open PRs; unmerged branch amazing-ramanujan-sysezg is a superseded duplicate of chip-systolic-batch on main (no PR, left alone). Most other claude/* branches have unrelated history (no merge base).",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

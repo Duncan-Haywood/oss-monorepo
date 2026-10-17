@@ -1,0 +1,65 @@
+name: rent-increase-notice-checker
+description: >-
+  Free browser tool for small residential landlords: paste a rent roll with proposed new rents, pick the state, and it
+  checks every unit against the statewide cap (California, Oregon, Washington, New York Good Cause), works out the
+  notice period and the earliest legal effective date (tenancy length, mailing days, first-year and once-a-year
+  rules), shows the most rent you can ask where a unit is over, and writes a notice letter for each unit that can go
+  out. Other states: you supply the notice days. Downloads notices as text and a unit-by-unit report as CSV. The rent
+  roll is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: security-deposit-return-calculator 0.28,
+# renewal-rent-optimizer 0.18-0.24 (chooses a rent; this checks the increase is lawful and dated), rental-dscr 0.29.
+# No venture checks a rent increase against a cap or a notice period.
+# Search phrases: "rent increase notice template", "california rent increase calculator ab 1482", "how much notice for
+# a rent increase", "oregon rent increase cap", "washington rent increase 90 days notice".
+# Volume not measured with an external tool. Caps changed in Washington (2025) and reset yearly in California and
+# Oregon, which sends landlords searching every spring and summer.
+#
+# Who: owners of 1-20 units, usually self-managing, who today use a free letter template and a guess at the percentage.
+# The paying buyer, if there is one, is a small property-management firm or a landlord association that wants the
+# check inside its member tools.
+#
+# What makes it more than a template: the cap runs from the lowest rent in the last 12 months, the notice tier
+# depends on the cumulative percentage, tenancy length, mailing days, the Oregon first-year and once-a-year limits,
+# and a batch view so a 12-unit owner finds the one unit over the cap before sending twelve letters.
+#
+# Path to revenue (payment rails stay off): lead magnet for landlord and small property-management audiences. A paid
+# version, if usage appears, is saved portfolios, local-ordinance packs and email/e-sign delivery behind an env-var
+# switch; not built.
+#
+# Liability: it reads the user's own list, shows what it checked and the statute it used, labels the rules table as
+# author-read and unreviewed with a review date, never says a notice is valid, and carries the no-warranty and
+# not-legal-advice clauses. Local rent control, exemptions and just-cause rules are listed as not decided.
+#
+# Unverified: the cap formulas and notice periods were read from the statutes by the author, not a lawyer; the CPI
+# figure is entered by the user; Oregon publishes its exact yearly maximum. The first report of a wrong rule is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      A self-managing landlord with a few units will paste their rent roll into a no-upload page before the yearly
+      increase round, because a template does not tell them one of the proposed rents is over the cap or that a
+      mailed notice needs five more days.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted rent-roll structure) engage with the tool by 2027-03-15, after the spring increase round it is built for.
+  - A user reports a cap or notice period that is wrong for a normal unit, at which point the rules table needs revisiting before the next round.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rent-increase-notice-checker/
+  analytics: null

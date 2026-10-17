@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Type an API Response Safely: Optional, Nullable and Why Generated Types Lie</title>
+  <meta name="description" content="Why one JSON sample gives wrong types, how optional and nullable differ, when to validate at runtime with Zod, and how to generate types from several samples.">
+  <link rel="canonical" href="./how-to-type-an-api-response.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to type an API response safely","about":"typing JSON API responses","author":{"@type":"Organization","name":"JSON to Types Generator"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.15rem; color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← JSON to Types Generator</a></p>
+  <h1>How to type an API response safely</h1>
+  <p>Generated types are a description of the samples you gave the generator, not a promise about the API. They are still the fastest way to a correct first draft, as long as you know where they lie.</p>
+
+  <h2>Optional is not nullable</h2>
+  <table>
+    <tr><th>Case</th><th>In the JSON</th><th>TypeScript</th></tr>
+    <tr><td>Optional</td><td>The key is sometimes absent</td><td><code>name?: string</code></td></tr>
+    <tr><td>Nullable</td><td>The key is present with <code>null</code></td><td><code>name: string | null</code></td></tr>
+    <tr><td>Both</td><td>Absent in some, null in others</td><td><code>name?: string | null</code></td></tr>
+  </table>
+  <p>A single sample can show neither. That is why the tool asks for several samples and warns when you give it one: every field of a one-sample type is marked required.</p>
+
+  <h2>Pick samples that disagree</h2>
+  <ul>
+    <li>A record with every field filled, and one with as many as possible empty.</li>
+    <li>A list with items and the same list empty (an empty array has no item type).</li>
+    <li>An error response, if your code receives them on the same path.</li>
+  </ul>
+
+  <h2>Types vanish at runtime: validate at the edge</h2>
+  <p>TypeScript types are erased when the code runs, so a response that no longer matches fails somewhere far from the cause. The Zod output gives you a schema to parse the response with, and an inferred type from the same definition, so the check and the type cannot drift apart.</p>
+
+  <h2>What the tool guesses, and flags</h2>
+  <ul>
+    <li>Strings that are always ISO dates, UUIDs, emails or URLs are annotated; one odd value turns the annotation off.</li>
+    <li>An object with many ID-like keys becomes a map instead of one field per ID.</li>
+    <li>Fields that hold more than one type are listed so you can check they are intended.</li>
+    <li>Whole numbers stay integers until a decimal shows up. A price that happens to be 10 in your sample may be 10.5 tomorrow.</li>
+  </ul>
+
+  <h2>Using the generator</h2>
+  <p>Paste the samples into <a href="./">the tool</a> or run <code>node cli.mjs a.json b.json --style zod</code>, read the notes it prints, and commit the result. Re-run it when the API changes.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Provided free and as-is. This is general information about typing practice, not professional advice. <strong>Best-effort hosting, no SLA.</strong> The page makes no network calls and uploads nothing. <a href="./">Generate types from JSON</a>.</p>
+  </footer>
+</body>
+</html>

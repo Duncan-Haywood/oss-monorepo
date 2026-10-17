@@ -1,0 +1,74 @@
+name: home-office-deduction-calculator
+description: >-
+  Free browser calculator comparing the IRS simplified home office
+  deduction ($5 per square foot up to 300 sq ft, max $1,500) with the
+  regular Form 8829 method for a self-employed filer: business-use
+  percentage, mortgage interest and real estate taxes, operating expenses,
+  39-year home depreciation, the gross income limit applied in Form 8829's
+  own order, carryforward, and an estimated tax saved by each method
+  (income tax plus self-employment tax). Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (build-now pipeline
+# empty). duplicate_check.py scored every venture at 0.13 or below; the
+# nearest are unrelated (freelance-platform-fee-calculator,
+# charitable-deduction-calculator). qbi-deduction-calculator and
+# solo-401k-contribution-calculator serve the same self-employed audience
+# but a different deduction.
+#
+# Distribution: "home office deduction calculator" / "simplified vs regular
+# home office deduction" is a high-intent evergreen query that peaks in
+# filing season, and the audience (freelancers, sole proprietors, gig
+# workers) also has the money and the problem. Search volume was not
+# measured with an external tool, matching the pipeline's standing caveat.
+#
+# Facts verified 2026-09-29 against IRS.gov's simplified-option page and
+# the Form 8829 instructions: $5/sq ft, 300 sq ft cap, no depreciation and
+# no carryover under the simplified method; regular-method limit order
+# (mortgage interest and taxes, then operating, then depreciation);
+# 39-year mid-month depreciation table, 2.564% full year; employees cannot
+# deduct.
+#
+# Liability: output is a comparison of two published IRS methods on the
+# user's own numbers, never a filed return. The page states self-employed
+# only, exclusive-and-regular-use, the sale-of-home recapture consequence,
+# and the tax estimate's simplifications (no QBI, wage base, SALT cap or
+# state tax).
+
+hypotheses:
+  - claim: >-
+      Self-employed filers deciding between the $1,500-max simplified
+      method and the regular Form 8829 method will search for and return
+      to a free, no-signup calculator that applies the gross income limit
+      and depreciation correctly and shows tax saved side by side, rather
+      than filling in Form 8829 by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Homeowners who would gain from the regular method will be surprised
+      by the depreciation-recapture consequence on sale and use the
+      simplified-vs-regular comparison to decide with that in view.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong deduction from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-office-deduction-calculator/
+  analytics: null

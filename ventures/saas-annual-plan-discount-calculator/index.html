@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SaaS Annual Plan Discount Calculator — Break-Even Prepay Discount, Free</title>
+  <meta name="description" content="Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="SaaS Annual Plan Discount Calculator — break-even prepay discount, free">
+  <meta property="og:description" content="Present value of monthly vs annual plans, the NPV-neutral maximum discount, months free, and a discount by churn table. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS Annual Plan Discount Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Finds the annual-prepay discount a SaaS or subscription business can offer before an annual customer is worth less than a monthly one, in present value, given margin, churn, renewal rate and cost of capital. Entirely client-side; nothing is uploaded.", "featureList": "present value of monthly vs annual plan, NPV-neutral maximum discount by bisection, months-free equivalent, cash collected up front, discount by churn sensitivity table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What annual discount should a SaaS offer?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal number. The right ceiling is the discount at which a customer on the annual plan is worth the same, in present value, as one on the monthly plan. It rises with monthly churn and with your cost of capital, and falls with the annual renewal rate you expect. This calculator finds that ceiling by bisection on your own inputs, and shows the same number as months free."}}, {"@type": "Question", "name": "Is 2 months free the same as a 16.7% discount?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Two months free on a 12-month prepay is 2/12, or 16.7% off the annual price; 12 x discount gives the months-free equivalent. Whether that is affordable depends on your churn and margin, which is what the break-even figure tests."}}, {"@type": "Question", "name": "How does the model treat churn?", "acceptedAnswer": {"@type": "Answer", "text": "Monthly churn is geometric: a monthly customer is still paying in month t with probability (1 - churn)^t. An annual customer pays 12 months up front, cannot leave before renewal, and renews into each later year with the renewal rate you enter. Cost to serve is incurred monthly for every active customer on either plan."}}, {"@type": "Question", "name": "Why does the horizon matter?", "acceptedAnswer": {"@type": "Answer", "text": "Over 12 months an annual customer is paid exactly once, so the renewal rate does not change the answer. From 24 months on, the renewal rate decides how much of the annual plan's advantage is real. Cash after the horizon is ignored for both plans."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter and does not replace your own cohort data or a qualified financial adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SAAS ANNUAL PLAN DISCOUNT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How big an annual-prepay discount can you afford to offer?</h1>
+    <p>Two months free sounds generous until an annual customer turns out to be worth less than a monthly one.
+    Enter your price, margin, churn and cost of capital and see the <strong>present value of a customer on each plan</strong>,
+    the <strong>break-even (NPV-neutral) maximum discount</strong>, the cash you collect up front, and how the answer moves with churn.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your plan economics</h2>
+    <div class="grid">
+      <div>
+        <label for="price">Monthly plan price ($ per customer per month)</label>
+        <input type="number" id="price" min="0" step="1" placeholder="e.g. 49">
+      </div>
+      <div>
+        <label for="gross-margin">Gross margin (%)</label>
+        <input type="number" id="gross-margin" min="0" step="1" placeholder="e.g. 80">
+      </div>
+      <div>
+        <label for="monthly-churn">Monthly churn on monthly plans (%)</label>
+        <input type="number" id="monthly-churn" min="0" step="0.1" placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="renewal-rate">Expected annual-plan renewal rate (%)</label>
+        <input type="number" id="renewal-rate" min="0" step="1" placeholder="e.g. 75">
+      </div>
+      <div>
+        <label for="discount">Annual plan discount you are considering (%)</label>
+        <input type="number" id="discount" min="0" step="0.5" placeholder="e.g. 17">
+      </div>
+      <div>
+        <label for="switch-share">Share of customers who would switch to annual (%, optional)</label>
+        <input type="number" id="switch-share" min="0" step="1" placeholder="blank = all">
+      </div>
+      <div>
+        <label for="cost-of-capital">Annual cost of capital (%)</label>
+        <input type="number" id="cost-of-capital" min="0" step="0.5" placeholder="e.g. 12">
+      </div>
+      <div>
+        <label for="payment-fee">Payment processing fee per charge (%, optional)</label>
+        <input type="number" id="payment-fee" min="0" step="0.1" placeholder="e.g. 2.9">
+      </div>
+      <div>
+        <label for="horizon">Horizon</label>
+        <select id="horizon"><option value="12">12 months</option><option value="24" selected>24 months</option><option value="36">36 months</option></select>
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare plans</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Compare plans.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Per customer signed up</th><th scope="col">Monthly plan</th><th scope="col">Annual plan</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>Annual minus monthly present value, by discount and monthly churn</h3>
+    <p class="note">Positive means the annual plan is worth more. Renewal rate is held at your input; only monthly churn changes across columns.</p>
+    <table><thead id="sens-head"></thead><tbody id="sens-body"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Monthly plan.</strong> Paid at the start of each month. Churn is geometric: still paying in month t with probability (1 - churn)^t.</li>
+      <li><strong>Annual plan.</strong> Paid up front at 12 x price x (1 - discount). No mid-year churn or refunds; the customer renews into year y with probability (renewal rate)^y.</li>
+      <li><strong>Cost to serve</strong> is price x (1 - gross margin) per month for every active month on either plan, so the annual plan gets the cash early but not the cost.</li>
+      <li><strong>Present value</strong> discounts cash at your annual cost of capital, compounded monthly. Cash after the horizon is ignored.</li>
+      <li><strong>Break-even discount</strong> is the largest discount at which the annual plan's value still equals the monthly plan's, found by bisection. At a 12-month horizon the renewal rate has no effect, because only one annual payment falls inside it.</li>
+      <li><strong>The share who switch</strong> scales the dollar effect per customer; it does not move the break-even.</li>
+      <li><strong>Not modelled:</strong> expansion revenue, taxes, failed-payment recovery, refunds, and the selection effect (customers who pick annual are often the ones least likely to churn anyway). Payment fees are included only if you enter one.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What annual discount should a SaaS offer?</h3>
+    <p>There is no universal number. The right ceiling is the discount at which a customer on the annual plan is worth the same, in present value, as one on the monthly plan. It rises with monthly churn and with your cost of capital, and falls with the annual renewal rate you expect. This calculator finds that ceiling by bisection on your own inputs, and shows the same number as months free.</p>
+    <h3>Is 2 months free the same as a 16.7% discount?</h3>
+    <p>Yes. Two months free on a 12-month prepay is 2/12, or 16.7% off the annual price; 12 x discount gives the months-free equivalent. Whether that is affordable depends on your churn and margin, which is what the break-even figure tests.</p>
+    <h3>How does the model treat churn?</h3>
+    <p>Monthly churn is geometric: a monthly customer is still paying in month t with probability (1 - churn)^t. An annual customer pays 12 months up front, cannot leave before renewal, and renews into each later year with the renewal rate you enter. Cost to serve is incurred monthly for every active customer on either plan.</p>
+    <h3>Why does the horizon matter?</h3>
+    <p>Over 12 months an annual customer is paid exactly once, so the renewal rate does not change the answer. From 24 months on, the renewal rate decides how much of the annual plan's advantage is real. Cash after the horizon is ignored for both plans.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter and does not replace your own cohort data or a qualified financial adviser.</p>
+  </section>
+
+  <section class="card">
+    <p>Related tool: the <a href="../saas-feature-packaging-optimizer/">SaaS feature packaging optimizer</a> (which features go in which plan, and the plan prices, from a per-feature willingness-to-pay survey).</p>
+  </section>
+
+  <section class="card">
+    <p>Related tool: the <a href="../saas-tier-price-optimizer/">SaaS tier price optimizer</a> (the Good-Better-Best price ladder that earns the most from a willingness-to-pay survey).</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any pricing decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running a subscription business? See the <a href="../subscription-proration-calculator/">subscription proration calculator</a> for mid-cycle upgrades and cancellations, the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>, the <a href="../subscription-price-impact/">subscription price impact calculator</a>, the <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a> the <a href="../saas-seat-true-up/">SaaS seat true-up calculator</a> and, before you set the price, the <a href="../van-westendorp-pricing-analyzer/">Van Westendorp pricing analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { annualDiscountOutcome, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["price", "gross-margin", "monthly-churn", "renewal-rate", "discount", "switch-share", "cost-of-capital", "payment-fee", "horizon"];
+    const raw = (id) => $("#" + id).value.trim();
+    const p = (id) => (raw(id) === "" ? 0 : Number(raw(id)) / 100);
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const r = annualDiscountOutcome({
+        price: Number(raw("price")) || 0, grossMargin: p("gross-margin"), monthlyChurn: p("monthly-churn"),
+        renewalRate: p("renewal-rate"), discount: p("discount"),
+        switchShare: raw("switch-share") === "" ? null : p("switch-share"),
+        costOfCapital: p("cost-of-capital"), paymentFee: p("payment-fee"), horizonMonths: Number($("#horizon").value),
+      });
+      if (r.invalid) {
+        status.textContent = r.invalid;
+        report.hidden = true;
+        return;
+      }
+      const be = r.breakEven;
+      const beText = be.reason === "never" ? "none (annual is worth less even at full price)" : `${pct(be.discount)} (${r.breakEvenMonthsFree.toFixed(1)} months free)`;
+      $("#report-stats").innerHTML = `Break-even maximum discount: <strong>${beText}</strong>. Your ${pct(r.input.discount)} discount (${r.monthsFree.toFixed(1)} months free) makes the annual plan worth <strong>${money(Math.abs(r.advantage))} ${r.advantage >= 0 ? "more" : "less"}</strong> per customer in present value.`;
+      const rows = [
+        `<tr><th scope="row">Present value of gross profit (${r.input.horizonMonths} months)</th><td>${money(r.monthlyPV)}</td><td>${money(r.annualPV)}</td></tr>`,
+        `<tr><th scope="row">Cash collected at signup</th><td>${money(r.monthlyUpfront)}</td><td>${money(r.annualUpfront)}</td></tr>`,
+        `<tr><th scope="row">Expected cash, first 12 months (undiscounted)</th><td>${money(r.expectedMonthlyCashFirst12)}</td><td>${money(r.annualUpfront)}</td></tr>`,
+        `<tr><th scope="row">Still paying after 12 months</th><td>${pct(r.survive12Monthly)}</td><td>${pct(r.input.renewalRate)}</td></tr>`,
+        `<tr><th scope="row"><strong>Annual minus monthly (PV)</strong></th><td colspan="2"><strong>${money(r.advantage)}</strong></td></tr>`,
+      ];
+      if (r.blended) rows.push(`<tr><th scope="row">If ${pct(r.blended.share, 0)} switch: PV change per customer / upfront cash per customer</th><td colspan="2">${money(r.blended.pvChangePerCustomer)} / ${money(r.blended.upfrontCashPerCustomer)}</td></tr>`);
+      $("#result-table").innerHTML = rows.join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      $("#sens-head").innerHTML = `<tr><th scope="col">Discount</th>${r.sensitivity.churns.map((c) => `<th scope="col">${pct(c)} churn</th>`).join("")}</tr>`;
+      $("#sens-body").innerHTML = r.sensitivity.rows.map((row) => `<tr><th scope="row">${pct(row.discount, 0)}</th>${row.cells.map((c) => `<td>${money(c)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("comparison_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "price": 49, "gross-margin": 80, "monthly-churn": 3, "renewal-rate": 75, "discount": 17, "cost-of-capital": 12 };
+      for (const id of ids) if (id !== "horizon") $("#" + id).value = ex[id] ?? "";
+      $("#horizon").value = "24";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $49/month, 80% margin, 3% monthly churn, 75% renewal, 17% discount, 12% cost of capital, 24 months.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) if (id !== "horizon") $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Compare plans.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

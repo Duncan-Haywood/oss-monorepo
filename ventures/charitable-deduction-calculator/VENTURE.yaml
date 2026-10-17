@@ -1,0 +1,104 @@
+name: charitable-deduction-calculator
+description: >-
+  Free browser calculator comparing two 2026 OBBBA charitable-giving paths:
+  the new above-the-line deduction for non-itemizers (up to $1,000 single/
+  head-of-household/married-filing-separately, $2,000 married filing
+  jointly, cash only, not subject to the new floor) vs. itemizing cash
+  gifts on Schedule A after the new permanent 0.5%-of-AGI floor and the
+  permanent 60%-of-AGI ceiling. Computes the deductible amount under each
+  path and which nets more. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work, so
+# per DIRECTION.md's standing owner direction a fresh gate-cleared niche
+# ranks ahead of a parity feature). duplicate_check.py scored every
+# venture, screened-out row, and pipeline candidate at 0.24 or below for
+# the final description above -- well under the 0.45 review bar. The
+# closest match (salt-cap-calculator, 0.24) shares only the "OBBBA/AGI/
+# itemized" vocabulary -- an unrelated provision (the SALT deduction cap),
+# not charitable giving at all.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against
+# Instead's "Charitable deductions return for non-itemizers in 2026",
+# TheStreet's coverage of Vanguard's write-up on the $1,000 charitable
+# write-off, Tax Foundation's "Changes to Charitable Giving Under the One
+# Big Beautiful Bill Act", Taft Law's "Charitable Giving After the OBBBA:
+# The 2026 Outlook", a cross-check search confirming the exact IRC 170(p)
+# filing-status breakdown ($1,000 single/HOH/MFS, $2,000 MFJ -- not halved
+# per person, MFJ is simply the one status with the higher figure), and a
+# further cross-check confirming OBBBA made the existing 60%-of-AGI
+# cash-giving ceiling permanent (it had been scheduled to revert to 50% at
+# the end of 2025), cross-checked against each other: the non-itemizer
+# deduction is cash-only to public charities (no donor-advised funds, no
+# carryforward) and is explicitly NOT subject to the new 0.5%-of-AGI floor,
+# which applies only to itemized charitable deductions on Schedule A.
+# Separately, OBBBA caps the tax VALUE of all itemized deductions combined
+# at 35 cents per dollar for the top (37%) bracket -- a different,
+# much larger computation needing a complete itemized-deduction total,
+# explicitly out of scope for this charitable-giving-only tool.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes an explainer, and several SEO-oriented tax-tool
+# sites (nationaltaxtools.com, taxsaveiq.com, newtaxtools.com) host their
+# own non-itemizer calculators -- but none found run both paths side by
+# side with the floor-then-ceiling ordering made explicit and the
+# donor-advised-fund exclusion flagged as its own finding. No signup, no
+# upsell, nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Taxpayers deciding how to give in 2026 and the accountants/CPAs
+      advising them will search plain-language phrases ("2026 charitable
+      deduction calculator", "non-itemizer charitable deduction
+      calculator", "0.5% AGI floor charitable calculator") and some will
+      prefer a free, private, no-signup comparison tool over reading a
+      CPA-firm blog post and doing the floor/ceiling arithmetic by hand,
+      especially during Q4 year-end giving season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published explainer articles and at
+      least three SEO-oriented calculator sites (found during WebSearch
+      research 2026-09-25) is evidence of real, current search and
+      professional interest in this exact decision -- a genuinely new
+      2026 provision affecting a wide population of donors, not a
+      speculative niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A taxpayer or preparer working this out by hand is likely to apply
+      the new 0.5% floor to the non-itemizer path too (it does not apply
+      there), or to apply the floor before the 60% ceiling rather than
+      after (overstating how much the ceiling costs), and a calculator
+      that applies both in the correct order and scope prevents a
+      materially wrong comparison.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering the
+    first returns filed under these new rules), by which point most
+    taxpayers who planned their 2026 giving around this decision should
+    already have filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/charitable-deduction-calculator/
+  analytics: null

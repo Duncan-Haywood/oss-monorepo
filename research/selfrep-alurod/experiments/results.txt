@@ -1,0 +1,25 @@
+assumed mid-span load P = 5.0 N, longest rod 420 mm, holder limit 12 mm (all assumptions of selfrep-rodbeam)
+== diameter, fit, rod-set mass, mass closure and imported rod stock for a deflection spec (all seven redesign substitutions, printer+router+laser shop)
+spec mm  material     d mm  fits  g/rod  mass-closure  stock-to-import g  vitamin g
+  0.05   hardwood     23.7  NO    120.7      41.4%           2552         3608
+  0.05   aluminium    14.6  NO    177.3      44.5%           2892         3608
+  0.10   hardwood     19.9  NO     85.4      39.3%           2340         3608
+  0.10   aluminium    12.3  NO    125.4      41.7%           2580         3608
+  0.20   hardwood     16.7  NO     60.4      37.8%           2190         3608
+  0.20   aluminium    10.3  yes    88.7      39.5%           2360         3608
+  0.50   hardwood     13.3  NO     38.2      36.3%           2057         3608
+  0.50   aluminium     8.2  yes    56.1      37.5%           2164         3608
+  1.00   hardwood     11.2  yes    27.0      35.5%           1990         3608
+  1.00   aluminium     6.9  yes    39.6      36.4%           2066         3608
+  2.00   hardwood      9.4  yes    19.1      35.0%           1943         3608
+  2.00   aluminium     5.8  yes    28.0      35.6%           1996         3608
+
+== same table with the steel-rod baseline (rods stay a vitamin; no substitution of the rod line)
+steel rods: mass closure 28.7%, stock-to-import 1828 g, vitamin 4538 g
+
+steel 8 mm sag 0.192 mm; matching it needs aluminium d = 10.4 mm (fits: True) and hardwood d = 16.9 mm (fits: False)
+
+== sensitivity: aluminium diameter to match 8 mm steel vs aluminium modulus (alloys vary little, ~68-72 GPa)
+E =  68 GPa -> d = 10.48 mm
+E =  69 GPa -> d = 10.44 mm
+E =  72 GPa -> d = 10.33 mm

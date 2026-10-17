@@ -1,0 +1,25 @@
+name: vcard-contacts-check
+description: >-
+  Free browser tool that checks a vCard (.vcf) contacts file for what makes Google Contacts, Apple Contacts
+  and Outlook skip, blank or garble contacts: cards with no FN or N, malformed emails and phone numbers,
+  impossible birthdays, quoted-printable text in 3.0 and 4.0 cards, unclosed cards, duplicate UIDs and
+  identical duplicate cards, each with its line number. It writes the file back with every provable fix
+  applied and leaves the rest untouched. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Sibling of ics-calendar-check (same archetype:
+# paste-your-file pre-flight checker with a standards core, here RFC 6350 / RFC 2426). No venture covers
+# vCard files. First visitor: someone moving contacts between phones or into a CRM whose .vcf "imports
+# blank", "shows =C3=A9", or duplicates everyone; search phrases like "vcf import blank contacts",
+# "vcard duplicate contacts remove", "fix vcf file". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: a contacts file is personal data about third parties, so the file
+# never leaves the browser (a test asserts no network calls). Fixes are limited to what is provable;
+# near-duplicates, quoted-printable decoding and version guesses are reported, never done.
+#
+# Path to revenue (payment rails stay off): lead magnet for CRM-migration and IT-support audiences;
+# a paid version, if usage appears, is a bulk CLI / CI check behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-vendor clause,
+# trademarks used nominatively, no acceptance promise.

@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ATS Resume Checker — Free Copy-Paste Test, No Sign-Up</title>
-  <meta name="description" content="Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.">
+  <title>ATS Resume Checker — Format Test and Job Keyword Match, Free</title>
+  <meta name="description" content="Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — then paste a job posting to see which of its keywords your resume covers and which it never mentions.">
   <meta property="og:title" content="ATS Resume Checker — the copy-paste test, free, no sign-up">
   <meta property="og:description" content="Paste the text you copied out of your resume file. See exactly which formatting issues would break an ATS parser reading the same text — nothing uploaded, no account.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"ATS Resume Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Runs the ATS copy-paste test on resume text you paste: flags icon-font bullet characters, corrupted text, missing standard section headings, buried or missing contact info, missing dates, and signs of a collapsed multi-column layout. Entirely client-side; nothing is uploaded."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ATS copy-paste test?","acceptedAnswer":{"@type":"Answer","text":"Copy all the text out of your resume file (Ctrl+A, Ctrl+C from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly."}},{"@type":"Question","name":"Does this tell me whether my resume will pass a specific company's ATS?","acceptedAnswer":{"@type":"Answer","text":"No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you."}},{"@type":"Question","name":"Why paste text instead of uploading my resume file?","acceptedAnswer":{"@type":"Answer","text":"Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding."}},{"@type":"Question","name":"What if my resume is already text and copies out perfectly?","acceptedAnswer":{"@type":"Answer","text":"Then this tool will likely report no findings, which is a good sign for the format checks it runs — but it does not check word choice, relevance to a specific job description, or achievement phrasing, which matter just as much and are outside what a structural check can see."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ATS copy-paste test?","acceptedAnswer":{"@type":"Answer","text":"Copy all the text out of your resume file (Ctrl+A, Ctrl+C from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly."}},{"@type":"Question","name":"Does this tell me whether my resume will pass a specific company's ATS?","acceptedAnswer":{"@type":"Answer","text":"No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you."}},{"@type":"Question","name":"Why paste text instead of uploading my resume file?","acceptedAnswer":{"@type":"Answer","text":"Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding."}},{"@type":"Question","name":"What if my resume is already text and copies out perfectly?","acceptedAnswer":{"@type":"Answer","text":"Then the format check will likely report no findings, which is a good sign for the checks it runs — but format is only half of it. Step 3 compares your wording with a job posting you paste; it still does not judge achievement phrasing or grammar."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -36,6 +36,12 @@
     .pill.low { background: #e3e9ef; color: #3a1f5d; }
     .stats { display: flex; gap: 18px; flex-wrap: wrap; font-size: .85rem; color: #5c5468; margin-bottom: 10px; }
     .error { color: #9a3412; font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; padding: 0; list-style: none; }
+    .chip { font-size: .85rem; padding: 3px 10px; border-radius: 999px; background: #e3f1e6; color: #14532d; }
+    .chip.miss { background: #fde8e8; color: #7c2d12; }
+    .chip.nice { background: #e9e4f1; color: #3a1f5d; }
+    .meter { height: 10px; background: #e9e4f1; border-radius: 999px; overflow: hidden; margin: 8px 0 12px; }
+    .meter > span { display: block; height: 100%; background: #5b3a8e; }
     footer { margin-top: 28px; border-top: 1px solid #ddd6e6; padding-top: 16px; }
   </style>
 </head>
@@ -83,17 +89,62 @@
   </section>
 
   <section class="card">
+    <h2>3. Optional: match it to a job posting</h2>
+    <p>Paste the full text of one job posting. This reads the skills, tools and
+    qualifications the posting leans on and shows which your resume already
+    covers and which it never mentions, most important first. It is a
+    wording check, not a promise of an interview — only add a term if you
+    genuinely have that experience.</p>
+    <textarea id="posting-text" spellcheck="false" placeholder="Paste the job posting here (the requirements section matters most)..."></textarea>
+    <p>
+      <button type="button" id="match">Match my resume to this posting</button>
+      <button type="button" class="secondary" id="load-posting">Load an example posting</button>
+    </p>
+    <p class="note" id="match-status">Uses the resume text from step 2 and the posting above. Nothing is sent anywhere unless you add an AI key in the wording-changes box below the result.</p>
+  </section>
+
+  <section class="card" id="match-card" aria-live="polite" hidden>
+    <h2>How your resume covers this posting</h2>
+    <p class="headline" id="match-headline"></p>
+    <div class="meter" aria-hidden="true"><span id="match-meter"></span></div>
+    <div id="match-extra"></div>
+    <h3>Mentioned in the posting, missing from your resume</h3>
+    <ul class="chips" id="missing-list"></ul>
+    <h3>Already covered</h3>
+    <ul class="chips" id="matched-list"></ul>
+    <p class="note">The percentage is this page's own weighted coverage of the terms it could read from the posting
+    (repeated, required and title terms count more; "nice to have" terms count less). It is not an applicant tracking system's
+    score. Plain-word and phrase matching cannot tell that two different words mean the same thing unless it knows the pair.</p>
+  </section>
+
+  <section class="card" id="tailor-card" hidden>
+    <h2>Suggest wording changes (optional)</h2>
+    <p class="note">Without a key you get, for each missing term, the line of your resume closest to how the posting uses it, and a plain instruction. With your own key from Anthropic, OpenAI, Google Gemini or any OpenAI-compatible endpoint, a model rewrites up to five of your existing lines. Your resume text and the posting are then sent from this browser to the provider you choose, and nowhere else; the key stays in this tab and is not saved. Suggestions are drafts: keep a change only if it is true.</p>
+    <label for="prov">AI provider (optional)</label>
+    <select id="prov"><option value="">None: no AI call</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible URL)</option></select>
+    <label for="model">Model (required except for Anthropic)</label>
+    <input id="model" type="text" autocomplete="off">
+    <label for="base">Base URL (OpenAI-compatible only)</label>
+    <input id="base" type="text" autocomplete="off" placeholder="https://openrouter.ai/api/v1">
+    <label for="key">Your API key</label>
+    <input id="key" type="password" autocomplete="off">
+    <p><button type="button" id="tailor">Suggest wording changes</button></p>
+    <p class="note" id="tailor-status" role="status"></p>
+    <div id="tailor-out"></div>
+  </section>
+
+  <section class="card">
     <h2>What this does and doesn't check</h2>
-    <p>This reads the text you paste for symptoms that are documented to
+    <p>Steps 1–2 read the text you paste for symptoms that are documented to
     break ATS text extraction: icon-font characters standing in for
     bullets, corrupted text, missing standard section headings, missing or
     buried contact information, missing dates, and signs of a multi-column
-    layout collapsing into one line. It does <strong>not</strong> check
-    keyword match against a specific job posting, achievement phrasing, or
-    grammar — and it cannot see your file's actual visual layout (columns,
+    layout collapsing into one line. Step 3 separately compares your wording with one job
+    posting you paste. It does <strong>not</strong> check achievement
+    phrasing or grammar — and it cannot see your file's actual visual layout (columns,
     text boxes, images), only what copied out as text, which is exactly
     what most parsers see too.</p>
-    <p>More on the technique: <a href="what-is-the-ats-copy-paste-test.html">what the ATS copy-paste test is and why it works</a>. Already using a keyword-matching tool? See <a href="vs-jobscan.html">how this checker compares to Jobscan</a>.</p>
+    <p>More on the technique: <a href="what-is-the-ats-copy-paste-test.html">what the ATS copy-paste test is and why it works</a>. Wondering how the keyword match differs from a paid scanner? See <a href="vs-jobscan.html">how this checker compares to Jobscan</a>. Wondering if you even need a tool for this? See <a href="vs-checking-it-by-eye.html">what an eyeball scan of the pasted text usually misses</a>.</p>
   </section>
 
   <section class="card">
@@ -105,21 +156,24 @@
     <h3>Why paste text instead of uploading my resume file?</h3>
     <p>Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding.</p>
     <h3>What if my resume is already text and copies out perfectly?</h3>
-    <p>Then this tool will likely report no findings, which is a good sign for the format checks it runs — but it does not check word choice, relevance to a specific job description, or achievement phrasing, which matter just as much and are outside what a structural check can see.</p>
+    <p>Then the format check will likely report no findings, which is a good sign for the checks it runs — but format is only half of it. Step 3 compares your wording with a job posting you paste; it still does not judge achievement phrasing or grammar.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and it does not tell you whether any specific employer's applicant tracking system will accept your resume — only whether the text you pasted shows documented signs of a broken format. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — the text you paste is not saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded to us; there are no accounts, cookies, or analytics vendors. The one request this page can make is to the AI provider you choose, when you press Suggest wording changes with your own key: it carries your resume text and the posting, and nothing else. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>match_run</code>, <code>tailor_run</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Pricing your own client work rather than applying for a role? The <a href="../freelance-retainer-calculator/">freelance retainer calculator</a> works a sustainable monthly retainer out of your income goal, capacity, overhead, and utilization — nothing uploaded.</p>
+    <p>Applying to many roles at once? The <a href="../job-application-tracker/">job application tracker</a> keeps your list, shows which follow-ups are due and which sources reply, and never uploads it.</p>
     <p>Applying as a musician or band rather than for a role? The <a href="../epk-generator/">EPK generator</a> builds the electronic press kit a venue, festival, or blog will ask for instead of a resume — same job, different gatekeeper.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { analyze, summarize } from "./checker.mjs";
+    import { matchPosting, summarizeMatch } from "./match.mjs";
+    import { tailor } from "./tailor.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -187,7 +241,104 @@ Reach me at jordan.rivera@example.com`;
       els.status.textContent = "Worked example: a resume with icon-font bullets, a non-standard heading, and no phone number.";
     });
 
+    const EXAMPLE_POSTING = `Operations Coordinator
+
+Responsibilities:
+- Schedule warehouse shifts and manage inventory counts in our WMS
+- Reconcile shipping invoices and report on KPIs
+- Coordinate with carriers and resolve delivery exceptions
+
+Requirements:
+- 3+ years of experience in logistics or operations
+- Proficient in Excel and inventory management
+- Experience with scheduling, forklift certification, and OSHA compliance
+- Strong communication and problem solving skills
+
+Nice to have:
+- Experience with SAP`;
+
+    const chip = (t, cls) => `<li class="chip ${cls}">${escapeHtml(t)}</li>`;
+
+    let lastMatch = null;
+    function runMatch() {
+      const result = matchPosting(els.text.value, $("#posting-text").value);
+      lastMatch = result.ok ? result : null;
+      $("#tailor-card").hidden = !result.ok;
+      $("#tailor-out").replaceChildren();
+      $("#tailor-status").textContent = "";
+      const { level, text } = summarizeMatch(result);
+      const card = $("#match-card");
+      if (!result.ok) {
+        $("#match-status").innerHTML = `<span class="error">${escapeHtml(text)}</span>`;
+        card.hidden = true;
+        return;
+      }
+      $("#match-status").textContent = "";
+      $("#match-headline").className = `headline ${level === "strong" ? "" : level === "partial" ? "medium" : "high"}`;
+      $("#match-headline").textContent = text;
+      $("#match-meter").style.width = result.score + "%";
+      const extra = [];
+      if (result.years) extra.push(`<p><strong>Experience asked for:</strong> ${result.years.required}+ years. ${result.years.stated === null ? "Your resume does not state a number of years." : result.years.meets ? `Your resume states ${result.years.stated}.` : `The most your resume states is ${result.years.stated}.`}</p>`);
+      if (result.degree) extra.push(`<p><strong>Degree asked for:</strong> ${escapeHtml(result.degree.required)}. ${result.degree.meets ? "Your resume mentions one at that level or higher." : "No degree at that level was found in your resume text."}</p>`);
+      $("#match-extra").innerHTML = extra.join("");
+      $("#missing-list").innerHTML = result.missing.length
+        ? result.missing.map((m) => chip(m.term + (m.niceToHave ? " (nice to have)" : ""), m.niceToHave ? "nice" : "miss")).join("")
+        : `<li class="note">Nothing missing.</li>`;
+      $("#matched-list").innerHTML = result.matched.map((m) => chip(m.term, "")).join("") || `<li class="note">None yet.</li>`;
+      card.hidden = false;
+      record("match_run");
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#match").addEventListener("click", () => {
+      if (!els.text.value.trim()) {
+        $("#match-status").innerHTML = `<span class="error">Paste your resume text in step 2 first.</span>`;
+        return;
+      }
+      runMatch();
+    });
+
+    function llm() {
+      const provider = $("#prov").value;
+      if (!provider || !$("#key").value) return {};
+      return { provider, apiKey: $("#key").value, model: $("#model").value.trim() || undefined, baseUrl: $("#base").value.trim() || undefined, browser: true };
+    }
+
+    $("#tailor").addEventListener("click", async () => {
+      if (!lastMatch) return;
+      const out = $("#tailor-out"), status = $("#tailor-status");
+      out.replaceChildren();
+      status.textContent = "Working...";
+      try {
+        const r = await tailor(llm(), els.text.value, $("#posting-text").value, lastMatch);
+        const add = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; out.append(e); return e; };
+        if (r.source === "model") {
+          status.textContent = "Written by your model. These are drafts: keep a change only if it is true of you.";
+          const pre = add("pre", r.text); pre.style.whiteSpace = "pre-wrap";
+          if (r.invented.length) add("p", "Check these numbers: they appear in a suggestion but not in your resume: " + r.invented.join(", ") + ".", "error");
+        } else {
+          status.textContent = r.error ? "The AI call failed (" + r.error + "), so these are the no-key suggestions." : "No AI call was made. These suggestions come from your own text.";
+          const ul = document.createElement("ul");
+          for (const s of r.starter) {
+            const li = document.createElement("li");
+            const b = document.createElement("strong"); b.textContent = s.term; li.append(b, document.createTextNode(": " + s.advice));
+            if (s.line) { const q = document.createElement("div"); q.className = "note"; q.textContent = "Closest line: " + s.line; li.append(q); }
+            ul.append(li);
+          }
+          out.append(ul);
+        }
+        record("tailor_run");
+      } catch (e) { status.textContent = "Could not suggest changes: " + e.message; }
+    });
+
+    $("#load-posting").addEventListener("click", () => {
+      $("#posting-text").value = EXAMPLE_POSTING;
+      $("#match-status").textContent = "Example posting loaded. Paste your resume in step 2, then click Match.";
+    });
+
     $("#clear").addEventListener("click", () => {
+      $("#posting-text").value = "";
+      $("#match-card").hidden = true;
       els.text.value = "";
       els.reportCard.hidden = true;
       els.status.textContent = "Paste your resume text above and click Check my resume.";

@@ -84,7 +84,7 @@ permissions:
 
 jobs:
   resolve-config:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     outputs:
       num_agents: ${{ steps.config.outputs.num_agents }}
@@ -116,7 +116,7 @@ jobs:
 
   opencode-agent:
     needs: resolve-config
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 120
     # The only job in this file that needs a write-capable token: it pushes a
     # branch and opens a pull request (`use_github_token: true` below).
@@ -172,7 +172,7 @@ jobs:
             echo "- Repository: ${GITHUB_REPOSITORY:-unknown}"
             echo "- Workflow run: ${GITHUB_RUN_ID:-unknown}"
             echo
-            echo "Start now. Consult the router, claim work, implement, verify, and open a PR."
+            echo "Start now. Consult the router, claim work, implement, verify, open a PR, and merge it once it is verified. A pushed branch with no merged PR is unfinished work."
           } > "$PROMPT_PATH"
 
           # portfolio-work.md is REPO_WRITE, so a line equal to a fixed delimiter

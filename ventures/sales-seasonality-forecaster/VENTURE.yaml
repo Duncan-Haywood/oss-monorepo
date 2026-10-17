@@ -1,0 +1,60 @@
+name: sales-seasonality-forecaster
+description: >-
+  Free browser tool for small shops, restaurants and seasonal businesses: paste
+  or upload date,amount sales history and get a 6 to 12 month forecast with 80%
+  and 95% ranges from Holt-Winters seasonal smoothing, the slow and peak months,
+  a rolling back-test against "same month last year" that warns when the model
+  does not beat it, and a slow-season cash cushion against a monthly fixed cost.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "seasonal sales forecast Holt-Winters for small shops from a CSV of monthly
+# sales": unique, no match above threshold. Adjacent ventures are
+# cash-runway-planner (runway from a stated burn, no history fitted) and the
+# per-marketplace earnings analyzers (report on the past); none forecasts a
+# seasonal business from its own history or sizes the slow-season cushion.
+# Alternatives are spreadsheet FORECAST.ETS (no back-test, no plain-language
+# verdict) and paid FP&A tools that take the books.
+#
+# First visitor: searches "seasonal sales forecast", "slow season cash flow",
+# "how much cash do I need for the off season", "Holt-Winters excel"; r/smallbusiness,
+# r/restaurateur, r/EtsySellers and seasonal-business owners' groups. Volume not
+# measured with an external tool.
+#
+# Privacy is the liability boundary: sales files never leave the browser (tests
+# assert no network calls). No accounting vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be scheduled refreshes; not built.
+# Liability: statistical forecast of supplied data, not advice; the page says
+# "do not trust" when the back-test does not beat last year's figures. Unverified:
+# tested on simulated series with known answers, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Owners of seasonal small businesses will use a private, no-signup
+      forecaster that shows its own back-test, and will return when they
+      export a new year of sales.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the forecast or its ranges disagree with a standard Holt-Winters reference implementation on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sales-seasonality-forecaster/
+  analytics: null

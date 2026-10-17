@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Therapy 8-Minute Rule Calculator — Free</title>
+  <meta name="description" content="Free 8-minute rule calculator for physical and occupational therapy clinics: paste each visit's timed CPT minutes, get billable units under the CMS rule, which code gets each unit, the per-code count for comparison, and the revenue at stake. Nothing uploaded.">
+  <meta property="og:title" content="Therapy 8-minute rule calculator">
+  <meta property="og:description" content="Billable units from timed therapy minutes under the Medicare 8-minute rule, assigned to codes. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f5c'/%3E%3Ccircle cx='16' cy='16' r='9' stroke='%23fff' stroke-width='2' fill='none'/%3E%3Cpath d='M16 10v6l4 3' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Therapy 8-Minute Rule Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Medicare 8-minute rule calculator for physical, occupational and speech therapy clinics: billable units from timed minutes, units assigned to each CPT code, per-code count comparison and revenue. Runs in your browser.","featureList":"CMS 8-minute rule units, unit assignment by code, per-code midpoint comparison, minutes to next unit, revenue at your rates, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 8-minute rule?","acceptedAnswer":{"@type":"Answer","text":"Under Medicare's rule for timed therapy codes, you add up the minutes of all timed services in a visit and bill units from the total: 8 to 22 minutes is one unit, 23 to 37 is two, 38 to 52 is three, and so on, one more unit for each further 15 minutes. Fewer than 8 total timed minutes is not billable as a timed unit. This tool applies that table to the minutes you type, then shows which codes the units go to."}},{"@type":"Question","name":"Does the rule apply to each code or to the whole visit?","acceptedAnswer":{"@type":"Answer","text":"Under the CMS method the total of all timed minutes sets the number of units, and the units are then assigned to codes. Some other payers count each code on its own, giving a unit when a code reaches 8 minutes past a full 15. That can produce more units than the CMS method for the same visit, so the tool shows both counts and the difference. Check which rule your payer contract uses."}},{"@type":"Question","name":"Which codes are timed?","acceptedAnswer":{"@type":"Answer","text":"Codes such as 97110 therapeutic exercise, 97112 neuromuscular re-education, 97140 manual therapy, 97530 therapeutic activities and 97035 ultrasound are timed. Evaluations, supervised modalities such as 97010 hot and cold packs, and 97014 or G0283 unattended electrical stimulation are untimed: they are listed but add no minutes to the total."}},{"@type":"Question","name":"How do I find visits that are a few minutes short of a unit?","acceptedAnswer":{"@type":"Answer","text":"Visits whose timed total sits one to three minutes below the next threshold are flagged with how many more minutes of documented, skilled treatment would have reached it. Only add time you actually spent; the point is to see where your schedule leaves units unbilled, not to round up."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">THERAPY 8-MINUTE RULE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many units is this visit worth?</h1>
+    <p>Type or paste the timed minutes for each visit, one code per line (<code>97110 23</code>), with a blank line between visits. The tool totals the timed minutes, applies the Medicare 8-minute table, hands the units to the codes, compares that with a per-code count, flags visits a few minutes short of the next unit, and prices the difference at your rates.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal, coding or billing advice. The values shown are placeholder data, not benchmarks, fee schedules or any real clinic's figures. No patient information belongs here: use a visit label like "Visit A".</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your visits</h2>
+      <label for="visits">Visits (a label line is optional; blank line starts a new visit)</label>
+      <textarea id="visits" rows="14" spellcheck="false"></textarea>
+      <p class="note">Timed codes add minutes. Untimed codes (evaluations, 97010, 97014, G0283) are listed but add none. Do not type patient names or identifiers.</p>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your rates (optional)</h2>
+      <div class="grid">
+        <div><label for="defaultRate">Default allowed amount per unit ($)</label><input id="defaultRate" type="text" value=""><p class="note">Used for any code without its own rate below.</p></div>
+        <div><label for="rates">Allowed amount per unit by code</label><textarea id="rates" rows="5" spellcheck="false"></textarea><p class="note">One per line, like <code>97110=31.20</code>. Take them from your contract or remittances.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Count my units</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the 8-minute rule?</h3>
+      <p>Under Medicare's rule for timed therapy codes, you add up the minutes of all timed services in a visit and bill units from the total: 8 to 22 minutes is one unit, 23 to 37 is two, 38 to 52 is three, and so on, one more unit for each further 15 minutes. Fewer than 8 total timed minutes is not billable as a timed unit. This tool applies that table to the minutes you type, then shows which codes the units go to.</p>
+      <h3>Does the rule apply to each code or to the whole visit?</h3>
+      <p>Under the CMS method the total of all timed minutes sets the number of units, and the units are then assigned to codes. Some other payers count each code on its own, giving a unit when a code reaches 8 minutes past a full 15. That can produce more units than the CMS method for the same visit, so the tool shows both counts and the difference. Check which rule your payer contract uses.</p>
+      <h3>Which codes are timed?</h3>
+      <p>Codes such as 97110 therapeutic exercise, 97112 neuromuscular re-education, 97140 manual therapy, 97530 therapeutic activities and 97035 ultrasound are timed. Evaluations, supervised modalities such as 97010 hot and cold packs, and 97014 or G0283 unattended electrical stimulation are untimed: they are listed but add no minutes to the total.</p>
+      <h3>How do I find visits that are a few minutes short of a unit?</h3>
+      <p>Visits whose timed total sits one to three minutes below the next threshold are flagged with how many more minutes of documented, skilled treatment would have reached it. Only add time you actually spent; the point is to see where your schedule leaves units unbilled, not to round up.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which payers follow the CMS method and which count each code separately, whether a service is timed under your payer's rules, medical-necessity and documentation requirements, modifiers such as GP, GO and the KX threshold, the multiple procedure payment reduction, group and concurrent treatment rules, and how any of this affects your compliance obligations. Check your payer contracts and talk to a qualified coder or compliance professional.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a>, the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a> and the <a href="../medical-billing-pricing-calculator/">medical billing pricing calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + t.units + " units across " + t.visits + " visits under the CMS total-time method</h4><p>A per-code count of the same minutes gives " + t.perCodeUnits + " units" + (t.over > 0 ? ", " + t.over + " more than the CMS method allows. If your payer uses the CMS method, billing the per-code count would overbill by about " + money2(t.revenuePerCode - t.revenue) + "." : ".") + " At your rates the CMS count is worth " + money2(t.revenue) + ".</p></div>";
+      h += '<div class="finding"><h4>Each visit</h4>' + table(["Visit", "Timed min", "CMS units", "Per-code units", "Units by code", "Min to next unit", "CMS amount"], a.rows.map((r) => [esc(r.name), r.total, r.units, r.perCodeUnits + (r.over ? " (+" + r.over + ")" : ""), r.lines.map((l) => esc(l.code) + " ×" + l.units).join(", "), r.nearMiss ? "<strong>" + r.minutesToNextUnit + "</strong> (near miss)" : r.minutesToNextUnit, money2(r.revenue)])) + "</div>";
+      if (t.nearMisses > 0) h += '<div class="finding"><h4>' + t.nearMisses + " visit" + (t.nearMisses > 1 ? "s" : "") + " within 3 minutes of another unit</h4><p>Check whether skilled treatment was delivered in that time and documented. Only bill time you actually spent.</p></div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download code table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "therapy-units.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

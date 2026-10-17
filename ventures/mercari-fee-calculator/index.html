@@ -217,13 +217,14 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Item prices, costs, and payouts are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget saved numbers</em> deletes them. <em>Copy shareable link</em> puts the same numbers in the page's URL fragment instead of a server — nothing about your sale leaves your device either way.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Mercari. Mercari is a trademark of its owner, named here only to describe the published fee schedule this tool computes against (Mercari Help Center, "Fees on Mercari" and "FAQs about our new fee structure", effective January 6, 2025). Mercari can change this schedule at any time — verify against your own payout statement before you price a listing.</p>
     <p>Free and open source. If it changes how you price a closet clean-out, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-    <p>Selling the same item across more than one channel? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks eBay, Etsy, Amazon and a direct sale on one item, and the <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store — Mercari's shipping-inclusive flat 10% is different enough from those referral-rate marketplaces that it stays a separate calculator here. Selling on Poshmark instead? See the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> for its flat-$2.95-under-$15/20%-at-$15+ cliff.</p>
+    <p>Want Mercari ranked against eBay, Etsy, Amazon and a direct sale on this exact item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> prices Mercari the way this page does — the current all-in 10% on item plus buyer-paid shipping — and puts it beside those other channels, with what each is worth per day of wait and per month of shelf time. It opens with this item's price and cost already filled in and Mercari switched on, no retyping. The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store the same way. Selling on Poshmark instead? See the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> for its flat-$2.95-under-$15/20%-at-$15+ cliff, or <a href="vs-poshmark.html">this $50 item priced through both fee schedules</a> to see why the cheaper platform depends on who pays for shipping. Selling on Depop instead? See the <a href="../depop-fee-calculator/">Depop fee calculator</a> for its 0%-selling-fee-plus-processing schedule in the US and UK. Wondering whether you even need this over doing the math yourself? See <a href="vs-doing-the-fee-math-yourself.html">this calculator vs. doing Mercari fee math yourself</a>.</p>
   </footer>
 
   <script type="module">
     import { calculateSale, compareSchedules, INPUT_IDS, TOGGLE_IDS } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const DRAFT_KEY = 'mercari-fee-calculator-draft';
     const el = id => document.getElementById(id);
@@ -301,6 +302,9 @@
         li.textContent = text;
         return li;
       }));
+      // Rebuilt on every render so the handoff link always carries what is on
+      // screen rather than whatever was there when the page loaded.
+      el('whereToSellLink').href = whereToSellUrl(readInput());
     }
 
     el('saleForm').addEventListener('submit', event => {
@@ -378,6 +382,12 @@
         el('saveStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
       }
       count('link_copied');
+    });
+
+    el('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item -- this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      count('handoff_where_to_sell');
     });
 
     // A saved draft or a shared link takes priority over the shipped worked

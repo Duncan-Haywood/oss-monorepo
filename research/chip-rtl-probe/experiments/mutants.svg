@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Stacked bars: stage that first catches each single-point mutant, per task">
+<rect width="640" height="360" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">First stage to catch each mutant (counts)</text>
+<line x1="50" x2="624" y1="290.0" y2="290.0" stroke="#ddd"/><text x="44" y="294.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="50" x2="624" y1="240.0" y2="240.0" stroke="#ddd"/><text x="44" y="244.0" text-anchor="end" font-family="sans-serif" font-size="11">24</text>
+<line x1="50" x2="624" y1="190.0" y2="190.0" stroke="#ddd"/><text x="44" y="194.0" text-anchor="end" font-family="sans-serif" font-size="11">48</text>
+<line x1="50" x2="624" y1="140.0" y2="140.0" stroke="#ddd"/><text x="44" y="144.0" text-anchor="end" font-family="sans-serif" font-size="11">72</text>
+<line x1="50" x2="624" y1="90.0" y2="90.0" stroke="#ddd"/><text x="44" y="94.0" text-anchor="end" font-family="sans-serif" font-size="11">96</text>
+<rect x="57.2" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="57.2" y="275.4" width="33.5" height="14.6" fill="#1f6fb2"/>
+<rect x="57.2" y="265.0" width="33.5" height="10.4" fill="#e67e22"/>
+<rect x="57.2" y="265.0" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="73.9" y="302" text-anchor="end" transform="rotate(-40 73.9 302)" font-family="sans-serif" font-size="10">absdiff8</text>
+<rect x="105.0" y="256.7" width="33.5" height="33.3" fill="#8e44ad"/>
+<rect x="105.0" y="87.9" width="33.5" height="168.8" fill="#1f6fb2"/>
+<rect x="105.0" y="81.7" width="33.5" height="6.2" fill="#e67e22"/>
+<rect x="105.0" y="62.9" width="33.5" height="18.8" fill="#c0392b"/>
+<text x="121.8" y="302" text-anchor="end" transform="rotate(-40 121.8 302)" font-family="sans-serif" font-size="10">crc8</text>
+<rect x="152.8" y="285.8" width="33.5" height="4.2" fill="#8e44ad"/>
+<rect x="152.8" y="258.8" width="33.5" height="27.1" fill="#1f6fb2"/>
+<rect x="152.8" y="248.3" width="33.5" height="10.4" fill="#e67e22"/>
+<rect x="152.8" y="225.4" width="33.5" height="22.9" fill="#c0392b"/>
+<text x="169.6" y="302" text-anchor="end" transform="rotate(-40 169.6 302)" font-family="sans-serif" font-size="10">divmod10</text>
+<rect x="200.7" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="200.7" y="281.7" width="33.5" height="8.3" fill="#1f6fb2"/>
+<rect x="200.7" y="281.7" width="33.5" height="0.0" fill="#e67e22"/>
+<rect x="200.7" y="281.7" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="217.4" y="302" text-anchor="end" transform="rotate(-40 217.4 302)" font-family="sans-serif" font-size="10">edge_det</text>
+<rect x="248.5" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="248.5" y="185.8" width="33.5" height="104.2" fill="#1f6fb2"/>
+<rect x="248.5" y="181.7" width="33.5" height="4.2" fill="#e67e22"/>
+<rect x="248.5" y="175.4" width="33.5" height="6.2" fill="#c0392b"/>
+<text x="265.2" y="302" text-anchor="end" transform="rotate(-40 265.2 302)" font-family="sans-serif" font-size="10">fifo4</text>
+<rect x="296.3" y="248.3" width="33.5" height="41.7" fill="#8e44ad"/>
+<rect x="296.3" y="175.4" width="33.5" height="72.9" fill="#1f6fb2"/>
+<rect x="296.3" y="171.3" width="33.5" height="4.2" fill="#e67e22"/>
+<rect x="296.3" y="171.3" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="313.1" y="302" text-anchor="end" transform="rotate(-40 313.1 302)" font-family="sans-serif" font-size="10">gray2bin8</text>
+<rect x="344.2" y="285.8" width="33.5" height="4.2" fill="#8e44ad"/>
+<rect x="344.2" y="235.8" width="33.5" height="50.0" fill="#1f6fb2"/>
+<rect x="344.2" y="231.7" width="33.5" height="4.2" fill="#e67e22"/>
+<rect x="344.2" y="231.7" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="360.9" y="302" text-anchor="end" transform="rotate(-40 360.9 302)" font-family="sans-serif" font-size="10">popcount8</text>
+<rect x="392.0" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="392.0" y="248.3" width="33.5" height="41.7" fill="#1f6fb2"/>
+<rect x="392.0" y="244.2" width="33.5" height="4.2" fill="#e67e22"/>
+<rect x="392.0" y="244.2" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="408.8" y="302" text-anchor="end" transform="rotate(-40 408.8 302)" font-family="sans-serif" font-size="10">prio_enc8</text>
+<rect x="439.8" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="439.8" y="265.0" width="33.5" height="25.0" fill="#1f6fb2"/>
+<rect x="439.8" y="258.8" width="33.5" height="6.2" fill="#e67e22"/>
+<rect x="439.8" y="258.8" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="456.6" y="302" text-anchor="end" transform="rotate(-40 456.6 302)" font-family="sans-serif" font-size="10">rotl8</text>
+<rect x="487.7" y="262.9" width="33.5" height="27.1" fill="#8e44ad"/>
+<rect x="487.7" y="183.8" width="33.5" height="79.2" fill="#1f6fb2"/>
+<rect x="487.7" y="179.6" width="33.5" height="4.2" fill="#e67e22"/>
+<rect x="487.7" y="179.6" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="504.4" y="302" text-anchor="end" transform="rotate(-40 504.4 302)" font-family="sans-serif" font-size="10">rr_arb4</text>
+<rect x="535.5" y="283.8" width="33.5" height="6.2" fill="#8e44ad"/>
+<rect x="535.5" y="262.9" width="33.5" height="20.8" fill="#1f6fb2"/>
+<rect x="535.5" y="256.7" width="33.5" height="6.2" fill="#e67e22"/>
+<rect x="535.5" y="252.5" width="33.5" height="4.2" fill="#c0392b"/>
+<text x="552.2" y="302" text-anchor="end" transform="rotate(-40 552.2 302)" font-family="sans-serif" font-size="10">sat_add8</text>
+<rect x="583.3" y="290.0" width="33.5" height="0.0" fill="#8e44ad"/>
+<rect x="583.3" y="271.2" width="33.5" height="18.8" fill="#1f6fb2"/>
+<rect x="583.3" y="269.2" width="33.5" height="2.1" fill="#e67e22"/>
+<rect x="583.3" y="269.2" width="33.5" height="0.0" fill="#c0392b"/>
+<text x="600.1" y="302" text-anchor="end" transform="rotate(-40 600.1 302)" font-family="sans-serif" font-size="10">updown4</text>
+<rect x="60" y="344" width="10" height="10" fill="#8e44ad"/><text x="75" y="353" font-family="sans-serif" font-size="11">lint</text>
+<rect x="155" y="344" width="10" height="10" fill="#1f6fb2"/><text x="170" y="353" font-family="sans-serif" font-size="11">sim</text>
+<rect x="250" y="344" width="10" height="10" fill="#e67e22"/><text x="265" y="353" font-family="sans-serif" font-size="11">formal</text>
+<rect x="345" y="344" width="10" height="10" fill="#c0392b"/><text x="360" y="353" font-family="sans-serif" font-size="11">survived</text>
+</svg>

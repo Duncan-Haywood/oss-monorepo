@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GPX Track Checker — Find Why a GPX File Won't Upload and Fix It</title>
+  <meta name="description" content="Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.">
+  <meta property="og:title" content="GPX Track Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why a GPX file will not upload, with line numbers, and download a repaired copy. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "GPX Track Check", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does Strava or Garmin reject my GPX file?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a <gpx> element missing its creator, version or namespace, track points with no <time>, timestamps that run backwards, coordinates outside the valid range (often a swapped latitude and longitude), or a file cut off before the closing </gpx> tag. This tool lists each one with its line number."}}, {"@type": "Question", "name": "What is a GPS jump and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "A single point that lands kilometres from the rest of the track, usually from a lost satellite fix. It inflates distance and top speed. The tool flags moves faster than 252 km/h between consecutive timed points and leaves them in place, because only you know whether the point is real."}}, {"@type": "Question", "name": "What does the fixed file change?", "acceptedAnswer": {"@type": "Answer", "text": "Only what it can prove: adds the XML declaration, version, creator and namespace when missing, and removes points at exactly 0,0, byte-identical duplicate points and empty track segments. It never reorders timestamps, invents times or edits elevations."}}, {"@type": "Question", "name": "Is my track uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab, and a test in the code asserts there are no network calls. A GPX file can show where you live or train, which is why it stays on your device."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether a given service will accept the file, heart-rate or cadence extensions, the accuracy of the recorded positions, or whether a route is safe or legal to travel. It reads the standard track, route and waypoint elements."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GPX TRACK CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why won't this GPX file upload?</h1>
+    <p>Paste or drop a <strong>.gpx track</strong> and get every problem <strong>with its line number</strong> before Strava, Garmin Connect or Komoot rejects it: <strong>missing creator, version or namespace, points at 0,0, GPS jumps, timestamps out of order, no times, impossible elevations</strong>. Then download a repaired copy.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. It checks the file against the GPX format, not against any one service. Independent of every service named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your GPX file</h2>
+    <p class="note">An export from a watch, bike computer, phone app, route planner or script.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".gpx,application/gpx+xml,text/xml,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="&lt;gpx version=&quot;1.1&quot; creator=&quot;...&quot;&gt;"></textarea>
+    <p>
+      <button type="button" id="validate">Check track</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check track.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Fixed file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-fixed">Download fixed file</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Required:</strong> a &lt;gpx&gt; root with version, creator and the GPX namespace; at least one track segment, route or waypoint.</li>
+      <li><strong>Coordinates:</strong> latitude -90..90, longitude -180..180, numeric; a point at exactly 0,0 is flagged as a no-fix reading.</li>
+      <li><strong>Time:</strong> ISO 8601 UTC (like 2026-05-01T08:30:00Z), real dates, never earlier than the point before; segments with no times at all are called out.</li>
+      <li><strong>Movement:</strong> a move faster than 252 km/h between timed points is a GPS jump; gaps over five minutes are noted.</li>
+      <li><strong>Elevation:</strong> numeric and between -500 and 9000 m.</li>
+      <li><strong>Fixed automatically:</strong> the XML declaration, version, creator and namespace when missing; points at exactly 0,0; exact duplicate points; empty track segments.</li>
+      <li><strong>Never guessed:</strong> reordering timestamps, inventing times, smoothing jumps, editing elevations.</li>
+      <li><strong>Not checked:</strong> whether a given service will accept the file, device extensions such as heart rate, the accuracy of the positions. Read from memory of the GPX 1.1 schema; confirm against the current standard.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does Strava or Garmin reject my GPX file?</h3>
+    <p>The usual causes are a &lt;gpx&gt; element missing its creator, version or namespace, track points with no &lt;time&gt;, timestamps that run backwards, coordinates outside the valid range (often a swapped latitude and longitude), or a file cut off before the closing &lt;/gpx&gt; tag. This tool lists each one with its line number.</p>
+    <h3>What is a GPS jump and why does it matter?</h3>
+    <p>A single point that lands kilometres from the rest of the track, usually from a lost satellite fix. It inflates distance and top speed. The tool flags moves faster than 252 km/h between consecutive timed points and leaves them in place, because only you know whether the point is real.</p>
+    <h3>What does the fixed file change?</h3>
+    <p>Only what it can prove: adds the XML declaration, version, creator and namespace when missing, and removes points at exactly 0,0, byte-identical duplicate points and empty track segments. It never reorders timestamps, invents times or edits elevations.</p>
+    <h3>Is my track uploaded anywhere?</h3>
+    <p>No. The file is read in your browser tab, and a test in the code asserts there are no network calls. A GPX file can show where you live or train, which is why it stays on your device.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether a given service will accept the file, heart-rate or cadence extensions, the accuracy of the recorded positions, or whether a route is safe or legal to travel. It reads the standard track, route and waypoint elements.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace any mapping or fitness service's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking that repaired events show at the right time, and a clean result is not a promise that an app will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Google, Microsoft, Apple or any other company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../ics-calendar-check/">ICS calendar check</a> does the same for calendar files, the <a href="../vcard-contacts-check/">vCard contacts check</a> for contacts, and the <a href="../youtube-chapters-check/">YouTube chapters check</a> for video chapter lists.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary, st = r.stats;
+      const km = st ? (st.distanceM / 1000).toFixed(2) : "0";
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.points} point${s.points === 1 ? "" : "s"}` + (st ? ` · ${km} km, ${Math.round(st.durationS / 60)} min, +${st.gainM} m / -${st.lossM} m (as recorded, including any bad points)` : "");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.code)}</h4><p>${esc(f.message)}</p></div>`).join("") || "<p>No problems found.</p>";
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#fixed-out").value = fix.text;
+      $("#fix-note").textContent = fix.changes.length ? `${fix.changes.length} change${fix.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left exactly as it was and named above.` : "No provable fixes: the file is unchanged.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.points} point(s).` : `No errors in ${s.points} point(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up 30-second jog."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: no version, creator or namespace, a duplicate point, a 0,0 point, GPS jumps, a bad elevation, a time out of order and an empty segment."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check track."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("track-fixed.gpx", fixedText, "application/gpx+xml"); } });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Selected; press Ctrl+C to copy."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("track-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# batch R=4; cycles are per batch of 4 vectors; cells = Yosys generic-gate cells incl. flip-flops
+
+WB design        MACs cycles  cells    ff depth  cells*cycles  rtl==numpy(40 vecs)
+ 4 systolic 4x1     4    146   2901   450    41        423546  True
+ 4 systolic 4x2     8     80   4077   593    41        326160  True
+ 4 systolic 4x4    16     47   6605  1165    42        310435  True
+ 4 systolic 4x8    32     40  10998  1989    43        439920  True
+ 4 mac-lane P=1       1    440    861   143    37        378840  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 4 mac-lane P=2       2    224   1098   189    37        245952  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 4 mac-lane P=4       4    116   1674   275    36        194184  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 4 mac-lane P=8       8     80   2800   443    36        224000  (chip-accel design, 4 sequential vectors; not re-simulated here)
+
+ 6 systolic 4x1     4    146   6878  1192    64       1004188  True
+ 6 systolic 4x2     8     80   8708  1365    67        696640  True
+ 6 systolic 4x4    16     47  13033  2150    66        612551  True
+ 6 systolic 4x8    32     40  21407  3903    66        856280  True
+ 6 mac-lane P=1       1    440   1366   227    45        601040  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 6 mac-lane P=2       2    224   1806   295    45        404544  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 6 mac-lane P=4       4    116   2900   433    45        336400  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 6 mac-lane P=8       8     80   4802   759    46        384160  (chip-accel design, 4 sequential vectors; not re-simulated here)
+
+ 8 systolic 4x1     4    146   6661  1148    60        972506  True
+ 8 systolic 4x2     8     80   9619  1563    58        769520  True
+ 8 systolic 4x4    16     47  16389  2811    57        770283  True
+ 8 systolic 4x8    32     40  29240  5126    60       1169600  True
+ 8 mac-lane P=1       1    440   1812   334    54        797280  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 8 mac-lane P=2       2    224   2506   452    53        561344  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 8 mac-lane P=4       4    116   4098   670    52        475368  (chip-accel design, 4 sequential vectors; not re-simulated here)
+ 8 mac-lane P=8       8     80   7104  1235    53        568320  (chip-accel design, 4 sequential vectors; not re-simulated here)
+

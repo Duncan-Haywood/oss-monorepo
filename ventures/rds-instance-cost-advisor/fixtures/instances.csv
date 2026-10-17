@@ -1,0 +1,6 @@
+instance,class,engine,multi_az,storage_type,storage_gb,provisioned_iops,avg_cpu_pct,env
+orders-prod,db.m5.2xlarge,postgres,yes,io1,1000,10000,38,prod
+reports-prod,db.r5.xlarge,postgres,no,gp2,500,,12,prod
+staging-orders,db.m5.xlarge,postgres,yes,gp2,300,,22,staging
+dev-sandbox,db.t3.large,mysql,yes,gp2,100,,1,dev
+analytics-legacy,db.r5.4xlarge,mysql,no,gp2,2000,,18,prod

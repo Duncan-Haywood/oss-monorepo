@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing it by hand — Senior Deduction Calculator</title>
+<meta name="description" content="Estimating the new $6,000 OBBBA senior deduction by hand usually goes wrong in the same places: assuming married filing separately gets a reduced amount instead of $0, confusing it with the existing extra standard deduction for age, or rounding the MAGI phase-out the way a sibling deduction's stepped rule does. This free calculator applies the rule the same way every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-estimating-the-deduction-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing it by hand">
+<meta property="og:description" content="A hand estimate of the new senior deduction has several common failure points, above all the MFS assumption. This calculator applies the amount, phase-out, and eligibility rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake estimating this deduction by hand?","acceptedAnswer":{"@type":"Answer","text":"Assuming married filing separately gets a reduced amount, generalizing from this portfolio's own auto-loan-interest-deduction-calculator, where MFS is explicitly eligible with its own cap. This deduction excludes MFS entirely -- $0, at any income or age -- a married couple must file a joint return for either spouse to claim any of it."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Confusing this with the existing extra standard deduction for age 65+ that has been on Form 1040 for years. This is a separate, new, additional deduction -- it stacks ON TOP of that existing age-based amount and the regular standard deduction, not instead of either one."}},{"@type":"Question","name":"How does the MAGI phase-out usually get estimated wrong?","acceptedAnswer":{"@type":"Answer","text":"By assuming it rounds in $1,000 steps the way this portfolio's own auto-loan and tips/overtime deductions do. This one does not -- it is a continuous 6 cents per dollar of MAGI over the threshold, with no rounding step at all, so $100,001 and $100,999 of excess MAGI cost two different amounts, not the same amount."}},{"@type":"Question","name":"On a joint return where both spouses qualify, does the combined $12,000 phase out as one pot?","acceptedAnswer":{"@type":"Answer","text":"No, and assuming so is an easy by-hand mistake. Each spouse's own $6,000 phases out independently against the same household MAGI excess. It happens to reach exactly $0 at the same MAGI either way ($250,000 joint) -- but the deduction at any MAGI between the threshold and that point is not simply double a one-spouse estimate."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page knows your full return -- other deductions, credits, or state conformity. Both apply the same published federal amount, phase-out formula, and eligibility rules to the numbers you enter; verify against the IRS's own guidance or a qualified tax professional before filing."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing it by hand</h1>
+<p class="lede">The new $6,000 senior deduction looks like simple arithmetic
+-- an amount, a phase-out, an eligibility check. The problem is that this
+portfolio now has three 2025 OBBBA deductions with different rules for the
+same two questions (does MFS qualify, does the phase-out round in steps),
+and a quick by-hand estimate tends to carry the wrong sibling's answer
+over.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Married filing separately</td><td>Assumes MFS gets a reduced amount, generalizing from this portfolio's own auto-loan-interest-deduction-calculator (where MFS IS eligible, with its own cap).</td><td>Excludes MFS entirely and says so plainly, rather than computing a partial amount.</td></tr>
+<tr><td>Confusing it with the existing age-65 standard deduction add-on</td><td>Treats the new $6,000 as replacing, or double-counting with, the existing extra standard deduction for age that is already on Form 1040.</td><td>Computes this deduction as an amount that stacks on top of the standard deduction (and its existing age add-on), never as a replacement for either.</td></tr>
+<tr><td>The MAGI phase-out step size</td><td>Rounds the excess MAGI to the nearest $1,000, generalizing from this portfolio's own stepped-rounding sibling deductions.</td><td>Applies a continuous 6 cents per dollar of MAGI over the threshold, with no rounding step.</td></tr>
+<tr><td>Two qualifying spouses on a joint return</td><td>Assumes the combined $12,000 phases out as one pot, rather than each spouse's $6,000 phasing out independently against the same MAGI excess.</td><td>Computes each qualifying person's $6,000 and its own reduction separately, then sums the result.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake estimating this deduction by hand?</h3>
+<p>Assuming married filing separately gets a reduced amount, generalizing from this portfolio's own auto-loan-interest-deduction-calculator, where MFS is explicitly eligible with its own cap. This deduction excludes MFS entirely -- $0, at any income or age -- a married couple must file a joint return for either spouse to claim any of it.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Confusing this with the existing extra standard deduction for age 65+ that has been on Form 1040 for years. This is a separate, new, additional deduction -- it stacks ON TOP of that existing age-based amount and the regular standard deduction, not instead of either one.</p>
+<h3>How does the MAGI phase-out usually get estimated wrong?</h3>
+<p>By assuming it rounds in $1,000 steps the way this portfolio's own auto-loan and tips/overtime deductions do. This one does not -- it is a continuous 6 cents per dollar of MAGI over the threshold, with no rounding step at all, so $100,001 and $100,999 of excess MAGI cost two different amounts, not the same amount.</p>
+<h3>On a joint return where both spouses qualify, does the combined $12,000 phase out as one pot?</h3>
+<p>No, and assuming so is an easy by-hand mistake. Each spouse's own $6,000 phases out independently against the same household MAGI excess. It happens to reach exactly $0 at the same MAGI either way ($250,000 joint) -- but the deduction at any MAGI between the threshold and that point is not simply double a one-spouse estimate.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page knows your full return -- other deductions, credits, or state conformity. Both apply the same published federal amount, phase-out formula, and eligibility rules to the numbers you enter; verify against the IRS's own guidance or a qualified tax professional before filing.</p>
+<p class="fine">This page names no specific product or service -- it compares against the generic method of estimating the deduction by hand, not a competing tool.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply the published federal statutory amount, phase-out formula, and eligibility rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own age, Social Security number status, and MAGI before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

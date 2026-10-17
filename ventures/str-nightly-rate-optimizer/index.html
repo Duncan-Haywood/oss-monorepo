@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STR Nightly Rate Optimizer — what price earns the most per listed night</title>
+  <meta name="description" content="Free nightly rate calculator for Airbnb and VRBO hosts. Paste your listed nightly prices and whether each night booked to see how your booking chance falls as price rises, and the price with the highest expected profit per listed night after fees and turnover cost. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="STR Nightly Rate Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own booked and empty nights into a booking-chance curve and the nightly price that earns the most, with honest uncertainty.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "STR Nightly Rate Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your listed nightly prices with whether each night booked. Fits how your booking chance falls as your price rises, prices a booked night after the platform fee and turnover cost, finds the nightly price with the highest expected profit per listed night inside the range you have listed, and back-tests whether price explains which nights booked at all. Runs entirely in your browser.", "featureList": "short-term rental nightly rate calculator, booking probability by price, optimal Airbnb nightly price, expected profit per listed night, logistic regression, bootstrap range, host pricing, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good nightly rate for my short-term rental?", "acceptedAnswer": {"@type": "Answer", "text": "The rate that earns the most over all your listed nights, not the one that books fastest or the highest one that still books. A higher price earns more per booked night but books less often; this tool fits how your own booking chance falls as your listed price rises, subtracts the platform fee and turnover cost you enter, and finds the price with the highest expected profit per listed night, searching only inside the prices you have actually listed."}}, {"@type": "Question", "name": "How is this different from dynamic pricing tools like PriceLabs, Wheelhouse or Beyond?", "acceptedAnswer": {"@type": "Answer", "text": "Those services price from market data across many listings and cost a monthly fee or a share of revenue. This tool does one narrower thing for free: it reads only your own history and tells you how price-sensitive your own bookings have been and what that implies for one price. It does not know your market, events or competitors, so use it as a check on a pricing service or a spreadsheet, not as a replacement for market data."}}, {"@type": "Question", "name": "How much booking history do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 40 listed nights with a result, at least 8 booked and 8 empty, and prices that vary: four or more distinct price levels with a typical spread of about two points or more. If you always list the same price, your history cannot say what would happen at another, so the tool refuses instead of guessing. A full season or more, pooled across listings you price the same way, works best."}}, {"@type": "Question", "name": "What goes in the cost of turnover and the nightly cost?", "acceptedAnswer": {"@type": "Answer", "text": "Turnover cost is what each stay costs you to reset the unit that the guest does not pay for: cleaning not covered by a cleaning fee, laundry, restocking. It is spread across the average stay length. Nightly cost is what a guest night costs to host, such as utilities and consumables. The platform fee is the percentage the platform takes from the host; enter yours. Change them and watch the best price move."}}, {"@type": "Question", "name": "Why might the result be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Prices are not set at random. If you raised prices on weekends, holidays and event dates, those nights book more often for reasons that have nothing to do with price, and the curve can slope the wrong way; the tool flags that. It also cannot see seasonality, lead time, minimum stays, reviews, your listing's quality or competitors. Treat the answer as a hypothesis for a small, reversible price change on comparable nights, not a number to bet a season on."}}, {"@type": "Question", "name": "Does it know local rules, taxes or platform pricing policies?", "acceptedAnswer": {"@type": "Answer", "text": "No. Occupancy taxes, licensing limits, minimum-stay rules and platform pricing features are outside what the tool models. It does not recommend anything based on them, and the price it suggests is a statistical result from your data only."}}, {"@type": "Question", "name": "Is my booking history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bookings. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STR NIGHTLY RATE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your nightly price leaving money on the table?</h1>
+    <p>Paste or upload your listed nights: <strong>the nightly price you listed and whether it booked</strong>. Tell it the platform fee and what each stay costs you to turn over. The tool fits a <strong>booking-chance curve</strong> (logistic regression) of how often your nights book at each price, finds the <strong>price with the highest expected profit per listed night inside the range you have actually listed</strong>, shows what a few percent more or less would do, and <strong>back-tests whether price explains which nights booked at all</strong>. If your prices never varied, it says so instead of guessing.</p>
+    <p class="note">Your bookings never leave this browser tab. Statistical estimate from data you supply, not advice, and it does not know your market, taxes or local rules. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your listed nights</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: [date,] price, booked)</label>
+    <textarea id="rows" spellcheck="false" placeholder="date,price,booked&#10;2026-03-01,150,1&#10;2026-03-02,185,0"></textarea>
+    <h2 style="margin-top:18px">Your costs</h2>
+    <div class="row3">
+      <div><label for="fee">Platform fee paid by you (%)</label><input id="fee" inputmode="decimal" value="3"></div>
+      <div><label for="turnover">Turnover cost per stay ($)</label><input id="turnover" inputmode="decimal" value="100"></div>
+      <div><label for="stay">Average stay (nights)</label><input id="stay" inputmode="decimal" value="3"></div>
+      <div><label for="nightly">Cost per guest night ($)</label><input id="nightly" inputmode="decimal" value="10"></div>
+      <div><label for="usual">Your usual price ($, optional)</label><input id="usual" inputmode="decimal" placeholder="defaults to the median price listed"></div>
+    </div>
+    <p class="note">Booked can be 1/0, booked/empty, reserved/available, yes/no. Leave out nights you blocked. Only include nights that were comparable (same listing, similar season and day type) when you can: prices raised on weekends and holidays make those nights look price-proof. Rows are read in the order given (oldest first) so the back-test can score your most recent nights. At least 40 nights with 8 booked and 8 empty, at four or more different prices.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your nights, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Booking chance by price</h3>
+    <div class="legend note"><span>Bars: share of nights that booked in each quarter of your prices</span><span>Dots: what the fitted curve says for that quarter</span></div>
+    <div id="chart"></div>
+    <h3>What a different price would do</h3>
+    <p class="note">Around your usual price, from the fitted curve. Expected profit is per listed night, after the platform fee and turnover cost; an empty night earns nothing. Rows marked "outside" are beyond the prices you have listed: read them as a guess, not a result.</p>
+    <div class="scroll"><table id="sc"><thead><tr><th>Change</th><th class="n">Nightly price</th><th class="n">Booking chance</th><th class="n">Profit per booked night</th><th class="n">Expected profit per listed night</th><th></th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download scenarios CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> P(booked) = 1 ÷ (1 + e^−(a + b × x)), where x is ln(listed nightly price). Fitted by Newton-Raphson on the log-likelihood with a tiny ridge so perfectly separated data cannot push the slope to infinity; the 95% interval uses the inverse Hessian. <strong>Expected profit per listed night:</strong> P(booked) × (price × (1 − platform fee) − turnover cost ÷ average stay − cost per guest night); an empty night earns nothing. The best price is searched on a fine grid only between the lowest and highest price in your data. The 80% ranges and the chance the best price beats your usual one come from 300 seeded bootstrap resamples (booked and empty nights resampled separately), so a result is reproducible. <strong>Back-test:</strong> the first 75% of rows fit the model, the last 25% are scored by log-loss against simply assuming your overall occupancy.</p>
+    <p><strong>Not modelled:</strong> seasonality, day of week, events, lead time, minimum stays, reviews, competitors, cleaning fees paid by the guest, taxes, and the value of a longer stay. Prices are not random, so this is correlation, not an experiment. <strong>Unverified:</strong> checked against simulated nights with known curves in unit tests, not against a published dataset or a commercial pricing tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good nightly rate for my short-term rental?</h3>
+    <p>The rate that earns the most over all your listed nights, not the one that books fastest or the highest one that still books. A higher price earns more per booked night but books less often; this tool fits how your own booking chance falls as your listed price rises, subtracts the platform fee and turnover cost you enter, and finds the price with the highest expected profit per listed night, searching only inside the prices you have actually listed.</p>
+    <h3>How is this different from dynamic pricing tools like PriceLabs, Wheelhouse or Beyond?</h3>
+    <p>Those services price from market data across many listings and cost a monthly fee or a share of revenue. This tool does one narrower thing for free: it reads only your own history and tells you how price-sensitive your own bookings have been and what that implies for one price. It does not know your market, events or competitors, so use it as a check on a pricing service or a spreadsheet, not as a replacement for market data.</p>
+    <h3>How much booking history do I need?</h3>
+    <p>At least 40 listed nights with a result, at least 8 booked and 8 empty, and prices that vary: four or more distinct price levels with a typical spread of about two points or more. If you always list the same price, your history cannot say what would happen at another, so the tool refuses instead of guessing. A full season or more, pooled across listings you price the same way, works best.</p>
+    <h3>What goes in the cost of turnover and the nightly cost?</h3>
+    <p>Turnover cost is what each stay costs you to reset the unit that the guest does not pay for: cleaning not covered by a cleaning fee, laundry, restocking. It is spread across the average stay length. Nightly cost is what a guest night costs to host, such as utilities and consumables. The platform fee is the percentage the platform takes from the host; enter yours. Change them and watch the best price move.</p>
+    <h3>Why might the result be wrong?</h3>
+    <p>Prices are not set at random. If you raised prices on weekends, holidays and event dates, those nights book more often for reasons that have nothing to do with price, and the curve can slope the wrong way; the tool flags that. It also cannot see seasonality, lead time, minimum stays, reviews, your listing's quality or competitors. Treat the answer as a hypothesis for a small, reversible price change on comparable nights, not a number to bet a season on.</p>
+    <h3>Does it know local rules, taxes or platform pricing policies?</h3>
+    <p>No. Occupancy taxes, licensing limits, minimum-stay rules and platform pricing features are outside what the tool models. It does not recommend anything based on them, and the price it suggests is a statistical result from your data only.</p>
+    <h3>Is my booking history uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your bookings. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the nights you supply; they do not guarantee what will happen when you change a price, and they do not check any occupancy tax, licensing or platform rule that applies to you. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any short-term rental platform or pricing vendor, and none is named or ranked here as better or worse.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your bookings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../booking-request-chooser/">booking request chooser</a> (which competing requests to accept), the <a href="../str-host-payout-calculator/">STR host payout calculator</a>, the <a href="../str-cleaning-fee-pricing-calculator/">STR cleaning fee calculator</a> the <a href="../price-elasticity-estimator/">price elasticity estimator</a> and the <a href="../midterm-rental-calculator/">mid-term rental calculator</a> (nightly renting against furnished 30-day-plus stays and a long-term lease).</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function chart(r) {
+      const W = 900, H = 260, L = 48, R = 12, T = 12, B = 44;
+      const n = r.bands.length, slot = (W - L - R) / n, bw = slot * 0.5;
+      const y = (v) => T + (H - T - B) * (1 - v);
+      const label = (b) => money(b.from) + " to " + money(b.to) + " a night";
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Share of nights that booked in each quarter of listed prices, with the fitted booking chance">` +
+        [0, 0.25, 0.5, 0.75, 1].map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(t * 100)}%</text>`).join("") +
+        r.bands.map((b, i) => {
+          const cx = L + slot * i + slot / 2;
+          return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${y(b.observed).toFixed(1)}" width="${bw.toFixed(1)}" height="${(H - B - y(b.observed)).toFixed(1)}" fill="#1f5f86" fill-opacity=".85"/>` +
+            `<circle cx="${cx.toFixed(1)}" cy="${y(b.fitted).toFixed(1)}" r="5" fill="#b5533c"/>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 26}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(label(b))}</text>` +
+            `<text x="${cx.toFixed(1)}" y="${H - 11}" font-size="11" text-anchor="middle" fill="#4c5a68">${b.n} nights, ${esc(pct(b.observed, 0))} booked</text>`;
+        }).join("") + `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const fee = val("#fee");
+      const r = analyze(parsed.rows, {
+        feePct: fee === undefined ? undefined : fee / 100, turnoverCost: val("#turnover"), avgStay: val("#stay"),
+        nightlyCost: val("#nightly"), usualPrice: val("#usual"),
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const o = r.optimum;
+      const big = [
+        [pct(r.occupancy, 0), `Share of listed nights that booked (${r.booked} of ${r.n})`],
+        [`${pct(r.sens.base, 0)} → ${pct(r.sens.plus5, 0)}`, `Booking chance at your usual ${money(r.usualPrice)}, then 5% higher (95% slope interval ${r.ci95[0].toFixed(1)} to ${r.ci95[1].toFixed(1)})`],
+        [money(o.price), `Best price in your tested range; 80% of resamples: ${money(o.priceRange80[0])} to ${money(o.priceRange80[1])}. Booking chance there: ${pct(o.bookChance, 0)}`],
+        [money(o.expectedValue), `Expected profit per listed night at the best price, against ${money(o.usualValue)} at your usual price`],
+        [money(o.gain * 365), `Gain per year if every night were listed at the best price instead of your usual one (80%: ${money(o.gainRange80[0] * 365)} to ${money(o.gainRange80[1] * 365)}; better in ${pct(o.pGain, 0)} of resamples)`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "unidentified"];
+      const msg = r.verdict === "usable" ? "Higher prices clearly booked less often, and price helped predict held-out nights. Still a hypothesis: try a small change on comparable nights before relying on it, and remember the tool cannot see events, seasons or competitors." : r.verdict === "weak" ? "The data leans toward higher prices booking less, but the interval is wide or the hold-out did not confirm it. Collect more nights or vary your prices more before acting." : "The data does not show a believable booking curve. Do not set prices from this result.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#chart").innerHTML = chart(r);
+      $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.change > 0 ? "+" : ""}${pct(s.change, 0)}</td><td class="n">${money(s.price)}</td><td class="n">${pct(s.bookChance, 0)}</td><td class="n">${money(s.perBookedNight)}</td><td class="n">${money(s.expectedValue)}</td><td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
+      $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} nights, scored on the last ${r.holdout.test}. Average log-loss ${r.holdout.logLossModel.toFixed(3)} with the price, ${r.holdout.logLossBase.toFixed(3)} assuming only your overall occupancy (lower is better). ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the curve."}` : "Not enough nights to hold out a test period.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#fee").value = "3"; $("#turnover").value = "120"; $("#stay").value = "3"; $("#nightly").value = "12"; $("#usual").value = "140";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 240 invented nights, not a real listing."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your nights, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "nightly-price-scenarios.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

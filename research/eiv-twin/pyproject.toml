@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eiv-twin"
+version = "0.1.0"
+description = "Errors-in-variables twin: gain fitted from a noisy logged input is attenuated by the reliability ratio, more data does not help, and the twin shows no warning"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-gaugebasins"
+version = "0.1.0"
+description = "Are the two gauge-2 mass groups of the DE search two basins in (w, r)?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem", "matplotlib", "shapely"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

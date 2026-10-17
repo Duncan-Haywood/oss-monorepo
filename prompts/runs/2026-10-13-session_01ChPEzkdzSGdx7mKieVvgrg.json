@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-13",
+  "session": "https://claude.ai/code/session_01ChPEzkdzSGdx7mKieVvgrg",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-sequence"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/277",
+  "commits": [
+    "4c95232"
+  ],
+  "lines_added": 686,
+  "lines_removed": 3,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 10,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Landing queue empty: no open PRs, all unmerged claude/* branches had projects already on main. Track 4 chosen by random draw. Citations copied from PROJECTS.md, not re-verified (no web access).",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

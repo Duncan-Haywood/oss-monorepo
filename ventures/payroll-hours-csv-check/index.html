@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payroll Hours CSV Check — Find Timesheet Errors Before You Run Payroll</title>
+  <meta name="description" content="Free payroll hours CSV checker: finds 8:30 mixed with 8.5, text like 8h, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End times that disagree with the hours typed and unquoted commas in names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="Payroll Hours CSV Check — free, private, in your browser">
+  <meta property="og:description" content="Catch what breaks or quietly corrupts a payroll hours import, with the line number, before you run payroll. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Payroll Hours CSV Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a payroll hours or timesheet CSV for decimal versus h:mm hours, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End arithmetic and unquoted commas in names, and applies formatting-only safe fixes. Runs entirely in your browser; the file is never uploaded.", "featureList": "Payroll hours CSV validator, timesheet CSV checker, decimal vs hh:mm hours check, Excel date serial finder, duplicate shift finder, start end hours arithmetic check"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do my payroll hours import wrong or get rejected?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are hours typed as 8:30 in some rows and 8.5 in others, text such as 8h, a Date column Excel turned into serial numbers like 46294 or mixed day-first and month-first, a name with an unquoted comma that shifts every later column, the same person and day entered twice, a total for the week typed into a daily row, and Start and End times that do not agree with the hours typed. This tool tests each of them and names the line."}}, {"@type": "Question", "name": "Does a clean sheet mean everyone was paid correctly?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tool checks the file's formatting and arithmetic only. It does not know the minimum wage, overtime, meal-break or record-keeping rules that apply to you, and it never enters overtime for you. It is not wage-and-hour, payroll-tax or legal advice. Ask a payroll professional or your labor department if unsure."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAYROLL HOURS CSV CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why do my payroll hours import wrong or get rejected?</h1>
+    <p>Paste or drop your <strong>timesheet or hours CSV</strong> and get every problem <strong>with its line number</strong> before you key or import it into payroll: <strong>8:30 mixed with 8.5</strong>, text like <code>8h</code>, <strong>dates Excel turned into serial numbers</strong> or mixed day-first and month-first, <strong>the same person and day twice</strong>, <strong>hours over 24</strong>, <strong>Start and End times that disagree with the hours typed</strong>, overnight shifts, and names with an unquoted comma that shift the columns. Then <strong>apply the safe fixes</strong> and download a cleaned CSV with every change listed.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of any payroll or time-tracking vendor. It checks the sheet, not any one vendor's importer, whose exact columns it does not claim to know.</p>
+    <p class="note"><strong>About pay rules.</strong> Overtime, meal-break, minimum-wage and record-keeping rules depend on where you operate. This tool checks formatting and arithmetic. It never enters, removes or recalculates anyone's pay, and a clean result is not evidence that anyone was paid correctly.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your hours CSV</h2>
+    <p class="note">A timesheet export edited in a spreadsheet, or a sheet prepared to key into payroll. Employee data is personal data: this page never uploads it.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Employee,Date,Start,End,Break Minutes,Regular Hours,Overtime Hours"></textarea>
+    <p>
+      <button type="button" id="validate">Check file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Rows with findings</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Employee</th><th class="n" scope="col">Findings</th></tr></thead><tbody id="flagged"></tbody></table></div>
+    <div id="fix-box" hidden>
+      <h3>Safe fixes</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <p><button type="button" id="download-fixed">Download cleaned CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Identity.</strong> Every row needs an <strong>Employee</strong> (a name or an ID) and a <strong>Date</strong>. IDs Excel turned into scientific notation are flagged because the digits are lost.</li>
+      <li><strong>Hours.</strong> A number of hours, as <code>8.5</code> or <code>8:30</code>, never both styles in one column and never with unit text. Over 24 in a row is an error; over 16 is a warning. Negative hours are flagged, not changed.</li>
+      <li><strong>Dates.</strong> One format throughout, ideally YYYY-MM-DD. Excel serial numbers, impossible dates and mixed or day/month-ambiguous values are flagged and never reordered.</li>
+      <li><strong>Start, End and Break.</strong> If a row has times, the hours implied by End minus Start minus Break are compared with the hours typed; a difference over 0.1 hour is a warning. End before Start is treated as an overnight shift and noted.</li>
+      <li><strong>Duplicates.</strong> The same person on the same date twice is a warning (it can be a split shift). Rows are never merged.</li>
+      <li><strong>Weekly totals.</strong> If an Overtime column exists and someone has over 40 regular hours in a Monday–Sunday week with none entered, it is noted. The 40-hour line is a common US federal threshold, not your rule.</li>
+      <li><strong>Safe fixes</strong> change only the delimiter, the spelling of recognised headers and stray spaces around the employee cell. They never change an hour, a date, a break or a name.</li>
+      <li><strong>Not checked:</strong> wage rates, minimum wage, overtime and meal-break law, rounding rules, pay periods, whether a given payroll service will accept the file, tax withholding, and anything a vendor changes in its importer. Try a few rows first.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why do my payroll hours import wrong or get rejected?</h3>
+    <p>The usual causes are hours typed as 8:30 in some rows and 8.5 in others, text such as 8h, a Date column Excel turned into serial numbers like 46294 or mixed day-first and month-first, a name with an unquoted comma that shifts every later column, the same person and day entered twice, a total for the week typed into a daily row, and Start and End times that do not agree with the hours typed. This tool tests each of them and names the line.</p>
+    <h3>Does a clean sheet mean everyone was paid correctly?</h3>
+    <p>No. The tool checks the file's formatting and arithmetic only. It does not know the minimum wage, overtime, meal-break or record-keeping rules that apply to you, and it never enters overtime for you. It is not wage-and-hour, payroll-tax or legal advice. Ask a payroll professional or your labor department if unsure.</p>
+    <h3>Why did my times turn into numbers like 0.354167?</h3>
+    <p>Excel stores a time as a fraction of a day, so 08:30 is 0.354167. If a column was formatted as a number before saving, the clock text is gone. Format the column as Text or as [h]:mm before editing, or re-export from the source. This tool flags text it cannot read as a time and cannot restore the original.</p>
+    <h3>What does Apply safe fixes change?</h3>
+    <p>Only things with one reasonable reading: the delimiter, the spelling of headers and stray spaces around an employee. Every change is listed with its line. It never edits hours, dates, breaks or names.</p>
+    <h3>Is it safe to put employee data into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. You remain responsible for how you store and handle the downloaded file.</p>
+    <h3>What does this not check?</h3>
+    <p>Pay rates, overtime law, whether your payroll service will accept the file today, or whether anyone was paid correctly. A clean result is not a promise of success: run a small sample first.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not wage-and-hour or payroll advice. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by running a small sample through your payroll service first, and a clean result is not a promise that your payroll service will accept the file or that anyone was paid correctly.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../overtime-pay-calculator/">overtime pay calculator</a> works out what a week of hours pays, the <a href="../email-list-csv-check/">email list CSV check</a> and the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> do the same pre-flight for other imports. The <a href="../iban-list-check/">IBAN list check</a> does it for a supplier or payroll bank-detail column. Once payroll has run, the <a href="../payroll-register-to-journal/">payroll register to journal converter</a> turns the register into a pay-run journal. Before you hire, the <a href="../employer-payroll-tax-cost-calculator/">employer payroll tax calculator</a> prices the employer-side taxes and benefits.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, sampleFile, sampleBrokenFile, findingsCsv, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns · ${s.employees} employee${s.employees === 1 ? "" : "s"}, ${s.totalHours} hours${s.dateRange ? ", " + s.dateRange : ""}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#flagged").innerHTML = s.flagged.slice(0, 500).map((g) => `<tr><td>${g.line}</td><td>${esc(g.who)}</td><td class="n">${g.issues}</td></tr>`).join("") || `<tr><td colspan="3">No rows flagged.</td></tr>`;
+      const fix = repair(text);
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#download-fixed").hidden = !fix.text || !fix.changes.length;
+      $("#fix-note").textContent = fix.error ? fix.error : fix.changes.length
+        ? `${fix.changes.length} safe change${fix.changes.length === 1 ? "" : "s"} available. Names, addresses, tags and anything about consent are left exactly as they are.`
+        : "Nothing here has a single safe fix; the findings above need your decision.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s) in ${s.rows} row(s).` : `No errors in ${s.rows} row(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up timesheet rows, not real people."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: made-up rows after a spreadsheet round trip, with typical faults."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check file."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("payroll-hours-cleaned.csv", fixedText, "text/csv"); } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("payroll-hours-csv-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PyPI Provenance Check vs. checking each package on PyPI by hand</title>
+<meta name="description" content="Opening one package's PyPI page and looking for provenance information works for a single dependency. It does not scale to a requirements.txt with dozens of packages, each needing the right pinned version's page found, checked, and the result written down somewhere -- which is what this free, no-upload checker does in one pass from a pasted file.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-each-package-on-pypi-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PyPI Provenance Check vs. checking each package on PyPI by hand">
+<meta property="og:description" content="Checking one package's PyPI page by hand works for a single dependency. It does not scale to a requirements.txt with dozens of packages, each needing the right pinned version found and checked one at a time -- which is what this checker does in one pass.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just look up each package on pypi.org myself?","acceptedAnswer":{"@type":"Answer","text":"For one package, yes -- open its PyPI page, find the release you actually installed, and check its provenance information. What doesn't scale is doing that for every package in a requirements.txt or pyproject.toml: each one needs its own page found, the specific pinned (or latest) version's release located among however many releases that project has published, and the result written down somewhere before you move to the next package. This tool resolves and checks every package in a pasted file in one pass."}},{"@type":"Question","name":"Why is matching the right release version easy to get wrong by hand?","acceptedAnswer":{"@type":"Answer","text":"A requirements.txt pins versions in several different ways -- an exact ==, a floor >=, a range, or no pin at all (meaning whatever resolves as latest at install time) -- and a popular package can have dozens or hundreds of published releases. Finding the one release page that matches what your pin actually resolves to, for every package in the file, is the kind of lookup that is reliable when a tool does it the same way every time and error-prone when it depends on remembering which pin syntax means what while clicking through release history."}},{"@type":"Question","name":"Why is it easy to lose track partway through a long dependency list?","acceptedAnswer":{"@type":"Answer","text":"A typical project's requirements file runs to dozens of direct and transitive dependencies. Checking each one by hand means repeating the same several clicks -- find the package, find the right release, look for provenance information, note the result -- dozens of times in a row, with no running tally except what you remember or type into a separate note. It is the same kind of repetitive, easy-to-drop-a-row task a mechanical pass through a pasted file does exactly the same way every time."}},{"@type":"Question","name":"What do I get from a manual check that this tool doesn't produce?","acceptedAnswer":{"@type":"Answer","text":"Nothing extra -- both read the same PyPI facts. What a manual pass through pypi.org doesn't produce on its own is a single list of which packages in your file lack an attestation, in a form you can hand to a teammate, paste into a migration tracker, or feed to another script. This tool's CLI emits that list as JSON in one run; a manual check produces only whatever you wrote down yourself."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit any maintainer or reviewer already has -- opening a package's PyPI page and checking its provenance information before trusting it. It names no competing product or company. This tool makes only read-only requests to PyPI's own public API, the same facts a manual page visit would show."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; PyPI Provenance Check</a></p>
+<header>
+<h1>PyPI Provenance Check vs. checking each package on PyPI by hand</h1>
+<p class="lede">Opening one package's PyPI page and checking its provenance information works fine for a single dependency you're curious about. It does not scale to a requirements.txt or pyproject.toml with dozens of packages, each needing the right pinned version's page found among however many releases that project has, checked, and the result written down &mdash; which is what this free, no-upload checker does in one pass from a pasted file.</p>
+</header>
+<section>
+<h2>Where checking it yourself stops being enough</h2>
+<p>
+  Anyone curious about one specific dependency already does this: open its page on pypi.org, find the
+  release you actually installed, and look for provenance information. For a single package that's a
+  minute of clicking. The problem is a real dependency set is rarely one package &mdash; it's a requirements
+  file with dozens of direct and transitive entries, and the manual version of this check does not get
+  easier per-package as the list grows.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Checking pypi.org yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>Whether one specific package's page shows provenance information.</td><td>Works. This is the one case a single manual lookup reliably handles.</td><td>Also handles it, in the same pass as every other package in your file.</td></tr>
+<tr><td>Finding the exact release that matches your pin &mdash; <code>==</code>, <code>&gt;=</code>, a range, or no pin at all (meaning whatever resolves latest) &mdash; among however many releases that project has published.</td><td>Requires remembering which pin syntax means what while clicking through a project's release history, for every package.</td><td>Resolved against PyPI's own metadata API the same way every time, for every package in the file.</td></tr>
+<tr><td>Doing the same lookup consistently across a requirements file with dozens of direct and transitive dependencies.</td><td>The same several clicks repeated dozens of times, with no running tally except what you remember or type into a separate note; easy to drop a row partway through.</td><td>Every package in the pasted file, checked the same mechanical way, with nothing skipped.</td></tr>
+<tr><td>Producing a list of just the packages still missing an attestation, in a form you can hand to a teammate or feed to a migration tracker.</td><td>Nothing beyond whatever you wrote down yourself while clicking through pages.</td><td>The CLI emits exactly that list as JSON in one run.</td></tr>
+<tr><td>Re-checking the whole dependency set again after a requirements file changes.</td><td>The full manual pass again, one package at a time.</td><td>One paste, the whole file, every time.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A quick look at one package's page is still the fastest way to answer a one-off question, and this
+  checker isn't reading anything pypi.org doesn't already publish &mdash; it's reading the same PEP 740
+  integrity API a manual check would eventually reach, just resolving every package in a pasted file
+  automatically instead of leaving the lookup to be repeated by hand across however many dependencies the
+  file has.
+</p>
+<p class="fine">This tool needs no account and no sign-in: your file is parsed entirely in your browser, and only package names and versions ever leave it, in read-only requests to PyPI's own public API.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just look up each package on pypi.org myself?</h3>
+<p>For one package, yes -- open its PyPI page, find the release you actually installed, and check its provenance information. What doesn't scale is doing that for every package in a requirements.txt or pyproject.toml: each one needs its own page found, the specific pinned (or latest) version's release located among however many releases that project has published, and the result written down somewhere before you move to the next package. This tool resolves and checks every package in a pasted file in one pass.</p>
+<h3>Why is matching the right release version easy to get wrong by hand?</h3>
+<p>A requirements.txt pins versions in several different ways -- an exact ==, a floor >=, a range, or no pin at all (meaning whatever resolves as latest at install time) -- and a popular package can have dozens or hundreds of published releases. Finding the one release page that matches what your pin actually resolves to, for every package in the file, is the kind of lookup that is reliable when a tool does it the same way every time and error-prone when it depends on remembering which pin syntax means what while clicking through release history.</p>
+<h3>Why is it easy to lose track partway through a long dependency list?</h3>
+<p>A typical project's requirements file runs to dozens of direct and transitive dependencies. Checking each one by hand means repeating the same several clicks -- find the package, find the right release, look for provenance information, note the result -- dozens of times in a row, with no running tally except what you remember or type into a separate note. It is the same kind of repetitive, easy-to-drop-a-row task a mechanical pass through a pasted file does exactly the same way every time.</p>
+<h3>What do I get from a manual check that this tool doesn't produce?</h3>
+<p>Nothing extra -- both read the same PyPI facts. What a manual pass through pypi.org doesn't produce on its own is a single list of which packages in your file lack an attestation, in a form you can hand to a teammate, paste into a migration tracker, or feed to another script. This tool's CLI emits that list as JSON in one run; a manual check produces only whatever you wrote down yourself.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit any maintainer or reviewer already has -- opening a package's PyPI page and checking its provenance information before trusting it. It names no competing product or company. This tool makes only read-only requests to PyPI's own public API, the same facts a manual page visit would show.</p>
+<p class="note">
+  Already know about PyPA's own verification tool? Read <a href="./why-not-just-pypi-attestations-verify.html">why not just pypi-attestations verify</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace reviewing your own dependencies before trusting them. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Your requirements file is parsed entirely in your browser and never uploaded; only package names and versions leave it, in read-only requests to PyPI's own public API. This page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01CLEqm7H7R2Eruxgqq8YzNc",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen ats-resume-checker with a job-posting keyword match; refresh Pages snapshot",
+  "projects": [
+    "ats-resume-checker"
+  ],
+  "pr": 6993,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "partial",
+  "errors": [
+    "gitops/tests test_worker_run.py: 26 failures reproduce on clean origin/main in this sandbox",
+    "portfolio/router/validate.py: 231 problems on main, none in ats-resume-checker"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "checklist line 'python3 -m pytest gitops/tests' fails with 'No module named pytest'; pip install did not help python3 -m pytest here, apt-get update && apt-get install python3-pytest did"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "gitops/tests/test_worker_run.py fails 26 tests on clean main in a sandbox with a preinstalled gh; the checklist does not mention it, so a clean run cannot be told from a regression"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "about 1,000 lines of incident history; most of it is irrelevant to a run that adds a feature to one venture"
+    }
+  ],
+  "goal": null,
+  "notes": "Search for new niches found every probe already built (1,233 ventures); chose to deepen an existing high-demand venture. Partial: PR #6993 opened; local checklist green except 26 pre-existing test_worker_run failures; PR check 'validate' (portfolio/router/validate.py) is red on main too, 231 problems in other ventures, none in ats-resume-checker.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6993 is merged on main (git log and PR read)"
+    }
+  ]
+}

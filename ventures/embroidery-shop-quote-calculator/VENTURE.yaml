@@ -1,0 +1,49 @@
+name: embroidery-shop-quote-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for home and micro embroidery shops running 1-6 head machines: enter the job (quantity, garment cost, stitch count, colors, digitizing fee) and the shop (heads, stitches per minute, real efficiency, hooping and setup minutes, thread cost, labor rate, machine overhead, target margin, minimum charge, rush surcharge) and get the per-piece price that hits the margin, machine and clock time, true cost, profit, effective hourly rate, a quantity-break table showing where price drops and where the minimum charge or setup dominates, a stitch-count sensitivity, a check of whether a flat price-per-1000-stitches rule loses money at low quantities, and a take / counter / pass verdict at the lowest hourly rate the owner will accept. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: stops a small embroidery shop selling short runs below cost.
+# Checked 2026-10-02: ventures/ has apparel-decoration-price-calculator (screen print, embroidery and DTF
+# cost per piece at standard quantity tiers, with a flat per-stitch rate) and 3d-print-price-calculator
+# (machine time plus material); neither models a multi-head embroidery machine's clock time (heads, real
+# efficiency, thread changes, hooping), the break-even quantity of a per-1000-stitches rule, a minimum
+# charge crossover, or a take/counter/pass verdict at the owner's own hourly floor. No embroidery entry in
+# portfolio/pipeline/screened-out.md (checked).
+#
+# First visitor: searches "embroidery pricing calculator", "how much to charge for embroidery", "embroidery
+# price per stitch", "how to price embroidery for small business"; r/EmbroideryBusiness, r/embroidery,
+# home-embroidery Facebook groups and machine-brand forums. Volume not measured with an external tool.
+# Home shops quote from a per-stitch chart and a spreadsheet. A hosted version that keeps a shop's rates
+# and past quotes is the natural paid upgrade.
+hypotheses:
+  - claim: A home or micro embroidery shop quoting a job will search for how to price embroidery, enter their machine and costs, and leave with a quote and a minimum charge that stop short runs losing money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A shop will reuse the page for each new customer inquiry, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool computes only from numbers typed into
+  # it, in the visitor's own browser, and the CLI reads only local input; no
+  # network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No embroidery shop reports changing a quote, a minimum charge or declining a job because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/embroidery-shop-quote-calculator/
+  analytics: null

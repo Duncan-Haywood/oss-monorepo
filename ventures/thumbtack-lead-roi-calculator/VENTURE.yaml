@@ -1,0 +1,41 @@
+name: thumbtack-lead-roi-calculator
+description: 'Free, zero-network browser calculator for home-service pros who buy paid leads on Thumbtack-style marketplaces: enter leads per month, price per lead and credits for bad leads, minutes spent quoting and what your time is worth, your close rate, the job you usually win and its cost share, and get cost per job won, the break-even close rate (with and without your time), the most one lead can cost before it loses money, the month net, and scenarios for a changed close rate or lead price. Arithmetic on the numbers the user types, not financial advice; not affiliated with Thumbtack.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: contractors pay per lead and rarely price their own quoting time or know their break-even close rate.
+# Checked 2026-10-03: no thumbtack/angi/lead-cost venture exists under ventures/; nearest are upwork-connects-roi-calculator (freelance bids) and trade bid calculators (price a job, not the cost of the lead); not in screened-out.md.
+#
+# First visitor: searches "is thumbtack worth it", "thumbtack lead cost per job", "thumbtack roi",
+# "are paid leads worth it contractor"; r/Thumbtack, r/HVAC, r/handyman and r/electricians threads that argue about
+# lead fees. Volume not measured with an external tool. A hosted version that imports a lead-history export and
+# tracks close rate by job category is the natural paid upgrade.
+hypotheses:
+  - claim: A home-service pro will enter their own lead volume and close rate, see that quoting time plus lead fees sets the break-even close rate, and change which leads they answer or how long they spend on each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the break-even close rate and the maximum lead price at least as often as for the plain cost per job.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No contractor reports changing which leads they answer or what they pay for them because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/thumbtack-lead-roi-calculator/
+  analytics: null

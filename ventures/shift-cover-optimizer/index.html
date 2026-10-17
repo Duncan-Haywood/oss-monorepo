@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shift-Cover Optimizer — the cheapest shifts that cover every hour</title>
+  <meta name="description" content="Free staff scheduling calculator for restaurants, cafes, salons and shops. Paste the staff or demand each open hour needs to get the cheapest set of shifts that covers every hour, what it saves against fixed 8-hour shifts, and what a minimum shift length costs. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Shift-Cover Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn an hourly staffing need into the cheapest exact shift plan, with what your scheduling rules cost.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shift-Cover Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste how many staff or how much demand each open hour needs. Finds the cheapest set of shifts that covers every hour, compares it with a fixed 8-hour template, shows what a minimum shift length and busier weeks cost, and exports the shifts as CSV. Runs entirely in your browser.","featureList":"staff scheduling calculator, shift scheduling optimizer, restaurant labor cost, how many staff per hour, minimum shift length cost, split shift planner, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many staff do I need per hour?","acceptedAnswer":{"@type":"Answer","text":"Count the people needed to serve the busiest expected minutes of each hour without letting service slip, or divide expected demand by how much one person can handle per hour and round up. This tool does the division for you when you paste demand such as customers per hour, and never plans fewer than your minimum staff in an open hour."}},{"@type":"Question","name":"How does the tool find the cheapest shifts?","acceptedAnswer":{"@type":"Answer","text":"Each open stretch of a day is a covering problem: choose shifts of allowed lengths so that every hour has at least the staff it needs, at the lowest total pay. Because shifts are contiguous intervals, the problem has an exact solution as a minimum-cost flow, so the answer is the true cheapest plan for your rules, not a heuristic guess."}},{"@type":"Question","name":"What does a minimum shift length cost me?","acceptedAnswer":{"@type":"Answer","text":"The table shows the weekly payroll for each minimum shift length from one to eight hours with everything else unchanged. Short shifts let you staff a two-hour lunch peak with people who work only the peak; a long minimum forces paying for hours nobody needs. The gap between your rule and the cheapest row is what the rule costs."}},{"@type":"Question","name":"Why compare with a fixed 8-hour template?","acceptedAnswer":{"@type":"Answer","text":"Many owners schedule in identical blocks because it is simple to write and to swap. The comparison uses the best possible placement of 8-hour shifts, so the savings shown are what you give up by using blocks at all, not what you lose by placing them badly."}},{"@type":"Question","name":"What is not included?","acceptedAnswer":{"@type":"Answer","text":"It sizes shifts; it does not assign named people, honour availability, apply overtime or weekly hour caps, schedule breaks, or check predictive-scheduling, fair-workweek, minor-labor or meal-break laws, which vary by place. Treat the output as the shape of a schedule and check it against the rules that apply to you."}},{"@type":"Question","name":"What if demand turns out higher or lower?","acceptedAnswer":{"@type":"Answer","text":"The sensitivity table re-solves the plan with demand 10% lower and 10%, 20% and 30% higher, so you can see what a busier week does to payroll before you commit. A buffer field lets you plan above the forecast on purpose."}},{"@type":"Question","name":"Is my schedule uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The data is read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your schedule. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+      .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHIFT-COVER OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is your shift template costing you?</h1>
+    <p>Paste <strong>how many people (or how much demand) each open hour needs</strong>. The tool finds the <strong>cheapest set of shifts that keeps every hour covered</strong>, solved exactly rather than by rule of thumb, then shows what you would save against <strong>fixed 8-hour shifts</strong> or staffing the peak all day, what <strong>your minimum shift length</strong> costs, and what a <strong>busier week</strong> does to payroll. Copy the shift list as a CSV.</p>
+    <p class="note">Your schedule never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It sizes shifts; it does not assign people or check labor law.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your hours</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows: day, hour, staff needed (or demand)</label>
+    <textarea id="rows" spellcheck="false" placeholder="day,hour,customers&#10;Mon,9,30&#10;Mon,10,18&#10;Mon,11,26"></textarea>
+    <p class="note">Hours can be 9, 9:30 or 9am. Leave out the hours you are closed; a closed gap splits the day. If the third column is called staff, required or people it is headcount; any other name (customers, orders, sales) is demand and the field "one person handles" turns it into headcount.</p>
+    <div class="row3">
+      <div><label for="wage">Hourly wage ($)</label><input id="wage" inputmode="decimal" value="16"></div>
+      <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="10"></div>
+      <div><label for="perstaff">Demand one person handles per hour</label><input id="perstaff" inputmode="decimal" value="12"></div>
+      <div><label for="minstaff">Minimum staff in any open hour</label><input id="minstaff" inputmode="decimal" value="1"></div>
+      <div><label for="minshift">Shortest shift (hours)</label><input id="minshift" inputmode="decimal" value="4"></div>
+      <div><label for="maxshift">Longest shift (hours)</label><input id="maxshift" inputmode="decimal" value="8"></div>
+      <div><label for="template">Your usual fixed shift (hours)</label><input id="template" inputmode="decimal" value="8"></div>
+      <div><label for="setup">Paid setup or close time per shift (hours)</label><input id="setup" inputmode="decimal" value="0"></div>
+      <div><label for="minpaid">Minimum paid hours per shift (reporting pay)</label><input id="minpaid" inputmode="decimal" value="0"></div>
+      <div><label for="buffer">Plan above the forecast by (%)</label><input id="buffer" inputmode="decimal" value="0"></div>
+    </div>
+    <button type="button" id="analyze">Find the cheapest shifts</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your hours, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>The shifts</h3>
+    <p class="note">Every open hour has at least the staff it needs. Overlaps are the people covering a peak.</p>
+    <div class="scroll"><table class="sched" id="sched"><thead><tr><th>Day</th><th>Shifts</th><th class="n">Hours</th><th class="n">Cost</th></tr></thead><tbody></tbody></table></div>
+    <h3>Against the alternatives</h3>
+    <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Shifts</th><th class="n">Paid hours</th><th class="n">Payroll</th><th class="n">vs cheapest</th></tr></thead><tbody></tbody></table></div>
+    <h3>What your shortest-shift rule costs</h3>
+    <div class="scroll"><table id="minrows"><thead><tr><th>Shortest shift</th><th class="n">Shifts</th><th class="n">Payroll</th><th class="n">vs your rule</th></tr></thead><tbody></tbody></table></div>
+    <h3>If demand is different</h3>
+    <div class="scroll"><table id="demrows"><thead><tr><th>Demand</th><th class="n">Shifts</th><th class="n">Paid hours</th><th class="n">Payroll</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download shifts CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Requirement:</strong> headcount per open hour, or demand divided by what one person handles, rounded up, never below your minimum staff. <strong>Shifts:</strong> contiguous intervals between your shortest and longest shift inside one open stretch; a shift costs wage × (1 + extras) × (the larger of hours worked and minimum paid hours, plus paid setup time). <strong>Solution:</strong> choosing shifts to cover every hour at least cost is a linear programme whose matrix has the consecutive-ones property, so its optimum is whole numbers and equals a minimum-cost flow on a line of time points; successive shortest paths finds it exactly. The fixed-template row uses the same solver restricted to one shift length, so it is the best a template can do. Payroll for "everyone at the peak" staffs the busiest hour's headcount for the whole open period.</p>
+    <p><strong>Not modelled:</strong> which person works which shift, availability, overtime or weekly hour caps, breaks, skills, predictive-scheduling and fair-workweek laws, tips, demand swings inside an hour, and the cost of turnover. <strong>Unverified:</strong> checked against brute-force search on small problems and against invented data in unit tests, not against a real operator's payroll.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many staff do I need per hour?</h3>
+    <p>Count the people needed to serve the busiest expected minutes of each hour without letting service slip, or divide expected demand by how much one person can handle per hour and round up. This tool does the division for you when you paste demand such as customers per hour, and never plans fewer than your minimum staff in an open hour.</p>
+    <h3>How does the tool find the cheapest shifts?</h3>
+    <p>Each open stretch of a day is a covering problem: choose shifts of allowed lengths so that every hour has at least the staff it needs, at the lowest total pay. Because shifts are contiguous intervals, the problem has an exact solution as a minimum-cost flow, so the answer is the true cheapest plan for your rules, not a heuristic guess.</p>
+    <h3>What does a minimum shift length cost me?</h3>
+    <p>The table shows the weekly payroll for each minimum shift length from one to eight hours with everything else unchanged. Short shifts let you staff a two-hour lunch peak with people who work only the peak; a long minimum forces paying for hours nobody needs. The gap between your rule and the cheapest row is what the rule costs.</p>
+    <h3>Why compare with a fixed 8-hour template?</h3>
+    <p>Many owners schedule in identical blocks because it is simple to write and to swap. The comparison uses the best possible placement of 8-hour shifts, so the savings shown are what you give up by using blocks at all, not what you lose by placing them badly.</p>
+    <h3>What is not included?</h3>
+    <p>It sizes shifts; it does not assign named people, honour availability, apply overtime or weekly hour caps, schedule breaks, or check predictive-scheduling, fair-workweek, minor-labor or meal-break laws, which vary by place. Treat the output as the shape of a schedule and check it against the rules that apply to you.</p>
+    <h3>What if demand turns out higher or lower?</h3>
+    <p>The sensitivity table re-solves the plan with demand 10% lower and 10%, 20% and 30% higher, so you can see what a busier week does to payroll before you commit. A buffer field lets you plan above the forecast on purpose.</p>
+    <h3>Is my schedule uploaded anywhere?</h3>
+    <p>No. The data is read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your schedule. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Next step: the <a href="../weekly-staff-schedule-maker/">weekly staff schedule maker</a>, <a href="../shift-roster-builder/">shift roster builder</a> assigns named people to shifts by availability, hour limits and overtime.</p>
+    <p>Related tools: the <a href="../project-staffing-margin-optimizer/">project staffing margin optimizer</a> (which people take which client projects to earn the most margin), the <a href="../support-staffing-planner/">support staffing planner</a> (agents per interval from contact volume by Erlang C, then the cheapest shifts), the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost daypart analyzer</a>, the <a href="../restaurant-pos-menu-mix-analyzer/">restaurant POS menu mix analyzer</a>, the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a> and, for club and league fixtures rather than staff rotas, the <a href="../league-schedule-generator/">league schedule generator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseDemand, optimize, scheduleCsv, sampleText, fmtTime, money, num, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    let last = null;
+
+    function run() {
+      const parsed = parseDemand($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = optimize(parsed, {
+        wage: val("wage"), burdenPct: val("burden") || 0, perStaff: val("perstaff"), minStaff: val("minstaff") || 0,
+        minShiftHours: val("minshift"), maxShiftHours: val("maxshift"), templateHours: val("template") || 8,
+        overheadHours: val("setup") || 0, minPaidHours: val("minpaid") || 0, buffer: (val("buffer") || 0) / 100,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const per = r.weekly ? "per week" : `for the ${r.dayCount} day${r.dayCount === 1 ? "" : "s"} given`;
+      const big = [
+        [money(r.cost), `Cheapest payroll ${per} (${r.shifts} shifts, ${num(r.paidHours)} paid hours)`],
+        [money(Math.max(0, r.saveTemplate)), `Saved against the best plan of fixed ${num(r.template.hours, 1)}-hour shifts${r.saveTemplateAnnual ? ` — about ${money(Math.max(0, r.saveTemplateAnnual))} a year` : ""}`],
+        [money(Math.max(0, r.saveFlat)), "Saved against staffing the peak headcount all day"],
+        [pct(r.efficiency, 0), `Of hours on shift are hours you needed (${num(r.overstaffHours)} hours of cover above the requirement)`],
+      ];
+      if (r.weekly) big.push([num(r.fte, 1), "Full-time equivalents (40-hour weeks) of paid hours"]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#sched tbody").innerHTML = r.days.map((d) => {
+        const hrs = d.shifts.reduce((s, x) => s + x.paidHours, 0), c = d.shifts.reduce((s, x) => s + x.cost, 0);
+        return `<tr><td>${esc(d.label)}</td><td>${d.shifts.map((s) => `${fmtTime(s.startMinute)}–${fmtTime(s.endMinute)}`).join(" · ")}</td><td class="n">${num(hrs)}</td><td class="n">${money(c)}</td></tr>`;
+      }).join("");
+      const cmpRows = [
+        ["Cheapest flexible shifts (this plan)", r.shifts, r.paidHours, r.cost],
+        [`Fixed ${num(r.template.hours, 1)}-hour shifts, best placed`, r.template.shifts, r.template.paidHours, r.template.cost],
+        ["Peak headcount all day", null, r.flat.paidHours, r.flat.cost],
+      ];
+      $("#cmp tbody").innerHTML = cmpRows.map(([n, s, h, c]) => `<tr><td>${esc(n)}</td><td class="n">${s === null ? "—" : s}</td><td class="n">${num(h)}</td><td class="n">${money(c)}</td><td class="n">${c - r.cost < 0.005 ? "—" : "+" + money(c - r.cost)}</td></tr>`).join("");
+      $("#minrows tbody").innerHTML = r.minShiftRows.map((m) => `<tr><td>${m.minShiftHours}h${m.current ? " (yours)" : ""}</td><td class="n">${m.shifts}</td><td class="n">${money(m.cost)}</td><td class="n">${m.current ? "—" : (m.cost - r.cost >= 0 ? "+" : "−") + money(Math.abs(m.cost - r.cost))}</td></tr>`).join("");
+      $("#demrows tbody").innerHTML = r.demandRows.map((m) => `<tr><td>${m.change === 0 ? "as given" : (m.change > 0 ? "+" : "") + Math.round(m.change * 100) + "%"}</td><td class="n">${m.shifts}</td><td class="n">${num(m.paidHours)}</td><td class="n">${money(m.cost)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented café, customers per hour, one person handles 12."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click the button.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your hours, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([scheduleCsv(last)], { type: "text/csv" }));
+      a.download = "shift-plan.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

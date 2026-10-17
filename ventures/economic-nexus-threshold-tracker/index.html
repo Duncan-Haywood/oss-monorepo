@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Economic Nexus Threshold Tracker — Which States Have You Crossed?</title>
+  <meta name="description" content="Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states' economic-nexus sales-tax-registration thresholds you've crossed, per state, against each state's own published $100k/$250k/$500k and 200-transaction figures. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Economic Nexus Threshold Tracker">
+  <meta property="og:description" content="Which states have you crossed the economic nexus sales-tax threshold in? Enter your sales by state and get a per-state answer against each state's own published figure.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Economic Nexus Threshold Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Private browser-based tracker that flags which US states' economic-nexus sales-tax-registration thresholds a seller has crossed, per state, against each state's own published revenue and transaction-count figures."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is economic nexus for sales tax?","acceptedAnswer":{"@type":"Answer","text":"Since the Supreme Court's 2018 South Dakota v. Wayfair decision, a state can require an out-of-state seller to collect and remit its sales tax once the seller's sales into that state cross a threshold the state sets for itself — no physical presence (office, warehouse, employee) required. Every state that levies a general sales tax has adopted its own version, each with its own dollar figure and, in some states, an added transaction-count test."}},{"@type":"Question","name":"Do I add my sales from every state together to check the threshold?","acceptedAnswer":{"@type":"Answer","text":"No. Each state checks only the sales you made into that specific state, on its own. $80,000 into Idaho and $80,000 into Ohio does not combine into $160,000 for either state's own threshold — enter each state as its own row."}},{"@type":"Question","name":"Do sales a marketplace already collected tax on still count toward my threshold?","acceptedAnswer":{"@type":"Answer","text":"In most states, yes — marketplace-facilitated sales (Amazon, Etsy, Walmart Marketplace collecting and remitting on your behalf) still count toward your own economic-nexus threshold in that state, even though the marketplace is the one currently remitting. Crossing the threshold can still create a registration or filing obligation for you once you sell outside that marketplace too. This tool counts every dollar you enter; it does not know which of your sales were marketplace-facilitated, so decide what to include based on your own state's marketplace-facilitator rule."}},{"@type":"Question","name":"What happens if I cross a threshold and don't register?","acceptedAnswer":{"@type":"Answer","text":"States can generally assess back tax, penalties, and interest from the date nexus was established, not just from when you were caught — and in some states a responsible officer can be held personally liable for unremitted sales tax. This tool only estimates whether you've crossed a threshold; it does not calculate what you would owe or file anything on your behalf."}},{"@type":"Question","name":"Why isn't this the same as a paid nexus-monitoring service like Avalara or TaxJar?","acceptedAnswer":{"@type":"Answer","text":"Those platforms connect directly to your sales channels, monitor your rolling totals continuously, calculate and file the actual returns, and charge an ongoing subscription for it. This tool is a free, one-time or periodic check you run by hand with numbers you already have — useful for a seller who wants to know where they stand today before an ongoing paid platform is worth the cost."}},{"@type":"Question","name":"Does every state use the same measurement period?","acceptedAnswer":{"@type":"Answer","text":"No. Most states look at the current or previous calendar year, but several (including Connecticut, Tennessee, Texas, and Vermont) use a trailing 12-month window instead, and a few states' own guidance differs in wording from state to state. This tool asks for a trailing-12-month figure as the safest common input, but does not model each state's exact measurement-period rule — confirm your specific state's counting window on its own department-of-revenue site."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; } main { max-width:1100px; margin:auto; padding:36px 20px 60px; }
+    h1 { max-width:760px; font:700 clamp(2rem,5.5vw,3.6rem)/1.02 Georgia,serif; letter-spacing:-.03em; margin:0 0 16px; } h2 { font:700 1.5rem Georgia,serif; } .intro { max-width:720px; color:var(--muted); font-size:1.1rem; } .value { border-left:4px solid var(--accent); padding:10px 16px; max-width:720px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #3c2e1812; }
+    .row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:end; } label { display:grid; gap:5px; color:var(--muted); font-size:.85rem; } input, select { width:100%; padding:11px; border:1px solid #bdb4a5; border-radius:8px; font:inherit; color:var(--ink); background:white; }
+    button { border:0; border-radius:8px; padding:12px 16px; font-weight:700; cursor:pointer; background:var(--ink); color:white; } button.secondary { background:#e7dfd0; color:var(--ink); } button.danger { background:#fff; color:#a42c22; border:1px solid #a42c22; padding:6px 10px; font-weight:600; } .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; } th,td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); } th { color:var(--muted); font-size:.78rem; text-transform:uppercase; } .status { font-weight:700; } .crossed { color:#a42c22; } .not-crossed { color:#3a6b4c; } .unknown { color:#b4842f; }
+    .privacy { font-size:.9rem; color:var(--muted); } footer { margin-top:32px; color:var(--muted); font-size:.85rem; }
+    .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
+    .summary { display:flex; gap:18px; flex-wrap:wrap; font-size:.95rem; }
+    .summary[hidden] { display:none; }
+    .actions[hidden] { display:none; }
+    .summary strong { font-size:1.3rem; display:block; }
+    @media(max-width:900px) { .row { grid-template-columns:repeat(2,1fr); } .row button { grid-column:span 2; } table { font-size:.86rem; } th:nth-child(3),td:nth-child(3) { display:none; } }
+  </style>
+</head>
+<body><main>
+  <h1>Which states have you crossed the economic nexus threshold in?</h1>
+  <p class="intro">A private tracker for online and multi-channel sellers. Every state that levies a sales tax sets its own "economic nexus" threshold — a level of sales into that state past which the state can require you to register and collect its sales tax, no physical presence required. Enter your trailing-12-month sales into each state you sell into and get a per-state answer against that state's own published figure.</p>
+  <p class="value"><strong>After using this, you can now</strong> see exactly which states you've crossed a registration threshold in and which you haven't, per state, against each one's own dollar and transaction-count rule — which used to mean cross-referencing fifty-one separate sets of figures by hand. See <a href="why-does-economic-nexus-differ-by-state.html">why the rule differs so much state to state</a>, <a href="vs-paid-nexus-monitoring-software.html">how this compares to an ongoing paid nexus-monitoring platform</a>, or <a href="vs-tracking-it-in-a-spreadsheet.html">how this compares to tracking it in a spreadsheet yourself</a>.</p>
+  <p class="privacy">Selling on eBay, Etsy, Venmo, or a similar marketplace or payment app too? A crossed sales-tax threshold here is a separate question from whether a platform will send you a Form 1099-K — the <a href="../1099-k-threshold-checker/">1099-K threshold checker</a> answers that one.</p>
+
+  <section class="card" id="import-card"><h2>Or import your orders (CSV)</h2>
+    <p class="privacy">Drop in an order export from Shopify, Etsy, Amazon or WooCommerce. The page finds the ship-to state, amount and date columns, keeps the last 12 months, totals each state, and estimates the date each uncrossed state would cross if your last 90 days of selling continued. The file is read in this browser and never uploaded.</p>
+    <div class="actions"><input type="file" id="orders-file" accept=".csv,text/csv" aria-label="Orders CSV file"> <button class="secondary" type="button" id="orders-sample">Try a sample file</button></div>
+    <p id="orders-note" class="privacy" role="status" hidden></p>
+    <div style="overflow:auto"><table hidden id="orders-table"><thead><tr><th>State</th><th>Sales, 12 mo</th><th>Orders</th><th>Of threshold</th><th>Status</th><th>Projected crossing</th></tr></thead><tbody></tbody></table></div>
+    <div class="actions" id="orders-actions" hidden><button type="button" id="orders-use">Use these states in the tracker</button> <button class="secondary" type="button" id="orders-export">Export plan (CSV)</button></div>
+    <p class="privacy">Projection is a straight-line estimate from your last 90 days, not a forecast, and it uses a trailing 12-month window; several states measure the prior or current calendar year instead. Amounts use the order subtotal where the file has one, so tax you collected is not counted as a sale. Refunds, rows with an unreadable state or date, and repeated order ids are skipped and counted above.</p>
+  </section>
+
+  <section class="card"><h2>Add a state</h2><p class="privacy">Each state is checked on its own — sales in one state are never added to another's total, because that is not how the threshold works. Use a trailing-12-month figure; a few states measure differently — see the FAQ below.</p><form id="entry-form"><div class="row">
+    <label>State<select name="state" id="stateSelect" required></select></label>
+    <label>Gross sales into this state, trailing 12 months ($)<input name="grossSales" type="number" min="0" step="0.01" value="0" required></label>
+    <label>Transaction count (only needed for some states)<input name="transactionCount" type="number" min="0" step="1" placeholder="e.g. 180"></label>
+    <div></div>
+  </div><div class="actions"><button type="submit">Add state</button><button class="secondary" type="button" id="sample">Load sample states</button> <button class="secondary" type="button" id="clear">Clear all saved states</button></div></form></section>
+
+  <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h2>Results</h2><div><button class="secondary" id="export">Export CSV</button></div></div>
+    <p id="summary" class="summary" hidden></p>
+    <p id="empty" class="privacy">No states yet. Add the first one above, or load sample states to see how the results read.</p>
+    <p id="sample-note" class="privacy" role="status" hidden></p>
+    <div style="overflow:auto"><table hidden id="table"><thead><tr><th>State</th><th>Sales</th><th>Transactions</th><th>Of threshold</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Sales figures and state selections stay on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is economic nexus for sales tax?</h3>
+    <p>Since the Supreme Court's 2018 <em>South Dakota v. Wayfair</em> decision, a state can require an out-of-state seller to collect and remit its sales tax once the seller's sales into that state cross a threshold the state sets for itself — no physical presence (office, warehouse, employee) required. Every state that levies a general sales tax has adopted its own version, each with its own dollar figure and, in some states, an added transaction-count test.</p>
+    <h3>Do I add my sales from every state together to check the threshold?</h3>
+    <p>No. Each state checks only the sales you made into that specific state, on its own. $80,000 into Idaho and $80,000 into Ohio does not combine into $160,000 for either state's own threshold — enter each state as its own row.</p>
+    <h3>Do sales a marketplace already collected tax on still count toward my threshold?</h3>
+    <p>In most states, yes — marketplace-facilitated sales (Amazon, Etsy, Walmart Marketplace collecting and remitting on your behalf) still count toward your own economic-nexus threshold in that state, even though the marketplace is the one currently remitting. Crossing the threshold can still create a registration or filing obligation for you once you sell outside that marketplace too. This tool counts every dollar you enter; it does not know which of your sales were marketplace-facilitated, so decide what to include based on your own state's marketplace-facilitator rule.</p>
+    <h3>What happens if I cross a threshold and don't register?</h3>
+    <p>States can generally assess back tax, penalties, and interest from the date nexus was established, not just from when you were caught — and in some states a responsible officer can be held personally liable for unremitted sales tax. This tool only estimates whether you've crossed a threshold; it does not calculate what you would owe or file anything on your behalf.</p>
+    <h3>Why isn't this the same as a paid nexus-monitoring service like Avalara or TaxJar?</h3>
+    <p>Those platforms connect directly to your sales channels, monitor your rolling totals continuously, calculate and file the actual returns, and charge an ongoing subscription for it. This tool is a free, one-time or periodic check you run by hand with numbers you already have — useful for a seller who wants to know where they stand today before an ongoing paid platform is worth the cost. See the <a href="vs-paid-nexus-monitoring-software.html">full comparison</a>.</p>
+    <h3>Does every state use the same measurement period?</h3>
+    <p>No. Most states look at the current or previous calendar year, but several (including Connecticut, Tennessee, Texas, and Vermont) use a trailing 12-month window instead, and a few states' own guidance differs in wording from state to state. This tool asks for a trailing-12-month figure as the safest common input, but does not model each state's exact measurement-period rule — confirm your specific state's counting window on its own department-of-revenue site.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not legal, tax, or financial advice, and does not replace a qualified tax preparer or state guidance. Threshold figures are compiled from secondary sources (state department-of-revenue guidance as aggregated by third-party nexus-tracking publishers), not an independent fifty-state statute review — thresholds change by state legislation and this tool can be out of date. A "crossed" or "not crossed" result is a starting point for your own review, not a determination of a filing or registration obligation. You are responsible for reviewing and verifying its output, and for confirming any threshold with the state's own department of revenue, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<p>Related tool: once you collect tax, the <a href="../exemption-certificate-audit-check/">exemption certificate audit check</a> finds exempt sales that have no certificate behind them.</p><p class="support">Free and open source. If it saved you from an unpleasant surprise, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+    // Remember the visitor's usage-counting choice between visits, before
+    // anything is recorded or the control could otherwise be read in its
+    // default state. Same pattern as the sibling 1099-k-threshold-checker's
+    // identical block: a control that silently forgets a visitor's opt-out
+    // is worse than no control at all.
+    (() => {
+      const usagePreference = 'economic-nexus-threshold-tracker-usage-preference';
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+      if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+  import { checkAll, removeEntry, sampleEntries, toCsv, loadEntries, STATE_OPTIONS } from './calc.mjs';
+  import { percentUsed } from './orders.mjs';
+  const form=document.querySelector('#entry-form'), tbody=document.querySelector('#table tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='economic-nexus-threshold-tracker-entries';
+  const stateSelect=document.querySelector('#stateSelect');
+  stateSelect.innerHTML = STATE_OPTIONS.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
+  const readEntries=()=>{try{return loadEntries(localStorage.getItem(storageKey));}catch{return [];}};
+  const saveEntries=()=>{try{localStorage.setItem(storageKey,JSON.stringify(entries));}catch{} };
+  let entries=readEntries();
+  const track=(event)=>{if(document.querySelector('#usage').checked&&!navigator.doNotTrack&&!navigator.globalPrivacyControl){try{const key='economic-nexus-threshold-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
+  const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const statusClass=(row)=>row.crossed===null?'unknown':row.crossed?'crossed':'not-crossed';
+  const summary=document.querySelector('#summary');
+  const pctCell=(r)=>r.threshold&&!r.threshold.noSalesTax&&r.grossSales!=null?percentUsed(r.threshold,r.grossSales,r.transactionCount??0)+'%':'—';
+  const render=()=>{
+    const rows=checkAll(entries);
+    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.threshold?r.threshold.label:r.state||'')}</td><td>${r.grossSales==null?'—':Number(r.grossSales).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td>${pctCell(r)}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td><button type="button" class="danger" data-remove="${r.entryIndex}">Remove</button></td></tr>`).join('');
+    table.hidden=!rows.length; empty.hidden=!!rows.length;
+    if (rows.length) {
+      const crossedCount=rows.filter(r=>r.crossed===true).length;
+      const unknownCount=rows.filter(r=>r.crossed===null).length;
+      summary.hidden=false;
+      summary.innerHTML=`<span><strong>${crossedCount}</strong> of ${rows.length} states crossed</span>`+(unknownCount?`<span><strong>${unknownCount}</strong> need more info</span>`:'');
+    } else { summary.hidden=true; }
+    return rows;
+  };
+  form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));entries.push(data);saveEntries();form.reset();render();track('entry_added');});
+  document.querySelector('#clear').onclick=()=>{entries=[];try{localStorage.removeItem(storageKey);}catch{} note('');render();};
+  const note=(text)=>{const el=document.querySelector('#sample-note');el.textContent=text;el.hidden=!text;};
+  document.querySelector('#sample').onclick=()=>{if(entries.length){note('The tracker already has states in it. Clear all saved states first if you want to see the sample.');return;}entries=sampleEntries();saveEntries();note('Showing five sample states — a threshold crossed on sales alone, an AND-state needing a transaction count, a transaction-only cross, a miss, and a no-sales-tax state. Clear all saved states to remove them.');render();track('sample_loaded');};
+  document.querySelector('#export').onclick=()=>{const rows=checkAll(entries);const blob=new Blob([toCsv(rows)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='economic-nexus-threshold-check.csv';a.click();URL.revokeObjectURL(a.href);track('exported');};
+  tbody.addEventListener('click',event=>{const button=event.target.closest('[data-remove]');if(!button)return;entries=removeEntry(entries,Number(button.dataset.remove));saveEntries();render();track('entry_removed');});
+  render();
+</script><script type="module">
+  import { readOrders, analyzeOrders, toEntries, planToCsv, sampleCsv } from './orders.mjs';
+  const $ = (q) => document.querySelector(q);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const usd = (n) => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const entriesKey = 'economic-nexus-threshold-tracker-entries';
+  const eventsKey = 'economic-nexus-threshold-tracker-events';
+  const track = (event) => {
+    if (!$('#usage').checked || navigator.doNotTrack === '1' || navigator.globalPrivacyControl) return;
+    try { const d = JSON.parse(localStorage.getItem(eventsKey) || '{}'); d[event] = (d[event] || 0) + 1; localStorage.setItem(eventsKey, JSON.stringify(d)); } catch { /* storage refused */ }
+  };
+  let analysis = null;
+  const show = (text, plain) => {
+    const note = $('#orders-note');
+    note.textContent = text; note.hidden = !text;
+    if (plain) note.removeAttribute('role');
+  };
+  const render = () => {
+    const body = $('#orders-table tbody');
+    body.innerHTML = analysis.rows.map((r) => `<tr><td>${esc(r.label)}</td><td>${usd(r.sales)}</td><td>${r.transactions}</td><td>${r.percentOfThreshold == null ? '—' : r.percentOfThreshold + '%'}</td><td>${esc(r.status)}</td><td>${r.crossed === true ? 'Already crossed' : esc(r.crossesOn || '—')}</td></tr>`).join('');
+    $('#orders-table').hidden = !analysis.rows.length;
+    $('#orders-actions').hidden = !analysis.rows.length;
+  };
+  const load = (text, source) => {
+    const read = readOrders(text);
+    if (!read.ok) { analysis = null; $('#orders-table').hidden = true; $('#orders-actions').hidden = true; show(read.error); return; }
+    analysis = analyzeOrders(read.orders);
+    const skipped = Object.entries(read.skipped).filter(([, n]) => n).map(([k, n]) => `${n} ${({ noState: 'without a state', unknownState: 'with a non-US state', noAmount: 'without an amount', badDate: 'with an unreadable date', refund: 'refunds', duplicateLine: 'repeat lines' })[k]}`);
+    show(`${source}: ${analysis.orderCount} orders from ${analysis.windowStart} to ${analysis.asOf}, ${usd(analysis.totalSales)} in total.` + (analysis.outsideWindow ? ` ${analysis.outsideWindow} older orders ignored.` : '') + (skipped.length ? ` Skipped: ${skipped.join(', ')}.` : ''), true);
+    render();
+    track('orders_imported');
+  };
+  $('#orders-file').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    load(await file.text(), file.name);
+  });
+  $('#orders-sample').addEventListener('click', () => load(sampleCsv(), 'Sample file (made up)'));
+  $('#orders-use').addEventListener('click', () => {
+    if (!analysis) return;
+    try { localStorage.setItem(entriesKey, JSON.stringify(toEntries(analysis))); } catch { /* storage refused */ }
+    track('orders_applied');
+    location.reload();
+  });
+  $('#orders-export').addEventListener('click', () => {
+    if (!analysis) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([planToCsv(analysis)], { type: 'text/csv' }));
+    a.download = 'nexus-plan.csv';
+    a.click();
+    track('plan_exported');
+  });
+</script>
+</body></html>

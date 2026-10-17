@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Regex ReDoS Check — Find Regexes That Can Hang Your Server</title>
+  <meta name="description" content="Paste JavaScript, TypeScript or Python and see every regular expression that can backtrack catastrophically (ReDoS): nested quantifiers, overlapping alternation, adjacent overlapping repeats, unanchored trailing repeats. Free, runs in your browser, nothing is uploaded; the CLI can confirm suspects by timing the real engine.">
+  <meta property="og:title" content="Which regexes in your code can hang your server?">
+  <meta property="og:description" content="A free static ReDoS scanner for JS, TS and Python with a CI-ready CLI and an optional timing probe. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Regex ReDoS Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Finds regular expressions in JavaScript, TypeScript and Python source that can backtrack catastrophically (ReDoS): nested quantifiers, overlapping alternation, adjacent overlapping repeats and unanchored trailing repeats. Runs in the browser or as a zero-dependency Node CLI usable as a CI gate, with an optional timing probe that confirms a suspect against the real JavaScript engine."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this run my regexes or upload my code?", "acceptedAnswer": {"@type": "Answer", "text": "The browser page only parses the text you paste, in your own browser, and never sends it anywhere. It does not execute your patterns. The CLI reads local files and makes no network call; its optional --probe mode runs a pattern against generated strings in a sandboxed Node vm with a hard timeout."}}, {"@type": "Question", "name": "What does a finding actually mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is a suspect, not a proof. The analysis reads the structure of the pattern and finds shapes where a backtracking engine can match the same text in many ways, so a long input that almost matches takes exponential or polynomial time. Whether that is exploitable depends on whether an attacker controls the input and how long it can be. The CLI's --probe mode times the real JavaScript engine on a generated input to confirm."}}, {"@type": "Question", "name": "Which regex engines does this apply to?", "acceptedAnswer": {"@type": "Answer", "text": "Backtracking engines: JavaScript, Python's re, Java, .NET, Ruby (before 3.2's memoisation), PHP's PCRE. Engines built on automata, such as RE2, Go's regexp and Rust's regex crate, run in linear time and are not affected. Patterns are parsed with JavaScript semantics, with Python named groups, inline flags and possessive quantifiers accepted."}}, {"@type": "Question", "name": "Why does it flag \\s+$ with no ^?", "acceptedAnswer": {"@type": "Answer", "text": "Without a start anchor the engine retries the pattern from every position. On a string with a long run of spaces that is not at the end, each retry scans the whole run again, which is quadratic. A trim like that was behind a 2016 Stack Overflow outage. Anchor the start, or use String.prototype.trim()."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">REGEX REDOS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Which regexes in your code can hang your server?</h1>
+    <p>Paste source code and get every regular expression that can <strong>backtrack catastrophically</strong> — nested repeats like <code>(a+)+</code>, overlapping alternation like <code>(a|aa)+</code>, adjacent repeats over the same characters, and trailing <code>\s+$</code> trims with no start anchor. One crafted string can pin a CPU core; this finds the pattern before someone sends the string.</p>
+    <p class="note">Nothing is uploaded and your patterns are never executed here: the page only parses the text. A finding is a suspect, not a proof — the CLI's <code>--probe</code> mode confirms one by timing the real JavaScript engine.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your code</h2>
+    <label for="source-input">JavaScript, TypeScript or Python (several files one after another is fine; start a Python snippet with <code>import re</code>)</label>
+    <textarea id="source-input" spellcheck="false" placeholder="const re = /^(\w+\s?)+$/;"></textarea>
+    <p>
+      <button type="button" id="scan">Scan</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Line</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="fixes" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same engine, zero dependencies — walks a whole source tree, skipping <code>node_modules</code>, <code>.git</code> and similar:</p>
+    <pre class="cmd">node cli.mjs scan src                      # human-readable
+node cli.mjs scan . --json                    # machine-readable
+node cli.mjs scan src --probe                 # time the real JS engine to confirm suspects
+node cli.mjs scan src --fail-on warn          # fail CI on polynomial warnings too
+node cli.mjs check '(a+)+$'                   # analyse one pattern</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a>, <a href="engine.mjs" rel="noopener">engine.mjs</a> and <a href="probe.mjs" rel="noopener">probe.mjs</a> — Node 18+, nothing to install, no network call. Exits 1 on a likely-exponential pattern (or on any warning with <code>--fail-on warn</code>). More: <a href="how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html">how ReDoS works and how to find it before an attacker does</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Language</th><th>Where regexes are read from</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Rules: <code>nested-quantifier</code>, <code>overlapping-alternation</code> (exponential, errors); <code>adjacent-overlap</code>, <code>quadratic-end-anchor</code> (polynomial, warnings); <code>dynamic-regexp</code> (note). Patterns built by string concatenation are not guessed at. Linear-time engines (RE2, Go, Rust) are not affected by any of this.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this run my regexes or upload my code?</h3>
+    <p>The browser page only parses the text you paste, in your own browser, and never sends it anywhere. It does not execute your patterns. The CLI reads local files and makes no network call; its optional --probe mode runs a pattern against generated strings in a sandboxed Node vm with a hard timeout.</p>
+    <h3>What does a finding actually mean?</h3>
+    <p>It is a suspect, not a proof. The analysis reads the structure of the pattern and finds shapes where a backtracking engine can match the same text in many ways, so a long input that almost matches takes exponential or polynomial time. Whether that is exploitable depends on whether an attacker controls the input and how long it can be. The CLI's --probe mode times the real JavaScript engine on a generated input to confirm.</p>
+    <h3>Which regex engines does this apply to?</h3>
+    <p>Backtracking engines: JavaScript, Python's re, Java, .NET, Ruby (before 3.2's memoisation), PHP's PCRE. Engines built on automata, such as RE2, Go's regexp and Rust's regex crate, run in linear time and are not affected. Patterns are parsed with JavaScript semantics, with Python named groups, inline flags and possessive quantifiers accepted.</p>
+    <h3>Why does it flag \s+$ with no ^?</h3>
+    <p>Without a start anchor the engine retries the pattern from every position. On a string with a long run of spaces that is not at the end, each retry scans the whole run again, which is quadratic. A trim like that was behind a 2016 Stack Overflow outage. Anchor the start, or use String.prototype.trim().</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security, legal or engineering advice. It reads the structure of patterns heuristically and can both miss a vulnerable pattern and flag a safe one; whether a pattern is exploitable depends on your engine, your input limits and who controls the input. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../llm-call-cost-scan/">LLM Call Cost Scan</a> and <a href="../sql-migration-lock-check/">SQL Migration Lock Check</a> are the same zero-upload, CI-ready shape for LLM spend and for database locks, and <a href="../cors-misconfig-check/">CORS Misconfig Check</a> covers another web-security footgun.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanSource, summarize, CHECKED_PATTERNS, FIXES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#source-input"), status: $("#status"), reportCard: $("#report-card"),
+      summary: $("#summary"), table: $("#results-table"), rows: $("#results-rows"),
+      fixes: $("#fixes"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = CHECKED_PATTERNS.map((p) => `<tr><td>${escapeHtml(p.lang)}</td><td><code>${escapeHtml(p.examples)}</code></td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some code first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const scan = scanSource(text, "pasted source");
+      const { status, text: summaryText } = summarize(scan);
+      els.summary.innerHTML = `<span class="${status === "ok" || status === "none" ? "ok" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.table.hidden = scan.findings.length === 0;
+      els.rows.innerHTML = scan.findings.map((f) => `<tr>
+        <td><code>${escapeHtml(f.rule)}</code></td>
+        <td><span class="pill ${f.severity}">${f.severity}</span></td>
+        <td>${f.line}</td>
+        <td>${escapeHtml(f.message)}</td>
+      </tr>`).join("");
+      const rules = [...new Set(scan.findings.filter((f) => f.severity !== "info").map((f) => f.rule))];
+      els.fixes.innerHTML = rules.map((r) => `<strong>Fix (${escapeHtml(r)}):</strong> ${escapeHtml(FIXES[r])}`).join("<br>");
+      els.reportCard.hidden = false;
+      record("scan_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#scan").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `// JavaScript
+const email = /^([a-zA-Z0-9])(([\\-.]|[_]+)?([a-zA-Z0-9]+))*(@){1}[a-z0-9]+[.]{1}(([a-z]{2,3})|([a-z]{2,3}[.]{1}[a-z]{2,3}))$/;
+const words = /^(\\w+\\s?)+$/;
+const tokens = /(\\d|\\w)+$/;
+const trimEnd = /\\s+$/;
+const safe = /^[a-z0-9_-]{3,16}$/;
+
+# Python
+import re
+slug = re.compile(r"^(([a-z])+.)+[A-Z]([a-z])+$")
+pair = re.match(r"\\d+\\d+$", value)`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

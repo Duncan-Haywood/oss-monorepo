@@ -1,0 +1,49 @@
+name: lambda-memory-rightsizer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads AWS Lambda CloudWatch REPORT lines and reports peak memory against configured memory, duration percentiles, cold-start share and the memory size that minimises cost within a latency cap, shown for I/O-bound, user-estimated and CPU-bound code, with arm64 and out-of-memory-risk notes; usable as a CI check. Duration at another size is a model, not a measurement, and prices are editable list prices, not a bill.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# duplicate_check.py (run 2026-10-01) scored the nearest ventures
+# terraform-plan-secret-exposure-check 0.17 and aws-commitment-breakeven-
+# calculator 0.10 -- nothing touches Lambda memory. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "lambda
+# memory size cost", "optimize lambda memory", "lambda max memory used too
+# high", "lambda power tuning alternative"; r/aws, r/serverless and Stack
+# Overflow threads about a Lambda bill that doubled. The reader is an engineer
+# or FinOps owner with a five-figure monthly Lambda bill. Adjacent tools (AWS
+# Lambda Power Tuning, Compute Optimizer, Lumigo/Datadog cost views) need an AWS
+# account, deploy a state machine, or sit inside a paid vendor; this works on
+# pasted log lines with no access -- the wedge. A hosted multi-function
+# right-sizing monitor with PR comments is the natural paid upgrade.
+hypotheses:
+  - claim: An engineer with a high Lambda bill will search for how to pick a memory size, paste REPORT lines, and learn their function is over-provisioned and which size to test.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --fail-on warn so an over-provisioned or near-limit function is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lambda-memory-rightsizer/
+  analytics: null

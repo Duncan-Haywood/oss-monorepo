@@ -13,6 +13,8 @@ from allocate import (
     count_ledger_entries,
     count_portfolio_mentions,
     decisions_by_merit,
+    diversify,
+    family_of,
     load_merit_scores,
     load_ventures,
     next_task,
@@ -355,11 +357,17 @@ class MeritTests(unittest.TestCase):
     def test_missing_scores_file_yields_no_merit(self):
         self.assertEqual(load_merit_scores(Path("/nonexistent/venture-scores.yaml")), {})
 
-    def test_real_scores_file_covers_every_real_venture(self):
+    def test_real_scores_file_reaches_every_scored_venture(self):
+        # A venture with no score row yet is allowed (score_ventures.unscored
+        # reports it); every row that exists must reach its venture's merit.
         merit = load_merit_scores(SCORES_PATH)
-        for venture in load_ventures(VENTURES_DIR):
-            self.assertIn(venture.name, merit, f"{venture.name} has no merit score")
-            self.assertIsNotNone(venture.merit)
+        ventures = load_ventures(VENTURES_DIR)
+        self.assertTrue(any(v.name in merit for v in ventures))
+        for venture in ventures:
+            if venture.name in merit:
+                self.assertIsNotNone(venture.merit, f"{venture.name} lost its merit score")
+            else:
+                self.assertIsNone(venture.merit, f"{venture.name} has merit but no score row")
 
     def test_work_queue_exposes_merit(self):
         queue = work_queue(load_ventures(VENTURES_DIR))
@@ -516,3 +524,40 @@ class DecisionsByMeritTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FamilyTests(unittest.TestCase):
+    """One product cloned per niche must not fill the queue (2026-10-16 report)."""
+
+    def test_family_key(self):
+        self.assertEqual(family_of("carpet-install-bid-calculator"), "bid-calculator")
+        self.assertEqual(family_of("etsy-fee-calculator"), "fee-calculator")
+        # A shared bare suffix is not a family: these are different products.
+        self.assertEqual(family_of("where-to-sell-calculator"), "where-to-sell-calculator")
+        self.assertEqual(family_of("waitlist-keeper"), "waitlist-keeper")
+
+    def test_a_large_family_keeps_only_three_places_ahead_of_others(self):
+        clones = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(6)]
+        others = [make(f"other-{i}", merit=5.0) for i in range(2)]
+        names = [v.name for v in rank(clones + others)]
+        self.assertEqual(names[:3], ["t0-bid-calculator", "t1-bid-calculator", "t2-bid-calculator"])
+        self.assertEqual(names[3:5], ["other-0", "other-1"])
+        self.assertEqual(len(names), 8)
+
+    def test_small_families_are_untouched(self):
+        few = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(4)]
+        other = make("other", merit=5.0)
+        self.assertEqual([v.name for v in rank(few + [other])][-1], "other")
+
+    def test_diversify_never_crosses_a_tier(self):
+        clones = [make(f"t{i}-bid-calculator") for i in range(6)]
+        late = make("late")
+        out = diversify(clones + [late], tier=lambda v: v.name == "late")
+        self.assertEqual(out[-1].name, "late")
+
+    def test_top_family_member_gets_the_consolidation_task(self):
+        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(5)]
+        queue = work_queue(clones)
+        self.assertTrue(queue[0]["task"].startswith("Consolidate"))
+        self.assertIn("5 '*-bid-calculator'", queue[0]["task"])
+        self.assertFalse(any(r["task"].startswith("Consolidate") for r in queue[1:]))

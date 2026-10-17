@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01YABnnxdDLJsUkezem1KL6a",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to work on tooling that prevents runaway spend on llm powered and ai api powered applications. I also want to work on tooling that audits applications for legal and financial liabilities tocs etc. this is both an active agent thing to continually look at and also applications where it can be automated. both for internal in this repo internal in other people's companies and as a standup saas according to the models here. (follow-up: this is a long term project.)",
+  "input_sha256": "2678b24d7efeb8e9de0ea6d22210b140af67336e6395f3535e1d5be2d54b3364",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T22:01:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "llm-spend-guard",
+    "liability-audit"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7539",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "sync_tree_counts.py fails with 'No module named front_door_mirror' unless run with PYTHONPATH=gitops/tests; the checklist line does not say so."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A new venture always needs an inbound link from an existing one (siblings budget is 0) and two hand-written '+1 graduated' comments; neither is in the checklist, so the first push went red on both."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Brief was owner-named work (spend-limit and liability tooling) rather than a gate-picked candidate; the session gate was skipped as CLAUDE.md allows for named tasks. One PR carries both ventures and the deploy-template budget fix because the session has a single designated branch."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Skipped `prompts/runcost.py attach`: it writes model identifiers (models_seen, per-model pricing) into the committed record, and this session's operating rules forbid model identifiers in pushed artifacts. Cost fields stay null."
+    }
+  ],
+  "goal": null,
+  "notes": "New ventures llm-spend-guard (runtime budgets with worst-case holds, loop breakers, streaming proxy, log replay; wired into platform/llm/byok.mjs) and liability-audit (14 rules, CLI/SARIF/sweep/browser page, AGENT.md playbook). First sweep of 1,780 projects: 153 raw findings tuned to 4 low; the one real exposure (deploy templates with no cloud budget alarm) fixed in the same PR as optional monthly budgets for AWS, GCP and Azure.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,56 @@
+name: freight-broker-load-margin-calculator
+description: >-
+  Free browser tool for freight brokers, dispatchers and small freight
+  agencies: type in loads (shipper rate, carrier rate, miles, accessorials,
+  days each side takes to pay) and get net margin after the cost of fronting
+  the carrier, factoring, claims reserve, overhead and rep commission, the
+  shipper rate to quote and the highest carrier rate to pay to hit a target
+  net margin, per-mile figures and a CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py top hit
+# freight-accessorial-auditor at 0.35, which audits carrier invoices for
+# shippers; nothing prices a load for the broker's side. TMS and load-board
+# margin fields stop at gross margin; the gap is the net-of-float view and the
+# exact quote/ceiling to hit a target.
+#
+# First visitor: searches "freight broker margin calculator", "how much do
+# freight brokers make per load", "freight broker pricing formula", "broker
+# margin after factoring"; r/FreightBrokers, new-broker and dispatcher
+# communities. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed loads; no market rates, no
+# lane data, no recommendation of a carrier, shipper, load board or factor;
+# figures never leave the browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved books, lane and customer rollups from a TMS export
+# and a margin-by-customer report; not built.
+
+hypotheses:
+  - claim: >-
+      Brokers and small freight agencies will use a private, no-signup tool
+      that shows net margin per load and the rate to quote, and return for
+      each new rate decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a net margin or quote that differs from the same load worked by hand with the stated formula.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freight-broker-load-margin-calculator/
+  analytics: null

@@ -1,0 +1,45 @@
+name: fishing-crew-share-settlement-calculator
+description: >-
+  Free browser tool for commercial fishing boats. Enter the catch, the costs taken off the top, the boat share and each
+  crew member's shares; it returns every payout, day rates, the boat's true trip profit, break-even sales and a price
+  sensitivity. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. duplicate_check.py "commercial fishing trip crew share settlement after fuel ice bait expenses":
+# closest 0.30 (fishing-charter-trip-pricing-calculator, a different buyer: it prices a passenger charter). Not in screened-out.md.
+# Who: owner-operators and captains of small commercial boats (longline, gillnet, crab, troll) who settle trips by a lay
+# and redo it on paper at the dock. Search phrases: "fishing boat crew share calculator", "commercial fishing lay system",
+# "how are fishing crew paid". Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers and their own crew agreement; no personal data, nothing stored; carries
+# the no-warranty and not-advice clauses and says how a loss trip is modelled.
+#
+# Unverified: no captain has used it. Real lays vary (who pays fuel, bait, permit leases); the model takes shared costs off the top.
+# Path to revenue (payment rails stay off): lead magnet and donations; a saved-trips ledger and printable settlement sheet per trip
+# is the next build if usage appears.
+
+hypotheses:
+  - claim: >-
+      Small-boat captains will enter a trip into a private tool to settle the crew share and see their day rate and
+      break-even sales, because the settlement is redone by hand every trip and a bad price week hits crew pay hardest.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fishing-crew-share-settlement-calculator/
+  analytics: null

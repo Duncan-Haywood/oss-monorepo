@@ -1,0 +1,58 @@
+== choice set ours: mean |tsk-33.7| C over 180 min (lower is better); gate bands on tsk, lag in min ==
+-- rest->walk 20C: room 20 C, 1.0 met then 2.0 met
+   fixed closed                 2.307  end tsk 33.98  open 0.00
+   fixed open                   3.807  end tsk 32.31  open 1.00
+   gate 33.2-34.2 lag 0         2.307  end tsk 33.98  open 0.00
+   gate 33.2-34.2 lag 10        2.307  end tsk 33.98  open 0.00
+   gate 33.0-34.0 lag 0         2.307  end tsk 33.98  open 0.00
+   oracle (closed then closed)  2.307
+-- rest->walk 24C: room 24 C, 1.0 met then 2.0 met
+   fixed closed                 1.133  end tsk 34.91  open 0.00
+   fixed open                   1.677  end tsk 34.23  open 1.00
+   gate 33.2-34.2 lag 0         0.900  end tsk 34.23  open 0.41
+   gate 33.2-34.2 lag 10        0.933  end tsk 34.24  open 0.37
+   gate 33.0-34.0 lag 0         0.889  end tsk 34.23  open 0.42
+   oracle (closed then open)    0.893
+-- rest->walk 28C: room 28 C, 1.0 met then 2.0 met
+   fixed closed                 1.042  end tsk 35.56  open 0.00
+   fixed open                   0.670  end tsk 35.23  open 1.00
+   gate 33.2-34.2 lag 0         0.824  end tsk 35.23  open 0.64
+   gate 33.2-34.2 lag 10        0.846  end tsk 35.23  open 0.61
+   gate 33.0-34.0 lag 0         0.687  end tsk 35.23  open 0.92
+   oracle (open then open)      0.670
+-- walk->rest 24C: room 24 C, 2.0 met then 1.0 met
+   fixed closed                 0.978  end tsk 32.12  open 0.00
+   fixed open                   1.336  end tsk 30.34  open 1.00
+   gate 33.2-34.2 lag 0         0.833  end tsk 32.01  open 0.51
+   gate 33.2-34.2 lag 10        0.974  end tsk 31.92  open 0.51
+   gate 33.0-34.0 lag 0         0.850  end tsk 32.00  open 0.53
+   oracle (open then closed)    0.704
+== choice set ref: mean |tsk-33.7| C over 180 min (lower is better); gate bands on tsk, lag in min ==
+-- rest->walk 20C: room 20 C, 1.0 met then 2.0 met
+   fixed closed                 1.876  end tsk 32.75  open 0.00
+   fixed open                   3.282  end tsk 31.15  open 1.00
+   gate 33.2-34.2 lag 0         1.876  end tsk 32.75  open 0.00
+   gate 33.2-34.2 lag 10        1.876  end tsk 32.75  open 0.00
+   gate 33.0-34.0 lag 0         1.876  end tsk 32.75  open 0.00
+   oracle (closed then closed)  1.876
+-- rest->walk 24C: room 24 C, 1.0 met then 2.0 met
+   fixed closed                 0.476  end tsk 34.00  open 0.00
+   fixed open                   1.285  end tsk 33.15  open 1.00
+   gate 33.2-34.2 lag 0         0.476  end tsk 34.00  open 0.00
+   gate 33.2-34.2 lag 10        0.476  end tsk 34.00  open 0.00
+   gate 33.0-34.0 lag 0         0.476  end tsk 34.00  open 0.00
+   oracle (closed then closed)  0.476
+-- rest->walk 28C: room 28 C, 1.0 met then 2.0 met
+   fixed closed                 0.748  end tsk 34.83  open 0.00
+   fixed open                   0.418  end tsk 34.45  open 1.00
+   gate 33.2-34.2 lag 0         0.461  end tsk 34.45  open 0.86
+   gate 33.2-34.2 lag 10        0.476  end tsk 34.45  open 0.83
+   gate 33.0-34.0 lag 0         0.436  end tsk 34.45  open 0.94
+   oracle (open then open)      0.418
+-- walk->rest 24C: room 24 C, 2.0 met then 1.0 met
+   fixed closed                 0.348  end tsk 32.90  open 0.00
+   fixed open                   1.077  end tsk 31.35  open 1.00
+   gate 33.2-34.2 lag 0         0.348  end tsk 32.90  open 0.00
+   gate 33.2-34.2 lag 10        0.348  end tsk 32.90  open 0.00
+   gate 33.0-34.0 lag 0         0.489  end tsk 32.77  open 0.09
+   oracle (closed then closed)  0.348

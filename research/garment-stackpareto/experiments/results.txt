@@ -1,0 +1,48 @@
+Budget 3000 calls per run (Nelder-Mead restarts), 5 seeds per cell, 8 layers. Shift = mean dE76 at 15/30/45 deg.
+Constraints: C* >= floor, |hue - target| <= 30 deg, oxide mass <= cap (g/m2). Cell result = best feasible run of the 5.
+
+== target 620 nm quarter-wave stack: shift 12.4, C* 69.7, mass 2.03 g/m2
+C* floor mass cap feasible best shift median shift C* of best mass of best
+      40      1.5     0/5           -            -          -            -
+      40      2.0     0/5           -            -          -            -
+      40      3.0     2/5        2.71         3.15       40.6         2.37
+      40      4.0     5/5        0.68         1.10       40.0         3.33
+      50      1.5     0/5           -            -          -            -
+      50      2.0     0/5           -            -          -            -
+      50      3.0     3/5        2.75         3.07       50.0         2.84
+      50      4.0     5/5        0.73         1.59       50.0         3.71
+      60      1.5     0/5           -            -          -            -
+      60      2.0     2/5       13.88        15.84       60.0         2.00
+      60      3.0     2/5        9.04        10.08       60.0         2.64
+      60      4.0     4/5        2.84         5.68       60.0         3.32
+Non-dominated cells over (shift, -C*, mass), by achieved values: 7 of 7
+   shift 2.71  C* 40.6  mass 2.37   (cell: floor 40, cap 3.0)
+   shift 0.68  C* 40.0  mass 3.33   (cell: floor 40, cap 4.0)
+   shift 2.75  C* 50.0  mass 2.84   (cell: floor 50, cap 3.0)
+   shift 0.73  C* 50.0  mass 3.71   (cell: floor 50, cap 4.0)
+   shift 13.88  C* 60.0  mass 2.00   (cell: floor 60, cap 2.0)
+   shift 9.04  C* 60.0  mass 2.64   (cell: floor 60, cap 3.0)
+   shift 2.84  C* 60.0  mass 3.32   (cell: floor 60, cap 4.0)
+
+== target 450 nm quarter-wave stack: shift 25.9, C* 53.1, mass 1.47 g/m2
+C* floor mass cap feasible best shift median shift C* of best mass of best
+      35      1.5     0/5           -            -          -            -
+      35      2.0     1/5        9.34         9.34       36.3         1.99
+      35      3.0     3/5        3.58         3.83       35.0         2.91
+      35      4.0     4/5        3.13         3.90       35.2         3.67
+      42      1.5     0/5           -            -          -            -
+      42      2.0     0/5           -            -          -            -
+      42      3.0     4/5        6.31         8.70       42.0         2.95
+      42      4.0     3/5        4.98         5.56       42.0         3.50
+      50      1.5     0/5           -            -          -            -
+      50      2.0     0/5           -            -          -            -
+      50      3.0     0/5           -            -          -            -
+      50      4.0     2/5       10.79        11.38       50.0         2.95
+Non-dominated cells over (shift, -C*, mass), by achieved values: 6 of 6
+   shift 9.34  C* 36.3  mass 1.99   (cell: floor 35, cap 2.0)
+   shift 3.58  C* 35.0  mass 2.91   (cell: floor 35, cap 3.0)
+   shift 3.13  C* 35.2  mass 3.67   (cell: floor 35, cap 4.0)
+   shift 6.31  C* 42.0  mass 2.95   (cell: floor 42, cap 3.0)
+   shift 4.98  C* 42.0  mass 3.50   (cell: floor 42, cap 4.0)
+   shift 10.79  C* 50.0  mass 2.95   (cell: floor 50, cap 4.0)
+

@@ -1,0 +1,50 @@
+name: cargo-audit-triage
+description: 'Free tool that ranks cargo audit --json findings by reachability -- whether your Rust source names the flagged crate from src/, only from tests/benches/examples/build.rs, or never -- with real vulnerabilities ranked above unmaintained/unsound/yanked warnings. Runs in the browser (paste the audit output and source) or as a zero-dependency Node CLI that can fail CI when a runtime-used crate has a vulnerability. No upload, no network calls of its own. A static text scan and heuristic ranking, not a security audit.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of npm-audit-triage and pip-audit-triage (same
+# pattern, the Rust ecosystem). cargo audit reports advisories by Cargo.lock
+# match only, with no reachability, so a flat list on a workspace with hundreds
+# of transitive crates is unactionable. duplicate_check.py was run before
+# graduating; no cargo/Rust audit tool existed in ventures/.
+#
+# Where the first real visitor would come from: the search phrases "cargo audit
+# false positives", "cargo audit too many warnings", "is RUSTSEC advisory
+# reachable"; r/rust and r/devops threads on audit noise. Paid category it
+# undercuts: reachability analysis in Snyk and Endor Labs. Natural upgrade path:
+# a GitHub Action that comments the ranked list on Dependabot PRs.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# medium-high. It reads files the user already holds and sends nothing off the
+# device. The risk is being read as a security guarantee, so the page, guide
+# and README say it is a heuristic, "not referenced" is not "safe", and it is
+# not a security audit.
+hypotheses:
+  - claim: 'A Rust developer facing a long cargo audit report will paste it with their source, find that the flagged crates their code uses are a small subset, and upgrade those first.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add cargo-audit-triage.mjs --fail-on-imported to CI so a newly vulnerable crate used by src/ blocks the merge while unreferenced noise does not.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cargo-audit-triage.mjs or triage.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cargo-audit-triage/
+  analytics: null

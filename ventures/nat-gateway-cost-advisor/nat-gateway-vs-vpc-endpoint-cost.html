@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NAT Gateway vs VPC Endpoint: What It Costs and When to Switch</title>
+  <meta name="description" content="NAT gateway costs $0.045 per hour plus $0.045 per GB; S3 and DynamoDB gateway endpoints are free; interface endpoints break even near 209 GB a month per AZ. How to find the avoidable NAT spend and create the endpoints.">
+  <link rel="canonical" href="./nat-gateway-vs-vpc-endpoint-cost.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does a NAT gateway cost?", "acceptedAnswer": {"@type": "Answer", "text": "In us-east-1 a NAT gateway costs $0.045 per hour (about $32.85 a month) plus $0.045 for every GB it processes, in either direction, plus $0.005 per hour (about $3.65 a month) for its public IPv4 address. Three gateways, one per AZ, cost about $110 a month before any traffic."}}, {"@type": "Question", "name": "Is S3 traffic through a NAT gateway charged?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The NAT gateway charges $0.045 per GB for every byte it processes, including bytes to S3 in the same region. A gateway endpoint for S3 is free, so moving that traffic to it removes the charge. The same is true for DynamoDB."}}, {"@type": "Question", "name": "Do VPC endpoints cost money?", "acceptedAnswer": {"@type": "Answer", "text": "Gateway endpoints (S3 and DynamoDB) are free. Interface endpoints cost $0.01 per hour per AZ plus $0.01 per GB processed, so they only beat the NAT gateway's $0.045 per GB above a break-even volume of about 209 GB a month per endpoint per AZ."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">NAT Gateway Cost Advisor</a> · guide</p>
+  <h1>NAT gateway vs VPC endpoint: what it costs and when to switch</h1>
+  <p>Short answer: <strong>send S3 and DynamoDB traffic through free gateway endpoints, and put an interface endpoint in front of any other AWS service that moves more than a few hundred GB a month</strong>. Everything else on the NAT gateway is the price of reaching the internet from a private subnet.</p>
+
+  <h2>What a NAT gateway costs (us-east-1 list prices, illustrative)</h2>
+  <ul>
+    <li><strong>Hourly:</strong> $0.045 per gateway-hour, about $32.85 a month, whether or not anything uses it.</li>
+    <li><strong>Public IPv4:</strong> $0.005 per hour for the address, about $3.65 a month.</li>
+    <li><strong>Processing:</strong> $0.045 per GB in either direction, for every destination, including AWS services in the same region.</li>
+  </ul>
+
+  <h2>What the alternatives cost</h2>
+  <ul>
+    <li><strong>Gateway endpoint (S3, DynamoDB):</strong> free. It is a route-table entry, with no hourly fee and no per-GB fee.</li>
+    <li><strong>Interface endpoint (most other services):</strong> $0.01 per hour per AZ (about $7.30 a month per AZ) plus $0.01 per GB. Break-even against the NAT gateway is about 209 GB a month per endpoint per AZ.</li>
+    <li><strong>Services that need several endpoints:</strong> ECR needs <code>ecr.api</code> and <code>ecr.dkr</code> (plus the free S3 gateway endpoint for image layers); SSM needs <code>ssm</code>, <code>ssmmessages</code> and <code>ec2messages</code>; ECS needs <code>ecs</code>, <code>ecs-agent</code> and <code>ecs-telemetry</code>. The fixed fee multiplies, and so does the break-even.</li>
+    <li><strong>IPv6:</strong> outbound IPv6 through an egress-only internet gateway has no per-GB processing fee.</li>
+  </ul>
+
+  <h2>Find the avoidable spend</h2>
+  <ol>
+    <li>Get GB per destination: VPC Flow Logs on the NAT gateway's network interface summed by destination, or Cost Explorer usage type <code>NatGateway-Bytes</code> by gateway.</li>
+    <li>Write one row per gateway and destination: <code>nat-0a1,s3,4200</code>.</li>
+    <li>Paste into the <a href="./">advisor</a>, or run <code>node cli.mjs analyze nat.csv</code>. It prints a <code>create-vpc-endpoint</code> command for each endpoint that saves money.</li>
+    <li>Create the endpoint in one VPC first. A gateway endpoint adds routes to the route tables you name; an interface endpoint with private DNS changes where the service name resolves, and its security group must allow 443 from the VPC.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How much does a NAT gateway cost?</h3>
+  <p>In us-east-1 a NAT gateway costs $0.045 per hour (about $32.85 a month) plus $0.045 for every GB it processes, in either direction, plus $0.005 per hour (about $3.65 a month) for its public IPv4 address. Three gateways, one per AZ, cost about $110 a month before any traffic.</p>
+  <h3>Is S3 traffic through a NAT gateway charged?</h3>
+  <p>Yes. The NAT gateway charges $0.045 per GB for every byte it processes, including bytes to S3 in the same region. A gateway endpoint for S3 is free, so moving that traffic to it removes the charge. The same is true for DynamoDB.</p>
+  <h3>Do VPC endpoints cost money?</h3>
+  <p>Gateway endpoints (S3 and DynamoDB) are free. Interface endpoints cost $0.01 per hour per AZ plus $0.01 per GB processed, so they only beat the NAT gateway's $0.045 per GB above a break-even volume of about 209 GB a month per endpoint per AZ.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial or operational advice, and you are responsible for verifying prices and limits against the current AWS documentation. Vendor and product names are trademarks of their respective owners; no affiliation is implied.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

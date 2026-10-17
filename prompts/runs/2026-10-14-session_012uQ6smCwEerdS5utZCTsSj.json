@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_012uQ6smCwEerdS5utZCTsSj",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": "2026-10-14T15:12:59.150262Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "extend",
+  "projects": [
+    "ambient-drablate"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/448",
+  "commits": [
+    "ace66767eaedcd063d577ad4c3ec6003515a9d42",
+    "29ff7f3075c9575d642d2226a07527d49f368c69"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Queue was empty (PRs for simdesign-gaugepockets all closed as duplicates). Track 2 drawn at random; ablation of ambient-drvalid. Fold-type result reported as stylised; ips_4c/dr_4c/dr_8r reproduce drvalid.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

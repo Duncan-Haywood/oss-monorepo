@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-routing"
+version = "0.1.0"
+description = "Cost-function prediction markets as expert-routing algorithms: LMSR = Hedge, quadratic potential = sparsemax."
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DynamoDB Capacity Mode Advisor — On-Demand or Provisioned, Whichever Costs Less</title>
+  <meta name="description" content="Paste a DynamoDB table's consumed read and write capacity from CloudWatch and see what it costs on-demand, provisioned with autoscaling and provisioned at a fixed peak. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your DynamoDB table on the wrong capacity mode?">
+  <meta property="og:description" content="Paste CloudWatch consumed capacity, get the cheapest capacity mode and the throttling risk. No account, no AWS access, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DynamoDB Capacity Mode Advisor", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a DynamoDB table's consumed read and write capacity from CloudWatch and see what it would cost on-demand, provisioned with autoscaling, and provisioned at a fixed peak, with the cheapest mode and the throttling risk. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the metric rows you paste and never contacts AWS. It cannot see your real invoice, free tier, reserved capacity, table class, global tables or backups, so every dollar figure is the rows you pasted times list prices you can edit."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "In CloudWatch, graph ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits for the table with statistic Sum and a one-hour period, or run aws cloudwatch get-metric-statistics for each and put the Sum values in three columns: timestamp, read, write. A week that includes your busiest day gives a far better answer than an hour."}}, {"@type": "Question", "name": "Why is the break-even about 29%?", "acceptedAnswer": {"@type": "Answer", "text": "On-demand charges per request; provisioned charges per unit-hour whether you use it or not. At list prices one provisioned unit-hour costs 29% of what the same unit-hour of fully used traffic costs on-demand, so provisioned wins when you keep capacity busier than about 29% on average. Autoscaling targets 70%, which is why steady tables are usually cheaper provisioned."}}, {"@type": "Question", "name": "What can this not see?", "acceptedAnswer": {"@type": "Answer", "text": "Anything shorter than the period. Traffic is treated as flat inside each hour, so a five-minute burst is invisible; DynamoDB burst capacity hides some of that and the rest throttles. Autoscaling reacts in minutes, so the tool flags periods where traffic rose faster than the previous capacity allowed for. Treat the result as a screen, then confirm on a non-critical table."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DYNAMODB CAPACITY MODE ADVISOR · RUNS IN YOUR BROWSER</p>
+    <h1>Is your DynamoDB table on the wrong capacity mode?</h1>
+    <p>Paste the <code>ConsumedReadCapacityUnits</code> and <code>ConsumedWriteCapacityUnits</code> from CloudWatch and get the <strong>monthly cost on-demand, provisioned with autoscaling and provisioned at a fixed peak</strong>, the <strong>break-even utilisation</strong>, and whether your current provisioned capacity <strong>throttles</strong>.</p>
+    <p class="note">Nothing is uploaded and AWS is never contacted. The text box is analysed in this browser and never leaves your device. Traffic inside a period is treated as flat, so short bursts are invisible.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste consumed capacity</h2>
+    <label for="metrics-input">Rows of timestamp, read units, write units (Sum per period)</label>
+    <textarea id="metrics-input" spellcheck="false" placeholder="2026-09-30T12:00:00Z,540000,108000"></textarea>
+    <div class="row">
+      <div><label for="period">Period (seconds)</label><input type="number" id="period" min="1" value="3600"></div>
+      <div><label for="target">Autoscaling target, 0 to 1</label><input type="number" id="target" min="0.1" max="1" step="0.05" value="0.7"></div>
+      <div><label for="rcu">Current RCU (blank = on-demand)</label><input type="number" id="rcu" min="0"></div>
+      <div><label for="wcu">Current WCU</label><input type="number" id="wcu" min="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Modelled monthly cost (730 hours)</h3>
+    <table id="cost-table" hidden>
+      <thead><tr><th>Capacity mode</th><th>Per month</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze metrics.csv
+cat metrics.csv | node cli.mjs analyze - --period 300 --current-rcu 400 --current-wcu 100
+node cli.mjs analyze metrics.csv --fail-on warn      # exit 1 when a switch would save 20% or more
+node cli.mjs analyze metrics.csv --json --prices my-prices.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="dynamodb-on-demand-vs-provisioned-which-is-cheaper.html">DynamoDB on-demand vs provisioned: which is cheaper</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Prices are illustrative and dated; edit them with <code>--prices</code> in the CLI. Free tier, reserved capacity, Standard-IA, other regions, global tables and backups are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my AWS account?</h3>
+    <p>No. It reads the metric rows you paste and never contacts AWS. It cannot see your real invoice, free tier, reserved capacity, table class, global tables or backups, so every dollar figure is the rows you pasted times list prices you can edit.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>In CloudWatch, graph ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits for the table with statistic Sum and a one-hour period, or run aws cloudwatch get-metric-statistics for each and put the Sum values in three columns: timestamp, read, write. A week that includes your busiest day gives a far better answer than an hour.</p>
+    <h3>Why is the break-even about 29%?</h3>
+    <p>On-demand charges per request; provisioned charges per unit-hour whether you use it or not. At list prices one provisioned unit-hour costs 29% of what the same unit-hour of fully used traffic costs on-demand, so provisioned wins when you keep capacity busier than about 29% on average. Autoscaling targets 70%, which is why steady tables are usually cheaper provisioned.</p>
+    <h3>What can this not see?</h3>
+    <p>Anything shorter than the period. Traffic is treated as flat inside each hour, so a five-minute burst is invisible; DynamoDB burst capacity hides some of that and the rest throttles. Autoscaling reacts in minutes, so the tool flags periods where traffic rose faster than the previous capacity allowed for. Treat the result as a screen, then confirm on a non-critical table.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It prices metric rows you paste at list prices you can edit; it is not a measurement, not a guarantee of what AWS will charge, and a capacity setting it favours can throttle or cost more under your real traffic. Test on a non-critical table first.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans and reserved capacity, <a href="../lambda-memory-rightsizer/">Lambda Memory Rightsizer</a> does the same job for Lambda, <a href="../cloudwatch-logs-cost-advisor/">CloudWatch Logs Cost Advisor</a> prices log ingestion and retention, and <a href="../cloud-egress-calculator/">Cloud Egress Calculator</a> prices the data-transfer side of the bill, and <a href="../s3-storage-class-advisor/">S3 Storage Class Advisor</a> prices the storage side.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseMetrics, analyze, summarize, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#metrics-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), costT: $("#cost-table"), costR: $("#cost-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some metric rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const rcu = $("#rcu").value.trim(); const wcu = $("#wcu").value.trim();
+      const current = rcu !== "" && wcu !== "" && Number(rcu) >= 0 && Number(wcu) >= 0 ? { read: Number(rcu), write: Number(wcu) } : undefined;
+      const report = analyze(parseMetrics(text), { periodSeconds: Math.max(1, Number($("#period").value) || 3600), targetUtilization: Math.min(1, Math.max(0.1, Number($("#target").value) || 0.7)), currentProvisioned: current });
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.costT.hidden = !report.count;
+      const rowsData = report.count ? [["On-demand", report.totals.onDemand], ["Provisioned, autoscaling", report.totals.autoscaled], [`Provisioned, fixed peak (${report.readCost.staticPeakUnits} RCU / ${report.writeCost.staticPeakUnits} WCU)`, report.totals.staticPeak]] : [];
+      if (report.count && report.totals.current !== undefined) rowsData.push([`Your current ${rcu} RCU / ${wcu} WCU`, report.totals.current]);
+      els.costR.innerHTML = rowsData.map(([l, c]) => `<tr><td>${escapeHtml(l)}</td><td>$${c.toFixed(2)}</td></tr>`).join("");
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Traffic inside a period is treated as flat; confirm any change on a non-critical table.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `timestamp,read_units,write_units
+2026-09-23T00:00:00Z,163799,34199
+2026-09-23T01:00:00Z,116439,24842
+2026-09-23T02:00:00Z,63644,14139
+2026-09-23T03:00:00Z,35185,8370
+2026-09-23T04:00:00Z,29938,7484
+2026-09-23T05:00:00Z,40427,9617
+2026-09-23T06:00:00Z,61335,13626
+2026-09-23T07:00:00Z,102546,21878
+2026-09-23T08:00:00Z,175058,36550
+2026-09-23T09:00:00Z,236184,48722
+2026-09-23T10:00:00Z,275818,56492
+2026-09-23T11:00:00Z,364286,74280
+2026-09-23T12:00:00Z,468496,95254
+2026-09-23T13:00:00Z,485462,98520
+2026-09-23T14:00:00Z,491218,99571
+2026-09-23T15:00:00Z,575674,116616
+2026-09-23T16:00:00Z,608810,123303
+2026-09-23T17:00:00Z,533382,108048
+2026-09-23T18:00:00Z,501591,101674
+2026-09-23T19:00:00Z,520015,105532
+2026-09-23T20:00:00Z,452161,91933
+2026-09-23T21:00:00Z,341850,69705
+2026-09-23T22:00:00Z,291756,59757
+2026-09-23T23:00:00Z,246968,50947
+2026-09-24T00:00:00Z,164333,34311
+2026-09-24T01:00:00Z,99284,21182
+2026-09-24T02:00:00Z,66095,14684
+2026-09-24T03:00:00Z,40858,9720
+2026-09-24T04:00:00Z,27744,6936
+2026-09-24T05:00:00Z,35500,8445
+2026-09-24T06:00:00Z,68456,15208
+2026-09-24T07:00:00Z,113487,24212
+2026-09-24T08:00:00Z,152823,31908
+2026-09-24T09:00:00Z,220975,45585
+2026-09-24T10:00:00Z,321494,65848
+2026-09-24T11:00:00Z,374258,76313
+2026-09-24T12:00:00Z,399160,81157
+2026-09-24T13:00:00Z,492386,99925
+2026-09-24T14:00:00Z,574409,116434
+2026-09-24T15:00:00Z,545239,110450
+2026-09-24T16:00:00Z,527940,106924
+2026-09-24T17:00:00Z,584319,118367
+2026-09-24T18:00:00Z,564824,114492
+2026-09-24T19:00:00Z,460457,93445
+2026-09-24T20:00:00Z,414255,84226
+2026-09-24T21:00:00Z,394990,80540
+2026-09-24T22:00:00Z,306767,62831
+2026-09-24T23:00:00Z,211010,43529
+2026-09-25T00:00:00Z,162734,33977
+2026-09-25T01:00:00Z,116501,24855
+2026-09-25T02:00:00Z,64057,14231
+2026-09-25T03:00:00Z,35101,8350
+2026-09-25T04:00:00Z,29771,7442
+2026-09-25T05:00:00Z,40568,9650
+2026-09-25T06:00:00Z,61649,13696
+2026-09-25T07:00:00Z,102012,21764
+2026-09-25T08:00:00Z,174475,36429
+2026-09-25T09:00:00Z,237527,48999
+2026-09-25T10:00:00Z,276429,56618
+2026-09-25T11:00:00Z,361929,73799
+2026-09-25T12:00:00Z,468324,95219
+2026-09-25T13:00:00Z,488643,99165
+2026-09-25T14:00:00Z,490538,99433
+2026-09-25T15:00:00Z,572223,115917
+2026-09-25T16:00:00Z,610440,123633
+2026-09-25T17:00:00Z,536419,108664
+2026-09-25T18:00:00Z,499319,101213
+2026-09-25T19:00:00Z,517895,105101
+2026-09-25T20:00:00Z,454495,92407
+2026-09-25T21:00:00Z,342936,69926
+2026-09-25T22:00:00Z,289921,59381
+2026-09-25T23:00:00Z,246657,50882
+2026-09-26T00:00:00Z,99237,20719
+2026-09-26T01:00:00Z,59550,12704
+2026-09-26T02:00:00Z,39407,8754
+2026-09-26T03:00:00Z,24560,5842
+2026-09-26T04:00:00Z,16748,4187
+2026-09-26T05:00:00Z,21220,5048
+2026-09-26T06:00:00Z,40878,9081
+2026-09-26T07:00:00Z,68401,14593
+2026-09-26T08:00:00Z,92065,19222
+2026-09-26T09:00:00Z,131795,27188
+2026-09-26T10:00:00Z,192485,39424
+2026-09-26T11:00:00Z,225957,46074
+2026-09-26T12:00:00Z,239668,48729
+2026-09-26T13:00:00Z,293519,59566
+2026-09-26T14:00:00Z,344970,69926
+2026-09-26T15:00:00Z,329240,66695
+2026-09-26T16:00:00Z,315868,63973
+2026-09-26T17:00:00Z,348721,70641
+2026-09-26T18:00:00Z,340192,68958
+2026-09-26T19:00:00Z,277603,56337
+2026-09-26T20:00:00Z,247192,50259
+2026-09-26T21:00:00Z,236291,48181
+2026-09-26T22:00:00Z,185144,37921
+2026-09-26T23:00:00Z,126828,26163
+2026-09-27T00:00:00Z,97005,20253
+2026-09-27T01:00:00Z,69904,14913
+2026-09-27T02:00:00Z,38686,8594
+2026-09-27T03:00:00Z,21021,5001
+2026-09-27T04:00:00Z,17759,4439
+2026-09-27T05:00:00Z,24415,5808
+2026-09-27T06:00:00Z,37191,8262
+2026-09-27T07:00:00Z,60910,12995
+2026-09-27T08:00:00Z,104293,21775
+2026-09-27T09:00:00Z,143288,29558
+2026-09-27T10:00:00Z,166313,34064
+2026-09-27T11:00:00Z,215770,43996
+2026-09-27T12:00:00Z,280754,57082
+2026-09-27T13:00:00Z,295099,59887
+2026-09-27T14:00:00Z,294082,59611
+2026-09-27T15:00:00Z,341213,69120
+2026-09-27T16:00:00Z,367076,74344
+2026-09-27T17:00:00Z,323766,65586
+2026-09-27T18:00:00Z,298361,60478
+2026-09-27T19:00:00Z,309353,62780
+2026-09-27T20:00:00Z,274015,55712
+2026-09-27T21:00:00Z,206514,42109
+2026-09-27T22:00:00Z,172887,35410
+2026-09-27T23:00:00Z,147736,30476
+2026-09-28T00:00:00Z,166448,34753
+2026-09-28T01:00:00Z,99274,21180
+2026-09-28T02:00:00Z,65258,14497
+2026-09-28T03:00:00Z,40988,9750
+2026-09-28T04:00:00Z,28089,7022
+2026-09-28T05:00:00Z,35252,8386
+2026-09-28T06:00:00Z,67785,15059
+2026-09-28T07:00:00Z,114477,24423
+2026-09-28T08:00:00Z,154129,32180
+2026-09-28T09:00:00Z,218405,45054
+2026-09-28T10:00:00Z,319977,65537
+2026-09-28T11:00:00Z,378879,77255
+2026-09-28T12:00:00Z,399962,81320
+2026-09-28T13:00:00Z,486015,98632
+2026-09-28T14:00:00Z,575211,116597
+2026-09-28T15:00:00Z,552302,111881
+2026-09-28T16:00:00Z,525234,106376
+2026-09-28T17:00:00Z,577942,117075
+2026-09-28T18:00:00Z,568923,115322
+2026-09-28T19:00:00Z,465067,94381
+2026-09-28T20:00:00Z,409865,83333
+2026-09-28T21:00:00Z,392481,80029
+2026-09-28T22:00:00Z,310315,63558
+2026-09-28T23:00:00Z,211867,43706
+2026-09-29T00:00:00Z,160631,33538
+2026-09-29T01:00:00Z,116454,24845
+2026-09-29T02:00:00Z,64899,14418
+2026-09-29T03:00:00Z,34991,8324
+2026-09-29T04:00:00Z,29420,7355
+2026-09-29T05:00:00Z,40797,9705
+2026-09-29T06:00:00Z,62340,13849
+2026-09-29T07:00:00Z,101064,21561
+2026-09-29T08:00:00Z,173102,36142
+2026-09-29T09:00:00Z,240033,49516
+2026-09-29T10:00:00Z,278091,56958
+2026-09-29T11:00:00Z,357364,72868
+2026-09-29T12:00:00Z,467296,95010
+2026-09-29T13:00:00Z,495006,100456
+2026-09-29T14:00:00Z,490017,99328
+2026-09-29T15:00:00Z,565093,114472
+2026-09-29T16:00:00Z,612864,124124
+2026-09-29T17:00:00Z,542934,109984
+2026-09-29T18:00:00Z,495452,100429
+2026-09-29T19:00:00Z,513110,104130
+2026-09-29T20:00:00Z,458737,93270
+2026-09-29T21:00:00Z,345609,70471
+2026-09-29T22:00:00Z,286441,58668
+2026-09-29T23:00:00Z,245684,50682`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+name: client-concentration-risk-analyzer
+description: 'Free, zero-network, zero-dependency CLI + browser tool for agencies, freelancers and small service businesses: reads an invoice export (client, optional date, amount) and prints each client''s share of revenue, top-1/3/5 shares, Herfindahl index and effective client count, whether the biggest client''s share is rising, and whether monthly revenue without them still covers your costs; usable as a monthly cron or CI check. Warning levels are rules of thumb, not a lender or buyer standard.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/analyzer archetype (portfolio/pipeline/README.md). Checked
+# 2026-10-02: duplicate_check.py "customer concentration revenue risk top
+# clients from invoices export" top hit 0.27 (liquidation-pallet-bid-calculator,
+# unrelated); nothing in ventures/ measures revenue dependence on one client.
+# Not in screened-out.md. Adjacent: invoice-aging-late-payer-analyzer (who pays
+# late), cash-runway-planner (forward cash), client-profitability-time-analyzer
+# (which client earns per hour) -- this one is "who can you not afford to lose".
+#
+# Money: the owner of a 1-20 person agency or consultancy with one client at
+# 40% of revenue is exposed to a single email, and a lender, acquirer or insurer
+# will price it in: a business sold at a multiple discounted for concentration
+# gives away real money, and a line of credit refused on it costs more. The
+# wedge is that it runs on a pasted accounting export with no login and no
+# upload, and answers "do I survive losing them" with the owner's own costs.
+#
+# Where the first real visitor would come from: the search phrases "client
+# concentration risk", "customer concentration calculator", "how much revenue
+# from one client is too much"; r/agency, r/freelance and r/consulting threads
+# on dependence on one client; and SBA/lender checklists that ask for it. A
+# hosted version that re-runs monthly on a QuickBooks/Xero read-only connection
+# and emails when a client crosses a line is the natural paid upgrade.
+hypotheses:
+  - claim: An agency or freelancer will search for client-concentration levels, paste an invoice export, and leave knowing whether they survive losing their biggest client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Owners will rerun the CLI monthly with --fail-on warn so they are told the month a client crosses their chosen line.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository, finance script or newsletter is found linking or reusing cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/client-concentration-risk-analyzer/
+  analytics: null

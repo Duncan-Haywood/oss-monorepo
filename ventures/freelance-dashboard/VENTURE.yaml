@@ -1,0 +1,66 @@
+name: freelance-dashboard
+description: >-
+  Free freelancer dashboard that runs in the browser with no account: reads the
+  invoices, estimates, tracked time and expenses saved by Invoice Maker,
+  Estimate Maker, Time Tracker and Expense Tracker on the same device and shows
+  what is owed and overdue, unbilled hours by client, open quotes and win rate,
+  year-to-date paid income, costs, net profit and a tax set-aside, plus a ranked
+  list of what to do next. One backup and restore for all four tools. Data stays
+  on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session as the hub of the freelancer
+# loop (estimate-maker -> time-tracker -> invoice-maker -> expense-tracker). The
+# four tools each answer one question; none of them answers "what should I do
+# first today?", and a freelancer who uses two or three has no single view or
+# single backup. Paid market is real: Bonsai, HoneyBook, FreshBooks and Wave
+# bundle a dashboard behind an account and a subscription. The wedge is that this
+# one needs no account, uploads nothing, and puts the action list ahead of the
+# charts.
+#
+# First visitor: a retention and cross-sell surface for the four tools' own
+# visitors, linked from each of them, plus "freelance dashboard" and "freelancer
+# business dashboard" searches. Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: reads only the four sibling tools' browser
+# data on this device, planning figures only, no tax computation, no currency
+# conversion, no import from other invoicing apps.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet that pulls repeat
+# use across the four; donations via GitHub Sponsors. If repeat use appears, the
+# natural next step is an installable PWA with reminders (overdue and quarterly
+# date notifications) and an optional encrypted sync, the first thing worth
+# charging for.
+
+hypotheses:
+  - claim: >-
+      Freelancers who use one of the four tools will open the dashboard to see the
+      ranked action list and will then open a second tool from it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A single backup file for all four tools is used by people who would not
+      otherwise back up any of them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong receivable, unbilled or profit figure against the tool it came from, at which point the sibling readers need re-syncing with those tools' arithmetic.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-dashboard/
+  analytics: null

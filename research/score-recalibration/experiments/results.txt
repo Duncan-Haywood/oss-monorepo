@@ -1,0 +1,60 @@
+Setup: pi=0.5, mu=1.0; calibrated Brier 0.1124, constant-prior Brier 0.2500
+
+E1  raw Brier overpays for miscalibration exactly E[(r-p)^2] (slope a, shift b)
+  a=1.00 b=0.0  Brier 0.1124  excess 0.00000  E[(r-p)^2] 0.00000  log excess 0.00000 = E[KL] 0.00000
+  a=0.50 b=0.0  Brier 0.1253  excess 0.01292  E[(r-p)^2] 0.01292  log excess 0.05054 = E[KL] 0.05054
+  a=0.25 b=0.0  Brier 0.1601  excess 0.04770  E[(r-p)^2] 0.04770  log excess 0.14642 = E[KL] 0.14642
+  a=2.00 b=0.0  Brier 0.1206  excess 0.00822  E[(r-p)^2] 0.00822  log excess 0.07583 = E[KL] 0.07583
+  a=4.00 b=0.0  Brier 0.1344  excess 0.02204  E[(r-p)^2] 0.02204  log excess 0.35993 = E[KL] 0.35993
+  a=1.00 b=0.3  Brier 0.1142  excess 0.00178  E[(r-p)^2] 0.00178  log excess 0.00506 = E[KL] 0.00506
+  a=1.00 b=0.6  Brier 0.1195  excess 0.00706  E[(r-p)^2] 0.00706  log excess 0.02020 = E[KL] 0.02020
+  a=2.00 b=0.3  Brier 0.1212  excess 0.00880  E[(r-p)^2] 0.00880  log excess 0.07853 = E[KL] 0.07853
+
+E2  small-distortion law E[(pq)^2((a-1)L+b)^2]: ratio to exact excess -> 1
+  eps=1.00  exact 9.844e-03  local 2.833e-02  ratio 0.3475
+  eps=0.50  exact 3.916e-03  local 7.082e-03  ratio 0.5529
+  eps=0.20  exact 8.768e-04  local 1.133e-03  ratio 0.7738
+  eps=0.10  exact 2.483e-04  local 2.833e-04  ratio 0.8765
+  eps=0.05  exact 6.624e-05  local 7.082e-05  ratio 0.9353
+
+E3  a real signal scored below a constant forecaster: slope a above which raw loss exceeds the prior's (b=0)
+  mu=0.5  Brier: a > 4.81   log: a > 2.43
+  mu=1.0  Brier: never (bounded; hard 0/1 report still beats prior)   log: a > 3.85
+  mu=1.5  Brier: never (bounded; hard 0/1 report still beats prior)   log: a > 7.82
+
+E4  ranking reversal: A has higher resolution (mu=1.0) but slope a; B calibrated with mu=0.7
+  brier: B loss 0.1637, A calibrated 0.1124; raw score ranks A first only for a in (0.234, no upper crossing); recalibrated always ranks A first
+    a=0.2  A 0.1726 vs B 0.1637: raw picks B (wrong)
+    a=0.5  A 0.1253 vs B 0.1637: raw picks A
+    a=2.0  A 0.1206 vs B 0.1637: raw picks A
+    a=4.0  A 0.1344 vs B 0.1637: raw picks A
+    a=8.0  A 0.1451 vs B 0.1637: raw picks A
+  log: B loss 0.4951, A calibrated 0.3563; raw score ranks A first only for a in (0.264, 2.49); recalibrated always ranks A first
+    a=0.2  A 0.5319 vs B 0.4951: raw picks B (wrong)
+    a=0.5  A 0.4069 vs B 0.4951: raw picks A
+    a=2.0  A 0.4322 vs B 0.4951: raw picks A
+    a=4.0  A 0.7163 vs B 0.4951: raw picks B (wrong)
+    a=8.0  A 1.3569 vs B 0.4951: raw picks B (wrong)
+
+E5  finite-sample cost of recalibrating: excess Brier of an n-sample logistic fit vs (1/2n)tr(H I^-1)
+  pi=0.5, mu=1.0, calibrated Brier 0.1124
+    n=  50  simulated 0.00627  predicted 0.00528  ratio 1.187
+    n= 100  simulated 0.00289  predicted 0.00264  ratio 1.093
+    n= 200  simulated 0.00130  predicted 0.00132  ratio 0.983
+    n= 400  simulated 0.00071  predicted 0.00066  ratio 1.082
+  pi=0.2, mu=1.0, calibrated Brier 0.0816
+    n=  50  simulated 0.00665  predicted 0.00513  ratio 1.296
+    n= 100  simulated 0.00277  predicted 0.00256  ratio 1.082
+    n= 200  simulated 0.00134  predicted 0.00128  ratio 1.046
+    n= 400  simulated 0.00063  predicted 0.00064  ratio 0.983
+  pi=0.5, mu=0.5, calibrated Brier 0.1990
+    n=  50  simulated 0.00796  predicted 0.00735  ratio 1.083
+    n= 100  simulated 0.00396  predicted 0.00368  ratio 1.077
+    n= 200  simulated 0.00160  predicted 0.00184  ratio 0.869
+    n= 400  simulated 0.00097  predicted 0.00092  ratio 1.058
+
+E6  when does recalibrating beat paying raw? break-even n = predicted_excess constant / raw excess (pi=0.5, mu=1)
+  a=0.5  raw excess 0.01292  fitted excess ~ 0.264/n  fitting wins for n >   20.4
+  a=0.7  raw excess 0.00328  fitted excess ~ 0.264/n  fitting wins for n >   80.4
+  a=1.5  raw excess 0.00325  fitted excess ~ 0.264/n  fitting wins for n >   81.2
+  a=2.0  raw excess 0.00822  fitted excess ~ 0.264/n  fitting wins for n >   32.1

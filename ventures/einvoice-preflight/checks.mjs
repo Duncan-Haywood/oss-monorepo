@@ -273,15 +273,29 @@ function formatMoney(value) {
   return value.toFixed(2);
 }
 
+// Two suppliers may both issue "1001"; the same supplier issuing it twice is
+// the duplicate-payment risk. Key on supplier identity + number (supplier id, VAT
+// id, or name; invoices with no seller identity share one bucket).
+function sellerKey(invoice) {
+  const seller = invoice.supplier && typeof invoice.supplier === "object" ? invoice.supplier : {};
+  for (const field of ["id", "vat_id", "name"]) {
+    if (typeof seller[field] === "string" && seller[field].trim()) {
+      return `${field}:${seller[field].trim().toLowerCase().replace(/\s+/g, " ")}`;
+    }
+  }
+  return "";
+}
+
 export function flagDuplicateInvoiceNumbers(invoices) {
   const byNumber = new Map();
   for (const { name, invoice } of invoices) {
     if (invoice && typeof invoice === "object" && typeof invoice.invoice_number === "string") {
       const number = invoice.invoice_number.trim();
       if (!number) continue;
-      const list = byNumber.get(number) || [];
+      const key = `${sellerKey(invoice)}\u0000${number}`;
+      const list = byNumber.get(key) || [];
       list.push(name);
-      byNumber.set(number, list);
+      byNumber.set(key, list);
     }
   }
   const duplicates = new Set();

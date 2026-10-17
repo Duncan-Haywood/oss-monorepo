@@ -1,0 +1,50 @@
+name: regex-redos-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that finds regular expressions in JavaScript, TypeScript and Python source that can backtrack catastrophically (ReDoS): nested quantifiers, overlapping alternation, adjacent overlapping repeats and unanchored trailing repeats. It parses each pattern into an AST and checks whether the end of one iteration can be re-consumed by the start of the next; the CLI''s --probe mode confirms a JavaScript suspect by timing the real engine in a sandboxed vm with a hard timeout. A heuristic that reports suspects, not a proof of exploitability.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself"). A
+# name/description scan of ventures/ on 2026-10-01 found no regex or ReDoS
+# tool in the tree; the nearest are cors-misconfig-check and sql-migration-
+# lock-check, which share the zero-upload CI-gate shape but check other
+# things. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "regex
+# denial of service", "catastrophic backtracking", "redos checker" and "safe
+# regex"; CVE-driven npm/PyPI maintainers who must audit validators; and Hacker
+# News / r/netsec threads about the Stack Overflow 2016 and Cloudflare 2019
+# regex outages. Adjacent free tools (safe-regex, recheck, regexploit) are
+# either star-height heuristics that false-positive on delimited patterns or
+# single-language; this one reasons about iteration-boundary ambiguity, covers
+# JS/TS and Python in one pass, and confirms findings by timing. The natural
+# paid upgrade is a hosted per-repo monitor with PR comments.
+hypotheses:
+  - claim: A developer who has just received a ReDoS CVE report, or is auditing input validators, will search for a checker, run the CLI on their repo and fix the confirmed patterns.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team handling untrusted input will add the CLI to CI with --fail-on error so new catastrophic patterns cannot merge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool only parses pasted text in the visitor's
+  # own browser and the CLI reads only local files; no network call at all.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/
+  analytics: null

@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01W3na7QAowLiHa7THYmv8nb",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror-sync",
+  "projects": [],
+  "pr": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "mirror.py ack takes the upstream path (site/template.html) but the sync message names the local path; I first passed the local one and it errored."
+    }
+  ],
+  "goal": null,
+  "notes": "mirror-sync of research/ to upstream 5f59f0a; ported one adapted file (template.html, --t-eda colour token). Research prompt routes to upstream landing; milestone 1 mirror-sync is the oss-monorepo work.",
+  "corrections": [],
+  "redteam": null
+}

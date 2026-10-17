@@ -1,0 +1,57 @@
+name: soc2-readiness-checker
+description: >-
+  Free browser tool and CLI for startup founders, CTOs and security leads preparing for SOC 2: answer one line per control,
+  get a weighted readiness score, the gaps ranked by value per day of effort with the evidence to collect, and a rough timeline
+  to a Type I date and a Type II report. Answers never leave the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Repo search for "soc2", "soc-2", "hipaa", "gdpr", "questionnaire" found no readiness
+# tool; nearest are vendor-change-watch (vendors) and the CI/cloud security checks, which test config rather than programme
+# readiness. Not in screened-out.md.
+#
+# Why this niche: B2B SaaS startups hit a wall when an enterprise buyer asks for a SOC 2 report. The paid answers (Vanta, Drata,
+# Secureframe) start with a sales call and a five-figure annual contract; a founder wants to know first how far away they are and
+# what to do in which order. A no-signup self-assessment is the natural top of that funnel and works as a lead magnet.
+#
+# First visitor: founders, CTOs and heads of engineering at 5-100 person SaaS companies searching "soc 2 readiness checklist",
+# "soc 2 gap analysis", "how long does soc 2 take", "soc 2 type 1 vs type 2". Volume not measured with an external tool.
+#
+# Liability boundary: fixed control list and planning-grade effort figures, scored by arithmetic over the user's own answers. It
+# is not an audit, issues no report, does not predict an auditor's findings, names no vendor and quotes no audit price. The page
+# says so and carries the no-warranty and no-SLA clauses. No data leaves the browser.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted evidence tracker with
+# reminders and an auditor-facing export, which needs accounts, storage and payments and so an owner decision; not built. Written
+# to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Founders facing their first enterprise security questionnaire will fill in a no-signup control checklist to learn how far from
+      SOC 2 they are before they talk to a compliance vendor or auditor.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A ranked gap list with evidence to collect per control is the part users keep or share with their team, more than the score.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a shared CSV roadmap) engage with the tool within 90 days of it being reachable from the published site.
+  - Users report that the control list or the effort defaults do not match what their auditor asked for, at which point the list needs a source review against the AICPA trust services criteria.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/soc2-readiness-checker/
+  analytics: null

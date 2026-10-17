@@ -1,0 +1,45 @@
+name: search-api-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices hosted search (Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud, self-hosted) at an index size and a monthly search volume from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the query volumes where the cheapest option changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of object-storage-pricing-calculator and
+# log-management-pricing-calculator. vector-db-cost-calculator prices vector stores;
+# nothing compares keyword-search vendors at one record count + query volume.
+#
+# Where the first real visitor would come from: search phrases "algolia alternatives",
+# "algolia pricing calculator", "typesense vs algolia cost", "meilisearch cloud pricing";
+# Hacker News and r/webdev threads after an Algolia bill shock. The reader is a founder or lead
+# dev adding site/app search. Vendor pages are rate cards per vendor; none shows all of them at
+# one volume with growth and the crossover, which is the wedge. A hosted pricing-change monitor
+# is the natural paid path later.
+hypotheses:
+  - claim: A founder adding or leaving Algolia will search for a price comparison at their record count and monthly searches, enter both numbers and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so growth that pushes search spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/search-api-pricing-calculator/
+  analytics: null

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shaved Ice Stand Profit Calculator — Will the Event Pay?</title>
+  <meta name="description" content="Free calculator for shaved ice, lemonade and frozen-treat stands: margin per cup by size, cups to break even, profit on a hot, normal and rainy day, and the most booth fee an event can bear. Runs in your browser.">
+  <meta property="og:title" content="Shaved Ice Stand Profit Calculator — free, private">
+  <meta property="og:description" content="Find the cups an event must sell, and the booth fee it can bear, before you sign.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shaved Ice Stand Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free calculator for shaved ice, lemonade and frozen-treat stands at fairs and festivals: margin per cup by size, break-even cups, profit on a hot, normal and rainy day, and the most booth fee an event can bear."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much profit is in a shaved ice stand?", "acceptedAnswer": {"@type": "Answer", "text": "It depends far more on weather and booth fee than on ingredients. Ice and syrup usually cost well under a dollar a cup, so the margin per cup is high, but labour, the booth fee and a rainy day decide whether the event pays. This calculator shows the cups you must sell to break even and the profit on a hot, normal and cool day."}}, {"@type": "Question", "name": "How many cups do I need to sell to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the day's fixed costs (booth fee, labour, fuel and supplies) by the average margin per cup after ingredients, cups, waste and card fees. The result appears at the top of the report, along with the cups per hour it implies."}}, {"@type": "Question", "name": "Is a flat booth fee or a percentage of sales better?", "acceptedAnswer": {"@type": "Answer", "text": "A flat fee is better on a big day and worse on a slow one. The tool shows the percentage your flat fee equals on a normal day: a percentage fee below that number beats the flat fee, above it loses."}}, {"@type": "Question", "name": "Which cup size should I push?", "acceptedAnswer": {"@type": "Answer", "text": "The one with the highest margin per cup, not the highest margin percent. The report names it from your prices and the ounces of ice and syrup you put in each size."}}, {"@type": "Question", "name": "How do I allow for waste and melt?", "acceptedAnswer": {"@type": "Answer", "text": "Enter a waste percentage. It is added on top of the ice, syrup and cup cost for every serving, so spills, melt and dropped cups reduce your margin."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHAVED ICE STAND PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Will this fair pay for the shaved ice stand?</h1>
+    <p>Enter your prices, cup recipe, staff and the booth fee. You get <strong>the margin on each cup size, the cups you must sell to break even, the profit on a hot, normal and rainy day, and the most booth fee the event can bear</strong>, before you sign for the weekend.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example numbers are made up. A planning aid, not tax or financial advice. Works for lemonade, snow cones, slushies and other cup-based stands.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <h3>Prices, per size</h3>
+    <div class="grid">
+      <div><label for="smallPrice">Small price ($)</label><input type="number" id="smallPrice" min="0" step="any" value="4"></div>
+      <div><label for="mediumPrice">Medium price ($)</label><input type="number" id="mediumPrice" min="0" step="any" value="6"></div>
+      <div><label for="largePrice">Large price ($)</label><input type="number" id="largePrice" min="0" step="any" value="8"></div>
+    </div>
+    <h3>Ice and syrup per cup (ounces)</h3>
+    <div class="grid">
+      <div><label for="smallIceOz">Small ice oz</label><input type="number" id="smallIceOz" min="0" step="any" value="6"></div>
+      <div><label for="mediumIceOz">Medium ice oz</label><input type="number" id="mediumIceOz" min="0" step="any" value="10"></div>
+      <div><label for="largeIceOz">Large ice oz</label><input type="number" id="largeIceOz" min="0" step="any" value="14"></div>
+      <div><label for="smallSyrupOz">Small syrup oz</label><input type="number" id="smallSyrupOz" min="0" step="any" value="1"></div>
+      <div><label for="mediumSyrupOz">Medium syrup oz</label><input type="number" id="mediumSyrupOz" min="0" step="any" value="1.5"></div>
+      <div><label for="largeSyrupOz">Large syrup oz</label><input type="number" id="largeSyrupOz" min="0" step="any" value="2"></div>
+    </div>
+    <h3>What you sell (percent of cups)</h3>
+    <div class="grid">
+      <div><label for="smallShare">Small %</label><input type="number" id="smallShare" min="0" step="any" value="25"></div>
+      <div><label for="mediumShare">Medium %</label><input type="number" id="mediumShare" min="0" step="any" value="45"></div>
+      <div><label for="largeShare">Large %</label><input type="number" id="largeShare" min="0" step="any" value="30"></div>
+    </div>
+    <h3>Costs per cup</h3>
+    <div class="grid">
+      <div><label for="cupCost">Cup and lid ($)</label><input type="number" id="cupCost" min="0" step="any" value="0.18"></div>
+      <div><label for="strawSpoonCost">Straw or spoon ($)</label><input type="number" id="strawSpoonCost" min="0" step="any" value="0.06"></div>
+      <div><label for="iceCostPerLb">Ice cost per lb ($)</label><input type="number" id="iceCostPerLb" min="0" step="any" value="0.35"></div>
+      <div><label for="syrupCostPerOz">Syrup cost per oz ($)</label><input type="number" id="syrupCostPerOz" min="0" step="any" value="0.14"></div>
+      <div><label for="wastePct">Waste and melt %</label><input type="number" id="wastePct" min="0" step="any" value="8"></div>
+      <div><label for="cardFeePct">Card fee %</label><input type="number" id="cardFeePct" min="0" step="any" value="2.9"></div>
+      <div><label for="cardSharePct">Share of sales paid by card %</label><input type="number" id="cardSharePct" min="0" step="any" value="60"></div>
+    </div>
+    <h3>The event</h3>
+    <div class="grid">
+      <div><label for="hours">Selling hours</label><input type="number" id="hours" min="0" step="any" value="8"></div>
+      <div><label for="cupsPerHour">Cups per hour on a normal day</label><input type="number" id="cupsPerHour" min="0" step="any" value="45"></div>
+      <div><label for="staff">People working</label><input type="number" id="staff" min="0" step="any" value="2"></div>
+      <div><label for="wage">Hourly wage ($)</label><input type="number" id="wage" min="0" step="any" value="15"></div>
+      <div><label for="boothFee">Flat booth fee ($)</label><input type="number" id="boothFee" min="0" step="any" value="150"></div>
+      <div><label for="boothPctOfSales">Percent of sales to the organiser %</label><input type="number" id="boothPctOfSales" min="0" step="any" value="0"></div>
+      <div><label for="fuelAndSupplies">Generator fuel and supplies ($)</label><input type="number" id="fuelAndSupplies" min="0" step="any" value="40"></div>
+      <div><label for="otherFixed">Other fixed costs: parking, permit ($)</label><input type="number" id="otherFixed" min="0" step="any" value="25"></div>
+      <div><label for="targetProfit">Profit you want on a normal day ($)</label><input type="number" id="targetProfit" min="0" step="any" value="400"></div>
+    </div>
+    <h3>Weather (sales as a percent of a normal day)</h3>
+    <div class="grid">
+      <div><label for="weatherHot">Hot, busy day %</label><input type="number" id="weatherHot" min="0" step="any" value="130"></div>
+      <div><label for="weatherMild">Normal day %</label><input type="number" id="weatherMild" min="0" step="any" value="100"></div>
+      <div><label for="weatherCool">Cool or rainy day %</label><input type="number" id="weatherCool" min="0" step="any" value="55"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work it out</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Edit the numbers or load the example, then click Work it out.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Per cup</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Size</th><th scope="col">Price</th><th scope="col">Cost to make</th><th scope="col">Card fee</th><th scope="col">Margin</th><th scope="col">Margin %</th></tr></thead><tbody id="cups"></tbody></table></div>
+    <h3>By weather</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Day</th><th scope="col">Cups</th><th scope="col">Sales</th><th scope="col">Profit</th></tr></thead><tbody id="days"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this counts, and what it leaves out</h2>
+    <ul>
+      <li>Margin per cup = price minus ice, syrup, cup and straw (plus waste) minus the card fee on the card share of sales.</li>
+      <li>Fixed costs = booth fee + labour for every hour you are open + fuel and supplies + other fixed costs.</li>
+      <li>A percent-of-sales booth fee is taken off every cup, so it raises the break-even cups instead of adding a lump.</li>
+      <li><strong>Not modelled:</strong> sales tax, income tax, equipment purchase or depreciation, setup and teardown hours unless you add them to labour, and the chance an event is cancelled.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much profit is in a shaved ice stand?</h3>
+    <p>It depends far more on weather and booth fee than on ingredients. Ice and syrup usually cost well under a dollar a cup, so the margin per cup is high, but labour, the booth fee and a rainy day decide whether the event pays. This calculator shows the cups you must sell to break even and the profit on a hot, normal and cool day.</p>
+    <h3>How many cups do I need to sell to break even?</h3>
+    <p>Divide the day's fixed costs (booth fee, labour, fuel and supplies) by the average margin per cup after ingredients, cups, waste and card fees. The result appears at the top of the report, along with the cups per hour it implies.</p>
+    <h3>Is a flat booth fee or a percentage of sales better?</h3>
+    <p>A flat fee is better on a big day and worse on a slow one. The tool shows the percentage your flat fee equals on a normal day: a percentage fee below that number beats the flat fee, above it loses.</p>
+    <h3>Which cup size should I push?</h3>
+    <p>The one with the highest margin per cup, not the highest margin percent. The report names it from your prices and the ounces of ice and syrup you put in each size.</p>
+    <h3>How do I allow for waste and melt?</h3>
+    <p>Enter a waste percentage. It is added on top of the ice, syrup and cup cost for every serving, so spills, melt and dropped cups reduce your margin.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> when signing for an event.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>event_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../craft-fair-booth-calculator/">craft fair booth</a>, <a href="../farmers-market-booth-calculator/">farmers market booth</a>, <a href="../food-truck-event-margin-calculator/">food truck event margin</a>, <a href="../market-event-picker/">market event picker</a>, <a href="../ice-cream-shop-seasonal-profit-calculator/">ice cream shop seasonal profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["smallPrice", "mediumPrice", "largePrice", "smallIceOz", "mediumIceOz", "largeIceOz", "smallSyrupOz", "mediumSyrupOz", "largeSyrupOz", "smallShare", "mediumShare", "largeShare", "cupCost", "strawSpoonCost", "iceCostPerLb", "syrupCostPerOz", "wastePct", "cardFeePct", "cardSharePct", "hours", "cupsPerHour", "staff", "wage", "boothFee", "boothPctOfSales", "fuelAndSupplies", "otherFixed", "targetProfit", "weatherHot", "weatherMild", "weatherCool"];
+    const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+    let last = null;
+
+    function run() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#cups").innerHTML = r.cups.map((c) => `<tr><th scope="row">${esc(c.size)}</th><td>${usd(c.price)}</td><td>${usd(c.make)}</td><td>${usd(c.card)}</td><td>${usd(c.margin)}</td><td>${(c.marginPct * 100).toFixed(0)}%</td></tr>`).join("");
+      $("#days").innerHTML = r.scenarios.map((s) => `<tr><th scope="row">${esc(s.name)}</th><td>${s.sold}</td><td>${usd(s.revenue)}</td><td>${usd(s.profit)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("event_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "shaved-ice-cup-margins.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

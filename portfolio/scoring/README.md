@@ -19,7 +19,12 @@ python3 portfolio/scoring/score_ventures.py            # merit table + anchor co
 python3 portfolio/scoring/score_ventures.py --check    # CI: derived fields and coverage
 python3 portfolio/scoring/score_ventures.py --json
 cd portfolio/scoring && python3 -m unittest test_score_ventures
+python3 portfolio/scoring/ventures_summary.py          # regenerate VENTURES_SUMMARY.md
 ```
+
+[`VENTURES_SUMMARY.md`](VENTURES_SUMMARY.md) lists every scored venture grouped
+by the catalogue's categories (from `platform/pages/build.mjs`) and by product
+type, each group ranked by composite. It adds no score of its own.
 
 ## Method
 

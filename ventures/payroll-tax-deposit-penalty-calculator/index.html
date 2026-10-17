@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payroll Tax Deposit Penalty Calculator — Due Dates and Late-Deposit Cost</title>
+  <meta name="description" content="Free payroll tax deposit calculator for small employers: monthly or semiweekly due dates, the $100,000 next-day rule, and the failure-to-deposit penalty with the cheapest way to apply your deposits. Runs in your browser.">
+  <meta property="og:title" content="Payroll Tax Deposit Penalty Calculator — due dates and late-deposit cost">
+  <meta property="og:description" content="Paste your paydays and deposits; see each due date, what late deposits cost, and which designation minimises the penalty. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Payroll Tax Deposit Penalty Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser calculator for payroll tax deposit due dates, the $100,000 rule and the failure-to-deposit penalty."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When are payroll tax deposits due?", "acceptedAnswer": {"@type": "Answer", "text": "A monthly depositor deposits by the 15th of the following month. A semiweekly depositor deposits for Wednesday, Thursday and Friday paydays by the next Wednesday, and for Saturday through Tuesday paydays by the next Friday, with one extra banking day when a holiday falls inside the window. Whichever applies, a due date on a weekend or holiday moves to the next banking day."}}, {"@type": "Question", "name": "Am I a monthly or semiweekly depositor?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the total employment tax you reported in the lookback period, which is the four quarters ending the previous June 30. If it was $50,000 or less you deposit monthly, and if it was more you deposit semiweekly. A new employer deposits monthly until a lookback period exists."}}, {"@type": "Question", "name": "What is the $100,000 next-day deposit rule?", "acceptedAnswer": {"@type": "Answer", "text": "If your tax liability reaches $100,000 or more on any day, you must deposit that amount by the next banking day, whatever your schedule. A monthly depositor who crosses it becomes a semiweekly depositor for the rest of the year and the next year."}}, {"@type": "Question", "name": "How much is the failure-to-deposit penalty?", "acceptedAnswer": {"@type": "Answer", "text": "The penalty is 2% of the underpaid deposit if it is 1 to 5 days late, 5% if 6 to 15 days late, and 10% if more than 15 days late. It rises to 15% if the amount is still unpaid ten days after the first IRS notice. Interest is charged separately."}}, {"@type": "Question", "name": "Why does it matter which liability my deposit is applied to?", "acceptedAnswer": {"@type": "Answer", "text": "Deposits are applied to the most recent liability first unless you designate otherwise within 90 days of a penalty notice. That default can leave an older liability unpaid in a higher penalty tier, so choosing which period each deposit covers can change the total penalty."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does date arithmetic and percentages on the paydays and deposits you type in. It is not tax or legal advice, it does not file or pay anything, and the IRS's own notice and your tax professional control."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+      .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAYROLL TAX DEPOSIT PENALTY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did you deposit payroll taxes on time, and what is a late one costing you?</h1>
+    <p>Paste the <strong>federal payroll tax liability for each payday</strong> and the <strong>deposits you made</strong>.
+    The tool works out your deposit schedule, the due date of every deposit (weekends, holidays and the
+    <strong>$100,000 next-day rule</strong> included), and the <strong>failure-to-deposit penalty</strong> at 2%, 5% and 10%.
+    Because deposits are applied to the newest liability first by default, it also finds the cheapest way to
+    designate your own deposits and shows the difference.</p>
+    <p class="note">Nothing is uploaded. Your payroll figures are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your schedule</h2>
+    <div class="grid">
+      <div><label for="lookback">Employment tax reported in the lookback period ($)</label><input type="number" id="lookback" step="100" value="30000"></div>
+      <div><label for="newemp">New employer (no lookback yet)?</label><select id="newemp"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="asof">Calculate as of (date)</label><input type="date" id="asof"></div>
+    </div>
+    <p class="note">The lookback period is the four quarters ending June 30 of the previous year: the sum of Form 941 line 12 (or the Form 944 equivalent) for those quarters.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Payday liabilities and deposits</h2>
+    <div class="grid">
+      <div><label for="liabilities">Tax liability by payday, one per line: date, amount</label><textarea id="liabilities" spellcheck="false" placeholder="2026-01-09, 10000"></textarea></div>
+      <div><label for="deposits">Deposits made, one per line: date, amount</label><textarea id="deposits" spellcheck="false" placeholder="2026-03-02, 10000"></textarea></div>
+    </div>
+    <p class="note">Use the full federal liability for each payday (income tax withheld plus both halves of Social Security and Medicare). Dates as YYYY-MM-DD or M/D/YYYY. Lines starting with # are ignored.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter paydays and deposits, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="total" id="report-total"></p>
+    <p class="stats" id="report-stats"></p>
+    <table>
+      <thead><tr><th>Penalty if deposits are applied</th><th>Penalty</th></tr></thead>
+      <tbody id="strategy-table"></tbody>
+    </table>
+    <h3>Each deposit obligation</h3>
+    <table>
+      <thead><tr><th>Amount</th><th>Rule</th><th>Due</th><th>Late by (default)</th><th>Penalty (default)</th><th>Penalty (cheapest)</th></tr></thead>
+      <tbody id="ob-table"></tbody>
+    </table>
+    <div id="report-notes"></div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not tax or legal advice.</strong> The IRS's records and notices control; a tax professional can confirm what applies to you.</li>
+      <li><strong>No interest.</strong> Interest on underpayments is charged on top of the penalty and is not computed here.</li>
+      <li><strong>No 15% tier and no notice date.</strong> The penalty rises to 15% if an amount stays unpaid ten days after the first notice; this tool stops at 10%.</li>
+      <li><strong>Federal deposits only.</strong> State and local withholding, unemployment and Form 940 deposits have their own rules. Penalty relief such as reasonable cause or first-time abatement is not modelled.</li>
+      <li><strong>Holiday list is the federal banking calendar.</strong> A holiday on a Sunday moves to Monday; a Saturday holiday does not move. Local holidays are not applied.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>When are payroll tax deposits due?</h3>
+    <p>A monthly depositor deposits by the 15th of the following month. A semiweekly depositor deposits for Wednesday, Thursday and Friday paydays by the next Wednesday, and for Saturday through Tuesday paydays by the next Friday, with one extra banking day when a holiday falls inside the window. Whichever applies, a due date on a weekend or holiday moves to the next banking day.</p>
+    <h3>Am I a monthly or semiweekly depositor?</h3>
+    <p>It depends on the total employment tax you reported in the lookback period, which is the four quarters ending the previous June 30. If it was $50,000 or less you deposit monthly, and if it was more you deposit semiweekly. A new employer deposits monthly until a lookback period exists.</p>
+    <h3>What is the $100,000 next-day deposit rule?</h3>
+    <p>If your tax liability reaches $100,000 or more on any day, you must deposit that amount by the next banking day, whatever your schedule. A monthly depositor who crosses it becomes a semiweekly depositor for the rest of the year and the next year.</p>
+    <h3>How much is the failure-to-deposit penalty?</h3>
+    <p>The penalty is 2% of the underpaid deposit if it is 1 to 5 days late, 5% if 6 to 15 days late, and 10% if more than 15 days late. It rises to 15% if the amount is still unpaid ten days after the first IRS notice. Interest is charged separately.</p>
+    <h3>Why does it matter which liability my deposit is applied to?</h3>
+    <p>Deposits are applied to the most recent liability first unless you designate otherwise within 90 days of a penalty notice. That default can leave an older liability unpaid in a higher penalty tier, so choosing which period each deposit covers can change the total penalty.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It does date arithmetic and percentages on the paydays and deposits you type in. It is not tax or legal advice, it does not file or pay anything, and the IRS's own notice and your tax professional control.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace the IRS, your payroll provider, or a qualified professional. Check every figure against your own records and notices.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you type.</p>
+    <p>Everything runs in your browser. Your payroll figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deposits_calculated</code>, <code>example_loaded</code>) are counted in this browser only, and stay off if you turn counting off or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a> the <a href="../employee-cost-calculator/">employee cost calculator</a> and the <a href="../workers-comp-premium-calculator/">workers' comp premium calculator</a>.</p>
+    <p>Send payroll by ACH file? The <a href="../nacha-file-validator/">NACHA file validator</a> checks the file against the record layout, routing check digits and control totals before the bank sees it &mdash; nothing uploaded.</p>
+    <p>Filing W-2s by wage file? The <a href="../w2-efw2-file-validator/">W-2 EFW2 file validator</a> checks the file&rsquo;s record lengths, SSNs and RT and RF totals before SSA sees it &mdash; nothing uploaded.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { analyse, findings, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const money = (c) => "$" + dollars(c).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+    const RULE = { monthly: "Monthly", semiweekly: "Semiweekly", "next-day": "$100k next-day" };
+    const today = () => new Date().toISOString().slice(0, 10);
+    $("#asof").value = today();
+
+    function run() {
+      const out = $("#report");
+      try {
+        const r = analyse({
+          newEmployer: $("#newemp").value === "yes", lookbackTotal: $("#lookback").value, asOf: $("#asof").value,
+          liabilities: $("#liabilities").value, deposits: $("#deposits").value,
+        });
+        $("#report-total").textContent = money(r.default.penaltyCents) + " estimated failure-to-deposit penalty";
+        $("#report-stats").textContent = "You are a " + r.schedule.schedule + " depositor (" + r.schedule.reason + "). Owed " + money(r.owedCents) + " across " + r.obligations.length + " deposits; " + money(r.depositedCents) + " deposited by " + r.asOf + ".";
+        $("#strategy-table").innerHTML = [["Newest liability first (the IRS default)", r.default], ["Oldest liability first (designated)", r.oldest], ["Cheapest legal matching of your deposits", r.optimal]]
+          .map(([k, v]) => `<tr><th scope="row">${k}</th><td>${money(v.penaltyCents)}</td></tr>`).join("");
+        $("#ob-table").innerHTML = r.obligations.map((o, i) => {
+          const d = r.default.perObligation[i], b = r.optimal.perObligation[i];
+          return `<tr><td>${money(o.cents)}</td><td>${RULE[o.rule]}</td><td>${o.due}</td><td>${d.lastDaysLate ? d.lastDaysLate + " days" + (d.unpaid ? " (unpaid portion priced as of " + r.asOf + ")" : "") : "on time or not yet due"}</td><td>${money(d.penaltyCents)}</td><td>${money(b.penaltyCents)}</td></tr>`;
+        }).join("");
+        $("#report-notes").innerHTML = r.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("");
+        $("#report-findings").innerHTML = findings(r).map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+        out.hidden = false;
+        $("#form-status").textContent = "";
+        record("deposits_calculated");
+        out.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        out.hidden = true;
+        $("#form-status").textContent = e.message;
+      }
+    }
+    $("#calculate").addEventListener("click", run);
+
+    $("#load-example").addEventListener("click", () => {
+      $("#lookback").value = "30000"; $("#newemp").value = "no"; $("#asof").value = "2026-03-20";
+      $("#liabilities").value = "2026-01-09, 10000\n2026-02-06, 12000";
+      $("#deposits").value = "2026-03-02, 10000";
+      run();
+      record("example_loaded");
+      $("#form-status").textContent = "Worked example: a monthly depositor owes 10,000 for January and 12,000 for February and makes one 10,000 deposit on March 2, checked as of March 20.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      $("#liabilities").value = ""; $("#deposits").value = ""; $("#lookback").value = "30000"; $("#newemp").value = "no"; $("#asof").value = today();
+      $("#report").hidden = true;
+      $("#form-status").textContent = "Enter paydays and deposits, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

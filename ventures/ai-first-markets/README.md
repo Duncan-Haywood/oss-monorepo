@@ -99,4 +99,4 @@ src/
 
 ## License
 
-Private — authorized access only.
+MIT — see [`LICENSE`](LICENSE).

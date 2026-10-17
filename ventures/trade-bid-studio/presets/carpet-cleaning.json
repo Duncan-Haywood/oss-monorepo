@@ -1,0 +1,79 @@
+{
+  "slug": "carpet-cleaning-bid-calculator",
+  "name": "Carpet cleaning",
+  "group": "Cleaning & janitorial",
+  "summary": "Carpet extraction priced from square feet by soil level, pet passes, stairs, upholstery and drive time.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 20,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 35,
+  "items": [
+    {
+      "label": "Extract carpet, normal soil",
+      "unit": "sq ft",
+      "qty": 320,
+      "hoursPerUnit": 0.003571,
+      "materialPerUnit": 0.04,
+      "source": "STARTING_ROOMS non-pet rooms 140 + 120 + 60 sq ft at 280 sq ft/h (SOIL_PRESETS normal; index.html); chemicalsPerSqFt $0.04"
+    },
+    {
+      "label": "Extract pet rooms with one extra pass",
+      "unit": "sq ft",
+      "qty": 500,
+      "hoursPerUnit": 0.007143,
+      "materialPerUnit": 0.04,
+      "source": "STARTING_ROOMS pet rooms 320 + 180 sq ft at 280 sq ft/h x (1 + extraPassMultiplier 1) (index.html, calc.mjs calculateJob); chemicalsPerSqFt $0.04"
+    },
+    {
+      "label": "Pet chemistry",
+      "unit": "room",
+      "qty": 2,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 12,
+      "source": "petChemistryPerRoom $12 on the 2 pet-treated rooms (index.html)"
+    },
+    {
+      "label": "Stairs",
+      "unit": "flight",
+      "qty": 2,
+      "hoursPerUnit": 0.2,
+      "materialPerUnit": 0,
+      "source": "stairFlights 2 x minutesPerFlight 12 / 60 (index.html, DEFAULT_MINUTES_PER_FLIGHT)"
+    },
+    {
+      "label": "Upholstery: 3-seat sofa",
+      "unit": "each",
+      "qty": 1,
+      "hoursPerUnit": 1.25,
+      "materialPerUnit": 0,
+      "source": "STARTING_UPHOLSTERY sofa 75 minutes (index.html, UPHOLSTERY_PRESETS)"
+    },
+    {
+      "label": "Furniture moving",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.4167,
+      "materialPerUnit": 0,
+      "source": "furnitureMoveMinutes 25 / 60 (index.html)"
+    },
+    {
+      "label": "Drive time, round trip",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0.6667,
+      "materialPerUnit": 0,
+      "source": "travelMinutes 40 round trip / 60 (index.html)"
+    },
+    {
+      "label": "Water, disposal, fuel, parking",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 12,
+      "source": "otherJobCost $12 (index.html)"
+    }
+  ],
+  "specialistModels": "Room-by-room soil production rates, a $149 minimum charge, the hidden-hours share versus a per-room special, and a full upholstery piece list."
+}

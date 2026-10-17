@@ -1,0 +1,45 @@
+assumed carriage mass M = 0.3 kg; longest rod L = 0.42 m; Rayleigh effective rod mass 17/35
+== first natural frequency (Hz) at the standard 8 mm diameter
+steel           41.6 Hz   rod-only    90.5 Hz
+aluminium       26.4 Hz   rod-only    90.7 Hz
+hardwood        10.4 Hz   rod-only    67.8 Hz
+printed-PLA      5.1 Hz   rod-only    25.4 Hz
+
+== minimum diameter (mm) to reach a target frequency; '*' = above the 12 mm standard-holder limit
+-- carriage mass 0.1 kg
+target Hz       steel    aluminium     hardwood  printed-PLA
+      20         4.2          5.3          8.6         12.7*
+      40         6.2          7.8         12.3*        19.3*
+      60         8.0          9.8         15.4*        25.3*
+     100        11.3         13.4*        20.7*        36.9*
+     150        15.3*        17.5*        26.6*        51.6*
+-- carriage mass 0.3 kg
+target Hz       steel    aluminium     hardwood  printed-PLA
+      20         5.4          6.9         11.2         16.3*
+      40         7.8         10.0         16.0*        24.0*
+      60         9.9         12.4*        19.8*        30.5*
+     100        13.5*        16.6*        26.1*        42.6*
+     150        17.6*        21.1*        32.9*        57.1*
+-- carriage mass 1.0 kg
+target Hz       steel    aluminium     hardwood  printed-PLA
+      20         7.2          9.3         15.0*        21.6*
+      40        10.3         13.3*        21.4*        31.2*
+      60        12.8*        16.4*        26.3*        39.1*
+     100        17.1*        21.6*        34.4*        52.7*
+     150        21.7*        27.0*        42.8*        68.1*
+
+== hardwood dowel diameter / steel rod diameter at equal frequency (0.3 kg carriage), vs the sag-matching ratio 2.11 of selfrep-rodbeam
+  20 Hz: steel   5.4 mm, hardwood  11.2 mm, ratio  2.08
+  40 Hz: steel   7.8 mm, hardwood  16.0 mm, ratio  2.04
+  60 Hz: steel   9.9 mm, hardwood  19.8 mm, ratio  2.01
+ 100 Hz: steel  13.5 mm, hardwood  26.1 mm, ratio  1.94
+ 150 Hz: steel  17.6 mm, hardwood  32.9 mm, ratio  1.87
+
+== matching the 8 mm steel rod's own frequency (41.6 Hz): hardwood needs 16.3 mm (selfrep-rodbeam's sag-matching: 16.9 mm)
+   hardwood at 8 mm reaches 10.4 Hz = 0.25 of steel
+
+== mass closure (printer+cnc+laser, all substitutions) with wooden rods sized for a frequency target
+ 20 Hz: dowel  11.2 mm, mass closure 35.5%
+ 30 Hz: dowel  13.8 mm, mass closure 36.5%
+ 40 Hz: dowel  16.0 mm, mass closure 37.4%
+ 60 Hz: dowel  19.8 mm, mass closure 39.3%

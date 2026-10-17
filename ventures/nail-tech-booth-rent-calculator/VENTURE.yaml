@@ -1,0 +1,45 @@
+name: nail-tech-booth-rent-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for nail techs and other independent beauty professionals choosing between booth/chair rent, a commission split and an hourly job: enter hours at the salon, clients, ticket, chair minutes, unpaid admin hours, tips, retail, supplies and the rent, split or wage on offer, and get take-home per hour worked (not per hour booked) with idle chair time, card fees, insurance and a self-employment tax estimate, the break-even clients per week and the client count where booth rent overtakes the others; paste past weeks and see which arrangement actually paid. Numbers and tax rates are the ones the user supplies, not market rates or tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a nail tech takes home per hour worked by picking the arrangement that survives slow weeks and exposing which past weeks underpaid.
+# Checked 2026-10-03: ventures/ has booth-rent-vs-commission (stylists, barbers and nail techs: booth vs a commission split on one
+# client book, no employee option, no tax estimate, no weekly audit), massage-therapist-profit-calculator and tattoo-piece-profit-calculator
+# (other chair trades), bridal-hair-makeup-pricing-calculator (event quotes). `salon-booth-rent-calculator` was the first idea and was dropped
+# as too close to booth-rent-vs-commission; this one is the nail-tech variant: three-way booth/commission/employee on take-home per hour
+# WORKED, supplies per client, a self-employment tax estimate, break-even clients and a CSV audit of past weeks. Not in screened-out.md.
+#
+# First visitor: searches "booth rent vs commission nail tech", "should I rent a booth nail tech", "nail tech commission split",
+# "how many clients to pay booth rent"; nail tech groups and forums. Volume not measured with an external tool. A hosted version that
+# reads booking-app exports is the natural paid upgrade.
+hypotheses:
+  - claim: A nail tech will enter a typical week, see take-home per hour worked under booth, commission and employee, and change the deal they sign or counter-offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A nail tech will paste past weeks, see which arrangement underpaid once idle hours and tax set-asides are counted, and change their rent, split or schedule.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only typed or pasted values in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No nail tech reports changing a rent, split or schedule because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nail-tech-booth-rent-calculator/
+  analytics: null

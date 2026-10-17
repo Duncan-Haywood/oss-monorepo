@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wedding Day Timeline Builder — free, with sunset portraits planned</title>
+  <meta name="description" content="Free wedding day timeline builder. Enter your date, city, ceremony time and guest count and get a minute-by-minute schedule: hair and makeup, first look, portraits, ceremony, cocktail hour, dinner, toasts and dancing, with sunset portraits placed at golden hour. Separate views for each vendor. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Wedding Day Timeline Builder — free, private, in your browser">
+  <meta property="og:description" content="A minute-by-minute wedding day schedule with sunset portraits, a ceremony time advisor and one-click views for the photographer, DJ and caterer.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Day Timeline Builder","applicationCategory":"LifestyleApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free wedding day timeline builder. Enter the date, city, ceremony time and guest count and get a minute-by-minute schedule: hair and makeup, first look, portraits, ceremony, cocktail hour, dinner, toasts and dancing, with sunset portraits placed at golden hour and a ceremony time advisor. Separate views for the photographer, DJ and caterer. Runs in your browser; nothing is uploaded.","featureList":"wedding day timeline, wedding photography timeline, first look timeline, golden hour sunset portraits, ceremony start time advisor, hair and makeup schedule, vendor schedules, calendar export ics, csv export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long should wedding photos take?","acceptedAnswer":{"@type":"Answer","text":"Allow about 15 minutes for a first look, 30 for portraits of the two of you, roughly 10 minutes plus 2 per person for the wedding party, and about 3 minutes per family group plus a few minutes of setup. For a party of 8 and 10 family groups that is about 1 hour 45 minutes in total, which is why many couples do a first look and move most of it ahead of the ceremony."}},{"@type":"Question","name":"Do we need a first look?","acceptedAnswer":{"@type":"Answer","text":"No, but without one every portrait happens after the ceremony and eats into the cocktail hour. This builder shows both versions: with no first look it tells you how many minutes the cocktail hour stretches while guests wait, so you can decide with real numbers."}},{"@type":"Question","name":"What time should sunset portraits happen?","acceptedAnswer":{"@type":"Answer","text":"Aim to start about 30 minutes before sunset and keep it to 15 minutes, so the light is low and warm but you still have it. The builder works out sunset for your date and city and places a 15-minute session at the nearest time that does not collide with anything the two of you must attend."}},{"@type":"Question","name":"What time should our ceremony start?","acceptedAnswer":{"@type":"Answer","text":"Late enough that the ceremony and family portraits are in good light, early enough that the ceremony ends well before sunset if it is outdoors, and with enough room before the music stops for dinner, toasts and an hour or more of dancing. The ceremony time advisor scores every half hour from 10 AM to 7:30 PM against your own details and shows the best three."}},{"@type":"Question","name":"How much time do we need for hair and makeup?","acceptedAnswer":{"@type":"Answer","text":"About 90 minutes for the bride or lead client and about 60 for each other person is a common starting point. The builder splits the list across your artists, shows each person's start and finish and works the start time backwards from when the dress goes on."}},{"@type":"Question","name":"Is my wedding information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save timeline to keep a file you can load again, and print or export the timeline for each vendor."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a2227; background: #faf6f3; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #7a2447; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a1630; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1630; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4a52; }
+    .card { background: #fff; border: 1px solid #e6d9d9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a163012; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=date], input[type=time], input[type=number], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b6a72; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a2447; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f1e4e6; color: #4a1630; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #f0e4e4; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #5a4a52; }
+    td.t { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+    tr.golden td { background: #fdeccb; }
+    tr.ceremony td { background: #f6dfe7; font-weight: 700; }
+    tr.point td.t { color: #5a4a52; font-weight: 400; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 10px 0 0; }
+    .check input { width: auto; }
+    fieldset { border: 1px solid #e6d9d9; border-radius: 10px; margin: 14px 0 0; padding: 8px 14px 12px; }
+    legend { font-weight: 700; padding: 0 6px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f6ebee; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #4a1630; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    .tabs button { margin-top: 6px; }
+    .tabs button[aria-pressed=true] { background: #7a2447; color: #fff; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d9d9; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    @media print { body { padding: 0; background: #fff; } .card { box-shadow: none; border: 0; } #setup, #advice-card, .actions, .faq, footer, header .note, .tabs { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WEDDING DAY TIMELINE BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>A minute-by-minute wedding day timeline, with the sunset worked out</h1>
+    <p>Enter your <strong>date, city and ceremony time</strong> and get the whole day in order: <strong>hair and makeup</strong> start times, the <strong>first look</strong> and portraits, the <strong>ceremony</strong>, <strong>cocktail hour</strong>, <strong>dinner</strong>, <strong>toasts</strong> and <strong>dancing</strong>, back-timed from the hour the music has to stop. A <strong>sunset portrait</strong> slot is placed at golden hour without moving anything else, and a <strong>ceremony time advisor</strong> tells you which start times work best. Print a separate sheet for the photographer, DJ and caterer.</p>
+    <p class="note">Planning photos? Read <a href="./wedding-photography-timeline.html">how long wedding photos take, with worked times</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The day</h2>
+    <div class="grid">
+      <div><label for="date">Wedding date</label><input type="date" id="date"></div>
+      <div><label for="city">City (for sunset)</label><select id="city"></select></div>
+      <div><label for="ceremony">Ceremony starts</label><input type="time" id="ceremony" value="16:30"></div>
+      <div><label for="curfew">Music has to stop at</label><input type="time" id="curfew" value="22:30"></div>
+    </div>
+    <div class="grid" id="custom-loc" hidden>
+      <div><label for="lat">Latitude</label><input type="number" id="lat" step="0.0001" min="-90" max="90"></div>
+      <div><label for="lon">Longitude</label><input type="number" id="lon" step="0.0001" min="-180" max="180"></div>
+      <div><label for="offset">UTC offset on that day</label><input type="number" id="offset" step="0.5" min="-12" max="14" placeholder="-5"></div>
+    </div>
+    <p class="note">Pick a city close to the venue, or choose "Other" to type coordinates. Sunset is computed from the date and place; it is accurate to a few minutes. If the music stops after midnight, enter the clock time (for example 00:30).</p>
+    <div class="grid">
+      <div><label for="ceremony-len">Ceremony length (minutes)</label><input type="number" id="ceremony-len" value="30" min="10" max="120"></div>
+      <div><label for="guests">Guests</label><input type="number" id="guests" value="100" min="2" max="1000"></div>
+      <div><label for="meal">Meal service</label><select id="meal"><option value="plated">Plated dinner</option><option value="buffet">Buffet</option><option value="stations">Food stations</option><option value="family">Family style</option></select></div>
+      <div><label for="cocktail">Cocktail hour (minutes)</label><input type="number" id="cocktail" value="60" min="0" max="180"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="outdoors" checked> The ceremony is outdoors (flags a ceremony too close to sunset)</label>
+    <label class="check"><input type="checkbox" id="same-venue" checked> Ceremony and reception are at the same place</label>
+    <div class="grid" id="travel-box" hidden><div><label for="travel">Travel between the two (minutes)</label><input type="number" id="travel" value="20" min="0" max="120"></div></div>
+
+    <h2 style="margin-top:20px">2. Photos and getting ready</h2>
+    <label class="check"><input type="checkbox" id="first-look" checked> We are doing a first look (portraits before the ceremony)</label>
+    <div class="grid">
+      <div><label for="party">People in the wedding party</label><input type="number" id="party" value="8" min="0" max="30"></div>
+      <div><label for="groups">Family photo groups</label><input type="number" id="groups" value="10" min="0" max="40"></div>
+      <div><label for="per-group">Minutes per family group</label><input type="number" id="per-group" value="3" min="1" max="10" step="0.5"></div>
+      <div><label for="hair-people">People getting hair and makeup</label><input type="number" id="hair-people" value="5" min="0" max="20"></div>
+      <div><label for="artists">Hair and makeup artists</label><input type="number" id="artists" value="2" min="1" max="8"></div>
+      <div><label for="bride-min">Minutes for the lead client</label><input type="number" id="bride-min" value="90" min="20" max="240"></div>
+      <div><label for="other-min">Minutes for each other person</label><input type="number" id="other-min" value="60" min="15" max="180"></div>
+    </div>
+
+    <h2 style="margin-top:20px">3. The reception</h2>
+    <div class="grid">
+      <div><label for="toasts">Number of toasts</label><input type="number" id="toasts" value="3" min="0" max="10"></div>
+      <div><label for="dinner-min">Dinner length override (minutes, optional)</label><input type="number" id="dinner-min" min="20" max="180" placeholder="automatic"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="entrance" checked> Grand entrance</label>
+    <label class="check"><input type="checkbox" id="parents" checked> Parent dances</label>
+    <label class="check"><input type="checkbox" id="cake" checked> Cake cutting</label>
+    <label class="check"><input type="checkbox" id="bouquet"> Bouquet and garter toss</label>
+    <label class="check"><input type="checkbox" id="sendoff" checked> Grand send-off</label>
+
+    <button type="button" id="build">Build my timeline</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved timeline</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved timeline file">
+    <p id="form-status" role="status" class="note">Enter the date, city, ceremony time and end time, then click Build.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>Your timeline</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="tabs" id="tabs" role="group" aria-label="Who is this sheet for"></div>
+    <div class="scroll"><table id="tl"><thead><tr><th>Time</th><th>What happens</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">When each vendor should arrive</h2>
+    <div class="scroll"><table id="vendors"><thead><tr><th>Arrive by</th><th>Who</th></tr></thead><tbody></tbody></table></div>
+    <div class="actions">
+      <button type="button" id="print">Print this sheet</button>
+      <button type="button" class="secondary" id="dl-ics">Download calendar file (.ics)</button>
+      <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+      <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+      <button type="button" class="secondary" id="save-file">Save timeline</button>
+    </div>
+  </section>
+
+  <section class="card" id="advice-card" hidden>
+    <h2>Which ceremony start time works best?</h2>
+    <p id="advice-own"></p>
+    <div class="scroll"><table id="advice"><thead><tr><th>Start</th><th>Score</th><th>Why</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Every half hour from 10:00 AM to 7:30 PM is rebuilt with your other answers and scored: the program must fit before the music stops, an outdoor ceremony should end well before sunset, the sunset portraits need a free slot, and the cocktail hour should not stretch while guests wait.</p>
+  </section>
+
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Back-timing:</strong> the day is worked backwards from the ceremony (guests seated 30 minutes before, family, wedding party and couple portraits and a first look before that, then the dress, then hair and makeup) and forwards from it (photos or cocktail hour, entrance, first dance, dinner, toasts, cake). Open dancing is whatever time is left before the music stops, and the page tells you when that is too little.</p>
+    <p><strong>Sunset:</strong> computed from the date, latitude and longitude with the NOAA solar position formulas. The sunset portrait session is 15 minutes starting about 30 minutes before sunset. It is an overlay on the couple's free time, so no other event moves; if every nearby slot is taken the page says which event is in the way.</p>
+    <p><strong>Rules of thumb:</strong> the durations (15 minutes for a first look, 3 minutes per family group, 90 and 60 minutes for hair and makeup, 4 minutes per toast) are common planning conventions, not measurements. Change any of them above, and confirm every time with your vendors and venue.</p>
+    <p><strong>Checked:</strong> the test suite compares computed sunsets with published almanac values, builds timelines across cities, seasons and start times, and confirms that events stay in order, the couple is never double-booked and the program ends at the time you set.</p>
+  </section>
+
+  <section class="card faq">
+    <h2>Common questions</h2>
+    <h3>How long should wedding photos take?</h3>
+    <p>Allow about 15 minutes for a first look, 30 for portraits of the two of you, roughly 10 minutes plus 2 per person for the wedding party, and about 3 minutes per family group plus a few minutes of setup. For a party of 8 and 10 family groups that is about 1 hour 45 minutes in total, which is why many couples do a first look and move most of it ahead of the ceremony.</p>
+    <h3>Do we need a first look?</h3>
+    <p>No, but without one every portrait happens after the ceremony and eats into the cocktail hour. This builder shows both versions: with no first look it tells you how many minutes the cocktail hour stretches while guests wait, so you can decide with real numbers.</p>
+    <h3>What time should sunset portraits happen?</h3>
+    <p>Aim to start about 30 minutes before sunset and keep it to 15 minutes, so the light is low and warm but you still have it. The builder works out sunset for your date and city and places a 15-minute session at the nearest time that does not collide with anything the two of you must attend.</p>
+    <h3>What time should our ceremony start?</h3>
+    <p>Late enough that the ceremony and family portraits are in good light, early enough that the ceremony ends well before sunset if it is outdoors, and with enough room before the music stops for dinner, toasts and an hour or more of dancing. The ceremony time advisor scores every half hour from 10 AM to 7:30 PM against your own details and shows the best three.</p>
+    <h3>How much time do we need for hair and makeup?</h3>
+    <p>About 90 minutes for the bride or lead client and about 60 for each other person is a common starting point. The builder splits the list across your artists, shows each person's start and finish and works the start time backwards from when the dress goes on.</p>
+    <h3>Is my wedding information uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server and there are no accounts. Use Save timeline to keep a file you can load again, and print or export the timeline for each vendor.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is general planning guidance, not legal, financial or professional wedding-planning advice. <strong>You are responsible for confirming every time, vendor requirement and venue rule</strong> with the people involved. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any wedding planner, photographer, venue, marketplace or wedding brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so use Save timeline and keep the file.</p>
+    <p>Everything runs in your browser. Your dates, names and choices are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>timeline_built</code>, <code>example_loaded</code>, <code>ics_downloaded</code>, <code>csv_downloaded</code>, <code>text_copied</code>, <code>file_saved</code>, <code>sheet_printed</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Related tools: the <a href="../wedding-photographer-profit-calculator/">wedding photographer profit calculator</a> for pricing packages, and the <a href="../bridal-hair-makeup-pricing-calculator/">bridal hair and makeup pricing calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CITIES, VIEWS, tzOffsetHours, sunTimes, normalize, buildDay, adviseCeremonyTimes, viewEvents, fmtTime, timeInput, prettyDate, timelineCsv, timelineIcs, timelineText, serializeState, parseState, sampleFields } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let P = null, D = null, view = "all";
+
+    $("#city").innerHTML = CITIES.map((c) => '<option value="' + esc(c.name) + '">' + esc(c.name) + "</option>").join("") + '<option value="other">Other (type coordinates)</option>';
+    $("#city").value = "New York, NY";
+    const syncVisibility = () => { $("#custom-loc").hidden = $("#city").value !== "other"; $("#travel-box").hidden = $("#same-venue").checked; };
+    $("#city").addEventListener("change", syncVisibility);
+    $("#same-venue").addEventListener("change", syncVisibility);
+
+    function raw() {
+      const city = CITIES.find((c) => c.name === $("#city").value);
+      const date = $("#date").value;
+      return {
+        date, ceremonyStart: $("#ceremony").value, curfew: $("#curfew").value,
+        lat: city ? city.lat : $("#lat").value, lon: city ? city.lon : $("#lon").value,
+        offset: city ? (tzOffsetHours(date, city.tz) ?? "") : $("#offset").value,
+        ceremonyLen: $("#ceremony-len").value, guests: $("#guests").value, meal: $("#meal").value, cocktailMin: $("#cocktail").value,
+        outdoors: $("#outdoors").checked, sameVenue: $("#same-venue").checked, travel: $("#travel").value,
+        firstLook: $("#first-look").checked, partySize: $("#party").value, familyGroups: $("#groups").value, minPerGroup: $("#per-group").value,
+        hairPeople: $("#hair-people").value, artists: $("#artists").value, brideMin: $("#bride-min").value, otherMin: $("#other-min").value,
+        toasts: $("#toasts").value, dinnerMin: $("#dinner-min").value,
+        grandEntrance: $("#entrance").checked, parentDances: $("#parents").checked, cake: $("#cake").checked, bouquet: $("#bouquet").checked, sendoff: $("#sendoff").checked,
+      };
+    }
+
+    const FIELD_IDS = { ceremonyStart: "ceremony", curfew: "curfew", ceremonyLen: "ceremony-len", guests: "guests", meal: "meal", cocktailMin: "cocktail", travel: "travel", partySize: "party", familyGroups: "groups", minPerGroup: "per-group", hairPeople: "hair-people", artists: "artists", brideMin: "bride-min", otherMin: "other-min", toasts: "toasts", dinnerMin: "dinner-min", date: "date" };
+    const CHECK_IDS = { outdoors: "outdoors", sameVenue: "same-venue", firstLook: "first-look", grandEntrance: "entrance", parentDances: "parents", cake: "cake", bouquet: "bouquet", sendoff: "sendoff" };
+    function formState() {
+      const f = {};
+      for (const [k, id] of Object.entries(FIELD_IDS)) f[k] = $("#" + id).value;
+      for (const [k, id] of Object.entries(CHECK_IDS)) f[k] = $("#" + id).checked;
+      f.city = $("#city").value; f.lat = $("#lat").value; f.lon = $("#lon").value; f.offset = $("#offset").value;
+      return f;
+    }
+    function fill(f) {
+      for (const [k, id] of Object.entries(FIELD_IDS)) if (f[k] !== undefined) $("#" + id).value = f[k];
+      for (const [k, id] of Object.entries(CHECK_IDS)) if (f[k] !== undefined) $("#" + id).checked = Boolean(f[k]);
+      if (f.city && [...$("#city").options].some((o) => o.value === f.city)) $("#city").value = f.city;
+      for (const k of ["lat", "lon", "offset"]) if (f[k] !== undefined) $("#" + k).value = f[k];
+      syncVisibility();
+    }
+
+    function build() {
+      const n = normalize(raw());
+      if (!n.ok) { status.textContent = n.errors.join(" "); return false; }
+      P = n.p; D = buildDay(P);
+      status.textContent = "Timeline built. Scroll down.";
+      render();
+      return true;
+    }
+
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = D.warnings.map((w) => '<div class="warn">' + esc(w) + "</div>").join("");
+      const sun = D.sun && !D.sun.polar ? D.sun : null;
+      const cards = [[prettyDate(P.date), "wedding day"], [sun ? fmtTime(sun.sunset) : "-", "sunset"], [D.golden ? fmtTime(D.golden.start) : "none", "sunset portraits"], [D.danceLen >= 0 ? Math.round(D.danceLen) + " min" : "over by " + Math.round(-D.danceLen) + " min", "open dancing"], [fmtTime(D.hairStart), "hair and makeup starts"]];
+      $("#big").innerHTML = cards.map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + esc(b) + "</div>").join("");
+      $("#tabs").innerHTML = Object.entries(VIEWS).map(([k, label]) => '<button type="button" class="secondary" data-view="' + k + '" aria-pressed="' + (k === view) + '">' + esc(label) + "</button>").join("");
+      $("#tl tbody").innerHTML = viewEvents(D, view).map((e) => {
+        const cls = e.kind === "golden" ? "golden" : e.kind === "ceremony" ? "ceremony" : e.end === e.start ? "point" : "";
+        const t = e.end > e.start ? fmtTime(e.start) + " – " + fmtTime(e.end) : fmtTime(e.start);
+        return '<tr class="' + cls + '"><td class="t">' + esc(t) + "</td><td>" + esc(e.title) + "</td><td>" + esc(e.note) + "</td></tr>";
+      }).join("");
+      $("#vendors tbody").innerHTML = D.vendors.map((v) => '<tr><td class="t">' + esc(fmtTime(v.at)) + "</td><td>" + esc(v.name) + "</td></tr>").join("");
+      const adv = adviseCeremonyTimes(P);
+      $("#advice-card").hidden = false;
+      $("#advice-own").textContent = "Your " + fmtTime(adv.own.start) + " start scores " + adv.own.score + " out of 100" + (adv.own.reasons.length ? " (" + adv.own.reasons.join("; ") + ")." : ".");
+      $("#advice tbody").innerHTML = adv.best.map((b) => "<tr><td class=\"t\">" + esc(fmtTime(b.start)) + "</td><td>" + b.score + "</td><td>" + esc(b.reasons.join("; ") || "no problems found") + "</td></tr>").join("");
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-view]"); if (!b || !D) return; view = b.dataset.view; render(); });
+    $("#build").addEventListener("click", () => setTimeout(() => { if (build()) record("timeline_built"); }, 0));
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleFields(new Date().getFullYear()));
+      setTimeout(() => { if (build()) { record("example_loaded"); status.textContent = "Sample timeline: an invented couple and day. Enter yours above."; } }, 0);
+    });
+    $("#print").addEventListener("click", () => { if (!D) return; record("sheet_printed"); window.print(); });
+    $("#dl-ics").addEventListener("click", () => { if (!D) return; download("wedding-timeline.ics", timelineIcs(D, P, view, new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "")), "text/calendar"); record("ics_downloaded"); });
+    $("#dl-csv").addEventListener("click", () => { if (!D) return; download("wedding-timeline.csv", timelineCsv(D, view), "text/csv"); record("csv_downloaded"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!D) return;
+      try { await navigator.clipboard.writeText(timelineText(D, P, view)); status.textContent = "Copied. Paste it into a message or note."; record("text_copied"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; }
+    });
+    $("#save-file").addEventListener("click", () => { if (!D) return; download("wedding-timeline.json", serializeState({ fields: formState() }), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const out = parseState(await f.text());
+      if (out.error) { status.textContent = out.error; return; }
+      fill(out.state);
+      build();
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    syncVisibility();
+  </script>
+</body>
+</html>

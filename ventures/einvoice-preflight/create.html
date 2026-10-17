@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free XRechnung &amp; Peppol invoice creator — UBL and CII XML</title>
+  <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Free XRechnung &amp; Peppol invoice creator">
+  <meta property="og:description" content="Create a compliant UBL or CII e-invoice in your browser. Computes VAT, checks the result, no account, no upload.">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"E-invoice Creator","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"featureList":"XRechnung 3.0 UBL and CII, Peppol BIS Billing 3.0, EN 16931, invoices and credit notes, mixed VAT rates, reverse charge, intra-EU, Kleinunternehmer exemption, built-in preflight check, local-only processing"}
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #15202b; background: #eef2f6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 12px; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b5f8a; margin: 0 0 6px; }
+    section { background: #fff; border: 1px solid #d3dbe4; border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 24px #15202b10; }
+    h2 { margin-top: 0; font-size: 1.1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    label { display: block; font-size: .82rem; font-weight: 600; color: #3d4f5f; }
+    input, select, textarea { width: 100%; box-sizing: border-box; margin-top: 3px; font: inherit; font-size: .95rem; padding: 8px; border: 1px solid #9aabbb; border-radius: 6px; background: #fff; }
+    .lines { width: 100%; border-collapse: collapse; }
+    .lines td { padding: 3px; vertical-align: top; }
+    .lines th { font-size: .75rem; text-align: left; color: #52606d; }
+    button { background: #0b5f8a; color: #fff; border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #e8eef4; color: #15202b; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .totals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .metric { min-width: 7rem; background: #eef3f7; border-radius: 8px; padding: .6rem; }
+    .metric strong, .metric span { display: block; }
+    .metric span { color: #52606d; font-size: .8rem; }
+    .err { color: #a61b1b; } .warn { color: #8a5a00; } .ok { color: #116329; font-weight: 700; }
+    ul.msgs { padding-left: 1.1rem; margin: .4rem 0; }
+    pre { background: #0f1b26; color: #d7e3ee; padding: 12px; border-radius: 8px; overflow: auto; max-height: 360px; font-size: 12px; }
+    footer { margin-top: 28px; font-size: .84rem; color: #3d4f5f; } footer a { color: #0b5f8a; }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">E-INVOICING · FREE · NO ACCOUNT</p>
+  <h1>Create an XRechnung or Peppol e-invoice</h1>
+  <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A PDF is no longer enough. Fill in the form, get a UBL or CII XML file, and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
+
+  <section>
+    <h2>Document</h2>
+    <div class="grid">
+      <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option></select></label>
+      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option></select></label>
+      <label>Type <select id="document_type"><option value="invoice">Invoice</option><option value="credit_note">Credit note</option></select></label>
+      <label>Invoice number <input id="number" value="RE-2026-001"></label>
+      <label>Issue date <input id="issue_date" type="date"></label>
+      <label>Due date <input id="due_date" type="date"></label>
+      <label>Currency <input id="currency" value="EUR" maxlength="3"></label>
+      <label>Buyer reference (Leitweg-ID) <input id="buyer_reference"></label>
+      <label>Order reference <input id="order_reference"></label>
+      <label>Original invoice (credit notes) <input id="original_invoice"></label>
+      <label>Already paid (prepaid) <input id="prepaid" type="number" step="0.01" min="0" value="0"></label>
+      <label>Payment terms text <input id="terms" value="Payable within 30 days"></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Seller (you)</h2>
+    <div class="grid" id="seller">
+      <label>Name <input data-k="name"></label><label>Street <input data-k="street"></label>
+      <label>Postal code <input data-k="postal_code"></label><label>City <input data-k="city"></label>
+      <label>Country (ISO) <input data-k="country" maxlength="2" value="DE"></label>
+      <label>VAT ID <input data-k="vat_id" placeholder="DE123456789"></label>
+      <label>Tax number (if no VAT ID) <input data-k="tax_number"></label>
+      <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
+      <label>E-address (email / GLN / ...) <input data-k="endpoint_id"></label>
+      <label>Contact name <input data-k="contact_name"></label><label>Contact phone <input data-k="contact_phone"></label>
+      <label>Contact email <input data-k="contact_email" type="email"></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Buyer</h2>
+    <div class="grid" id="buyer">
+      <label>Name <input data-k="name"></label><label>Street <input data-k="street"></label>
+      <label>Postal code <input data-k="postal_code"></label><label>City <input data-k="city"></label>
+      <label>Country (ISO) <input data-k="country" maxlength="2" value="DE"></label>
+      <label>VAT ID (optional) <input data-k="vat_id"></label>
+      <label>E-address scheme <input data-k="endpoint_scheme" value="EM"></label>
+      <label>E-address <input data-k="endpoint_id"></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Payment</h2>
+    <div class="grid" id="payment">
+      <label>IBAN <input data-k="iban"></label><label>BIC (optional) <input data-k="bic"></label>
+      <label>Account holder <input data-k="account_name"></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Lines</h2>
+    <table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th></th></tr></thead><tbody id="lines"></tbody></table>
+    <div class="actions"><button type="button" class="secondary" id="addLine">+ Add line</button></div>
+    <p class="muted" style="font-size:.85rem">0% needs a category: <b>Z</b> zero-rated, <b>E</b> exempt (e.g. Kleinunternehmer § 19 UStG), <b>AE</b> reverse charge, <b>K</b> intra-EU supply, <b>G</b> export, <b>O</b> outside scope. All but Z need a reason.</p>
+    <div class="totals" id="totals"></div>
+  </section>
+
+  <section>
+    <div class="actions" style="margin-top:0">
+      <button type="button" id="generate">Create e-invoice</button>
+      <button type="button" class="secondary" id="download" disabled>Download XML</button>
+      <button type="button" class="secondary" id="example">Load example</button>
+    </div>
+    <div id="result" aria-live="polite"></div>
+    <pre id="xml" hidden></pre>
+  </section>
+
+  <footer>
+    <p>Want to check an invoice you received or exported from your ERP? Use the <a href="index.html">E-invoice Preflight checker</a>. Self-hosting an API? See the README in the repository.</p>
+    <p><strong>No warranty.</strong> Provided free and as-is. Not legal, tax or accounting advice, not a certified invoicing system, and it neither signs, archives nor transmits invoices. It does not look up Leitweg-IDs or Peppol participants. Review the output and use your network's own validator before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss arising from its use.</p>
+    <p>Everything runs in your browser; invoice contents are never uploaded and there are no accounts, cookies or analytics vendors. Optional anonymous local counters record only the event name and day. <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep them</label></p>
+    <p>Free and open source (MIT). If it saved you an invoicing tool subscription, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { generateInvoice } from "./generate.mjs";
+    import { parseInvoiceSource, preflightDocuments, buildJsonReport } from "./report.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    const optedOut = () => $("usageOptOut").checked;
+    const safe = (fn) => { try { fn(); } catch {} };
+    let lastXml = "", lastName = "invoice.xml";
+
+    function party(id) {
+      const v = {}; document.querySelectorAll(`#${id} [data-k]`).forEach((el) => { v[el.dataset.k] = el.value.trim(); });
+      const p = { name: v.name, street: v.street, postal_code: v.postal_code, city: v.city, country: v.country, vat_id: v.vat_id, tax_number: v.tax_number };
+      if (v.endpoint_id) p.endpoint = { scheme: v.endpoint_scheme, id: v.endpoint_id };
+      if (v.contact_name || v.contact_phone || v.contact_email) p.contact = { name: v.contact_name, phone: v.contact_phone, email: v.contact_email };
+      return p;
+    }
+    function lineRow(l = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input data-f="description" value=""></td><td><input data-f="quantity" type="number" step="any" value="1" style="width:5em"></td>
+        <td><select data-f="unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
+        <td><input data-f="unit_price" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" type="number" step="any" value="19" style="width:4.5em"></td>
+        <td><select data-f="tax_category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
+        <td><input data-f="tax_reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+      for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
+      tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
+      tr.addEventListener("input", showTotals);
+      $("lines").appendChild(tr);
+    }
+    function lines() {
+      return [...$("lines").children].map((tr) => {
+        const o = {}; tr.querySelectorAll("[data-f]").forEach((el) => { o[el.dataset.f] = el.value; }); return o;
+      });
+    }
+    function draft() {
+      const g = (id) => $(id).value.trim();
+      const d = {
+        document_type: g("document_type"), number: g("number"), issue_date: g("issue_date"), due_date: g("due_date"), currency: g("currency"),
+        buyer_reference: g("buyer_reference"), order_reference: g("order_reference"), original_invoice: g("original_invoice"),
+        prepaid: g("prepaid") || 0, terms: g("terms"), seller: party("seller"), buyer: party("buyer"), lines: lines(),
+      };
+      const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
+      d.payment = pay;
+      return d;
+    }
+    const opts = () => ({ format: $("format").value, profile: $("profile").value });
+    const money = (n, c) => new Intl.NumberFormat("en", { style: "currency", currency: /^[A-Z]{3}$/.test(c) ? c : "EUR" }).format(n);
+    const li = (items, cls) => items.length ? `<ul class="msgs ${cls}">${items.map((m) => `<li>${esc(m.path)}: ${esc(m.message)}</li>`).join("")}</ul>` : "";
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function showTotals() {
+      const r = generateInvoice(draft(), opts());
+      const t = r.totals;
+      $("totals").innerHTML = t ? ["net", "tax", "gross", "due"].map((k) => `<div class="metric"><strong>${money(t[k], $("currency").value.toUpperCase())}</strong><span>${{ net: "Net", tax: "VAT", gross: "Gross", due: "Amount due" }[k]}</span></div>`).join("") : "";
+    }
+    document.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", showTotals));
+
+    $("generate").onclick = async () => {
+      safe(() => recordUsage(localStorage, optedOut(), "einvoice_create_attempted"));
+      const r = generateInvoice(draft(), opts());
+      const out = $("result"), pre = $("xml");
+      $("download").disabled = true; pre.hidden = true;
+      if (!r.ok) { out.innerHTML = `<p class="err"><b>Not created yet — fix these first:</b></p>${li(r.errors, "err")}${li(r.warnings, "warn")}`; return; }
+      lastXml = r.xml; lastName = r.filename;
+      const check = buildJsonReport(await preflightDocuments([{ name: r.filename, source: r.xml }]));
+      const findings = check.errors || [];
+      out.innerHTML = `<p class="ok">E-invoice created.</p>${li(r.warnings, "warn") ? `<p class="warn"><b>Your chosen profile also expects:</b></p>${li(r.warnings, "warn")}` : ""}` +
+        (findings.length ? `<p class="err"><b>Preflight found ${findings.length} issue(s) in the generated file:</b></p><ul class="msgs err">${findings.map((f) => `<li>${esc(f.rule)} ${esc(f.message)}</li>`).join("")}</ul>` : `<p class="ok">Preflight: no findings.</p>`) +
+        `<p class="muted">Preflight is a shape and arithmetic check, not a full schema or Schematron validation. Run it through your network's validator (e.g. the KoSIT validator for XRechnung) before sending.</p>`;
+      pre.textContent = r.xml; pre.hidden = false; $("download").disabled = false;
+      safe(() => recordUsage(localStorage, optedOut(), "einvoice_created"));
+    };
+    $("download").onclick = () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
+      URL.revokeObjectURL(a.href);
+    };
+    $("example").onclick = () => {
+      const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
+      set("seller", { name: "Muster Software GmbH", street: "Hauptstrasse 1", postal_code: "10115", city: "Berlin", country: "DE", vat_id: "DE136695976", endpoint_scheme: "EM", endpoint_id: "billing@muster.example", contact_name: "Erika Muster", contact_phone: "+49 30 123456", contact_email: "billing@muster.example" });
+      set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
+      set("payment", { iban: "DE02120300000000202051", bic: "BYLADEM1001", account_name: "Muster Software GmbH" });
+      $("buyer_reference").value = "04011000-12345-03";
+      $("lines").innerHTML = "";
+      lineRow({ description: "Consulting", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 19 });
+      lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
+      showTotals();
+    };
+    $("addLine").onclick = () => lineRow();
+    $("issue_date").value = new Date().toISOString().slice(0, 10);
+    lineRow();
+    showTotals();
+    safe(() => { $("usageOptOut").checked = readOptOut(localStorage); $("usageOptOut").addEventListener("change", () => writeOptOut(localStorage, $("usageOptOut").checked)); });
+  </script>
+</body>
+</html>

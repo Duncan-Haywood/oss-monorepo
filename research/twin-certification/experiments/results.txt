@@ -1,0 +1,66 @@
+Certify p < eps = 0.01 at delta = 0.05 from n real trials. Rule: certify iff k <= c.
+Twin data: 2 failures in 20000 rollouts (claims p = 0.0001); prior a = 1/2 + w f, b = 1/2 + w (N - f), w = weight of a twin rollout in real trials.
+
+== 1. Checks ==
+exact zero-failure n = ceil(ln delta / ln(1-eps)) = 299;  c_freq(n0)=0, c_freq(n0-1)=-1
+size of (n=400, c=2) at p=eps: exact 0.2366, simulated 0.2371 (20000 runs)
+power prior w=0.01, n=300, c=1: prior-averaged P(certify and p>=eps) = 0.0047 (<= delta by construction)
+
+== 2. Zero-failure sample size and the worst-case size at that n ==
+rule                       n      size at p=eps   (n=0 means the prior certifies with no real data)
+exact (Clopper-Pearson)    299    0.0495
+uniform Beta(1,1)          298    0.0500
+Jeffreys Beta(.5,.5)       191    0.1467
+twin w=0.001               172    0.1775
+twin w=0.003               133    0.2627
+twin w=0.01                0      1.0000
+twin w=0.03                0      1.0000
+
+== 3. Thresholds and sizes at fixed n ==
+n     rule                     c   size at p=eps
+300   exact                    0   0.0490
+300   Jeffreys                 0   0.0490
+300   twin w=0.003             0   0.0490
+300   twin w=0.01              1   0.1976
+300   twin w=0.03              4   0.8161
+500   exact                    1   0.0398
+500   Jeffreys                 1   0.0398
+500   twin w=0.003             2   0.1234
+500   twin w=0.01              2   0.1234
+500   twin w=0.03              5   0.6160
+1000  exact                    4   0.0287
+1000  Jeffreys                 5   0.0661
+1000  twin w=0.003             5   0.0661
+1000  twin w=0.01              6   0.1289
+1000  twin w=0.03              9   0.4573
+
+== 4. Does the twin save real trials? n for power 0.9 at p = eps/3, and the exact test held to the same worst-case size ==
+exact test at level 0.05: n = 1441
+Jeffreys         n = 1116  (c=6) worst-case size 0.0713; exact test at level 0.0713 needs n = 1116
+twin w=0.003     n = 1057  (c=6) worst-case size 0.0970; exact test at level 0.0970 needs n = 1057
+twin w=0.01      n = 1     (c=0) worst-case size 0.9900; exact test at level 0.9900 needs n = 1
+twin w=0.03      n = 1     (c=1) worst-case size 1.0000; exact test at level 1.0000 needs n = 1
+
+== 5. Wrong twin: twin claims p = lam*eps from 20000 rollouts, w=0.01, n=400 ==
+lam     c   size at p=eps   power at p=eps/3   power at p=eps/10   [exact test: c=0, size 0.0180, power at eps/3 0.2630, at eps/10 0.6702]
+0.01    2   0.2366          0.8496             0.9921
+0.1     2   0.2366          0.8496             0.9921
+0.5     1   0.0905          0.6149             0.9385
+1       0   0.0180          0.2630             0.6702
+2       -1  0.0000          0.0000             0.0000
+5       -1  0.0000          0.0000             0.0000
+
+== 6. Largest twin weight keeping the worst-case size at n within tolerance (twin claims eps/100) ==
+n     tol    max w      equivalent twin trials (w*N)
+299   0.05   0.00458    91.6
+299   0.06   0.00458    91.6
+299   0.08   0.00458    91.6
+299   0.10   0.00458    91.6
+500   0.05   0.00262    52.3
+500   0.06   0.00262    52.3
+500   0.08   0.00262    52.3
+500   0.10   0.00262    52.3
+1000  0.05   0          0
+1000  0.06   0          0
+1000  0.08   0.00584    117
+1000  0.10   0.00584    117

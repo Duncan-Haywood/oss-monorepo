@@ -1,0 +1,49 @@
+name: release-notes-generator
+description: 'Free tool that turns git log into release notes: grouped by Conventional Commit type, breaking changes first, PRs linked, and a suggested semantic version bump, as Keep a Changelog, GitHub release or plain text -- in the browser or as a zero-dependency Node CLI that runs git itself; handles messy non-conventional histories by guessing and flagging; nothing uploaded, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency developer tools. duplicate_check.py closest match for
+# "semver changelog release notes generator conventional commits" was 0.18
+# (obsidian-plugin-review-check, unrelated); no existing venture generates
+# release notes. Not in screened-out.md. Free incumbents exist (git-cliff,
+# release-please, conventional-changelog) and need install plus config; this is
+# the zero-install paste-and-go version with a messy-history fallback they
+# lack. Honest revenue view: this is a lead magnet, not a business; payment
+# rails stay off, optional GitHub Sponsors only.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Pure text transformation on the visitor's device; no secrets, no network.
+#
+# First visitor channel: searches for "generate changelog from git log",
+# "release notes from commits", "conventional commits changelog online",
+# "next semver version from commits".
+hypotheses:
+  - claim: 'Maintainers preparing a release will paste a commit range into a no-install page and use the generated notes, because configuring git-cliff or release-please is more work than a single release justifies.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'Teams with unconventional commit history will use the guessed grouping as a starting draft instead of writing notes from scratch.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs or changelog.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/release-notes-generator/
+  analytics: null

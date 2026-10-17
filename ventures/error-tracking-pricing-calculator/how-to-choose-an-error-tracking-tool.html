@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose an Error-Tracking Tool by Event Volume</title>
+  <meta name="description" content="Why error-tracking bills jump at certain event volumes, why flat-quota tools look cheap, and what matters more than the per-event price.">
+  <link rel="canonical" href="./how-to-choose-an-error-tracking-tool.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do error-tracking prices differ so much at the same volume?", "acceptedAnswer": {"@type": "Answer", "text": "Some vendors sell tiered monthly plans with an included event quota and a steep overage rate, while hosted open-source-compatible services such as GlitchTip sell a large quota for a flat fee and leave out advanced features. At 100,000 error events a month the gap between the cheapest and most expensive list price can be several times."}}, {"@type": "Question", "name": "What matters more than the per-event price?", "acceptedAnswer": {"@type": "Answer", "text": "Grouping quality, noisy-alert control and spike protection. A tool that collapses a bug that fires 50,000 times into one issue, and caps a runaway loop before it burns your monthly quota, saves more than a few dollars. Check sampling, rate limits, retention and which SDKs are supported."}}, {"@type": "Question", "name": "When should I switch tools?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration, which means swapping SDKs or DSNs, moving alert rules and integrations, and losing issue history. Run the calculator with your growth rate before deciding. Many vendors accept Sentry-compatible SDKs, which lowers the cost of moving."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Error Tracking Pricing Calculator</a></p>
+  <h1>How to choose an error-tracking tool by event volume</h1>
+  <p>Put your events per month and growth rate into the <a href="./">calculator</a> to price Sentry, Rollbar, Bugsnag, Honeybadger and GlitchTip side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do error-tracking prices differ so much at the same volume?</h2>
+  <p>Some vendors sell tiered monthly plans with an included event quota and a steep overage rate, while hosted open-source-compatible services such as GlitchTip sell a large quota for a flat fee and leave out advanced features. At 100,000 error events a month the gap between the cheapest and most expensive list price can be several times.</p>
+  <h2>What matters more than the per-event price?</h2>
+  <p>Grouping quality, noisy-alert control and spike protection. A tool that collapses a bug that fires 50,000 times into one issue, and caps a runaway loop before it burns your monthly quota, saves more than a few dollars. Check sampling, rate limits, retention and which SDKs are supported.</p>
+  <h2>When should I switch tools?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration, which means swapping SDKs or DSNs, moving alert rules and integrations, and losing issue history. Run the calculator with your growth rate before deciding. Many vendors accept Sentry-compatible SDKs, which lowers the cost of moving.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

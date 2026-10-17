@@ -1,0 +1,61 @@
+== E1  a cheaper rung pays iff rho2/rho1 > rho*(c2/c1)  (exact variance formula; grid check)
+  1505/1505 grid points: sign of the variance change equals the condition; of the 336 paying rungs below a twin that itself pays (c1=0.2), 10 make the ladder infeasible (twin 1 is then sampled less than the real system, i.e. redundant)
+  rho*(r): r=0.01:0.198  r=0.05:0.426  r=0.1:0.575  r=0.25:0.800  r=0.5:0.943  r=0.75:0.990
+  example rho1=0.9, rho2=0.8 (x=0.889):  r=0.05: -0.302  r=0.25: -0.091  r=0.5: +0.085  r=0.75: +0.231
+
+== E2  exact variance of the nested estimator vs simulation (Gaussian chain, twin biases +0.7, +1.5; alpha_i = rho_i; 6000 replications)
+  rho=[0.9, 0.8] c=[1, 0.1, 0.02] C=80: m=[51, 154, 666]  mean +1.0009 (se 0.0010, truth 1)  var sim 0.00592  exact 0.00579  ratio 1.022   real-only 0.01250  continuous optimum 0.00577  feasible=True
+  rho=[0.95, 0.9] c=[1, 0.2, 0.04] C=60: m=[30, 65, 430]  mean +1.0001 (se 0.0010, truth 1)  var sim 0.00641  exact 0.00656  ratio 0.977   real-only 0.01667  continuous optimum 0.00658  feasible=True
+  rho=[0.7, 0.6] c=[1, 0.05, 0.005] C=60: m=[51, 116, 608]  mean +0.9995 (se 0.0014, truth 1)  var sim 0.01148  exact 0.01171  ratio 0.980   real-only 0.01667  continuous optimum 0.01168  feasible=True
+
+== E3  geometric ladder: K extra rungs, each costing r times the one above and having step correlation q with it (Markov chain)
+  variance relative to real-only at equal cost, best feasible subset of K rungs in brackets
+  q=0.99 r=0.5 (rho*=0.943, pays=yes):  K=1: 0.707 [0.707; 1 rungs]   K=2: 0.533 [0.474; 1 rungs]   K=3: 0.425 [0.342; 1 rungs]   K=4: 0.357 [0.268; 1 rungs]   K=6: 0.284 [0.196; 2 rungs]
+  q=0.95 r=0.5 (rho*=0.943, pays=yes):  K=1: 0.968 [0.968; 1 rungs]   K=2: 0.947 [0.778; 1 rungs]   K=3: 0.933 [0.669; 1 rungs]   K=4: 0.924 [0.614; 1 rungs]   K=6: 0.913 [0.577; 2 rungs]
+  q=0.9 r=0.5 (rho*=0.943, pays=no):  K=1: 1.150 [1.000; 0 rungs]   K=2: 1.251 [0.983; 1 rungs]   K=3: 1.317 [0.888; 1 rungs]   K=4: 1.360 [0.844; 1 rungs]   K=6: 1.406 [0.831; 1 rungs]
+  q=0.98 r=0.25 (rho*=0.800, pays=yes):  K=1: 0.475 [0.475; 1 rungs]   K=2: 0.288 [0.269; 1 rungs]   K=3: 0.213 [0.197; 2 rungs]   K=4: 0.181 [0.163; 2 rungs]   K=6: 0.159 [0.141; 3 rungs]
+  q=0.9 r=0.25 (rho*=0.800, pays=yes):  K=1: 0.785 [0.785; 1 rungs]   K=2: 0.696 [0.622; 1 rungs]   K=3: 0.658 [0.586; 2 rungs]   K=4: 0.642 [0.557; 2 rungs]   K=6: 0.631 [0.544; 3 rungs]
+  q=0.8 r=0.1 (rho*=0.575, pays=yes):  K=1: 0.728 [0.728; 1 rungs]   K=2: 0.666 [0.666; 2 rungs]   K=3: 0.650 [0.650; 3 rungs]   K=4: 0.646 [0.646; 4 rungs]   K=6: 0.645 [0.645; 6 rungs]
+  q=0.6 r=0.1 (rho*=0.575, pays=yes):  K=1: 0.980 [0.980; 1 rungs]   K=2: 0.976 [0.939; 1 rungs]   K=3: 0.975 [0.938; 2 rungs]   K=4: 0.975 [0.937; 2 rungs]   K=6: 0.975 [0.937; 3 rungs]
+
+== E4  timestep ladder (semi-implicit Euler, step = 1,2,4,8,16 x 1/160 s; level 0 = 'real'), horizon 4 s, return = int x^2+0.05u^2
+  cost = steps per episode (640/320/160/80/40).  Disturbance replay s: the twin sees sqrt(s) of the real disturbance plus sqrt(1-s) independent noise.
+
+  -- replay share s=1.0:  pool of 4000 contexts
+     level  step   cost   mean R     rho with real   step-corr rho_j/rho_(j-1)  rho*(c_j/c_(j-1))
+     1       2/160    320   17.068   +0.9998        0.9998                     0.9428
+     2       4/160    160   17.380   +0.9990        0.9992                     0.9428
+     3       8/160     80   18.033   +0.9950        0.9959                     0.9428
+     4      16/160     40   19.479   +0.9763        0.9813                     0.9428
+     real: mean 16.918, sd 5.628
+     budget = 128000 steps (= 200 real episodes).  variance / real-only: best single twin 0.2044 (level 3); best ladder 0.1556 with levels [2, 4]
+     real only         m=[200] spent 128000  mean 16.9191 (truth 16.9184, se 0.0074)  var 0.16300  exact 0.15834  sim/exact 1.029  var/real-only 1.0294
+     best single twin  m=[44, 1245] spent 127760  mean 16.9162 (truth 16.9184, se 0.0034)  var 0.03443  exact 0.03242  sim/exact 1.062  var/real-only 0.2174
+     best ladder       m=[23, 215, 1980] spent 128320  mean 16.9157 (truth 16.9184, se 0.0029)  var 0.02469  exact 0.02458  sim/exact 1.005  var/real-only 0.1559
+
+  -- replay share s=0.9:  pool of 4000 contexts
+     level  step   cost   mean R     rho with real   step-corr rho_j/rho_(j-1)  rho*(c_j/c_(j-1))
+     1       2/160    320   16.969   +0.8926        0.8926                     0.9428
+     2       4/160    160   17.246   +0.8911        0.9983                     0.9428
+     3       8/160     80   17.924   +0.8831        0.9910                     0.9428
+     4      16/160     40   19.418   +0.8665        0.9812                     0.9428
+     real: mean 16.833, sd 5.664
+     budget = 128000 steps (= 200 real episodes).  variance / real-only: best single twin 0.5125 (level 4); best ladder 0.5125 with levels [4]
+     real only         m=[200] spent 128000  mean 16.8325 (truth 16.8328, se 0.0073)  var 0.15961  exact 0.16039  sim/exact 0.995  var/real-only 0.9952
+     best single twin  m=[139, 968] spent 127680  mean 16.8237 (truth 16.8328, se 0.0053)  var 0.08313  exact 0.08240  sim/exact 1.009  var/real-only 0.5183
+     best ladder       m=[139, 968] spent 127680  mean 16.8237 (truth 16.8328, se 0.0053)  var 0.08313  exact 0.08240  sim/exact 1.009  var/real-only 0.5183
+
+  -- replay share s=0.7:  pool of 4000 contexts
+     level  step   cost   mean R     rho with real   step-corr rho_j/rho_(j-1)  rho*(c_j/c_(j-1))
+     1       2/160    320   16.964   +0.6838        0.6838                     0.9428
+     2       4/160    160   17.222   +0.6889        1.0075                     0.9428
+     3       8/160     80   17.950   +0.6746        0.9793                     0.9428
+     4      16/160     40   19.437   +0.6466        0.9585                     0.9428
+     real: mean 16.833, sd 5.664
+     budget = 128000 steps (= 200 real episodes).  variance / real-only: best single twin 0.8546 (level 4); best ladder 0.8546 with levels [4]
+     real only         m=[200] spent 128000  mean 16.8325 (truth 16.8328, se 0.0073)  var 0.15961  exact 0.16039  sim/exact 0.995  var/real-only 0.9952
+     best single twin  m=[165, 560] spent 128000  mean 16.8291 (truth 16.8328, se 0.0069)  var 0.14243  exact 0.13707  sim/exact 1.039  var/real-only 0.8881
+     best ladder       m=[165, 560] spent 128000  mean 16.8291 (truth 16.8328, se 0.0069)  var 0.14243  exact 0.13707  sim/exact 1.039  var/real-only 0.8881
+
+== E5  the next rung (step 32/160 = 0.2 s) on the same contexts: numerically unstable
+  2/20000 contexts with R > 1e3 (real-level mean is ~17; the earlier 600-context probe had one blow-up that gave a mean of 5e48); largest R = inf; median R = 22.286

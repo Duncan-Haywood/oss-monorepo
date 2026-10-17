@@ -1,0 +1,53 @@
+name: capex-budget-prioritizer
+description: >-
+  Free browser tool for small businesses with more equipment, vehicle, software or building projects than cash: enter each
+  project's cost, yearly benefit, life and resale value plus a budget and discount rate, and get the set with the highest total
+  net present value that fits. Checks every combination exactly (up to 12 projects), supports mutually exclusive options and
+  must-do projects, compares the answer with payback-first and return-per-dollar shortcuts, shows what the next slice of budget
+  would unlock, and re-solves at a discount rate 5 points either side. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows solar-payback-calculator 0.15 and
+# adu-payback-calculator 0.12, each pricing one project; none chooses among several under one budget. Dropped before this one
+# because the tree already has them: wholesale-line-sheet-maker (volume tiers and MOQ), trade-show-roi-calculator (0.71),
+# ab-test-significance-calculator (0.57), appointment-no-show-cost-calculator (0.56).
+#
+# Why this niche: owners of restaurants, farms, trades, clinics and small manufacturers decide yearly which upgrades to fund by
+# gut or by shortest payback. Ranking by payback or by return per dollar is known to leave value on the table once projects are
+# indivisible and options exclude one another; the exact answer (budgeted NPV maximisation) is textbook capital rationing that
+# free tools aimed at small owners do not offer.
+#
+# First visitor: people searching "capital budgeting small business", "which equipment to buy first", "capital rationing
+# calculator", "NPV vs payback"; r/smallbusiness, r/restaurateur, farm and trades forums. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid multi-year capital plan
+# with financing and tax, or referrals to equipment lenders.
+
+hypotheses:
+  - claim: >-
+      Small-business owners choosing among upgrades will use a free tool that turns their own cost and savings estimates into a
+      funded set, and will return when a quote or the budget changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/capex-budget-prioritizer/
+  analytics: null

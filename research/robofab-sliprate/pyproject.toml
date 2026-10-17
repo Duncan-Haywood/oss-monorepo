@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofab-sliprate"
+version = "0.1.0"
+description = "Rotation rate of an off-centre bar in a two-pad grasp vs jaw force, with and without torsional friction in MuJoCo (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

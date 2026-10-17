@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out the QSBS exclusion by hand</title>
+<meta name="description" content="Working out the Section 1202 QSBS exclusion by hand usually goes wrong in the same places: assuming the tiered schedule applies to old stock, missing the per-issuer cap's 10x-basis alternative, or forgetting the cap is cumulative across sales. This free calculator applies the correct rule every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out the QSBS exclusion by hand">
+<meta property="og:description" content="A hand estimate of the QSBS exclusion has a few common failure points, above all applying the wrong rule to the wrong acquisition date. This calculator applies the rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Applying the new tiered 50/75/100% schedule to stock acquired before July 4, 2025. The tiered schedule only applies to stock acquired AFTER that date — earlier stock keeps the old all-or-nothing 5-year cliff for its entire life, no matter when it is eventually sold."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Using only the fixed dollar cap ($10 million or $15 million) and forgetting the 10-times-basis alternative. The cap is the GREATER of the two — for a large gain on a small basis (common when basis is low, like an early employee's exercised options), the fixed dollar figure usually governs, but for a large basis it can be the 10x-basis figure that is actually higher."}},{"@type":"Question","name":"What arithmetic mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Applying the holding-period percentage to the total gain instead of to the CAPPED eligible gain. The cap is applied first to determine eligible gain; the percentage is then applied to that capped figure, not to the full, uncapped sale gain."}},{"@type":"Question","name":"What planning mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Treating the per-issuer cap as a fresh allowance for every sale. It is cumulative, per issuer, across every sale of that company's stock a taxpayer ever claims the exclusion against — a second sale from the same issuer does not get a second full cap."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page verifies whether the stock actually qualifies as QSBS, tracks your cumulative prior exclusions against this issuer, or accounts for day-precision holding-period timing. Both apply the same published federal rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out the QSBS exclusion by hand</h1>
+<p class="lede">The arithmetic looks simple — a percentage of a gain. The
+part that goes wrong by hand is which rule applies to which stock, and
+what the cap is actually a percentage of.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Which rule applies</td><td>Applies the new tiered schedule to stock acquired before July 4, 2025.</td><td>Uses the acquisition date to select the correct rule — old stock keeps the all-or-nothing cliff for its entire life.</td></tr>
+<tr><td>The exclusion cap</td><td>Uses only the fixed dollar figure, ignoring the 10x-basis alternative.</td><td>Computes both and uses whichever is greater, as the statute requires.</td></tr>
+<tr><td>Order of operations</td><td>Applies the holding-period percentage to the full, uncapped gain.</td><td>Caps eligible gain first, then applies the percentage to that capped figure.</td></tr>
+<tr><td>The cap's scope</td><td>Treats the cap as a fresh allowance per sale.</td><td>Flags that the cap is cumulative, per issuer, across every sale — this tool assumes a single, first-ever sale against it.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Applying the new tiered 50/75/100% schedule to stock acquired before July 4, 2025. The tiered schedule only applies to stock acquired AFTER that date — earlier stock keeps the old all-or-nothing 5-year cliff for its entire life, no matter when it is eventually sold.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Using only the fixed dollar cap ($10 million or $15 million) and forgetting the 10-times-basis alternative. The cap is the GREATER of the two — for a large gain on a small basis (common when basis is low, like an early employee's exercised options), the fixed dollar figure usually governs, but for a large basis it can be the 10x-basis figure that is actually higher.</p>
+<h3>What arithmetic mistake gets made most often?</h3>
+<p>Applying the holding-period percentage to the total gain instead of to the CAPPED eligible gain. The cap is applied first to determine eligible gain; the percentage is then applied to that capped figure, not to the full, uncapped sale gain.</p>
+<h3>What planning mistake gets made most often?</h3>
+<p>Treating the per-issuer cap as a fresh allowance for every sale. It is cumulative, per issuer, across every sale of that company's stock a taxpayer ever claims the exclusion against — a second sale from the same issuer does not get a second full cap.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page verifies whether the stock actually qualifies as QSBS, tracks your cumulative prior exclusions against this issuer, or accounts for day-precision holding-period timing. Both apply the same published federal rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal Section 1202 rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

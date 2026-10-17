@@ -6911,6 +6911,24 @@ products:
           `live_url_visitors` is null, not zero -- see the standing note on
           this route elsewhere in this file; nobody has measured, which is
           not the same as having measured nothing.
+  - slug: graphql-introspection-exposure-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          browser_check_run: 0
+          pasted_check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counters are opt-out and never leave the device --
+          nobody has measured, which is not the same as having measured
+          nothing. The event counts are genuine zeros for a venture
+          published minutes ago.
 
   - slug: podcast-feed-check
     surface: github-pages
@@ -6931,3 +6949,202 @@ products:
           same as having measured nothing. `check_run` is the one worth
           watching: a visitor who only ever loads the worked example
           (`example_loaded`) never checked their own feed.
+
+  - slug: kickstarter-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          campaign_calculated: 0
+          pledge_calculated: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/kickstarter-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `campaign_calculated` is the one worth
+          watching: `pledge_calculated` alone means a visitor only checked
+          one reward tier, not a whole campaign estimate.
+  - slug: depop-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          regions_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/depop-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `regions_compared` is the one worth
+          watching: it is the feature this venture's write-up bets on,
+          since it answers whether a seller unsure which of Depop's three
+          regional fee schedules applies to their account actually uses
+          the side-by-side comparison rather than guessing.
+  - slug: salary-range-posting-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          posting_scanned: 0
+          link_shared: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/salary-range-posting-check/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `posting_scanned` is the one worth
+          watching.
+  - slug: economic-nexus-threshold-tracker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          entry_added: 0
+          sample_loaded: 0
+          exported: 0
+        note: >-
+          Baseline at graduation. A browser-local tracker letting a
+          multi-state online seller enter trailing-12-month sales by state
+          and see which states' economic-nexus sales-tax-registration
+          thresholds they've crossed. `live_url_visitors` is null, not
+          zero -- GitHub Pages exposes no server-side analytics and the
+          local counter is opt-in, so nobody has measured yet. Named
+          channels to watch: r/ecommerce, r/Etsysellers, r/AmazonSeller,
+          r/FulfillmentByAmazon, r/smallbusiness, and organic search for
+          "economic nexus threshold/calculator" (nine independent
+          competitor/publisher pages target this exact phrase, found via
+          WebSearch 2026-09-24). `entry_added` is the signal worth
+          watching first: it is the one act every visitor with a real
+          question can complete regardless of the answer they get.
+  - slug: s-corp-reasonable-compensation-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          assessed: 0
+          sample_loaded: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator comparing a
+          planned S-corp salary against a comparable-wage figure the owner
+          supplies. `live_url_visitors` is null, not zero -- GitHub Pages
+          exposes no server-side analytics and the local counter is
+          opt-in, so nobody has measured yet. Named channels to watch:
+          r/tax, r/smallbusiness, r/accounting, r/Bookkeeping, and organic
+          search for "s corp salary calculator" / "s corp reasonable
+          compensation calculator" (nine independent CPA/advisor pages
+          target this exact phrase, found via WebSearch 2026-09-24).
+          `assessed` is the signal worth watching first: it is the one act
+          every visitor with a real question can complete regardless of
+          the answer they get.
+  - slug: mega-backdoor-roth-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          recalculated: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator computing
+          after-tax 401(k) headroom under the IRS 415(c) limit.
+          `live_url_visitors` is null, not zero -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in, so nobody
+          has measured yet. Named channel to watch: the Bogleheads wiki
+          and forum, which carry a dedicated page and recurring threads on
+          this exact mechanic (found via WebSearch/WebFetch 2026-09-24,
+          which also found at least six existing competing free
+          calculators already targeting the phrase -- see VENTURE.yaml's
+          "Competitive honesty" note). `recalculated` is the signal worth
+          watching first: it fires on every input change, so it is the one
+          act every visitor who actually uses the form completes.
+  - slug: npm-provenance-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at graduation. A browser + CLI checker reporting which
+          packages in a pasted lockfile carry an npm provenance
+          attestation. `live_url_visitors` is null, not zero -- GitHub
+          Pages exposes no server-side analytics and the local counter is
+          opt-in, so nobody has measured yet. Named channel to watch: the
+          active 2026 npm trusted-publishing migration discourse following
+          its July 2025 GA and the Shai-Hulud worm (five independent
+          2026-dated sources found via WebSearch 2026-09-24), plus the
+          CLI's own README pointing at where npm audit signatures falls
+          short for a multi-repo or CI use case. `check_run` is the signal
+          worth watching first: it fires only when a visitor pastes their
+          own input and clicks Check, not on page load.
+  - slug: patreon-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-25
+        signals:
+          live_url_visitors: null
+          month-priced: 0
+          gap-checked: 0
+          link-copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          browser-local calculator turning a Patreon creator's three
+          pledge tiers into real net payout after the plan's platform fee
+          (Lite/Pro/Premium) and per-charge payment processing, and
+          showing when per-creation billing is quietly costing more in
+          fees than monthly billing for the same total pledge.
+          `live_url_visitors` is null, not zero -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in, so nobody
+          has measured yet. `month-priced` and `gap-checked` are the
+          signals worth watching first: they fire on every input change,
+          so they are the acts a visitor who actually uses the form
+          completes.
+  - slug: agent-permission-config-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool statically linting an
+          AI-coding-agent's permission and MCP-server configuration (Claude
+          Code's settings.json permissions.allow/deny/ask, and the
+          mcpServers block shared by .mcp.json/.cursor/mcp.json/
+          .vscode/mcp.json) for a blanket Bash allow-all rule, an unscoped
+          destructive-command allow with no matching deny, a plain-http MCP
+          server url, and a hardcoded-looking secret. `live_url_visitors` is
+          null and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in and off by
+          default, so nobody has measured yet. Named channel to watch:
+          developers who have read a warning against a blanket Bash allow
+          or a hardcoded MCP credential (Anthropic's own Claude Code docs,
+          a blog post, r/ClaudeAI, r/cursor, r/ChatGPTCoding, Hacker News
+          "vibe coding" security threads) searching for a way to check
+          their own config, and any repository wiring cli.mjs into its own
+          CI. `check_run` against `example_loaded` is the reading worth
+          watching, the same discrimination as its sibling
+          agent-instructions-drift-check: a visitor who only ever loads the
+          worked example has not brought their own config to it.

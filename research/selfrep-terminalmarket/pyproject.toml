@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-terminalmarket"
+version = "0.1.0"
+description = "Terminal fleet value combined with a saturating goods market in the replicating-shop reinvestment problem (dynamic programming)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

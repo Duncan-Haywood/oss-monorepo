@@ -1,0 +1,51 @@
+name: fix-and-flip-deal-analyzer
+description: >-
+  Free browser tool for house flippers: profit, cash needed, return on cash,
+  maximum allowable offer, break-even sale price and sensitivity to sale price
+  and time on the market, with hard-money interest and points modelled.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Neighbours in the tree:
+# brrrr-calculator and rental-dscr-calculator (buy-and-hold), and
+# home-sale-exclusion-calculator (owner-occupied sale). None answers "what can
+# I pay for a flip". Paid alternatives exist (deal-analysis subscriptions for
+# investors); this is the free, private, no-signup version. Audience:
+# investors with real capital at risk on every deal and a recurring decision.
+#
+# First visitor: r/realestateinvesting and r/flipping threads on "max offer",
+# "70% rule", "hard money cost"; search volume not measured with an external
+# tool.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on figures the visitor enters, not financial advice;
+# the page lists what is not modelled. Unverified: hand calculation and unit
+# tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Flippers will use a no-signup max-offer calculator that models their own
+      hard-money terms and time on market, and will return to rerun it for
+      each property they price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a profit or maximum-offer figure contradicts their own hand calculation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fix-and-flip-deal-analyzer/
+  analytics: null

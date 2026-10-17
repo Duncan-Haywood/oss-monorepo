@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Recipe Costing Calculator — Free</title>
+  <meta name="description" content="Free recipe costing: type your pantry prices and recipes, get cost per portion, food cost percentage and the menu price that hits your target. Handles trim yield, sub-recipes, labor and packaging. Nothing uploaded.">
+  <meta property="og:title" content="What does this recipe really cost per portion? Free recipe costing calculator">
+  <meta property="og:description" content="Pantry prices in, cost per portion and menu price out. Trim yield, weight-to-volume conversion, sub-recipes, labor and packaging. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b45309'/%3E%3Cpath d='M9 22h14M10 22c0-6 2-9 6-9s6 3 6 9M16 9v4' stroke='%23fff' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Recipe Costing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Cost recipes from your own pantry prices: pack price to cost per gram, cup or each, trim yield, sub-recipes, labor and packaging, cost per portion, food cost percentage and the menu price that hits a target. Runs in your browser; nothing is uploaded.","featureList":"Recipe cost per portion, ingredient yield and trim, weight and volume conversion with density, sub-recipes, labor and packaging, target food cost price, price-rise sensitivity"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate the cost of a recipe?","acceptedAnswer":{"@type":"Answer","text":"Convert every ingredient to what it costs per gram, ounce, cup or each, multiply by how much the recipe uses, and add the lines. Then divide by the number of portions. The hard parts are the unit conversions (a cup of flour is not a cup of sugar by weight) and the trim you throw away, and the tool does both."}},{"@type":"Question","name":"What is yield percent and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"Yield is the share of what you buy that you can actually use. If walnuts are 92% usable after sorting, each usable pound costs about 8.7% more than the pack price says. Costing from the pack price alone understates the dish."}},{"@type":"Question","name":"What food cost percentage should I aim for?","acceptedAnswer":{"@type":"Answer","text":"Many restaurants plan around 28 to 35 percent of menu price for ingredients, and bakeries and cafes often run lower, but it depends on your labor, rent and menu. The target is a box you can change; the tool shows the price that hits it and how far a dish is from it today."}},{"@type":"Question","name":"Can I cost a recipe that uses another recipe, like a sauce or a frosting?","acceptedAnswer":{"@type":"Answer","text":"Yes. Write the sub-recipe as its own block and use it in another with a line starting with @, for example @Vanilla frosting, 12 portion. Its cost per portion or per batch rolls up into the parent, and the tool warns about loops."}},{"@type":"Question","name":"Is this accounting or pricing advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the prices and quantities you type. It does not know your suppliers, taxes, waste or local rules, and a menu price is your decision. Prices in the example are placeholders."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">RECIPE COSTING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does each portion really cost, and what should you charge?</h1>
+    <p>Paste your pantry (pack size, pack price, usable yield) and your recipes. It converts cups to grams and ounces to pounds, charges you for the trim you throw away, rolls sub-recipes like a frosting or a sauce into the dish, adds labor and packaging, and shows cost per portion, food cost percentage and the menu price that hits your target.</p>
+    <p class="note">Planning arithmetic on prices you type in. Both boxes are plain text, so you can paste straight from a spreadsheet.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Pantry: what you buy</h2>
+      <p class="note">One line per ingredient: <code>name, pack size, pack price, yield %, density</code>. Yield (usable share after trim and waste) and density (grams per ml, only needed to mix weight and volume) are optional. Lines starting with # are notes.</p>
+      <label for="pantry">Pantry</label>
+      <textarea id="pantry" rows="12" spellcheck="false"></textarea>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Recipes</h2>
+      <p class="note">Start each recipe with <code># Name | portions=24 | price=3.50 | labor=40 | pack=0.12</code> (price per portion, labor minutes for the batch, packaging per portion; all but portions are optional). Then one <code>ingredient, quantity</code> line each. Start a line with <code>@</code> to use another recipe: <code>@Frosting, 12 portion</code> or <code>@Frosting, 1 batch</code>.</p>
+      <label for="recipes">Recipes</label>
+      <textarea id="recipes" rows="16" spellcheck="false"></textarea>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your targets</h2>
+      <div class="grid">
+        <div><label for="targetFoodCostPct">Target food cost (% of menu price)</label><input id="targetFoodCostPct" type="number" step="any" value="30"></div>
+        <div><label for="laborRate">Labor cost per hour ($)</label><input id="laborRate" type="number" step="any" value="18"></div>
+        <div><label for="roundTo">Round suggested prices up to the next ($)</label><input id="roundTo" type="number" step="any" value="0.25"></div>
+      </div>
+      <button type="button" id="run">Cost my recipes</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <button type="button" class="secondary" id="csv">Download results as CSV</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How do I calculate the cost of a recipe?</h3>
+      <p>Convert every ingredient to what it costs per gram, ounce, cup or each, multiply by how much the recipe uses, and add the lines. Then divide by the number of portions. The hard parts are the unit conversions (a cup of flour is not a cup of sugar by weight) and the trim you throw away, and the tool does both.</p>
+      <h3>What is yield percent and why does it matter?</h3>
+      <p>Yield is the share of what you buy that you can actually use. If walnuts are 92% usable after sorting, each usable pound costs about 8.7% more than the pack price says. Costing from the pack price alone understates the dish.</p>
+      <h3>What food cost percentage should I aim for?</h3>
+      <p>Many restaurants plan around 28 to 35 percent of menu price for ingredients, and bakeries and cafes often run lower, but it depends on your labor, rent and menu. The target is a box you can change; the tool shows the price that hits it and how far a dish is from it today.</p>
+      <h3>Can I cost a recipe that uses another recipe, like a sauce or a frosting?</h3>
+      <p>Yes. Write the sub-recipe as its own block and use it in another with a line starting with @, for example @Vanilla frosting, 12 portion. Its cost per portion or per batch rolls up into the parent, and the tool warns about loops.</p>
+      <h3>Is this accounting or pricing advice?</h3>
+      <p>No. It is arithmetic on the prices and quantities you type. It does not know your suppliers, taxes, waste or local rules, and a menu price is your decision. Prices in the example are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your real supplier prices and how often they change, sales tax and tips, spoilage and comps beyond the yield you enter, overhead such as rent and utilities, local labeling or allergen rules, and what your customers will pay. The example prices, yields and densities are placeholders, not current market figures: replace them with your invoices before relying on a number. Your pantry and recipes are not saved by this tool; copy them somewhere safe.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../menu-engineering-calculator/">menu engineering calculator</a>, the <a href="../cottage-food-pricing-calculator/">cottage food pricing calculator</a> and the <a href="../restaurant-delivery-commission-analyzer/">restaurant delivery commission analyzer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any labeling, food-safety, tax or pricing obligation that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, EXAMPLE_PANTRY, EXAMPLE_RECIPES, num, money, pct, analyze, priceShock } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; $("pantry").value = EXAMPLE_PANTRY; $("recipes").value = EXAMPLE_RECIPES; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const o = opts();
+      const a = analyze($("pantry").value, $("recipes").value, o);
+      last = a;
+      let h = "";
+      if (a.errors.length) h += `<div class="finding"><span class="pill">Fix these</span><ul>${a.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul><p class="note">Lines with problems are left out of the totals, so the costs below are incomplete until these are fixed.</p></div>`;
+      if (!a.results.length) h += '<div class="finding"><span class="pill">Check inputs</span> Add a recipe that starts with # and a name.</div>';
+      for (const r of a.results) {
+        if (!(r.portions > 0)) continue;
+        h += `<div class="finding"><h4>${esc(r.name)}: ${money(r.perPortion)} per portion, ${money(r.batchCost)} per batch of ${r.portions}</h4>`;
+        h += `<p class="stats">Ingredients <strong>${money(r.ingredientCost)}</strong>${r.laborCost ? ", labor <strong>" + money(r.laborCost) + "</strong>" : ""}${r.packagingCost ? ", packaging <strong>" + money(r.packagingCost) + "</strong>" : ""}. At a ${o.targetFoodCostPct}% food cost the menu price is <strong>${money(r.suggestedPrice)}</strong>, rounded up to <strong>${money(r.suggestedRounded)}</strong>.</p>`;
+        if (r.price > 0) h += `<p>${r.overTarget ? '<span class="pill">Over target</span> ' : ""}At ${money(r.price)} the food cost is <strong>${pct(r.foodCostPct)}</strong> and the margin after labor is <strong>${money(r.marginPerPortion)}</strong> a portion, <strong>${money(r.marginBatch)}</strong> a batch.${r.overTarget ? " To reach " + o.targetFoodCostPct + "% either charge " + money(r.suggestedPrice) + " or cut the cost per portion to " + money(r.breakEvenCost) + "." : ""}</p>`;
+        h += table(["Ingredient", "Used", "Cost", "Share"], r.ranked.map((l) => [esc(l.name) + (l.sub ? " (sub-recipe)" : l.yieldPct < 100 ? " (" + l.yieldPct + "% usable)" : ""), l.qty + " " + l.unit, money(l.cost), pct(l.share, 0)]));
+        const s = priceShock(r);
+        if (s.length) h += `<p class="note">If prices of the biggest costs rise 10%, the cost of one portion goes up by: ${s.map((x) => esc(x.name) + " " + money(x.perPortion, 3)).join(", ")}.</p>`;
+        h += "</div>";
+      }
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    function csv() {
+      if (!last) run();
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const rows = [["recipe", "portions", "ingredient_cost", "labor_cost", "packaging_cost", "batch_cost", "cost_per_portion", "suggested_price", "menu_price", "food_cost_pct"]];
+      for (const r of last.results) rows.push([r.name, r.portions, r.ingredientCost.toFixed(2), r.laborCost.toFixed(2), r.packagingCost.toFixed(2), r.batchCost.toFixed(2), r.perPortion.toFixed(2), r.suggestedPrice.toFixed(2), r.price ?? "", r.foodCostPct === undefined ? "" : (r.foodCostPct * 100).toFixed(1)]);
+      const blob = new Blob([rows.map((r) => r.map(q).join(",")).join("\n")], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "recipe-costs.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      record("csv_downloaded");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("csv").addEventListener("click", csv);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

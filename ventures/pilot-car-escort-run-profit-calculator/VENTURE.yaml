@@ -1,0 +1,55 @@
+name: pilot-car-escort-run-profit-calculator
+description: >-
+  Free browser tool for pilot car and oversize-load escort operators: enter the quote (price
+  per loaded mile or a flat or day price), minimum charge, loaded and deadhead miles, driver
+  hours, fuel, meals, hotel, tolls, card fees and yearly insurance, certification and equipment
+  overhead and see true profit per run, margin, profit per driver hour, the lowest quote that
+  earns a target margin, break-even runs a year, and a two-run comparison. Copy, CSV, save and
+  load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session. No pilot car or escort venture existed
+# (`ls ventures | grep -iE 'pilot|escort'` found only private-pilot-training-cost-calculator, an
+# aviation trade, and retail-pilot-intel, unrelated). Why this niche: independent pilot car and
+# oversize-load escort operators quote a per-mile rate or a day rate with a minimum, but the truck
+# is out for more than the loaded miles: the empty drive to the start and home from the end,
+# waiting hours, tolls and hotel nights, plus yearly certification, insurance and equipment
+# overhead. Short runs that bill the minimum are the ones that quietly lose money. Searches like
+# "how much should a pilot car charge per mile" and "pilot car business profit" recur. Load
+# boards and permit services do not answer the pricing question, so this is the lead magnet for
+# a later paid multi-truck season planner (payment rails stay off for now).
+#
+# First visitor: escort and pilot car operator groups and forums. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, insurance or financial
+# advice; says so. Names no vendor, brand, carrier or agency. No data fetched, no accounts,
+# nothing stored.
+
+hypotheses:
+  - claim: >-
+      Independent pilot car and escort operators will enter a quote and their miles, hours and
+      overhead into a no-signup tool and use the lowest-quote and break-even numbers to raise a
+      per-mile rate, set a minimum or day rate, or decide which runs to take.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest quote that does not reproduce the tool's own target margin when typed back in as the quote.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pilot-car-escort-run-profit-calculator/
+  analytics: null

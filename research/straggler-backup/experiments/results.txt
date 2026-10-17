@@ -1,0 +1,36 @@
+E1 exact round time, n=32, shift s=1, mu=1: exact vs simulation (20000 rounds, seed 1)
+  k= 4  E exact 1.1313 sim 1.1315   sd exact 0.0657 sim 0.0658
+  k=16  E exact 1.6778 sim 1.6773   sd exact 0.1727 sim 0.1729
+  k=24  E exact 2.3406 sim 2.3371   sd exact 0.2945 sim 0.2940
+  k=28  E exact 2.9752 sim 2.9752   sd exact 0.4365 sim 0.4355
+  k=32  E exact 5.0585 sim 5.0526   sd exact 1.2705 sim 1.2582
+  k=32 vs k=16 per-round: 3.015x ; k=32 vs k=28: 1.700x
+E2 heavy tails, Pareto(alpha), x_m=1, n=32: E[X_(k)] exact; simulation in brackets where the variance is finite (20000 rounds, seed 2)
+  alpha=0.8  k=16: 2.390   k=28: 13.957   k=31: 92.808   k=32: inf
+  alpha=1.5  k=16: 1.582   k=28: 3.903   k=31: 9.032   k=32: 27.096
+  alpha=2.5  k=16: 1.315 [1.315]   k=28: 2.239 [2.240]   k=31: 3.587 [3.586]   k=32: 5.979 [5.961]
+E3 time to accuracy, n=64, mu=1, a=1, eta=0.2, sigma2=2, x0^2=1, eps=0.05 (k_min = 4.44)
+  s=  0.0  k*= 5 (rounds 12, T 1.0)  wait-all T 33.2 (34.30x)  k=n/2 T 5.5 (5.66x)
+  s=  0.5  k*=10 (rounds 8, T 5.3)  wait-all T 36.7 (6.86x)  k=n/2 T 9.5 (1.77x)
+  s=  2.0  k*=10 (rounds 8, T 17.3)  wait-all T 47.2 (2.72x)  k=n/2 T 21.5 (1.24x)
+  s=  8.0  k*=36 (rounds 7, T 61.7)  wait-all T 89.2 (1.45x)  k=n/2 T 69.5 (1.13x)
+  s= 32.0  k*=36 (rounds 7, T 229.7)  wait-all T 257.2 (1.12x)  k=n/2 T 261.5 (1.14x)
+E3b same, Pareto(alpha=1.5,x_m=1) workers: expected time = rounds * E[X_(k)]; n=64
+  k*=10 T=9.0; wait-all T=300.6 (33.56x)
+E4 joint (k, eta) optimum vs fixed eta=0.2, n=64, mu=1, sigma2=2, eps=0.05, a=1
+  s= 0.0  fixed eta: k*=5 T=1.0   joint: k*=1 eta*=0.04 T=0.9  gain 1.09x
+  s= 2.0  fixed eta: k*=10 T=17.3   joint: k*=39 eta*=0.92 T=2.9  gain 5.92x
+  s= 8.0  fixed eta: k*=36 T=61.7   joint: k*=39 eta*=0.92 T=8.9  gain 6.91x
+E5 selection bias, n=16, mu_i=exp(0.7 z_i) (z_i evenly spaced quantiles), theta_i=-c*z_i (slow workers hold the large optima), noise sd 1
+  data-speed coupling c=0.0
+    k= 2 E[T]=0.11 pi_min=0.037  bias +0.000  MSE plain 0.493 HT 0.689 Hajek 0.558  max HT weight 1.68
+    k= 4 E[T]=0.24 pi_min=0.081  bias +0.000  MSE plain 0.245 HT 0.334 Hajek 0.299  max HT weight 0.77
+    k= 8 E[T]=0.62 pi_min=0.200  bias +0.000  MSE plain 0.124 HT 0.151 Hajek 0.147  max HT weight 0.31
+    k=12 E[T]=1.41 pi_min=0.411  bias +0.000  MSE plain 0.082 HT 0.088 Hajek 0.088  max HT weight 0.15
+    k=16 E[T]=5.44 pi_min=1.000  bias +0.000  MSE plain 0.060 HT 0.060 Hajek 0.060  max HT weight 0.06
+  data-speed coupling c=1.0
+    k= 2 E[T]=0.11 pi_min=0.037  bias -0.531  MSE plain 1.107 HT 1.412 Hajek 1.187  max HT weight 1.68
+    k= 4 E[T]=0.24 pi_min=0.081  bias -0.489  MSE plain 0.614 HT 0.623 Hajek 0.583  max HT weight 0.77
+    k= 8 E[T]=0.62 pi_min=0.200  bias -0.382  MSE plain 0.309 HT 0.244 Hajek 0.237  max HT weight 0.31
+    k=12 E[T]=1.41 pi_min=0.411  bias -0.227  MSE plain 0.144 HT 0.109 Hajek 0.108  max HT weight 0.15
+    k=16 E[T]=5.44 pi_min=1.000  bias +0.000  MSE plain 0.060 HT 0.060 Hajek 0.060  max HT weight 0.06

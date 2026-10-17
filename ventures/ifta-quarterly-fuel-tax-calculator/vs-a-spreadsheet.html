@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a spreadsheet | IFTA Quarterly Fuel Tax Calculator</title>
+<meta name="description" content="An IFTA return is arithmetic, and a spreadsheet can do arithmetic -- but two specific rules trip up a hand-built worksheet almost every time: computing MPG per jurisdiction instead of fleet-wide, and netting a surcharge against a fuel credit that never touches it. On the worked example this calculator opens with, those two mistakes alone understate what is owed by hundreds of dollars in a single quarter.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-a-spreadsheet.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A hand-built IFTA worksheet gets the same two rules wrong almost every time: per-jurisdiction MPG instead of fleet-wide, and a surcharge netted against a credit it should never touch. This page shows both mistakes on the calculator's own worked example.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't an IFTA return just arithmetic I can do in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Yes -- it is arithmetic, and a spreadsheet can do arithmetic. What trips up a hand-built worksheet is not the arithmetic itself but two specific rules the return applies that a spreadsheet has to be told to apply: fleet MPG is one number computed fleet-wide, not per jurisdiction, and a surcharge is charged on every taxable gallon burned in that jurisdiction with no credit for fuel bought there, however the tax line nets out. Skip either rule and the numbers still look reasonable -- they just do not reconcile to what an audit finds."}},{"@type":"Question","name":"How much does computing MPG per jurisdiction actually cost me?","acceptedAnswer":{"@type":"Answer","text":"On the worked example this calculator opens with, the fleet ran 29,320 miles on 3,890 gallons for a fleet-wide average of 7.54 MPG, and Indiana's 6,150 miles become 815.65 taxable gallons at that rate, owing $653.82 in tax and surcharge combined. A worksheet that instead divides Indiana's own 6,150 miles by the 380 gallons bought there gets 16.18 MPG -- outside the 3-12 MPG band a qualified vehicle realistically returns -- and reports Indiana's taxable gallons as just 380.1, a debit of three cents in tax plus the surcharge on that smaller gallon figure, $235.69 in total. That single jurisdiction alone is understated by $418.13 in one quarter."}},{"@type":"Question","name":"How much does netting the surcharge against a credit cost me?","acceptedAnswer":{"@type":"Answer","text":"On the same worked example, the tax line across all five jurisdictions nets to a credit of $91.53, and the surcharge (Indiana and Kentucky both charge one) adds $570.90 that no fuel credit reduces, for a return that owes $479.37. A worksheet that instead applies each surcharge rate to that jurisdiction's own net taxable gallons -- so a credit in Kentucky quietly reduces the surcharge owed there -- totals $150.95: a $328.42 understatement from one modeling choice."}},{"@type":"Question","name":"So why not just build the fleet-wide MPG and surcharge rules into my own spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"You can, and a correctly built one gets the same answer this calculator does -- it is the same arithmetic either way. What a spreadsheet will not do on its own is flag the mistakes that produce a plausible-looking wrong answer: an average MPG outside the realistic band, fuel bought in a jurisdiction with no recorded miles, taxable miles sitting at a zero rate, or a credit-in-total return that still owes interest. This calculator runs those checks on every submission; a spreadsheet only runs the checks someone remembered to add."}}]}</script>
+<style>
+  :root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}
+  body{max-width:900px;margin:0 auto;padding:1.5rem}
+  a{color:#143a5e;overflow-wrap:anywhere}
+  .eyebrow{font-weight:700}
+  header{margin:1rem 0}
+  h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.04em}
+  .lede{font-size:1.05rem;max-width:66ch;color:#47535e}
+  section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}
+  h2{margin-top:0}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d5dce1;vertical-align:top}
+  th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#47535e}
+  .fine,.note{font-size:.88rem;color:#47535e}
+  footer{color:#47535e;font-size:.86rem}
+  footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; IFTA Quarterly Fuel Tax Calculator</a></p>
+<header>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">An IFTA return is arithmetic, and a spreadsheet can do arithmetic. What a hand-built worksheet usually gets wrong is not the arithmetic but two specific rules the return applies: fleet-wide MPG, and a surcharge that no fuel credit ever reduces.</p>
+</header>
+<section>
+<h2>Where a hand-built worksheet usually goes wrong</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Rule</th><th scope="col">Common spreadsheet shortcut</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Fleet MPG</td><td>Divides each jurisdiction's own miles by its own gallons, producing a different MPG per row.</td><td>Divides total fleet miles by total fleet gallons once, and applies that single MPG to every jurisdiction's taxable miles.</td></tr>
+<tr><td>The surcharge</td><td>Applies the surcharge rate to each jurisdiction's net taxable gallons, so a fuel credit there quietly reduces it.</td><td>Applies the surcharge rate to gross taxable gallons burned in that jurisdiction, with no credit for fuel bought there, exactly as the return requires.</td></tr>
+<tr><td>Plausibility checks</td><td>None, unless someone remembers to add one -- a wrong MPG or a zero-rate jurisdiction looks like any other number in a cell.</td><td>Flags an average MPG outside the 3&ndash;12 realistic band, fuel bought with no recorded miles, taxable miles at a zero rate, and a return in net credit that still owes interest.</td></tr>
+<tr><td>Does anything I type get uploaded anywhere?</td><td>N/A</td><td>No. The return runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table>
+</div>
+<h2>What the two mistakes cost, on the calculator's own worked example</h2>
+<p>
+  The quarter this calculator opens with runs 29,320 miles on 3,890 gallons across five jurisdictions, for a
+  fleet-wide average of <strong>7.54 MPG</strong>. Indiana's 6,150 miles become 815.65 taxable gallons at that
+  rate, owing <strong>$653.82</strong> in tax and surcharge together. A worksheet that instead divides
+  Indiana's own 6,150 miles by the 380 gallons bought there gets <strong>16.18 MPG</strong> &mdash; outside the
+  3&ndash;12 MPG band a qualified vehicle realistically returns &mdash; and reports Indiana's taxable gallons as
+  just 380.1, for a total of <strong>$235.69</strong>. That single jurisdiction alone is understated by
+  <strong>$418.13</strong>.
+</p>
+<p>
+  Across all five jurisdictions, the tax line nets to a credit of $91.53, and the Indiana/Kentucky surcharge
+  adds $570.90 that no fuel credit reduces, so the return owes <strong>$479.37</strong>. A worksheet that
+  instead applies each surcharge rate to that jurisdiction's own net taxable gallons &mdash; letting a credit
+  in Kentucky quietly reduce the surcharge owed there &mdash; totals <strong>$150.95</strong>: a
+  <strong>$328.42</strong> understatement from one modeling choice, on a return that nets to a fraction of
+  what is actually owed.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+<p class="note">
+  Open the <a href="./">IFTA Quarterly Fuel Tax Calculator</a> to work your own quarter, or see
+  <a href="./vs-expressifta.html">how this compares to a paid preparation service like ExpressIFTA</a>.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't an IFTA return just arithmetic I can do in a spreadsheet?</h3>
+<p>Yes -- it is arithmetic, and a spreadsheet can do arithmetic. What trips up a hand-built worksheet is not the arithmetic itself but two specific rules the return applies that a spreadsheet has to be told to apply: fleet MPG is one number computed fleet-wide, not per jurisdiction, and a surcharge is charged on every taxable gallon burned in that jurisdiction with no credit for fuel bought there, however the tax line nets out. Skip either rule and the numbers still look reasonable -- they just do not reconcile to what an audit finds.</p>
+<h3>How much does computing MPG per jurisdiction actually cost me?</h3>
+<p>On the worked example this calculator opens with, the fleet ran 29,320 miles on 3,890 gallons for a fleet-wide average of 7.54 MPG, and Indiana's 6,150 miles become 815.65 taxable gallons at that rate, owing $653.82 in tax and surcharge combined. A worksheet that instead divides Indiana's own 6,150 miles by the 380 gallons bought there gets 16.18 MPG -- outside the 3-12 MPG band a qualified vehicle realistically returns -- and reports Indiana's taxable gallons as just 380.1, a debit of three cents in tax plus the surcharge on that smaller gallon figure, $235.69 in total. That single jurisdiction alone is understated by $418.13 in one quarter.</p>
+<h3>How much does netting the surcharge against a credit cost me?</h3>
+<p>On the same worked example, the tax line across all five jurisdictions nets to a credit of $91.53, and the surcharge (Indiana and Kentucky both charge one) adds $570.90 that no fuel credit reduces, for a return that owes $479.37. A worksheet that instead applies each surcharge rate to that jurisdiction's own net taxable gallons -- so a credit in Kentucky quietly reduces the surcharge owed there -- totals $150.95: a $328.42 understatement from one modeling choice.</p>
+<h3>So why not just build the fleet-wide MPG and surcharge rules into my own spreadsheet?</h3>
+<p>You can, and a correctly built one gets the same answer this calculator does -- it is the same arithmetic either way. What a spreadsheet will not do on its own is flag the mistakes that produce a plausible-looking wrong answer: an average MPG outside the realistic band, fuel bought in a jurisdiction with no recorded miles, taxable miles sitting at a zero rate, or a credit-in-total return that still owes interest. This calculator runs those checks on every submission; a spreadsheet only runs the checks someone remembered to add.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about what your base jurisdiction requires, which miles any jurisdiction exempts, whether your vehicle is qualified, what rate applies to your fuel type, or what you owe &mdash; and the figures on this page are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against your own trip and fuel records, the official IFTA rate table for the quarter you are filing, and a qualified tax professional before you file from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your mileage, fuel purchases, jurisdictions and the figures worked out here are never uploaded and never appear in a usage count.</p>
+<p class="support">Free and open source. If it saves you a quarter&rsquo;s worth of arguing with a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

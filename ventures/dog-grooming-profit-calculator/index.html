@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dog Grooming Profit Calculator — profit per hour and price floor by service</title>
+  <meta name="description" content="Dog grooming profit calculator for groomers and salon owners. Enter services, minutes, supplies and dogs per week to see profit per hour after overhead, the price that hits your target, and own shop versus booth rent versus commission. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Dog Grooming Profit Calculator — free, private, in your browser">
+  <meta property="og:description" content="Which grooms actually pay? Profit per hour after overhead, the price to charge, and what a raise can cost you. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dog Grooming Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your grooming services with price, minutes, supplies and dogs per week. See profit per hour after overhead and card fees, the price that hits your hourly target, own shop versus booth rent versus commission, and how many clients you can lose before a price rise costs money. Runs entirely in your browser; nothing is uploaded.", "featureList": "profit per hour by service, price floor for a target, own shop vs booth rent vs commission, price-rise break-even, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge for dog grooming?", "acceptedAnswer": {"@type": "Answer", "text": "Work backwards from the hours. Take the minutes the groom really takes plus the turnover between dogs, multiply by the hourly rate you want to take home plus your overhead per bookable hour, add shampoo and supplies for that dog, then divide by one minus your card-fee rate. That is the lowest price that hits your target. Local prices and what clients will pay still decide what you actually charge."}}, {"@type": "Question", "name": "Why does my overhead per hour matter?", "acceptedAnswer": {"@type": "Answer", "text": "Rent, insurance, software and utilities are paid whether or not the table is full. Spread over the hours you can actually book, they are a cost of every hour. A groom that looks profitable on supplies alone can lose money once its share of the overhead is counted."}}, {"@type": "Question", "name": "Which grooms are usually the least profitable?", "acceptedAnswer": {"@type": "Answer", "text": "Short, low-priced services booked with long turnover, such as a bath for a small dog or a nail trim, and large or matted dogs priced like a standard groom. Enter your own minutes and the table shows which lines fall below your target."}}, {"@type": "Question", "name": "Is a raise worth the clients I might lose?", "acceptedAnswer": {"@type": "Answer", "text": "The raise table shows the share of dogs you could lose before a price rise costs you money. Overhead does not shrink when clients leave, so the break-even loss is the extra revenue divided by the new total contribution. A 10 percent raise on a business with thin margins can often absorb a loss of several percent of dogs. Freed hours can often be rebooked, which this tool does not credit."}}, {"@type": "Question", "name": "Commission, booth rent or my own shop?", "acceptedAnswer": {"@type": "Answer", "text": "The tool replays your weekly mix three ways: you own the shop and pay overhead and supplies, you rent a booth and buy supplies, or you work on commission with the shop supplying everything. It compares weekly income and income per working hour. It does not model payroll tax, insurance differences, licensing, or the value of a shop owner's equity."}}, {"@type": "Question", "name": "Does it include tips?", "acceptedAnswer": {"@type": "Answer", "text": "Enter a tip percentage and it adds tips to the booth and commission comparison and to the own-shop figure. Tips are not included in the per-service price floor."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No client or pet information is needed or accepted."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOG GROOMING PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your grooms actually pay?</h1>
+    <p>List your <strong>services</strong> with price, minutes and supplies, and your <strong>overhead</strong>. The tool shows <strong>profit per hour</strong> for each service after card fees and overhead, the <strong>price that hits your hourly target</strong>, how your week compares as <strong>own shop, booth rent or commission</strong>, and how many clients you can lose before a <strong>price raise</strong> costs you money.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your services</h2>
+    <label for="services">Service, price, minutes, supplies cost per dog, dogs per week (one per line)</label>
+    <textarea id="services" spellcheck="false" placeholder="Small full groom,75,90,5,6&#10;Nail trim only,20,10,0.5,5"></textarea>
+    <h2 style="margin-top:18px">Your business</h2>
+    <div class="row3">
+      <div><label for="overheadMonthly">Monthly overhead: rent, insurance, software, utilities ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="bookableHoursPerWeek">Bookable hours per week</label><input id="bookableHoursPerWeek" inputmode="decimal" value="30"></div>
+      <div><label for="weeksPerYear">Weeks worked per year</label><input id="weeksPerYear" inputmode="decimal" value="50"></div>
+      <div><label for="turnoverMinutes">Turnover minutes between dogs</label><input id="turnoverMinutes" inputmode="decimal" value="10"></div>
+      <div><label for="cardFeePct">Card fee (%)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="targetHourly">Take-home target per hour ($)</label><input id="targetHourly" inputmode="decimal" value="35"></div>
+      <div><label for="tipPct">Average tip (% of price)</label><input id="tipPct" inputmode="decimal" value="0"></div>
+      <div><label for="commissionPct">Commission you would keep (%)</label><input id="commissionPct" inputmode="decimal" value="50"></div>
+      <div><label for="boothRentWeekly">Booth rent per week ($)</label><input id="boothRentWeekly" inputmode="decimal" value="250"></div>
+      <div><label for="retentionIfRaised">Dogs kept after a raise (%)</label><input id="retentionIfRaised" inputmode="decimal" value="95"></div>
+    </div>
+    <p class="note">Minutes are the time at the table; turnover is added to every slot. Overhead is spread over the bookable hours you list, not the hours you happen to fill.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your services, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Profit per hour by service</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th>Service</th><th class="n">Price</th><th class="n">Slot (min)</th><th class="n">Profit / hour</th><th class="n">Price for target</th><th>Vs target</th></tr></thead><tbody></tbody></table></div>
+    <h3>Own shop, booth rent or commission</h3>
+    <div class="scroll"><table id="mt"><thead><tr><th>Model</th><th class="n">Per week</th><th class="n">Per working hour</th><th class="n">Per year</th></tr></thead><tbody></tbody></table></div>
+    <h3>What a price raise can cost</h3>
+    <div class="scroll"><table id="rt"><thead><tr><th class="n">Raise</th><th class="n">Extra per week</th><th class="n">Dogs you can lose first</th><th class="n">Weekly change at your retention</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Slot:</strong> minutes plus turnover. <strong>Overhead per hour:</strong> monthly overhead × 12 ÷ (bookable hours per week × weeks per year). <strong>Contribution:</strong> price × (1 − card fee) − supplies. <strong>Profit per hour:</strong> contribution ÷ slot hours − overhead per hour. <strong>Price for target:</strong> ((target + overhead per hour) × slot hours + supplies) ÷ (1 − card fee). <strong>Models:</strong> own shop is revenue less fees, supplies and weekly overhead plus tips; booth rent is revenue less fees, supplies and rent plus tips; commission is your share of price plus tips. <strong>Raise break-even:</strong> extra net revenue ÷ (contribution + extra net revenue).</p>
+    <p><strong>Not modelled:</strong> payroll and self-employment tax, insurance and licensing differences, no-shows and cancellations, rebooking freed hours, add-on services, your own unpaid admin time, and local market prices. Unverified: tested on hand-calculated examples, not on a real shop's books. It computes arithmetic; it does not tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for dog grooming?</h3>
+    <p>Work backwards from the hours. Take the minutes the groom really takes plus the turnover between dogs, multiply by the hourly rate you want to take home plus your overhead per bookable hour, add shampoo and supplies for that dog, then divide by one minus your card-fee rate. That is the lowest price that hits your target. Local prices and what clients will pay still decide what you actually charge.</p>
+    <h3>Why does my overhead per hour matter?</h3>
+    <p>Rent, insurance, software and utilities are paid whether or not the table is full. Spread over the hours you can actually book, they are a cost of every hour. A groom that looks profitable on supplies alone can lose money once its share of the overhead is counted.</p>
+    <h3>Which grooms are usually the least profitable?</h3>
+    <p>Short, low-priced services booked with long turnover, such as a bath for a small dog or a nail trim, and large or matted dogs priced like a standard groom. Enter your own minutes and the table shows which lines fall below your target.</p>
+    <h3>Is a raise worth the clients I might lose?</h3>
+    <p>The raise table shows the share of dogs you could lose before a price rise costs you money. Overhead does not shrink when clients leave, so the break-even loss is the extra revenue divided by the new total contribution. A 10 percent raise on a business with thin margins can often absorb a loss of several percent of dogs. Freed hours can often be rebooked, which this tool does not credit.</p>
+    <h3>Commission, booth rent or my own shop?</h3>
+    <p>The tool replays your weekly mix three ways: you own the shop and pay overhead and supplies, you rent a booth and buy supplies, or you work on commission with the shop supplying everything. It compares weekly income and income per working hour. It does not model payroll tax, insurance differences, licensing, or the value of a shop owner's equity.</p>
+    <h3>Does it include tips?</h3>
+    <p>Enter a tip percentage and it adds tips to the booth and commission comparison and to the own-shop figure. Tips are not included in the per-service price floor.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No client or pet information is needed or accepted.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any grooming software, franchise, payment processor or trade association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../dog-grooming-day-planner/">dog grooming day planner</a> (which dogs on your list to book for the most net), the <a href="../dog-grooming-price-calculator/">dog grooming price calculator</a> (price each breed class from its minutes, drive time and no-shows, and audit past appointments), the <a href="../massage-therapist-profit-calculator/">massage therapist profit calculator</a>, the <a href="../dog-boarding-daycare-pricing/">dog boarding and daycare pricing calculator</a>, the <a href="../self-serve-dog-wash-profit-calculator/">self-serve dog wash profit calculator</a>, the <a href="../dog-walking-route-pricing/">dog walking rate calculator</a>, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>, the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseServices, analyze, reportCsv, sampleServices, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["overheadMonthly", "bookableHoursPerWeek", "weeksPerYear", "turnoverMinutes", "cardFeePct", "targetHourly", "tipPct", "commissionPct", "boothRentWeekly", "retentionIfRaised"];
+    let last = null;
+
+    function run() {
+      const sv = parseServices($("#services").value);
+      if (sv.error) { status.textContent = sv.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(sv.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...sv.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.week.revenue), `Weekly revenue (${r.week.dogs} dogs, ${r.week.hoursUsed.toFixed(1)} h)`],
+        [pct(r.week.utilization, 0), "Of your bookable hours used"],
+        [money2(r.overheadPerHour), "Overhead per bookable hour"],
+        [money(r.best.weekly), `Best model this week: ${r.best.key === "own" ? "own shop" : r.best.key === "booth" ? "booth rent" : "commission"}`],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money2(l.price)}</td><td class="n">${l.slotMinutes}</td><td class="n">${money2(l.profitPerHour)}</td><td class="n">${money2(l.floorPrice)}</td><td><span class="pill ${l.meetsTarget ? "good" : "high"}">${l.meetsTarget ? "meets" : "below"}</span></td></tr>`).join("");
+      $("#mt tbody").innerHTML = r.models.map((m) => `<tr><td>${esc(m.label)}${m.key === r.best.key ? " ★" : ""}</td><td class="n">${money(m.weekly)}</td><td class="n">${money2(m.perHour)}</td><td class="n">${money(m.annual)}</td></tr>`).join("");
+      $("#rt tbody").innerHTML = r.raises.map((x) => `<tr><td class="n">+${x.pct}%</td><td class="n">${money(x.extraPerWeek)}</td><td class="n">${pct(x.breakEvenLoss)}</td><td class="n">${money(x.atRetention)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#services").value = sampleServices();
+      $("#overheadMonthly").value = "2400";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented shop, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#services").value = ""; report.hidden = true; last = null; status.textContent = "Add your services, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "grooming-profit-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

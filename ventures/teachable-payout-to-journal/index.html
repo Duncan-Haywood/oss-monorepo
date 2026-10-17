@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Teachable Transactions to Xero and QuickBooks Journal</title>
+  <meta name="description" content="Free Teachable to QuickBooks and Xero journal converter: books course sales, bundles, memberships and coaching to separate income accounts, derives the Teachable and PayPal or Stripe fee from Given minus Received, proves the rows add up to your deposit, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Teachable transactions to Xero / QuickBooks journal — free, private">
+  <meta property="og:description" content="Turn a Teachable transactions export into month-split journal entries. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Teachable Payout to Journal", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Teachable transactions export into balanced accounting journals for Xero and QuickBooks in the browser, split at month end. Nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn Teachable earnings into a journal entry?", "acceptedAnswer": {"@type": "Answer", "text": "Download your transactions CSV from Teachable (Settings > Reports > Transactions > Download CSV), paste it here and press Read, check and build journals. The page books each transaction to courses, memberships, bundles or commission income by its TransactionType, books the fee (Given minus Received) separately, checks the total against the deposit you type in from PayPal, Stripe or your bank, and writes a journal that balances to a Teachable clearing account."}}, {"@type": "Question", "name": "Why book gross income and fees instead of the deposit?", "acceptedAnswer": {"@type": "Answer", "text": "What lands in PayPal or Stripe is net of processing fees and of Teachable's transaction fee on the Free and Basic plans. Booking only the deposit as income understates revenue, hides what the platform costs you, and mixes course sales with other sales that may be taxed differently. This page books each income type gross, the fee on its own line, in the month it happened."}}, {"@type": "Question", "name": "What is the Teachable clearing account?", "acceptedAnswer": {"@type": "Answer", "text": "A holding account. Each journal debits or credits it with that period's net, and the payout, when it arrives in PayPal, Stripe or your bank, is matched against it. When every export is journalled and deposited, the clearing account returns to zero, which is the cheap proof that nothing was missed."}}, {"@type": "Question", "name": "Which accounting software can I import to?", "acceptedAnswer": {"@type": "Answer", "text": "Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. You can rename the accounts for each category before downloading so they match your chart of accounts."}}, {"@type": "Question", "name": "What does the page do with rows it does not recognise?", "acceptedAnswer": {"@type": "Answer", "text": "It never drops them. A transaction whose type is not a course, bundle, membership or coaching sale is journalled to an uncategorised account so the journal still equals the net, and it is listed so you can review it. A row where Received is more than Given is flagged as probably swapped columns."}}, {"@type": "Question", "name": "Is it safe to paste a Teachable export into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. The export carries student names and emails; delete those columns if you would rather not have them on screen, because the page only needs the date, item, type, Given, Received and currency."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the export matches your Teachable dashboard or your books, tax treatment in any jurisdiction (sales tax or VAT collected on bundles orders is not separated from the fee and income), currencies converted between the sale and your payout, and account names or codes that must already exist in your accounting software."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PATREON PAYOUT TO JOURNAL · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a Teachable transactions export into a Xero or QuickBooks journal</h1>
+    <p>Paste or drop your <strong>transactions CSV</strong> from Teachable (Settings &gt; Reports &gt; Transactions &gt; Download CSV). Every transaction is <strong>booked to its own income account — courses, memberships, bundles orders or coaching — with the fee (Given minus Received) booked separately</strong>, the rows are <strong>added up and checked against the deposit you type in from PayPal, Stripe or your bank</strong>, and the result is written as a <strong>balanced journal to a Teachable clearing account</strong> — <strong>split at month end</strong> when a payout straddles two months — for <strong>Xero, QuickBooks Online, QuickBooks Desktop (IIF)</strong> or plain CSV.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Only dates, types, and the Given and Received amounts are used. Independent of Teachable, Xero and Intuit. The export layout and the importer layouts are read from memory of public help documents; no real Teachable export and no live Xero or QuickBooks import was available when this was written. If your file is refused, the findings say which column was missing.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Teachable transactions</h2>
+    <p class="note">The transactions CSV from Teachable (Settings &gt; Reports &gt; Transactions). Columns are matched by name (DateTime, Item, Received, Given, Currency, TransactionType). Teachable pays out through PayPal or Stripe, so type the total you received there in the box below to prove the rows add up.</p>
+    <label for="file">Choose a Teachable transactions file</label>
+    <input type="file" id="file" accept=".txt,.csv,.tsv,text/plain">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="DateTime (UTC),From,Message,Item,Received,Given,Currency,TransactionType,TransactionId,Reference ..."></textarea>
+    <div class="grid">
+      <div><label for="split">Journals</label><select id="split"><option value="month">One per calendar month a payout touches</option><option value="none">One per payout</option></select></div>
+      <div><label for="date-order">Dates written as slashes</label><select id="date-order"><option value="mdy">Report uses MM/DD/YYYY</option><option value="dmy">Report uses DD/MM/YYYY</option></select></div>
+      <div><label for="tax-rate">Xero tax rate</label><input id="tax-rate" value="Tax Exempt"></div>
+      <div><label for="expected">Deposit in PayPal, Stripe or your bank (optional)</label><input id="expected" inputmode="decimal" placeholder="e.g. 155.30"></div>
+    </div>
+    <label for="mapping">Accounts (one <code>category = account</code> per line; names or codes as your software has them)</label>
+    <textarea id="mapping" class="small" spellcheck="false" wrap="off"></textarea>
+    <p class="note" id="mapping-note"></p>
+    <p>
+      <button type="button" id="validate">Read, check and build journals</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="reset-map">Reset accounts</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Read, check and build journals.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Deposit check</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Payout</th><th scope="col">Payout date</th><th class="n" scope="col">Teachable states</th><th class="n" scope="col">Journals clear</th><th scope="col">Agrees</th></tr></thead><tbody id="recon"></tbody></table></div>
+    <h3>Journals</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Journal</th><th scope="col">Date</th><th scope="col">Account</th><th class="n" scope="col">Debit</th><th class="n" scope="col">Credit</th><th scope="col">Memo</th></tr></thead><tbody id="journals"></tbody></table></div>
+    <h3>Download</h3>
+    <p><button type="button" id="dl-xero">Xero journal CSV</button> <button type="button" id="dl-qbo">QuickBooks Online CSV</button> <button type="button" id="dl-iif">QuickBooks Desktop IIF</button> <button type="button" id="dl-csv">Plain CSV</button></p>
+    <p class="note">The accounts must already exist in your software under these names or codes. Post the journals, then match each bank deposit to Teachable clearing. <button type="button" class="secondary" id="download-findings">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Rows:</strong> each row is one Teachable transaction with a date, an item, a TransactionType, the amount the student Paid (sale amount) and the amount Received by you. The fee is Given minus Received, so it covers Teachable's cut and the PayPal or Stripe processing fee together. Amounts are read to cents; European <code>1.234,56</code> and US <code>1,234.56</code> both work.</li>
+      <li><strong>Deposit check:</strong> the Received amounts must add up exactly to the deposit you type in from PayPal, Stripe or your bank (or a row typed <code>Payout</code> in TransactionType). If they do not agree, the page says by how much, and you should not post the journal.</li>
+      <li><strong>Categories:</strong> Course to course income, Subscription or Membership to membership income, Bundle to bundle income, Coaching or Download to coaching income, the fee to fees. A type no rule recognises goes to an uncategorised account and is listed.</li>
+      <li><strong>Month split:</strong> rows are grouped by transaction date. A journal is dated the month end, or the last transaction date for the final month. Each journal balances to Teachable clearing, so the clearing account holds exactly the part of the deposit that belongs to that month.</li>
+      <li><strong>Not checked:</strong> that the export agrees with your Teachable dashboard or your books, tax treatment anywhere, currency conversion between sale and payout, and that the accounts exist in your software.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I turn Teachable earnings into a journal entry?</h3>
+    <p>Download your transactions CSV from Teachable (Settings &gt; Reports &gt; Transactions &gt; Download CSV), paste it here and press Read, check and build journals. The page books each transaction to courses, memberships, bundles or commission income by its TransactionType, books the fee (Given minus Received) separately, checks the total against the deposit you type in from PayPal, Stripe or your bank, and writes a journal that balances to a Teachable clearing account.</p>
+    <h3>Why book gross income and fees instead of the deposit?</h3>
+    <p>What lands in PayPal or Stripe is net of processing fees and of Teachable's transaction fee on the Free and Basic plans. Booking only the deposit as income understates revenue, hides what the platform costs you, and mixes course sales with other sales that may be taxed differently. This page books each income type gross, the fee on its own line, in the month it happened.</p>
+    <h3>What is the Teachable clearing account?</h3>
+    <p>A holding account. Each journal debits or credits it with that period's net, and the payout, when it arrives in PayPal, Stripe or your bank, is matched against it. When every export is journalled and deposited, the clearing account returns to zero, which is the cheap proof that nothing was missed.</p>
+    <h3>Which accounting software can I import to?</h3>
+    <p>Xero (manual journal CSV), QuickBooks Online (journal entry CSV), QuickBooks Desktop (IIF general journal) and a plain CSV for anything else. You can rename the accounts for each category before downloading so they match your chart of accounts.</p>
+    <h3>What does the page do with rows it does not recognise?</h3>
+    <p>It never drops them. A transaction whose type is not a course, bundle, membership or coaching sale is journalled to an uncategorised account so the journal still equals the net, and it is listed so you can review it. A row where Received is more than Given is flagged as probably swapped columns.</p>
+    <h3>Is it safe to paste a Teachable export into a web page?</h3>
+    <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. The export carries student names and emails; delete those columns if you would rather not have them on screen, because the page only needs the date, item, type, Given, Received and currency.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether the export matches your Teachable dashboard or your books, tax treatment in any jurisdiction (sales tax or VAT collected on bundles orders is not separated from the fee and income), currencies converted between the sale and your payout, and account names or codes that must already exist in your accounting software.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your own bookkeeping review. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Teachable or any accounting vendor.</strong> Teachable is a trademark of Teachable, Inc. Xero and QuickBooks belong to their owners. This tool is independent and is not sponsored, endorsed or connected to Teachable, Xero, Intuit or any other vendor. The report layout and category rules are read from memory of public help documents and may not match every account.</p>
+    <p><strong>Financial data.</strong> A Teachable report contains your sales and fees and may contain customer names or emails. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open it in a browser tool is a question for your own policies.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_validated</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>journal_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the same journal for other creators and sellers: <a href="../upwork-earnings-to-journal/">Upwork</a>, <a href="../patreon-payout-to-journal/">Patreon</a>, <a href="../gumroad-sales-to-journal/">Gumroad</a>, <a href="../lemonsqueezy-payout-to-journal/">Lemon Squeezy</a>, <a href="../paddle-payout-to-journal/">Paddle</a>, <a href="../shopify-payout-to-journal/">Shopify</a>, <a href="../etsy-statement-to-journal/">Etsy</a>, <a href="../ebay-payout-to-journal/">eBay</a>, <a href="../amazon-settlement-to-journal/">Amazon</a>, <a href="../square-sales-to-journal/">Square</a>, <a href="../stripe-payout-to-journal/">Stripe</a> and <a href="../paypal-activity-to-journal/">PayPal</a>; and the <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a> matches payments against invoices.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, sampleReport, sampleBrokenReport, parseMapping, mappingText, defaultMapping, money, decodeBuffer, toXeroJournalCsv, toQboJournalCsv, toIif, journalsCsv, findingsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    $("#mapping").value = mappingText();
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const mp = parseMapping($("#mapping").value);
+      $("#mapping-note").textContent = mp.errors.join(" ");
+      const exp = parseFloat($("#expected").value.replace(",", "."));
+      const r = validate(text, { mapping: mp.mapping, split: $("#split").value, dateOrder: $("#date-order").value, expected: Number.isFinite(exp) ? Math.round(exp * 100) : undefined });
+      last = r;
+      const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${r.summary.payouts} payout${r.summary.payouts === 1 ? "" : "s"}, ${r.summary.rows} rows, ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#recon").innerHTML = r.reconciliation.map((x) => `<tr><td>${esc(x.id)}</td><td>${esc(x.deposit || "—")}</td><td class="n">${x.stated === null ? "—" : money(x.stated, x.currency)}</td><td class="n">${money(x.journalled, x.currency)}</td><td${x.agrees === false ? ' class="short"' : ""}>${x.agrees === null ? "no summary row" : x.agrees ? "yes" : "NO"}</td></tr>`).join("") || `<tr><td colspan="5">No payouts found.</td></tr>`;
+      $("#journals").innerHTML = r.journals.flatMap((j) => j.lines.map((l) => `<tr><td>${esc(j.narration)}</td><td>${esc(j.date)}</td><td>${esc(l.account)}</td><td class="n">${l.debit ? money(l.debit, j.currency) : ""}</td><td class="n">${l.credit ? money(l.credit, j.currency) : ""}</td><td>${esc(l.memo)}</td></tr>`)).join("") || `<tr><td colspan="6">No journals.</td></tr>`;
+      report.hidden = false;
+      status.textContent = errs ? `Found ${errs} error(s); fix them before posting.` : `Built ${r.journals.length} journal${r.journals.length === 1 ? "" : "s"} from ${r.summary.rows} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      run(text); record("file_validated");
+    });
+    const example = (id, make, note) => $(id).addEventListener("click", () => {
+      $("#paste").value = make(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = note;
+    });
+    example("#load-ok", sampleReport, "Worked example: a synthetic payout for a made-up course creator; the charges and amounts are not real.");
+    example("#load-broken", sampleBrokenReport, "Worked example: the same payout after a hand edit, with typical faults.");
+    $("#reset-map").addEventListener("click", () => { $("#mapping").value = mappingText(defaultMapping()); });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Read, check and build journals."; });
+    $("#download-findings").addEventListener("click", () => { if (last) download("payout-findings.csv", findingsCsv(last), "text/csv"); });
+    const out = (id, name, make, type, count) => $(id).addEventListener("click", () => {
+      if (!last || !last.journals.length) return;
+      count();
+      download(name, make(last.journals, { taxRate: $("#tax-rate").value.trim() || undefined, dateOrder: $("#date-order").value }), type);
+    });
+    out("#dl-xero", "teachable-payout-xero-journal.csv", toXeroJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-qbo", "teachable-payout-qbo-journal.csv", toQboJournalCsv, "text/csv", () => record("journal_downloaded"));
+    out("#dl-iif", "teachable-payout-journal.iif", toIif, "text/plain", () => record("journal_downloaded"));
+    out("#dl-csv", "teachable-payout-journal.csv", journalsCsv, "text/csv", () => record("csv_downloaded"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

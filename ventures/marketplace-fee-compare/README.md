@@ -2,7 +2,9 @@
 
 **Which channel nets the most on this item?** Type one item once — price,
 landed cost, category, monthly order volume — and see net profit side by side
-on eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store.
+on eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Facebook Marketplace, Poshmark, and your own Shopify store.
+
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/
 
 Free, no signup, and nothing you type leaves the browser.
 
@@ -25,15 +27,26 @@ So this is a triage tool, not a seventh fee engine. It models each channel's
 **headline** fee structure and then points at the deep calculator for the parts
 a headline rate cannot carry.
 
+## Price to match
+
+Each row also shows the list price that channel needs for this item to net what
+the best buyer-bringing channel nets. That turns the ranking into a repricing
+answer ("charge $X on Walmart to keep what eBay leaves me") and leaves the
+own-store row out as the yardstick, since it brings no buyers.
+
 ## What it models
 
 | Channel | Rate | Fixed | Subscription |
 | --- | --- | --- | --- |
-| eBay | 13.25% final value | $0.30 | — |
+| eBay | 13.6% final value (up to $7,500) | $0.40 over $10 ($0.30 at $10 or less) | — |
 | Etsy | 6.5% transaction + 3% payment | $0.20 listing + $0.25 payment | — |
 | Amazon (seller-fulfilled) | referral by category, 8–20% | — | $39.99/mo Professional |
 | Walmart Marketplace | referral by category, 8–20% | — | — |
 | TikTok Shop | 6% US referral | — | — |
+| Mercari | 10% selling fee on item + buyer-paid shipping (current schedule) | — | — |
+| Depop (US) | 0% selling fee; 3.3% payment processing on item + buyer-paid shipping | $0.45 | — |
+| Facebook Marketplace (shipped) | 10% selling fee on the buyer-paid total, $0.80 minimum per shipped order (local pickup is free and not modelled) | — | — |
+| Poshmark | flat $2.95 under $15.00, 20% of the sale price from $15.00 (buyer pays the prepaid label, so shipping is ignored on both sides) | — | — |
 | Your own Shopify store | 2.9% payment processing | $0.30 | $39/mo Basic |
 
 Every rate is an **editable default**, taken from the matching calculator in
@@ -43,7 +56,7 @@ schedule; a seller's own statement wins, and the page says so.
 Three modelling decisions worth knowing about:
 
 - **Percentages are charged on the whole order**, item price plus any shipping
-  the buyer paid. That is how all six actually bill, and it is the most common
+  the buyer paid. That is how every modelled channel actually bills, and it is the most common
   way a "free shipping" margin quietly goes negative.
 - **Subscriptions are spread over the seller's own monthly order count**, not
   ignored. Ignoring them is what makes a $39.99 Amazon plan look free at three
@@ -61,7 +74,7 @@ Shopify plan tiers, Walmart WFS.
 
 **Faire is excluded from the ranking on purpose.** It is wholesale: the buyer is
 a shop paying roughly half retail, and the economics turn on order size and
-reorder rate rather than one retail order. Ranking it beside six retail
+reorder rate rather than one retail order. Ranking it beside the ten retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 

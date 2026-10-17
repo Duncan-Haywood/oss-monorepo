@@ -54,12 +54,25 @@ import {
   DEFAULTS as STOCKX_DEFAULTS,
   calculate as calculateStockxSale,
 } from '../stockx-seller-payout-calculator/calc.mjs';
+import {
+  SELLING_FEE_RATE as MERCARI_SELLING_FEE_RATE,
+  calculateSale as calculateMercariSale,
+} from '../mercari-fee-calculator/calc.mjs';
+import { REGIONS as DEPOP_REGIONS, calculateSale as calculateDepopSale } from '../depop-fee-calculator/calc.mjs';
+import {
+  FEE_RATE as FACEBOOK_FEE_RATE,
+  MIN_FEE as FACEBOOK_MIN_FEE,
+  calculateSale as calculateFacebookSale,
+} from '../facebook-marketplace-fee-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
 const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
 const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
+const mercari = CHANNEL_PRESETS.find((preset) => preset.id === 'mercari');
+const depop = CHANNEL_PRESETS.find((preset) => preset.id === 'depop');
+const facebook = CHANNEL_PRESETS.find((preset) => preset.id === 'facebook-marketplace');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -393,8 +406,8 @@ test('the eBay fee assumptions match the dedicated calculator', () => {
   // ebay-fee-calculator takes its final value rate and per-order fixed fee as
   // inputs with these as the fallbacks, so they are read from its own
   // behaviour rather than from a constant it does not export.
-  assert.equal(ebay.commissionRate, 13.25, 'final value fee disagrees with ebay-fee-calculator');
-  assert.equal(ebay.paymentFixed, 0.3, 'per-order fixed fee disagrees with ebay-fee-calculator');
+  assert.equal(ebay.commissionRate, 13.6, 'final value fee disagrees with eBay\'s published 13.6% (ebay-fee-calculator still defaults to 13.25 until P026 lands)');
+  assert.equal(ebay.paymentFixed, 0.4, 'per-order fixed fee disagrees with ebay-fee-calculator');
 });
 
 test('the Etsy fee assumptions match the dedicated calculator', () => {
@@ -518,12 +531,113 @@ test('StockX is off until the seller turns it on', () => {
   assert.equal(stockx.enabled, false);
 });
 
+test('this page still has a Mercari channel to compare', () => {
+  assert.ok(mercari, 'no channel with id "mercari" in CHANNEL_PRESETS');
+});
+
+test('the Mercari fee assumptions match the dedicated calculator\'s current schedule', () => {
+  // Imported from mercari-fee-calculator's own SELLING_FEE_RATE rather than
+  // typed here, for the reason CLAUDE.md records twice against a copied
+  // constant going stale: if that calculator's current-schedule rate
+  // changes, this fails rather than the two pages quietly drifting apart.
+  assert.equal(
+    mercari.commissionRate,
+    MERCARI_SELLING_FEE_RATE,
+    'selling fee disagrees with mercari-fee-calculator\'s current schedule',
+  );
+  // The current schedule has no separate payment processing fee -- only the
+  // pre-2025 legacy schedule does, which this page does not model.
+  assert.equal(mercari.paymentRate, 0, 'Mercari: the current schedule has no separate processing fee');
+  assert.equal(mercari.paymentFixed, 0, 'Mercari: the current schedule has no separate processing fee');
+});
+
+test('Mercari net profit matches the dedicated calculator on the shared worked example', () => {
+  // Same discipline as the Reverb, TikTok Shop, Whatnot and StockX checks
+  // above: rate equality alone would not catch a base mismatch (the current
+  // schedule charges its fee on item + buyer-paid shipping, matching this
+  // page's default "order" commission base), so this asserts the number a
+  // seller actually reads on both pages, either side of the handoff.
+  const shared = {
+    price: 40,
+    shippingCharged: 6,
+    shippingCost: 5,
+    itemCost: 15,
+    packagingCost: 0,
+    otherCost: 2,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...mercari, enabled: true }, shared);
+  const there = calculateMercariSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    legacySchedule: false,
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  // Compared to a billionth rather than with `assert.equal`, for the same
+  // reason as the Poshmark sweep above: this page reaches the fee by
+  // `(price + shippingCharged) * (orderRate)` where orderRate already folds
+  // in payment/ad rates, and the dedicated calculator reaches it by
+  // `(itemPrice + buyerShipping) * (SELLING_FEE_RATE / 100)` directly -- the
+  // same combined-rate multiplication, done in a different order, which
+  // disagrees in the last bit of a double. A real drift in the rate would be
+  // cents, not eleven orders of magnitude below the cent either page shows.
+  const near = (a, b, what) => assert.ok(
+    Math.abs(a - b) < 1e-9,
+    `${what}: this page says ${a}, mercari-fee-calculator says ${b}`,
+  );
+  near(here.fees.commission, there.sellingFee, 'selling fee on the same order total');
+  near(here.profit, there.profit, 'net profit must not jump across the handoff');
+});
+
+test('the Depop row matches the dedicated calculator\'s US schedule and net profit', () => {
+  assert.ok(depop, 'no channel with id "depop" in CHANNEL_PRESETS');
+  const us = DEPOP_REGIONS.us;
+  assert.equal(depop.commissionRate, us.sellingRate, 'Depop selling fee disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentRate, us.processingRate, 'Depop processing rate disagrees with depop-fee-calculator (US)');
+  assert.equal(depop.paymentFixed, us.processingFixed, 'Depop flat fee disagrees with depop-fee-calculator (US)');
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  const here = calculateChannel({ ...depop, enabled: true }, shared);
+  const there = calculateDepopSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    region: 'us',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Depop profit: this page ${here.profit}, depop-fee-calculator ${there.profit}`);
+});
+
+test('the Facebook Marketplace row matches the dedicated calculator above its minimum fee', () => {
+  assert.ok(facebook, 'no channel with id "facebook-marketplace" in CHANNEL_PRESETS');
+  assert.equal(facebook.commissionRate, FACEBOOK_FEE_RATE, 'Facebook fee disagrees with facebook-marketplace-fee-calculator');
+  assert.equal(facebook.paymentRate, 0);
+  assert.equal(facebook.paymentFixed, 0);
+  const shared = { price: 40, shippingCharged: 6, shippingCost: 5, itemCost: 15, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+  assert.ok((shared.price + shared.shippingCharged) * (FACEBOOK_FEE_RATE / 100) > FACEBOOK_MIN_FEE, 'example must sit above the minimum fee');
+  const here = calculateChannel({ ...facebook, enabled: true }, shared);
+  const there = calculateFacebookSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    channel: 'shipped',
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.ok(Math.abs(here.profit - there.profit) < 1e-9, `Facebook profit: this page ${here.profit}, dedicated ${there.profit}`);
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari', 'depop', 'facebook-marketplace']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,

@@ -1,0 +1,47 @@
+name: slo-burn-rate-alerts
+description: 'Free, zero-network, zero-dependency CLI + browser tool that turns an SLO into its error budget in minutes of downtime, the multi-window multi-burn-rate alert policy (Google SRE Workbook method) with concrete thresholds for the user''s own period, how fast each alert fires in a total outage, lint for thresholds that can never fire and low-traffic flapping, and a Prometheus rules file (recording rules plus alerts) to review. A deterministic generator from typed inputs, not a reliability guarantee.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype. duplicate_check.py (run 2026-10-01): nothing in
+# ventures/ touches SLOs or burn-rate alerting; prometheus-cardinality-cost is
+# the adjacent SRE tool (bill side), not alert side. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "slo error
+# budget calculator", "burn rate alert prometheus", "multi window multi burn
+# rate", "99.9 downtime per month"; r/devops, r/sre and r/PrometheusMonitoring
+# threads on alert fatigue; the Google SRE Workbook readership. Incumbents
+# (Sloth, Pyrra, OpenSLO, vendor SLO products) are generators you install or
+# platforms you subscribe to; this is a no-install page that also explains the
+# arithmetic and warns when a threshold is unreachable -- the wedge. A hosted
+# multi-service SLO tracker is the natural paid upgrade path later.
+hypotheses:
+  - claim: An engineer defining their first SLO will search for the downtime/burn-rate arithmetic, type their target, and copy the generated rule file after review.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will run `cli.mjs plan` in CI so a change to an SLO target that makes a page alert unreachable fails the pull request.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: all arithmetic runs in the visitor's browser or on the
+  # user's own machine; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/slo-burn-rate-alerts/
+  analytics: null

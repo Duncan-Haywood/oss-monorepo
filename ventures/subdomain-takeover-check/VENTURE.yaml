@@ -1,0 +1,79 @@
+name: subdomain-takeover-check
+description: >-
+  A free browser tool + CLI for developers, DevOps engineers, and security
+  researchers: follows a hostname's real CNAME chain over public
+  DNS-over-HTTPS, matches the final target against 25 known takeover-prone
+  hosting providers (S3, Heroku, GitHub Pages, Azure, Fastly, Shopify, and
+  more), and -- for a match -- sends one live GET request checked against
+  that specific provider's own "nothing is claimed at this name" fingerprint
+  page. Reports a confirmed dangling CNAME (matched on both the DNS target
+  AND a live fingerprinted response) separately from an unconfirmed one
+  (DNS match only, worth a manual look) -- never escalating a DNS-only
+  match to a confirmed finding. Never attempts to claim, register, or
+  configure anything at any provider; detection and reporting only.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, DevOps engineer, or security researcher doing a DNS-zone
+      audit or pre-launch deploy verification will search a variant of
+      "subdomain takeover checker", "check for dangling CNAME", or "is my
+      subdomain takeover vulnerable" and find this tool, since it needs no
+      login and no upload -- it runs the same DNS lookup and HTTP request the
+      searcher's own machine already can, just scripted, repeatable across a
+      whole list of hostnames, and confirmed against a live fingerprint
+      rather than left as a DNS-only guess.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, evergreen DNS-hygiene footgun rather than a
+      one-off incident: subdomain takeover is a standard, recurring
+      HackerOne/Bugcrowd report category, a common finding in penetration-test
+      reports, and a class that recurs every time a team decommissions a
+      cloud resource without also removing the DNS record pointing at it --
+      the same evergreen-footgun shape this portfolio already ships for git
+      directories, dotenv files, source maps, and security headers.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team or MSP that gets a confirmed finding will wire the CLI into a
+      recurring DNS-zone-audit job (cron or CI), producing return usage with
+      no action from this portfolio -- the same return-usage path
+      `email-auth-check` and `dotenv-exposure-check` already document for
+      this checker family.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: both the CLI (the user's own machine) and the
+  # browser page (the visitor's own browser) query Cloudflare's public DNS
+  # resolver and the target hostname directly. No server of ours is
+  # involved, so serving one more user costs a static file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free, zero-install tool covering the same
+    DNS-plus-live-fingerprint confirmation, with the same evidence-first
+    (never escalating a DNS-only match to confirmed) framing and a
+    CI-gateable CLI, becomes the obvious default, such that this tool's
+    differentiation no longer holds.
+  - The provider fingerprint table proves unmaintainable (providers change
+    their "unclaimed" page wording faster than this portfolio can track it)
+    such that the confirmed/unconfirmed split stops being reliable evidence.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/
+  analytics: null

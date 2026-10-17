@@ -1,0 +1,13 @@
+[project]
+name = "garment-twonodepen"
+version = "0.1.0"
+description = "At what per-switch penalty does a proportional infrared gate beat the on/off thermostat gate in the two-node model"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

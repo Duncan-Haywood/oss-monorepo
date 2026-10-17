@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fitness Studio Membership Calculator — Free</title>
+  <meta name="description" content="Free calculator for boutique gym, yoga, pilates and CrossFit owners: member lifetime value, cost to win a member, payback months, where your member count settles, break-even members and what one point of churn is worth. Nothing uploaded.">
+  <meta property="og:title" content="Fitness studio membership calculator">
+  <meta property="og:description" content="See what a member is worth, what churn costs and how many members cover your rent. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4a'/%3E%3Cpath d='M6 16h20M9 11v10M23 11v10' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fitness Studio Membership Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Membership economics for boutique gyms and studios: lifetime value, CAC, payback, steady-state members, break-even members, class capacity and what a point of churn is worth. Runs in your browser.", "featureList": "Member lifetime value, CAC and payback, steady-state member count, break-even members, class capacity, churn and price scenarios, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good churn rate for a boutique fitness studio?", "acceptedAnswer": {"@type": "Answer", "text": "It varies a lot by format, price and how members join, so this tool does not claim a benchmark. Use your own cancellations divided by members at the start of the month, averaged over a few months. The tool then shows what each point of churn is worth in profit."}}, {"@type": "Question", "name": "How do I calculate member lifetime value?", "acceptedAnswer": {"@type": "Answer", "text": "Multiply what a member contributes each month after card fees and variable costs by the expected number of months they stay, which is 100 divided by monthly churn. At 6% churn the average member stays about 17 months. Lifetime value here is contribution, not revenue, and is not discounted."}}, {"@type": "Question", "name": "What is a good LTV to CAC ratio for a studio?", "acceptedAnswer": {"@type": "Answer", "text": "Many owners aim for at least 3 to 1, but that is a rule of thumb, not a standard. The tool shows your ratio and the months it takes a new member to repay what you spent to win them, using your marketing spend divided by new members."}}, {"@type": "Question", "name": "Why does the member count stop growing?", "acceptedAnswer": {"@type": "Answer", "text": "Each month a share of members leaves and a fixed number joins, so the count settles where joins equal churned members: new members per month divided by monthly churn. Lowering churn raises that ceiling, which is why retention often beats more ads."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FITNESS STUDIO MEMBERSHIP · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is a member worth, and what does churn cost you?</h1>
+    <p>Type your members, price, churn, joins and costs. The tool shows lifetime value, what it costs to win a member, how long they take to pay it back, where your member count settles, how many members cover your fixed costs, and what one point less churn or ten dollars more on price is worth.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not benchmarks or any real studio's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your studio</h2>
+      <div class="grid">
+        <div><label for="members">Current paying members</label><input id="members" type="text" value=""></div>
+        <div><label for="price">Monthly membership price ($)</label><input id="price" type="text" value=""><p class="note">Average per member after intro discounts.</p></div>
+        <div><label for="churn">Monthly churn (%)</label><input id="churn" type="text" value=""><p class="note">Share of members who cancel in a month. 6 means about 1 in 17.</p></div>
+        <div><label for="newPerMonth">New members per month</label><input id="newPerMonth" type="text" value=""></div>
+        <div><label for="adSpend">Marketing spend ($/month)</label><input id="adSpend" type="text" value=""><p class="note">Ads, promos, referral rewards, intro-offer cost.</p></div>
+        <div><label for="cardPct">Card fee (%)</label><input id="cardPct" type="text" value=""></div>
+        <div><label for="cardFixed">Card fee per charge ($)</label><input id="cardFixed" type="text" value=""></div>
+        <div><label for="varCost">Variable cost per member ($/month)</label><input id="varCost" type="text" value=""><p class="note">Towels, software seats, per-member supplies.</p></div>
+        <div><label for="fixedMonth">Fixed costs ($/month)</label><input id="fixedMonth" type="text" value=""><p class="note">Rent, instructors, utilities, insurance, software. Not owner pay.</p></div>
+        <div><label for="classesWeek">Classes per week</label><input id="classesWeek" type="text" value=""></div>
+        <div><label for="spots">Spots per class</label><input id="spots" type="text" value=""></div>
+        <div><label for="visitsPerMember">Visits per member per month</label><input id="visitsPerMember" type="text" value=""><p class="note">Average, from your check-in data.</p></div>
+        <div><label for="months">Months to project</label><input id="months" type="text" value=""><p class="note">3 to 36.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my numbers</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good churn rate for a boutique fitness studio?</h3>
+      <p>It varies a lot by format, price and how members join, so this tool does not claim a benchmark. Use your own cancellations divided by members at the start of the month, averaged over a few months. The tool then shows what each point of churn is worth in profit.</p>
+      <h3>How do I calculate member lifetime value?</h3>
+      <p>Multiply what a member contributes each month after card fees and variable costs by the expected number of months they stay, which is 100 divided by monthly churn. At 6% churn the average member stays about 17 months. Lifetime value here is contribution, not revenue, and is not discounted.</p>
+      <h3>What is a good LTV to CAC ratio for a studio?</h3>
+      <p>Many owners aim for at least 3 to 1, but that is a rule of thumb, not a standard. The tool shows your ratio and the months it takes a new member to repay what you spent to win them, using your marketing spend divided by new members.</p>
+      <h3>Why does the member count stop growing?</h3>
+      <p>Each month a share of members leaves and a fixed number joins, so the count settles where joins equal churned members: new members per month divided by monthly churn. Lowering churn raises that ceiling, which is why retention often beats more ads.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your price is right for your market, what churn you will actually see, seasonality, how intro offers change retention, instructor pay and scheduling, lease terms, owner pay, taxes, equipment and financing, retail or personal training revenue, and whether any member is worth keeping. This is a projection from the numbers you typed, not a forecast.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a>, the <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing calculator</a>, the <a href="../saas-cac-payback-calculator/">CAC payback calculator</a> and the <a href="../car-wash-membership-calculator/">car wash membership calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += '<div class="finding"><h4>A member is worth ' + money(a.ltv) + " over about " + Math.round(a.lifetimeMonths * 10) / 10 + " months</h4><p>Each member contributes " + money2(a.cm) + " a month after card fees and variable cost. " + (a.cac === null ? "No new members are entered, so there is no cost to win one." : "Winning one costs about " + money(a.cac) + (a.paybackMonths === null ? "" : ", repaid in " + (Math.round(a.paybackMonths * 10) / 10) + " months") + "; lifetime value is " + (Math.round((a.ltv / a.cac) * 10) / 10) + "x that cost.") + "</p></div>";
+      h += '<div class="finding"><h4>Where the member count settles: ' + Math.round(a.steady) + "</h4><p>With " + a.v.newPerMonth + " joins a month and " + a.v.churn + "% churn, membership levels off near " + Math.round(a.steady) + ". In " + a.v.months + " months you reach " + Math.round(a.last.members) + " members and " + money(a.last.profit) + " a month. Today's profit is " + money(a.profitNow) + " a month; at the settled level it is " + money(a.steadyProfit) + ".</p></div>";
+      h += '<div class="finding"><h4>Break-even and capacity</h4><p>' + (a.breakEvenMembers === null ? "Price does not cover per-member costs." : "You need " + a.breakEvenMembers + " members to cover fixed costs and marketing.") + " Classes offer " + Math.round(a.capacity) + " spots a month; typed visits fill " + pct(a.utilization) + (a.memberCapacity === null ? "" : ", which is full at about " + a.memberCapacity + " members") + ".</p></div>";
+      h += '<div class="finding"><h4>What moves profit (month ' + a.v.months + ")</h4>" + table(["Change", "Members", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), Math.round(s.members), money(s.profit), money(s.change)])) + "</div>";
+      h += '<div class="finding"><h4>Month by month</h4>' + table(["Month", "Members", "Revenue", "Profit", "Cumulative"], a.monthly.map((r) => [r.month, Math.round(r.members), money(r.revenue), money(r.profit), money(r.cumulative)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download projection (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "studio-membership-projection.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+name: crypto-cost-basis-calculator
+description: >-
+  Free browser tool for people who traded or earned crypto at several prices: paste
+  or open a CSV of buys, sales and income and it matches every sale to purchase
+  lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, splits sales into
+  short-term and long-term rows, compares the methods with an estimated tax, and
+  exports Form 8949 style rows. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for deeper tools with real
+# money behind them. duplicate_check.py: closest rows were
+# like-kind-exchange-1031-calculator 0.18 and poshmark-sales-report-analyzer 0.17
+# (neither is lot matching); screened-out.md bars trading signals and crypto
+# *yield/advice*, which this is not: it is arithmetic on the user's own history.
+#
+# Why this niche: crypto tax software (Koinly, CoinTracker, TokenTax and others)
+# charges roughly $50 to $300 a year per return and asks for exchange API keys or
+# wallet addresses, a real privacy cost for a file that lists everything someone
+# owns. Many people only need the matching step on a CSV they already have, and
+# want to see FIFO against HIFO before choosing. A local, no-signup engine serves
+# that, and its Form 8949 style export is the natural lead magnet.
+#
+# First visitor: searches such as "crypto FIFO vs HIFO", "crypto cost basis
+# calculator", "Form 8949 crypto csv"; r/CryptoTax and r/CryptoCurrency threads
+# every filing season. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no prices fetched, no
+# claim about which method a filer may use (the page says it depends on
+# identification and records); omissions stated (DeFi, NFTs, forks, NIIT, loss
+# limits, wash-sale style rules); no payment code.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a paid tier,
+# if usage appears, is exchange-format importers and a multi-year view, local only;
+# not built.
+
+hypotheses:
+  - claim: >-
+      Crypto holders will use a private, no-signup lot matcher that shows FIFO
+      against HIFO on their own CSV during filing season, instead of uploading
+      their history to a paid tax service.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The Form 8949 style export is what makes people come back, because it is the
+      artefact a preparer or tax program asks for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a gain that differs from a hand calculation on the same rows and the difference is a bug in lot matching.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/crypto-cost-basis-calculator/
+  analytics: null

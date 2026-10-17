@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Medical Billing Pricing Calculator: Percent vs Per-Claim vs Flat Fee — Free</title>
+  <meta name="description" content="Free medical billing pricing calculator: compare percent of collections, per-claim and flat monthly fees against your cost to serve a practice. See margin, break-even claim volume, the price needed for your target margin and what happens if collections move. Nothing uploaded.">
+  <meta property="og:title" content="Medical billing pricing calculator: percent vs per-claim vs flat">
+  <meta property="og:description" content="Which price structure earns you the most on this client? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M16 7v18M7 16h18' stroke='%23fff' stroke-width='3.200' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Medical Billing Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare percent-of-collections, per-claim and flat monthly pricing for a medical billing client against your cost to serve: margin, break-even volume, required price for a target margin and sensitivity to collections. Runs in your browser.", "featureList": "Margin by pricing model, break-even claim volume, required price for target margin, percent vs per-claim crossover, collections sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should a medical billing company charge?", "acceptedAnswer": {"@type": "Answer", "text": "Start from what the client costs you to serve: staff time per claim, clearinghouse fees, denial rework, software and onboarding. Then choose the price structure that earns your target margin at that client's volume and average collection per claim. Most small billing companies quote 4% to 9% of collections or a per-claim fee, but the right number is the one that covers your own cost plus margin, not the market average."}}, {"@type": "Question", "name": "Is percent of collections or per-claim pricing better?", "acceptedAnswer": {"@type": "Answer", "text": "Percent of collections pays more on practices whose claims collect a lot, such as surgical or specialty work, and less on low-dollar visits where the work per claim is the same. This tool finds the average collected per claim above which a given percentage out-earns your per-claim fee, so you can see which side your client falls on."}}, {"@type": "Question", "name": "When does a flat monthly fee work?", "acceptedAnswer": {"@type": "Answer", "text": "When the client's volume is steady and you have priced in a ceiling. A flat fee earns the same however many claims arrive, so the tool shows the claim volume above which the flat fee stops covering your cost and you should reprice."}}, {"@type": "Question", "name": "How small a practice can I afford to take on?", "acceptedAnswer": {"@type": "Answer", "text": "The tool computes the smallest monthly claim volume at which each offer breaks even and at which it reaches your target margin. Fixed costs per client, such as software and onboarding, make very small practices unprofitable at a percentage that works for larger ones."}}, {"@type": "Question", "name": "Is this billing, legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. It does not check payer contracts, state rules on percentage-based billing, or what any client has agreed to. Review your own agreements with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">MEDICAL BILLING PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Percent, per claim or flat: which price earns you the most on this client?</h1>
+    <p>Type a practice's claim volume and what each claim collects, what a claim costs you to handle, and the three prices you might quote. The tool shows your margin under each, the smallest practice you can afford at each price, the price that would hit your target margin, and what happens if the practice's collections move.</p>
+    <p class="note">Arithmetic on figures you type. Not billing, legal, tax or financial advice. The example figures are placeholders, not market rates or your situation.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The client</h2>
+      <div class="grid">
+        <div><label for="claims">Claims per month</label><input id="claims" type="number" step="any" value="0"><p class="note">Submitted for this client.</p></div>
+        <div><label for="avgCollected">Average collected per claim ($)</label><input id="avgCollected" type="number" step="any" value="0"><p class="note">Payments received divided by claims, not the billed charge.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. What it costs you to serve</h2>
+      <div class="grid">
+        <div><label for="minutesPerClaim">Staff minutes per claim</label><input id="minutesPerClaim" type="number" step="any" value="0"><p class="note">Scrub, submit, post and follow up a clean claim.</p></div>
+        <div><label for="hourly">Loaded hourly cost of staff ($)</label><input id="hourly" type="number" step="any" value="0"><p class="note">Wage plus payroll taxes and benefits.</p></div>
+        <div><label for="clearinghouse">Clearinghouse and eligibility fees per claim ($)</label><input id="clearinghouse" type="number" step="any" value="0"></div>
+        <div><label for="denialRate">Denied or rejected claims (%)</label><input id="denialRate" type="number" step="any" value="0"><p class="note">Share reworked.</p></div>
+        <div><label for="reworkMinutes">Extra minutes per denied claim</label><input id="reworkMinutes" type="number" step="any" value="0"></div>
+        <div><label for="software">Software cost per client per month ($)</label><input id="software" type="number" step="any" value="0"></div>
+        <div><label for="onboardHours">Onboarding hours for the client</label><input id="onboardHours" type="number" step="any" value="0"></div>
+        <div><label for="contractMonths">Months the onboarding cost is spread over</label><input id="contractMonths" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. What you want and what you are offering</h2>
+      <div class="grid">
+        <div><label for="targetMargin">Target margin (%)</label><input id="targetMargin" type="number" step="any" value="0"><p class="note">Of revenue, after the costs above.</p></div>
+        <div><label for="pctRate">Offer 1: percent of collections (%)</label><input id="pctRate" type="number" step="any" value="0"></div>
+        <div><label for="claimFee">Offer 2: fee per claim ($)</label><input id="claimFee" type="number" step="any" value="0"></div>
+        <div><label for="flatFee">Offer 3: flat monthly fee ($)</label><input id="flatFee" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Compare the three prices</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions billing company owners ask</h2>
+      <h3>What should a medical billing company charge?</h3>
+      <p>Start from what the client costs you to serve: staff time per claim, clearinghouse fees, denial rework, software and onboarding. Then choose the price structure that earns your target margin at that client's volume and average collection per claim. Most small billing companies quote 4% to 9% of collections or a per-claim fee, but the right number is the one that covers your own cost plus margin, not the market average.</p>
+      <h3>Is percent of collections or per-claim pricing better?</h3>
+      <p>Percent of collections pays more on practices whose claims collect a lot, such as surgical or specialty work, and less on low-dollar visits where the work per claim is the same. This tool finds the average collected per claim above which a given percentage out-earns your per-claim fee, so you can see which side your client falls on.</p>
+      <h3>When does a flat monthly fee work?</h3>
+      <p>When the client's volume is steady and you have priced in a ceiling. A flat fee earns the same however many claims arrive, so the tool shows the claim volume above which the flat fee stops covering your cost and you should reprice.</p>
+      <h3>How small a practice can I afford to take on?</h3>
+      <p>The tool computes the smallest monthly claim volume at which each offer breaks even and at which it reaches your target margin. Fixed costs per client, such as software and onboarding, make very small practices unprofitable at a percentage that works for larger ones.</p>
+      <h3>Is this billing, legal or financial advice?</h3>
+      <p>No. It is arithmetic on the figures you type. It does not check payer contracts, state rules on percentage-based billing, or what any client has agreed to. Review your own agreements with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Payer contract terms, state rules on percentage-based billing, what the practice will accept, time to ramp up a new client, collections that arrive months after the claim, accounts receivable cleanup work, credentialing and other add-on services, bad debt, and taxes. Staff time is assumed to be proportional to claims. Term sheets and law differ by state and payer.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../private-practice-payer-mix-calculator/">private practice payer mix calculator</a>, the <a href="../appointment-no-show-cost-calculator/">appointment no-show cost calculator</a> and the <a href="../sign-language-interpreter-rate-calculator/">interpreter rate calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you quote or sign anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const vol = (n, flat) => (n === null ? "not at any volume" : flat ? `up to ${n.toLocaleString("en-US")} claims a month` : `from ${n.toLocaleString("en-US")} claims a month`);
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, o = a.opts, by = Object.fromEntries(r.offers.map((x) => [x.key, x]));
+      h += `<div class="finding"><h4>${esc(r.best.label)} earns you the most on this client: ${money(r.best.margin)} a month (${pct(r.best.marginPct)} margin)</h4><p>Serving ${o.claims.toLocaleString("en-US")} claims a month costs you ${money(r.cost.total)}, or ${money2(r.costPerClaim)} a claim. The practice collects ${money(r.collections)} a month, so the best offer is an effective ${pct(r.best.effectivePct)} of collections.</p></div>`;
+      h += `<div class="finding"><h4>The three prices side by side</h4>${table(["Offer", "You earn a month", "Margin a month", "Margin %", "Effective % of collections"], r.offers.map((x) => [esc(x.label), money(x.income), money(x.margin), pct(x.marginPct), pct(x.effectivePct)]))}</div>`;
+      h += `<div class="finding"><h4>The price that would hit your ${pct(o.targetMargin)} target</h4><p>At this volume you need ${money(r.req.revNeeded)} a month: ${pct(r.req.pctRate)} of collections, or ${money2(r.req.claimFee)} a claim, or a flat ${money(r.req.flatFee)}.</p></div>`;
+      h += `<div class="finding"><h4>How small a practice can you take?</h4>${table(["Offer", "Breaks even", "Reaches your target margin"], [["Percent of collections", vol(r.breakEven.pct), vol(r.atTarget.pct)], ["Per claim", vol(r.breakEven.claim), vol(r.atTarget.claim)], ["Flat monthly fee", vol(r.breakEven.flat, true), vol(r.atTarget.flat, true)]])}<p>Software and onboarding are a fixed cost per client, so a price that works for a large practice can lose money on a small one. A flat fee stops working above a ceiling.</p></div>`;
+      h += `<div class="finding"><h4>Percent or per claim?</h4><p>${o.pctRate > 0 ? `${pct(o.pctRate)} of collections out-earns ${money2(o.claimFee)} a claim only when a claim collects more than ${money2(r.beat)} on average. This client collects ${money2(o.avgCollected)}, so ${o.avgCollected > r.beat ? "the percentage pays more" : "the per-claim fee pays more"}.` : "Enter a percentage above zero to compare."}</p></div>`;
+      h += `<div class="finding"><h4>If the practice collects more or less per claim</h4>${table(["Collections per claim", "Average collected", "Percent: margin", "Per claim: margin", "Flat: margin"], a.rows.map((x) => [`${Math.round(x.mult * 100)}%`, money2(x.avg), money(x.pct), money(x.claim), money(x.flat)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "medical-billing-pricing-sensitivity.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

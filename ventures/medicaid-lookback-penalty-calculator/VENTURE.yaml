@@ -1,0 +1,54 @@
+name: medicaid-lookback-penalty-calculator
+description: >-
+  Free browser tool for families and caregivers facing nursing-home costs: list the gifts and transfers made by a
+  parent or spouse, and see which fall inside the Medicaid look-back window, the penalty period in months and days from
+  the state's penalty divisor, the care bill left to cover during it, the effect of returning money, a table of how the
+  penalty falls if the application is later, and the date each gift ages out. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.20
+# (medicare-irmaa-cliff-calculator, unrelated); no Medicaid look-back tool in ventures/. High-intent, high-dollar,
+# time-pressured search by adult children ("medicaid look back period calculator", "medicaid penalty period
+# calculator", "gifting before medicaid", "5 year lookback"); incumbents are elder-law firm blogs with a lead form and
+# a few state-specific penalty calculators that ask for contact details.
+#
+# Who: adult children and spouses of a parent entering a nursing home, and elder-law paralegals. The paying buyer, if
+# there is one, is an elder-law practice that wants saved cases, a client-ready report with the firm's name and a
+# state table of divisors; not built, behind an env-var switch if usage appears.
+#
+# Path to revenue (payment rails stay off): lead magnet; a branded report for elder-law firms is the paid version.
+#
+# Liability: arithmetic on the user's own figures with visible rules; every state-specific number is a user input, no
+# state table is shipped that could go stale; carries the no-warranty and not-legal-advice clauses and lists what is not
+# decided (state divisor, window, exemptions, trusts, annuities, the home, income-only states).
+#
+# Unverified: no elder-law attorney or family has checked it against a real determination. Partial-month handling is an
+# approximation of 30-day months. The first wrong result is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An adult child told to prepare for a Medicaid application will paste the parent's gifts into a no-upload page
+      to see the penalty before paying an attorney for a first consult, because the five-year rule is widely known and
+      the arithmetic is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - An elder-law attorney reports a result that differs materially from a correct penalty computation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/medicaid-lookback-penalty-calculator/
+  analytics: null

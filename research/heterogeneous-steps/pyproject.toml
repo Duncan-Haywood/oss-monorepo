@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heterogeneous-steps"
+version = "0.1.0"
+description = "Local SGD on heterogeneous hardware where workers run different numbers of inner steps: exact floor for weighted averaging, tanh information law, near-optimality of equal weights (9/8) and the cost of step-proportional weights"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

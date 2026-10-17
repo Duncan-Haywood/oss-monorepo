@@ -100,7 +100,7 @@ node cli.mjs check feed.csv --max-warnings 0   # also fail the build on warnings
       <thead><tr><th>Documented disapproval reason</th><th>Checked here as</th></tr></thead>
       <tbody id="reasons-rows"></tbody>
     </table>
-    <p class="note">Sources and the exact spec limits used: <a href="why-products-get-disapproved-in-google-merchant-center.html">why products get disapproved in Google Merchant Center, and what a feed checker can and can't see</a>. Also worth a pass: <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, which catches your product pages' own JSON-LD drifting from what Google's Merchant Center feed rules expect it to match. Building or routing feeds to many channels day to day? See <a href="./vs-datafeedwatch.html">this checker vs. DataFeedWatch</a>.</p>
+    <p class="note">Sources and the exact spec limits used: <a href="why-products-get-disapproved-in-google-merchant-center.html">why products get disapproved in Google Merchant Center, and what a feed checker can and can't see</a>. Also worth a pass: <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, which catches your product pages' own JSON-LD drifting from what Google's Merchant Center feed rules expect it to match. Building or routing feeds to many channels day to day? See <a href="./vs-datafeedwatch.html">this checker vs. DataFeedWatch</a>. Wondering whether scanning the feed yourself is enough? See <a href="./vs-eyeballing-the-feed-in-a-spreadsheet.html">this checker vs. eyeballing the feed in a spreadsheet</a>.</p>
   </section>
 
   <section class="card">
@@ -120,6 +120,8 @@ node cli.mjs check feed.csv --max-warnings 0   # also fail the build on warnings
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The feed you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Only the barcode column in doubt? The <a href="../gtin-list-check/">GTIN List Check</a> validates check digits and restores zeros Excel dropped, for any product list. It runs in your browser and the file is never uploaded.</p>
+    <p>Running Google Ads too? Drop your search terms report into the <a href="../google-ads-wasted-spend-analyzer/">Google Ads wasted spend analyzer</a> to see how much went to searches that never converted and which negative keywords are safe to add. It runs in your browser and the file is never uploaded.</p>
     <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

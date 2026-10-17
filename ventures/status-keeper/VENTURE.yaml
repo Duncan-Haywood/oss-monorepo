@@ -1,0 +1,68 @@
+name: status-keeper
+description: >-
+  Self-hosted uptime monitor and public status page: HTTP and heartbeat checks,
+  90-day uptime bars, incidents with updates, scheduled maintenance that does not
+  count against uptime, Atom feed, JSON API, README badge and webhook alerts.
+  Browser SLA calculator plus a zero-dependency server with a one-click Render deploy.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-15. Paid market is real and proven: Atlassian Statuspage
+# (from $29/mo, per-subscriber tiers), Instatus, Better Stack, Status Cake and
+# Uptime Robot sell monitoring plus a hosted status page to every SaaS company.
+# Free baselines are Uptime Kuma (self-hosted, heavier, Docker + SQLite UI) and
+# cstate/Upptime (static, GitHub Actions). The gap: a tiny single-file server
+# with a customer-facing page, incident updates and a feed, deployable in one
+# click on a host other than the one being watched.
+# duplicate_check: cron-heartbeat monitors cron jobs for the operator (private
+# dashboard, no public page); uptime-monitoring-pricing-calculator is a price
+# comparison. Neither publishes a customer-facing status page.
+#
+# First visitor: founders searching "statuspage alternative", "self hosted status
+# page", "uptime kuma alternative" on Hacker News, r/selfhosted, r/SaaS and
+# Indie Hackers. Volume not measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet; hosted
+# version, done-for-you setup or GitHub Sponsors are the paid steps -- hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      The same operator who wants a status page also loses sleep over a lapsed
+      certificate or domain, so expiry watchers with one alert per threshold are
+      what get status-keeper deployed over a bare uptime pinger.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Early-stage SaaS founders will deploy a status page once it takes one click
+      and one env var, because Statuspage charges per subscriber tier and Uptime
+      Kuma has no customer-facing incident timeline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The consecutive-failure threshold plus maintenance windows that do not
+      count against uptime are what make the 90-day bars trustworthy enough to
+      publish.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of a false outage published on a status page, or of lost history; check accuracy and durable state come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/status-keeper/
+  analytics: null

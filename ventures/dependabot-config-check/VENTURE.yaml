@@ -1,0 +1,58 @@
+name: dependabot-config-check
+description: "Free, read-only checker that lints a repository's .github/dependabot.yml and compares it with the repo's file list to find manifests (npm, pip, docker, github-actions, gomod, cargo and more) that no update entry covers, then writes a starter config with weekly schedule, cooldown and grouping."
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-29 with `python3 portfolio/pipeline/duplicate_check.py
+# "dependabot.yml linter that finds manifests dependabot skips and generates a
+# starter config"` -- top score 0.08, far below the 0.45 read-this-first bar.
+# No sibling covers Dependabot; the nearest are the Actions hardening checkers
+# (workflow YAML) and license-drift-check (dependency licences).
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# says to weigh a CLI/checker over another calculator. This is a Node CLI plus
+# browser port that share one module (check.mjs), so the page and the CLI
+# cannot disagree.
+#
+# Where the first visitor comes from: searches for "dependabot not updating
+# package.json in subdirectory", "dependabot.yml directory monorepo" and
+# "dependabot cooldown" -- recurring GitHub Community and Stack Overflow
+# questions whose answer is "list that directory as its own entry". Search
+# volume not measured with an external tool.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high.
+# Mechanical, read-only text comparison; makes no network calls; claims
+# nothing about which dependencies are outdated or vulnerable, and says GitHub's
+# current options are the authority.
+hypotheses:
+  - claim: A maintainer of a monorepo who finds Dependabot ignoring a subfolder will search for why and use this to list every folder the config misses at once, instead of adding entries one PR at a time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Teams will run `cli.mjs --fail-on-risk` in CI so a new folder with a manifest cannot merge without an update entry.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The generated starter config (weekly, 7-day cooldown, minor/patch groups) is what a new repository owner copies verbatim, making the page a lead magnet for the rest of the dev-tool catalogue.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a finding that is wrong against GitHub's documented Dependabot behaviour, at which point the rule table needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dependabot-config-check/
+  analytics: null

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. checking pip/npm configs by hand | Dependency Confusion Check</title>
+<meta name="description" content="Grepping requirements.txt or pip.conf for --extra-index-url, and package.json for an unscoped name, is the method most people already have. It only works if you already know --extra-index-url is a risk, and a grep of package.json alone cannot see whether .npmrc sets a private default registry -- the exact interaction that makes an unscoped name dangerous. This tool checks both files together and names both patterns, free.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-configs-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. checking pip/npm configs by hand">
+<meta property="og:description" content="A grep for --extra-index-url only helps if you already know it's a risk. A grep of package.json alone cannot see what .npmrc sets. This tool reads both files together and names both patterns, with the fix, for free.">
+<meta property="og:url" content="https://example.invalid/dependency-confusion-check/vs-checking-configs-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does grepping for --extra-index-url or an unscoped npm name actually catch?","acceptedAnswer":{"@type":"Answer","text":"It catches exactly what you already knew to look for. If you already know pip's --extra-index-url can let a second index outbid your private one on version number, a grep for the literal string finds every use in requirements.txt, pip.conf, or a workflow's pip install step. The gap is upstream of the grep: most requirements.txt files that use it were written before dependency confusion was a known risk, so nobody flagged the line as worth searching for in the first place."}},{"@type":"Question","name":"Why doesn't grepping package.json for unscoped names tell you anything on its own?","acceptedAnswer":{"@type":"Answer","text":"Because an unscoped dependency name is only a dependency-confusion risk in combination with .npmrc setting a private default registry — that is the exact interaction that makes the public registry a fallback for the same name. Reading package.json alone cannot see whether that condition holds, so a list of unscoped names by itself does not tell you which ones, if any, are actually exposed. You would have to check both files together and reason about the interaction yourself, every time either one changes."}},{"@type":"Question","name":"Is there a command a developer already runs that checks both patterns together?","acceptedAnswer":{"@type":"Answer","text":"No. npm audit and pip's own tooling check known-vulnerability databases against packages you already depend on; neither reads your own .npmrc or requirements.txt for these two configuration shapes, and neither ecosystem's default tooling looks at the other's files at all. A developer who wants both checked has to know to look for both, in both files, and do it by hand — there is no single existing command that already covers this."}},{"@type":"Question","name":"Can I put a by-hand grep in a PR description as evidence I checked?","acceptedAnswer":{"@type":"Answer","text":"Only as a note that you looked and did not personally notice anything — it names no specific line, no specific finding, and no fix, and there is nothing to attach to a ticket or audit trail besides your own recollection. A structured report with a file, a line number, the exact pattern matched, and the remediation for it is stronger evidence than \"I grepped and it looked fine.\""}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #1f6f8b; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; color: #1c3f5f; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1c3f5f10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #1c3f5f; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4652; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Dependency Confusion Check</a></p>
+<header>
+<h1>This tool vs. checking pip/npm configs by hand</h1>
+<p class="lede">Names no specific company or product &mdash; this compares against the manual habit most developers already have: grepping <code>requirements.txt</code> or <code>pip.conf</code> for <code>--extra-index-url</code>, and skimming <code>package.json</code> for a dependency name that looks like it should be internal.</p>
+</header>
+<section>
+<h2>What checking by hand actually does</h2>
+<p>
+  Grepping your own config is free and needs no tool, which is exactly why
+  it is the default. You search <code>requirements.txt</code> or
+  <code>pip.conf</code> for the string <code>--extra-index-url</code>, and
+  you scan <code>package.json</code>'s dependency names for anything that
+  looks like it should be an internal package rather than a public one.
+</p>
+<p>
+  That method has failure modes specific to this domain that this tool
+  exists to close. First, knowing to search for
+  <code>--extra-index-url</code> at all requires already knowing it is a
+  substitution risk &mdash; that fact comes from Alex Birsan's 2021
+  research and pip's own documentation, not from anything in
+  <code>requirements.txt</code> itself, so a grep only helps someone who
+  already learned the risk before opening the file. Second, a grep of
+  <code>package.json</code> alone cannot see the interaction that actually
+  matters: an unscoped dependency name is only exposed when
+  <code>.npmrc</code> separately sets a private default registry, and
+  reading one file tells you nothing about the other, so a list of
+  unscoped names by itself does not say which ones, if any, are at risk.
+  Third, there is no single command a developer already runs that checks
+  both ecosystems' configuration shapes together &mdash; <code>npm
+  audit</code> and pip's own tooling check known vulnerabilities in
+  packages you depend on, not the shape of your own index and registry
+  configuration. Fourth, a by-hand grep proves nothing afterward: there is
+  no file, line number, or fix to paste into a PR description or an audit
+  trail, only a recollection that someone looked.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want to search my own requirements.txt for --extra-index-url, and I already know that string is worth searching for.</td><td>Checking by hand &mdash; free, and works once you already know what to search for.</td></tr>
+<tr><td>I want every --extra-index-url use across requirements*.txt, constraints*.txt, pip.conf/pip.ini, and my CI workflows found automatically, without knowing in advance which files to check.</td><td>This tool &mdash; scans the standard locations for both, in the browser or the CLI.</td></tr>
+<tr><td>I want to know whether an unscoped npm dependency name is actually exposed, which depends on what .npmrc sets.</td><td>This tool &mdash; reads package.json and .npmrc together and only flags a name once a private default registry is in effect.</td></tr>
+<tr><td>I want one command that checks both the pip and the npm configuration shape at once, instead of two separate manual searches.</td><td>This tool's CLI &mdash; <code>python3 check.py</code> scans a whole checkout for both patterns in one pass.</td></tr>
+<tr><td>I want a report I can paste into a PR description or an audit trail: a file, a line number, the exact match, and the fix.</td><td>This tool &mdash; every finding carries all four; <code>--format json</code> for a machine-readable version.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Checking by hand is not wrong so much as unverifiable: a developer who
+  already knows both patterns, and remembers to check both files together
+  every time either one changes, would eventually catch most of what this
+  tool catches. What it structurally cannot do is teach itself the
+  2021 research, cross-reference two files it was not told to compare, or
+  leave behind a record that the check happened at all &mdash; and this
+  tool's whole design, on both the browser page and the CLI, is built
+  around closing exactly those gaps for free.
+</p>
+<p class="fine">This tool needs no account and makes no network calls of its own: the browser page runs entirely client-side and nothing you paste ever leaves your device, and the CLI is a single stdlib-only script that reads files already on disk.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What does grepping for --extra-index-url or an unscoped npm name actually catch?</h3>
+<p>It catches exactly what you already knew to look for. If you already know pip's --extra-index-url can let a second index outbid your private one on version number, a grep for the literal string finds every use in requirements.txt, pip.conf, or a workflow's pip install step. The gap is upstream of the grep: most requirements.txt files that use it were written before dependency confusion was a known risk, so nobody flagged the line as worth searching for in the first place.</p>
+<h3>Why doesn't grepping package.json for unscoped names tell you anything on its own?</h3>
+<p>Because an unscoped dependency name is only a dependency-confusion risk in combination with .npmrc setting a private default registry &mdash; that is the exact interaction that makes the public registry a fallback for the same name. Reading package.json alone cannot see whether that condition holds, so a list of unscoped names by itself does not tell you which ones, if any, are actually exposed. You would have to check both files together and reason about the interaction yourself, every time either one changes.</p>
+<h3>Is there a command a developer already runs that checks both patterns together?</h3>
+<p>No. npm audit and pip's own tooling check known-vulnerability databases against packages you already depend on; neither reads your own .npmrc or requirements.txt for these two configuration shapes, and neither ecosystem's default tooling looks at the other's files at all. A developer who wants both checked has to know to look for both, in both files, and do it by hand &mdash; there is no single existing command that already covers this.</p>
+<h3>Can I put a by-hand grep in a PR description as evidence I checked?</h3>
+<p>Only as a note that you looked and did not personally notice anything &mdash; it names no specific line, no specific finding, and no fix, and there is nothing to attach to a ticket or audit trail besides your own recollection. A structured report with a file, a line number, the exact pattern matched, and the remediation for it is stronger evidence than "I grepped and it looked fine."</p>
+<p class="note">
+  Open <a href="./">Dependency Confusion Check</a> to scan your own config, or read <a href="./what-is-dependency-confusion.html">what is dependency confusion?</a> for the full mechanism.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against dependency confusion, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live connection anywhere &mdash; it is a static page comparing this tool against a manual habit, not against any other product.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

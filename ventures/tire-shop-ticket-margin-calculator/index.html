@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tire Shop Ticket Margin Calculator — net per ticket, upsell attach and bay capacity</title>
+  <meta name="description" content="Tire shop ticket margin calculator for owners and managers. Enter tires, alignments, road hazard coverage and fees with price, parts cost, labor minutes and attach rate to see net per ticket, what each upsell is worth, break-even tickets, bay capacity and what a discount must win back. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Tire Shop Ticket Margin Calculator — free, private, in your browser">
+  <meta property="og:description" content="What does an average ticket really net? Upsell attach lift, discount break-even and bay capacity. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tire Shop Ticket Margin Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your tire shop's lines with price, parts cost, labor minutes and attach rate. See net per sale, net per average ticket, bay-hour capacity, break-even tickets for your overhead, what more attach on each upsell is worth, and how many extra tickets a discount must win back. Runs entirely in your browser; nothing is uploaded.", "featureList": "net per ticket after parts, fees and labor, upsell attach-rate lift, discount break-even volume, bay capacity and utilization, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good margin on a tire shop ticket?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number, and this tool does not assert one. Enter your own prices, parts cost, labor minutes and technician cost, and it shows the net on each line and on the average ticket after card fees, parts and labor. Compare that with your own history rather than a rule of thumb."}}, {"@type": "Question", "name": "Why does attach rate matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "Attach rate is the share of tickets that include an item. Alignments, road hazard coverage, sensor service and shop fees usually cost little in parts, so each extra point of attach adds almost its full price in margin. The lift table shows the monthly net from adding a few points of attach to each line, capped at 100% of tickets."}}, {"@type": "Question", "name": "How do I know what a discount on tires really costs?", "acceptedAnswer": {"@type": "Answer", "text": "A price cut comes off every ticket that includes the item. The discount table shows how many more tickets per month you need to keep the same total net, and whether your bays have the time to do them. If the cut takes the ticket to zero net, no amount of volume recovers it."}}, {"@type": "Question", "name": "What are bay hours and why do they limit profit?", "acceptedAnswer": {"@type": "Answer", "text": "A bay and a technician can only work so many hours a month. The tool adds up the labor minutes on an average ticket, compares that with the hours your bays are open, and shows the most tickets you could do and the net per bay hour. A line that earns little per bay hour crowds out one that earns more."}}, {"@type": "Question", "name": "How do I price labor?", "acceptedAnswer": {"@type": "Answer", "text": "Use your loaded technician cost per hour: wages, payroll taxes and benefits divided by paid hours. If you leave it at zero, labor is treated as free and every margin looks better than it is; the tool warns when that happens."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, tire disposal rules, financing, warranty claims and returns, shop supplies, comebacks and re-dos, technician idle time, rebates and manufacturer programs, and the cost of the inventory you hold. It is arithmetic on your figures, not advice on what to charge."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TIRE SHOP TICKET MARGIN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your average tire ticket actually net?</h1>
+    <p>List your <strong>ticket lines</strong> (tires, alignment, road hazard coverage, sensor service, fees) with price, parts cost, labor minutes and <strong>attach rate</strong>, plus your technician cost and overhead. The tool shows <strong>net per ticket</strong> after card fees, parts and labor, what <strong>more attach on each upsell</strong> is worth, the <strong>extra tickets a discount must win back</strong>, break-even tickets for your overhead, and how much of your <strong>bay time</strong> the work uses.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your ticket lines</h2>
+    <label for="items">Item, price, parts cost, labor minutes, attach rate % of tickets (one per line; blank attach means 100)</label>
+    <textarea id="items" spellcheck="false" placeholder="Tire set of 4 installed,720,520,50,100&#10;Wheel alignment,120,8,40,30"></textarea>
+    <h2 style="margin-top:18px">Your shop</h2>
+    <div class="row3">
+      <div><label for="ticketsPerMonth">Tickets (customer visits) per month</label><input id="ticketsPerMonth" inputmode="decimal" value="200"></div>
+      <div><label for="laborCostPerHour">Loaded technician cost per hour ($)</label><input id="laborCostPerHour" inputmode="decimal" value="0"></div>
+      <div><label for="overheadMonthly">Monthly overhead: rent, front-desk wages, insurance, other ($)</label><input id="overheadMonthly" inputmode="decimal" value="0"></div>
+      <div><label for="cardFeePct">Payment fee (% of revenue)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+      <div><label for="bays">Service bays</label><input id="bays" inputmode="decimal" value="2"></div>
+      <div><label for="hoursPerBayDay">Productive hours per bay per day</label><input id="hoursPerBayDay" inputmode="decimal" value="8"></div>
+      <div><label for="daysPerMonth">Days open per month</label><input id="daysPerMonth" inputmode="decimal" value="26"></div>
+      <div><label for="liftPoints">Attach-rate lift to test (points)</label><input id="liftPoints" inputmode="decimal" value="5"></div>
+    </div>
+    <p class="note">Labor is charged at your technician cost per hour for the minutes each line takes. Overhead is used in the store result only.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your ticket lines, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Net by line</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th>Line</th><th class="n">Net per sale</th><th class="n">Margin</th><th class="n">Gross per bay hour</th><th class="n">Attach</th><th class="n">Net per month</th></tr></thead><tbody></tbody></table></div>
+    <h3>Shop per month</h3>
+    <div class="scroll"><table id="st"><thead><tr><th>Item</th><th class="n">Value</th></tr></thead><tbody></tbody></table></div>
+    <h3>What more attach is worth</h3>
+    <div class="scroll"><table id="at"><thead><tr><th>Line</th><th class="n">Attach now</th><th class="n">Attach after lift</th><th class="n">Extra sales / month</th><th class="n">Extra net / month</th></tr></thead><tbody></tbody></table></div>
+    <h3>What a discount must win back</h3>
+    <div class="scroll"><table id="dt"><thead><tr><th>Line</th><th class="n">Cut</th><th class="n">Net lost per ticket</th><th class="n">Extra tickets needed</th><th>Fits your bays</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Net per sale:</strong> price × (1 − payment fee) − parts cost − minutes ÷ 60 × technician cost per hour. <strong>Net per ticket:</strong> the sum over lines of attach rate × net per sale; <strong>net per month</strong> is that times tickets. <strong>Break-even tickets:</strong> overhead ÷ net per ticket. <strong>Bay utilization:</strong> tickets × average labor minutes per ticket ÷ (bays × productive hours × 60 × days open). <strong>Attach lift:</strong> lift points × tickets × net per sale, capped at 100% of tickets. <strong>Discount break-even:</strong> a cut of c% on a line lowers net per ticket by attach × price × c% × (1 − fee); the extra tickets needed are old net per ticket ÷ new net per ticket − 1.</p>
+    <p><strong>Not modelled:</strong> sales tax and fees collected for others, tire disposal rules, financing, warranty and returns, comebacks, technician idle time, rebates, and inventory carrying cost. Unverified: tested on hand-calculated examples, not on a real shop's books. It computes arithmetic; it does not tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good margin on a tire shop ticket?</h3>
+    <p>There is no single number, and this tool does not assert one. Enter your own prices, parts cost, labor minutes and technician cost, and it shows the net on each line and on the average ticket after card fees, parts and labor. Compare that with your own history rather than a rule of thumb.</p>
+    <h3>Why does attach rate matter so much?</h3>
+    <p>Attach rate is the share of tickets that include an item. Alignments, road hazard coverage, sensor service and shop fees usually cost little in parts, so each extra point of attach adds almost its full price in margin. The lift table shows the monthly net from adding a few points of attach to each line, capped at 100% of tickets.</p>
+    <h3>How do I know what a discount on tires really costs?</h3>
+    <p>A price cut comes off every ticket that includes the item. The discount table shows how many more tickets per month you need to keep the same total net, and whether your bays have the time to do them. If the cut takes the ticket to zero net, no amount of volume recovers it.</p>
+    <h3>What are bay hours and why do they limit profit?</h3>
+    <p>A bay and a technician can only work so many hours a month. The tool adds up the labor minutes on an average ticket, compares that with the hours your bays are open, and shows the most tickets you could do and the net per bay hour. A line that earns little per bay hour crowds out one that earns more.</p>
+    <h3>How do I price labor?</h3>
+    <p>Use your loaded technician cost per hour: wages, payroll taxes and benefits divided by paid hours. If you leave it at zero, labor is treated as free and every margin looks better than it is; the tool warns when that happens.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, tire disposal rules, financing, warranty claims and returns, shop supplies, comebacks and re-dos, technician idle time, rebates and manufacturer programs, and the cost of the inventory you hold. It is arithmetic on your figures, not advice on what to charge.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tire maker, wholesale distributor, shop-management software vendor or payment processor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../auto-repair-effective-labor-rate/">auto repair effective labor rate calculator</a>, the <a href="../shop-rate-calculator/">shop rate calculator</a>, the <a href="../auto-glass-bid-calculator/">auto glass bid calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseItems, analyze, reportCsv, sampleItems, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["ticketsPerMonth", "laborCostPerHour", "overheadMonthly", "cardFeePct", "bays", "hoursPerBayDay", "daysPerMonth", "liftPoints"];
+    let last = null;
+
+    function run() {
+      const mp = parseItems($("#items").value);
+      if (mp.error) { status.textContent = mp.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(mp.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...mp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const s = r.store;
+      const big = [
+        [money2(r.ticket.net), "Net per average ticket"],
+        [money(s.net), "Net per month after overhead"],
+        [s.breakEvenTickets === null ? "n/a" : String(Math.ceil(s.breakEvenTickets)), "Tickets per month to cover overhead"],
+        [pct(s.utilization, 0), "Of your bay time used"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#lt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${money2(l.net)}</td><td class="n">${pct(l.marginPct, 0)}</td><td class="n">${l.grossPerBayHour === null ? "n/a" : money(l.grossPerBayHour)}</td><td class="n">${l.attach}%</td><td class="n">${money(l.monthlyNet)}</td></tr>`).join("");
+      $("#st tbody").innerHTML = [["Revenue", money(s.revenue)], ["Contribution after parts, fees and labor", money(s.contribution)], ["Overhead", money(-s.overhead)], ["Net", money(s.net)], ["Net per year", money(s.annual)], ["Most tickets your bays could do", s.maxTickets === null ? "n/a" : String(Math.floor(s.maxTickets))], ["Net per bay hour used", s.netPerBayHour === null ? "n/a" : money(s.netPerBayHour)]].map(([k, v]) => `<tr><td>${k}</td><td class="n">${v}</td></tr>`).join("");
+      $("#at tbody").innerHTML = r.lifts.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.from}%</td><td class="n">${x.to}%</td><td class="n">${x.extraSales.toFixed(1)}</td><td class="n">${money(x.extraNet)}</td></tr>`).join("");
+      $("#dt tbody").innerHTML = r.discounts.flatMap((d) => d.cuts.map((c) => `<tr><td>${esc(d.name)}</td><td class="n">-${c.pct}%</td><td class="n">${money2(c.perTicketLoss)}</td><td class="n">${c.volumeGain === null ? "not recoverable" : pct(c.volumeGain)}</td><td>${c.fits === null ? "n/a" : c.fits ? "yes" : "no"}</td></tr>`)).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#items").value = sampleItems();
+      $("#ticketsPerMonth").value = "220";
+      $("#laborCostPerHour").value = "28";
+      $("#overheadMonthly").value = "9000";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented shop, not a real business."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#items").value = ""; report.hidden = true; last = null; status.textContent = "Add your ticket lines, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "tire-shop-ticket-margin-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

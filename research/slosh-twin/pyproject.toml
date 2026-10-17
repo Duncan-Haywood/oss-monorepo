@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slosh-twin"
+version = "0.1.0"
+description = "Rigid-body twin of a cart carrying liquid: the twin predicts zero residual slosh for any rest-to-rest move, the real residual is 4 mu a sin^2(omega T/4)/omega^2, and a frequency calibration error eps limits which zero-residual move times stay safe to order ~ 1/eps"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verification-markets"
+version = "0.1.0"
+description = "Peer-prediction and prediction-market mechanisms for verifying decentralized ML training without ground-truth recomputation on every step."
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

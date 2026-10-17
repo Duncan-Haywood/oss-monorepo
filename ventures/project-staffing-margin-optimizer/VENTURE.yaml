@@ -1,0 +1,52 @@
+name: project-staffing-margin-optimizer
+description: >-
+  Free browser tool for agencies, consultancies, studios and freelance teams: enter each person's cost per hour, hours available
+  and skills, and each project's bill rate, hours to staff and skill needed, and get the exact split of hours that earns the most
+  margin. Shows who is the bottleneck (the extra margin one more hour of their time would earn), which work is left unstaffed and
+  why (no one has the skill, the rate is below cost, or better work needs the same people), supports a minimum margin, and exports
+  the plan as CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was staffing-markup-calculator 0.19 (a staffing
+# agency's bill rate, not an allocation), crew-dispatch-optimizer 0.16 and shift-roster-builder 0.55 / shift-cover-optimizer
+# 0.43 (both fill shifts by time slot, not hours by margin). Dropped before this one because the tree already has them:
+# shopify-inventory-reorder-planner (0.76), tax-lot-sale-optimizer. The stranded-branch sweep found nothing worth landing.
+#
+# Why this niche: a ten-person agency decides every week who goes on which client, and does it by memory and whoever shouts.
+# Resource-planning software (Float, Runn, Forecast) schedules calendars; none of the free ones answers "given these rates,
+# which split earns most, and whose extra hour is worth the most". The saving is margin on hours the owner already pays for.
+#
+# First visitor: people searching "agency resource allocation", "consultant utilization optimization", "which project should
+# I staff first", "billable utilisation"; r/agency, r/consulting, freelance-collective founders. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not employment, legal or HR advice (the page says so); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid planner that reads a
+# timesheet or Harvest/Toggl export and re-plans weekly (needs accounts, an owner decision), or referrals to PSA vendors.
+
+hypotheses:
+  - claim: >-
+      Owners of small agencies and consultancies will use a free tool that turns their rates, hours and skills into a
+      margin-maximising staffing plan and a per-person value of one more hour, and will come back each planning period.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that exceeds a person's hours, staffs someone without the skill, or earns less than the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/project-staffing-margin-optimizer/
+  analytics: null

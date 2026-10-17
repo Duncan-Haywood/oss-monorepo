@@ -1,0 +1,16 @@
+{
+ "top": "edge_det",
+ "kind": "seq",
+ "inputs": [
+  [
+   "x",
+   1
+  ]
+ ],
+ "outputs": [
+  [
+   "pulse",
+   1
+  ]
+ ]
+}

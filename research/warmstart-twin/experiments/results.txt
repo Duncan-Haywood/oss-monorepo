@@ -1,0 +1,84 @@
+Cold-start bias of a short twin run: mean of n steps from a default state vs the stationary mean.
+
+== 0. AR(1) (marginal variance 1, mean 0) started at x0=a: exact bias / sd vs simulation (phi=0.9, a=3, 20000 runs) ==
+n     bias exact   bias sim    sd exact   sd sim     bias/sd   RMSE exact
+20    1.1859       1.1896      0.6312     0.6309     1.879     1.3434
+100   0.2700       0.2721      0.4048     0.4029     0.667     0.4866
+500   0.0540       0.0570      0.1922     0.1921     0.281     0.1997
+2500  0.0108       0.0108      0.0869     0.0866     0.124     0.0876
+
+== 1. AR(1): MSE-optimal deletion d* of the first steps of a fixed budget n (exact; a = start error in sd units) ==
+phi   a    n      d*     d*/n    MSE(d*)/MSE(0)   bias/sd at d=0
+0.5   1    100    0      0.000   1.000            0.058
+0.5   1    1000   0      0.000   1.000            0.018
+0.5   3    100    1      0.010   0.990            0.175
+0.5   3    1000   1      0.001   0.999            0.055
+0.9   1    100    0      0.000   1.000            0.222
+0.9   1    1000   0      0.000   1.000            0.066
+0.9   3    100    10     0.100   0.839            0.667
+0.9   3    1000   9      0.009   0.980            0.197
+0.99  1    100    0      0.000   1.000            1.075
+0.99  1    1000   0      0.000   1.000            0.241
+0.99  3    100    50     0.500   0.680            3.225
+0.99  3    1000   110    0.110   0.813            0.722
+
+== 2. How accurate must a warm-start state be? Largest start error (sd units) keeping |bias| <= kappa*sd(run mean) ==
+phi   n      kappa=0.1   kappa=0.25   kappa=0.5
+0.5   100    1.72        4.30         8.60
+0.5   1000   5.47        13.68        27.37
+0.5   10000  17.32       43.30        86.60
+0.9   100    0.46        1.15         2.30
+0.9   1000   1.52        3.81         7.62
+0.9   10000  4.84        12.10        24.20
+0.99  100    0.14        0.34         0.68
+0.99  1000   0.43        1.07         2.14
+0.99  10000  1.42        3.54         7.09
+
+== 3. M/M/1 wait started empty: bias constant C = sum_m (E W_inf - E W_m); exact series vs closed form rho/(1-rho)^3 ==
+rho   series C           rho/(1-rho)^3     asym var V   n* = C^2/V   relaxation 1/(1-sqrt rho)^2
+0.3   0.874635569        0.874635569       4.0          0.19         5
+0.5   4.000000000        4.000000000       29.0         0.55         12
+0.7   25.925925926       25.925925926      335.6        2.00         37
+0.9   900.000000000      900.000000000     35901.0      22.56        380
+
+== 4. Empty-start bias of the mean of n waits: coupled simulation (same increments, empty vs stationary start) vs -C/n ==
+rho   n       predicted -C/n   simulated (paired)   +- se     runs
+0.5   100     -0.0400          -0.0388              0.0008   20000
+0.7   300     -0.0864          -0.0915              0.0035   6000
+0.9   3000    -0.3000          -0.3025              0.0165   3000
+0.9   20000   -0.0450          -0.0492              0.0064   400
+
+== 5. Short runs, rho=0.9 (true mean wait 9): mean of n waits from five starts (same increments, 6000 runs) ==
+starts: empty | at the mean 9 | real-state estimate = stationary real wait + N(0,3^2), clipped at 0 | exact stationary draw | empty + MSER-5 cut
+n      start                     bias     sd      RMSE    RMSE/9   mean cut
+50     empty                     -5.566   2.558   6.125   0.681    -
+50     mean                      -1.289   4.403   4.588   0.510    -
+50     noisy                     0.364    9.448   9.455   1.051    -
+50     stationary                0.157    9.317   9.318   1.035    -
+50     mser                      -4.970   3.749   6.226   0.692    9
+100    empty                     -4.378   3.270   5.464   0.607    -
+100    mean                      -1.496   4.857   5.083   0.565    -
+100    noisy                     0.115    9.071   9.071   1.008    -
+100    stationary                -0.074   8.922   8.922   0.991    -
+100    mser                      -3.785   4.745   6.070   0.674    15
+300    empty                     -2.437   4.207   4.862   0.540    -
+300    mean                      -1.096   5.074   5.191   0.577    -
+300    noisy                     0.130    7.729   7.730   0.859    -
+300    stationary                0.018    7.619   7.619   0.847    -
+300    mser                      -2.160   5.825   6.213   0.690    35
+1000   empty                     -0.926   4.289   4.388   0.488    -
+1000   mean                      -0.468   4.491   4.515   0.502    -
+1000   noisy                     0.023    5.276   5.276   0.586    -
+1000   stationary                -0.026   5.225   5.225   0.581    -
+1000   mser                      -1.317   5.396   5.554   0.617    97
+3000   empty                     -0.258   3.215   3.225   0.358    -
+3000   mean                      -0.101   3.271   3.272   0.364    -
+3000   noisy                     0.035    3.369   3.369   0.374    -
+3000   stationary                0.024    3.360   3.361   0.373    -
+3000   mser                      -0.980   3.195   3.342   0.371    260
+
+== 6. Interval coverage at rho=0.9: batch means (b=30) from an empty start vs stationary start vs empty+MSER-5 (same increments) ==
+n       empty cover   stationary cover   empty+MSER cover   predicted bias/sd = (C/n)/sqrt(V/n)   runs
+3000    0.626         0.654              0.527              0.087                                 1500
+10000   0.779         0.790              0.673              0.047                                 1500
+30000   0.890         0.892              0.821              0.027                                 1000

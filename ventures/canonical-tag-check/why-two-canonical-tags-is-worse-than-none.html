@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why two canonical tags on one page is worse than none</title>
+<meta name="description" content="A CMS plugin and a hand-written template can both emit a <link rel=canonical> tag on the same page, naming two different URLs. Browsers and crawlers only honor the first one and silently ignore the rest -- worked example: a plugin-generated canonical and a template's own canonical, disagreeing, on one page.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./why-two-canonical-tags-is-worse-than-none.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why two canonical tags on one page is worse than none">
+<meta property="og:description" content="One canonical tag missing is a notice: search engines infer one on their own. Two canonical tags naming different URLs is a danger: the page's own markup contradicts itself, and only the first one is ever honored.">
+<meta property="og:url" content="./why-two-canonical-tags-is-worse-than-none.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a page end up with two canonical tags?","acceptedAnswer":{"@type":"Answer","text":"Because more than one system on the page believes it owns the job. A common pairing: an SEO plugin (Yoast, RankMath, and similar) auto-generates a canonical tag from the page's own URL on every request, while a hand-written template -- left over from before the plugin was installed, or added by a developer who did not know the plugin already handled it -- emits its own canonical tag pointing at a different path. Neither system checks whether the other already added one."}},{"@type":"Question","name":"Which canonical tag actually wins?","acceptedAnswer":{"@type":"Answer","text":"Browsers and search engines honor only the first <link rel=\"canonical\"> tag found in the page's <head> and ignore every one after it. Which tag renders first depends on template output order -- something no one on the team necessarily controls or has looked at -- so the winner is effectively arbitrary from the page author's point of view, and can change silently the next time the template or plugin output order shifts."}},{"@type":"Question","name":"Is two canonical tags worse than having none at all?","acceptedAnswer":{"@type":"Answer","text":"In one concrete sense, yes: with zero canonical tags, search engines infer a reasonable one on their own -- typically the URL you requested. With two conflicting ones, the page is actively telling crawlers two different things about itself, and which instruction wins is decided by markup order rather than intent. A missing canonical is a gap a search engine fills in sensibly; a contradicting pair is the page's own head disagreeing with itself."}},{"@type":"Question","name":"How would I actually find this on a real page?","acceptedAnswer":{"@type":"Answer","text":"View-source or the Elements panel shows every tag in <head>, including duplicates, but only if you think to scroll past the first canonical tag and check for a second one -- most manual checks stop at the first match. This tool's CLI fetches the page, collects every <link rel=\"canonical\"> tag in <head> rather than stopping at the first, and flags a danger finding the moment two of them name different URLs."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Canonical Tag Checker</a></p>
+<h1>Why two canonical tags on one page is worse than none</h1>
+
+<p>A missing canonical tag is a <strong>notice</strong>: search engines infer a reasonable one on their own,
+usually the URL you requested. Two canonical tags naming different URLs on the same page is a
+<strong>danger</strong>: the page's own <code>&lt;head&gt;</code> is contradicting itself, and only the
+first tag found is ever honored -- the rest are silently ignored, by design, not as an error either side
+reports back to you.</p>
+
+<h2>A worked example</h2>
+<p>
+  A blog post at <code>/guide/</code> runs an SEO plugin that auto-generates
+  <code>&lt;link rel=&quot;canonical&quot; href=&quot;https://example.com/guide/&quot;&gt;</code> from the page's own URL on
+  every request. The theme's template -- written before the plugin was installed, and never removed --
+  also emits its own tag: <code>&lt;link rel=&quot;canonical&quot; href=&quot;https://example.com/blog/guide/&quot;&gt;</code>.
+  Fetching that page and checking it:
+</p>
+<table>
+  <thead><tr><th scope="col">Finding</th><th scope="col">Severity</th><th scope="col">What it reports</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>multiple-conflicting-canonical</code></td>
+      <td>danger</td>
+      <td>"2 canonical tags naming 2 different URLs" -- evidence:
+        <code>https://example.com/guide/</code> | <code>https://example.com/blog/guide/</code></td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Which of the two wins is decided by markup order -- whichever the plugin or the template happens to print
+  first in <code>&lt;head&gt;</code> -- not by which one anyone actually intended. Neither the plugin nor the
+  template knows the other one already added a tag, so nothing on the page itself ever surfaces the conflict.
+</p>
+
+<h2>Common questions</h2>
+<h3>Why can a page end up with two canonical tags?</h3>
+<p>Because more than one system on the page believes it owns the job. A common pairing: an SEO plugin (Yoast, RankMath, and similar) auto-generates a canonical tag from the page's own URL on every request, while a hand-written template -- left over from before the plugin was installed, or added by a developer who did not know the plugin already handled it -- emits its own canonical tag pointing at a different path. Neither system checks whether the other already added one.</p>
+<h3>Which canonical tag actually wins?</h3>
+<p>Browsers and search engines honor only the first &lt;link rel=&quot;canonical&quot;&gt; tag found in the page's &lt;head&gt; and ignore every one after it. Which tag renders first depends on template output order -- something no one on the team necessarily controls or has looked at -- so the winner is effectively arbitrary from the page author's point of view, and can change silently the next time the template or plugin output order shifts.</p>
+<h3>Is two canonical tags worse than having none at all?</h3>
+<p>In one concrete sense, yes: with zero canonical tags, search engines infer a reasonable one on their own -- typically the URL you requested. With two conflicting ones, the page is actively telling crawlers two different things about itself, and which instruction wins is decided by markup order rather than intent. A missing canonical is a gap a search engine fills in sensibly; a contradicting pair is the page's own head disagreeing with itself.</p>
+<h3>How would I actually find this on a real page?</h3>
+<p>View-source or the Elements panel shows every tag in &lt;head&gt;, including duplicates, but only if you think to scroll past the first canonical tag and check for a second one -- most manual checks stop at the first match. This tool's CLI fetches the page, collects every &lt;link rel=&quot;canonical&quot;&gt; tag in &lt;head&gt; rather than stopping at the first, and flags a danger finding the moment two of them name different URLs.</p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a> &middot; checking a URL that already
+redirects? See <a href="vs-checking-canonicals-by-view-source.html">what view-source can't tell you</a>
+about the target it points at.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>
+  is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

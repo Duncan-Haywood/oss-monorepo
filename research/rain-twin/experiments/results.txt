@@ -1,0 +1,28 @@
+Rain twin: r_fs=20 km clear air, one-way k=0.012 dB/km per (mm/h)^g, g=1.2, cells 1 km, wet p=0.2, wet mean 10 mm/h (mean rate 2)
+
+== 1. Jensen gap of the rain-rate power law ==
+E[R^g]/(E R)^g = p^(1-g) Gamma(1+g) = 1.5202 ; mean two-way attenuation 0.0838 dB/km vs mean-rate twin 0.0551 dB/km
+rate with the same mean attenuation (mean-matched twin): 2.835 mm/h vs mean rate 2.000
+
+== 2. Detection range: clear air vs mean-rate twin vs mean-matched twin vs real (6000 storm fields) ==
+clear air 20.00 km | mean-rate twin (Lambert W) 18.839 km | mean-matched twin 18.309 km
+real r_det: mean 18.372, median 18.563, 5% 16.308, 25% 17.723, 75% 19.194, 95% 19.836 km
+P(real r_det >= mean-rate twin range) = 0.392 ; P(real r_det >= mean-matched twin range) = 0.587 ; P(real r_det < r_fs) = 0.9878
+fraction of fields that are fully dry on the 20 cells (0.8^20) = 0.0115
+
+== 3. Brier score against real outcomes, ranges 4-20 km, 6000 fresh fields ==
+clear air (detect iff r<=r_fs)           Brier 0.1009
+mean-rate twin                           Brier 0.0549
+mean-matched twin                        Brier 0.0542
+ensemble, true rain model                Brier 0.0377
+ensemble, p=0.1 m=20 (same mean rate)    Brier 0.0399
+ensemble, p=1 m=2 (same mean rate)       Brier 0.0457
+irreducible (ensemble true model, in-sample) mean of f(1-f) = 0.0378
+
+== 4. Cell length at fixed marginals (same mean rate, same mean attenuation): spread of r_det ==
+ell km   closed-form var A(20) sd of r_det   P(r_det >= r_mean)   Brier mean-rate   Brier ensemble
+  0.5        0.79                0.806        0.299                0.0432            0.0279
+  1.0        1.58                1.106        0.397                0.0551            0.0381
+  2.0        3.17                1.465        0.503                0.0704            0.0494
+  4.0        6.34                1.868        0.610                0.0872            0.0587
+ 10.0       15.85                2.266        0.749                0.1037            0.0601

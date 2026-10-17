@@ -1,0 +1,28 @@
+Sheet resistance needed (ohm/sq): 20 dB: 20.9, 30 dB: 6.15, 40 dB: 1.9, 60 dB: 0.189
+
+SE (dB) at frequency, min(sheet, aperture); Rs in ohm/sq; metal mass in g/m2
+design                                            Rs  sheet  0.9GHz  2.4GHz  5.8GHz   28GHz   g/m2
+Cu wire 50um @1mm                            0.00855   86.9    44.9    36.4    28.7    15.0  35.19
+SS316 wire 50um @1mm                           0.377   54.0    44.9    36.4    28.7    15.0  31.42
+SS316 wire 50um @0.3mm                         0.113   64.4    56.5    48.0    40.3    26.6 104.72
+Ag-coated nylon 100um, 1um Ag @1mm            0.0505   71.4    45.3    36.8    29.2    15.5   6.59
+Ag-coated nylon 100um, 1um Ag @0.3mm          0.0152   81.9    58.4    49.9    42.2    28.6  21.97
+Ag-coated nylon 100um, 0.2um Ag @0.5mm         0.126   63.5    52.4    43.9    36.2    22.5   2.64
+
+Yarn breakage: Monte Carlo effective sheet resistance of an n x n grid (units of one segment), 30x30, 20 draws each, seed 0; EMT = effective-medium estimate 1/(1-2f) for bond dilution of a square lattice
+ break   median      p10      p90  open      EMT
+  0.00    1.000    1.000    1.000     0    1.000
+  0.05    1.109    1.098    1.127     0    1.111
+  0.10    1.245    1.222    1.305     0    1.250
+  0.20    1.696    1.618    1.815     0    1.667
+  0.30    2.548    2.297    3.023     0    2.500
+  0.40    5.809    4.648    8.569     0    5.000
+  0.50   26.812   12.521   38.497    13      inf
+  0.60      nan      nan      nan    20      inf
+
+SE lost to breakage for stainless 50um @0.3mm at the median Rs ratio of a fresh draw (sheet formula only; the aperture bound ignores breaks)
+  break 0.0: Rs x1.00 -> sheet SE 64.4 dB
+  break 0.1: Rs x1.26 -> sheet SE 62.4 dB
+  break 0.2: Rs x1.71 -> sheet SE 59.8 dB
+  break 0.3: Rs x2.66 -> sheet SE 55.9 dB
+  break 0.4: Rs x6.39 -> sheet SE 48.3 dB

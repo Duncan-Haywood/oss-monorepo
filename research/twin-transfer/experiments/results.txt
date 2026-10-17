@@ -1,0 +1,73 @@
+plant a=0.9 b=1.0 q=1.0 r=0.1 s2=1.0; optimal gain k*=0.8233, p=1.0741, J*=1.0741, J''(k*)=2.362, dk*/db=-0.6920
+
+== 1. Cost formula vs simulation (400k steps) ==
+k=0.400  exact 1.3547  sim 1.3568
+k=0.823  exact 1.0741  sim 1.0747
+k=1.600  exact 2.4627  sim 2.4722
+
+== 2. Twin input-gain error (a known): regret of twin-trained gain on the plant ==
+b_hat/b   twin gain   regret      local formula
+0.15      1.9790     inf         0.40861
+0.20      1.9228     inf         0.36196
+0.25      1.8331     9.25356     0.31812
+0.30      1.7331     3.17550     0.27712
+0.50      1.3624     0.43389     0.14139
+0.80      0.9863     0.03141     0.02262
+0.90      0.8982     0.00659     0.00566
+0.95      0.8593     0.00152     0.00141
+1.05      0.7900     0.00132     0.00141
+1.10      0.7591     0.00494     0.00566
+1.25      0.6786     0.02587     0.03535
+2.00      0.4392     0.21992     0.56556
+3.00      0.2967     0.51190     2.26222
+cliff: twin gain k*(mb) stable on plant iff m > m_c; solve |a - b k*(m b)| < 1
+critical b_hat/b = 0.2138
+
+== 3. Validation blind spot: log-score gap of twin (a_hat=a, b_hat=1.4 b) by validation data ==
+twin regret on plant: 0.05674
+data source                         v     E x^2   E u^2   score gap   gap/regret
+passive (u=0)                      0.00   5.263   0.000   0.000000    0.0000
+passive + probe                    0.05   5.526   0.050   0.004000    0.0705
+passive + probe                    0.50   7.895   0.500   0.040000    0.7050
+deployed policy, no probe          0.00   1.006   0.682   0.054552    0.9615
+deployed policy + probe            0.05   1.056   0.766   0.061280    1.0800
+deployed policy + probe            0.50   1.509   1.523   0.121829    2.1472
+
+Blind direction at the deployed gain: twin (a_hat, b_hat) with a_hat - a = k (b_hat - b)
+a_hat=0.70 b_hat=0.7571  closed-loop gap 3.47e-18  probed gap (v=0.2) 0.00590  twin gain 0.7953 (k*=0.8233)  regret 0.00093
+a_hat=0.80 b_hat=0.8785  closed-loop gap 0.00e+00  probed gap (v=0.2) 0.00148  twin gain 0.8126 (k*=0.8233)  regret 0.00014
+a_hat=0.85 b_hat=0.9393  closed-loop gap 2.17e-19  probed gap (v=0.2) 0.00037  twin gain 0.8186 (k*=0.8233)  regret 0.00003
+a_hat=0.95 b_hat=1.0607  closed-loop gap 2.17e-19  probed gap (v=0.2) 0.00037  twin gain 0.8272 (k*=0.8233)  regret 0.00002
+
+== 4. Worth of a twin in real transitions: b unknown, twin bias delta, probe variance v ==
+delta   kappa*   n_eff(real steps)   MSE with n=100: kappa=0 / kappa* / 3kappa* / kappa*/3
+0.05    400.0    800.0               0.02000 / 0.00222 / 0.00234 / 0.00281
+0.10    100.0    200.0               0.02000 / 0.00667 / 0.00776 / 0.00880
+0.20    25.0     50.0                0.02000 / 0.01333 / 0.01760 / 0.01551
+0.40    6.2      12.5                0.02000 / 0.01778 / 0.02248 / 0.01869
+0.80    1.6      3.1                 0.02000 / 0.01939 / 0.02142 / 0.01966
+
+Monte Carlo (20000 trials), delta=0.3, n=60, v=0.5:
+kappa=0    MC MSE 0.03306  formula 0.03333  diverged 0.0000
+kappa*     MC MSE 0.02431  formula 0.02432  diverged 0.0000
+3 kappa*   MC MSE 0.03252  formula 0.03241  diverged 0.0000
+kappa*/3   MC MSE 0.02735  formula 0.02750  diverged 0.0000
+twin only  MC MSE 0.09000  formula 0.09000  diverged 0.0000
+
+Samples to reach regret target (regret ~ J''(k*)(dk/db)^2 MSE / 2), delta=0.3, v=0.5:
+regret 1e-02  MSE target 0.01768  n (no twin) 113  n (twin, kappa*) 91  saving 22 (n_eff=22)
+regret 3e-03  MSE target 0.00530  n (no twin) 377  n (twin, kappa*) 355  saving 22 (n_eff=22)
+regret 1e-03  MSE target 0.00177  n (no twin) 1131  n (twin, kappa*) 1109  saving 22 (n_eff=22)
+regret 3e-04  MSE target 0.00053  n (no twin) 3770  n (twin, kappa*) 3748  saving 22 (n_eff=22)
+regret 1e-04  MSE target 0.00018  n (no twin) 11311  n (twin, kappa*) 11289  saving 22 (n_eff=22)
+
+== 5. Regret vs MSE convergence (delta=0.1, kappa*, v=0.5, 6000 trials): MC regret / local formula ==
+n=100   MSE 0.006651  regret 0.003252  ratio 0.864  diverged 0.0000
+n=400   MSE 0.003339  regret 0.001710  ratio 0.906  diverged 0.0000
+n=1600  MSE 0.001102  regret 0.000602  ratio 0.965  diverged 0.0000
+n=6400  MSE 0.000298  regret 0.000167  ratio 0.989  diverged 0.0000
+small-sample divergence risk, delta=0.3, kappa=0 (no twin), b_hat<=0.02 or unstable counted:
+n=10   no twin: diverged 0.0309 mean regret 0.9837 | twin: diverged 0.0000 mean regret 0.0239
+n=20   no twin: diverged 0.0050 mean regret 0.1918 | twin: diverged 0.0000 mean regret 0.0190
+n=40   no twin: diverged 0.0002 mean regret 0.0471 | twin: diverged 0.0000 mean regret 0.0142
+n=80   no twin: diverged 0.0000 mean regret 0.0168 | twin: diverged 0.0000 mean regret 0.0095

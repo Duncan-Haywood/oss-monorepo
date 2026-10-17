@@ -97,3 +97,7 @@ test('index links one hop to the fleet-repair-or-replace-planner sibling', () =>
   );
   assert.match(html, /fleet repair-or-replace planner/i);
 });
+
+test('links one hop to the equipment-lease-vs-buy-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/equipment-lease-vs-buy-calculator\/"/);
+});

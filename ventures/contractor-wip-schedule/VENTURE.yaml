@@ -1,0 +1,61 @@
+name: contractor-wip-schedule
+description: >-
+  Free browser tool for contractors: paste or upload open jobs (contract,
+  estimated total cost, cost to date, billed to date) and get a percent-of-
+  completion work-in-progress schedule with over- and underbilling, the whole
+  loss on jobs expected to lose money, cash still to come per job, a cost-growth
+  stress test, and backlog against working capital for the bank and the surety.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py on "contractor work in progress over
+# under billing percent complete schedule": closest invoice-payment-terms-calculator
+# at 0.23 and freight-accessorial-auditor 0.19, neither a WIP schedule. Adjacent:
+# change-order-margin-calculator (pricing one change order), certified-payroll-
+# calculator, client-profitability-time-analyzer (hours by client). Alternatives:
+# a bookkeeper's monthly spreadsheet, and construction accounting suites whose WIP
+# report needs the whole ledger in their cloud.
+#
+# First visitor: a small general or specialty contractor, or their bookkeeper,
+# asked by a bank or surety for a WIP schedule; searches "WIP schedule template
+# contractor", "overbilling underbilling construction", "percentage of completion
+# calculator". Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: job lists never leave the browser. No vendor
+# is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A later
+# paid tier could be saved month-to-month schedules with fade tracking; not built.
+# Liability: arithmetic on supplied numbers, not an accounting opinion or bonding
+# decision; the page says so. Unverified: hand-computed cases in unit tests; surety
+# multiples are planning figures.
+
+hypotheses:
+  - claim: >-
+      Small contractors and their bookkeepers asked for a WIP schedule will use a
+      private, no-signup tool that builds it from a four-column job list and flags
+      overbilling, expected losses and cash borrowed from the end of a job, and will
+      return each month when the schedule is due.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the arithmetic documented in the README.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/
+  analytics: null

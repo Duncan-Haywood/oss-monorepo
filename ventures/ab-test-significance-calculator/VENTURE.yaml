@@ -1,0 +1,58 @@
+name: ab-test-significance-calculator
+description: >-
+  Free browser tool for growth teams, product managers and marketers: enter
+  visitors and conversions for a control and a variant and get the p-value,
+  confidence interval, sample ratio mismatch check, Bayesian chance to beat
+  control, an always-valid sequential result for tests you peeked at, and a
+  sample size and duration planner. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "A/B test sample size and significance calculator with sequential testing"
+# and on "experiment analysis: sample size, SRM, sequential test, CUPED,
+# Bayesian": top match 0.20 and 0.10, unrelated (no experimentation tool in
+# the catalogue). Alternatives are per-vendor calculators and paid platforms;
+# the differentiators here are the SRM check, an always-valid result and the
+# quantified cost of peeking, which the common free calculators do not show.
+#
+# First visitor: searches "ab test significance calculator", "ab test sample
+# size calculator", "sample ratio mismatch"; r/ProductManagement, r/marketing,
+# r/CRO, r/GrowthHacking and Indie Hackers threads asking whether a test
+# result is real; Hacker News experiment-design threads. Volume not measured
+# with an external tool.
+#
+# Privacy is the liability boundary: numbers never leave the browser (tests
+# assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: statistical analysis of supplied numbers, not advice; the page
+# says two variants only and lists what is not modelled. Unverified: unit
+# tests against published reference values and simulation only.
+
+hypotheses:
+  - claim: >-
+      People who run website and product experiments will use a no-signup
+      calculator that flags a broken split and stays valid when they peeked,
+      and will return for each new test.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a p-value, interval or sample size disagrees with a standard reference on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ab-test-significance-calculator/
+  analytics: null

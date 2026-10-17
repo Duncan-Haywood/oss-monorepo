@@ -1,0 +1,41 @@
+name: tutor-effective-hourly-rate-calculator
+description: >-
+  Free browser tool for private tutors: enter sessions per week, rate, prep and travel time, cancellations, platform
+  fee, admin hours, weeks worked and expenses, and see real hourly pay, yearly net, the session rate that breaks even or
+  reaches a target hourly pay, and pay at each sessions-per-week load. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06. No tutoring tool in ventures/ (driving-instructor-lesson-pricing-calculator is the nearest
+# lesson-based tool); not in screened-out.md.
+# First visitor: a tutor searching "how much should I charge as a private tutor", "tutor hourly rate calculator",
+# "is tutoring worth it after travel and prep"; also r/tutoring and Wyzant/Varsity-style tutor forums on fees.
+#
+# Who: independent and part-time tutors (K-12, test prep, music, languages) who quote a per-session rate and ignore
+# prep, travel, admin and cancellations, so their real hourly pay is far below the quote.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A student scheduling,
+# prepaid-block and invoicing tool for tutors is the possible paid version, not built.
+# Liability: arithmetic on the user's own figures with visible rules; carries the no-warranty and not-advice clauses
+# and lists what is not decided (tax, demand, contracts). No market rate is claimed; sample figures are illustrative.
+
+hypotheses:
+  - claim: >-
+      A private tutor will enter their schedule, prep, travel and cancellation figures to see their real hourly pay and
+      the session rate that reaches a target, because the rate they quote hides most of the unbilled time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the arithmetic differs from the stated rules on the same inputs.

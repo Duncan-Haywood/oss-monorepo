@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
+  <meta name="description" content="Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Home Office Deduction Calculator — simplified vs regular, free">
+  <meta property="og:description" content="Compare the simplified and regular (Form 8829) home office deductions side by side, with estimated tax saved. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Office Deduction Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares the IRS simplified home office deduction ($5 per square foot, up to 300 square feet) against the regular Form 8829 method for a self-employed filer, including the gross income limit, depreciation, carryovers and an estimated tax saving. Entirely client-side; nothing is uploaded.", "featureList": "simplified method, regular Form 8829 method, gross income limit ordering, home depreciation, carryforward, tax value comparison"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which is better, the simplified or the regular home office deduction?", "acceptedAnswer": {"@type": "Answer", "text": "The simplified method is $5 per square foot up to 300 square feet, so at most $1,500, with no depreciation and no records of actual expenses. The regular method deducts the business-use share of actual expenses plus depreciation if you own, and has no size cap. It usually wins for larger offices, higher housing costs, or renters with high rent; the simplified method wins for small offices and low costs. This calculator computes both and compares their tax value."}}, {"@type": "Question", "name": "What is the gross income limit on the home office deduction?", "acceptedAnswer": {"@type": "Answer", "text": "The deduction cannot exceed the gross income from the business less your other business expenses; it cannot create or increase a loss. Under the regular method the business share of mortgage interest and real estate taxes is allowed first, then operating expenses, then depreciation, and anything above the limit carries forward. Under the simplified method the excess is lost."}}, {"@type": "Question", "name": "Does the regular method create a tax bill when I sell my home?", "acceptedAnswer": {"@type": "Answer", "text": "It can. Depreciation taken, or allowable, on the office space reduces your basis, and that part of the gain is taxed as unrecaptured Section 1250 gain at up to 25% when you sell, even if you never claimed the depreciation. The simplified method has no depreciation, so it avoids this."}}, {"@type": "Question", "name": "Can employees deduct a home office?", "acceptedAnswer": {"@type": "Answer", "text": "No. The IRS says an employee cannot deduct expenses for the business use of a home on a personal return. The deduction is for self-employed filers, such as sole proprietors and single-member LLCs filing Schedule C."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. This tool applies published IRS rules to the numbers you enter and does not replace IRS Publication 587, Form 8829 instructions, or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME OFFICE DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Simplified or regular: which home office deduction is worth more?</h1>
+    <p>The simplified method is <strong>$5 per square foot</strong> up to
+    <strong>300 sq ft</strong> (max $1,500). The regular method (Form 8829)
+    deducts your office's share of actual costs plus depreciation.
+    Enter your numbers and see both, in the IRS's own limit order, with the
+    estimated tax each saves.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your home and office</h2>
+    <div class="grid">
+      <div>
+        <label for="home-sqft">Total home square footage</label>
+        <input type="number" id="home-sqft" min="0" step="1" placeholder="e.g. 2000">
+      </div>
+      <div>
+        <label for="office-sqft">Office square footage (exclusive, regular use)</label>
+        <input type="number" id="office-sqft" min="0" step="1" placeholder="e.g. 200">
+      </div>
+      <div>
+        <label for="months-used">Months used for business this year (1-12)</label>
+        <input type="number" id="months-used" min="0" step="1" placeholder="12">
+      </div>
+      <div>
+        <label for="first-year-month">First year of business use? Month it began (1-12), else blank</label>
+        <input type="number" id="first-year-month" min="0" step="1" placeholder="leave blank">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="owns" checked><label for="owns">I own the home (uncheck if renting)</label></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Business income</h2>
+    <div class="grid">
+      <div>
+        <label for="gross-income">Gross income from the business ($)</label>
+        <input type="number" id="gross-income" min="0" step="1" placeholder="e.g. 80000">
+      </div>
+      <div>
+        <label for="other-expenses">Other business expenses, excluding home office ($)</label>
+        <input type="number" id="other-expenses" min="0" step="1" placeholder="e.g. 30000">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Annual home costs (whole home, full year)</h2>
+    <div class="grid">
+      <div>
+        <label for="mortgage-interest">Mortgage interest ($)</label>
+        <input type="number" id="mortgage-interest" min="0" step="1" placeholder="owners">
+      </div>
+      <div>
+        <label for="property-tax">Real estate taxes ($)</label>
+        <input type="number" id="property-tax" min="0" step="1" placeholder="owners">
+      </div>
+      <div>
+        <label for="rent">Rent ($)</label>
+        <input type="number" id="rent" min="0" step="1" placeholder="renters">
+      </div>
+      <div>
+        <label for="utilities">Utilities ($)</label>
+        <input type="number" id="utilities" min="0" step="1" placeholder="e.g. 4800">
+      </div>
+      <div>
+        <label for="insurance">Homeowner/renter insurance ($)</label>
+        <input type="number" id="insurance" min="0" step="1" placeholder="e.g. 1800">
+      </div>
+      <div>
+        <label for="repairs">Repairs and maintenance ($)</label>
+        <input type="number" id="repairs" min="0" step="1" placeholder="e.g. 1000">
+      </div>
+      <div>
+        <label for="other-indirect">HOA, security, other ($)</label>
+        <input type="number" id="other-indirect" min="0" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="direct-expenses">Direct office-only expenses, e.g. painting the office ($)</label>
+        <input type="number" id="direct-expenses" min="0" step="1" placeholder="not prorated">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. Depreciation and carryover (regular method)</h2>
+    <div class="grid">
+      <div>
+        <label for="home-basis">Home cost or value when office use began ($, lesser of basis and market value)</label>
+        <input type="number" id="home-basis" min="0" step="1" placeholder="e.g. 350000">
+      </div>
+      <div>
+        <label for="land-value">Land value in that figure ($)</label>
+        <input type="number" id="land-value" min="0" step="1" placeholder="e.g. 70000">
+      </div>
+      <div>
+        <label for="carry-operating">Operating-expense carryover from last year ($)</label>
+        <input type="number" id="carry-operating" min="0" step="1" placeholder="0">
+      </div>
+      <div>
+        <label for="carry-depreciation">Depreciation carryover from last year ($)</label>
+        <input type="number" id="carry-depreciation" min="0" step="1" placeholder="0">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>5. Estimated tax value</h2>
+    <div class="grid">
+      <div>
+        <label for="marginal-rate">Your federal marginal tax rate (%)</label>
+        <input type="number" id="marginal-rate" min="0" step="1" placeholder="e.g. 22">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="include-se" checked><label for="include-se">Include self-employment tax saved (15.3% of 92.35%)</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="itemizes"><label for="itemizes">I itemize on Schedule A</label></div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare methods</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter square footage and income, then click Compare methods.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Item</th><th scope="col">Simplified</th><th scope="col">Regular (Form 8829)</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Self-employed filers only.</strong> Employees cannot deduct home office expenses on a personal return.</li>
+      <li><strong>Exclusive and regular use.</strong> The tool cannot check that your space qualifies or is your principal place of business.</li>
+      <li><strong>Daycare, storage-only and multiple-home cases</strong> follow different rules and are not modelled.</li>
+      <li><strong>Simplified tax estimate.</strong> The tax value ignores the QBI deduction, the Social Security wage base, the SALT cap and state tax. Treat it as a ranking of the two methods, not a refund forecast.</li>
+      <li><strong>Depreciation table.</strong> Uses the 39-year mid-month rates from the Form 8829 instructions; confirm the current year's rates before filing.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which is better, the simplified or the regular home office deduction?</h3>
+    <p>The simplified method is $5 per square foot up to 300 square feet, so at most $1,500, with no depreciation and no records of actual expenses. The regular method deducts the business-use share of actual expenses plus depreciation if you own, and has no size cap. It usually wins for larger offices, higher housing costs, or renters with high rent; the simplified method wins for small offices and low costs. This calculator computes both and compares their tax value.</p>
+    <h3>What is the gross income limit on the home office deduction?</h3>
+    <p>The deduction cannot exceed the gross income from the business less your other business expenses; it cannot create or increase a loss. Under the regular method the business share of mortgage interest and real estate taxes is allowed first, then operating expenses, then depreciation, and anything above the limit carries forward. Under the simplified method the excess is lost.</p>
+    <h3>Does the regular method create a tax bill when I sell my home?</h3>
+    <p>It can. Depreciation taken, or allowable, on the office space reduces your basis, and that part of the gain is taxed as unrecaptured Section 1250 gain at up to 25% when you sell, even if you never claimed the depreciation. The simplified method has no depreciation, so it avoids this.</p>
+    <h3>Can employees deduct a home office?</h3>
+    <p>No. The IRS says an employee cannot deduct expenses for the business use of a home on a personal return. The deduction is for self-employed filers, such as sole proprietors and single-member LLCs filing Schedule C.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published IRS rules to the numbers you enter and does not replace IRS Publication 587, Form 8829 instructions, or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the rules for your own situation before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a day care from your home? Use the <a href="../family-child-care-time-space-calculator/">family child care time-space calculator</a>. Also self-employed? See the <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> and the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { homeOfficeOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["home-sqft","office-sqft","months-used","first-year-month","gross-income","other-expenses","mortgage-interest","property-tax","rent","utilities","insurance","repairs","other-indirect","direct-expenses","home-basis","land-value","carry-operating","carry-depreciation","marginal-rate"];
+    const v = (id) => Number($("#" + id).value) || 0;
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const r = homeOfficeOutcome({
+        homeSqFt: v("home-sqft"), officeSqFt: v("office-sqft"), monthsUsed: v("months-used") || 12,
+        firstYearMonth: v("first-year-month"), grossIncome: v("gross-income"), otherExpenses: v("other-expenses"),
+        owns: $("#owns").checked, mortgageInterest: v("mortgage-interest"), propertyTax: v("property-tax"),
+        rent: v("rent"), utilities: v("utilities"), insurance: v("insurance"), repairs: v("repairs"),
+        otherIndirect: v("other-indirect"), directExpenses: v("direct-expenses"), homeBasis: v("home-basis"),
+        landValue: v("land-value"), carryoverOperating: v("carry-operating"), carryoverDepreciation: v("carry-depreciation"),
+        marginalRate: v("marginal-rate") / 100, includeSelfEmploymentTax: $("#include-se").checked, itemizes: $("#itemizes").checked,
+      });
+      if (r.invalid) {
+        status.textContent = "Enter both your home's and your office's square footage.";
+        report.hidden = true;
+        return;
+      }
+      const winner = r.better === "regular" ? "regular (Form 8829)" : "simplified";
+      $("#report-stats").innerHTML = `Estimated better method: <strong>${winner}</strong>, worth about <strong>${money(r.taxAdvantage)}</strong> more in tax saved. Office is ${(r.businessPct * 100).toFixed(1)}% of the home.`;
+      const p = r.regularParts;
+      $("#result-table").innerHTML = [
+        `<tr><th scope="row">Gross income limit</th><td colspan="2">${money(r.grossIncomeLimit)}</td></tr>`,
+        `<tr><th scope="row">Mortgage interest and taxes (business share)</th><td>—</td><td>${money(p.mortgageInterestAndTaxes)}</td></tr>`,
+        `<tr><th scope="row">Operating expenses allowed</th><td>—</td><td>${money(p.operating)}</td></tr>`,
+        `<tr><th scope="row">Depreciation allowed</th><td>—</td><td>${money(p.depreciation)}</td></tr>`,
+        `<tr><th scope="row"><strong>Deduction</strong></th><td><strong>${money(r.simplified)}</strong></td><td><strong>${money(r.regular)}</strong></td></tr>`,
+        `<tr><th scope="row">Estimated tax saved</th><td>${money(r.simplifiedTaxValue)}</td><td>${money(r.regularTaxValue)}</td></tr>`,
+        `<tr><th scope="row">Carries to next year</th><td>$0.00 (lost)</td><td>${money(r.carryForward.operating + r.carryForward.depreciation)}</td></tr>`,
+      ].join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("comparison_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "home-sqft": 2000, "office-sqft": 200, "months-used": 12, "gross-income": 80000, "other-expenses": 30000, "mortgage-interest": 12000, "property-tax": 4000, "utilities": 4800, "insurance": 1800, "repairs": 1000, "home-basis": 350000, "land-value": 70000, "marginal-rate": 22 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      $("#owns").checked = true;
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: 200 of 2,000 sq ft (10%), $80,000 income, owner. Simplified $1,000 vs regular $3,077.92.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter square footage and income, then click Compare methods.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+FE = 3D hexahedral eigenbuckling (ElementHex2), clamped at x=0; closed = Timoshenko-type formula.
+mesh = (nx along length, ny across width w, nz through thickness b).
+arm w(mm) mesh nx ny nz FE_crit closed ratio seconds
+horizontal 8.0 base 36 4 1 995.78 940.07 1.0593 92
+horizontal 8.0 thick2 36 4 2 986.91 940.07 1.0498 143
+horizontal 8.0 len72 72 4 1 995.23 940.07 1.0587 99
+horizontal 8.0 wid8 36 8 1 992.75 940.07 1.0560 104
+horizontal 8.0 all 72 8 2 983.64 940.07 1.0463 772
+vertical 8.0 base 36 4 1 23952.04 23844.43 1.0045 49
+vertical 8.0 thick2 36 4 2 23749.22 23844.43 0.9960 104
+vertical 8.0 len72 72 4 1 23930.50 23844.43 1.0036 104
+vertical 8.0 wid8 36 8 1 23878.75 23844.43 1.0014 180
+vertical 8.0 all 72 8 2 23664.02 23844.43 0.9924 816
+horizontal 16.0 base 36 4 1 2855.62 2488.28 1.1476 99
+horizontal 16.0 thick2 36 4 2 2841.60 2488.28 1.1420 144
+horizontal 16.0 len72 72 4 1 2854.01 2488.28 1.1470 106
+horizontal 16.0 wid8 36 8 1 2839.85 2488.28 1.1413 104
+horizontal 16.0 all 72 8 2 2824.97 2488.28 1.1353 799
+vertical 16.0 base 36 4 1 50212.21 49867.85 1.0069 49
+vertical 16.0 thick2 36 4 2 49982.99 49867.85 1.0023 106
+vertical 16.0 len72 72 4 1 50173.94 49867.85 1.0061 105
+vertical 16.0 wid8 36 8 1 49930.04 49867.85 1.0012 101
+vertical 16.0 all 72 8 2 49679.21 49867.85 0.9962 715
+horizontal 25.0 base 36 4 1 6901.49 5344.86 1.2912 100
+horizontal 25.0 thick2 36 4 2 6878.41 5344.86 1.2869 143
+horizontal 25.0 len72 72 4 1 6897.77 5344.86 1.2905 106
+horizontal 25.0 wid8 36 8 1 6863.95 5344.86 1.2842 103
+horizontal 25.0 all 72 8 2 6836.89 5344.86 1.2792 753
+vertical 25.0 base 36 4 1 79978.01 79108.35 1.0110 45
+vertical 25.0 thick2 36 4 2 79740.94 79108.35 1.0080 110
+vertical 25.0 len72 72 4 1 79920.47 79108.35 1.0103 102
+vertical 25.0 wid8 36 8 1 79530.71 79108.35 1.0053 103
+vertical 25.0 all 72 8 2 79236.26 79108.35 1.0016 730

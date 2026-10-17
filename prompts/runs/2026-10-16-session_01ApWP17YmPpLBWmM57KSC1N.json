@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01ApWP17YmPpLBWmM57KSC1N",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T23:01:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: Swiss-system pairing",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen.mjs takes well over 5 min in a fresh clone; waiting with sleep/until loops is blocked, needs Monitor"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Refreshed the stale gh-pages snapshot (gate verdict) with publish-branch.sh, then added Dutch-style Swiss pairing, Buchholz standings and UI to league-schedule-generator. Preflight flagged the front-door mirror stale; regen.mjs rewrote it (>5 min). Not FIDE-certified.",
+  "corrections": [],
+  "redteam": null
+}

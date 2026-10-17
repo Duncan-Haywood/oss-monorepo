@@ -1,0 +1,31 @@
+name: squarespace-product-csv-check
+description: >-
+  Free browser tool that checks a Squarespace product import CSV before it is uploaded: header
+  typos, variant rows that would start new products, duplicate SKUs and Product URLs, option
+  names and values, price and sale formats, On Sale without a Sale Price, Yes/No flags, stock,
+  Hosted Image URLs and Excel scientific-notation SKUs or semicolon files, each with its line
+  number, plus a safe-fixes pass that cleans the mechanical faults and never changes the
+  characters of a title, description, SKU, category, tag, option value or image address. The file
+  is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 as the fourth file-model sibling after shopify-product-csv-check (Handle
+# grouping), woocommerce-product-csv-check (Parent links) and bigcommerce-product-csv-check (Item
+# Type rows). Squarespace groups a product's variants by repeating Product URL on rows with a
+# blank Title, so one stray Title or a case-changed URL silently splits a product. Existing
+# answers are the importer's own terse error and generic CSV linters that know nothing about it.
+#
+# First visitor: store owners and migration agencies searching the literal fault ("Squarespace
+# product import failed", "Squarespace CSV variants not importing", "Squarespace CSV import
+# price"), Squarespace forum threads and r/squarespace. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: catalogues can be commercially sensitive, so the file never
+# leaves the browser (a test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for the Squarespace store-owner and
+# agency audience, cross-linked to the Shopify, WooCommerce and BigCommerce siblings. A paid
+# version, if usage appears, is bulk checks across store exports behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Squarespace clause, trademark used nominatively.

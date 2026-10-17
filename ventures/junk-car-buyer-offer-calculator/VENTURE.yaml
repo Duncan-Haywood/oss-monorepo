@@ -1,0 +1,47 @@
+name: junk-car-buyer-offer-calculator
+description: >-
+  Free browser tool for junk car and salvage buyers: work out the most you can offer for a car and still hit your target
+  profit, from curb weight, crusher price, catalytic converter, the parts that really sell, tow, paperwork, storage and
+  labour. Shows the profit at the seller's ask, the farthest tow that still pays, the scrap price and the parts
+  sell-through the ask needs. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ had no scrap-car or salvage-yard buyer tool (scrap-gold-buy-price-calculator
+# is the nearest, for jewelry; tow-truck-rate-calculator prices the tow from the other side).
+#
+# Why this niche: "cash for junk cars" buyers quote from a rule of thumb and a phone call. The real answer depends on a
+# handful of numbers they know (crusher price, converter, parts that sell, tow miles) and rarely put in one place, and a
+# wrong offer either loses the car to a competitor or loses money on it.
+#
+# First visitor: a small junk car or salvage buyer searching "how much to pay for a junk car", "scrap car price by weight"
+# or "junk car buyer profit". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, tax, legal or licensing advice; title, salvage-licence,
+# converter and disposal rules are set by law and the tool says so; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small junk car buyers will use a private offer calculator, because no free tool puts hulk weight, converter, parts
+      sell-through, tow distance and storage into one max-offer figure with the limits at which a seller's ask stops working.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/junk-car-buyer-offer-calculator/
+  analytics: null

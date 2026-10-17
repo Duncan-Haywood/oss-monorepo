@@ -1,0 +1,57 @@
+name: saas-cac-payback-calculator
+description: >-
+  Free browser calculator for SaaS and subscription founders that turns CAC,
+  revenue per customer, gross margin and churn into simple and churn-adjusted
+  CAC payback months, LTV (undiscounted and discounted), LTV:CAC, the maximum
+  CAC that still meets a payback target, and a CAC by churn sensitivity
+  table. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py
+# top score 0.09. Neighbours read by hand: saas-annual-plan-discount-calculator
+# (annual-prepay discount), subscription-price-impact (price rises vs churn),
+# mrr-waterfall-calculator (retention accounting) and cash-runway-planner
+# (runway) answer different questions; none computes CAC payback or LTV:CAC.
+#
+# Distribution: "CAC payback period calculator", "LTV to CAC ratio" and
+# "churn adjusted CAC payback" are recurring founder/finance queries. The
+# generic calculators are crowded and ignore churn in the payback; the
+# wedge is the churn-adjusted figure and the max-CAC-for-target view, and
+# this pairs with the annual-discount tool for the same audience. Search
+# volume was not measured with an external tool.
+#
+# Model is on the page and in the README: geometric churn, optional
+# expansion, closed-form cumulative profit, iterative payback cross-checked
+# against the closed form in tests.
+#
+# Liability: arithmetic on the user's own inputs, never a spending
+# recommendation; benchmarks are labelled rules of thumb.
+
+hypotheses:
+  - claim: >-
+      SaaS founders and finance leads will search for and return to a free,
+      no-signup calculator that shows churn-adjusted CAC payback and the
+      maximum CAC for their payback target, rather than the simple
+      CAC / monthly-margin formula.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong payback or LTV from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/saas-cac-payback-calculator/
+  analytics: null

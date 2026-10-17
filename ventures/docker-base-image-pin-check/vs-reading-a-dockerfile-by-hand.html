@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docker Base Image Pin Check vs. reading a Dockerfile by hand</title>
+<meta name="description" content="Skimming a Dockerfile for FROM lines catches the obvious case -- bare latest, no tag at all. It also depends on remembering that a specific-looking tag like node:18 is just as mutable as latest, correctly telling a build-stage reference apart from a registry pull, and reading every FROM line across every Dockerfile in a repo, every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reading-a-dockerfile-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker Base Image Pin Check vs. reading a Dockerfile by hand">
+<meta property="og:description" content="A careful read of a Dockerfile catches an obvious bare latest. This tool checks every FROM line the same way every time, including the specific-looking tags a skim reads as already pinned.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does reading a Dockerfile by hand actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A reviewer who knows to look for it can spot the obvious case immediately: FROM node with no tag at all, or an explicit FROM node:latest. Both read as risky on sight, because latest is a well-known name for \"whatever the publisher pushed most recently.\" That review genuinely works for the obvious case -- the same case this tool's classify.mjs also flags." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a specific-looking tag like node:18 slip past a skim?",
+      "acceptedAnswer": { "@type": "Answer", "text": "node:18 reads as more careful than bare node or node:latest, because it names a specific major version -- but Docker still resolves :18 to whatever bytes that tag currently points to, and the publisher can push a new build to it at any time with no version bump to review. A reviewer scanning for the word \"latest\" or a missing tag has no reason to flag node:18, since nothing about it looks wrong. This tool draws no such distinction: every tag, specific-looking or not, that isn't a content digest classifies as mutable." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is telling a build-stage reference apart from a registry pull easy to get wrong by eye?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A multi-stage Dockerfile can define FROM golang:1.22 AS builder early on and then write FROM builder forty lines later to continue that stage -- and FROM builder is not a registry pull at all, so it has no tag to pin and nothing to flag. A reviewer working through a long Dockerfile has to remember every stage alias defined earlier in the file to make that call correctly; forgetting one risks either a false alarm on a name that is not a registry image, or missing that a later re-use of the same word is a genuine external FROM. This tool tracks every AS <name> alias as it scans and checks each later FROM against that running set automatically, so the distinction never depends on what a reader kept in their head." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a registry with a port number easy to misread?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A reference like myregistry.local:5000/node:18 contains two colons, and naively splitting on the first one reads :5000/node as the tag -- nonsense that hides the real tag, 18. The actual grammar is that a colon only starts a tag inside the last slash-separated path segment; the colon in registry:5000/ is part of the host, not a tag delimiter. Getting this right by eye on an unfamiliar private-registry reference is easy to get backwards. This tool's splitNameAndRef always locates the tag inside the last path segment only, so a registry port is never misread as one." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace checking every Dockerfile in a repository?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, but it removes the tedium of doing so by hand. A repository can carry a Dockerfile, a Dockerfile.prod, and a worker.dockerfile, each with its own FROM lines, and a manual review has to remember to open every one, every time a new file is added. The CLI (python3 check.py) discovers Dockerfile, Dockerfile.*, and *.dockerfile anywhere under a given directory on its own, so coverage does not depend on a reviewer's memory of which files exist." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to Docker Base Image Pin Check</a></p>
+<h1>Docker Base Image Pin Check vs. reading a Dockerfile by hand</h1>
+<p>
+  Skimming a Dockerfile for an obvious <code>FROM node</code> or <code>FROM node:latest</code>
+  genuinely works, and it is the method most people already use. This page names no product or
+  company being compared against: "reading the Dockerfile by hand" is a generic manual habit, not
+  a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Reading the Dockerfile by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Bare <code>FROM node</code> or explicit <code>FROM node:latest</code></td><td>Correctly caught by a reviewer who knows to look for it</td><td>Correctly caught the same way</td></tr>
+    <tr><td>A specific-looking tag, <code>FROM node:18</code></td><td>Reads as already careful -- easy to not flag, even though the tag can still be repointed</td><td>Classifies any non-digest tag as mutable, specific-looking or not</td></tr>
+    <tr><td>A later <code>FROM builder</code> referencing an earlier <code>AS builder</code> stage</td><td>Requires remembering every stage alias defined earlier in a long file to avoid a false alarm</td><td>Tracks every <code>AS &lt;name&gt;</code> alias while scanning and checks later <code>FROM</code> lines against that running set automatically</td></tr>
+    <tr><td>A private registry reference with a port, <code>myregistry.local:5000/node:18</code></td><td>Easy to misread the port's colon as the tag delimiter</td><td>Always locates the tag inside the last <code>/</code>-separated path segment, never the host</td></tr>
+    <tr><td>Multiple Dockerfiles across a repository (<code>Dockerfile</code>, <code>Dockerfile.prod</code>, <code>worker.dockerfile</code>)</td><td>Coverage depends on remembering every file exists</td><td>CLI discovers every matching filename under a directory on its own</td></tr>
+  </tbody>
+</table>
+
+<h2>The gap that matters most: the specific-looking tag</h2>
+<p>
+  <code>node:18</code> is the trap this tool exists to catch. It reads as more careful than bare
+  <code>node</code> or <code>node:latest</code>, and it is not pinned in the sense that matters --
+  Docker still resolves <code>18</code> to whatever bytes that tag points to right now, and unlike
+  a version bump you would review, a later push to the same tag is silent. A reviewer scanning for
+  "obviously risky" names has no reason to single this out. This tool draws no such distinction:
+  anything short of a content digest classifies as mutable, regardless of how specific the tag looks.
+</p>
+
+<h2>The gap that matters second: telling a build stage from a registry pull</h2>
+<p>
+  A multi-stage Dockerfile reuses names for its own internal stages, and a later
+  <code>FROM &lt;name&gt;</code> that refers to one of them is not a registry pull at all -- it has
+  no tag to pin. Getting this right by eye means holding every <code>AS &lt;name&gt;</code> alias
+  defined earlier in the file in mind while reading each subsequent <code>FROM</code> line, which
+  gets harder as a Dockerfile grows more stages. This tool tracks the alias set mechanically as it
+  scans, so the distinction does not depend on what a reader remembered from forty lines up.
+</p>
+
+<h2>When to still read the Dockerfile yourself</h2>
+<p>
+  This tool answers one question -- is this <code>FROM</code> line pinned to a content digest --
+  and stops there. It does not resolve a mutable tag to a digest for you (it prints the
+  <code>docker buildx imagetools inspect</code> command instead), and it makes no claim about
+  whether the code inside a pinned image is itself safe. Deciding whether to trust a given digest,
+  and reviewing what a base image actually contains, is still a job for you.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does reading a Dockerfile by hand actually catch?</h3>
+<p>A reviewer who knows to look for it can spot the obvious case immediately: FROM node with no tag at all, or an explicit FROM node:latest. Both read as risky on sight, because latest is a well-known name for "whatever the publisher pushed most recently." That review genuinely works for the obvious case -- the same case this tool's classify.mjs also flags.</p>
+<h3>Why does a specific-looking tag like node:18 slip past a skim?</h3>
+<p>node:18 reads as more careful than bare node or node:latest, because it names a specific major version -- but Docker still resolves :18 to whatever bytes that tag currently points to, and the publisher can push a new build to it at any time with no version bump to review. A reviewer scanning for the word "latest" or a missing tag has no reason to flag node:18, since nothing about it looks wrong. This tool draws no such distinction: every tag, specific-looking or not, that isn't a content digest classifies as mutable.</p>
+<h3>Why is telling a build-stage reference apart from a registry pull easy to get wrong by eye?</h3>
+<p>A multi-stage Dockerfile can define FROM golang:1.22 AS builder early on and then write FROM builder forty lines later to continue that stage -- and FROM builder is not a registry pull at all, so it has no tag to pin and nothing to flag. A reviewer working through a long Dockerfile has to remember every stage alias defined earlier in the file to make that call correctly; forgetting one risks either a false alarm on a name that is not a registry image, or missing that a later re-use of the same word is a genuine external FROM. This tool tracks every AS &lt;name&gt; alias as it scans and checks each later FROM against that running set automatically, so the distinction never depends on what a reader kept in their head.</p>
+<h3>Why is a registry with a port number easy to misread?</h3>
+<p>A reference like myregistry.local:5000/node:18 contains two colons, and naively splitting on the first one reads :5000/node as the tag -- nonsense that hides the real tag, 18. The actual grammar is that a colon only starts a tag inside the last slash-separated path segment; the colon in registry:5000/ is part of the host, not a tag delimiter. Getting this right by eye on an unfamiliar private-registry reference is easy to get backwards. This tool's splitNameAndRef always locates the tag inside the last path segment only, so a registry port is never misread as one.</p>
+<h3>Does this replace checking every Dockerfile in a repository?</h3>
+<p>No, but it removes the tedium of doing so by hand. A repository can carry a Dockerfile, a Dockerfile.prod, and a worker.dockerfile, each with its own FROM lines, and a manual review has to remember to open every one, every time a new file is added. The CLI (python3 check.py) discovers Dockerfile, Dockerfile.*, and *.dockerfile anywhere under a given directory on its own, so coverage does not depend on a reviewer's memory of which files exist.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  thing -- whether a FROM line is pinned to a content digest. A clean report describes what that
+  check found, not a guarantee your build is safe from supply-chain attacks generally.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review. You are responsible for reviewing and verifying its output before relying on
+  it. To the maximum extent permitted by law, the authors accept no liability for any loss or
+  damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

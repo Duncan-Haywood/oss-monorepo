@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
+  <meta name="description" content="Free Meta Ads fatigue analyzer: drop in your Ads Manager ad-level CSV and see cost per result, ROAS and CTR per ad, which creatives show fatigue signals, how much spend produced no results, and which ads beat the account median. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Meta Ads Fatigue Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Creative-fatigue flags, spend with no results and scale candidates from a Facebook and Instagram Ads Manager export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Meta Ads Fatigue Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Meta (Facebook and Instagram) Ads Manager ad-level CSV export into per-ad cost per result, ROAS and CTR, creative-fatigue flags, spend with no results graded by evidence, and scale candidates. Runs entirely in your browser; the file is never uploaded.", "featureList": "Creative-fatigue flags, spend with no results by evidence tier, scale candidates, per-ad and per-campaign tables, downloadable ad table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find creative fatigue in my Meta Ads export?", "acceptedAnswer": {"@type": "Answer", "text": "Export the ad-level report from Ads Manager (set the view to Ads, add Amount spent, Impressions, Reach, Frequency, Link clicks, Results or Purchases and purchase value, then Reports, Export table data, CSV) and drop it here. The tool flags ads whose frequency is at or above your threshold (3 by default) and that also look weak against the account's own median: a click-through rate under 80% of the median, a cost per result over 125% of the median, spend over one result's cost with no results, or a daily CTR that fell by a quarter across the days in a daily export. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What does the tool count as spend with no results?", "acceptedAnswer": {"@type": "Answer", "text": "An ad with zero results in the export. It is proven when it had enough link clicks that, at the account's own click-to-result rate, seeing nothing would happen by chance less than 5% of the time; overspent when it spent more than the target (or average) cost per result; and watch otherwise, because a handful of clicks proves nothing. The three tiers add up to the headline figure."}}, {"@type": "Question", "name": "How are scale candidates chosen?", "acceptedAnswer": {"@type": "Answer", "text": "Ads with at least 5 results, enough impressions, frequency under the threshold and a cost per result at least 20% below the account median (or a return at least 25% above the median with a cost at or below it). That describes what happened in the file. It does not predict what more budget would do."}}, {"@type": "Question", "name": "Which columns and file formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Ad name and Amount spent are required, plus Impressions and one of Results, Purchases or Leads. Campaign name, Ad set name, Reach, Frequency, Link clicks, CTR, purchase conversion value or Purchase ROAS and a Day column are used when present. Column names are matched loosely, thousands separators and a currency in the header are handled, dates may be month-first, day-first or ISO, and comma, tab and semicolon files, including UTF-8 with a byte order mark and UTF-16, are read. Rows that cannot be read are listed with a line number."}}, {"@type": "Question", "name": "Is this advertising or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Meta and is not affiliated with or endorsed by it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">META ADS FATIGUE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Facebook and Instagram ads are worn out, and how much spend got nothing?</h1>
+    <p>Drop in the <strong>ad-level CSV</strong> you exported from Meta Ads Manager and get <strong>cost per result, ROAS and CTR for every ad</strong>, the ads whose <strong>frequency is high while CTR or cost per result is weak</strong> against your own account median, <strong>spend with no results</strong> graded by how sure you can be, and the ads that beat the median, without connecting a third-party tool to your ad account.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Meta: not affiliated with or endorsed by Meta Platforms, Facebook or Instagram.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Ads Manager export</h2>
+    <p class="note">Ads Manager → view: Ads → Columns: add Amount spent, Impressions, Reach, Frequency, Link clicks, Results (or Purchases) and purchase value → Reports → Export table data → CSV. Needs Ad name, Amount spent, Impressions and Results, Purchases or Leads; Campaign name, Ad set name, Reach, Frequency, Link clicks, purchase value or Purchase ROAS and a Day breakdown are used when present. Column names are matched loosely; thousands separators, a currency in the header, month-first or day-first dates and comma, tab or semicolon files (UTF-8 or UTF-16) are read.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Campaign name,Ad set name,Ad name,Amount spent (USD),Impressions,Frequency,Link clicks,Purchases"></textarea>
+    <div class="grid">
+      <div><label for="freq">Frequency at or above (fatigue)</label><input type="number" id="freq" min="1" step="any" placeholder="default 3"></div>
+      <div><label for="target">Target cost per result (optional)</label><input type="number" id="target" min="0" step="any" placeholder="blank = account average"></div>
+      <div><label for="minimpr">Minimum impressions to judge an ad</label><input type="number" id="minimpr" min="0" step="1" placeholder="default 1000"></div>
+      <div><label for="minresults">Minimum results for a scale candidate</label><input type="number" id="minresults" min="1" step="1" placeholder="default 5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste export text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money went</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Bucket</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Share of spend</th></tr></thead><tbody id="buckets"></tbody></table></div>
+    <h3>Creative-fatigue flags</h3>
+    <p class="note">Frequency at or above the threshold and at least one weak signal against the account median. A pattern in the file, not proof of wear: audience size, seasonality and budget changes move the same numbers.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Ad</th><th scope="col">Campaign / ad set</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Frequency</th><th class="n" scope="col">CTR</th><th class="n" scope="col">Cost / result</th><th scope="col">Why flagged</th></tr></thead><tbody id="fatigue"></tbody></table></div>
+    <h3>Spend with no results</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Ad</th><th scope="col">Campaign / ad set</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Link clicks</th><th scope="col">Evidence</th></tr></thead><tbody id="zero"></tbody></table></div>
+    <h3>Scale candidates</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Ad</th><th scope="col">Campaign / ad set</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Results</th><th class="n" scope="col">Cost / result</th><th class="n" scope="col">ROAS</th><th class="n" scope="col">Frequency</th></tr></thead><tbody id="scale"></tbody></table></div>
+    <h3>Every ad</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Ad</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Impr.</th><th class="n" scope="col">Freq.</th><th class="n" scope="col">CTR</th><th class="n" scope="col">Results</th><th class="n" scope="col">Cost / result</th><th class="n" scope="col">ROAS</th><th scope="col">Flags</th></tr></thead><tbody id="all"></tbody></table></div>
+    <h3>By campaign</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Campaign</th><th class="n" scope="col">Ads</th><th class="n" scope="col">Spend</th><th class="n" scope="col">Results</th><th class="n" scope="col">Cost / result</th><th class="n" scope="col">ROAS</th><th class="n" scope="col">No-result spend</th></tr></thead><tbody id="by-campaign"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download ad table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Per ad:</strong> rows are combined by campaign, ad set and ad name. CTR is link clicks over impressions; cost per result is spend over results; ROAS is purchase value over spend. Reach cannot be added across days, so frequency is the impressions-weighted average of the reported values.</li>
+      <li><strong>Reconciles.</strong> Spend on ads with results, plus the proven, overspent and watch tiers, adds up to your total spend, and the three tiers add up to the no-result figure.</li>
+      <li><strong>Fatigue flag:</strong> at least the frequency threshold and enough impressions, plus one of: CTR under 80% of the account median, cost per result over 125% of the median, spend over one result's cost with no results, or (daily exports, six days or more) CTR in the last third of the days at least 25% below the first third. Medians are taken over ads with enough impressions.</li>
+      <li><strong>Proven</strong> no-result spend means the fewest link clicks n with (1 − rate)<sup>n</sup> under 0.05 at the account's click-to-result rate. <strong>Overspent</strong> is more than one result's cost with none; <strong>watch</strong> is everything else.</li>
+      <li><strong>Scale candidate:</strong> at least the minimum results, cost per result at least 20% under the median (or ROAS at least 25% over with cost at or under the median), not flagged and frequency under the threshold. It describes the export period only.</li>
+      <li><strong>Not modelled:</strong> attribution windows and delayed conversions, audience overlap and size, learning phase, seasonality, budget and bid changes, view-through results, creative content, and what more spend would do. Results means whatever Meta counted for the chosen objective; mixed objectives make cost per result incomparable across ads.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find creative fatigue in my Meta Ads export?</h3>
+    <p>Export the ad-level report from Ads Manager (set the view to Ads, add Amount spent, Impressions, Reach, Frequency, Link clicks, Results or Purchases and purchase value, then Reports, Export table data, CSV) and drop it here. The tool flags ads whose frequency is at or above your threshold (3 by default) and that also look weak against the account's own median: a click-through rate under 80% of the median, a cost per result over 125% of the median, spend over one result's cost with no results, or a daily CTR that fell by a quarter across the days in a daily export. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What does the tool count as spend with no results?</h3>
+    <p>An ad with zero results in the export. It is proven when it had enough link clicks that, at the account's own click-to-result rate, seeing nothing would happen by chance less than 5% of the time; overspent when it spent more than the target (or average) cost per result; and watch otherwise, because a handful of clicks proves nothing. The three tiers add up to the headline figure.</p>
+    <h3>How are scale candidates chosen?</h3>
+    <p>Ads with at least 5 results, enough impressions, frequency under the threshold and a cost per result at least 20% below the account median (or a return at least 25% above the median with a cost at or below it). That describes what happened in the file. It does not predict what more budget would do.</p>
+    <h3>Which columns and file formats does it read?</h3>
+    <p>Ad name and Amount spent are required, plus Impressions and one of Results, Purchases or Leads. Campaign name, Ad set name, Reach, Frequency, Link clicks, CTR, purchase conversion value or Purchase ROAS and a Day column are used when present. Column names are matched loosely, thousands separators and a currency in the header are handled, dates may be month-first, day-first or ISO, and comma, tab and semicolon files, including UTF-8 with a byte order mark and UTF-16, are read. Rows that cannot be read are listed with a line number.</p>
+    <h3>Is this advertising or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Meta and is not affiliated with or endorsed by it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make, including pausing, scaling or replacing any ad. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Meta.</strong> Meta, Facebook, Instagram and Ads Manager are trademarks of Meta Platforms, Inc. This tool is independent and is not sponsored, endorsed or connected to Meta in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running paid ads? See the <a href="../google-ads-wasted-spend-analyzer/">Google Ads wasted spend analyzer</a>, the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a> and the <a href="../shopify-discount-leakage-analyzer/">Shopify discount leakage analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, adsCsv, sampleCsv, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const r = analyze(n.rows, {
+        targetCpa: Number($("#target").value) || null, freqThreshold: Number($("#freq").value) || 3,
+        minImpr: $("#minimpr").value === "" ? 1000 : Number($("#minimpr").value), minResults: Number($("#minresults").value) || 5,
+        hasClicks: n.hasClicks, hasValue: n.hasValue,
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      const span = n.period ? ` (${n.period.from} to ${n.period.to})` : "";
+      $("#report-stats").innerHTML = `${s.ads} ads${span}, ${cur}${money(s.spend)} spent, ${s.results % 1 ? s.results.toFixed(1) : s.results} results at ${cur}${money(s.cpa)} each, CTR ${pct(s.ctr)}${s.roas ? `, ROAS ${s.roas.toFixed(2)}` : ""}, average frequency ${s.freq ? s.freq.toFixed(2) : "–"}. <strong>${s.fatiguedCount} ad(s) show fatigue signals (${cur}${money(s.fatiguedSpend)})</strong>; <strong>${cur}${money(s.zeroSpend)} (${pct(s.zeroShare)}) went to ads with no results</strong>. Account medians: CTR ${pct(s.medCtr)}, cost per result ${s.medCpa === null ? "–" : money(s.medCpa)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const names = { withResults: "Ads with results", proven: "No results, proven (enough clicks)", overspent: "No results, overspent (cost above one result)", watch: "No results, too little data" };
+      $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.spend)}</td></tr>`).join("");
+      const where = (a) => esc([a.campaign, a.adset].filter(Boolean).join(" / ") || "–");
+      const rowsOr = (list, cols, fn, msg) => (list.length ? list.map(fn).join("") : `<tr><td colspan="${cols}">${msg}</td></tr>`);
+      $("#fatigue").innerHTML = rowsOr(r.fatigued, 7, (a) => `<tr><th scope="row">${esc(a.ad)}</th><td>${where(a)}</td><td class="n">${money(a.spend)}</td><td class="n">${a.freq.toFixed(1)}</td><td class="n">${pct(a.ctr)}</td><td class="n">${a.cpa === null ? "–" : money(a.cpa)}</td><td>${esc(a.reasons.join("; "))}</td></tr>`, "No ad combines high frequency with a weak signal in this file.");
+      const ev = { proven: "proven: enough clicks", overspent: "spent over one result's cost", watch: "too little data" };
+      $("#zero").innerHTML = rowsOr(r.zero, 5, (a) => `<tr><th scope="row">${esc(a.ad)}</th><td>${where(a)}</td><td class="n">${money(a.spend)}</td><td class="n">${a.clicks}</td><td>${ev[a.tier]}</td></tr>`, "Every ad in this file has at least one result.");
+      $("#scale").innerHTML = rowsOr(r.scale, 7, (a) => `<tr><th scope="row">${esc(a.ad)}</th><td>${where(a)}</td><td class="n">${money(a.spend)}</td><td class="n">${a.results}</td><td class="n">${money(a.cpa)}</td><td class="n">${a.roas === null ? "–" : a.roas.toFixed(2)}</td><td class="n">${a.freq ? a.freq.toFixed(1) : "–"}</td></tr>`, "No ad clears the bar: enough results, a clearly better cost than the median, and frequency under the threshold.");
+      $("#all").innerHTML = r.ads.map((a) => `<tr><th scope="row">${esc(a.ad)}</th><td class="n">${money(a.spend)}</td><td class="n">${a.impr.toLocaleString("en-US")}</td><td class="n">${a.freq ? a.freq.toFixed(1) : "–"}</td><td class="n">${pct(a.ctr)}</td><td class="n">${a.results}</td><td class="n">${a.cpa === null ? "–" : money(a.cpa)}</td><td class="n">${a.roas === null ? "–" : a.roas.toFixed(2)}</td><td>${[a.fatigued ? "fatigue" : "", a.results <= 0 ? "no results" : "", r.scale.includes(a) ? "scale" : ""].filter(Boolean).join(", ")}</td></tr>`).join("");
+      $("#by-campaign").innerHTML = rowsOr(r.byCampaign, 7, (g) => `<tr><th scope="row">${esc(g.key)}</th><td class="n">${g.ads}</td><td class="n">${money(g.spend)}</td><td class="n">${g.results}</td><td class="n">${g.cpa === null ? "–" : money(g.cpa)}</td><td class="n">${g.roas === null ? "–" : g.roas.toFixed(2)}</td><td class="n">${money(g.noResultSpend)}</td></tr>`, "No campaign column in this file.");
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.totalsRows) notes.push(`${n.totalsRows} row(s) without an ad name (totals) were ignored.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste export text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for an imaginary store. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste export text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([adsCsv(last)], { type: "text/csv" }));
+      a.download = "meta-ads-fatigue-report.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -34,7 +34,7 @@
 //      one cycle per tech costs more PPE than a naive per-head count
 //      assumes.
 //
-//   computeJobBid(inputs)          -- full cost breakdown, the naive
+//   calculateJobBid(inputs)        -- full cost breakdown, the naive
 //                                      per-pound/per-head comparison, and
 //                                      the quoted price for one job.
 //   formatBidBreakdown(result)     -- the same breakdown as plain text, for
@@ -102,7 +102,7 @@ export const DEFAULTS = {
  *   actually quoting (or considering), to check its real profit and margin
  *   against the true floor instead of the suggested price.
  */
-export function computeJobBid(input = {}) {
+export function calculateJobBid(input = {}) {
   const technicianCount = number(input.technicianCount, 'Technician count', { allowZero: false });
   const hoursOnSitePerTechnician = number(input.hoursOnSitePerTechnician, 'Hours on site per technician', { allowZero: false });
   const laborRatePerHour = number(input.laborRatePerHour, 'Labor rate');
@@ -254,7 +254,7 @@ export const BREAKDOWN_DISCLAIMER =
  * Renders a job bid as the plain-text breakdown a technician can paste into
  * an invoice, a work order, or an email to the property owner.
  *
- * @param {ReturnType<typeof computeJobBid>} result
+ * @param {ReturnType<typeof calculateJobBid>} result
  * @returns {string}
  */
 export function formatBidBreakdown(result) {

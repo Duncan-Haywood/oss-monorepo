@@ -1,0 +1,42 @@
+n redundant sensors, error variance s2=1 each, equal-weight fusion. Twin: independent errors. Real: pairwise correlation rho.
+
+== 0. Variance formula vs simulation (2e5 draws) ==
+n   rho   exact var   simulated
+4   0.10  0.3250      0.3241
+16  0.05  0.1094      0.1095
+16  0.30  0.3438      0.3449
+64  0.05  0.0648      0.0651
+
+== 1. Real std / twin std = sqrt(1+(n-1)rho), and effective independent sensors n_eff ==
+rho     n=4          n=16         n=64         n=1000       floor std   1/rho
+0.01    1.01x (  3.9)  1.07x ( 13.9)  1.28x ( 39.3)  3.32x ( 91.0)   0.100      100
+0.05    1.07x (  3.5)  1.32x (  9.1)  2.04x ( 15.4)  7.14x ( 19.6)   0.224      20
+0.10    1.14x (  3.1)  1.58x (  6.4)  2.70x (  8.8)  10.04x (  9.9)   0.316      10
+0.30    1.38x (  2.1)  2.35x (  2.9)  4.46x (  3.2)  17.34x (  3.3)   0.548      3.33333
+
+== 2. Sensors needed for fused std <= 0.25 (twin says 16) ==
+rho     real n needed   (x twin)
+0.0000  16              1.0x
+0.0100  19              1.2x
+0.0300  30              1.9x
+0.0500  77              4.8x
+0.0600  376             23.5x
+0.0625  infeasible      -
+0.1000  infeasible      -
+
+== 3. Gate |fused error| > 3 twin-stds, n=16 (nominal 0.0027); 4e5 draws ==
+rho    exact false alarm   simulated   (x nominal)   honest gate (twin stds)
+0.01   0.0051              0.0052      1.9x          3.22
+0.05   0.0233              0.0231      8.6x          3.97
+0.10   0.0578              0.0579      21.4x          4.74
+0.30   0.2008              0.2010      74.4x          7.04
+
+== 4. Repair: fit rho from T calibration epochs (8 sensors, truth known), size the fleet for std <= 0.25 ==
+True s2=1, rho=0.03 (needs 30 sensors). 'plug-in' uses rho_hat; 'upper' uses a 90% bootstrap upper bound.
+T     rule     mean rho_hat  declared infeasible  built & met  built & violated   median n built
+25    plug-in  0.0282         33/200                62/200      105/200            23
+25    upper    0.0266        122/200                39/200       39/200            30
+100   plug-in  0.0293          6/200                92/200      102/200            29
+100   upper    0.0304         90/200                89/200       21/200            49
+400   plug-in  0.0295          0/200                97/200      103/200            29
+400   upper    0.0315         19/200               164/200       17/200            55

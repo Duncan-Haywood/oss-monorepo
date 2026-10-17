@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Clearance Markdown Planner — when and how deep to cut price on leftover stock</title>
+  <meta name="description" content="Free clearance markdown planner for retailers and sellers. Enter the units you have left and the weeks you have; it estimates price elasticity from your own sales history and plans the week-by-week markdown that maximises expected revenue. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Clearance Markdown Planner — free, private, in your browser">
+  <meta property="og:description" content="Plan leftover-inventory markdowns week by week from your own price response, with a check against fixed-discount rules and a behind-schedule table.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Clearance Markdown Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter the units you have left, how many weeks you have, and your price and sales history. The tool estimates price elasticity from your own data and plans the week-by-week markdown schedule that maximises expected revenue, with a comparison against fixed-discount rules, a what-if-behind-schedule table and a check on how wrong your elasticity could be. Runs entirely in your browser.", "featureList": "clearance markdown planner, markdown optimization, price elasticity from sales history, markdown schedule, dynamic programming pricing, sell-through forecast, leftover inventory plan, end of season sale planning, markdown versus fixed discount comparison, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How deep and how soon should I mark down leftover inventory?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on three things: how many units you have against how many you expect to sell at full price, how many weeks are left before the stock is worth little or nothing, and how strongly buyers respond to a lower price. This tool puts those into a dynamic program that, for every possible stock level in every remaining week, picks the price that maximises expected revenue plus what the leftovers will fetch. With plenty of stock the plan starts cutting early and deepens in steps; with little stock it holds the price, because every unit will sell anyway."}}, {"@type": "Question", "name": "What is price elasticity and how is it measured here?", "acceptedAnswer": {"@type": "Answer", "text": "Elasticity is the percentage change in units sold for a 1% change in price. An elasticity of -2 means a 10% price cut sells about 20% more units. The tool measures it from your own history by regressing the log of weekly units on the log of price, with a time trend so that demand fading over the season is not mistaken for a price effect. The estimate is then blended with a typical retail value of -2 in proportion to how noisy your data is, so a thin history cannot produce a wild number."}}, {"@type": "Question", "name": "How much sales history do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 8 weeks that had sales, and the price has to have moved by at least 5% in that time; if you never changed the price, your data cannot say how buyers respond to it. More price variation helps more than more weeks at the same price. If your history is too thin, enter an elasticity yourself: the tool shows how much the plan would lose if your number is off."}}, {"@type": "Question", "name": "Why not just mark everything 30% off near the end?", "acceptedAnswer": {"@type": "Answer", "text": "Sometimes that is nearly as good, and the tool shows you the comparison. A fixed cut ignores how many units you actually have left: if you are well ahead of pace it discounts stock that would have sold at full price, and if you are far behind it cuts too late. The dynamic plan reads the stock you actually hold each week."}}, {"@type": "Question", "name": "What do the behind and ahead columns mean?", "acceptedAnswer": {"@type": "Answer", "text": "A plan is only useful if you can follow it after the first week goes differently. For each week the tool shows the markdown it would choose if you are on the planned stock level, if you have 25% more units left than planned (behind), and if you have 25% fewer (ahead). Check your stock at the start of each week and read the row."}}, {"@type": "Question", "name": "What does salvage value mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is what you get for each unit that is still unsold at the end of the window: a liquidator's price, a return-to-vendor credit, or a donation receipt value. Enter a negative number if leftovers cost you money to store or dispose of. A better salvage route means the plan discounts less, because unsold stock hurts less."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your rows are read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your sales or costs. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CLEARANCE MARKDOWN PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How deep, and how soon, should you mark down what is left?</h1>
+    <p>Tell it how many units you have, how many <strong>weeks</strong> you have to sell them and what the leftovers are worth. Paste your recent sales (<strong>date, price, units</strong>) and it measures <strong>how your buyers respond to price</strong>, then plans the <strong>week-by-week markdown</strong> that maximises expected revenue. It shows what that beats (hold the price, one big cut, a fixed ladder), what to do if you fall <strong>behind or get ahead of plan</strong>, and how much the plan loses if your price response is not what the data suggests.</p>
+    <p class="note">Your sales and costs never leave this browser tab. A statistical plan from figures you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your stock</h2>
+    <div class="grid">
+      <div><label for="units">Units left to sell</label><input id="units" inputmode="numeric" placeholder="e.g. 400"></div>
+      <div><label for="price">Current price per unit</label><input id="price" inputmode="decimal" placeholder="e.g. 48"></div>
+      <div><label for="weeks">Weeks left to sell</label><input id="weeks" inputmode="numeric" placeholder="e.g. 10"></div>
+      <div><label for="cost">Your cost per unit (optional)</label><input id="cost" inputmode="decimal" placeholder="e.g. 20"></div>
+      <div><label for="salvage">Value of each unit left at the end</label><input id="salvage" inputmode="decimal" placeholder="e.g. 8 (negative if disposal costs)"></div>
+      <div><label for="floor">Lowest price you will go (optional)</label><input id="floor" inputmode="decimal" placeholder="e.g. 24"></div>
+      <div><label for="maxdisc">Deepest discount allowed</label><select id="maxdisc"><option value="30">30% off</option><option value="40">40% off</option><option value="50">50% off</option><option value="60" selected>60% off</option><option value="70">70% off</option></select></div>
+      <div><label for="changecost">Cost of each price change (optional)</label><input id="changecost" inputmode="decimal" placeholder="e.g. 25 for relabelling"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>How buyers respond to price</h2>
+    <label for="sales">Paste or upload recent sales: one row per day or week (header optional: date, price, units)</label>
+    <textarea id="sales" spellcheck="false" placeholder="week,price,units&#10;2026-06-01,48.00,57&#10;2026-06-08,44.00,71"></textarea>
+    <label for="file">…or upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <p class="note">Use one product (or one group you price together). At least 8 weeks with sales, with the price moving at least 5%. Days are added into weeks starting Monday; the price for a week is the units-weighted average. No history? Skip it and enter the two numbers below.</p>
+    <div class="grid">
+      <div><label for="elast">Price elasticity (negative; blank = use the history)</label><input id="elast" inputmode="decimal" placeholder="e.g. -2.0"></div>
+      <div><label for="base">Units per week at the current price (blank = use the history)</label><input id="base" inputmode="decimal" placeholder="e.g. 31"></div>
+      <div><label for="decay">Demand fading per week (blank = use the history, or 0)</label><input id="decay" inputmode="decimal" placeholder="e.g. 4 for 4% a week"></div>
+    </div>
+    <button type="button" id="analyze">Plan the markdowns</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter your stock and either paste sales or type an elasticity, then click Plan.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>The markdown schedule</h3>
+    <div class="scroll"><table id="path"><thead><tr><th>Week</th><th class="n">Discount</th><th class="n">Price</th><th class="n">Units at start</th><th class="n">Expected sold</th><th class="n">Expected revenue</th><th class="n">Expected left</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="path-note"></p>
+    <h3>If you are behind or ahead of plan</h3>
+    <p class="note">Check your stock at the start of each week. Behind means 25% more units left than planned, ahead means 25% fewer. The discount is what the plan would pick in that case.</p>
+    <div class="scroll"><table id="cp"><thead><tr><th>Week</th><th class="n">Planned stock</th><th class="n">Discount if on plan</th><th class="n">If behind</th><th class="n">If ahead</th></tr></thead><tbody></tbody></table></div>
+    <h3>Compared with simple rules</h3>
+    <div class="scroll"><table id="bl"><thead><tr><th>Rule</th><th class="n">Expected profit</th><th class="n">Sell-through</th><th class="n">Plan beats it by</th></tr></thead><tbody></tbody></table></div>
+    <h3>Range of outcomes</h3>
+    <div id="sim" class="note"></div>
+    <div id="elast-block">
+      <h3>How much does it matter if the elasticity is off?</h3>
+      <div class="scroll"><table id="sens"><thead><tr><th>If buyers are actually…</th><th class="n">Elasticity</th><th class="n">Expected value of this plan</th><th class="n">Value of the best plan for them</th><th class="n">Lost by following this plan</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="fit-block">
+      <h3>What your history says</h3>
+      <p class="note" id="fit"></p>
+    </div>
+    <button type="button" id="download">Download schedule CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Price response:</strong> weekly units are regressed on price in logs, ln(units) = a + e·ln(price/current) + c·week, by ordinary least squares; e is the elasticity and c the weekly fade in demand. The time term is dropped if price and time move together too closely to separate them (correlation above 0.85) or there are fewer than 10 weeks. The slope is then combined with a typical-retail prior of -2.0 (standard deviation 1.0, a judgement, not a measured constant) by inverse-variance weighting, so noisy data counts for less; the standard error has a floor of 0.15. A positive slope is set aside. <strong>Demand:</strong> each week's sales are a negative-binomial draw with mean base × (price/current)<sup>e</sup> × fade<sup>week</sup> and variance mean + (k·mean)², where k is the residual spread of your fit (default 0.25). <strong>The plan:</strong> a finite-horizon dynamic program over (week, units left, current price level). Prices are the current price less 0, 10, 20… up to your maximum in steps of 10%, and only move downward. Each week it picks the price that maximises expected revenue now plus the best expected value for next week's stock, less any price-change cost; at the end each unsold unit is worth your salvage value. <strong>Comparisons:</strong> the simple rules are evaluated by the same recursion, so the gap is exact, not simulated. <strong>Range of outcomes:</strong> 4,000 simulated seasons of the plan with a fixed seed. <strong>Robustness:</strong> the plan is re-evaluated, then re-optimised, at the low and high ends of the 80% interval on elasticity. Above 1,000 units the plan is computed in lots, which is slightly smoother.</p>
+    <p><strong>Not modelled:</strong> competitors' prices, promotions or ads, stock that can be reordered, cannibalisation of other products, buyers who wait for the next cut, channel or shipping costs, and price points such as 9.99. Cost is treated as sunk: it changes the profit shown, not the plan. <strong>Unverified:</strong> checked against simulated data with known elasticity and against closed-form cases in unit tests, not against a published retailer dataset or a commercial pricing tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How deep and how soon should I mark down leftover inventory?</h3>
+    <p>It depends on three things: how many units you have against how many you expect to sell at full price, how many weeks are left before the stock is worth little or nothing, and how strongly buyers respond to a lower price. This tool puts those into a dynamic program that, for every possible stock level in every remaining week, picks the price that maximises expected revenue plus what the leftovers will fetch. With plenty of stock the plan starts cutting early and deepens in steps; with little stock it holds the price, because every unit will sell anyway.</p>
+    <h3>What is price elasticity and how is it measured here?</h3>
+    <p>Elasticity is the percentage change in units sold for a 1% change in price. An elasticity of -2 means a 10% price cut sells about 20% more units. The tool measures it from your own history by regressing the log of weekly units on the log of price, with a time trend so that demand fading over the season is not mistaken for a price effect. The estimate is then blended with a typical retail value of -2 in proportion to how noisy your data is, so a thin history cannot produce a wild number.</p>
+    <h3>How much sales history do I need?</h3>
+    <p>At least 8 weeks that had sales, and the price has to have moved by at least 5% in that time; if you never changed the price, your data cannot say how buyers respond to it. More price variation helps more than more weeks at the same price. If your history is too thin, enter an elasticity yourself: the tool shows how much the plan would lose if your number is off.</p>
+    <h3>Why not just mark everything 30% off near the end?</h3>
+    <p>Sometimes that is nearly as good, and the tool shows you the comparison. A fixed cut ignores how many units you actually have left: if you are well ahead of pace it discounts stock that would have sold at full price, and if you are far behind it cuts too late. The dynamic plan reads the stock you actually hold each week.</p>
+    <h3>What do the behind and ahead columns mean?</h3>
+    <p>A plan is only useful if you can follow it after the first week goes differently. For each week the tool shows the markdown it would choose if you are on the planned stock level, if you have 25% more units left than planned (behind), and if you have 25% fewer (ahead). Check your stock at the start of each week and read the row.</p>
+    <h3>What does salvage value mean?</h3>
+    <p>It is what you get for each unit that is still unsold at the end of the window: a liquidator's price, a return-to-vendor credit, or a donation receipt value. Enter a negative number if leftovers cost you money to store or dispose of. A better salvage route means the plan discounts less, because unsold stock hurts less.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. Your rows are read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your sales or costs. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical plans from the figures you supply; they do not guarantee what will happen. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any pricing-software, point-of-sale or e-commerce vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>, the <a href="../shopify-inventory-reorder-planner/">Shopify inventory reorder planner</a>, the <a href="../fba-aged-inventory-fee-analyzer/">FBA aged inventory fee analyzer</a> and the <a href="../consignment-markdown-planner/">consignment markdown planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSales, fitElasticity, planMarkdown, markdownCsv, sampleText, num, pct, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const s = $(id).value.trim().replace(/[$,]/g, ""); return s === "" ? null : Number(s); };
+    let last = null;
+
+    function run() {
+      const price = val("#price");
+      let fit = null, notes = [];
+      const text = $("#sales").value.trim();
+      if (text) {
+        const parsed = parseSales(text);
+        if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+        notes = notes.concat(parsed.warnings);
+        fit = fitElasticity(parsed.weeks, { refPrice: price > 0 ? price : undefined });
+        notes = notes.concat(fit.warnings);
+        if (!fit.usable) notes.push(fit.reason + " Enter an elasticity and a weekly sales rate below instead.");
+      }
+      const elastIn = val("#elast"), baseIn = val("#base"), decayIn = val("#decay");
+      const useFit = fit && fit.usable;
+      const elasticity = elastIn !== null ? elastIn : useFit ? fit.elasticity : null;
+      const baseDemand = baseIn !== null ? baseIn : useFit ? fit.baseWeekly : null;
+      const decay = decayIn !== null ? 1 - decayIn / 100 : useFit ? fit.decay : 1;
+      if (elasticity === null || baseDemand === null) { status.textContent = "Paste enough sales history to fit, or type an elasticity and the units you sell per week at the current price."; report.hidden = true; return false; }
+      const inputs = {
+        units: val("#units"), price, weeks: val("#weeks"), cost: val("#cost") ?? 0, salvage: val("#salvage") ?? 0,
+        floorPrice: val("#floor") ?? 0, maxDiscount: Number($("#maxdisc").value), changeCost: val("#changecost") ?? 0,
+        baseDemand, elasticity, decay,
+      };
+      if (useFit && elastIn === null) Object.assign(inputs, { elasticityLo: fit.lo, elasticityHi: fit.hi, dispersion: Math.min(0.6, Math.max(0.05, fit.residualSd)) });
+      else Object.assign(inputs, { elasticityLo: elasticity - 0.6, elasticityHi: elasticity + 0.6 });
+      if (useFit && baseIn === null && price > 0 && fit.refPrice !== price) notes.push("The fit was taken around your last price in the file, not the current price you entered, so the weekly rate may be off.");
+      const r = planMarkdown(inputs);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      notes = notes.concat(r.warnings);
+      $("#notices").innerHTML = notes.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.expectedValue), "Expected revenue plus salvage"],
+        [pct(r.sellThrough), `Expected sell-through in ${r.inputs.weeks} weeks`],
+        [num(r.expectedLeftover), "Expected units left"],
+        [String(r.markdowns), r.markdowns === 1 ? "Markdown in the plan" : "Markdowns in the plan"],
+      ];
+      if (r.inputs.cost > 0) big.splice(1, 0, [money(r.expectedProfit), `Expected profit after ${money(r.costTotal)} of stock cost`]);
+      if (r.bestBaselineGap > 0.5) big.push([money(r.bestBaselineGap), "Gain over the best simple rule"]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#path tbody").innerHTML = r.path.map((p) => `<tr><td>${p.week}</td><td class="n">${p.discount}%${p.changed ? " ▼" : ""}</td><td class="n">${money(p.price, 2)}</td><td class="n">${num(p.startUnits)}</td><td class="n">${num(p.expectedUnits, 1)}</td><td class="n">${money(p.expectedRevenue)}</td><td class="n">${num(p.endUnits)}</td></tr>`).join("");
+      $("#path-note").textContent = "This is the typical path: the plan on expected sales. Real weeks will differ, which is what the next table is for.";
+      $("#cp tbody").innerHTML = r.checkpoints.map((c) => `<tr><td>${c.week}</td><td class="n">${num(c.startUnits)}</td><td class="n">${c.asPlanned}%</td><td class="n">${c.behind}% (at ${num(c.behindUnits)} left)</td><td class="n">${c.ahead}% (at ${num(c.aheadUnits)} left)</td></tr>`).join("");
+      $("#bl tbody").innerHTML = [["The markdown plan above", r.expectedProfit, r.sellThrough, null], ...r.baselines.map((b) => [b.name, b.expectedProfit, b.sellThrough, b.gapToPlan])].map(([n, p, s, g]) => `<tr><td>${esc(n)}</td><td class="n">${money(p)}</td><td class="n">${pct(s)}</td><td class="n">${g === null ? "—" : g < 0.5 ? "about the same" : money(g)}</td></tr>`).join("");
+      const s = r.simulation;
+      $("#sim").textContent = `${num(s.runs)} simulated seasons of this plan: profit from ${money(s.p10)} (bad one in ten) through ${money(s.p50)} (typical) to ${money(s.p90)} (good one in ten). Some stock is left over in ${pct(s.pLeftover)} of seasons, averaging ${num(s.meanLeftover, 1)} units.`;
+      $("#sens tbody").innerHTML = r.sensitivity.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${x.elasticity.toFixed(2)}</td><td class="n">${money(x.planValue)}</td><td class="n">${money(x.bestValue)}</td><td class="n">${x.regret < 0.0005 ? "almost nothing" : pct(x.regret, 1)}</td></tr>`).join("");
+      $("#fit-block").hidden = !useFit;
+      if (useFit) $("#fit").textContent = `${fit.n} weeks with sales, price from ${money(fit.priceRange[0], 2)} to ${money(fit.priceRange[1], 2)}. Model: ${fit.model}. Raw elasticity ${fit.raw.toFixed(2)} (standard error ${fit.se.toFixed(2)}); used ${fit.elasticity.toFixed(2)} after blending with the typical -2.0 (your data carries ${pct(fit.dataWeight)} of the weight; 80% range ${fit.lo.toFixed(2)} to ${fit.hi.toFixed(2)}). Fit R²: ${fit.r2.toFixed(2)}. Weekly fade in demand: ${pct(1 - fit.decay, 1)}. Units per week at the current price, next week: ${num(fit.baseWeekly, 1)}.` + (elastIn !== null || baseIn !== null ? " You overrode some of these." : "");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the plan.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("plan_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#sales").value = sampleText();
+      $("#units").value = "400"; $("#price").value = "48"; $("#weeks").value = "10"; $("#cost").value = "20"; $("#salvage").value = "8";
+      $("#elast").value = ""; $("#base").value = ""; $("#decay").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 16 invented weeks for one product, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#sales").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Plan the markdowns.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["#units", "#price", "#weeks", "#cost", "#salvage", "#floor", "#changecost", "#sales", "#elast", "#base", "#decay", "#file"]) $(id).value = "";
+      report.hidden = true; last = null; status.textContent = "Enter your stock and either paste sales or type an elasticity, then click Plan.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([markdownCsv(last)], { type: "text/csv" }));
+      a.download = "markdown-schedule.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

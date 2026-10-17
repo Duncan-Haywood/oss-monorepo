@@ -1,0 +1,57 @@
+Fog twin: lidar r exp(alpha r) = r0, r0=100 m, braking 5 m/s^2, reaction 0.5 s
+
+== 1. Detection range in uniform fog (exact, Lambert W) ==
+  V(m)   alpha(1/m)  alpha*r0   range(m)   clear-air twin overstates by exp(alpha r)   elasticity W/(1+W)
+  5000    0.00078     0.078     92.98   x1.075  (check r0/r = 1.075)                 0.068
+  2000    0.00196     0.196     84.73   x1.180  (check r0/r = 1.180)                 0.142
+  1000    0.00391     0.391     74.67   x1.339  (check r0/r = 1.339)                 0.226
+   500    0.00782     0.782     61.71   x1.621  (check r0/r = 1.621)                 0.326
+   200    0.01956     1.956     43.07   x2.322  (check r0/r = 2.322)                 0.457
+   100    0.03912     3.912     30.42   x3.287  (check r0/r = 3.287)                 0.543
+    50    0.07824     7.824     20.35   x4.914  (check r0/r = 4.914)                 0.614
+    30    0.13040    13.040     14.70   x6.802  (check r0/r = 6.802)                 0.657
+
+== 2. Mis-set extinction: relative range error vs relative extinction error (true V = 200 m) ==
+true range 43.07 m, elasticity 0.457
+  alpha_twin/alpha_true   twin range(m)   range error   |range err| / |alpha err|
+   0.25                     70.75         +64.3%      0.857
+   0.50                     57.17         +32.7%      0.655
+   0.80                     47.53         +10.4%      0.518
+   0.90                     45.16          +4.9%      0.486
+   1.10                     41.21          -4.3%      0.432
+   1.25                     38.76         -10.0%      0.400
+   2.00                     30.42         -29.4%      0.294
+   4.00                     20.35         -52.8%      0.176
+
+== 3. Fog density varies between episodes: alpha ~ LogNormal(median alpha(V=500 m), sigma) ==
+median alpha 0.00782 /m (V=500 m), clear-air range 100 m; 400000 Monte Carlo draws, seed 0
+  sigma  range(median alpha)  E[range] (MC)  range(E[alpha])  range q05  range q50  range q95   (m)
+  0.25        61.71            61.61            61.08         53.30      61.71      69.67
+  0.50        61.71            61.40            59.18         44.93      61.71      76.80
+  0.80        61.71            60.97            55.18         35.50      61.71      83.86
+  1.20        61.71            60.22            46.99         24.78      61.71      90.62
+
+   A driving policy picks its speed so that stopping distance <= the detection range its twin believes.
+   Violation probability P(real range < stopping distance), closed form; MC check in brackets (200000 draws)
+   sigma = 0.8
+   twin                      believed range(m)  speed(m/s)  stopping dist(m)  P(violation)  [MC]
+   clear air                   100.00            29.22        100.00          1.0000       [1.0000]
+   median-alpha                 61.71            22.47         61.71          0.5000       [0.5012]
+   E[alpha]                     55.18            21.12         55.18          0.3446       [0.3449]
+   q05 range (calibrated)       35.50            16.51         35.50          0.0500       [0.0506]
+   q01 range                    26.44            13.95         26.44          0.0100       [0.0099]
+   speed cost of the q05 policy relative to the clear-air one: 43.5% slower
+   fraction of fog draws in which the clear-air policy cannot see its stopping distance: 1.000
+
+== 4. Patchy fog: calibrate one extinction on one target, predict another ==
+fog bank: clear before 40 m, alpha_b = 0.05 /m beyond. Target reflectivity enters only via clear-air range r0.
+  r0(m)  true range(m)   uniform-twin range if calibrated on r0=150 (alpha_eff)   if calibrated on r0=45
+  alpha_eff(r0=150) = 0.01596 /m, alpha_eff(r0=45) = 0.00190 /m (r0=45 sits just beyond the bank start, so it barely feels the fog)
+     20      20.00          15.59 ( -22.0%)                                           19.28 (  -3.6%)
+     30      30.00          21.34 ( -28.9%)                                           28.42 (  -5.3%)
+     45      41.58          28.54 ( -31.4%)                                           41.58 (  +0.0%)
+     60      45.52          34.56 ( -24.1%)                                           54.13 ( +18.9%)
+     80      49.57          41.35 ( -16.6%)                                           70.03 ( +41.3%)
+    100      52.78          47.14 ( -10.7%)                                           85.07 ( +61.2%)
+    150      58.75          58.75 (  +0.0%)                                          119.52 (+103.4%)
+    250      66.49          75.25 ( +13.2%)                                          178.18 (+168.0%)

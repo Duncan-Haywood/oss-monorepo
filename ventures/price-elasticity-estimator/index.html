@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Price Elasticity Estimator — find the price that earns the most from your sales</title>
+  <meta name="description" content="Free price elasticity calculator for sellers. Paste your sales history (date, price, units) to estimate how demand reacts to price, get a confidence interval, the profit-maximising price within what you have tested, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Price Elasticity Estimator — free, private, in your browser">
+  <meta property="og:description" content="Estimate price elasticity from your own sales, see the profit-maximising price and the uncertainty, and find out when your data cannot answer.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Price Elasticity Estimator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your sales history (date, price, units) and estimate your price elasticity of demand with a confidence interval, the profit-maximising price inside the prices you have tested, what a price change would do to units, revenue and profit, and a back-test that says whether price explains your sales at all. Runs entirely in your browser.", "featureList": "price elasticity calculator, price elasticity from sales data, log-log regression, optimal price from unit cost, profit maximizing price, bootstrap confidence interval, price test analysis, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is price elasticity of demand?", "acceptedAnswer": {"@type": "Answer", "text": "It is how much your unit sales change when your price changes, expressed as a percentage ratio. An elasticity of -2 means a 10% price rise is followed by roughly a 20% fall in units. Between 0 and -1 demand is inelastic: raising price loses fewer units than it gains per unit, so revenue rises. Below -1 it is elastic: raising price loses more sales than it earns."}}, {"@type": "Question", "name": "How do I estimate price elasticity from my own sales?", "acceptedAnswer": {"@type": "Answer", "text": "Use a history in which your price actually moved, and regress the log of units on the log of price. The slope is the elasticity. This tool does that with robust standard errors, optional controls for a steady trend and for the time of year, and a bootstrap that shows how uncertain the answer is. You only need three columns: date, price and units sold per day or week."}}, {"@type": "Question", "name": "How much price variation do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 12 rows, three distinct price levels and a typical swing of about 3% or more. If your price never changed, nothing in your data can say what would happen if it did, and the tool refuses instead of guessing. A deliberate test with two or three prices held for a few weeks each is worth far more than years of a flat price."}}, {"@type": "Question", "name": "What is the profit-maximising price?", "acceptedAnswer": {"@type": "Answer", "text": "With a constant elasticity e below -1 and a unit cost c, profit is highest at c times e divided by e minus 1. For example an elasticity of -2 and a cost of 10 gives a price of 20. This tool does not trust that formula outside your data: it searches only the prices you have actually charged, and warns if the best price sits at the edge of them."}}, {"@type": "Question", "name": "Why can the result be wrong?", "acceptedAnswer": {"@type": "Answer", "text": "Elasticity from history is correlation, not an experiment. If you raised prices in busy seasons, discounted while also advertising, or a competitor changed at the same time, the slope mixes those effects with price. The tool controls for trend and season, flags a slope that is positive, and back-tests whether knowing the price predicts later sales better than ignoring it, but it cannot see promotions or competitors you do not give it."}}, {"@type": "Question", "name": "What should I do with the answer?", "acceptedAnswer": {"@type": "Answer", "text": "Treat it as a hypothesis for a small, reversible price test, not as a number to bet the business on. If the interval says demand is elastic and the best price is well inside your tested range, try moving a few percent toward it for a few weeks and compare. If the interval is wide or the tool says unidentified, run a cleaner test first."}}, {"@type": "Question", "name": "Is my sales data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRICE ELASTICITY ESTIMATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your price too low?</h1>
+    <p>Paste or upload your sales history (date, price, units sold). The tool fits a <strong>log-log demand curve</strong> with robust standard errors, gives your <strong>price elasticity with a confidence interval</strong>, finds the <strong>profit-maximising price inside the prices you have actually charged</strong>, shows what a 5, 10 or 20% price change would do to units, revenue and profit, and <strong>back-tests whether price explains your sales at all</strong>. If your price never moved, it says so instead of guessing.</p>
+    <p class="note">Your sales never leave this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your sales</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: date, price, units)</label>
+    <textarea id="rows" spellcheck="false" placeholder="date,price,units&#10;2025-01-06,24.00,431&#10;2025-01-13,24.00,418"></textarea>
+    <div class="row3">
+      <div><label for="cost">Cost per unit (optional)</label><input id="cost" inputmode="decimal" placeholder="e.g. 10 (goods, fees, shipping)"></div>
+      <div><label for="current">Your current price (optional)</label><input id="current" inputmode="decimal" placeholder="defaults to the latest price"></div>
+    </div>
+    <label class="check"><input id="trend" type="checkbox" checked aria-label="Control for a steady trend"> Control for a steady trend (growth or decline over time)</label>
+    <label class="check"><input id="season" type="checkbox" checked aria-label="Control for the time of year"> Control for the time of year (needs about a year of dates)</label>
+    <p class="note">One product at a time, in one currency. Use net price per unit (after discounts). Rows on the same date are combined. Rows with zero units are dropped. At least 12 rows, three price levels and a price that moved by a few percent are needed.</p>
+    <button type="button" id="analyze">Estimate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your sales, then click Estimate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Price curve</h3>
+    <div class="legend note"><span>Dots: your periods</span><span>Line: fitted demand at your average controls</span></div>
+    <div id="chart"></div>
+    <h3>What a price change would do</h3>
+    <p class="note">Per period, from the fitted curve. Rows marked "outside" are beyond the prices you have charged: read them as a guess, not a result.</p>
+    <div class="scroll"><table id="sc"><thead><tr><th>Change</th><th class="n">Price</th><th class="n">Units</th><th class="n">Revenue</th><th class="n" id="profit-h">Profit</th><th></th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download scenarios CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> ln(units) = a + e × ln(price), plus optional controls: a linear trend and one annual sine and cosine pair. Fitted by ordinary least squares; the standard error of e is heteroskedasticity-robust (HC1) and the 95% interval uses Student's t. Because the model is in logs, e is the elasticity directly. An 80% interval and the profit figures come from 400 pairs-bootstrap resamples with a fixed seed, so a result is reproducible. <strong>Profit:</strong> units at price p are predicted with the controls at their average and a smearing correction for the log; profit is (p − cost) × units. The best price is searched only between the lowest and highest price in your data. When demand is elastic the textbook price cost × e ÷ (e − 1) is shown as a reference. <strong>Back-test:</strong> the first 75% of rows fit the model, the last 25% are predicted, and the average log miss is compared with the same model with the price left out.</p>
+    <p><strong>Not modelled:</strong> promotions and advertising you do not add to the data, competitor prices, stock-outs, cross-effects between products, customers who stock up, and the long-run response to a price change. Elasticity from history is correlation, not an experiment. <strong>Unverified:</strong> checked against simulated series with known elasticities in unit tests, not against a published dataset or a commercial tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is price elasticity of demand?</h3>
+    <p>It is how much your unit sales change when your price changes, expressed as a percentage ratio. An elasticity of -2 means a 10% price rise is followed by roughly a 20% fall in units. Between 0 and -1 demand is inelastic: raising price loses fewer units than it gains per unit, so revenue rises. Below -1 it is elastic: raising price loses more sales than it earns.</p>
+    <h3>How do I estimate price elasticity from my own sales?</h3>
+    <p>Use a history in which your price actually moved, and regress the log of units on the log of price. The slope is the elasticity. This tool does that with robust standard errors, optional controls for a steady trend and for the time of year, and a bootstrap that shows how uncertain the answer is. You only need three columns: date, price and units sold per day or week.</p>
+    <h3>How much price variation do I need?</h3>
+    <p>At least 12 rows, three distinct price levels and a typical swing of about 3% or more. If your price never changed, nothing in your data can say what would happen if it did, and the tool refuses instead of guessing. A deliberate test with two or three prices held for a few weeks each is worth far more than years of a flat price.</p>
+    <h3>What is the profit-maximising price?</h3>
+    <p>With a constant elasticity e below -1 and a unit cost c, profit is highest at c times e divided by e minus 1. For example an elasticity of -2 and a cost of 10 gives a price of 20. This tool does not trust that formula outside your data: it searches only the prices you have actually charged, and warns if the best price sits at the edge of them.</p>
+    <h3>Why can the result be wrong?</h3>
+    <p>Elasticity from history is correlation, not an experiment. If you raised prices in busy seasons, discounted while also advertising, or a competitor changed at the same time, the slope mixes those effects with price. The tool controls for trend and season, flags a slope that is positive, and back-tests whether knowing the price predicts later sales better than ignoring it, but it cannot see promotions or competitors you do not give it.</p>
+    <h3>What should I do with the answer?</h3>
+    <p>Treat it as a hypothesis for a small, reversible price test, not as a number to bet the business on. If the interval says demand is elastic and the best price is well inside your tested range, try moving a few percent toward it for a few weeks and compare. If the interval is wide or the tool says unidentified, run a cleaner test first.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the sales you supply; they do not guarantee what will happen when you change a price. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any accounting, point-of-sale or e-commerce vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your sales are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a> and the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a> and the <a href="../bundle-discount-optimizer/">bundle discount optimizer</a>.</p>
+    <p>Quoting jobs instead of selling units? The <a href="../bid-win-rate-optimizer/">bid win-rate optimizer</a> does the same for won and lost quotes.</p>
+    <p>Raising prices? The <a href="../price-increase-breakeven-calculator/">price increase break-even calculator</a> shows how many units you can lose per item before a raise stops paying.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p>Already have a raise in mind? The <a href="../price-increase-breakeven-calculator/">price increase break-even calculator</a> shows how many units each item can lose before the raise stops paying &mdash; nothing uploaded.</p></footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, num, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function chart(r, rows) {
+      const W = 900, H = 300, L = 56, R = 12, T = 12, B = 30;
+      const xs = rows.map((q) => q.price), ys = rows.map((q) => q.units);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), ymax = Math.max(...ys) * 1.08, ymin = Math.min(...ys) * 0.92;
+      const x = (v) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
+      const y = (v) => T + (H - T - B) * (1 - (v - ymin) / (ymax - ymin || 1));
+      const curve = r.scenarios.length ? Array.from({ length: 40 }, (_, i) => { const p = x0 + ((x1 - x0) * i) / 39; return [p, r.curve(p)]; }) : [];
+      const tx = [0, 0.25, 0.5, 0.75, 1].map((q) => x0 + q * (x1 - x0));
+      const ty = [0, 0.5, 1].map((q) => ymin + q * (ymax - ymin));
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of units sold against price with the fitted demand curve">` +
+        ty.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${esc(num(t))}</text>`).join("") +
+        tx.map((t) => `<text x="${x(t).toFixed(1)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(money(t))}</text>`).join("") +
+        rows.map((q) => `<circle cx="${x(q.price).toFixed(1)}" cy="${y(q.units).toFixed(1)}" r="3.5" fill="#1b1f2a" fill-opacity=".55"/>`).join("") +
+        (curve.length ? `<polyline fill="none" stroke="#1f5f86" stroke-width="2.5" points="${curve.map(([p, u]) => `${x(p).toFixed(1)},${y(u).toFixed(1)}`).join(" ")}"/>` : "") +
+        `</svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const cost = $("#cost").value.trim() === "" ? null : Number($("#cost").value);
+      const cur = $("#current").value.trim() === "" ? undefined : Number($("#current").value);
+      const r = analyze(parsed.rows, { dated: parsed.dated, cost, currentPrice: cur, trend: $("#trend").checked, season: $("#season").checked });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      r.curve = (p) => r.scenarios.length ? r.scenarios[3].units * Math.pow(p / r.scenarios[3].price, r.elasticity) : 0;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [r.elasticity.toFixed(2), `Price elasticity (95%: ${r.ci95[0].toFixed(2)} to ${r.ci95[1].toFixed(2)})`],
+        [r.type === "elastic" ? "Elastic" : "Inelastic", r.revenueSign],
+        [`${money(r.priceMin)} – ${money(r.priceMax)}`, `Prices tested (${r.levels} levels, ${r.n} periods)`],
+      ];
+      if (r.optimum) big.push([money(r.optimum.price), `Best price in your tested range (80% of resamples: ${money(r.optimum.priceRange80[0])} – ${money(r.optimum.priceRange80[1])})`], [money(r.optimum.gain), `Profit gain per period vs ${money(r.current)} (80%: ${money(r.optimum.gainRange80[0])} to ${money(r.optimum.gainRange80[1])}; better in ${pct(r.optimum.pGain, 0)} of resamples)`]);
+      else if (r.revenueAdvice) big.push([r.type === "elastic" ? "Lower" : "Raise", r.revenueAdvice]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "unidentified"];
+      const msg = r.verdict === "usable" ? "The interval excludes zero and price helped predict held-out sales. Still a hypothesis: test a small change before relying on it." : r.verdict === "weak" ? "The data is consistent with demand reacting to price, but the interval is wide or the hold-out did not confirm it. Run a cleaner price test before acting." : "The data does not show a believable demand curve. Do not set prices from this estimate.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unidentified" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#chart").innerHTML = chart(r, parsed.rows);
+      $("#profit-h").hidden = r.cost === null;
+      $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.change === 0 ? "current" : (s.change > 0 ? "+" : "") + Math.round(s.change * 100) + "%"}</td><td class="n">${money(s.price)}</td><td class="n">${num(s.units, 1)}</td><td class="n">${money(s.revenue)}</td>${r.cost === null ? "" : `<td class="n">${money(s.profit)}</td>`}<td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
+      $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} rows, scored on the last ${r.holdout.test}. Average miss in log units: ${r.holdout.maeWithPrice.toFixed(3)} with price, ${r.holdout.maeWithoutPrice.toFixed(3)} without. ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the elasticity."}` : "Not enough rows to hold out a test period.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("estimate_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#cost").value = "10"; $("#current").value = "29";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 64 invented weeks for one product, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Estimate.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your sales, then click Estimate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "price-scenarios.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+name: mini-golf-course-profit-calculator
+description: >-
+  Free browser tool for people building or buying a mini-golf, putt-putt, batting-cage or small family-fun-center business: enter the
+  build cost per hole and the shared build (clubhouse, landscaping, lighting, permits), rounds per day and price by season, parties,
+  concession and arcade spend, staff hours and wage, fixed costs, an upkeep reserve, a rain-out allowance and a loan, and see
+  operating income, debt coverage, cash left after the loan, payback in years on the whole investment and on your own money,
+  break-even rounds per day, the price change that hits a payback target, a price-by-attendance grid and a weather table. Nothing
+  is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. `ls ventures | grep -i golf` shows only golf-simulator-bay-profit-calculator,
+# which is an indoor bay-hour business; no mini-golf, putt-putt or batting-cage tool exists, and neither term is in screened-out.md.
+# The shape is a seasonal, weather-exposed, per-head business with a five- or six-figure build and usually a loan, so the decision is
+# payback, debt coverage and how many rounds a day cover the loan, not hourly bay revenue.
+#
+# First visitor: someone pricing a course build or buying an existing one; search phrases "mini golf course profit", "how much does a
+# mini golf course make", "putt putt business plan", "mini golf ROI calculator". Volume not measured with an external tool.
+#
+# Who: small-business buyers, landowners adding an attraction, couples buying a seasonal tourist-town business and the first-time
+# operator pricing a build loan. The money at stake is a six-figure decision, which is why a free, private worksheet that shows
+# the downside (rain, a slow peak, a price cut) is worth more than another per-round price page.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A saved-scenarios comparison (two sites, two
+# build options) behind an env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No attendance, price or margin benchmark is
+# claimed, the sample figures are labelled illustrative, bad input is rejected instead of clamped, and the page carries the
+# no-warranty and not-advice clauses and lists what it does not decide (zoning, insurance quotes, taxes, ramp-up, construction
+# overruns). The weather table is a flat haircut and says so. Debt coverage is reported as a ratio and the page tells the reader to
+# ask their lender what it requires instead of asserting a threshold. Unverified: no lender requirement or benchmark is claimed.
+
+hypotheses:
+  - claim: >-
+      Someone weighing a mini-golf or small fun-center build will enter hole cost, seasonal rounds, prices, staff and a loan to see
+      payback, break-even rounds per day and a rain-out haircut, because a price multiplied by guessed attendance hides how many
+      rounds a day it takes to cover the loan and how a wet summer changes it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the payback, break-even or weather arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mini-golf-course-profit-calculator/
+  analytics: null

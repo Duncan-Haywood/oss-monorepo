@@ -1,0 +1,254 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01PeLE6E3WpVWHumnthaaLjT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T08:39:09Z",
+  "ended": "2026-10-16T08:39:31Z",
+  "wall_minutes": 2.31,
+  "tokens_in": 1475288,
+  "tokens_out": 4953,
+  "cost_usd": 0.5315,
+  "tool_calls": 21,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "does not say the record's mutants live under redteam.campaigns[].mutants; a naive script hits KeyError"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "platform/proposal canonical test must be copied to ~120 ventures; only sync.test.mjs's failure message says so"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target platform/proposal/proposal.mjs, 8 mutants, 7 caught (87.5%); escaped one covered by new boundary test copied to all venture copies.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/proposal/proposal.mjs",
+        "test": "node --test platform/proposal/proposal.test.mjs  (in .)",
+        "seed": 450217908,
+        "commit": "b708521f13",
+        "sites": 94,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 105,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const sign = cents === 0 ? '' : value < 0 ? '-' : '';",
+            "after": "const sign = cents === 1 ? '' : value < 0 ? '-' : '';",
+            "line_text": "  const sign = cents === 0 ? '' : value < 0 ? '-' : '';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 110,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "const unit = text(currency) || '$';",
+            "after": "const unit = text(currency) && '$';",
+            "line_text": "  const unit = text(currency) || '$';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 181,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "const missing = (value) => value === undefined || value === null || value === ''",
+            "after": "const missing = (value) => value !== undefined || value === null || value === ''",
+            "line_text": "  const missing = (value) => value === undefined || value === null || value === ''",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 181,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "const missing = (value) => value === undefined || value === null || value === ''",
+            "after": "const missing = (value) => value === undefined && value === null || value === ''",
+            "line_text": "  const missing = (value) => value === undefined || value === null || value === ''",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 206,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "minimumFractionDigits: 0,",
+            "after": "minimumFractionDigits: 1,",
+            "line_text": "            minimumFractionDigits: 0,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 263,
+            "col": 66,
+            "operator": "minus-to-plus",
+            "before": "const monthName = new Date(Date.UTC(Number(year), Number(month) - 1, 1))",
+            "after": "const monthName = new Date(Date.UTC(Number(year), Number(month) + 1, 1))",
+            "line_text": "  const monthName = new Date(Date.UTC(Number(year), Number(month) - 1, 1))",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 300,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "const validDays = number(input.validDays ?? 0, 'Valid days', { min: 0, max: 3650 });",
+            "after": "const validDays = number(input.validDays ?? 0, 'Valid days', { min: 0, max: 3651 });",
+            "line_text": "  const validDays = number(input.validDays ?? 0, 'Valid days', { min: 0, max: 3650 });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "validDays upper bound (3650) untested; boundary test added"
+          },
+          {
+            "file": "platform/proposal/proposal.mjs",
+            "line": 335,
+            "col": 27,
+            "operator": "minus-to-plus",
+            "before": "balanceAmount: price - depositAmount,",
+            "after": "balanceAmount: price + depositAmount,",
+            "line_text": "      balanceAmount: price - depositAmount,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/proposal/README.md",
+        "issue": "discoverability.test.mjs 'adopted set' check red on main: hoarding-cleanout, hydroseeding-job, lawn-aeration-overseeding ship no proposal and README did not say why",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "67c8df72-1524-575d-8451-a02411c82111",
+    "transcripts": 1,
+    "first": "2026-10-16T08:39:09Z",
+    "last": "2026-10-16T08:41:28Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 21,
+        "input": 42,
+        "output": 4953,
+        "thinking": 537,
+        "cache_read": 1426087,
+        "cache_write_5m": 0,
+        "cache_write_1h": 49159,
+        "api_equivalent_usd": 0.5315,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 21,
+      "input": 42,
+      "output": 4953,
+      "thinking": 537,
+      "cache_read": 1426087,
+      "cache_write_5m": 0,
+      "cache_write_1h": 49159,
+      "api_equivalent_usd": 0.5315,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 21,
+    "tools": {
+      "Bash": 20,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.31,
+      "active_minutes": 2.31,
+      "model_minutes": 0.87,
+      "tool_minutes": 1.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "seed 8 mutants, add boundary test, sync 120 copies, fix README",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 188.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+== objective: lines closure of printer+cnc+laser shop, baseline 43.1% (29 vitamin lines)
+budget  exhaustive  greedy  random(8 evals, mean of 200)  | exhaustive choice
+  0.0     43.1%     43.1%    43.1%                      | -
+  0.5     45.1%     45.1%    43.5%                      | printed-bushings
+  1.0     49.0%     49.0%    45.7%                      | printed-idlers, printed-m8-nuts, printed-m3-nuts
+  1.5     51.0%     51.0%    48.7%                      | printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
+  2.0     53.1%     53.1%    51.3%                      | printed-bushings, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
+  3.0     56.2%     55.1%    54.7%                      | printed-bushings, printed-idlers, printed-m8-nuts, wood-smooth-rods, printed-belt-drive
+  4.0     60.4%     60.4%    56.6%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods, printed-belt-drive, printed-hobbed-bolt
+
+== objective: mass closure of printer+cnc+laser shop, baseline 22.4% (29 vitamin lines)
+budget  exhaustive  greedy  random(8 evals, mean of 200)  | exhaustive choice
+  0.0     22.4%     22.4%    22.4%                      | -
+  0.5     25.0%     25.0%    22.6%                      | printed-m8-nuts
+  1.0     28.6%     26.1%    24.3%                      | wood-smooth-rods
+  1.5     31.8%     31.8%    26.8%                      | printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
+  2.0     33.1%     32.8%    29.9%                      | printed-m8-nuts, wood-smooth-rods, printed-belt-drive
+  3.0     35.2%     35.2%    33.0%                      | printed-bushings, printed-idlers, printed-m8-nuts, wood-smooth-rods, printed-belt-drive
+  4.0     35.8%     35.8%    34.1%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods, printed-belt-drive, printed-hobbed-bolt
+
+== objective: cost closure of printer+cnc+laser shop, baseline 15.9% (29 vitamin lines)
+budget  exhaustive  greedy  random(8 evals, mean of 200)  | exhaustive choice
+  0.0     15.9%     15.9%    15.9%                      | -
+  0.5     33.6%     33.6%    17.2%                      | printed-m8-nuts
+  1.0     41.2%     41.2%    25.2%                      | printed-idlers, printed-m8-nuts, printed-m3-nuts
+  1.5     43.9%     43.9%    34.0%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts
+  2.0     44.9%     43.9%    39.4%                      | printed-bushings, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
+  3.0     46.1%     46.1%    43.3%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
+  4.0     47.7%     47.7%    44.6%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods, printed-belt-drive, printed-hobbed-bolt
+
+all substitutions: penalty 3.9, vitamin lines 29 -> 19; closure lines/mass/cost = 60.4%/35.8%/47.7%
+per-substitution mass-closure gain alone (percentage points):
+  printed-bushings       penalty 0.5  +1.0
+  printed-idlers         penalty 0.4  +0.8
+  printed-m8-nuts        penalty 0.3  +2.6
+  printed-m3-nuts        penalty 0.3  +0.2
+  wood-smooth-rods       penalty 0.9  +6.2
+  printed-belt-drive     penalty 0.8  +1.5
+  printed-hobbed-bolt    penalty 0.7  +0.2
+
+penalty-scale sensitivity at budget 2.0 (500 draws): best set -> share of draws
+   13.0%  printed-m8-nuts, wood-smooth-rods, printed-belt-drive
+   12.8%  printed-bushings, printed-idlers, printed-m8-nuts, wood-smooth-rods
+   12.0%  printed-m8-nuts, wood-smooth-rods
+    8.4%  printed-bushings, printed-m8-nuts, wood-smooth-rods
+    6.0%  printed-bushings, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods

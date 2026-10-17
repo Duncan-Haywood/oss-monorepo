@@ -1,0 +1,52 @@
+name: llm-call-cost-scan
+description: 'Free, zero-network, zero-dependency CLI + browser tool that statically scans JavaScript, TypeScript and Python source for OpenAI, Anthropic and Google LLM call sites that quietly cost money -- no max-tokens output cap, a call inside a loop, a premium-tier model hard-coded where the same vendor''s small tier is often enough, and model names vendors have retired -- with a monthly estimate computed from the user''s own traffic guess and editable list prices. A deterministic text scan, not a bill reader and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator (portfolio/pipeline/
+# README.md "archetype itself"). duplicate_check.py (run 2026-10-01) scored the
+# closest ventures: llm-api-pricing-calculator 0.18 and llm-usage-log-analyzer
+# 0.16 -- both are paste-a-number or paste-a-log tools; none reads *source
+# code* for call sites, which is this venture's wedge. Not in screened-out.md.
+#
+# Where the first real visitor would come from: the search phrases "openai
+# bill too high", "reduce openai api cost", "anthropic max_tokens cost" and
+# "llm cost optimization"; r/OpenAI, r/LocalLLaMA, r/ClaudeAI and r/SaaS
+# threads titled "my API bill exploded"; and Hacker News "Show HN" posts about
+# LLM cost tooling. Teams shipping their first LLM feature are the buyer-ish
+# reader: they have real money at stake and no one reviewing call sites.
+# Adjacent products (Helicone, Langfuse, LiteLLM) measure *runtime* traffic
+# through a proxy or SDK wrapper; this reads the repo before anything runs, so
+# it fits a PR gate and needs no account -- that gap is the wedge, and the
+# natural upgrade path (a hosted, per-repo monitor) is where revenue could
+# come from later.
+hypotheses:
+  - claim: A developer whose OpenAI/Anthropic bill just jumped will search for ways to find the offending call, run the CLI once on their repo, find an uncapped or in-loop call, and fix it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team shipping LLM features will add the CLI to CI with --fail-on warn so every new call site arrives with an output cap and a reviewed model choice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool scans only pasted text in the visitor's
+  # own browser and the CLI reads only local files; no network call at all.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llm-call-cost-scan/
+  analytics: null

@@ -1,0 +1,58 @@
+name: real-estate-professional-status-calculator
+description: >-
+  Free browser tool for rental investors: hours in real property and in other work checked
+  against the real estate professional 750-hour and more-than-half tests, the material
+  participation gate on the rentals, the $25,000 allowance with its MAGI phase-out, a year-by-year
+  suspended-loss schedule, and what non-passive status is worth in today's dollars over the
+  holding period. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "real estate
+# professional status 750 hours test passive loss" scored 0.35 against the nearest venture
+# (str-tax-loophole-calculator, the short-term-rental route); qualified opportunity zone and
+# mortgage-points ideas were the other open gaps. This one covers the long-term-rental route.
+#
+# Why this niche: investors with a high-income spouse or job are sold "REPS plus cost segregation"
+# as a way to deduct six-figure depreciation losses, and the first question is whether the hours
+# can possibly pass. A W-2 job usually sinks it, and passing the hours test without 500 hours on
+# the rentals still leaves them passive. A calculator that says which gate fails, how many hours
+# short, and that passive losses are deferred rather than lost (so the real value is timing) is
+# the thing a prospect wants before paying a cost segregation firm. High-income owners with real
+# money at stake, a repeated yearly decision, and a recurring search ("real estate professional
+# status requirements").
+#
+# Liability boundary: arithmetic on user-typed numbers with one flat rate and one discount rate;
+# no determination of status, no advice on hours logs, elections or audit defence; the allowance
+# figures and every default are labelled placeholders; no taxpayer identifiers are asked for;
+# nothing is stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Rental investors will use a private hours-and-loss calculator that says which REPS gate fails
+      and prices the loss as timing, because promotional explainers state the 750-hour rule and
+      skip the more-than-half test, the 500-hour rental gate and the fact that suspended losses
+      are released at sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A tax professional reports that the arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/real-estate-professional-status-calculator/
+  analytics: null

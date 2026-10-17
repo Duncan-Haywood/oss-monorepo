@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision-scoring"
+version = "0.1.0"
+description = "Scoring verifiers whose report decides accept/reject and whose outcome is observed only on acceptance: exact feasibility condition, unique reserve payment, recentred Brier score, exploration alternative"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

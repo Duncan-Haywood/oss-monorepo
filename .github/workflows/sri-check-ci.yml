@@ -37,12 +37,14 @@ defaults:
 
 jobs:
   test:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Run sri, probe, check, usage, page-wiring, and comparison-page tests
-        run: node --test sri.test.mjs probe.test.mjs check.test.mjs usage.test.mjs page.test.mjs vs-srihash.test.mjs vs-checking-tags-by-hand.test.mjs
+        run: node --test sri.test.mjs cli/probe.test.mjs cli/check.test.mjs usage.test.mjs page.test.mjs vs-srihash.test.mjs vs-checking-tags-by-hand.test.mjs

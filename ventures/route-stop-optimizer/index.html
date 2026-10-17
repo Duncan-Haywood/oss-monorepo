@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Route Stop Optimizer — the fastest order for a day of stops</title>
+  <meta name="description" content="Free route optimizer for service businesses, couriers and sales reps. Paste your stops with service times and customer time windows to get the order that cuts drive time, split across drivers, with miles, hours and dollars saved. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Route Stop Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Reorder a day of stops to cut drive time, honour time windows and see what it saves.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Route Stop Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste a day's stops with service times and time windows. Finds the drive-time-minimising order, splits it across drivers, and shows the miles, hours and dollars saved. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best order to visit several stops?","acceptedAnswer":{"@type":"Answer","text":"The order that minimises total driving plus waiting time while meeting any customer time windows. For a handful of stops you can find it exactly by checking every order in a smart way; for dozens of stops no shortcut is known, so good tools use heuristics. This tool solves up to 12 stops on one route exactly and uses 2-opt and Or-opt improvement beyond that."}},{"@type":"Question","name":"How do I get latitude and longitude for my stops?","acceptedAnswer":{"@type":"Answer","text":"In Google Maps, right-click a place and click the coordinates at the top of the menu to copy them; on a phone, long-press the map and read the pin. Many customer and dispatch systems also export coordinates. Paste one stop per row as name, latitude, longitude."}},{"@type":"Question","name":"How are drive times estimated without a map service?","acceptedAnswer":{"@type":"Answer","text":"Straight-line distance between two points, multiplied by a road factor (1.3 by default, since roads are longer than straight lines) and divided by your average speed. It is an estimate: it ranks orders well, but it will not match a navigation app minute for minute and it cannot see rivers, one-way streets or traffic."}},{"@type":"Question","name":"How do customer time windows work?","acceptedAnswer":{"@type":"Answer","text":"Give an opening time, a closing time, or both for a stop. Arriving early means waiting until the window opens; arriving after it closes counts as late. The tool finds an order with no late stops if one exists, and tells you which stops are late if none does."}},{"@type":"Question","name":"Can it split stops between several drivers?","acceptedAnswer":{"@type":"Answer","text":"Yes, up to 20. Stops are grouped by direction from the depot, then moved between drivers when that shortens the plan, balancing the longest day against total time. Each driver's route is then ordered separately."}},{"@type":"Question","name":"How is the saving calculated?","acceptedAnswer":{"@type":"Answer","text":"The tool compares your plan with the order you pasted the stops in, on the same travel model. Miles are converted to fuel cost with your miles per gallon and fuel price, and elapsed time to labor cost with your hourly wage; multiply by the days you run the route per year for an annual figure."}},{"@type":"Question","name":"Is my customer list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Stops are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your list. The Open in Google Maps links send nothing until you click them, and then only the coordinates in that link."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+      .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROUTE STOP OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is your stop order costing you?</h1>
+    <p>Paste <strong>the day's stops</strong> with how long each takes and any customer time window. The tool finds the <strong>order that cuts drive time</strong>, splits it across as many drivers as you have, and shows the <strong>miles, hours and dollars</strong> it saves against the order you had, and what <strong>your time windows cost</strong>.</p>
+    <p class="note">Your customer list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It orders stops; it does not give turn-by-turn directions.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your stops</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows: name, latitude, longitude, service minutes, opens, closes</label>
+    <textarea id="rows" spellcheck="false" placeholder="name,lat,lng,service_min,open,close&#10;Acme Dental,39.7392,-104.9903,30,9am,11am&#10;Baker Lofts,39.7684,-104.9470,20,,"></textarea>
+    <p class="note">Name, service minutes and the window are optional. In Google Maps, right-click a place and click the coordinates to copy them. Times can be 9, 9:30, 9am or 13:30. Put stops in the order you would drive them today: that is the baseline the savings are measured against.</p>
+    <div class="row3">
+      <div><label for="depot">Depot / start (latitude, longitude)</label><input id="depot" inputmode="text" placeholder="39.7420,-104.9850"></div>
+      <div><label for="start">Leave the depot at</label><input id="start" value="8:00am"></div>
+      <div><label for="vehicles">Drivers</label><input id="vehicles" inputmode="numeric" value="1"></div>
+      <div><label for="circuity">Road miles per straight-line mile</label><input id="circuity" inputmode="decimal" value="1.3"></div>
+      <div><label for="mph">Average speed (mph)</label><input id="mph" inputmode="decimal" value="30"></div>
+      <div><label for="mpg">Vehicle miles per gallon</label><input id="mpg" inputmode="decimal" value="20"></div>
+      <div><label for="fuel">Fuel price ($ per gallon)</label><input id="fuel" inputmode="decimal" value="3.80"></div>
+      <div><label for="wage">Driver cost ($ per hour)</label><input id="wage" inputmode="decimal" value="25"></div>
+      <div><label for="days">Days you run this route per year</label><input id="days" inputmode="numeric" value="250"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="back" aria-label="Drivers return to the depot" checked> Drivers return to the depot at the end</label>
+    <button type="button" id="analyze">Find the best order</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your stops, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>The routes</h3>
+    <div id="routes"></div>
+    <h3>Map</h3>
+    <div id="map" role="img" aria-label="Plot of the depot and stops with the planned routes"></div>
+    <p class="note">Positions are plotted as latitude and longitude with no basemap. Numbers are the visit order.</p>
+    <h3>Against your current order</h3>
+    <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Road miles</th><th class="n">Hours (drive + wait + service)</th><th class="n">Fuel + labor</th></tr></thead><tbody></tbody></table></div>
+    <div id="windowcost"></div>
+    <button type="button" id="download">Download route CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Travel:</strong> straight-line (haversine) distance between stops times your road factor, at your average speed. <strong>Elapsed time:</strong> driving, plus waiting when you arrive before a window opens, plus service minutes. <strong>Objective:</strong> least elapsed time with every window met; if no order can meet them all, lateness is minimised first. <strong>Solution:</strong> up to 12 stops on one route are solved exactly with a Held-Karp dynamic programme (checked against brute-force search in the tests); beyond that, and with several drivers, the tool runs multi-start nearest-neighbour with 2-opt and Or-opt improvement and moves stops between drivers, balancing the longest day against total time. <strong>Savings:</strong> your pasted order on the same model, with fuel from miles per gallon and labor from elapsed hours.</p>
+    <p><strong>Not modelled:</strong> the real road network, one-way streets, live traffic, vehicle capacity, driver breaks and shift limits, pickup-before-drop-off ordering, and turn-by-turn directions. <strong>Unverified:</strong> checked against brute-force search on small problems and against invented data in unit tests, not against real routes or a navigation service.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the best order to visit several stops?</h3>
+    <p>The order that minimises total driving plus waiting time while meeting any customer time windows. For a handful of stops you can find it exactly by checking every order in a smart way; for dozens of stops no shortcut is known, so good tools use heuristics. This tool solves up to 12 stops on one route exactly and uses 2-opt and Or-opt improvement beyond that.</p>
+    <h3>How do I get latitude and longitude for my stops?</h3>
+    <p>In Google Maps, right-click a place and click the coordinates at the top of the menu to copy them; on a phone, long-press the map and read the pin. Many customer and dispatch systems also export coordinates. Paste one stop per row as name, latitude, longitude.</p>
+    <h3>How are drive times estimated without a map service?</h3>
+    <p>Straight-line distance between two points, multiplied by a road factor (1.3 by default, since roads are longer than straight lines) and divided by your average speed. It is an estimate: it ranks orders well, but it will not match a navigation app minute for minute and it cannot see rivers, one-way streets or traffic.</p>
+    <h3>How do customer time windows work?</h3>
+    <p>Give an opening time, a closing time, or both for a stop. Arriving early means waiting until the window opens; arriving after it closes counts as late. The tool finds an order with no late stops if one exists, and tells you which stops are late if none does.</p>
+    <h3>Can it split stops between several drivers?</h3>
+    <p>Yes, up to 20. Stops are grouped by direction from the depot, then moved between drivers when that shortens the plan, balancing the longest day against total time. Each driver's route is then ordered separately.</p>
+    <h3>How is the saving calculated?</h3>
+    <p>The tool compares your plan with the order you pasted the stops in, on the same travel model. Miles are converted to fuel cost with your miles per gallon and fuel price, and elapsed time to labor cost with your hourly wage; multiply by the days you run the route per year for an annual figure.</p>
+    <h3>Is my customer list uploaded anywhere?</h3>
+    <p>No. Stops are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your list. The Open in Google Maps links send nothing until you click them, and then only the coordinates in that link.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace navigation software, a qualified professional or your own knowledge of the roads and rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any mapping, routing or fleet-management vendor, and none is ranked here. The Open in Google Maps links are ordinary links you choose to click.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your stops are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>route_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shift-cover-optimizer/">shift-cover optimizer</a>, the <a href="../shop-rate-calculator/">shop rate calculator</a> the <a href="../owner-operator-cpm-calculator/">owner-operator cost-per-mile calculator</a> and, for a mobile service van, the <a href="../mobile-tire-van-job-picker/">mobile tire van job picker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseStops, parsePoint, parseClock, optimize, routeCsv, mapsLinks, sampleText, sampleDepot, fmtTime, money, num, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    const COLORS = ["#1f5f86", "#b5533c", "#2f7d4f", "#7b4fa0", "#a07b1f", "#1f8a8a", "#8a1f5c", "#4f4f4f"];
+    let last = null;
+
+    function drawMap(r) {
+      const pts = r.nodes, W = 640, H = 380, pad = 26;
+      const lats = pts.map((p) => p.lat), lngs = pts.map((p) => p.lng);
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+      const kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+      const spanX = Math.max(1e-6, (maxLng - minLng) * kx), spanY = Math.max(1e-6, maxLat - minLat);
+      const s = Math.min((W - 2 * pad) / spanX, (H - 2 * pad) / spanY);
+      const X = (p) => pad + ((p.lng - minLng) * kx) * s, Y = (p) => H - pad - (p.lat - minLat) * s;
+      let g = "";
+      r.best.routes.forEach((order, ri) => {
+        const seq = [0, ...order, ...(r.options.back ? [0] : [])];
+        g += `<polyline fill="none" stroke="${COLORS[ri % COLORS.length]}" stroke-width="2" points="${seq.map((k) => X(pts[k]).toFixed(1) + "," + Y(pts[k]).toFixed(1)).join(" ")}"/>`;
+        order.forEach((k, i) => {
+          g += `<circle cx="${X(pts[k]).toFixed(1)}" cy="${Y(pts[k]).toFixed(1)}" r="10" fill="${COLORS[ri % COLORS.length]}"/><text x="${X(pts[k]).toFixed(1)}" y="${(Y(pts[k]) + 4).toFixed(1)}" font-size="11" text-anchor="middle" fill="#fff">${i + 1}</text>`;
+        });
+      });
+      g += `<rect x="${(X(pts[0]) - 8).toFixed(1)}" y="${(Y(pts[0]) - 8).toFixed(1)}" width="16" height="16" fill="#1b1f2a"/><text x="${X(pts[0]).toFixed(1)}" y="${(Y(pts[0]) + 4).toFixed(1)}" font-size="10" text-anchor="middle" fill="#fff">D</text>`;
+      $("#map").innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${g}</svg>`;
+    }
+
+    function run() {
+      const parsed = parseStops($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      let depot = parsePoint($("#depot").value), stops = parsed.stops;
+      if (!depot && $("#depot").value.trim() === "" && stops.length) { depot = { ...stops[0], name: "Depot", service: 0, open: null, close: null }; stops = stops.slice(1); }
+      if (!depot) { status.textContent = "The depot must be latitude, longitude, for example 39.74, -104.98."; report.hidden = true; return false; }
+      const startMinute = parseClock($("#start").value);
+      if (startMinute === null || Number.isNaN(startMinute)) { status.textContent = "Could not read the start time (try 8:00am)."; report.hidden = true; return false; }
+      const r = optimize({ depot, stops }, {
+        circuity: val("circuity"), mph: val("mph"), vehicles: val("vehicles"), startMinute, returnToDepot: $("#back").checked,
+        mpg: val("mpg") || 0, fuelPrice: val("fuel") || 0, wage: val("wage") || 0, daysPerYear: val("days") || 0,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("") +
+        (r.exact ? "" : `<div class="warn">This plan uses a fast heuristic (more than 12 stops per route or several drivers), so it is very good but not proven best.</div>`);
+      const big = [
+        [num(Math.max(0, r.saveMiles), 1) + " mi", `Fewer road miles than your order (${pct(Math.max(0, r.savePct), 0)} less time)`],
+        [num(Math.max(0, r.saveMin / 60), 1) + " h", "Less driver time per day"],
+        [money(Math.max(0, r.saveCost)), `Saved per day in fuel and labor${r.saveYear ? ` — about ${money(Math.max(0, r.saveYear))} a year` : ""}`],
+        [fmtTime(Math.max(...r.best.evals.map((e) => e.visits.length ? e.visits[e.visits.length - 1].depart : r.options.start))), "Last stop finished"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#routes").innerHTML = r.best.routes.map((order, ri) => {
+        const e = r.best.evals[ri];
+        const rows = e.visits.map((v, i) => {
+          const s = r.nodes[v.node];
+          const win = s.open !== null || s.close !== null ? `${s.open !== null ? fmtTime(s.open) : "…"}–${s.close !== null ? fmtTime(s.close) : "…"}` : "";
+          return `<tr${v.lateBy > 0 ? ' class="stop"' : ""}><td class="n">${i + 1}</td><td>${esc(s.name)}</td><td>${fmtTime(v.arrive)}${v.begin > v.arrive + 0.5 ? ` (waits to ${fmtTime(v.begin)})` : ""}</td><td>${fmtTime(v.depart)}</td><td class="n">${num(v.legMiles, 1)}</td><td>${win}${v.lateBy > 0 ? ` — late ${Math.round(v.lateBy)} min` : ""}</td></tr>`;
+        }).join("");
+        const links = mapsLinks(r, ri).map((u, i, a) => `<a href="${esc(u)}" rel="noopener" target="_blank">Open ${a.length > 1 ? "part " + (i + 1) + " " : ""}in Google Maps</a>`).join(" · ");
+        return `<h4>Driver ${ri + 1} — ${order.length} stops, ${num(e.miles, 1)} mi, ${num(e.elapsed / 60, 1)} h</h4><div class="scroll"><table><thead><tr><th class="n">#</th><th>Stop</th><th>Arrive</th><th>Leave</th><th class="n">Leg mi</th><th>Window</th></tr></thead><tbody>${rows}</tbody></table></div><p class="note">${links}</p>`;
+      }).join("");
+      const b = r.best, l = r.listed;
+      const cmp = [["Optimized (this plan)", b], [r.options.vehicles === 1 ? "Your order as pasted" : "Your order as pasted, dealt out in blocks", l]];
+      $("#cmp tbody").innerHTML = cmp.map(([n, x]) => `<tr><td>${esc(n)}</td><td class="n">${num(x.miles, 1)}</td><td class="n">${num(x.elapsed / 60, 1)}</td><td class="n">${money(x.cost)}</td></tr>`).join("") +
+        (l.lateStops ? `<tr><td colspan="4" class="note">Your pasted order misses ${l.lateStops} time window${l.lateStops === 1 ? "" : "s"}.</td></tr>` : "");
+      $("#windowcost").innerHTML = r.windowCost ? `<p class="note">Your customer windows cost about <strong>${num(r.windowCost.elapsed, 0)} minutes</strong> and <strong>${num(r.windowCost.miles, 1)} miles</strong> a day against the same stops with no windows.</p>` : "";
+      drawMap(r);
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("route_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#depot").value = sampleDepot;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: ten invented stops around Denver, one driver."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click the button.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your stops, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([routeCsv(last)], { type: "text/csv" }));
+      a.download = "routes.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

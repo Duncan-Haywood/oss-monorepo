@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HSA Contribution Limit Calculator — 2026, Free</title>
+  <meta name="description" content="Free calculator for the 2026 HSA contribution limit — self-only $4,400 or family $8,750, the $1,000 age-55 catch-up, HDHP qualification bounds, monthly proration for partial-year eligibility, and the last-month rule's testing-period tradeoff. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="HSA Contribution Limit Calculator — free, 2026">
+  <meta property="og:description" content="Computes the 2026 HSA contribution limit for self-only or family coverage, prorated for partial-year HDHP eligibility or the full amount under the last-month rule, plus the age-55 catch-up. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"HSA Contribution Limit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the 2026 HSA contribution limit ($4,400 self-only or $8,750 family) prorated by months of HDHP eligibility, or the full limit under the last-month rule (with its testing-period tradeoff explained), plus the $1,000 age-55 catch-up. Checks a plan's deductible and out-of-pocket maximum against the 2026 HDHP-qualification bounds. Entirely client-side; nothing is uploaded.","featureList":"2026 self-only and family HSA limits, HDHP qualification check, monthly proration for partial-year eligibility, last-month rule with testing-period explanation, age-55 catch-up"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 HSA contribution limit?","acceptedAnswer":{"@type":"Answer","text":"$4,400 for self-only HDHP coverage or $8,750 for family coverage, per IRS Rev. Proc. 2025-19. Those 55 and older who are not yet enrolled in Medicare can contribute an additional $1,000 catch-up, which is fixed by statute rather than adjusted for inflation each year."}},{"@type":"Question","name":"What deductible and out-of-pocket limits does a plan need to qualify as an HDHP in 2026?","acceptedAnswer":{"@type":"Answer","text":"The deductible must be at least $1,700 for self-only coverage or $3,400 for family coverage, and the out-of-pocket maximum must not exceed $8,500 for self-only or $17,000 for family. A plan outside these bounds is not HSA-qualified, whatever it is marketed as."}},{"@type":"Question","name":"How is the HSA limit prorated if I was not covered all year?","acceptedAnswer":{"@type":"Answer","text":"By whole months of HDHP eligibility: the annual limit multiplied by eligible months divided by 12. Six months of self-only eligibility in 2026, for example, gives a prorated limit of $2,200 rather than the full $4,400."}},{"@type":"Question","name":"What is the last-month rule, and what is the catch?","acceptedAnswer":{"@type":"Answer","text":"If you are HSA-eligible on December 1 of the tax year, you may contribute the full annual limit even if you were eligible for only part of the year. In exchange, you must remain HSA-eligible through December 31 of the following year (the testing period). If eligibility lapses before then for a reason other than death or disability, the amount you contributed beyond what proration would have allowed becomes taxable income in the year eligibility lapsed, plus a 10% additional tax."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 IRS figures to the numbers you enter. It does not check for other disqualifying coverage such as a general-purpose FSA, Medicare enrollment, or being claimed as a dependent, and it is not a substitute for IRS Publication 969 or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HSA CONTRIBUTION LIMIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you put in your HSA in 2026?</h1>
+    <p>The 2026 HSA contribution limit is <strong>$4,400</strong> for self-only
+    coverage or <strong>$8,750</strong> for family coverage, plus a
+    <strong>$1,000</strong> catch-up at 55+. Only eligible for part of the
+    year? This tool prorates the limit by month, or applies the
+    <strong>last-month rule</strong> if you qualify — and explains the
+    testing-period tradeoff that comes with it.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Coverage and eligibility</h2>
+    <div class="grid">
+      <div>
+        <label for="coverage">HDHP coverage type</label>
+        <select id="coverage">
+          <option value="self" selected>Self-only</option>
+          <option value="family">Family</option>
+        </select>
+      </div>
+      <div>
+        <label for="months">Months of HDHP eligibility in 2026</label>
+        <input type="number" id="months" min="0" max="12" step="1" value="12">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="age55">
+      <label for="age55">55 or older by year-end, not yet enrolled in Medicare</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="last-month-rule">
+      <label for="last-month-rule">Eligible on December 1, 2026 — apply the last-month rule instead of proration</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Optional: check your plan's HDHP qualification</h2>
+    <div class="grid">
+      <div>
+        <label for="deductible">Plan's annual deductible ($)</label>
+        <input type="number" id="deductible" min="0" step="1" placeholder="e.g. 2000">
+      </div>
+      <div>
+        <label for="oop-max">Plan's annual out-of-pocket maximum ($)</label>
+        <input type="number" id="oop-max" min="0" step="1" placeholder="e.g. 7000">
+      </div>
+    </div>
+    <p class="note">Leave these blank to skip the qualification check and just
+    compute the contribution limit.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Choose coverage type and eligible months, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full eligibility determination.</strong> This does
+      not check for other disqualifying coverage — a general-purpose
+      health FSA, Medicare enrollment, being claimed as a dependent, or a
+      spouse's non-HDHP plan can eliminate HSA eligibility even during
+      otherwise-eligible months.</li>
+      <li><strong>Family limit is a household total, not per-spouse.</strong>
+      If both spouses are HSA-eligible under family coverage, the $8,750
+      family limit is split between their two HSAs by agreement; this
+      tool computes only the household total.</li>
+      <li><strong>The catch-up cannot go into a spouse's HSA.</strong> A
+      spouse who is 55+ and wants the catch-up contribution needs their
+      own HSA in their own name.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> These limits are
+      re-indexed annually (except the $1,000 catch-up, fixed by statute);
+      confirm the current year's figures before relying on this in a
+      later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 HSA contribution limit?</h3>
+    <p>$4,400 for self-only HDHP coverage or $8,750 for family coverage, per IRS Rev. Proc. 2025-19. Those 55 and older who are not yet enrolled in Medicare can contribute an additional $1,000 catch-up, which is fixed by statute rather than adjusted for inflation each year.</p>
+    <h3>What deductible and out-of-pocket limits does a plan need to qualify as an HDHP in 2026?</h3>
+    <p>The deductible must be at least $1,700 for self-only coverage or $3,400 for family coverage, and the out-of-pocket maximum must not exceed $8,500 for self-only or $17,000 for family. A plan outside these bounds is not HSA-qualified, whatever it is marketed as.</p>
+    <h3>How is the HSA limit prorated if I was not covered all year?</h3>
+    <p>By whole months of HDHP eligibility: the annual limit multiplied by eligible months divided by 12. Six months of self-only eligibility in 2026, for example, gives a prorated limit of $2,200 rather than the full $4,400.</p>
+    <h3>What is the last-month rule, and what is the catch?</h3>
+    <p>If you are HSA-eligible on December 1 of the tax year, you may contribute the full annual limit even if you were eligible for only part of the year. In exchange, you must remain HSA-eligible through December 31 of the following year (the testing period). If eligibility lapses before then for a reason other than death or disability, the amount you contributed beyond what proration would have allowed becomes taxable income in the year eligibility lapsed, plus a 10% additional tax.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS figures to the numbers you enter. It does not check for other disqualifying coverage such as a general-purpose FSA, Medicare enrollment, or being claimed as a dependent, and it is not a substitute for IRS Publication 969 or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own HSA eligibility before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>limit_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Checking a mega backdoor Roth conversion instead? The <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a> is the one for that — a 401(k) after-tax contribution strategy, unrelated to HSA eligibility.</p>
+    <p>Paying a medical bill from your HSA? The <a href="../medical-bill-error-checker/">medical bill error checker</a> reads an itemized bill in your browser and flags duplicate, unbundled and mismatched lines to ask about first &mdash; nothing uploaded.</p>
+    <p>Buying marketplace health insurance? The HSA deduction lowers MAGI, and the <a href="../aca-subsidy-cliff-calculator/">ACA subsidy cliff calculator</a> shows how close your income is to the 400% of poverty line where the premium tax credit ends.</p>
+    <p>Saving medical receipts to reimburse yourself later? The <a href="../hsa-shoebox-reimbursement-planner/">HSA shoebox planner</a> totals your unreimbursed receipts and shows the after-tax value of waiting &mdash; nothing uploaded.</p>
+    <p>Paying for childcare? The <a href="../dependent-care-fsa-vs-credit-calculator/">dependent care FSA vs child care credit calculator</a> finds the best split between the two.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Also: <a href="vs-doing-the-proration-math-by-hand.html">This calculator vs. doing the HSA proration math by hand</a></p>
+</footer>
+
+  <script type="module">
+    import { contributionLimitOutcome, hdhpQualifies, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      coverage: $("#coverage"), months: $("#months"), age55: $("#age55"),
+      lastMonthRule: $("#last-month-rule"), deductible: $("#deductible"), oopMax: $("#oop-max"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = contributionLimitOutcome({
+        coverage: els.coverage.value,
+        eligibleMonths: Number(els.months.value) || 0,
+        age55Plus: els.age55.checked,
+        useLastMonthRule: els.lastMonthRule.checked,
+      });
+
+      els.stats.innerHTML = `2026 contribution limit: <strong>${money(result.totalLimit)}</strong>.`;
+
+      const rows = [
+        `<tr><th scope="row">Coverage type</th><td>${result.coverage === "family" ? "Family" : "Self-only"}</td></tr>`,
+        `<tr><th scope="row">Full annual limit (no proration)</th><td>${money(result.annualLimit)}</td></tr>`,
+        `<tr><th scope="row">Base limit applied</th><td>${money(result.baseLimit)}</td></tr>`,
+      ];
+      if (result.age55Plus) {
+        rows.push(`<tr><th scope="row">Age-55 catch-up applied</th><td>${money(result.catchUpLimit)}</td></tr>`);
+      }
+      rows.push(`<tr><th scope="row"><strong>Total 2026 contribution limit</strong></th><td><strong>${money(result.totalLimit)}</strong></td></tr>`);
+
+      const deductible = Number(els.deductible.value) || 0;
+      const oopMax = Number(els.oopMax.value) || 0;
+      if (deductible > 0 || oopMax > 0) {
+        const q = hdhpQualifies({ coverage: els.coverage.value, deductible, outOfPocketMax: oopMax });
+        rows.push(`<tr><th scope="row">Plan HDHP-qualified?</th><td>${q.qualifies ? "Yes" : "No"} (needs deductible &ge; ${money(q.requiredMinDeductible)} and out-of-pocket max &le; ${money(q.requiredMaxOutOfPocket)})</td></tr>`);
+      }
+
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("limit_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.coverage.value = "family";
+      els.months.value = "6";
+      els.age55.checked = true;
+      els.lastMonthRule.checked = false;
+      els.deductible.value = "4000";
+      els.oopMax.value = "12000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: family coverage for 6 months in 2026, age 55+ — a prorated $4,375 base plus a prorated $500 catch-up, $4,875 total, on a plan that qualifies as an HDHP.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.coverage.value = "self";
+      els.months.value = "12";
+      els.age55.checked = false;
+      els.lastMonthRule.checked = false;
+      els.deductible.value = "";
+      els.oopMax.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Choose coverage type and eligible months, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

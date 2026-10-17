@@ -1,0 +1,54 @@
+name: car-hauler-load-planner
+description: >-
+  Free browser tool for car haulers and auto-transport owner-operators: paste the vehicles on a dispatch board (type or length,
+  weight, pay, pickup mile, drop mile) and describe a two-deck trailer, and get which cars to carry, which deck each rides on,
+  and the net after detour miles and handling, checked at every pickup along the route. Shows the lowest pay worth taking for
+  each car, what is aboard along the route, the gain over loading the best-paying cars first, and exports CSV. Nothing leaves
+  the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py on "car hauler auto transport trailer load planner which
+# vehicles to carry per deck": closest was container-load-planner 0.21 (packs cartons, no route timing, no per-car pay). The tree
+# has owner-operator-load-chain-planner (which truckload to run next), freight-broker-load-margin-calculator and tow-truck-rate-
+# calculator, none of which choose among several vehicles sharing one trailer. grep for hauler, stinger and auto transport
+# across ventures/ and portfolio/ found nothing but one research JSON.
+#
+# Why this niche: a car hauler earns per vehicle, so the money is in which 7 to 10 of the 30 listings share a trailer and how the
+# decks, the legal weight and the drop order constrain that. Dispatch boards (Central Dispatch, Super Dispatch) list loads;
+# choosing the combination is done in the driver's head or a paid TMS. A free tool that does the exact search and prints a
+# counter-offer floor per car is the cheap, specific version.
+#
+# First visitor: people searching "car hauler load planning", "how to load a 9 car hauler", "auto transport profit per load";
+# owner-operators on trucking forums and Facebook groups. Volume not measured.
+#
+# Liability boundary: arithmetic on figures the user types; not dispatch, weight-compliance or safety advice (page says so);
+# axle weights, height and ramp limits are named as not modelled; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Car-hauler owner-operators will paste a dispatch-board shortlist into a free tool to choose which cars to take, and will
+      come back each time they build a load or counter-offer a broker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that the tool called feasible but that cannot be loaded on a trailer whose limits they entered correctly.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/car-hauler-load-planner/
+  analytics: null

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Git Bus Factor Check — Who Owns Each Folder, and Are They Still Here?</title>
+  <meta name="description" content="Paste your git log and see the bus factor (truck factor) of every folder: who really owns it, whether they are still active, and who to pair with. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="If one person left tomorrow, which folders would nobody understand?">
+  <meta property="og:description" content="Paste a git log and get a recency-weighted bus factor per folder, with orphaned and single-owner areas flagged.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Git Bus Factor Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3 and git, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes a recency-weighted bus factor (truck factor) for every folder of a git repository from its commit history, flagging folders whose main contributor has gone quiet and folders only one active person has touched. Runs in the browser on a pasted git log or as a zero-dependency CLI; nothing is uploaded and it makes no network calls."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a bus factor?","acceptedAnswer":{"@type":"Answer","text":"The bus factor, or truck factor, is the smallest number of people who would have to leave a project before it stalls because nobody left knows the code. A bus factor of 1 means a single departure is enough. This tool computes it per folder as the fewest contributors whose recency-weighted changes add up to half of the folder's total."}},{"@type":"Question","name":"How is ownership calculated here?","acceptedAnswer":{"@type":"Answer","text":"Each commit adds the lines it added and deleted in a folder, capped at 500 per file so one giant change cannot own a folder, and halves in weight every 180 days so recent work counts for more. Bots, lock files and vendored or minified files are ignored. The folder's bus factor is how many top contributors it takes to reach half the total."}},{"@type":"Question","name":"What do orphaned and single-owner mean?","acceptedAnswer":{"@type":"Answer","text":"Orphaned means the person with the largest share of a folder has made no commit anywhere in the last 90 days, so the folder's main knowledge holder may be gone. Single-owner means one still-active person holds at least 80 percent of a folder, so it has no real backup yet. The report names the most active other contributor to pair with."}},{"@type":"Question","name":"Does this tool send my git history anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls at all. The log you paste is analysed in this page and never leaves your device; the CLI only runs git log on your own machine."}},{"@type":"Question","name":"Does a high bus factor mean my team understands the code?","acceptedAnswer":{"@type":"Answer","text":"No. This is a heuristic from commit history, not a measure of who understands the code. Reviewers, pair programmers, documentation, squashed commits, shared accounts and people who left the company under another email all change the real answer. Treat it as a prompt for a conversation, not a verdict about any person."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.orphaned { background: #fde8e8; color: #9a3412; }
+    .pill.single-owner { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GIT BUS FACTOR CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>If one person left tomorrow, which folders would nobody understand?</h1>
+    <p>Paid tools such as CodeScene and Hercules answer this from your repository history. This page does the core of it for free: paste a <code>git log</code> and get a recency-weighted bus factor for every folder, with <strong>orphaned</strong> folders (the main contributor has gone quiet) and <strong>single-owner</strong> folders (one active person, no backup) listed first, and who to pair with.</p>
+    <p class="note">Nothing is uploaded. The log you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a heuristic from commit history, not a measure of who understands the code.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Export your history</h2>
+    <p>Run this inside your own repository and paste everything it prints:</p>
+    <pre class="cmd"><code id="logcmd">git log --no-merges --since=2.years --format='@@|%an|%ae|%at' --numstat</code></pre>
+    <p class="note">It lists author names, emails, commit times and changed file paths, so scan it before sharing it with anyone. Here it stays on your device.</p>
+    <h2>2. Paste it</h2>
+    <textarea id="log" spellcheck="false" placeholder="@@|Ana Ruiz|ana@example.com|1700000000&#10;40&#9;10&#9;api/users.py"></textarea>
+    <p>
+      <button type="button" id="check">Analyse</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a git log above and click Analyse.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Folder</th><th>Status</th><th>Bus factor</th><th>Main owner</th><th>Pair with</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file. It runs <code>git log</code> on your machine and nothing else:</p>
+    <pre class="cmd"><code>python3 busfactor.py                        # analyse the repo in the current directory
+python3 busfactor.py path/to/repo --depth 3  # folders three levels deep
+python3 busfactor.py --format json           # machine-readable
+python3 busfactor.py --fail-on-orphaned      # exit 2 if a folder lost its owner</code></pre>
+    <p class="note">Get <a href="busfactor.py" rel="noopener">busfactor.py from the repo</a> — stdlib only, nothing to install, no network calls. Options: <code>--since</code>, <code>--half-life</code>, <code>--inactive-days</code>, <code>--min-commits</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a bus factor?</h3>
+    <p>The bus factor, or truck factor, is the smallest number of people who would have to leave a project before it stalls because nobody left knows the code. A bus factor of 1 means a single departure is enough. This tool computes it per folder as the fewest contributors whose recency-weighted changes add up to half of the folder's total.</p>
+    <h3>How is ownership calculated here?</h3>
+    <p>Each commit adds the lines it added and deleted in a folder, capped at 500 per file so one giant change cannot own a folder, and halves in weight every 180 days so recent work counts for more. Bots, lock files and vendored or minified files are ignored. The folder's bus factor is how many top contributors it takes to reach half the total.</p>
+    <h3>What do orphaned and single-owner mean?</h3>
+    <p>Orphaned means the person with the largest share of a folder has made no commit anywhere in the last 90 days, so the folder's main knowledge holder may be gone. Single-owner means one still-active person holds at least 80 percent of a folder, so it has no real backup yet. The report names the most active other contributor to pair with.</p>
+    <h3>Does this tool send my git history anywhere?</h3>
+    <p>No. It makes no network calls at all. The log you paste is analysed in this page and never leaves your device; the CLI only runs git log on your own machine.</p>
+    <h3>Does a high bus factor mean my team understands the code?</h3>
+    <p>No. This is a heuristic from commit history, not a measure of who understands the code. Reviewers, pair programmers, documentation, squashed commits, shared accounts and people who left the company under another email all change the real answer. Treat it as a prompt for a conversation, not a verdict about any person.</p>
+    <p>More: <a href="what-is-bus-factor.html">what is a bus factor, and how do you raise it?</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a heuristic read of commit history, not an assessment of any person's skill or knowledge, and it must not be used on its own to make decisions about hiring, firing, pay or performance. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="busfactor.py" rel="noopener">busfactor.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The log you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../env-example-drift-check/">Env Example Drift Check</a> finds environment variables your code reads but <code>.env.example</code> does not list, and <a href="../required-checks-drift-check/">Required Checks Drift Check</a> finds branch-protection checks that no longer exist.</p>
+    <p class="support">Free and open source. If this showed you a folder only one person knew before they left, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { parseLog, analyze, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { log: $("#log"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    // Synthetic history, fictional people: Ana wrote the API and left; Ben and Cy share the web app.
+    const DAY = 86400, T0 = 1700000000;
+    const EXAMPLE = [
+      [0, "Ana Ruiz", "ana@example.com", ["40\t10\tapi/users.py", "30\t0\tapi/auth.py"]],
+      [1, "Ana Ruiz", "ana@example.com", ["20\t5\tapi/users.py"]],
+      [2, "Ana Ruiz", "ana@example.com", ["10\t2\tapi/auth.py"]],
+      [330, "Ben Okoye", "ben@example.com", ["60\t20\tweb/app.js"]],
+      [388, "Ben Okoye", "ben@example.com", ["30\t4\tweb/app.js", "5\t5\tREADME.md"]],
+      [423, "Ben Okoye", "ben@example.com", ["40\t40\tweb/app.js"]],
+      [430, "Cy Lund", "cy@example.com", ["25\t5\tweb/app.js"]],
+      [431, "Cy Lund", "cy@example.com", ["18\t2\tweb/app.js"]],
+      [440, "Cy Lund", "cy@example.com", ["44\t6\tweb/api.js"]],
+      [441, "Cy Lund", "cy@example.com", ["10\t2\tweb/api.js"]],
+    ].map(([d, n, e, files]) => `@@|${n}|${e}|${T0 + d * DAY}\n${files.join("\n")}`).join("\n");
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function renderRows(dirs) {
+      els.rows.innerHTML = dirs.map((d) => `
+        <tr>
+          <td><code>${escapeHtml(d.dir)}</code></td>
+          <td><span class="pill ${d.status}">${d.status}</span></td>
+          <td>${d.busFactor}</td>
+          <td>${escapeHtml(d.owner)} (${Math.round(d.ownerShare * 100)}%)${d.ownerActive ? "" : ` <span class="note">silent ${d.ownerDaysSilent} days</span>`}</td>
+          <td>${d.backup ? escapeHtml(d.backup) : '<span class="note">nobody else active here yet</span>'}</td>
+        </tr>`).join("");
+    }
+
+    function run(text) {
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a git log first.</span>`;
+        return false;
+      }
+      const result = analyze(parseLog(text));
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}. Check that you used the exact git log command above.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.className = `verdict ${result.orphaned || result.singleOwner ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(result);
+      renderRows(result.directories);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.log.value));
+    $("#load-example").addEventListener("click", () => {
+      els.log.value = EXAMPLE;
+      if (run(EXAMPLE)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: Ana wrote the api folder and has been silent for over a year, so it is orphaned; Ben and Cy share the web folder.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.log.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a git log above and click Analyse.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

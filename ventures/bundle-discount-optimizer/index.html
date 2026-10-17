@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bundle Discount Optimizer — which products to bundle, at what discount</title>
+  <meta name="description" content="Free bundle pricing tool for Shopify, Etsy and Amazon sellers. Paste your order history and product costs to find which products customers already buy together, the bundle discount that earns the most, and how much more often shoppers must add the second item for the discount to pay. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Bundle Discount Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Find the product pairs worth bundling from your own orders, and the discount where a bundle pays for itself.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bundle Discount Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste your orders and product costs. Finds which pairs of products your customers already buy together, the bundle discount that earns the most, and the break-even: how much more often shoppers must add the second item for the discount to pay. Checks each pairing on held-out newer orders and with bootstrap ranges. Runs entirely in your browser.","featureList":"product bundle pricing, bundle discount calculator, market basket analysis for small stores, frequently bought together, break-even for a bundle discount, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which products should I bundle together?","acceptedAnswer":{"@type":"Answer","text":"The ones your customers already buy in the same order. Paste your order history and the tool counts, for every pair of products, how many orders contain both, then prices each pairing: what the discount costs on the orders that already pair, what it earns if the discount makes more shoppers add the second item, and the discount where that trade is best. Pairings with only a handful of orders behind them are labelled thin rather than recommended."}},{"@type":"Question","name":"How much discount should a bundle have?","acceptedAnswer":{"@type":"Answer","text":"Enough to move shoppers, no more. The cost of a bundle discount lands immediately on every order that already contains both items, and the benefit depends on how many more people add the second item. The tool searches discounts from 1% to 40% using the response you expect, and also shows the break-even: how much the discount must raise the share of buyers who add the second item before it stops losing money. If you cannot believe that rise, do not run the discount."}},{"@type":"Question","name":"What is the break-even attach-rate rise?","acceptedAnswer":{"@type":"Answer","text":"The attach rate is how often a buyer of one item also buys the other. If today 20% of candle buyers add a wick trimmer, and a 5% bundle discount must lift that to 23% before it makes more profit than it gives away, the break-even rise is 15%. Small for pairs that already sell together and discounts that are thin on margin, large when the added item has little margin left after the discount, fees and handling."}},{"@type":"Question","name":"Is the recommended discount a prediction?","acceptedAnswer":{"@type":"Answer","text":"No. The order history tells the tool which pairings exist; it cannot tell it how your shoppers respond to a discount, because your past orders contain no discounted bundle. That response is an assumption you set (40% more attach at a 10% discount by default, growing with the square root of the discount). The page shows profit at 5, 10, 15 and 20% and the break-even, so you can see how much of the answer rests on the assumption. Run the bundle for a few weeks and compare."}},{"@type":"Question","name":"How does it check a pairing is real and not luck?","acceptedAnswer":{"@type":"Answer","text":"Two ways. It holds out your newest 30% of orders and checks the pairing still appears there at about the rate it did in the older orders, and it resamples your orders 300 times to show a range for the estimated profit change. Neither can make up for a few dozen orders; with fewer than 100 orders the page warns you, and a pairing seen in fewer than 10 orders is never recommended."}},{"@type":"Question","name":"What does the tool assume about costs?","acceptedAnswer":{"@type":"Answer","text":"Each product's price and unit cost from your product list, a percentage fee on every dollar of revenue (2.9% by default, set your own for your payment processor or marketplace), and a handling cost for every extra item shipped. The fixed per-order fee does not change when an existing order adds an item. Shipping revenue, taxes, returns, stock limits and the products' own discounts are not modelled."}},{"@type":"Question","name":"Is my sales data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Order ids, products, prices and costs are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and nothing is stored. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f6b47; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d4a36; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d4a36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d4a3610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c9680; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6b47; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3efe8; color: #1d4a36; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d4a36; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f1f7f3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1d4a36; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c9680; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .grid[hidden], .row3[hidden] { display: none; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f6b47; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+      .sched { font-size: .92rem; }
+    .sched td { vertical-align: top; }
+    .ok { color: #1d5a24; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BUNDLE DISCOUNT OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which products should you bundle, and at what discount?</h1>
+    <p>Paste your <strong>order history</strong> and <strong>product costs</strong>. The tool counts which products are already bought together, prices every pairing &mdash; <strong>what the discount costs on the orders that already pair</strong> against <strong>what it earns if more shoppers add the second item</strong> &mdash; and finds the discount where that trade is best. It shows the <strong>break-even</strong>: how much more often shoppers must add the second item before a discount stops losing money, checks each pairing on your <strong>newest orders held out</strong>, and gives a <strong>range</strong> from resampling. Copy the result as a CSV.</p>
+    <p class="note">Your orders never leave this browser tab. Planning aid, not legal, tax, or financial advice. The discount response is your assumption, not something past orders can show.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your store</h2>
+    <label for="products">Products: sku, price, unit cost</label>
+    <textarea id="products" spellcheck="false" placeholder="sku,price,unit cost&#10;candle-cedar,24,7.50"></textarea>
+    <label for="orders">Orders: one line per item sold, as order id, sku (oldest orders first)</label>
+    <textarea id="orders" spellcheck="false" placeholder="order id,sku&#10;A1001,candle-cedar&#10;A1001,wick-trimmer"></textarea>
+    <p class="note">Export the order lines from your shop admin, keep only the order id and sku columns, and paste them. Quantity is ignored; an order either holds a product or not. Keep the orders oldest first so the hold-out check uses the newest. Lines starting with # are ignored. You can paste straight from a spreadsheet.</p>
+    <label for="orderfile">…or upload the orders as a CSV</label>
+    <input id="orderfile" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="fee">Fees on every dollar of revenue (%)</label><input id="fee" inputmode="decimal" value="2.9"></div>
+      <div><label for="handling">Handling cost per added item ($)</label><input id="handling" inputmode="decimal" value="1.50"></div>
+      <div><label for="lift">Extra attach from a 10% discount (%)</label><input id="lift" inputmode="decimal" value="40"></div>
+      <div><label for="maxd">Largest discount to consider (%)</label><input id="maxd" inputmode="decimal" value="40"></div>
+      <div><label for="minpair">Fewest orders containing both items</label><input id="minpair" inputmode="decimal" value="3"></div>
+    </div>
+    <p class="note">"Extra attach" is your guess: if 20% of one product's buyers also buy the other today, 40% extra means a 10% bundle discount lifts that to 28%. It grows with the square root of the discount. Unsure? Leave it, and read the break-even column instead.</p>
+    <button type="button" id="analyze">Find the bundles</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your products and orders, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Bundles, best first</h3>
+    <div class="scroll"><table id="bundles"><thead><tr><th>Bundle</th><th class="n">Orders with both</th><th class="n">Best discount</th><th class="n">Bundle price</th><th class="n">Break-even attach rise</th><th class="n">Profit change (range)</th><th>Holds up?</th><th>Call</th></tr></thead><tbody></tbody></table></div>
+    <h3>How the discount changes the answer</h3>
+    <div class="scroll"><table id="grid"><thead><tr><th>Bundle</th><th class="n">5% off</th><th class="n">10% off</th><th class="n">15% off</th><th class="n">20% off</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Each cell is the estimated profit change over the period of your order history, and the break-even attach rise in brackets: the rise in how often buyers add the second item that would make that discount exactly break even.</p>
+    <button type="button" id="download">Download bundles CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Pairs:</strong> every two products that appear together in at least the minimum number of orders. <strong>Loss:</strong> each order that already holds both pays the discount on the pair's combined price, less the fee that revenue would have carried. <strong>Gain:</strong> a discount raises the share of one product's buyers who also add the other, by your "extra attach" fraction of the attach rate already observed (orders with both &divide; orders with that product), so a pair nobody buys together gains nothing. Every order that adds an item pays the bundle price for it, less fees, the item's unit cost and the handling cost. <strong>Best discount:</strong> the discount from 1% up to your limit with the highest estimated profit change, with extra attach growing as the square root of the discount. <strong>Break-even:</strong> the extra attach at which profit change is exactly zero at that discount; profit is linear in it. <strong>Holds up:</strong> your newest 30% of orders are held out; a pairing holds up if its share of paired orders there is at least half what it was in the older orders. <strong>Range:</strong> 300 seeded resamples of your orders (10th to 90th percentile). <strong>Call:</strong> "try" needs a positive estimate, a pairing that holds up, a positive low end, at least 10 orders with both items, and a break-even no more than half the assumed response; "thin" is a positive estimate on fewer than 10 orders; "skip" loses money at every discount.</p>
+    <p><strong>Not modelled:</strong> shipping revenue, taxes, returns, stock limits, customers who would only buy at a discount, bundles of three or more, other discounts running at the same time, and seasonality. <strong>Unverified:</strong> the profit arithmetic is checked against hand calculations and the counting against brute force on invented data; the response to a discount is your assumption and has not been measured against any real store's bundle.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which products should I bundle together?</h3>
+    <p>The ones your customers already buy in the same order. Paste your order history and the tool counts, for every pair of products, how many orders contain both, then prices each pairing: what the discount costs on the orders that already pair, what it earns if the discount makes more shoppers add the second item, and the discount where that trade is best. Pairings with only a handful of orders behind them are labelled thin rather than recommended.</p>
+    <h3>How much discount should a bundle have?</h3>
+    <p>Enough to move shoppers, no more. The cost of a bundle discount lands immediately on every order that already contains both items, and the benefit depends on how many more people add the second item. The tool searches discounts from 1% to 40% using the response you expect, and also shows the break-even: how much the discount must raise the share of buyers who add the second item before it stops losing money. If you cannot believe that rise, do not run the discount.</p>
+    <h3>What is the break-even attach-rate rise?</h3>
+    <p>The attach rate is how often a buyer of one item also buys the other. If today 20% of candle buyers add a wick trimmer, and a 5% bundle discount must lift that to 23% before it makes more profit than it gives away, the break-even rise is 15%. Small for pairs that already sell together and discounts that are thin on margin, large when the added item has little margin left after the discount, fees and handling.</p>
+    <h3>Is the recommended discount a prediction?</h3>
+    <p>No. The order history tells the tool which pairings exist; it cannot tell it how your shoppers respond to a discount, because your past orders contain no discounted bundle. That response is an assumption you set (40% more attach at a 10% discount by default, growing with the square root of the discount). The page shows profit at 5, 10, 15 and 20% and the break-even, so you can see how much of the answer rests on the assumption. Run the bundle for a few weeks and compare.</p>
+    <h3>How does it check a pairing is real and not luck?</h3>
+    <p>Two ways. It holds out your newest 30% of orders and checks the pairing still appears there at about the rate it did in the older orders, and it resamples your orders 300 times to show a range for the estimated profit change. Neither can make up for a few dozen orders; with fewer than 100 orders the page warns you, and a pairing seen in fewer than 10 orders is never recommended.</p>
+    <h3>What does the tool assume about costs?</h3>
+    <p>Each product's price and unit cost from your product list, a percentage fee on every dollar of revenue (2.9% by default, set your own for your payment processor or marketplace), and a handling cost for every extra item shipped. The fixed per-order fee does not change when an existing order adds an item. Shipping revenue, taxes, returns, stock limits and the products' own discounts are not modelled.</p>
+    <h3>Is my sales data uploaded anywhere?</h3>
+    <p>No. Order ids, products, prices and costs are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and nothing is stored. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own judgement about pricing, consumer-protection and marketplace rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any e-commerce platform, marketplace or bundling-app vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your orders and costs are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../price-elasticity-estimator/">price elasticity estimator</a>, the <a href="../shopify-fee-calculator/">Shopify fee calculator</a>, the <a href="../clearance-markdown-planner/">clearance markdown planner</a> and the <a href="../shopify-inventory-reorder-planner/">Shopify inventory reorder planner</a>; the <a href="../free-shipping-threshold-optimizer/">free shipping threshold optimizer</a> does the same for the free-shipping minimum.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseProducts, parseOrders, analyze, bundlesCsv, sampleProducts, sampleOrders, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    const be = (x) => (Number.isFinite(x) ? "+" + pct(x, 0) : "never");
+    const call = { try: ["good", "Try it"], marginal: ["medium", "Marginal"], thin: ["info", "Too few orders"], skip: ["high", "Skip"] };
+    let last = null;
+
+    function run() {
+      const p = parseProducts($("#products").value);
+      if (p.error) { status.textContent = p.error; report.hidden = true; return false; }
+      const o = parseOrders($("#orders").value);
+      if (o.error) { status.textContent = o.error; report.hidden = true; return false; }
+      status.textContent = "Analysing…";
+      const r = analyze({ products: p.products, orders: o.orders }, {
+        feePct: val("fee"), handling: val("handling"), attachLift: val("lift"), maxDiscount: val("maxd"), minPairOrders: val("minpair"),
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const tries = r.bundles.filter((b) => b.verdict === "try");
+      const top = tries[0] || r.bundles[0];
+      const big = [
+        [String(r.orderCount), `Orders read; ${r.pairsConsidered} product pairs meet your minimum`],
+        [String(tries.length), "Bundles worth trying (they hold up and are not thin)"],
+        [top ? `${top.a} + ${top.b}` : "—", top ? `Strongest: ${Math.round(top.best.d * 100)}% off, break-even attach rise ${be(top.breakEven)}` : "No pairing to price"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#bundles tbody").innerHTML = r.bundles.map((b) => {
+        const c = call[b.verdict];
+        const holds = b.persists === null ? '<span class="note">too few new orders</span>' : b.persists ? '<span class="ok">yes</span>' : "no";
+        return `<tr><td>${esc(b.a)} + ${esc(b.b)}</td><td class="n">${b.nAB}</td><td class="n">${b.best.d ? Math.round(b.best.d * 100) + "%" : "—"}</td><td class="n">${money(b.bundlePrice)}</td><td class="n">${be(b.breakEven)}</td><td class="n">${money(b.best.profit)}<br><span class="note">${money(b.p10 ?? 0)} to ${money(b.p90 ?? 0)}</span></td><td>${holds}</td><td><span class="pill ${c[0]}">${c[1]}</span></td></tr>`;
+      }).join("");
+      $("#grid tbody").innerHTML = r.bundles.map((b) => `<tr><td>${esc(b.a)} + ${esc(b.b)}</td>${b.grid.map((g) => `<td class="n">${money(g.profit)}<br><span class="note">(${be(g.breakEven)})</span></td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#products").value = sampleProducts(); $("#orders").value = sampleOrders();
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented soap-and-candle shop with 420 orders."; }
+    });
+    $("#orderfile").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#orders").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Add your products, then click the button.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#products").value = ""; $("#orders").value = ""; $("#orderfile").value = ""; report.hidden = true; last = null; status.textContent = "Paste your products and orders, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([bundlesCsv(last)], { type: "text/csv" }));
+      a.download = "bundle-discounts.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

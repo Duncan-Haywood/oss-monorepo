@@ -55,6 +55,10 @@ test('index links to the related bridal hair & makeup pricing calculator', () =>
   );
 });
 
+test('index links to the med spa treatment profit calculator', () => {
+  assert.match(page, /href="\.\.\/med-spa-treatment-profit-calculator\/"/, 'index must link ../med-spa-treatment-profit-calculator/ so crawlers can reach it');
+});
+
 const docsPage = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 
 test('the deposit-percentage page answers the search question with a worked table', () => {

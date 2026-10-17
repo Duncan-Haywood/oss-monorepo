@@ -1,0 +1,54 @@
+inputs from selfrep-growth/selfrep-closure (assumed): W=50.0 h, V=170.3 units per copy; import budget B=4 units/h
+horizon 20000 h, start from 1 new machine, 100 runs per row, seed 0; lognormal build CV 0.2; breakdowns exponential with mean L
+DES = working fleet averaged over the last quarter of each run, median [5th-95th pct] over runs that survived; dead = share of runs with no working machine at the end (machines in repair do not count as working).
+formula = import-limited vitamin balance N = B L / (V (c + 1 - s)); replace-only is N = B L / V. reserve = share of V held back from builds for spares.
+
+== A. repair cost share c, s=0.8, L=2000 h, reserve=1.0 V, repair 5 h (formula break-even at c = s = 0.8)
+replace only                               DES    45.7 [   40.3-   51.7] dead 0.03  formula    47.0
+repair c=0.1                               DES   142.2 [  131.8-  153.0] dead 0.02  formula   156.5
+repair c=0.3                               DES    90.8 [   83.5-   99.0] dead 0.02  formula    93.9
+repair c=0.5                               DES    64.1 [   57.0-   69.9] dead 0.02  formula    67.1
+repair c=0.7                               DES    49.6 [   43.6-   57.1] dead 0.02  formula    52.2
+repair c=0.8                               DES    46.5 [   41.9-   52.9] dead 0.02  formula    47.0
+repair c=0.9                               DES    43.7 [   37.6-   48.2] dead 0.02  formula    42.7
+repair c=1.0                               DES    40.7 [   36.2-   46.1] dead 0.02  formula    39.1
+
+== B. reserve share (c=0.2, s=0.9, repair 5 h) at L=2000 h and L=300 h
+L=2000 replace only                        DES    45.7 [   40.3-   51.7] dead 0.03  formula    47.0
+L=2000 reserve=0.0                         DES    69.6 [   63.1-   77.4] dead 0.03  formula   156.5
+L=2000 reserve=0.1                         DES    81.2 [   71.4-   89.5] dead 0.03  formula   156.5
+L=2000 reserve=0.2                         DES   122.1 [  109.4-  128.5] dead 0.01  formula   156.5
+L=2000 reserve=0.4                         DES   135.6 [  126.4-  145.5] dead 0.01  formula   156.5
+L=2000 reserve=1.0                         DES   142.7 [  131.7-  150.6] dead 0.02  formula   156.5
+L=300 replace only                         DES     6.1 [    5.1-    7.0] dead 0.67  formula     7.0
+L=300 reserve=0.0                          DES     9.0 [    7.3-   10.6] dead 0.35  formula    23.5
+L=300 reserve=0.1                          DES    10.5 [    8.9-   11.8] dead 0.34  formula    23.5
+L=300 reserve=0.2                          DES    17.3 [   15.5-   20.3] dead 0.19  formula    23.5
+L=300 reserve=0.4                          DES    20.3 [   18.1-   22.2] dead 0.20  formula    23.5
+L=300 reserve=1.0                          DES    21.9 [   19.3-   24.5] dead 0.29  formula    23.5
+
+== C. repair success s (c=0.3, L=2000 h, reserve=1.0, repair 5 h); repair beats replacement when c < s
+s=0.2                                      DES    41.6 [   36.7-   48.6] dead 0.03  formula    42.7
+s=0.3                                      DES    45.6 [   41.2-   52.8] dead 0.03  formula    47.0
+s=0.5                                      DES    58.2 [   50.4-   63.1] dead 0.03  formula    58.7
+s=0.8                                      DES    90.8 [   83.5-   99.0] dead 0.02  formula    93.9
+s=1.0                                      DES   132.5 [  122.2-  139.1] dead 0.02  formula   156.5
+
+== D. repair downtime (c=0.2, s=0.9, L=2000 h, reserve=1.0)
+downtime 0 h                               DES   141.7 [  130.8-  152.0] dead 0.02  formula   156.5
+downtime 5 h                               DES   142.7 [  131.7-  150.6] dead 0.02  formula   156.5
+downtime 50 h                              DES   143.7 [  133.3-  151.5] dead 0.02  formula   156.5
+downtime 200 h                             DES   140.5 [  132.4-  150.3] dead 0.02  formula   156.5
+downtime 1000 h                            DES   128.5 [  119.8-  136.6] dead 0.02  formula   156.5
+
+== E. extinction risk at short life (c=0.2, s=0.9, repair 5 h, reserve=0.4)
+L=100 replace only                         DES     0.0 [    0.0-    0.0] dead 1.00  formula     2.3
+L=100 repair                               DES     5.8 [    4.7-    7.0] dead 0.55  formula     7.8
+L=150 replace only                         DES     0.0 [    0.0-    0.0] dead 1.00  formula     3.5
+L=150 repair                               DES     9.3 [    8.2-   10.5] dead 0.39  formula    11.7
+L=200 replace only                         DES     0.0 [    0.0-    0.0] dead 1.00  formula     4.7
+L=200 repair                               DES    12.7 [   11.1-   14.4] dead 0.31  formula    15.7
+L=300 replace only                         DES     6.1 [    5.1-    7.0] dead 0.67  formula     7.0
+L=300 repair                               DES    20.3 [   18.1-   22.2] dead 0.20  formula    23.5
+L=500 replace only                         DES    10.8 [    8.5-   12.4] dead 0.21  formula    11.7
+L=500 repair                               DES    34.3 [   30.5-   38.7] dead 0.13  formula    39.1

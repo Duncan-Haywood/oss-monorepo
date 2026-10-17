@@ -57,11 +57,12 @@ defaults:
 
 jobs:
   test:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
+          persist-credentials: false
           # The as-found result set is addressed by git revision rather than
           # trusted as a file, so the comparison needs real history. At the
           # default depth of 1 those tests skip instead of running.

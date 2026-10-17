@@ -1,0 +1,55 @@
+name: pg-stat-statements-analyzer
+description: >-
+  Free browser tool and CLI for Postgres users: paste the output of one read-only pg_stat_statements query and see which query
+  shapes use the most database time, N+1 suspects, cache misses, temp-file spills and what fixing the top few is worth. Never
+  connects to the database; the text never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py top score 0.17 (postgres-index-auditor, which audits the index
+# set; this ranks workload). postgres-explain-analyzer reads one plan. Not in screened-out.md.
+#
+# Why this niche: "which queries are slow" is the first question on every Postgres performance thread, and pg_stat_statements
+# answers it but returns thousands of rows with IN-list variants scattered across entries. Paid answers (pganalyze, Datadog DBM,
+# Percona PMM) need an agent or credentials; a paste-the-output tool needs neither, so a security-conscious team can use it today.
+#
+# First visitor: backend/platform engineers on r/PostgreSQL, Hacker News, dba.stackexchange and Supabase/Neon/RDS threads asking
+# "find slowest queries postgres", "pg_stat_statements total_exec_time", "N+1 postgres". Volume not measured with an external tool.
+#
+# Liability boundary: pure text analysis of what the user pastes. It writes no SQL for the user to run, only suggests running
+# EXPLAIN on a query. Page warns that query text may contain literal data if the app did not parameterise; no-warranty footer.
+# No database access, no credentials.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted weekly diff of workload
+# over time, which needs an owner decision on accounts and payments; not built. Written to be open-sourced as is.
+
+hypotheses:
+  - claim: >-
+      Engineers searching for the slowest Postgres queries will paste a pg_stat_statements export into a no-signup tool rather
+      than sort the view by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Merging IN-list variants and showing what fixing the top three is worth gets the tool bookmarked and re-run after releases.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a flag that sent them to the wrong query repeatedly, at which point the thresholds need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pg-stat-statements-analyzer/
+  analytics: null

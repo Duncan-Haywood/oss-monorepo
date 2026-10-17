@@ -1,0 +1,47 @@
+E1  ES alone is not elicitable (alpha=0.5): two laws with ES 1.6, their 50/50 mixture has another
+  ES(P0)=1.6000  ES(P1)=1.6000  ES(mixture)=2.2400  -> level set not convex (Osband)
+
+E2  scale-free penalty for misreporting ES by factor r (VaR truthful): ln r + 1/r - 1
+  r=0.50  expected score excess 0.3069
+  r=0.67  expected score excess 0.0921
+  r=0.80  expected score excess 0.0269
+  r=0.90  expected score excess 0.0058
+  r=1.10  expected score excess 0.0044
+  r=1.25  expected score excess 0.0231
+  r=1.50  expected score excess 0.0721
+  r=2.00  expected score excess 0.1931
+
+E3  exact excess-score law vs quadrature (Exp(1), alpha=0.95)
+  VaR 2.9957 ES 3.9957   quadrature c(VaR) 3.9957
+  v x1.00 e x0.80  exact 0.02686  quadrature 0.02685
+  v x1.00 e x1.25  exact 0.02314  quadrature 0.02315
+  v x0.70 e x1.00  exact 0.13958  quadrature 0.13958
+  v x1.30 e x1.00  exact 0.07653  quadrature 0.07653
+  v x1.30 e x0.80  exact 0.12252  quadrature 0.12252
+  v x0.60 e x1.50  exact 0.25836  quadrature 0.25836
+
+E4  quantile-only tolerance undercovers the tail: Pareto(a), alpha=0.99
+  a      VaR     ES    ES/VaR=a/(a-1)  E[X-v|X>v]  simulated mean excess over v (n=3e5 tail draws)
+  5.0   2.512  3.140    1.250        0.628       0.627
+  3.0   4.642  6.962    1.500        2.321       2.328
+  2.0  10.000 20.000    2.000       10.000      10.082
+  1.5  21.544 64.633    3.000       43.089      43.162
+  1.2  46.416 278.495    6.000      232.079     204.231
+
+E5  plug-in ES estimation from n scored drift samples (alpha=0.95): relative RMSE, 300 reps (60 at n=6400)
+  a=Pareto index; ES infinite for a<=1, Y variance infinite for a<=2
+  a=4.0  n=100: 0.249  n=400: 0.094  n=1600: 0.048  n=6400: 0.022
+  a=2.5  n=100: 0.326  n=400: 0.208  n=1600: 0.091  n=6400: 0.053
+  a=1.5  n=100: 0.782  n=400: 2.099  n=1600: 0.732  n=6400: 0.244
+
+E6  reports needed to catch an understated ES (CLT plan, size 5%, power 80%), Pareto(a), alpha=0.95, honest VaR
+  exact Var(Y) from the Pareto moments; r = reported/true ES
+  a=6.0  Var(Y)=5.320  r=0.5: n=      89  r=0.7: n=     299  r=0.8: n=     729  r=0.9: n=    3142
+  a=4.0  Var(Y)=29.317  r=0.5: n=     242  r=0.7: n=     810  r=0.8: n=    1976  r=0.9: n=    8511
+  a=3.0  Var(Y)=145.519  r=0.5: n=     576  r=0.7: n=    1928  r=0.8: n=    4703  r=0.9: n=   20261
+
+E7  spread of the mean score gap vs the CLT prediction (infinite for a<=2) (r=0.8, 200 batches)
+  a=4.0 n=1000  mean score gap 0.0270 (exact 0.0269)  empirical sd of mean 0.0146  CLT-predicted sd 0.0152
+  a=3.0 n=1000  mean score gap 0.0266 (exact 0.0269)  empirical sd of mean 0.0232  CLT-predicted sd 0.0234
+  a=2.5 n=1000  mean score gap 0.0258 (exact 0.0269)  empirical sd of mean 0.0321  CLT-predicted sd 0.0345
+  a=1.5 n=1000  mean score gap 0.0345 (exact 0.0269)  empirical sd of mean 0.1438  CLT-predicted sd inf

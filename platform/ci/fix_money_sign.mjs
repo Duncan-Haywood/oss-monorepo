@@ -52,7 +52,7 @@ const SKIP_BASENAMES = new Set(['proposal.mjs']);
  * `money`-shaped names only. `signedMoney` and friends already decide a sign of
  * their own — often a "+" as well — and prefixing another one would be wrong.
  */
-const NAME = String.raw`(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd)`;
+const NAME = String.raw`(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd|dollars|fmtUsd|formatUsd|formatUSD|currency)`;
 
 // A single-line template that opens with the currency symbol: `` `$${…}` ``.
 // `[^`]*` is safe because every one of these is one line with no nested
@@ -80,7 +80,7 @@ function signed(param, indent) {
 }
 
 function rewriteArrow(match, kw, gap, name, eq, param, arrow, expr, offset, source) {
-  const indent = ' '.repeat(source.slice(0, offset).match(/[^\n]*$/)[0].length);
+  const indent = source.slice(0, offset).match(/[^\n]*$/)[0].match(/^[ \t]*/)[0];
   return [
     `${kw}${gap}${name}${eq}(${param}) => {`,
     // The inner parameter deliberately shadows the outer one so the original
@@ -92,7 +92,7 @@ function rewriteArrow(match, kw, gap, name, eq, param, arrow, expr, offset, sour
 }
 
 function rewriteDecl(match, name, param, expr, offset, source) {
-  const indent = ' '.repeat(source.slice(0, offset).match(/[^\n]*$/)[0].length);
+  const indent = source.slice(0, offset).match(/[^\n]*$/)[0].match(/^[ \t]*/)[0];
   return [
     `function ${name}(${param}) {`,
     `${indent}  const format = (${param}) => \`$\${${expr}}\`;`,

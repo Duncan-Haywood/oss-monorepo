@@ -1,0 +1,44 @@
+name: tailor-alterations-shop-profit-calculator
+description: >-
+  Free browser calculator for independent tailors and alterations shops: enter hem, alteration and rework prices, bench minutes, supplies, tailor pay, machines and rent, and see
+  profit per job and per bench hour, the price each job needs for a target margin, what a prepaid hem package earns per visit, break-even volume and the
+  season at different volumes against the bench hours available. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models a tailor or clothing alterations shop (checked ventures/ by name). Hems, standard
+# alterations and full garment reworks share one tailor's bench hours, demand spikes before prom, wedding and holiday seasons, and some shops sell a
+# prepaid set of hems. Not in screened-out.md.
+#
+# First visitor: independent tailors and alterations shop owners searching "how much to charge for hemming pants", "alterations shop profit" and
+# "tailor shop pricing". Timing: prom and wedding season. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries
+# the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Alterations shop owners will type a season's jobs, bench minutes and fixed costs into a no-signup calculator to set hem, alteration and rework prices and to decide
+      on a prepaid hem package, because most price by copying the shop down the road and never cost the bench hour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tailor-alterations-shop-profit-calculator/
+  analytics: null

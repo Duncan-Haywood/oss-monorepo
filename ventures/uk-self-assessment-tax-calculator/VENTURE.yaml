@@ -1,0 +1,37 @@
+name: uk-self-assessment-tax-calculator
+description: >-
+  Free browser tool for UK Self Assessment filers: combine employment pay (with PAYE paid), self-employed profit, rental income, savings interest and dividends into one 2025/26 estimate. Shows income tax in HMRC stacking order, Class 4 NIC, student loan, the 31 January 2027 balance, payments on account, and what a pension contribution or Gift Aid would save. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session. The tree has 25 narrow UK tax tools (trading allowance, dividend tax, payments on account, CGT, Section 24, ...) but no single estimator that combines them, which is the question a filer actually has: "what do I owe on 31 January across everything?".
+#
+# First visitor: someone with a job plus a side income, or a landlord, or a sole trader with dividends, searching "self assessment tax calculator", "how much tax will I owe self assessment", "payments on account calculator", in the Nov-Jan filing season. Large, strongly seasonal query family; volume not measured. Sibling hub for the narrower UK tools.
+#
+# Path to revenue (payment rails stay off): lead magnet and hub that links the narrow UK tools; GitHub Sponsors. Paid version, not built: save-and-compare of several scenarios, a year-over-year estimator and an accountant hand-off pack behind an env-var switch.
+#
+# Liability: the central risk is an understated bill. Rules were written from memory of the 2025/26 published rates without network access in the building session, so the page and every result name GOV.UK pages to verify, carry no-warranty and not-tax-advice clauses, and list what is not modelled (Scotland, CGT, losses, foreign income, marriage allowance, child benefit charge). Filing remains the user's.
+hypotheses:
+  - claim: >-
+      People with more than one source of income will use a free one-page estimator to see their combined 31 January bill and payments on account before filing, and will click through to the narrower UK tools for the parts they need to tune.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate, threshold or the stacking order differs from GOV.UK or HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-self-assessment-tax-calculator/
+  analytics: null

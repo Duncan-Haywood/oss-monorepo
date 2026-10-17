@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>No-Show Fee Calculator vs. guessing a flat dollar fee</title>
+  <meta name="description" content="Charging the same flat no-show fee at every price point ignores that a $200 massage no-show and a $35 haircut no-show are not the same loss. This calculator prices the fee off your own service price instead, so it moves with what you actually charge.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-a-flat-no-show-fee.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="No-Show Fee Calculator vs. guessing a flat dollar fee">
+  <meta property="og:description" content="A flat $25 no-show fee is not a policy, it's a guess that happens to be right at exactly one price point. See what it costs above and below that point.">
+  <meta property="og:url" content="vs-a-flat-no-show-fee.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's wrong with just picking a round number like $25?","acceptedAnswer":{"@type":"Answer","text":"Nothing, at the one price where $25 happens to be the fee you would have calculated anyway. Below that price it charges more than your own policy would justify; above it, it charges too little to matter. A flat number doesn't know what your service costs, so it can only be right by coincidence."}},{"@type":"Question","name":"Can you show it with real numbers?","acceptedAnswer":{"@type":"Answer","text":"A $200 massage session and a $35 haircut both run a 50%-of-price cancellation policy. The calculator prices that at $100 for the massage and $17.50 for the haircut — each half the session's own value. A flat $25 guess charges 12.5% of the massage price (too little to offset a $200 loss) and 71% of the haircut price (an aggressive fee for a $35 service). Same guessed number, opposite problem at each end."}},{"@type":"Question","name":"Does the gap actually add up to real money?","acceptedAnswer":{"@type":"Answer","text":"At 25 bookings a week, an 8% no-show rate, and 70% enforcement, the massage studio's own 50%-of-price policy collects an estimated $7,280 a year against $20,800 of exposure. The same no-shows billed at a flat $25 collect an estimated $1,820 — $5,460 a year left uncollected, not because enforcement failed but because the fee itself was priced for a cheaper service."}},{"@type":"Question","name":"Is a price-proportional fee always the right call?","acceptedAnswer":{"@type":"Answer","text":"Not automatically — a percentage that feels fair for one service can feel steep for another even at the same price, and this tool does not know your local market or client relationships. What it does is show you the actual dollar consequence of the percentage you pick, at your own price, instead of leaving you to guess a flat number that was never priced against your service at all."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1a1a1a; background: #f4f6fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0b5fff; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; background: #fff; margin: 1rem 0; }
+    th, td { padding: 9px 8px; text-align: left; border-bottom: 1px solid #d7dce6; vertical-align: top; }
+    th { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: #55607a; }
+    .note { font-size: .9rem; color: #555; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #555; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; No-show fee calculator</a></p>
+  <h1>No-Show Fee Calculator vs. guessing a flat dollar fee</h1>
+  <p>
+    <strong>Guessing a flat fee</strong> is the default method, because it
+    needs no calculator: pick a round number that sounds reasonable
+    &mdash; $20, $25, $50 &mdash; and charge it for every no-show,
+    whatever the missed appointment was worth. It works for exactly the
+    services priced near that number. It stops working the moment your
+    price list spans more than one tier, because a flat number carries no
+    information about what any specific session costs &mdash; a $200
+    session and a $35 session lose it at the same rate.
+  </p>
+  <table>
+    <caption class="note">Same flat guess, two real price points, both running the same 50%-of-price policy this calculator would compute.</caption>
+    <thead>
+      <tr><th scope="col">Business</th><th scope="col">Price</th><th scope="col">Calculator's fee (50% of price)</th><th scope="col">Flat $25 guess</th><th scope="col">What the flat guess gets wrong</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Studio Radiance (massage)</td><td>$200</td><td>$100.00</td><td>$25</td><td>12.5% of the session &mdash; too little to matter against a $200 loss</td></tr>
+      <tr><td>Fresh Cuts (barbershop)</td><td>$35</td><td>$17.50</td><td>$25</td><td>71% of the ticket &mdash; a steep fee for a $35 service</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Both businesses picked the same policy &mdash; half the session price
+    &mdash; and the calculator prices it at $100 for the massage studio and
+    $17.50 for the barbershop, because it starts from each business's own
+    price. A flat $25 guess starts from neither: it is barely an eighth of
+    what the massage studio's own policy says a no-show costs, and nearly
+    three-quarters of the barbershop's entire ticket. The same number is
+    simultaneously too small and too large, because it was never priced
+    against either service to begin with. At its own volume (60 bookings a
+    week, a 12% no-show rate), the barbershop's annual exposure is
+    $13,104 &mdash; a real number a flat guess never engages with either way,
+    since it happens to sit close to that business's own 50%-of-price fee
+    only by coincidence of the ticket size chosen for this example.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Studio Radiance</th><th scope="col">50%-of-price fee</th><th scope="col">Flat $25 guess</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Fee per no-show</td><td>$100.00</td><td>$25.00</td></tr>
+      <tr><td>No-shows per year (25 bookings/wk, 8% rate)</td><td colspan="2">104</td></tr>
+      <tr><td>Annual exposure (slots at risk, unenforced)</td><td colspan="2">$20,800.00</td></tr>
+      <tr><td>Estimated annual fee revenue at 70% enforcement</td><td>$7,280.00</td><td>$1,820.00</td></tr>
+      <tr><td>Estimated share of exposure recovered</td><td>35%</td><td>8.75%</td></tr>
+    </tbody>
+  </table>
+  <p>
+    The gap is $5,460 a year, and it has nothing to do with how well the
+    fee is enforced &mdash; both columns assume the identical 70%
+    enforcement rate. It is entirely the fee amount: $25 was never priced
+    against a $200 session, so collecting it every time still leaves most
+    of the exposure on the table. Figures from
+    <a href="./" rel="noopener">this calculator</a>'s own
+    <code>computeFeeAmount</code>, <code>computeAnnualExposure</code>, and
+    <code>computeAnnualFeeRevenue</code>, run on the inputs in this table.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What's wrong with just picking a round number like $25?</h3>
+  <p>Nothing, at the one price where $25 happens to be the fee you would have calculated anyway. Below that price it charges more than your own policy would justify; above it, it charges too little to matter. A flat number doesn't know what your service costs, so it can only be right by coincidence.</p>
+  <h3>Can you show it with real numbers?</h3>
+  <p>A $200 massage session and a $35 haircut both run a 50%-of-price cancellation policy. The calculator prices that at $100 for the massage and $17.50 for the haircut &mdash; each half the session's own value. A flat $25 guess charges 12.5% of the massage price (too little to offset a $200 loss) and 71% of the haircut price (an aggressive fee for a $35 service). Same guessed number, opposite problem at each end.</p>
+  <h3>Does the gap actually add up to real money?</h3>
+  <p>At 25 bookings a week, an 8% no-show rate, and 70% enforcement, the massage studio's own 50%-of-price policy collects an estimated $7,280 a year against $20,800 of exposure. The same no-shows billed at a flat $25 collect an estimated $1,820 &mdash; $5,460 a year left uncollected, not because enforcement failed but because the fee itself was priced for a cheaper service.</p>
+  <h3>Is a price-proportional fee always the right call?</h3>
+  <p>Not automatically &mdash; a percentage that feels fair for one service can feel steep for another even at the same price, and this tool does not know your local market or client relationships. What it does is show you the actual dollar consequence of the percentage you pick, at your own price, instead of leaving you to guess a flat number that was never priced against your service at all.</p>
+  <p>
+    <a href="./">Open the no-show fee calculator</a> and enter your own
+    price to see the fee your policy actually implies, not a number
+    borrowed from a different business's price list.
+  </p>
+  <p class="note">
+    More: <a href="24h-vs-48h-cancellation-notice.html">why 24 hours vs 48 hours is a cash question</a>
+    &middot; <a href="should-i-overbook-or-charge-a-no-show-fee.html">should I overbook or charge a no-show fee?</a>
+    &middot; <a href="vs-acuity-scheduling.html">this calculator vs. Acuity Scheduling</a>, for the platform that carries whichever fee you land on.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, or financial advice, and it does not replace a qualified professional. The figures above are a worked example computed by this calculator's own code, not a claim about what any real business collected. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-distillation"
+version = "0.1.0"
+description = "Distilling a privileged teacher trained in a digital twin into a noisy-sensor student: exact behaviour-cloning gain, the too-clean-twin lazy student, DAgger and DART-style fixes"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

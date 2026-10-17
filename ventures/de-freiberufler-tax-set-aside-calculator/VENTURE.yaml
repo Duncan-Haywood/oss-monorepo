@@ -1,0 +1,37 @@
+name: de-freiberufler-tax-set-aside-calculator
+description: >-
+  Free browser tool for German freelancers (Freiberufler and Gewerbe): enter turnover and expenses to see Einkommensteuer under the 2026 tariff, Soli, Kirchensteuer, Gewerbesteuer and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; sibling set-aside tools exist for Australia, Canada, India, Ireland, Netherlands, New Zealand, South Africa and the UK, none for Germany (about 1.4 million Freiberufler plus a large English-speaking expat freelancer population).
+#
+# First visitor: German and expat freelancers searching "how much tax should I set aside freelancer Germany". Evergreen, peaks around the 31 July (or later, with a Steuerberater) Steuererklaerung deadline; volume not measured. Rivals are Steuerberater and accounting-app blog calculators, mostly German-language.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: German-language page, splitting tariff, Vorsorgeaufwendungen detail, Umsatzsteuer tracker, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: section 32a EStG 2026 coefficients and Soli Freigrenze checked against the statute text and secondary summaries on 2026-10-14; Gewerbesteuer and the section 35 credit are simplified. Every result tells the reader to verify with the Finanzamt, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      German and expat freelancers will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own profit, insurance costs and Gewerbesteuer status.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a figure differs from the official statute or BMF source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/de-freiberufler-tax-set-aside-calculator/
+  analytics: null

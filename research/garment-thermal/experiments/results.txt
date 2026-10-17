@@ -1,0 +1,84 @@
+== A. PMV validation against pythermalcomfort ==
+144 combinations (ta 16-34 C, rh 30-80%, v 0.1-0.3, 1.0-1.6 met, 0.3-1.0 clo, no optics): max |dPMV| = 0.0062
+ISO 7730 style check, 22 C / 1.2 met / 0.5 clo / 0.1 m/s / 60%: PMV = -0.75, PPD = 16.9%
+
+== B. Dry-heat budget, baseline (cotton-like) fabric, skin at comfort temperature ==
+cool room (16 C, still air): skin 33.7 C, cloth surface 26.4 C, dry loss 94.9 W/m2, PMV -2.68
+warm room (28 C): skin 33.7 C, cloth surface 31.4 C, dry loss 30.5 W/m2, PMV +0.99
+warm air, hot walls (26 / 34 C): skin 33.7 C, cloth surface 32.3 C, dry loss 18.3 W/m2, PMV +1.58
+sunny outdoors (32 C, 200 W/m2 on body): skin 33.1 C, cloth surface 35.7 C, dry loss -33.0 W/m2, PMV +3.68
+
+== C. PMV and comfort-equivalent shift (C) by scenario; shift > 0 means 'feels like the baseline in a room that much warmer' ==
+cool room (16 C, still air)
+   baseline (eps .95, tau 0, alpha .5)    PMV -2.68  shift +0.00 C
+   IR-transparent (tau .8)                PMV -4.93  shift -7.31 C
+   IR-opaque low-e outside (eps .2)       PMV -1.44  shift +4.00 C
+   white (alpha .15)                      PMV -2.68  shift +0.00 C
+   dark (alpha .9)                        PMV -2.68  shift +0.00 C
+   white + IR-transparent                 PMV -4.93  shift -7.31 C
+warm room (28 C)
+   baseline (eps .95, tau 0, alpha .5)    PMV +0.99  shift +0.00 C
+   IR-transparent (tau .8)                PMV +0.27  shift -2.37 C
+   IR-opaque low-e outside (eps .2)       PMV +1.47  shift +1.57 C
+   white (alpha .15)                      PMV +0.99  shift +0.00 C
+   dark (alpha .9)                        PMV +0.99  shift +0.00 C
+   white + IR-transparent                 PMV +0.27  shift -2.37 C
+warm air, hot walls (26 / 34 C)
+   baseline (eps .95, tau 0, alpha .5)    PMV +1.58  shift -0.00 C
+   IR-transparent (tau .8)                PMV +1.38  shift -0.63 C
+   IR-opaque low-e outside (eps .2)       PMV +1.33  shift -0.78 C
+   white (alpha .15)                      PMV +1.58  shift -0.00 C
+   dark (alpha .9)                        PMV +1.58  shift -0.00 C
+   white + IR-transparent                 PMV +1.38  shift -0.63 C
+sunny outdoors (32 C, 200 W/m2 on body)
+   baseline (eps .95, tau 0, alpha .5)    PMV +3.68  shift +0.00 C
+   IR-transparent (tau .8)                PMV +3.77  shift +0.31 C
+   IR-opaque low-e outside (eps .2)       PMV +3.94  shift +0.84 C
+   white (alpha .15)                      PMV +2.56  shift -3.57 C
+   dark (alpha .9)                        PMV +4.95  shift +4.00 C
+   white + IR-transparent                 PMV +2.49  shift -3.80 C
+
+== D. Range of comfort-equivalent shift (C) across each property's plausible span, other properties at baseline ==
+shift is of the second end of the span relative to the first end; larger magnitude = property matters more
+cool room (16 C, still air)
+   tau_ir 0 -> 0.8          -7.31 C
+   clo 0.7 -> 0.3           -6.37 C
+   eps_out 0.95 -> 0.2      +4.00 C
+   alpha_sol 0.9 -> 0.15    +0.00 C
+warm room (28 C)
+   tau_ir 0 -> 0.8          -2.37 C
+   clo 0.7 -> 0.3           -1.82 C
+   eps_out 0.95 -> 0.2      +1.57 C
+   alpha_sol 0.9 -> 0.15    +0.00 C
+warm air, hot walls (26 / 34 C)
+   clo 0.7 -> 0.3           -1.08 C
+   eps_out 0.95 -> 0.2      -0.78 C
+   tau_ir 0 -> 0.8          -0.63 C
+   alpha_sol 0.9 -> 0.15    -0.00 C
+sunny outdoors (32 C, 200 W/m2 on body)
+   alpha_sol 0.9 -> 0.15    -7.74 C
+   clo 0.7 -> 0.3           +2.65 C
+   eps_out 0.95 -> 0.2      +0.84 C
+   tau_ir 0 -> 0.8          +0.31 C
+
+== E. Bounds for an infrared-gating textile: two-node end state after 3 h for closed (tau .15) and open (tau .8) ==
+   hot room 31 C / 50%  closed tau .15  skin 35.25 C core 36.91 C wettedness 0.30 sweat 237 g
+   hot room 31 C / 50%  open tau .8     skin 35.00 C core 36.89 C wettedness 0.26 sweat 194 g
+   cool room 16 C / 50% closed tau .15  skin 27.03 C core 36.76 C wettedness 0.06 sweat 0 g
+   cool room 16 C / 50% open tau .8     skin 25.57 C core 36.72 C wettedness 0.06 sweat 0 g
+
+== F. Two-node model, 3 h at 1.2 met, 34 C air and radiant, 60% rh, v 0.1 ==
+   baseline (eps .95, tau 0, alpha .5)    skin 35.82 C core 36.99 C wettedness 0.55 sweat 371 g
+   IR-transparent (tau .8)                skin 35.72 C core 36.97 C wettedness 0.52 sweat 346 g
+   IR-opaque low-e outside (eps .2)       skin 35.88 C core 37.00 C wettedness 0.57 sweat 389 g
+   white (alpha .15)                      skin 35.82 C core 36.99 C wettedness 0.55 sweat 371 g
+   dark (alpha .9)                        skin 35.82 C core 36.99 C wettedness 0.55 sweat 371 g
+   white + IR-transparent                 skin 35.72 C core 36.97 C wettedness 0.52 sweat 346 g
+   baseline, im .2 (poor vapour)          skin 35.86 C core 37.00 C wettedness 0.79 sweat 383 g
+   baseline, im .6 (breathable)           skin 35.79 C core 36.99 C wettedness 0.47 sweat 364 g
+   IR-transparent, im .6                  skin 35.69 C core 36.97 C wettedness 0.45 sweat 340 g
+
+== G. Two-node, cool room 16 C, 3 h, 1.2 met ==
+   baseline (eps .95, tau 0, alpha .5)    skin 27.48 C core 36.77 C
+   IR-transparent (tau .8)                skin 25.57 C core 36.72 C
+   IR-opaque low-e outside (eps .2)       skin 29.99 C core 36.82 C

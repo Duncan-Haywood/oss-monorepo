@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SaaS Feature Packaging Optimizer: Which Features in Which Plan — Free</title>
+  <meta name="description" content="Free SaaS packaging tool: paste what surveyed customers would pay for each feature and get which features belong in which plan, the plan prices that earn the most profit, who lands on each plan, and what each feature is worth in each plan. Nothing uploaded.">
+  <meta property="og:title" content="SaaS feature packaging optimizer">
+  <meta property="og:description" content="Which features go in Starter, Pro and Team, and what each plan should cost, from your willingness-to-pay survey. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS Feature Packaging Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste what surveyed customers would pay for each feature and find which features belong in which plan and the plan prices that earn the most profit. Runs in your browser.", "featureList": "Feature-to-plan packaging search, plan price ladder, customer self-selection model, per-feature placement impact, comparison with current packaging, single flat plan baseline, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which features should go in which SaaS pricing tier?", "acceptedAnswer": {"@type": "Answer", "text": "Survey a sample of customers or prospects on what each feature is worth to them per month, paste one row per person, and the tool tests which plan each feature should first appear in and what each plan should cost. Plans are nested (higher plans include everything in lower ones), a customer is assumed to buy the plan with the most surplus, and the result is the packaging and prices that earn the most profit on your survey."}}, {"@type": "Question", "name": "Why not put every feature in every plan?", "acceptedAnswer": {"@type": "Answer", "text": "Because one flat price leaves money on the table: it is too high for light users and too low for heavy ones. Holding back the features only some customers value lets the cheap plan stay cheap while the people who value those features pay more. The tool shows what a single flat plan would earn so you can see the gap."}}, {"@type": "Question", "name": "How do I ask about feature value in a survey?", "acceptedAnswer": {"@type": "Answer", "text": "Ask each person the most they would pay extra per month for each feature on its own, and record 0 or leave it blank where it has no value to them. Add a core-product column if you want to price the base product too, and mark it with an asterisk so it stays in the cheapest plan."}}, {"@type": "Question", "name": "Is the answer exact?", "acceptedAnswer": {"@type": "Answer", "text": "The prices are exact for the placement chosen. The placement is found by local search from several starting points, which matches exhaustive search on small test surveys but is not guaranteed on every survey with eight features. Treat the output as a ranking of packaging options to test with real signups. This is arithmetic on your survey, not pricing or financial advice."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">SAAS FEATURE PACKAGING OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which features belong in Starter, Pro and Team?</h1>
+    <p>Paste what each person you surveyed would pay per month for each feature. The tool tries which plan each feature should first appear in, prices the plans, assumes everyone buys the plan that leaves them the most surplus, and returns the packaging and prices that earn the most profit, with what each feature is worth in each plan.</p>
+    <p class="note">Arithmetic on the survey you paste. Not pricing, business or financial advice. The example survey is made-up placeholder data, not any business's.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Your plans and features</h2>
+      <div class="grid">
+        <div><label for="tiers">Plan names, cheapest first (2 to 3, separated by commas)</label><input id="tiers" type="text" value=""></div>
+        <div><label for="costs">Cost to serve one customer per month, per plan</label><input id="costs" type="text" value=""><p class="note">Hosting, support and payment fees per customer, in plan order. Use 0 if unsure. Prices are never set below cost.</p></div>
+        <div><label for="features">Features (2 to 8, separated by commas)</label><input id="features" type="text" value=""><p class="note">Put * after a feature that must stay in the cheapest plan, such as the core product.</p></div>
+        <div><label for="current">Where each feature sits today (optional)</label><input id="current" type="text" value=""><p class="note">One number per feature in the same order: 1 = cheapest plan, 2 = middle, 3 = top, 0 = not offered.</p></div>
+        <div><label for="currentPrices">Current monthly prices (optional)</label><input id="currentPrices" type="text" value=""><p class="note">Leave blank to compare against your current packaging at its own best prices.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Survey (one respondent per line)</h2>
+      <p class="note">Each line: the most that person would pay per month for each feature on its own, in feature order, separated by commas. Leave a feature blank or put - if it has no value to them. An optional last number counts that line more than once. A first line with feature names is ignored. Up to 500 lines.</p>
+      <label for="survey">Value per feature, per person</label>
+      <textarea id="survey" rows="12" spellcheck="false"></textarea>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best packaging</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p class="note">Needs at least 5 survey lines. With 8 features and a long survey it can take several seconds.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions founders ask</h2>
+      <h3>Which features should go in which SaaS pricing tier?</h3>
+      <p>Survey a sample of customers or prospects on what each feature is worth to them per month, paste one row per person, and the tool tests which plan each feature should first appear in and what each plan should cost. Plans are nested (higher plans include everything in lower ones), a customer is assumed to buy the plan with the most surplus, and the result is the packaging and prices that earn the most profit on your survey.</p>
+      <h3>Why not put every feature in every plan?</h3>
+      <p>Because one flat price leaves money on the table: it is too high for light users and too low for heavy ones. Holding back the features only some customers value lets the cheap plan stay cheap while the people who value those features pay more. The tool shows what a single flat plan would earn so you can see the gap.</p>
+      <h3>How do I ask about feature value in a survey?</h3>
+      <p>Ask each person the most they would pay extra per month for each feature on its own, and record 0 or leave it blank where it has no value to them. Add a core-product column if you want to price the base product too, and mark it with an asterisk so it stays in the cheapest plan.</p>
+      <h3>Is the answer exact?</h3>
+      <p>The prices are exact for the placement chosen. The placement is found by local search from several starting points, which matches exhaustive search on small test surveys but is not guaranteed on every survey with eight features. Treat the output as a ranking of packaging options to test with real signups. This is arithmetic on your survey, not pricing or financial advice.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether customers pay for a feature as a sum (features that only matter together, or substitutes, break that), annual versus monthly pricing, discounts and trials, free tiers, usage-based limits, seat counts, taxes and currencies, competitor prices, and how real customers will behave compared with what they said. Treat the output as a ranking of options to test.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../saas-tier-price-optimizer/">SaaS tier price optimizer</a> (prices plans from per-plan survey answers), the <a href="../usage-based-pricing-simulator/">usage-based pricing simulator</a> and the <a href="../saas-annual-plan-discount-calculator/">annual plan discount calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Survey data stays on your device. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function render(a) {
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const b = a.best, pct = (x) => Math.round((100 * x) / b.total) + "%";
+      const planName = (L) => (L === 0 ? "Not offered" : esc(a.tiers[L - 1]));
+      h += '<div class="finding"><h4>Best prices: ' + a.tiers.map((n, t) => esc(n) + " " + money(b.prices[t])).join(" · ") + "</h4><p>Profit per month across the " + a.rows + " survey lines: " + money(b.profit) + " on " + money(b.revenue) + " revenue. " + pct(b.paying) + " of respondents buy a plan, " + pct(b.none) + " buy nothing.</p></div>";
+      h += '<div class="finding"><h4>What goes where</h4><p class="note">A feature is in the plan shown and in every higher plan. The last columns show monthly profit if that feature alone were placed there instead, prices re-optimised.</p>' + table(["Feature", "First in", "Who values it", "Avg value", ...a.tiers.map((n) => "If in " + esc(n)), "If dropped"], a.impact.map((m) => [esc(m.name) + (m.locked ? " *" : ""), planName(m.level), Math.round(m.reach * 100) + "%", money(Math.round(m.avg * 100) / 100), ...m.byLevel.slice(1).map((x) => (x == null ? "n/a" : money(Math.round(x)))), m.byLevel[0] == null ? "n/a" : money(Math.round(m.byLevel[0]))])) + "</div>";
+      const empty = a.tiers.filter((n, t) => !a.impact.some((m) => m.level === t + 1));
+      if (empty.length) h += '<div class="finding"><span class="pill">Note</span> No feature first appears in ' + empty.map(esc).join(", ") + ", so that plan has the same features as the plan below it and differs only in price. On this survey a plan with nothing extra in it earned more than one that splits the features further.</div>";
+      if (a.now) {
+        const d = b.profit - a.now.profit;
+        h += '<div class="finding"><h4>Against your current packaging' + (a.now.given ? " and prices (" + a.now.prices.map(money).join(" · ") + ")" : " at its own best prices (" + a.now.prices.map(money).join(" · ") + ")") + "</h4><p>" + (d > 1e-9 ? "The suggested packaging earns " + money(d) + " more per month" + (a.now.profit > 0 ? " (" + Math.round((100 * d) / a.now.profit) + "% more)" : "") + " on this survey." : "Your current packaging already earns as much as any placement tried on this survey.") + " Current: profit " + money(a.now.profit) + ".</p></div>";
+      }
+      h += '<div class="finding"><h4>Who buys what</h4>' + table(["Plan", "Price", "Customers", "Share", "Profit"], a.tiers.map((n, t) => [esc(n), money(b.prices[t]), String(Math.round(b.buyers[t] * 100) / 100), pct(b.buyers[t]), money(b.buyers[t] * (b.prices[t] - a.costs[t]))])) + "</div>";
+      h += '<div class="finding"><h4>How fragile are these prices?</h4><p class="note">Change in profit if one price is 10% lower or higher and the rest stay.</p>' + table(["Plan", "10% lower", "10% higher"], a.sens.map((s) => [esc(s.name), money(Math.round(s.down)), money(Math.round(s.up))])) + "</div>";
+      if (a.single) h += '<div class="finding"><h4>Is packaging worth it?</h4><p>One plan with every feature, priced at its best (' + money(a.single.prices[0]) + "), earns " + money(a.single.profit) + ". The packaging above earns " + money(b.profit) + ".</p></div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "feature-packaging.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    function run() {
+      $("result").innerHTML = '<p class="note">Working…</p>';
+      $("out").hidden = false;
+      setTimeout(() => render(analyze(readAll())), 20);
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

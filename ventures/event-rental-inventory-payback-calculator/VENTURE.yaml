@@ -1,0 +1,52 @@
+name: event-rental-inventory-payback-calculator
+description: >-
+  Free browser tool for party, tent and event rental companies deciding what to buy next: list
+  each item (chairs, tables, linens, dance floor) with units owned, cost, price per rental,
+  rentals per unit a year, handling per rental, yearly loss and damage, storage and useful life
+  and see payback, yearly return on the money tied up and break-even rentals per unit for every
+  item, a ranking of the whole inventory, and the lowest rental price that pays an item back in
+  the years you choose. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.24,
+# wedding-videographer-profit-calculator). tent-rental-job-profit-calculator prices one job; nothing in
+# the tree answers the question that comes after it: of the chairs, tables, linens and floors a rental
+# company could buy with the next $5,000, which pays back first. Rental owners usually decide by feel or
+# by what a competitor stocks, and the answer swings on handling (linen laundering), breakage and storage,
+# which a sticker price hides.
+#
+# First visitor: party and event rental owner groups and forums, and searches like "party rental
+# inventory ROI", "how long does it take a chair rental to pay for itself" and "what to buy next party
+# rental business". Volume not measured with an external tool.
+#
+# Lead magnet for a later paid inventory and availability planner (payment rails stay off for now).
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, insurance or financial
+# advice; says so. Names no vendor or brand. No data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      Party and event rental owners will enter their inventory into a no-signup tool and use the
+      ranking, payback and lowest-price numbers to choose the next purchase or raise a price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a lowest price that does not reproduce their payback target when typed back in as the rental price.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/event-rental-inventory-payback-calculator/
+  analytics: null

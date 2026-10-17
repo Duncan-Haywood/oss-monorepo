@@ -1,0 +1,32 @@
+E1  pair statistic D=(y1-y2)^2/2: mean 1 and Var(D)=(kappa+1)/2 (unit variance, 2e5 pairs)
+  uniform     kappa=1.8  mean 1.001  Var(D)  1.404  formula  1.400
+  gaussian    kappa=3.0  mean 0.998  Var(D)  1.988  formula  2.000
+  laplace     kappa=6.0  mean 0.998  Var(D)  3.436  formula  3.500
+  exponential kappa=9.0  mean 1.002  Var(D)  5.003  formula  5.000
+
+E2  non-elicitable from one observation: N(0,1) and N(2,1) both have variance 1; their 50/50 mixture has variance 2.0 (level set not convex)
+    with a known-mean score (y-mu0)^2 the report converges to sigma^2 + (mean gap)^2: mean gap 0.5 adds 0.25
+
+E3  excess loss of reporting lam*sigma^2 (unit sigma^2, 2e5 Gaussian pairs)
+  lam=0.50  Brier 0.2518 (exact 0.2500)   scale-free 0.3087 (exact 0.3069)
+  lam=0.80  Brier 0.0407 (exact 0.0400)   scale-free 0.0273 (exact 0.0269)
+  lam=1.25  Brier 0.0616 (exact 0.0625)   scale-free 0.0228 (exact 0.0231)
+  lam=2.00  Brier 0.9964 (exact 1.0000)   scale-free 0.1922 (exact 0.1931)
+
+E4  tasks needed so honest beats a lam-misreport with prob 95% (scale-free loss): CLT count vs simulated win rate at that count
+  gaussian lam=1.50  m=   116 (first-order       87)  simulated win 0.968
+  gaussian lam=1.25  m=   405 (first-order      346)  simulated win 0.950
+  gaussian lam=1.10  m=  2309 (first-order     2164)  simulated win 0.960
+  gaussian lam=0.80  m=   469 (first-order      541)  simulated win 0.948
+  laplace  lam=1.50  m=   203 (first-order      152)  simulated win 0.940
+  laplace  lam=1.25  m=   708 (first-order      606)  simulated win 0.932
+  laplace  lam=1.10  m=  4041 (first-order     3788)  simulated win 0.960
+  laplace  lam=0.80  m=   821 (first-order      947)  simulated win 0.960
+
+E5  n=10 observations per task: variance of average of 5 disjoint pair stats vs unbiased sample variance (Gaussian, 1e5 tasks)
+  pairs 0.3994 (formula 0.4000)   sample variance 0.2214 (formula 0.2222)   ratio 1.804 (formula 1.800)
+
+E6  heavy tails: median relative error of the mean of m pair stats, Pareto(alpha) observations; theory: error ~ m^-(1-2/alpha) for alpha<4
+  alpha=6.0: m=100: 0.238   m=1000: 0.075   m=10000: 0.030   m=100000: 0.010
+  alpha=3.0: m=100: 0.414   m=1000: 0.230   m=10000: 0.109   m=100000: 0.065
+  alpha=2.2: m=100: 0.757   m=1000: 0.632   m=10000: 0.512   m=100000: 0.442

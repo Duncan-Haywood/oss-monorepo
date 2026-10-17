@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NIS2 Scope Checker — Am I an Essential or Important Entity?</title>
+  <meta name="description" content="Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="NIS2 scope checker: is your company an essential or important entity? Free, private">
+  <meta property="og:description" content="Sector and size in; likely NIS2 category, the Article it rests on and the main duties out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NIS2 Scope Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does NIS2 apply to my company?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to entities in the sectors listed in Annex I and Annex II of Directive (EU) 2022/2555 that provide services in the EU and are medium-sized or larger, plus some types that are in scope whatever their size. The page applies those rules to your sector and size and shows the result."}}, {"@type": "Question", "name": "What is the difference between essential and important entities?", "acceptedAnswer": {"@type": "Answer", "text": "Large entities in Annex I sectors are essential; medium Annex I entities and medium or large Annex II entities are important. Essential entities are supervised proactively and face higher maximum fines than important ones, at least EUR 10 million or 2% of turnover against EUR 7 million or 1.4%."}}, {"@type": "Question", "name": "How is company size measured for NIS2?", "acceptedAnswer": {"@type": "Answer", "text": "By the thresholds in Commission Recommendation 2003/361/EC: medium means 50 or more staff or more than EUR 10 million in both turnover and balance sheet; large means 250 or more staff, or turnover above EUR 50 million together with a balance sheet above EUR 43 million. Linked enterprises count in full, so use whole-group figures."}}, {"@type": "Question", "name": "Are small companies ever covered by NIS2?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for some types: DNS providers, top-level domain registries, trust service providers, public electronic communications providers and central government bodies are in scope whatever their size, and Member States can designate sole providers and nationally critical entities."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NIS2 SCOPE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does NIS2 apply to your company, and as an essential or an important entity?</h1>
+    <p>Pick your sector and enter whole-group staff, turnover and balance sheet. You get a <strong>likely scope result</strong>, the <strong>Article it rests on</strong>, what happens at other sizes, and the <strong>main duties</strong> in plain words.</p>
+    <p class="note">A first read of the Directive's text. Member States transposed it differently, so national law decides. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="sector">Sector or type of entity</label><select id="sector"><option value="">Choose a sector</option><option value="none">None of the sectors below</option><option value="energy-electricity">Energy: electricity (supply, distribution, transmission, production, nominated operators, market participants)</option><option value="energy-heating">Energy: district heating and cooling</option><option value="energy-oil">Energy: oil (pipelines, production, refining, storage, central stockholding)</option><option value="energy-gas">Energy: gas (supply, distribution, transmission, storage, LNG, undertakings)</option><option value="energy-hydrogen">Energy: hydrogen production, storage and transmission</option><option value="transport-air">Transport: air (carriers, airports, traffic control)</option><option value="transport-rail">Transport: rail (infrastructure managers, railway undertakings)</option><option value="transport-water">Transport: water (shipping companies, ports, vessel traffic services)</option><option value="transport-road">Transport: road (road authorities, intelligent transport systems operators)</option><option value="banking">Banking: credit institutions</option><option value="fmi">Financial market infrastructure: trading venues, central counterparties</option><option value="health-provider">Health: healthcare providers (hospitals, clinics)</option><option value="health-pharma">Health: pharmaceutical manufacturing or pharmaceutical R&amp;D</option><option value="health-lab">Health: EU reference laboratories, critical medical device makers in a health emergency</option><option value="water-drinking">Drinking water: suppliers and distributors</option><option value="water-waste">Waste water: collection, disposal or treatment</option><option value="digital-ixp">Digital infrastructure: internet exchange point provider</option><option value="digital-dns">Digital infrastructure: DNS service provider</option><option value="digital-tld">Digital infrastructure: top-level domain name registry</option><option value="digital-cloud">Digital infrastructure: cloud computing service provider</option><option value="digital-datacentre">Digital infrastructure: data centre service provider</option><option value="digital-cdn">Digital infrastructure: content delivery network provider</option><option value="trust-qualified">Digital infrastructure: qualified trust service provider</option><option value="trust-other">Digital infrastructure: trust service provider that is not qualified</option><option value="ecomms">Digital infrastructure: public electronic communications network or service provider</option><option value="ict-msp">ICT service management (B2B): managed service provider</option><option value="ict-mssp">ICT service management (B2B): managed security service provider</option><option value="public-central">Public administration: central government body</option><option value="space">Space: operators of ground-based infrastructure supporting space-based services</option><option value="postal">Postal and courier services</option><option value="waste">Waste management</option><option value="chemicals">Chemicals: manufacture, production and distribution of substances and articles</option><option value="food">Food: wholesale distribution, industrial production and processing</option><option value="mfg-medical">Manufacturing: medical devices and in vitro diagnostic devices</option><option value="mfg-computers">Manufacturing: computer, electronic and optical products</option><option value="mfg-electrical">Manufacturing: electrical equipment</option><option value="mfg-machinery">Manufacturing: machinery and equipment not elsewhere classified</option><option value="mfg-vehicles">Manufacturing: motor vehicles, trailers and semi-trailers</option><option value="mfg-transport">Manufacturing: other transport equipment (ships, rail, aircraft, spacecraft)</option><option value="marketplace">Digital providers: online marketplace</option><option value="search">Digital providers: online search engine</option><option value="social">Digital providers: social networking services platform</option><option value="research">Research organisations</option></select></div>
+      <div><label for="staff">Staff, full-time equivalents (whole group)</label><input id="staff" inputmode="decimal" value="" placeholder="120"></div>
+      <div><label for="turnover">Annual turnover, EUR millions (whole group)</label><input id="turnover" inputmode="decimal" value="" placeholder="22"></div>
+      <div><label for="balance">Annual balance sheet total, EUR millions (whole group)</label><input id="balance" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="eu">Do you provide services or carry out activities in the EU?</label><select id="eu"><option value="yes">Yes</option><option value="no">No</option><option value="unsure">Not sure</option></select></div>
+      <div><label for="designated">Designated in scope by a Member State, or a sole provider of an essential service there?</label><select id="designated"><option value="">No or not known</option><option value="1">Yes</option></select></div>
+      <div><label for="cer">Identified as a critical entity under the CER Directive?</label><select id="cer"><option value="">No or not known</option><option value="1">Yes</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check scope</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a sector and enter staff, turnover and balance sheet, then click Check scope.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>The same sector at other sizes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Size</th><th scope="col">Result</th><th scope="col">Basis</th></tr></thead><tbody id="ladder-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download size table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Size:</strong> small is under 50 staff with turnover or balance sheet of EUR 10 million or less; medium is under 250 staff with turnover up to EUR 50 million or balance sheet up to EUR 43 million; anything above is large.</li>
+      <li><strong>Category:</strong> large Annex I is essential; medium Annex I and medium or large Annex II are important. DNS providers, top-level domain registries, qualified trust service providers and central government bodies are essential whatever their size; other trust service providers are important; public electronic communications providers are essential from medium size.</li>
+      <li><strong>Not decided:</strong> how your Member State transposed the Directive, whether it designated you, partner-enterprise proportional size rules, whether your activity fits an Annex entry as national law defines it, which sector rules such as DORA take precedence, and your exact deadlines and fines.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does NIS2 apply to my company?</h3>
+    <p>It applies to entities in the sectors listed in Annex I and Annex II of Directive (EU) 2022/2555 that provide services in the EU and are medium-sized or larger, plus some types that are in scope whatever their size. The page applies those rules to your sector and size and shows the result.</p>
+    <h3>What is the difference between essential and important entities?</h3>
+    <p>Large entities in Annex I sectors are essential; medium Annex I entities and medium or large Annex II entities are important. Essential entities are supervised proactively and face higher maximum fines than important ones, at least EUR 10 million or 2% of turnover against EUR 7 million or 1.4%.</p>
+    <h3>How is company size measured for NIS2?</h3>
+    <p>By the thresholds in Commission Recommendation 2003/361/EC: medium means 50 or more staff or more than EUR 10 million in both turnover and balance sheet; large means 250 or more staff, or turnover above EUR 50 million together with a balance sheet above EUR 43 million. Linked enterprises count in full, so use whole-group figures.</p>
+    <h3>Are small companies ever covered by NIS2?</h3>
+    <p>Yes for some types: DNS providers, top-level domain registries, trust service providers, public electronic communications providers and central government bodies are in scope whatever their size, and Member States can designate sole providers and nationally critical entities.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+    
+  </section>
+  <footer>
+    <p>Also see the <a href="../eu-csrd-scope-checker/">EU CSRD scope checker</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tool: the <a href="../eu-pay-gap-report-calculator/">EU pay gap report calculator</a>, another EU directive whose duties depend on employer size, the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>, the <a href="../eaa-accessibility-act-checker/">European Accessibility Act checker</a>, the <a href="../eudr-scope-checker/">EUDR scope checker</a> and the <a href="../cbam-cost-estimator/">CBAM cost estimator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Also for EU financial-sector firms and their vendors: the <a href="../eu-dora-readiness-checker/">EU DORA readiness checker</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, ladderCsv, SIZE_LABEL } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { sector: "sector", staff: "staff", turnover: "turnover", balance: "balance", eu: "eu", designated: "designated", cer: "cer" };
+    const IDLE = "Choose a sector and enter staff, turnover and balance sheet, then click Check scope.";
+    const label = (v) => (v.status === "in" ? `In scope: ${v.category}` : v.status === "maybe-out" ? "Not in scope by size" : "Not in scope directly");
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${label(r.verdict)} (${r.sizeLabel} entity)`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#ladder-rows").innerHTML = r.ladder.map((l) => `<tr><td>${SIZE_LABEL[l.size]}</td><td>${esc(label(l))}</td><td>${esc(l.via)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check your Member State's transposition before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 120-person cloud provider. Illustrative figures, not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "eu" ? "yes" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("nis2-scope.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("nis2-scope-sizes.csv", ladderCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+name: merchant-cash-advance-true-cost-calculator
+description: >-
+  Free browser tool for small-business owners offered a merchant cash advance
+  or invoice factoring: enter the factor rate (or payment), fees and term and
+  see the annualised cost of the money actually received, the cost of early
+  payoff, term sensitivity, payment share of revenue and a comparison with a
+  bank loan. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. Repo-wide search for
+# "merchant cash advance" / "factor rate" found no existing venture or
+# candidate. Users have money and a real problem: advances are quoted as a
+# factor rate, never an APR, and daily repayment makes a 1.3-1.4 factor cost
+# triple-digit annualised rates. High-intent search ("merchant cash advance
+# calculator", "factor rate to APR", "invoice factoring cost calculator").
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only;
+# the audience (owners shopping for financing) is also the natural audience
+# for the portfolio's cash-runway and invoice tools. No lender is named or
+# ranked and no referral fee is taken, which is the point: the category is
+# dominated by broker-funded comparison sites.
+# Liability: arithmetic on terms the visitor enters, not advice or a
+# recommendation; the page says what it leaves out. Unverified: hand
+# calculation and unit tests only. Figures never leave the browser.
+
+hypotheses:
+  - claim: >-
+      Owners with an advance or factoring quote in hand will use a no-signup
+      tool that converts it to an annualised cost and shows the early-payoff
+      penalty, and will return for each new quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that an annualised figure contradicts their own hand calculation on the same terms.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/merchant-cash-advance-true-cost-calculator/
+  analytics: null

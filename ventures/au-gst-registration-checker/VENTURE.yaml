@@ -1,0 +1,39 @@
+name: au-gst-registration-checker
+description: >-
+  Free browser tool for Australian freelancers, side-hustlers and small sellers: enter 12 months of sales (and an optional forecast) to see whether GST turnover has reached the AUD 75,000 registration threshold (AUD 150,000 non-profit), the projected test, and the 21-day registration deadline. Taxi and ride-share drivers flagged from the first fare. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was ca-gst-hst-small-supplier-checker (0.33), a different jurisdiction and test; no Australian tax tool in ventures/.
+#
+# First visitor: Australian freelancer, Etsy/Shopify seller, Uber/DoorDash driver or sole trader searching "do I need to register for GST", "GST $75,000 threshold", "GST turnover calculator".
+# Audience is a large set of new sole traders every year; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a rolling-turnover tracker with threshold alerts behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names the ATO as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (what counts as GST turnover, associates, the actual date the line was met, penalties). Ethical risk is false comfort from a "not required" result, mitigated by the near-threshold and run-rate warnings and the re-test note.
+hypotheses:
+  - claim: >-
+      Australian sole traders approaching AUD 75,000 will use a free checker to learn when they must register and charge GST.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold or date differs from ATO guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/au-gst-registration-checker/
+  analytics: null

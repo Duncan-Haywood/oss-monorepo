@@ -1,0 +1,66 @@
+name: project-estimate-calibrator
+description: >-
+  Free browser tool for freelancers, agencies and contractors: paste or upload
+  finished projects as estimate and actual, and get how your estimates really
+  miss, calibrated 50/70/80/90% outcomes for the next estimate (conformal
+  residual quantiles, no bell curve assumed), the buffer and fixed price that
+  cover them, the chance a fixed price loses money, overrun by type of work,
+  bootstrap ranges and a hold-out back-test. Refuses a history too short to say
+  anything. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "freelance project estimate calibration from past estimated vs actual hours,
+# P80 quote with overrun buffer": closest is job-margin-variance at 0.24, below
+# the read-this-first bar. job-margin-variance reports variances of finished
+# jobs; this predicts the next one: it turns the same history into a quantile
+# buffer and a fixed-price loss probability, which it does not. Alternatives are
+# the "add 20%" rule of thumb, a spreadsheet of overrun percentages (no spread,
+# no uncertainty, no back-test) and time trackers (Harvest, Toggl, Clockify) that
+# report budget versus actual but do not turn it into a quote.
+#
+# First visitor: searches "how much to pad a project estimate", "estimate
+# buffer calculator", "why do projects always go over estimate", "fixed price
+# vs hourly freelance risk"; r/freelance, r/webdev, r/consulting and agency
+# owner forums. Volume not measured with an external tool. Natural feeders:
+# bid-win-rate-optimizer (what markup wins) and every trade bid calculator
+# (price from costs) -- this is the "how wrong are my costs" half.
+#
+# Privacy is the liability boundary: project files never leave the browser
+# (tests assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a saved, team-shared project log; not built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# when evidence is weak and refuses below 12 projects.
+# Unverified: tested on simulated histories with known overruns, not on a
+# published dataset.
+
+hypotheses:
+  - claim: >-
+      Freelancers and small agencies with twelve or more finished projects will
+      use a private, no-signup tool that turns their own estimate-versus-actual
+      history into a buffer and a fixed-price risk number, and will return as
+      their history grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the P80 buffer disagrees with the empirical 80th percentile of their own actual-to-estimate ratios.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/project-estimate-calibrator/
+  analytics: null

@@ -1,0 +1,56 @@
+{
+  "slug": "epoxy-garage-floor-bid-calculator",
+  "name": "Epoxy garage floors",
+  "group": "Paving, concrete & masonry",
+  "summary": "Garage floor coatings priced per square foot of grind and flake system, plus crack and pit repair.",
+  "fit": "good",
+  "crewSize": 1,
+  "hourlyWage": 45,
+  "burdenRate": 22,
+  "overheadRate": 15,
+  "targetMargin": 35,
+  "milesOneWay": 15,
+  "items": [
+    {
+      "label": "Full grind and full-broadcast flake system, 3 coats",
+      "unit": "sq ft",
+      "qty": 400,
+      "hoursPerUnit": 0.02777,
+      "materialPerUnit": 4.2,
+      "source": "1/80 h per sf grind (PREP_METHODS full-grind) + 3 coats x 1.12 waste / 220 sf/h (COATING_SYSTEMS full-flake); coating $2.85/sf + 0.2 lb/sf flake x $4.50/lb (index.html flakePricePerLb), both x 1.12 waste; 2-car 20x20 default (GARAGE_PRESETS, index.html)"
+    },
+    {
+      "label": "Crack repair",
+      "unit": "linear ft",
+      "qty": 20,
+      "hoursPerUnit": 0.05,
+      "materialPerUnit": 1.25,
+      "source": "20 lf/h default crack rate (calc.mjs crackLfPerHour); crack fill $1.25/lf and 20 lf default (index.html)"
+    },
+    {
+      "label": "Pit and spall fill",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0.06667,
+      "materialPerUnit": 4,
+      "source": "15 sf/h default pit rate (calc.mjs pitSqFtPerHour); pit fill $4/sf (index.html); 0 sf default"
+    },
+    {
+      "label": "Moisture-vapor barrier",
+      "unit": "sq ft",
+      "qty": 0,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 1.1,
+      "source": "moisture barrier $1.10/sf (index.html); the specialist adds no hours for it; unchecked by default"
+    },
+    {
+      "label": "Other job cost",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 0,
+      "materialPerUnit": 40,
+      "source": "otherJobCost $40 (index.html)"
+    }
+  ],
+  "specialistModels": "Solid, metallic and polyaspartic systems, etch vs grind vs shot-blast prep rates, vehicle cost per mile, and warnings for skipped grinds and starved flake."
+}

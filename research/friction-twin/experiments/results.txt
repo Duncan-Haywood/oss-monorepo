@@ -1,0 +1,44 @@
+Friction twin: real m v' = -b v - c (m=1, b=1, c=0.5), twin m v' = -k v with k fitted to coast-down data.
+
+== 1. Closed-form stop distance/time vs RK4 (dt=1e-4) ==
+v0     dist closed  dist RK4     time closed  time RK4
+0.1    0.008839     0.008839     0.182322     0.182322    
+1      0.450694     0.450694     1.098612     1.098612    
+3      2.027045     2.027045     1.945910     1.945910    
+10     8.477739     8.477739     3.044522     3.044522    
+100    97.348348    97.348348    5.303305     5.303305    
+max relative difference = 9.4e-09
+
+== 2. Fitted twin gain k from noiseless deceleration logs, speeds uniform on [v1, v2] ==
+range      k closed   k sample LS (n=2000)   affine fit (b, c)
+[1,3]      1.230769   1.230769               (1.000000, 0.500000)
+[0.2,1]    1.725806   1.725806               (1.000000, 0.500000)
+[5,20]     1.035714   1.035714               (1.000000, 0.500000)
+[0.05,0.3] 3.441860   3.441861               (1.000000, 0.500000)
+
+== 3. Stopping distance of the viscous twin fitted on [1,3] (k=1.2308) ==
+v0      real dist   twin dist   twin/real
+0.05    0.00234     0.04063     17.3248
+0.2     0.03176     0.16250     5.1159
+1       0.45069     0.81250     1.8028
+3       2.02704     2.43750     1.2025
+10      8.47774     8.12500     0.9584
+100     97.34835    81.25000    0.8346
+1000    996.19930   812.50000   0.8156
+crossover speed v* = 7.3395 (twin too long below, too short above); limit v0->inf ratio b/k = 0.8125; v0->0 ratio ~ 2c/(k v0)
+
+== 4. The twin never stops: time to slow to eps=1e-3 from v0=3 ==
+twin 6.505 s  vs  real stops at 1.946 s (ratio 3.34)
+twin time grows as ln(1/eps): eps=1e-3, 1e-6, 1e-9 -> 6.51, 12.12, 17.73
+
+== 5. Braking margin and the best viscous repair, validity range v0 in [v1, v2] ==
+range     LS k     LS worst rel err   LS margin (max real-twin)   minimax k   minimax worst rel err   minimax margin
+[1,3]      1.2308   0.8028             0.00000                     1.8494      0.1997                  0.40489
+[0.2,1]    1.7258   2.6484             0.00000                     4.2576      0.4789                  0.21582
+[0.2,10]   1.0750   4.8573             0.00000                     3.7380      0.6844                  5.80252
+[0.05,3]   1.2499   16.0592            0.00000                     11.4014     0.8702                  1.76392
+
+== 6. Scaling: ratio twin/real depends on c/(b v0) only (LS k rescaled by the same factor) ==
+s=1    ratio at v0=2s: 1.35951290
+s=10   ratio at v0=2s: 1.35951290
+s=100  ratio at v0=2s: 1.35951290

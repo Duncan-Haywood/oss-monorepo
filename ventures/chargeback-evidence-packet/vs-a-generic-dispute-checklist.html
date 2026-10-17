@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. a generic chargeback checklist</title>
+  <meta name="description" content="A generic downloaded chargeback checklist lists one set of documents for every dispute. This tool changes the required evidence by dispute reason code, because the seven reason codes do not share one required set.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-a-generic-dispute-checklist.html">
+  <meta property="og:title" content="This tool vs. a generic chargeback checklist">
+  <meta property="og:description" content="A generic checklist gives every dispute the same four or five documents. The reason code decides what actually carries the response, and a fraud dispute needs a record a not-received dispute never asks for.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is wrong with using one chargeback checklist for every dispute?","acceptedAnswer":{"@type":"Answer","text":"The card networks group disputes into reason codes, and each reason code asks a different question. “Merchandise not received” asks whether the goods arrived, so it is carried by the order, payment authorization, fulfillment record, and delivery tracking. “Fraudulent transaction” asks whether the cardholder authorized the purchase at all, so it is carried by the payment authorization, the AVS/CVV verification result, the billing-to-shipping address match, and delivery to that verified address. A generic checklist built around receipts, shipping proof, and a correspondence log answers the first question and has nothing for the second — it does not mention AVS/CVV verification anywhere, because that record only matters for a fraud claim."}},{"@type":"Question","name":"Does a generic checklist ever produce a complete packet?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, by coincidence, for the reasons whose required records happen to overlap with what a generic list already covers — order and payment records appear in most of them. It reliably fails on the reasons that need something a generic list was never written to ask for: AVS/CVV verification for fraud, the accepted terms and cancellation record for a canceled-subscription dispute, or the product listing as shown at purchase for a not-as-described dispute."}},{"@type":"Question","name":"Is this tool affiliated with any checklist or template site?","acceptedAnswer":{"@type":"Answer","text":"No. This page compares against the generic method of using a single downloaded or bookmarked chargeback checklist for every dispute, not any specific company or product."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #af5331; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8cfc2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #625c54; }
+    .note { font-size: .85rem; color: #625c54; }
+    .miss { color: #af5331; font-weight: 600; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #625c54; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Chargeback Evidence Packet Builder</a></p>
+  <h1>This tool vs. a generic chargeback checklist</h1>
+  <p>
+    Search for &ldquo;chargeback evidence checklist&rdquo; and you get one
+    list: order confirmation, proof of shipment or delivery, and a log of
+    correspondence with the customer. Sellers bookmark that list and reuse it
+    for every dispute that arrives, because it is free and it looks
+    thorough. It is thorough for exactly one kind of dispute &mdash;
+    <strong>merchandise not received</strong> &mdash; and silent about the
+    other six reason codes a processor can post.
+  </p>
+  <p>
+    The card networks route a dispute under a reason code, and the reason
+    code is the question a reviewer is actually deciding. This tool keeps a
+    separate required-evidence set for each of the seven reasons it models,
+    because a generic list answers only the delivery question and has no
+    entry for the others.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Dispute reason</th><th scope="col">A generic checklist's usual four</th><th scope="col">What it is missing for this reason</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Merchandise not received</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="note">Close enough &mdash; this is the case the generic list was written for.</td>
+      </tr>
+      <tr>
+        <td>Fraudulent transaction</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">AVS/CVV verification result and the billing-to-shipping address match &mdash; the actual question is authorization, not delivery.</td>
+      </tr>
+      <tr>
+        <td>Merchandise not as described</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">The product listing as shown at purchase and the terms accepted at checkout &mdash; the question is what the buyer was shown, not whether it arrived.</td>
+      </tr>
+      <tr>
+        <td>Subscription canceled</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">The signup terms and the cancellation record &mdash; there is no shipment in a subscription dispute at all.</td>
+      </tr>
+      <tr>
+        <td>Credit not processed</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">The refund or cancellation record itself &mdash; the question is whether a promised credit was issued, which shipping proof cannot answer.</td>
+      </tr>
+      <tr>
+        <td>Incorrect amount</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">The order total as originally agreed and the checkout terms &mdash; shipping proof says nothing about the price.</td>
+      </tr>
+      <tr>
+        <td>Duplicate transaction</td>
+        <td>Order, shipping proof, correspondence, receipt</td>
+        <td class="miss">Nothing extra, but two full order-and-payment pairs, one per charge &mdash; a single shipping record does not show two distinct purchases.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    That is why a seller who reuses one checklist across reasons keeps
+    attaching shipping proof to a fraud dispute &mdash; a record that answers
+    a question nobody asked &mdash; while the AVS/CVV result the reviewer
+    actually needed never makes it into the packet. This tool's checklist
+    changes with the reason code you pick, so the gap it flags is the gap for
+    <em>that</em> reason, not a copy-pasted generic one.
+  </p>
+  <p>
+    It is deliberately still just a checklist and a draft, not a submission
+    service: nothing you type leaves your browser, there is no account, and
+    it does not connect to your processor. The only thing it changes from a
+    printed or bookmarked checklist is that it asks the reason first and
+    tailors the list to it, and marks anything you have not checked off as a
+    gap rather than letting a stale, wrong-reason list read as complete.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What is wrong with using one chargeback checklist for every dispute?</h3>
+  <p>The card networks group disputes into reason codes, and each reason code asks a different question. &ldquo;Merchandise not received&rdquo; asks whether the goods arrived, so it is carried by the order, payment authorization, fulfillment record, and delivery tracking. &ldquo;Fraudulent transaction&rdquo; asks whether the cardholder authorized the purchase at all, so it is carried by the payment authorization, the AVS/CVV verification result, the billing-to-shipping address match, and delivery to that verified address. A generic checklist built around receipts, shipping proof, and a correspondence log answers the first question and has nothing for the second &mdash; it does not mention AVS/CVV verification anywhere, because that record only matters for a fraud claim.</p>
+  <h3>Does a generic checklist ever produce a complete packet?</h3>
+  <p>Sometimes, by coincidence, for the reasons whose required records happen to overlap with what a generic list already covers &mdash; order and payment records appear in most of them. It reliably fails on the reasons that need something a generic list was never written to ask for: AVS/CVV verification for fraud, the accepted terms and cancellation record for a canceled-subscription dispute, or the product listing as shown at purchase for a not-as-described dispute.</p>
+  <h3>Is this tool affiliated with any checklist or template site?</h3>
+  <p>No. This page compares against the generic method of using a single downloaded or bookmarked chargeback checklist for every dispute, not any specific company or product.</p>
+  <p class="note">
+    Open the <a href="./">Chargeback Evidence Packet Builder</a> and pick the
+    dispute reason first &mdash; the checklist below it is the one built for
+    that reason, not a generic one.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or payment advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you a packet, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

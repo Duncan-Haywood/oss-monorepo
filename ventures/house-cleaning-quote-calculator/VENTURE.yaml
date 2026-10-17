@@ -1,0 +1,60 @@
+name: house-cleaning-quote-calculator
+description: >-
+  Free browser tool for residential cleaning business owners: enter a home's size,
+  your own pace per person-hour, wages, burden, supplies, paid drive time and mileage,
+  plus the frequencies you sell with a time multiplier and discount each. See cost per
+  visit, the lowest price that earns your target margin, the largest discount each
+  frequency can take, the list price that keeps every discount above target, and
+  annual profit by frequency. No customer data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were unrelated
+# (process-server-fee-calculator 0.27, dj-gig-profit-calculator 0.25); no house
+# cleaning venture exists (carpet, window, duct, STR-turnover fee are other jobs),
+# screened-out rows not hit.
+#
+# Why this niche: hundreds of thousands of US residential cleaning businesses are
+# owner-run, priced by a competitor's number or a flat per-square-foot guess, and
+# then pressured to discount for weekly clients. The discount is where margin
+# quietly disappears; software like Jobber or Housecall Pro schedules and invoices
+# but does not tell an owner the discount floor for a given crew and home.
+#
+# First visitor: owners searching "how much to charge for house cleaning",
+# "house cleaning pricing calculator", "cleaning business profit margin".
+# Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market rates, wage law,
+# productivity benchmarks or employment classification asserted; says what it
+# does not model. No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# lead magnet for a future hosted quote-and-recurring-schedule tool.
+
+hypotheses:
+  - claim: >-
+      Residential cleaning owners will use a private, no-signup quote calculator
+      that shows the discount limit per frequency, because their scheduling
+      software shows revenue but not what a weekly discount costs in margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/house-cleaning-quote-calculator/
+  analytics: null

@@ -1,0 +1,44 @@
+name: powder-coating-job-price-calculator
+description: >-
+  Free browser calculator for powder coating job shops and small finishers: enter the parts, powder, transfer efficiency, labour, oven batches,
+  colour setup, scrap and margin, and see the price per piece and per square foot, the price by order size, the order that meets a customer's
+  target price, and which powder costs least. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check scored the nearest ventures at 0.36 (embroidery-shop-quote-calculator) and
+# below; nothing in ventures/ or screened-out.md prices powder coating. cnc-machining-quote-calculator and screen-print-job-quote-calculator
+# are the same job-shop shape for different processes; none models powder transfer efficiency, reclaim or oven batch rounding.
+#
+# First visitor: powder coating and small finishing shops searching "how to price powder coating", "powder coating cost per square foot",
+# "powder coating minimum charge", and r/powdercoating threads asking what to charge. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not legal, tax or financial advice; says what is not
+# modelled (tax, freight, pretreatment, warranty, local rates) and carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small coating shops will type a job's area, powder and oven batch into a no-signup calculator to set a price, because most quote by a
+      per-square-foot rule of thumb that ignores overspray, half-full oven batches and colour changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/powder-coating-job-price-calculator/
+  analytics: null

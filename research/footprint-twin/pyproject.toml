@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "footprint-twin"
+version = "0.1.0"
+description = "Footprint twin: a point/inscribed-circle, circumscribed-circle or calibrated-inflation twin vs a rectangular robot with heading error passing a narrow gap; closed-form pass probability and required clearance"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_015fNj3SskJW8MfgePYCDgZY",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-16T08:18:09Z",
+  "ended": "2026-10-16T08:18:27Z",
+  "wall_minutes": 13.64,
+  "tokens_in": 2056994,
+  "tokens_out": 6731,
+  "cost_usd": 0.7461,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "No guidance on suites that hang under mutants: a first campaign on ventures/meter-keeper/engine.mjs ran 10+ minutes because its server tests hang on some mutants; I aborted and switched target."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Campaign on ventures/shift-roster-builder/calc.mjs: 8 seeded, 3 caught, 3 gaps (money formatting, iCal person filter, hour targets) now guarded, 2 equivalent. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/shift-roster-builder/calc.mjs",
+        "test": "node --test ventures/shift-roster-builder/**/*.test.mjs  (in .)",
+        "seed": 1047372565,
+        "commit": "cea9e32cc",
+        "sites": 721,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 78,
+            "col": 116,
+            "operator": "const-plus-one",
+            "before": "export const money = (n) => (n < 0 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 0, maximumFractionDigits: 0 });",
+            "after": "export const money = (n) => (n < 0 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 1, maximumFractionDigits: 0 });",
+            "line_text": "export const money = (n) => (n < 0 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 0, maximumFractionDigits: 0 });",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 185,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "const role = roleCell ? parseRoles(roleCell)[0] || \"\" : (c[5] || \"\").trim().toLowerCase();",
+            "after": "const role = roleCell ? parseRoles(roleCell)[0] || \"\" : (c[5] && \"\").trim().toLowerCase();",
+            "line_text": "    const role = roleCell ? parseRoles(roleCell)[0] || \"\" : (c[5] || \"\").trim().toLowerCase();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 187,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight",
+            "after": "const end = b <= a ? b - 1440 : b; // an end at or before the start runs overnight",
+            "line_text": "      const end = b <= a ? b + 1440 : b; // an end at or before the start runs overnight",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 238,
+            "col": 60,
+            "operator": "div-to-times",
+            "before": "const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);",
+            "after": "const target = staff.map((_, i) => (totalHours * caps[i]) * capSum);",
+            "line_text": "  const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 256,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "let run = 0, prev = -9;",
+            "after": "let run = 1, prev = -9;",
+            "line_text": "  let run = 0, prev = -9;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Initial run=1 vs 0 is overwritten on the first loop iteration unless the first day equals -8, and days are 0-6."
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 259,
+            "col": 12,
+            "operator": "gt-to-ge",
+            "before": "if (run > o.maxConsecDays) return false;",
+            "after": "if (run >= o.maxConsecDays) return false;",
+            "line_text": "    if (run > o.maxConsecDays) return false;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 336,
+            "col": 52,
+            "operator": "plus-to-minus",
+            "before": "const d = personScore(ctx, p, nl) - pScore[p] + (jitter ? rng() * jitter : 0);",
+            "after": "const d = personScore(ctx, p, nl) - pScore[p] - (jitter ? rng() * jitter : 0);",
+            "line_text": "      const d = personScore(ctx, p, nl) - pScore[p] + (jitter ? rng() * jitter : 0);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Jitter only randomises tie-breaking; adding or subtracting a seeded uniform draw gives the same distribution of search starts, not a user-visible rule change."
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 604,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "if (!a.person || (person && a.person !== person)) return;",
+            "after": "if (!a.person && (person && a.person !== person)) return;",
+            "line_text": "    if (!a.person || (person && a.person !== person)) return;",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "618a1388-6638-51bc-9c91-c00e769cc9f8",
+    "transcripts": 1,
+    "first": "2026-10-16T08:18:09Z",
+    "last": "2026-10-16T08:31:47Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 25,
+        "input": 50,
+        "output": 6731,
+        "thinking": 966,
+        "cache_read": 1986595,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70349,
+        "api_equivalent_usd": 0.7461,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 50,
+      "output": 6731,
+      "thinking": 966,
+      "cache_read": 1986595,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70349,
+      "api_equivalent_usd": 0.7461,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 20,
+      "Read": 4,
+      "Monitor": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.64,
+      "active_minutes": 13.64,
+      "model_minutes": 0.94,
+      "tool_minutes": 12.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read target, triage 5 mutants, write 3 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 134.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

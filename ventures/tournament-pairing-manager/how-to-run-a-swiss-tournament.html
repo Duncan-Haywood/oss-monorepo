@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Swiss Tournament: A Worked 8-Player Example</title>
+  <meta name="description" content="How a Swiss tournament works: how many rounds you need, how each round is paired, byes, colour balance and Buchholz tiebreaks, with an eight-player event worked round by round. Then run your own for free.">
+  <meta property="og:title" content="How To Run A Swiss Tournament: A Worked Example">
+  <meta property="og:description" content="Rounds, pairings, byes, colours and tiebreaks, with an eight-player event worked out. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-swiss-tournament.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does Swiss pairing work?","acceptedAnswer":{"@type":"Answer","text":"Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four."}},{"@type":"Question","name":"How many Swiss rounds do I need?","acceptedAnswer":{"@type":"Answer","text":"Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field."}},{"@type":"Question","name":"What happens with an odd number of players?","acceptedAnswer":{"@type":"Answer","text":"One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one."}},{"@type":"Question","name":"How are ties in the Swiss standings broken?","acceptedAnswer":{"@type":"Answer","text":"In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d3f8f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d3d9e6; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d3f8f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #46506a; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Tournament pairing manager</a></p>
+  <h1>How to run a Swiss tournament, with a worked example</h1>
+  <p>A Swiss tournament lets a large field play a fair number of rounds without a full round robin and without knocking anyone out. Everyone plays every round; each round you pair people on similar scores who have not met. This page works through eight invented players, three rounds, and shows where the tiebreaks come in.</p>
+  <p><a class="cta" href="./">Open the free pairing manager</a></p>
+  <h2>How many rounds?</h2>
+  <p>The usual rule is the next whole number above log2 of the number of players: 3 rounds for 8 players, 4 for 16, 5 for 32. After that many rounds at most one player can still be unbeaten, so the winner is clear. One extra round makes the ranking underneath more reliable.</p>
+  <h2>Round 1</h2>
+  <p>With no scores yet, the field is split in half by rating and the top half is paired with the bottom half: first against fifth, second against sixth, and so on. The first name on each board has White (or home).</p>
+  <table>
+    <thead><tr><th>Board</th><th>White</th><th>Black</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Maya</td><td>Priya</td><td>1-0</td></tr>
+      <tr><td>2</td><td>Ben</td><td>Tom</td><td>1-0</td></tr>
+      <tr><td>3</td><td>Ana</td><td>Lena</td><td>1-0</td></tr>
+      <tr><td>4</td><td>Jonas</td><td>Sam</td><td>1-0</td></tr>
+    </tbody>
+  </table>
+  <h2>Round 2</h2>
+  <p>Now the winners play winners and the losers play losers, with nobody meeting someone they have already played. Colours are handed out so each player is owed the colour they have had least.</p>
+  <table>
+    <thead><tr><th>Board</th><th>White</th><th>Black</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Maya</td><td>Ana</td><td>1-0</td></tr>
+      <tr><td>2</td><td>Ben</td><td>Jonas</td><td>1-0</td></tr>
+      <tr><td>3</td><td>Priya</td><td>Lena</td><td>1-0</td></tr>
+      <tr><td>4</td><td>Tom</td><td>Sam</td><td>1/2-1/2</td></tr>
+    </tbody>
+  </table>
+  <h2>Round 3 and the standings</h2>
+  <table>
+    <thead><tr><th>Board</th><th>White</th><th>Black</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Maya</td><td>Ben</td><td>1-0</td></tr>
+      <tr><td>2</td><td>Ana</td><td>Jonas</td><td>1-0</td></tr>
+      <tr><td>3</td><td>Sam</td><td>Priya</td><td>0-1</td></tr>
+      <tr><td>4</td><td>Lena</td><td>Tom</td><td>0-1</td></tr>
+    </tbody>
+  </table>
+  <p>In this run the higher-rated player won every game except one draw on board 4 in round 2. After three rounds the standings, with a win worth 1 point and a draw half, are below. Players level on points are separated by Buchholz, the sum of their opponents' scores: beating strong opposition counts for more than beating weak opposition.</p>
+  <table>
+    <thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Buchholz</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Maya</td><td>3</td><td>6</td></tr>
+      <tr><td>2</td><td>Ben</td><td>2</td><td>5.5</td></tr>
+      <tr><td>3</td><td>Ana</td><td>2</td><td>4</td></tr>
+      <tr><td>4</td><td>Priya</td><td>2</td><td>3.5</td></tr>
+      <tr><td>5</td><td>Tom</td><td>1.5</td><td>2.5</td></tr>
+      <tr><td>6</td><td>Jonas</td><td>1</td><td>4.5</td></tr>
+      <tr><td>7</td><td>Sam</td><td>0.5</td><td>4.5</td></tr>
+      <tr><td>8</td><td>Lena</td><td>0</td><td>5.5</td></tr>
+    </tbody>
+  </table>
+  <p><a class="cta" href="./">Run your own tournament</a></p>
+  <h2>Questions</h2>
+  <h3>How does Swiss pairing work?</h3>
+  <p>Everyone plays every round and nobody is knocked out. Each round the players are sorted by score and paired with someone on a similar score who they have not played yet, so the leaders meet each other and the table sorts itself out in about log2 of the number of players rounds. Eight players need three rounds, sixteen need four.</p>
+  <h3>How many Swiss rounds do I need?</h3>
+  <p>Enough rounds that only one player can finish unbeaten: the next whole number above log2 of the player count. That is 3 rounds for 8 players, 4 for 16 and 5 for 32. One extra round makes the final ranking more reliable. The page shows the recommended number for your field.</p>
+  <h3>What happens with an odd number of players?</h3>
+  <p>One player gets a bye each round and is scored as a win unless you change the bye points. The bye goes to the lowest-ranked player who has not had one yet, so nobody gets a second bye before everyone has had one.</p>
+  <h3>How are ties in the Swiss standings broken?</h3>
+  <p>In this order: Buchholz (the sum of your opponents' scores), Buchholz cut 1 (the same with the weakest opponent dropped), Sonneborn-Berger (points scored against each opponent weighted by that opponent's score), number of wins, and progressive score. Players still level share a rank, and the page marks them as tied so you can run a playoff or apply your own rule.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and result before you publish them or send them to a rating body. The example players are invented.</p>
+    <p>Everything the pairing manager does runs in your browser; player names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

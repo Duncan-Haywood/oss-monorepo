@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01WV2g68gZDyBfhH31v6mgGi",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "model": "claude-sonnet-5-5",
+  "task": "extend",
+  "projects": [
+    "accel-fpga"
+  ],
+  "pr": null,
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "track 11 (mimic) drawn but Hugging Face blocked by proxy, so mimic-contexts could not start; took accel-fpga instead",
+    "apt numpy conflicted with pip numpy; used a venv",
+    "first sweep run crashed at the final version lookup after all rows; fixed and re-ran"
+  ],
+  "integrity_issues": [],
+  "notes": "Weights random not trained; accuracy column borrowed from accel-kws. nextpnr FCCM 2019 citation flagged unverified in README. Usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

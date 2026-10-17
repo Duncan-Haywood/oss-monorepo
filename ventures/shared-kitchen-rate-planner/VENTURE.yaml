@@ -1,0 +1,46 @@
+name: shared-kitchen-rate-planner
+description: >-
+  Free browser tool for shared and commissary kitchen owners. Enter monthly costs, stations, hours, hourly rate and
+  memberships; get profit, break-even utilization, the hourly rate that reaches a goal, what a membership really sells
+  an hour for, and a rate-by-utilization profit grid. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "commercial kitchen shared rental hourly rate
+# break even": closest 0.37 (rental-dscr-calculator), no shared-kitchen venture exists. Not in screened-out.md.
+# Who: owners of commissary, ghost and shared kitchens (and food-incubator operators) who rent stations by the hour
+# and by membership and have never solved for the utilization their rent needs. Search phrases: "how much to charge
+# for commercial kitchen rental", "shared kitchen business plan", "commissary kitchen hourly rate". Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty and
+# not-advice clauses.
+#
+# Unverified: no kitchen owner has used it. One flat hourly rate and capped member use are stated simplifications.
+# Path to revenue (payment rails stay off): lead magnet and donations; if usage appears, a booking-calendar
+# integration behind an env-var switch is the next build.
+
+hypotheses:
+  - claim: >-
+      Shared-kitchen owners will enter their costs and rates into a private planner to find the utilization their rent needs,
+      because the hourly rate is usually copied from a competitor rather than derived from cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shared-kitchen-rate-planner/
+  analytics: null
+

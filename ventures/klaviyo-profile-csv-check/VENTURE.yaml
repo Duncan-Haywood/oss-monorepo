@@ -1,0 +1,40 @@
+name: klaviyo-profile-csv-check
+description: >-
+  Free browser tool that checks a Klaviyo profile import CSV before it is uploaded: rows with no
+  email, phone number or External ID, invalid and duplicate emails (capitals ignored), phone numbers
+  that are not E.164, phones, zips and IDs Excel damaged (stripped leading zeros, scientific
+  notation), headers like Phone or Zip Code that will not map to the standard property, bad
+  latitude, longitude and timezone values, date columns that mix day-first and month-first, and
+  semicolon-separated files, each with its line number, plus a safe-fixes pass that cleans
+  formatting only and never touches a name, a custom value or anything about consent. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Klaviyo is the email/SMS platform most
+# ecommerce stores run (Shopify's default recommendation), and every migration into it, from
+# Mailchimp, a POS export or a spreadsheet, is a CSV import. The portfolio checks Shopify customer
+# files, HubSpot contacts and generic email lists, but nothing reads the file a Klaviyo import
+# expects. Klaviyo treats any non-standard column as a custom property, so the costly faults are
+# silent: "Phone" or "Zip Code" becoming a custom property instead of the standard one, a date
+# column mixing 03/04 and 15/04, a zip that lost its leading zero. Those never raise an error.
+#
+# First visitor: ecommerce operators and Klaviyo agencies searching literal symptoms ("Klaviyo CSV
+# import skipped rows", "Klaviyo import phone number format", "Klaviyo import custom property
+# instead of phone", "Klaviyo CSV date format"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: a profile list is personal data, so the file never leaves the
+# browser (a test asserts no network calls). Consent is the second boundary: Klaviyo asks the
+# importer to confirm permission; this tool says on the page that formatting is all it checks,
+# never creates or changes consent, and its safe fixes never touch a consent column (a test pins it).
+#
+# Rules are read from memory of Klaviyo's public CSV import help, shown on the page with an
+# explicit not-checked list (deliverability, suppression, existing profiles, size limits).
+#
+# Path to revenue (payment rails stay off): lead magnet for the ecommerce-operator and Klaviyo
+# agency audience, cross-linked to the Shopify, HubSpot and email-list checkers. A paid version, if
+# usage appears, is bulk checks across client files with saved rules behind an env-var switch; not
+# built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# not legal advice on messaging law, independent-of-Klaviyo clause, trademark used nominatively.

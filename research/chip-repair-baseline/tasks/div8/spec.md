@@ -1,0 +1,1 @@
+Module `div8`: unsigned inputs `[7:0] n` (dividend) and `[7:0] d` (divisor); outputs `[7:0] q` and `[7:0] r`. When `d` is not 0, `q = n / d` and `r = n % d` (integer division). When `d` is 0, `q` is 8'hFF and `r` is `n`. Purely combinational.

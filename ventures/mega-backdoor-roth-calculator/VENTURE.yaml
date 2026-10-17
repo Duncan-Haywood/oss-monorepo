@@ -1,0 +1,172 @@
+name: mega-backdoor-roth-calculator
+description: Free browser calculator for savers whose 401(k) plan allows after-tax (non-Roth) employee contributions. Computes remaining after-tax contribution headroom under the IRS Section 415(c) overall annual-additions limit for 2025 or 2026 (age-adjusted for standard and SECURE 2.0 enhanced catch-up), the per-paycheck amount to use it up by year-end, and an estimate of the tax cost a periodic (rather than automatic) Roth conversion adds. Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-24. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.11 -- the closest matches were
+# dental-ppo-writeoff-calculator and a handful of route/margin candidates
+# on pure word overlap ("calculator", "headroom"-adjacent terms), none of
+# them retirement- or tax-adjacent. A grep for "401k", "roth", "backdoor",
+# and "rsu" across ventures/ and portfolio/pipeline/ found no existing
+# venture or candidate on this question, and it is not in
+# screened-out.md. This is also a distinct audience (individual tech/
+# high-income savers optimizing personal retirement accounts) and a
+# distinct domain (personal-finance tax arithmetic) from the portfolio's
+# two saturated archetypes -- trade bid calculators (141+ instances) and
+# marketplace seller fee calculators -- per the archetype-fatigue note in
+# portfolio/pipeline/README.md.
+#
+# Niche test (PRODUCT_PLAYBOOK.md 1):
+#   Who exactly: individual savers, disproportionately tech and other
+#     high-income W-2 employees, whose employer's 401(k) plan offers
+#     after-tax contributions and in-plan Roth conversion or in-service
+#     withdrawals -- a benefit increasingly common at large tech employers
+#     specifically.
+#   What they search: "mega backdoor roth calculator", "mega backdoor
+#     roth 401k limit 2026", "after tax 401k contribution limit" --
+#     WebSearch 2026-09-24 confirmed real, recurring demand: a dedicated
+#     Bogleheads wiki page ("Mega-backdoor Roth") plus at least four
+#     separate, long-running Bogleheads forum threads on this exact
+#     mechanic (contribution-limit math, catch-up interaction, and
+#     conversion-frequency questions), and at least six existing
+#     competing free calculators already targeting the phrase (see
+#     "Competitive honesty" below) -- itself evidence the query has
+#     enough volume to be worth building a calculator for.
+#   What it costs them: getting the 415(c) headroom wrong either
+#     under-contributes (leaving free tax-advantaged room unused for the
+#     year, which cannot be made up later) or over-contributes (an
+#     excess annual addition the plan or IRS can require corrected,
+#     sometimes with an excise tax) -- a real, calculable dollar cost
+#     either direction, not just an annoyance.
+#   Competitive honesty (corrected after WebSearch/WebFetch 2026-09-24):
+#     this niche is NOT uncontested -- Richify, Taxstra, RothRoom,
+#     FinancialAHA, and 401lcalculator all publish a free "mega backdoor
+#     Roth calculator" already, and the differentiation claim in an
+#     earlier draft of this file ("no vendor asks for employer
+#     contributions or after-tax YTD") did not survive checking one of
+#     them directly. WebFetch against Richify's live calculator
+#     (2026-09-24) found it genuinely does NOT do three things this tool
+#     does: it projects from an assumed salary percentage and a single
+#     blended employer-match percentage rather than actual YTD paystub
+#     figures, it does not compute a per-paycheck contribution target,
+#     and it does not model a plan-specific after-tax percentage cap
+#     separately from the IRS limit -- its own FAQ states qualitatively
+#     that periodic conversion "increases the taxable portion" but does
+#     not quantify it the way this tool's estimated-conversion-tax figure
+#     does. That is a real, verified, narrower edge (actual-YTD-input,
+#     per-paycheck, plan-cap-aware), not "solves an unsolved problem" --
+#     record it here rather than the stronger claim so a later session
+#     does not repeat the overclaim.
+#
+# Data sourcing and its limits: the 2025 and 2026 IRS dollar limits
+# (elective deferral, standard catch-up, SECURE 2.0 enhanced catch-up for
+# ages 60-63, and the 415(c) overall limit) were confirmed 2026-09-24 via
+# WebSearch, cross-checking two independent secondary summaries
+# (Thomson Reuters' and Employee Fiduciary's coverage of IRS Notice
+# 2024-80 and Notice 2025-67 respectively) against each other -- both
+# agreed on every figure. WebFetch against the primary IRS notice PDFs
+# (irs.gov/pub/irs-drop/n-25-67.pdf) did not return extractable text in
+# this session, so the primary source was not read directly; this is
+# secondary-source compiled data, and the product page says so.
+#
+# Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
+# bold must clear 5):
+#   ai_leverage: 1 (deterministic threshold/headroom arithmetic; no model
+#     involved)
+#   autonomous_ops: 10 (static page, no queue, no human step)
+#   time_to_revenue: 1 (donations-only; no paid tier)
+#   gross_margin: 10 (GitHub Pages hosting, zero per-user cost)
+#   defensibility: 2 (the arithmetic itself is easy to reproduce -- typical
+#     for this portfolio's calculator shape; the free/no-account/no-plan-
+#     integration angle is the edge)
+#   distribution: 4 (real, demonstrated recurring forum-thread volume on
+#     Bogleheads for this exact question, but at least six competing free
+#     calculators already rank for the phrase -- see "Competitive
+#     honesty" above -- so this is a real query with real incumbents, not
+#     an open channel; no paid acquisition, discoverability checklist in
+#     place)
+#   **liability_containment: 7** (all dollar inputs are figures the saver
+#     already has from their own paystub or plan portal; output is a
+#     headroom and per-paycheck number to verify, never a filed
+#     contribution election, a plan-compliance determination, or advice
+#     to convert; every page states plainly that most plans do not offer
+#     this at all and directs the saver to their plan document and a
+#     qualified tax preparer -- same shape and score class as the
+#     portfolio's other tax-arithmetic siblings, e.g.
+#     depreciation-recapture-calculator and qbi-deduction-calculator)
+#   **ethical_robustness: 8** (the tool gets more useful as it scales --
+#     nothing about one saver using it makes another saver's experience
+#     worse -- and its only effect is helping a saver use tax-advantaged
+#     room the law already grants them correctly, never toward evading an
+#     obligation; no personal or scraped data, no advice framed as a
+#     determination)
+#   Composite: 5.375; floor 1 (ai_leverage/time_to_revenue, same floor
+#     class as most of this portfolio's zero-marginal-cost calculators)
+#
+# Distribution channel evidence (DIRECTION.md North star point 2):
+# the Bogleheads wiki and forum -- confirmed via WebSearch/WebFetch
+# 2026-09-24 to carry a dedicated wiki page and multiple recurring
+# threads on mega backdoor Roth mechanics specifically (not just backdoor
+# Roth IRA, which is a different and already well-served question) -- is
+# a genuinely different channel and audience from the trades and
+# marketplace-seller communities the portfolio's other 300+ calculators
+# target. This is real demand evidence, not a claim of an open or
+# undistributed channel: at least six competing free calculators already
+# rank for this phrase (see "Competitive honesty" above), so ranking here
+# will be harder than in this portfolio's less-contested niches.
+
+hypotheses:
+  - claim: >-
+      Savers with access to after-tax 401(k) contributions will search
+      plain-language phrases ("mega backdoor roth calculator", "after tax
+      401k limit 2026", "415c limit calculator") and return to a free,
+      no-signup calculator that gives a per-paycheck headroom number,
+      rather than reconstructing the 402(g)/415(c) distinction from a
+      forum post each year.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A saver will return to this calculator at least once more within
+      the same plan year -- after a raise, a job change, or a plan-year
+      rollover -- because the headroom figure changes with every payroll
+      cycle and is worth re-checking rather than computing once and
+      trusting it through December.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A saver whose plan only allows periodic (not automatic) Roth
+      conversion will find the estimated tax-cost-of-delay figure useful
+      enough to ask their plan administrator about automatic conversion,
+      because most generic contribution calculators do not model
+      conversion cadence at all.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January filing season (the first full plan-year cycle
+    after this tool's 2026-09-24 launch that a saver would plausibly
+    re-check their running totals against).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that same window.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mega-backdoor-roth-calculator/
+  analytics: null

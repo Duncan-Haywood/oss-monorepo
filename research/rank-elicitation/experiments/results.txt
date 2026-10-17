@@ -1,0 +1,22 @@
+E1 K=5 equal weights: adjacent-swap regret (payment range 1) vs Brier-derived ranking (range 2, normalised to 1)
+ gap     linear rank   Brier/range   ratio(linear/Brier)   crossover gap 1/(K-1) = 0.250
+ 0.3        0.075000      0.090000           0.83
+ 0.1        0.025000      0.010000           2.50
+ 0.03       0.007500      0.000900           8.33
+ 0.01       0.002500      0.000100          25.00
+ 0.001      0.000250      0.000001         250.00
+
+E2 min adjacent-swap incentive per unit range, K=6: equal spacing is optimal (1/(K-1))
+ equal           min spacing 0.2000   top-boundary spacing 0.2000
+ geometric q=.8  min spacing 0.1218   top-boundary spacing 0.2975
+ geometric q=.5  min spacing 0.0323   top-boundary spacing 0.5161
+ top-2 set       min spacing 0.0000   top-boundary spacing 0.0000
+
+E3 worst-case regret = reversed ranking (brute force over all 120 rankings, K=5, 200 random truths)
+ max |closed form - brute force| = 2.22e-16
+ uniform-ish truth p=(.4,.3,.15,.1,.05), equal weights: max regret 0.4500 of range 1
+
+E4 detecting one adjacent swap (p_i=.25,p_j=.15) with a one-sided z-test, z=1.645: n from formula vs simulation power
+ K=3: linear n=106, sim power 0.496 (target ~0.5 at n=z^2 var/mean^2); Brier n=105.5 (same); expected payoff gain per task linear 0.0500 vs Brier/range 0.0100
+ K=5: linear n=106, sim power 0.506 (target ~0.5 at n=z^2 var/mean^2); Brier n=105.5 (same); expected payoff gain per task linear 0.0250 vs Brier/range 0.0100
+ K=9: linear n=106, sim power 0.504 (target ~0.5 at n=z^2 var/mean^2); Brier n=105.5 (same); expected payoff gain per task linear 0.0125 vs Brier/range 0.0100

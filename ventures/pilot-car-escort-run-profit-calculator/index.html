@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run</title>
+  <meta name="description" content="Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.">
+  <meta property="og:title" content="Pilot Car Escort Run Profit Calculator — true profit, margin and lowest quote per run">
+  <meta property="og:description" content="Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pilot Car Escort Run Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for pilot car and oversize-load escort operators: true profit per run, margin, profit per driver hour, the lowest quote for a target margin, break-even runs a year, and a two-run comparison. Runs in your browser; nothing is uploaded.","featureList":"pilot car rate calculator, escort vehicle profit per run, oversize load escort pricing, deadhead cost per run, per mile versus day rate"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a pilot car escort run so it makes money?","acceptedAnswer":{"@type":"Answer","text":"Start from what the truck is really doing, not the miles on the permit: the loaded miles with the load plus the deadhead to the start point and home from the end point, the driver hours including waiting, tolls, meals and hotel nights on a multi-day move. Add fuel and wear for every mile driven, card fees, the vehicle's cost per run and a share of your yearly insurance, certifications and equipment. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest total price, or per-mile rate."}},{"@type":"Question","name":"Why does a short escort run lose money?","acceptedAnswer":{"@type":"Answer","text":"Because the miles and hours around the load are not billed. A 140-mile run with 60 empty miles to get there and home and five hours of driver time quotes $252 at $1.80 a loaded mile, so most operators set a minimum or day rate. The minimum has to cover the deadhead, the hours and a share of the yearly overhead, not just the fuel."}},{"@type":"Question","name":"What should my minimum charge or day rate be?","acceptedAnswer":{"@type":"Answer","text":"Enter your shortest typical run: loaded miles, deadhead and hours. The calculator shows the total the run needs for your target margin. Set the minimum at or above that number and the short runs stop being the ones that lose money."}},{"@type":"Question","name":"How many escort runs a year do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Take what one run earns above its direct costs, which is everything except the yearly insurance, certification and equipment share, and divide your yearly overhead by that. The calculator shows the runs a year at your price and warns if it is more than the runs you expect."}},{"@type":"Question","name":"Should I take the long run or the short run?","acceptedAnswer":{"@type":"Answer","text":"Compare profit per run and profit per driver hour. If your days are the limit, the run with the higher profit per driver hour is the better use of a day, even if another run makes more money by itself."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this tax, insurance or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. State escort rules, insurance, permits and tax depend on where you operate. Check with an accountant, your insurer or your state permit office."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style></head>
+<body>
+  <header>
+    <p class="note">PILOT CAR ESCORT RUN PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does an escort run really make? True profit, margin and the lowest quote</h1>
+    <p>For pilot car, oversize-load escort and route survey operators. Type the quote and what the run takes. The tool counts <strong>every driver hour, every mile including the empty drive to the start and home from the end, meals, hotel, tolls, card fees, the vehicle's wear and your yearly insurance and certifications</strong>, then shows profit per run and per driver hour, the <strong>lowest quote that earns your target margin</strong>, and the runs a year you need to break even.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-does-a-pilot-car-escort-run-really-make.html">how much does a pilot car escort run really make</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. What you quote</h2>
+    <div class="row3">
+      <div><label for="md">How you quote it</label><select id="md"><option value="mile" selected>Price per loaded mile</option><option value="flat">Flat or day price for the run</option></select></div>
+      <div><label for="pr">Your price ($ per loaded mile, or $ for the run)</label><input type="number" id="pr" min="0" step="0.05" max="100000" value="1.8"></div>
+      <div><label for="mc">Minimum charge or day rate ($)</label><input type="number" id="mc" min="0" step="10" max="100000" value="450"></div>
+    </div>
+    <p class="note">If the miles times your rate come to less than the minimum, the minimum is what you bill.</p>
+    <h2 style="margin-top:20px">2. Miles, hours and days away</h2>
+    <div class="row3">
+      <div><label for="lm">Loaded miles (with the load)</label><input type="number" id="lm" min="0" step="1" max="5000" value="140"></div>
+      <div><label for="dm">Deadhead miles (to the start and home from the end)</label><input type="number" id="dm" min="0" step="1" max="5000" value="60"></div>
+      <div><label for="dh">Driver hours, including waiting</label><input type="number" id="dh" min="0.5" step="0.5" max="400" value="5"></div>
+      <div><label for="dy">Days away</label><input type="number" id="dy" min="0.5" step="0.5" max="60" value="1"></div>
+      <div><label for="nt">Hotel nights</label><input type="number" id="nt" min="0" step="1" max="60" value="0"></div>
+      <div><label for="tl">Tolls and permits paid on the run ($)</label><input type="number" id="tl" min="0" step="1" max="10000" value="12"></div>
+    </div>
+    <h2 style="margin-top:20px">3. What the run costs to drive</h2>
+    <div class="row3">
+      <div><label for="wg">Driver pay ($ per hour, 0 if you drive it)</label><input type="number" id="wg" min="0" step="0.5" max="500" value="22"></div>
+      <div><label for="mg">Vehicle miles per gallon</label><input type="number" id="mg" min="1" step="0.5" max="100" value="17"></div>
+      <div><label for="fp">Fuel price ($ per gallon)</label><input type="number" id="fp" min="0.5" step="0.05" max="20" value="3.7"></div>
+      <div><label for="tw">Maintenance and tires ($ per mile)</label><input type="number" id="tw" min="0" step="0.01" max="20" value="0.18"></div>
+      <div><label for="pd">Meals ($ per day away)</label><input type="number" id="pd" min="0" step="1" max="1000" value="45"></div>
+      <div><label for="hr">Hotel ($ per night)</label><input type="number" id="hr" min="0" step="5" max="5000" value="110"></div>
+      <div><label for="pc">Card and invoicing fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3"></div>
+    </div>
+    <h2 style="margin-top:20px">4. The vehicle and your year</h2>
+    <div class="row3">
+      <div><label for="vc">Vehicle cost ($)</label><input type="number" id="vc" min="0" step="500" max="1000000" value="38000"></div>
+      <div><label for="lr">Runs you expect over its life</label><input type="number" id="lr" min="1" step="any" max="20000" value="1500"></div>
+      <div><label for="ai">Yearly insurance ($)</label><input type="number" id="ai" min="0" step="100" max="1000000" value="3200"></div>
+      <div><label for="ac">Yearly certifications, permits and training ($)</label><input type="number" id="ac" min="0" step="50" max="1000000" value="900"></div>
+      <div><label for="ae">Yearly signs, lights, radios and gear ($)</label><input type="number" id="ae" min="0" step="50" max="1000000" value="1400"></div>
+      <div><label for="ry">Escort runs per year</label><input type="number" id="ry" min="1" step="1" max="5000" value="120"></div>
+      <div><label for="tm">Margin you want (%)</label><input type="number" id="tm" min="0" step="1" max="90" value="30"></div>
+    </div>
+    <button type="button" id="solve">Check this run</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this run.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per run</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>5. Compare with a second run</h2>
+    <p class="note">Run A is everything above. Run B shares your pay, vehicle, fees and yearly overhead, and has its own quote, miles, hours and days. A short run that bills the minimum against a long run is the usual question.</p>
+    <div class="row3">
+      <div><label for="bmd">Run B: how you quote it</label><select id="bmd"><option value="mile" selected>Price per loaded mile</option><option value="flat">Flat or day price for the run</option></select></div>
+      <div><label for="bpr">Run B: price ($ per loaded mile, or $ for the run)</label><input type="number" id="bpr" min="0" step="0.05" max="100000" value="2.4"></div>
+      <div><label for="bmc">Run B: minimum charge ($)</label><input type="number" id="bmc" min="0" step="10" max="100000" value="450"></div>
+      <div><label for="blm">Run B: loaded miles</label><input type="number" id="blm" min="0" step="1" max="5000" value="420"></div>
+      <div><label for="bdm">Run B: deadhead miles</label><input type="number" id="bdm" min="0" step="1" max="5000" value="120"></div>
+      <div><label for="bdh">Run B: driver hours</label><input type="number" id="bdh" min="0.5" step="0.5" max="400" value="13"></div>
+      <div><label for="bdy">Run B: days away</label><input type="number" id="bdy" min="0.5" step="0.5" max="60" value="2"></div>
+      <div><label for="bnt">Run B: hotel nights</label><input type="number" id="bnt" min="0" step="1" max="60" value="1"></div>
+      <div><label for="btl">Run B: tolls and permits ($)</label><input type="number" id="btl" min="0" step="1" max="10000" value="30"></div>
+    </div>
+    <button type="button" id="compare">Compare the two runs</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Run costs:</strong> driver pay (driver hours × pay), fuel (loaded plus deadhead miles ÷ mpg × price), maintenance per mile driven, meals per day, hotel per night, tolls and permits, card fees on the whole price, the vehicle's cost ÷ expected runs, and a fixed share: yearly insurance, certifications and equipment ÷ runs per year. <strong>True profit</strong> is the price (or the minimum, if it is higher) minus those costs, before tax.</p>
+    <p><strong>Lowest quote:</strong> the costs that do not depend on price, divided by (1 − card fees − target margin), as a total, or divided by the loaded miles for a per-mile quote. The test suite checks that quoting exactly that amount earns the target margin for hundreds of random runs. If your minimum charge is already above it, the tool says so.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a pilot car escort run so it makes money?</h3>
+    <p>Start from what the truck is really doing, not the miles on the permit: the loaded miles with the load plus the deadhead to the start point and home from the end point, the driver hours including waiting, tolls, meals and hotel nights on a multi-day move. Add fuel and wear for every mile driven, card fees, the vehicle's cost per run and a share of your yearly insurance, certifications and equipment. Divide the costs that do not scale with price by one minus card fees and your target margin to get the lowest total price, or per-mile rate.</p>
+    <h3>Why does a short escort run lose money?</h3>
+    <p>Because the miles and hours around the load are not billed. A 140-mile run with 60 empty miles to get there and home and five hours of driver time quotes $252 at $1.80 a loaded mile, so most operators set a minimum or day rate. The minimum has to cover the deadhead, the hours and a share of the yearly overhead, not just the fuel.</p>
+    <h3>What should my minimum charge or day rate be?</h3>
+    <p>Enter your shortest typical run: loaded miles, deadhead and hours. The calculator shows the total the run needs for your target margin. Set the minimum at or above that number and the short runs stop being the ones that lose money.</p>
+    <h3>How many escort runs a year do I need to break even?</h3>
+    <p>Take what one run earns above its direct costs, which is everything except the yearly insurance, certification and equipment share, and divide your yearly overhead by that. The calculator shows the runs a year at your price and warns if it is more than the runs you expect.</p>
+    <h3>Should I take the long run or the short run?</h3>
+    <p>Compare profit per run and profit per driver hour. If your days are the limit, the run with the higher profit per driver hour is the better use of a day, even if another run makes more money by itself.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this tax, insurance or business advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. State escort rules, insurance, permits and tax depend on where you operate. Check with an accountant, your insurer or your state permit office.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, insurance or financial advice. <strong>Use at your own risk.</strong> Check escort rules, permits, insurance and taxes with your state permit office, insurer or an accountant.</p>
+    <p><strong>Independent.</strong> Not affiliated with any permit service, carrier, broker, state agency or escort association, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>run_checked</code>, <code>example_loaded</code>, <code>runs_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tool: the <a href="../tow-truck-rate-calculator/">tow truck rate calculator</a>, for another per-mile road service.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareJobs, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleJob } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"mode":"md","price":"pr","loadedMiles":"lm","minCharge":"mc","deadheadMiles":"dm","driverHours":"dh","days":"dy","nights":"nt","tolls":"tl","wage":"wg","mpg":"mg","fuelPrice":"fp","wearPerMile":"tw","perDiemRate":"pd","hotelRate":"hr","processPct":"pc","vehicleCost":"vc","lifeRuns":"lr","annualInsurance":"ai","annualCerts":"ac","annualEquipment":"ae","runsPerYear":"ry","targetMargin":"tm"};
+    const B = {"mode":"bmd","price":"bpr","loadedMiles":"blm","minCharge":"bmc","deadheadMiles":"bdm","driverHours":"bdh","days":"bdy","nights":"bnt","tolls":"btl"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, k === "mode" ? $("#" + id).value : Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      const unit = R.input.mode === "mile" ? " per loaded mile" : "";
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "true profit per run, before tax"], [pct(R.margin), "margin"], [cents(R.profitPerHour), "profit per driver hour"], [cents(R.minQuote) + unit, "lowest quote for your margin"], [R.breakevenRuns === null ? "never" : R.breakevenRuns.toFixed(0), "runs a year to cover your overhead"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Quoted before the minimum", cents(R.quoted)), row("Billed (at least your minimum)", cents(R.revenue)), row("Miles driven (loaded plus deadhead)", R.totalMiles.toFixed(0)), row("Driver pay", cents(R.labor)), row("Fuel", cents(R.fuel)), row("Maintenance and tires", cents(R.wear)),
+        row("Meals", cents(R.perDiem)), row("Hotel", cents(R.hotel)), row("Tolls and permits", cents(R.tolls)), row("Card fees", cents(R.processing)), row("Vehicle cost per run", cents(R.depreciation)), row("Yearly overhead share", cents(R.fixedShare)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("<strong>True profit per run</strong>", "<strong>" + cents(R.profit) + "</strong>"),
+        row("Total the run needs for your margin", cents(R.needRevenue)),
+        row("Lowest quote for your margin" + unit, cents(R.minQuote)),
+        row("Break-even runs a year", R.breakevenRuns === null ? "n/a" : R.breakevenRuns.toFixed(0)),
+        row("Profit a year at your run count", money(R.annualProfit)),
+      ].join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareJobs(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per run</th><th class="num">Run A</th><th class="num">Run B</th></tr></thead><tbody>' +
+        line("Billed", (x) => cents(x.revenue)) + line("Driver hours", (x) => x.input.driverHours.toFixed(1)) + line("Total costs", (x) => cents(x.costs)) + line("True profit", (x) => cents(x.profit)) + line("Margin", (x) => pct(x.margin)) +
+        line("Profit per driver hour", (x) => cents(x.profitPerHour)) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("run_checked"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleJob()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a short escort run billed at the minimum, invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("runs_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("escort-run-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("escort-run-scenario.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.job) fillMap(B, out.job); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

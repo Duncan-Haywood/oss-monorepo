@@ -1,0 +1,52 @@
+name: installment-sale-tax-calculator
+description: >-
+  Free browser tool for people who sell a business, rental property or land and finance the buyer with a note: enter
+  price, basis, selling expenses, depreciation taken, payment in the sale year, note length and rate, and see the gain
+  taxed each year under the installment method, the depreciation recapture due up front, the tax saved by spreading the
+  gain (nominal and in today's dollars), the after-tax interest, and a table by note length. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Not in ventures/ (like-kind-exchange-1031-calculator and
+# depreciation-recapture-calculator are neighbours, neither builds the Form 6252 schedule), not in screened-out.md.
+# Searches: "installment sale calculator", "seller financing tax calculator", "form 6252 calculator". Incumbents are
+# CPA-firm blog posts and a few spreadsheet templates; large six- and seven-figure sales mean real money per visitor.
+#
+# Who: owners selling a small business, landlords selling rentals or land with seller financing, and the CPAs and
+# business brokers who model it for them. First visitor: a seller comparing an all-cash offer with a financed one.
+#
+# Path to revenue (payment rails stay off): lead magnet for brokers and tax preparers; donations via GitHub Sponsors.
+# A broker-branded comparison report is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with visible rules; every rate is an input; carries the no-warranty
+# and not-advice clauses and lists what is not decided (assumed debt, related-party, 453A, AMT).
+#
+# Unverified: the recapture-first rule (IRC 453(i)) and the gross profit percentage follow Form 6252 as understood, not
+# checked against a preparer's return. Payments are level and at year end; no assumed mortgage above basis; interest is
+# taxed at the recapture rate the user enters. The 453A threshold ($5 million) is entered from memory of the statute.
+
+hypotheses:
+  - claim: >-
+      A seller weighing an all-cash offer against a seller-financed one will enter the deal into a no-upload page to see
+      the yearly tax and the saving, because the recapture-first rule is the part generic explainers leave out.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that a result differs materially from a correctly prepared Form 6252 on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/installment-sale-tax-calculator/
+  analytics: null

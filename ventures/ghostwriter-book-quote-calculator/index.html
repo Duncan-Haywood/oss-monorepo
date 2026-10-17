@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ghostwriter Book Quote Calculator: Price a Book From Your Hours — Free</title>
+  <meta name="description" content="Free ghostwriter quote calculator: build a book fee from drafting, interview, research and revision hours, add confidentiality and rush premiums, see per-word and per-page rates, a payment schedule and what a client's lower budget really pays you. Nothing uploaded.">
+  <meta property="og:title" content="Ghostwriter book quote calculator">
+  <meta property="og:description" content="How much should you charge to ghostwrite a book? Price it from your hours. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23334155'/%3E%3Cpath d='M9 24l2-7 11-11 4 4-11 11z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ghostwriter Book Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Price a ghostwritten book from hours: drafting, interviews, research, revisions and management, with confidentiality and rush premiums, platform fee, payment schedule and overrun risk. Runs in your browser.", "featureList": "Hours-first book quote, per-word and per-page rate, client budget check, overrun risk, payment schedule, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does a ghostwriter charge for a book?", "acceptedAnswer": {"@type": "Answer", "text": "Quotes for a full-length nonfiction book commonly run from low five figures to well over $100,000 depending on experience, and the range is wide because scope differs. The honest way to price is from hours: drafting, interviews, research, revision rounds and project management, times the hourly rate you need, plus premiums. This tool does that arithmetic and shows the per-word and per-page rate that falls out. The figures are not market data."}}, {"@type": "Question", "name": "Should a ghostwriter charge per word, per hour or a flat fee?", "acceptedAnswer": {"@type": "Answer", "text": "Clients usually want a flat fee and writers are safest when that flat fee was derived from hours. Per-word pricing hides interview and revision time; hourly pricing worries clients who cannot cap the cost. Build the flat fee from hours, then check the implied per-word rate against what the client expects."}}, {"@type": "Question", "name": "Why charge more for uncredited work?", "acceptedAnswer": {"@type": "Answer", "text": "Credited work gives you a portfolio line and referrals; uncredited work gives you neither and often an NDA. Many ghostwriters add a confidentiality premium for that. The tool lets you set the percentage, and shows how much of the fee it accounts for."}}, {"@type": "Question", "name": "How do I handle clients who want unlimited revisions?", "acceptedAnswer": {"@type": "Answer", "text": "Price a fixed number of revision rounds into the fee and a separate price for each extra round. The tool shows what one extra round costs at your rate so you can write it into the agreement."}}, {"@type": "Question", "name": "What if the client's budget is below my number?", "acceptedAnswer": {"@type": "Answer", "text": "Type their budget. The tool shows the hourly rate you would earn at that fee, and how many words of book that budget buys at your target rate with the same interviews and research, so you can offer a shorter book or a smaller scope instead of a discount."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Contracts, rights and tax treatment of your income are for you and a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">GHOSTWRITER BOOK QUOTE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much should you charge to ghostwrite this book? Price it from your hours.</h1>
+    <p>Type the word count and how long each part of the job really takes. The tool builds a flat fee that holds your target hourly rate after commission, shows the per-word and per-page rate that results, a deposit and milestone schedule, what a 25% overrun does to your real hourly, and what a client's lower budget pays you.</p>
+    <p class="note">Arithmetic on assumptions you type. Not legal, tax or financial advice. The example figures are placeholders, not market rates or a recommendation.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The book</h2>
+      <div class="grid">
+        <div><label for="wordCount">Target word count</label><input id="wordCount" type="number" step="any" value="0"></div>
+        <div><label for="draftWordsPerHour">Finished words per hour of drafting</label><input id="draftWordsPerHour" type="number" step="any" value="0"></div>
+        <div><label for="revisionRounds">Revision rounds included</label><input id="revisionRounds" type="number" step="any" value="0"></div>
+        <div><label for="revisionShare">Cost of each round as a share of drafting hours (0.1 = 10%)</label><input id="revisionShare" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The other hours</h2>
+      <div class="grid">
+        <div><label for="interviewHours">Interview hours with the client</label><input id="interviewHours" type="number" step="any" value="0"></div>
+        <div><label for="interviewOverhead">Prep and transcript hours per interview hour</label><input id="interviewOverhead" type="number" step="any" value="0"></div>
+        <div><label for="researchHours">Research hours</label><input id="researchHours" type="number" step="any" value="0"></div>
+        <div><label for="managementHours">Project management and email hours</label><input id="managementHours" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your rate and terms</h2>
+      <div class="grid">
+        <div><label for="targetHourly">Hourly rate you want to earn ($)</label><input id="targetHourly" type="number" step="any" value="0"></div>
+        <div><label for="confidentialityPremium">Premium for uncredited work (0.25 = 25%)</label><input id="confidentialityPremium" type="number" step="any" value="0"></div>
+        <div><label for="rushPremium">Rush premium (0.2 = 20%)</label><input id="rushPremium" type="number" step="any" value="0"></div>
+        <div><label for="platformFee">Marketplace or agency commission you pay (0.1 = 10%)</label><input id="platformFee" type="number" step="any" value="0"></div>
+        <div><label for="expenses">Expenses passed through at cost ($)</label><input id="expenses" type="number" step="any" value="0"></div>
+        <div><label for="clientBudget">Client's stated budget, if any ($, 0 = none)</label><input id="clientBudget" type="number" step="any" value="0"></div>
+        <div><label for="overrun">Overrun to stress-test (0.25 = 25% more hours)</label><input id="overrun" type="number" step="any" value="0"></div>
+        <div><label for="deposit">Deposit share (0.3 = 30%)</label><input id="deposit" type="number" step="any" value="0"></div>
+        <div><label for="milestones">Payments after the deposit</label><input id="milestones" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Price the book</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions ghostwriters ask</h2>
+      <h3>How much does a ghostwriter charge for a book?</h3>
+      <p>Quotes for a full-length nonfiction book commonly run from low five figures to well over $100,000 depending on experience, and the range is wide because scope differs. The honest way to price is from hours: drafting, interviews, research, revision rounds and project management, times the hourly rate you need, plus premiums. This tool does that arithmetic and shows the per-word and per-page rate that falls out. The figures are not market data.</p>
+      <h3>Should a ghostwriter charge per word, per hour or a flat fee?</h3>
+      <p>Clients usually want a flat fee and writers are safest when that flat fee was derived from hours. Per-word pricing hides interview and revision time; hourly pricing worries clients who cannot cap the cost. Build the flat fee from hours, then check the implied per-word rate against what the client expects.</p>
+      <h3>Why charge more for uncredited work?</h3>
+      <p>Credited work gives you a portfolio line and referrals; uncredited work gives you neither and often an NDA. Many ghostwriters add a confidentiality premium for that. The tool lets you set the percentage, and shows how much of the fee it accounts for.</p>
+      <h3>How do I handle clients who want unlimited revisions?</h3>
+      <p>Price a fixed number of revision rounds into the fee and a separate price for each extra round. The tool shows what one extra round costs at your rate so you can write it into the agreement.</p>
+      <h3>What if the client's budget is below my number?</h3>
+      <p>Type their budget. The tool shows the hourly rate you would earn at that fee, and how many words of book that budget buys at your target rate with the same interviews and research, so you can offer a shorter book or a smaller scope instead of a discount.</p>
+      <h3>Is this legal or financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Contracts, rights and tax treatment of your income are for you and a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Contract terms, rights and royalties, kill fees, co-author or "with" credit negotiation, sales tax and self-employment tax on the fee, currency conversion, and what the market will bear. A fee that is right on paper can still lose the job; the tool only tells you what the job costs you.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../translator-project-quote/">translator project quote</a>, the <a href="../freelance-writer-rate-calculator/">freelance writer rate calculator</a>, the <a href="../freelance-editor-quote-calculator/">freelance editor quote calculator</a> and the <a href="../freelance-proposal-maker/">freelance proposal maker</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify before you quote or sign anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : NaN; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const hr = (x) => `${x.toFixed(1)} h`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const o = a.opts, k = a.hours;
+      h += `<div class="finding"><h4>Quote ${money(a.invoice)} for ${o.wordCount.toLocaleString("en-US")} words</h4><p>That is ${money2(a.perWord)} per word or ${money(a.perPage)} per 250-word page, built from ${hr(k.total)} of work at ${money(o.targetHourly)} an hour${o.confidentialityPremium > 0 ? ", of which " + money(a.confidentialityValue) + " is the uncredited-work premium" : ""}${o.platformFee > 0 ? ", grossed up for a " + pct(o.platformFee, 0) + " commission" : ""}${o.expenses > 0 ? ", plus " + money(o.expenses) + " of expenses at cost" : ""}.</p></div>`;
+      h += `<div class="finding"><h4>Where the hours go</h4>${table(["Part of the job", "Hours"], [["Drafting", hr(k.draft)], ["Interviews with prep and transcripts", hr(k.interviews)], ["Research", hr(k.research)], ["Revision rounds (" + o.revisionRounds + ")", hr(k.revisions)], ["Management", hr(k.management)], ["<strong>Total</strong>", "<strong>" + hr(k.total) + "</strong>"]])}<p>One extra revision round beyond the included ones is worth ${money(a.extraRound)} at your rate. Put that number in the agreement.</p></div>`;
+      h += `<div class="finding"><h4>If the job runs ${pct(o.overrun, 0)} over</h4><p>You would earn ${money(a.atRisk)} an hour instead of the ${money(o.targetHourly)} you priced for. A fixed fee carries that risk, so the scope, the revision cap and the milestone dates are what protect the rate.</p></div>`;
+      if (a.atBudget !== null) h += `<div class="finding"><h4>At the client's ${money(o.clientBudget)} budget</h4><p>${a.budgetGap > 0 ? "That is " + money(a.budgetGap) + " under your quote and pays " + money(a.atBudget) + " an hour for the planned work." : "That covers your quote with " + money(-a.budgetGap) + " to spare."} At your target rate the same interviews and research with that budget buy about ${a.budgetWords.toLocaleString("en-US")} words of book. Offering a shorter book beats discounting the rate.</p></div>`;
+      h += `<div class="finding"><h4>Payment schedule</h4>${table(["Payment", "Amount"], a.schedule.map(([n, v]) => [esc(n), money(v)]))}</div>`;
+      h += `<div class="finding"><h4>If the book were a different length</h4>${table(["Words", "Hours", "Quote"], a.grid.map((g) => [g.words.toLocaleString("en-US"), hr(g.hours), money(g.invoice)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "ghostwriter-quote.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

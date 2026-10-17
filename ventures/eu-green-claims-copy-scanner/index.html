@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Green Claims Copy Scanner — Greenwashing Scan for Directive 2024/825</title>
+  <meta name="description" content="Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral claims, vague words like eco-friendly, home-made badges, future net-zero promises and legal-minimum claims, with the fix for each. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU green claims checker: is your eco-friendly copy now illegal? Free, private">
+  <meta property="og:description" content="Paste marketing copy; get every phrase the EU greenwashing ban targets, the rule behind it and a safer rewrite. English, German, French, Spanish, Italian, Dutch.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EU Green Claims Copy Scanner","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I still say my product is eco-friendly in the EU?","acceptedAnswer":{"@type":"Answer","text":"Only if you can show recognised excellent environmental performance relevant to the claim, such as an official EU Ecolabel, or if the specific reason is stated clearly and prominently on the same medium. A bare “eco-friendly”, “green” or “sustainable” is banned from 27 September 2026."}},{"@type":"Question","name":"Can I call a product carbon neutral if I buy offsets?","acceptedAnswer":{"@type":"Answer","text":"No. Product-level climate-neutral, carbon-neutral or reduced-impact claims based on offsetting are banned outright. Company-level offset spending can be described separately, without claiming the product's own impact is neutral."}},{"@type":"Question","name":"Can I use my own sustainability badge or score?","acceptedAnswer":{"@type":"Answer","text":"Only if it is based on a certification scheme or was set up by a public authority. A leaf logo or eco score you created and awarded yourself is a banned sustainability label."}},{"@type":"Question","name":"What about “net zero by 2030” promises?","acceptedAnswer":{"@type":"Answer","text":"A future-performance claim is misleading unless it rests on a detailed, realistic plan with measurable time-bound targets, verified regularly by an independent third-party expert whose findings are available to consumers."}},{"@type":"Question","name":"Does this tool clear my copy?","acceptedAnswer":{"@type":"Answer","text":"No. It is a keyword scan that points at wording the Directive targets. It cannot see images or logos and cannot know whether your evidence exists."}},{"@type":"Question","name":"Is my text uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is scanned in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; max-width: 260px; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 190px; padding: 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px/1.5 system-ui, sans-serif; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.check { background: #fdf0d5; color: #7c5e10; }
+    mark { padding: 1px 3px; border-radius: 4px; }
+    mark.high { background: #fcc9c0; color: #5b1a0a; }
+    mark.check { background: #fde7a8; color: #4a3a05; }
+    .q { color: #54503f; font-style: italic; }
+    .due { font-size: 1.4rem; font-weight: 800; color: #14283b; }
+    .marked { white-space: pre-wrap; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 14px; line-height: 1.6; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GREEN CLAIMS CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your “eco-friendly” copy now illegal in the EU?</h1>
+    <p>Since <strong>27 September 2026</strong> the EU Empowering Consumers Directive (2024/825) bans vague environmental words, product-level “carbon neutral” claims and home-made sustainability badges. Paste your product page, ad or packaging text and see <strong>every phrase it targets</strong>, the rule behind it and what to write instead.</p>
+    <p class="note">A keyword scan of English, German, French, Spanish, Italian and Dutch copy. Rule points were written from memory of the published text. It cannot clear your copy and is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <label for="text">Marketing copy to scan</label>
+    <textarea id="text" placeholder="Paste a product description, ad, label text or web page copy"></textarea>
+    <label for="today">Reference date (blank = today)</label>
+    <input id="today" type="date">
+    <p>
+      <button type="button" id="calc">Scan my copy</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Paste your copy, then click Scan my copy.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <p id="verdict"></p>
+    <h3>Your copy, marked up</h3>
+    <div class="marked" id="marked"></div>
+    <h3>What to fix</h3>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download report (text)</button> <button type="button" class="secondary" id="dl-csv">Download findings (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it looks for, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Carbon or climate neutral about a product (Annex I 4c):</strong> banned outright when it rests on offsetting.</li>
+      <li><strong>Generic claims (4a):</strong> “eco-friendly”, “green”, “sustainable”, “climate friendly”, “biodegradable” need recognised excellent environmental performance, or the specific reason on the same medium.</li>
+      <li><strong>Sustainability labels (2a):</strong> only certification-scheme or public-authority labels.</li>
+      <li><strong>Whole-product claims (4b), legal-minimum claims (10a) and future targets:</strong> flagged for a qualifier, a deleted claim or a verified plan.</li>
+      <li><strong>Not decided:</strong> whether your evidence exists, images and logos, durability and repairability claims, national transposition and penalties, the position for stock placed on the market before 27 September 2026, and any later Green Claims rules.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Can I still say my product is eco-friendly in the EU?</h3>
+    <p>Only if you can show recognised excellent environmental performance relevant to the claim, such as an official EU Ecolabel, or if the specific reason is stated clearly and prominently on the same medium. A bare “eco-friendly”, “green” or “sustainable” is banned from 27 September 2026.</p>
+    <h3>Can I call a product carbon neutral if I buy offsets?</h3>
+    <p>No. Product-level climate-neutral, carbon-neutral or reduced-impact claims based on offsetting are banned outright. Company-level offset spending can be described separately, without claiming the product's own impact is neutral.</p>
+    <h3>Can I use my own sustainability badge or score?</h3>
+    <p>Only if it is based on a certification scheme or was set up by a public authority. A leaf logo or eco score you created and awarded yourself is a banned sustainability label.</p>
+    <h3>What about “net zero by 2030” promises?</h3>
+    <p>A future-performance claim is misleading unless it rests on a detailed, realistic plan with measurable time-bound targets, verified regularly by an independent third-party expert whose findings are available to consumers.</p>
+    <h3>Does this tool clear my copy?</h3>
+    <p>No. It is a keyword scan that points at wording the Directive targets. It cannot see images or logos and cannot know whether your evidence exists.</p>
+    <h3>Is my text uploaded anywhere?</h3>
+    <p>No. Everything is scanned in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../eu-green-claims-checker/">EU green claims checklist</a> (tick the claims you make instead of pasting copy), the <a href="../eu-packaging-regulation-checker/">EU packaging regulation checker</a>, the <a href="../gpsr-product-safety-checker/">GPSR product safety checker</a>, the <a href="../eu-battery-regulation-checker/">EU Batteries Regulation checker</a> and the <a href="../cbam-cost-estimator/">CBAM cost estimator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scan, SAMPLE, summaryText, findingsCsv, highlight, ruleById, VERDICTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDLE = "Paste your copy, then click Scan my copy.";
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    function run() {
+      const today = $("#today").value || new Date().toISOString().slice(0, 10);
+      const text = $("#text").value;
+      const r = scan(text, today);
+      if (r.errors) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.counts.high + " banned on its face · " + r.counts.check + " need evidence or a qualifier";
+      $("#verdict").textContent = VERDICTS[r.verdict] + (r.inForce ? "" : " The rules apply from 27 September 2026.");
+      $("#marked").innerHTML = highlight(text, r.findings).map((s) => s.severity ? '<mark class="' + s.severity + '">' + esc(s.text) + "</mark>" : esc(s.text)).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => {
+        const rule = ruleById(f.rule);
+        return '<div class="finding"><span class="pill ' + f.severity + '">' + (f.severity === "high" ? "banned" : "check") + "</span><strong>" + esc(f.matched) + "</strong> — " + esc(f.title) + " (Annex I " + esc(f.annex) + ')<p class="q">' + esc(f.sentence) + "</p><p><strong>Why:</strong> " + esc(rule.why) + (f.specificationNearby ? " A specification appears nearby; it must be clear, prominent and on the same medium." : "") + "</p><p><strong>Fix:</strong> " + esc(rule.fix) + "</p></div>";
+      }).join("") || "<p>No flagged wording found.</p>";
+      report.hidden = false;
+      status.textContent = "Done. This is a keyword scan, not clearance.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      $("#text").value = SAMPLE.text; $("#today").value = "";
+      run(); record("example_loaded");
+      status.textContent = "Worked example: invented bottle copy that trips every rule. Not a real company.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#text").value = ""; $("#today").value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("green-claims-scan.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("green-claims-findings.csv", findingsCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

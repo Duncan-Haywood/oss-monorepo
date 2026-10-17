@@ -1,0 +1,19 @@
+laser cutting, steel sheet, buckling factor floor 3 and 1, mesh h=1.5 mm, peak von Mises, DE seeds (0, 1, 2): lightest feasible design over seeds
+b=0.8 floor=3.0 minwall=1.2: no feasible design in any seed
+b=0.8 floor=3.0 minwall=1.0: no feasible design in any seed
+b=0.8 floor=3.0 minwall=0.8: no feasible design in any seed
+b=0.8 floor=1.0 minwall=1.2: no feasible design in any seed
+b=0.8 floor=1.0 minwall=1.0: no feasible design in any seed
+b=0.8 floor=1.0 minwall=0.8: no feasible design in any seed
+b=1.0 floor=3.0 minwall=1.2: no feasible design in any seed
+b=1.0 floor=3.0 minwall=1.0: no feasible design in any seed
+b=1.0 floor=3.0 minwall=0.8: no feasible design in any seed
+b=1.0 floor=1.0 minwall=1.2: no feasible design in any seed
+b=1.0 floor=1.0 minwall=1.0: w=22.73 r=13.82 mass= 24.81 g peak= 99.8 MPa tip=0.18 mm buckling factor= 1.33 (2/3 seeds feasible)
+b=1.0 floor=1.0 minwall=0.8: w=22.73 r=13.82 mass= 24.81 g peak= 99.8 MPa tip=0.18 mm buckling factor= 1.33 (2/3 seeds feasible)
+b=1.5 floor=3.0 minwall=1.2: w=18.48 r=10.33 mass= 31.06 g peak= 99.8 MPa tip=0.26 mm buckling factor= 3.48 (3/3 seeds feasible)
+b=1.5 floor=3.0 minwall=1.0: w=18.48 r=10.33 mass= 31.06 g peak= 99.8 MPa tip=0.26 mm buckling factor= 3.48 (3/3 seeds feasible)
+b=1.5 floor=3.0 minwall=0.8: w=18.48 r=10.33 mass= 31.06 g peak= 99.8 MPa tip=0.26 mm buckling factor= 3.48 (3/3 seeds feasible)
+b=1.5 floor=1.0 minwall=1.2: w=18.31 r=13.20 mass= 31.00 g peak=100.0 MPa tip=0.26 mm buckling factor= 3.45 (3/3 seeds feasible)
+b=1.5 floor=1.0 minwall=1.0: w=18.31 r=13.20 mass= 31.00 g peak=100.0 MPa tip=0.26 mm buckling factor= 3.45 (3/3 seeds feasible)
+b=1.5 floor=1.0 minwall=0.8: w=18.31 r=13.20 mass= 31.00 g peak=100.0 MPa tip=0.26 mm buckling factor= 3.45 (3/3 seeds feasible)

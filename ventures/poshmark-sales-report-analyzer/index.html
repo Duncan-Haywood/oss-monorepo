@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Poshmark Sales Report Analyzer — Profit per Item and Brand After Fees</title>
+  <meta name="description" content="Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark's $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Poshmark Sales Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-item, per-brand and per-month profit after Poshmark's fee and what you paid for the item. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Poshmark Sales Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Poshmark My Sales Report CSV into per-item, per-brand and per-month profit after Poshmark's fee, with effective fee rate, optional cost basis, shipping deduction detection, days to sell and brands to stop sourcing. Runs entirely in your browser; the file is never uploaded.", "featureList": "Profit per item, profit per brand, profit per month, effective fee rate, cost basis by SKU, shipping discount detection, days to sell, worst and best items, brands to stop sourcing, copyable summary"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which of my Poshmark items and brands actually make money?", "acceptedAnswer": {"@type": "Answer", "text": "Download My Sales Report from Poshmark (or keep a sheet with an order date, brand and sale price) and drop it here. The tool takes the sale price, subtracts Poshmark's fee and any shipping deduction to get your payout, then subtracts what you paid for the item if you give a cost column or paste SKU,cost pairs. What is left is profit per item, per brand and per month. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What is Poshmark's fee and why is the effective rate higher on cheap items?", "acceptedAnswer": {"@type": "Answer", "text": "Poshmark's published US schedule is a flat $2.95 for sales under $15.00 and 20% of the sale price at $15.00 or more. The flat fee is a bigger share of a small sale: a $10 sale pays 29.5%, a $5 sale pays 59%. The tool shows each item's effective rate and how much more the flat fee cost than 20% would have. Check the schedule against your own statement, since Poshmark can change it."}}, {"@type": "Question", "name": "How do I give the tool what I paid for each item?", "acceptedAnswer": {"@type": "Answer", "text": "Either add a cost column to the file (Cost, Item Cost, Cost Basis or Purchase Price) or paste one SKU,cost pair per line in step 2. Pairs match on the SKU column first, then the order ID, then the exact listing title, and a pasted cost overrides the file's. Sales with no cost are left out of profit and brand verdicts, and the page says how many."}}, {"@type": "Question", "name": "How are shipping discounts and losses found?", "acceptedAnswer": {"@type": "Answer", "text": "If the file has a seller shipping discount column it is used. Otherwise any gap between sale price minus fee and the net earnings column is counted as a deduction. Where the file has net earnings, that figure is trusted as your payout."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias from memory of Poshmark's export, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order Date, Brand, Listing Title, Order Price, Poshmark Fee and Net Earnings always works."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you supply and does not replace your own judgement or a qualified tax adviser. It is independent of Poshmark and is not affiliated with or endorsed by Poshmark, Inc."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">POSHMARK SALES REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Poshmark items and brands actually make money?</h1>
+    <p>Load your <strong>Poshmark My Sales Report CSV</strong> and get <strong>profit per item, brand and month after Poshmark's fee</strong> ($2.95 flat under $15, 20% at $15 or more), the <strong>effective fee rate</strong>, optional <strong>cost per SKU</strong>, shipping losses, <strong>days to sell</strong>, your worst and best items and the <strong>brands to stop sourcing</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Poshmark: not affiliated with or endorsed by Poshmark, Inc. Column names are matched by alias from memory of Poshmark's export; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your sales report</h2>
+    <p class="note">Needs an <strong>Order Date</strong> and a sale price (<strong>Order Price</strong> or <strong>Sale Price</strong>). Used when present: <strong>Brand</strong>, <strong>Listing Title</strong>, <strong>SKU</strong>, <strong>Order ID</strong>, <strong>Poshmark Fee</strong>, <strong>Net Earnings</strong>, <strong>Seller Shipping Discount</strong>, <strong>Listed Date</strong> (for days to sell), a <strong>Cost</strong> column, and <strong>Status</strong> (cancelled, returned and refunded orders are left out and counted). Comma, tab and semicolon files, quoted fields, US and day-first dates and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Order ID,Order Date,Listing Title,Brand,Order Price,Poshmark Fee,Net Earnings"></textarea>
+    <div class="grid">
+      <div><label for="feemode">Poshmark fee</label><select id="feemode"><option value="auto">Use the file's fee column (schedule if there is none)</option><option value="schedule">Always apply the $2.95 / 20% schedule</option></select></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. What you paid (optional, but it is what makes this profit)</h2>
+    <p class="note">A cost column in the file is used as it is. Anything you paste here overrides it for the items it matches, by SKU first, then order ID, then exact listing title. Sales with no cost are left out of profit and brand verdicts.</p>
+    <label for="costlist">Cost per SKU (optional)</label>
+    <textarea id="costlist" spellcheck="false" placeholder="One per line: SKU, cost&#10;LUL-001, 14.50&#10;ZAR-014, 6"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By brand</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Poshmark fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Avg days</th></tr></thead><tbody id="by-brand"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Poshmark fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Avg days</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <h3 id="worst-title">Ten worst items</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Sold</th><th scope="col">Item</th><th scope="col">Brand</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Shipping deduction</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Days to sell</th></tr></thead><tbody id="worst"></tbody></table></div>
+    <h3 id="best-title">Ten best items</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Sold</th><th scope="col">Item</th><th scope="col">Brand</th><th class="n" scope="col">Sale price</th><th class="n" scope="col">Fee</th><th class="n" scope="col">Fee rate</th><th class="n" scope="col">Shipping deduction</th><th class="n" scope="col">Payout</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Days to sell</th></tr></thead><tbody id="best"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download item table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Poshmark's fee</strong> is read from the file's fee column. Without one, the published US schedule is applied: a flat $2.95 under $15.00, 20% of the sale price at $15.00 or more, and never more than the price. The schedule is a constant in this tool, not a live lookup.</li>
+      <li><strong>Payout</strong> is the net earnings column when the file has one, otherwise sale price minus fee minus any seller shipping discount. <strong>Shipping deductions</strong> are the discount column, or the gap between price minus fee and net earnings.</li>
+      <li><strong>Profit</strong> is payout minus the cost you gave for that item. Items with no cost have no profit figure and are not counted in margins or brand verdicts.</li>
+      <li><strong>Reconciles.</strong> The brand rows and the month rows each add up to the totals at the top.</li>
+      <li><strong>Effective fee rate</strong> is fee over sale price. <strong>Days to sell</strong> is listed date to order date, only where the file has both.</li>
+      <li><strong>Brands to stop sourcing</strong> are brands whose costed sales lost money in total, with at least three costed sales. With no cost data at all, the page names only brands where the fee alone takes 25% or more of the price.</li>
+      <li><strong>Not modelled:</strong> sales tax and the marketplace facilitator rules, income tax, Posh Party or promotion costs, boosts, returns handled outside the file, packaging, your own time, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which of my Poshmark items and brands actually make money?</h3>
+    <p>Download My Sales Report from Poshmark (or keep a sheet with an order date, brand and sale price) and drop it here. The tool takes the sale price, subtracts Poshmark's fee and any shipping deduction to get your payout, then subtracts what you paid for the item if you give a cost column or paste SKU,cost pairs. What is left is profit per item, per brand and per month. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What is Poshmark's fee and why is the effective rate higher on cheap items?</h3>
+    <p>Poshmark's published US schedule is a flat $2.95 for sales under $15.00 and 20% of the sale price at $15.00 or more. The flat fee is a bigger share of a small sale: a $10 sale pays 29.5%, a $5 sale pays 59%. The tool shows each item's effective rate and how much more the flat fee cost than 20% would have. Check the schedule against your own statement, since Poshmark can change it.</p>
+    <h3>How do I give the tool what I paid for each item?</h3>
+    <p>Either add a cost column to the file (Cost, Item Cost, Cost Basis or Purchase Price) or paste one SKU,cost pair per line in step 2. Pairs match on the SKU column first, then the order ID, then the exact listing title, and a pasted cost overrides the file's. Sales with no cost are left out of profit and brand verdicts, and the page says how many.</p>
+    <h3>How are shipping discounts and losses found?</h3>
+    <p>If the file has a seller shipping discount column it is used. Otherwise any gap between sale price minus fee and the net earnings column is counted as a deduction. Where the file has net earnings, that figure is trusted as your payout.</p>
+    <h3>Are the column names right for my export?</h3>
+    <p>They are matched by alias from memory of Poshmark's export, and no real export was available when this was built. If your file is not read, the page names the rows it skipped and why; a sheet with the headers Order Date, Brand, Listing Title, Order Price, Poshmark Fee and Net Earnings always works.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file and the costs you supply and does not replace your own judgement or a qualified tax adviser. It is independent of Poshmark and is not affiliated with or endorsed by Poshmark, Inc.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the costs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Poshmark.</strong> Poshmark is a trademark of its owner. This tool is independent and is not sponsored, endorsed or connected to Poshmark, Inc. or any other platform in any way. Column names are matched by alias from memory of Poshmark's export and may not match every export, and the fee schedule may change.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing one sale rather than a history? See the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> for the $14.75 break-even price and offer comparison.</p>
+    <p>Sell on more than one marketplace? <a href="../reseller-books/">Reseller Books</a> reads this report together with the others into one monthly profit and loss.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, summaryText, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const opt = (v) => (v === null || v === undefined ? "–" : money(v));
+    const ratePct = (v) => (v === null ? "–" : (v * 100).toFixed(1) + "%");
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.items, { costList: $("#costlist").value, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.items} sales across ${s.brands} brand(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Sales ${cur}${money(s.price)}, Poshmark fees ${cur}${money(s.fee)} (<strong>${ratePct(s.feeRate)} effective</strong>), shipping deductions ${cur}${money(s.shippingLoss)}, payout ${cur}${money(s.payout)}` + (s.costedItems ? `, cost ${cur}${money(s.cost)} on ${s.costedItems} item(s), <strong>profit ${cur}${money(s.profit)}</strong>${s.margin === null ? "" : ` (${pct(s.margin)} of sale price)`}.` : ". <strong>No costs supplied, so these are payouts, not profit.</strong>") + (s.avgDays === null ? "" : ` Days to sell: average ${s.avgDays.toFixed(0)}, median ${s.medianDays.toFixed(0)}.`);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.items}</td><td class="n">${money(g.price)}</td><td class="n">${money(g.fee)}</td><td class="n">${ratePct(g.feeRate)}</td><td class="n">${money(g.payout)}</td><td class="n">${g.costedItems ? money(g.cost) : "–"}</td><td class="n">${opt(g.profit)}</td><td class="n">${g.margin === null ? "–" : pct(g.margin)}</td><td class="n">${g.avgDays === null ? "–" : g.avgDays.toFixed(0)}</td></tr>`).join("");
+      $("#by-brand").innerHTML = grp(r.byBrand);
+      $("#by-month").innerHTML = grp(r.byMonth);
+      const items = (rows) => rows.map((x) => `<tr><td>${dateStr(x.t)}</td><td>${esc(x.title || x.id || "(untitled)")}</td><td>${esc(x.brandLabel)}</td><td class="n">${money(x.price)}</td><td class="n">${money(x.fee)}</td><td class="n">${ratePct(x.effectiveFeeRate)}</td><td class="n">${x.shippingLoss ? money(x.shippingLoss) : "–"}</td><td class="n">${money(x.payout)}</td><td class="n">${opt(x.cost)}</td><td class="n">${opt(x.profit)}</td><td class="n">${x.daysToSell === null ? "–" : x.daysToSell}</td></tr>`).join("");
+      const by = r.rankBasis === "profit" ? "profit after fee and cost" : "payout (no costs supplied)";
+      $("#worst-title").textContent = `Ten worst items by ${by}`;
+      $("#best-title").textContent = `Ten best items by ${by}`;
+      $("#worst").innerHTML = items(r.worstItems);
+      $("#best").innerHTML = items(r.bestItems);
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.excludedCount) notes.push(`${n.excludedCount} cancelled, returned or refunded order(s) were left out.`);
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (r.costList.errors.length) notes.push("Cost list: " + r.costList.errors.slice(0, 3).map((x) => `line ${x.line} (${x.reason})`).join("; ") + ".");
+      if (r.unmatched.length) notes.push(`${r.unmatched.length} pasted cost(s) matched no sale: ${r.unmatched.slice(0, 5).join(", ")}${r.unmatched.length > 5 ? ", …" : ""}.`);
+      notes.push(n.feeSource === "column" ? "Poshmark fee read from the file's fee column." : "No fee column used: the $2.95 / 20% schedule was applied.");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(r, { currency: n.currency });
+      report.hidden = false;
+      status.textContent = `Read ${n.items.length} sales.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      $("#costlist").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic sales for five made-up brands with costs in the file. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; $("#costlist").value = ""; $("#summary").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["order_date,order_id,title,brand,sale_price,poshmark_fee,effective_fee_rate,shipping_deduction,payout,cost,profit,days_to_sell"].concat(last.items.map((x) => [dateStr(x.t), q(x.id), q(x.title), q(x.brandLabel), x.price.toFixed(2), x.fee.toFixed(2), x.effectiveFeeRate.toFixed(3), x.shippingLoss.toFixed(2), x.payout.toFixed(2), f(x.cost), f(x.profit), x.daysToSell === null ? "" : x.daysToSell].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "poshmark-profit-by-item.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

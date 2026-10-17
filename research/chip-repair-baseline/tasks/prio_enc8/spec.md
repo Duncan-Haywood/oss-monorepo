@@ -1,0 +1,1 @@
+Module `prio_enc8`: input `[7:0] req`, outputs `[2:0] idx` and `valid`. `valid` is 1 when any bit of `req` is set. `idx` is the index of the highest-numbered set bit of `req`, and 0 when `valid` is 0. Purely combinational.

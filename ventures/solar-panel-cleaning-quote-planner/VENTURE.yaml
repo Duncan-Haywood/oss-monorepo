@@ -1,0 +1,49 @@
+name: solar-panel-cleaning-quote-planner
+description: >-
+  Free browser tool for solar panel cleaning businesses. Enter your rate, speed per panel and costs; get a quote per job
+  that hits your target margin, a price-per-panel curve that shows where your minimum call-out stops mattering, a
+  day-by-day route pack for a list of jobs, an annual-plan estimate, and a customer payback check you can show the
+  homeowner. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "solar panel cleaning route pricing
+# calculator": closest 0.31 (dog-walking-route-pricing), no solar-cleaning venture exists. Not in screened-out.md.
+# Who: owners of one-to-five-person solar panel and window cleaning businesses, and window cleaners adding panels, who
+# quote from gut feel. Where the first visitor comes from: searches such as "how much to charge to clean solar panels",
+# "solar panel cleaning pricing per panel", "solar panel cleaning business profit"; r/solar, r/windowcleaning and
+# solar-cleaning Facebook groups. Volume not measured with an external tool.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty and
+# not-advice clauses. Roof safety, working-at-height rules, insurance and warranty effects of cleaning are explicitly out
+# of scope and the page says so.
+#
+# Unverified: no cleaner has used it. Panel-minutes access factors (1.0 / 1.15 / 1.4 / 1.9) are rough defaults, stated on
+# the page; the customer payback uses the customer's own soiling-loss guess. Path to revenue (payment rails stay off):
+# lead magnet and donations; if usage appears, saved price lists and a printable customer quote are the next build, then
+# a paid-tier candidate behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Solar cleaners will enter their own rate and speed into a private quote tool to set a per-job price and minimum
+      call-out, because they currently price from gut feel or a competitor's flat rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/solar-panel-cleaning-quote-planner/
+  analytics: null

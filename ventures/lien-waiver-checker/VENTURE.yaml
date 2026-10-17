@@ -1,0 +1,60 @@
+name: lien-waiver-checker
+description: >-
+  Free browser tool for subcontractors, suppliers and small general contractors: paste the lien waiver you were sent
+  with a payment and see what to fix before signing. Flags an unconditional waiver before the funds clear, a condition
+  that stops at receipt of a check, all-claims wording in a progress waiver, release of future work, a missing or too-late
+  through-date, an amount that does not match the payment, retainage and pending change orders not excepted, and
+  indemnity, bond, jury or fee waivers inside the release, each with the change to ask for. Read locally, never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.13
+# (mechanics-lien-deadline-calculator, which computes filing dates and reads no waiver; coi-expiry-gap-checker).
+# No venture reads a waiver. Pairs with pay-application-generator, the billing step that comes before it.
+# Search phrases: "lien waiver review", "conditional vs unconditional lien waiver", "should I sign a lien waiver",
+# "lien waiver red flags", "unconditional waiver before payment", "lien waiver template check".
+# Volume not measured with an external tool. Demand is steady, tied to every construction payment cycle; incumbents are
+# paid construction suites (Textura, Procore, Levelset/Billd) that generate and collect waivers for general contractors,
+# and nobody serves the signer who just wants to know whether the form is a problem.
+#
+# Who: subcontractors, suppliers and small trades who are handed a waiver with each check and sign it without reading,
+# and the bookkeepers who sign for them. The paying buyer, if there is one, is a small contractor or an accounting
+# firm serving contractors who wants saved checks per project, a waiver tracker across payments and subs, and
+# state-specific statutory form generation behind an env-var switch; not built.
+#
+# Path to revenue (payment rails stay off): lead magnet for the contractor audience, feeding mechanics-lien-deadline-
+# calculator and pay-application-generator. Waiver tracking and statutory forms are the paid version if usage appears.
+#
+# Liability: reads the user's own text with fixed, visible rules; says what each finding means and what to ask for;
+# never says a waiver is safe or valid; carries the no-warranty and not-legal-advice clauses; lists state validity,
+# enforceability and the decision to sign as not decided. The state list is a pointer to check the statute, not a rule.
+#
+# Unverified: no contractor or attorney has run a real waiver through it yet. The rules are regular expressions over
+# normalized text, so unusual wording can be missed (false negative) or a benign clause flagged (false positive). The
+# first report of a wrong result is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A subcontractor handed a lien waiver with a check will paste it into a no-upload page to see what it releases,
+      because the conditional versus unconditional and through-date traps are costly and the signer has no one to ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted waiver structure) engage with the tool by 2027-03-15.
+  - An attorney or contractor reports a plain waiver the rules mis-read, at which point the rule needs revisiting before more usage is sought.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lien-waiver-checker/
+  analytics: null

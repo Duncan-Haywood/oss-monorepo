@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rank-elicitation"
+version = "0.1.0"
+description = "Eliciting class rankings from verifiers with linear rank-weight scores: exact regret, incentive per payment range vs Brier-derived rankings, worst case and top-k sets"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

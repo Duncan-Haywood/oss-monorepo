@@ -1,0 +1,13 @@
+[project]
+name = "garment-thincolor"
+version = "0.1.0"
+description = "Structural colour of thin-film coatings on textile fibre: transfer-matrix reflectance, colour, angle and thickness tolerance"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

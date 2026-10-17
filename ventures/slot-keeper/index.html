@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Slot Keeper — Self-Hosted Booking Pages, a Calendly Alternative</title>
+  <meta name="description" content="A booking page you host yourself: weekly hours, buffers, notice, your calendar's busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.">
+  <meta property="og:title" content="Slot Keeper — a booking page you host yourself">
+  <meta property="og:description" content="Let people book time with you without a Calendly seat: open slots from your hours and your calendar, shown in their time zone, with invites and reminders.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Slot Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted booking pages: weekly hours, buffers, minimum notice, your calendar's busy time respected, time zones, calendar invitations, reminders and cancel or reschedule links, with no per-seat fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Calendly, Cal.com or SavvyCal?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need teams with round-robin routing, payments, workflows and a mobile app. Calendly and similar tools charge per seat per month for the features beyond a single basic link, and your invitees' details live on their servers. Slot Keeper is one small Node server in your own account: unlimited event types and bookings, your calendar's busy time respected, invitations with calendar files, reminders and a cancel or reschedule link, with no seat fee. If you are one person or a tiny team that mostly needs a booking link, it covers the job."}}, {"@type": "Question", "name": "How does it know I am busy elsewhere?", "acceptedAnswer": {"@type": "Answer", "text": "Paste your calendar's secret iCal address (Google Calendar, Outlook and Apple Calendar all offer one) into BUSY_ICS_URL. The server reads it every five minutes and never offers a time that overlaps an event, including recurring events, all-day events and different time zones. If the feed cannot be read it keeps the last good copy and warns you on the admin page. It reads busy time only; it does not write to your calendar, so subscribe to the bookings feed it gives you to see bookings there."}}, {"@type": "Question", "name": "Does it handle time zones and daylight saving?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your weekly hours are in your zone and each invitee picks theirs; times shift correctly across daylight-saving changes, and a time that does not exist on the spring-forward day is never offered. The demo on this page uses the same code as the server."}}, {"@type": "Question", "name": "How are invitations and reminders sent?", "acceptedAnswer": {"@type": "Answer", "text": "Through your own Resend account with your verified sending domain. It starts in dry-run mode: bookings are saved but no email is sent until you set DRY_RUN=false with RESEND_API_KEY, MAIL_FROM and HOST_EMAIL. Each confirmation carries a calendar file the invitee's app adds to their calendar, and cancelling sends a cancellation file that removes it. A reminder goes out once, a day ahead by default."}}, {"@type": "Question", "name": "Can invitees cancel or reschedule?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Every booking gets a private link. Rescheduling keeps the old time until the new one is confirmed and then cancels it, so nobody is left with nothing. Only the person who booked, with the right link and email, can change it."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Event types, and each booking's name, email address, optional note and time, in one JSON file you control. IP addresses are held in memory only for rate limiting. Set RETENTION_DAYS to delete old bookings. You are the operator and responsible for your privacy notice and data-protection duties."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f4f7f5; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #0b5d46; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0d3b2e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0d3b2e; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46564f; }
+    .card { background: #fff; border: 1px solid #d8e2dd; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bbb3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 14px; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e1e9e5; vertical-align: top; }
+    .slots span { display: inline-block; margin: 2px 6px 2px 0; padding: 3px 9px; border: 1px solid #a9bbb3; border-radius: 8px; background: #f4f7f5; }
+    .err { color: #a3191f; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>A booking page you host yourself, with no per-seat fee.</h1>
+  <p>Slot Keeper is the open-source scheduling page for one person or a small team. Set your weekly hours and it offers only the times you are really free, in each visitor's own time zone, then sends the invitation, a reminder, and a link to cancel or reschedule. Below, try the slot finder with your own hours and a pasted calendar. Everything on this page runs in your browser, so nothing is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try the slot finder</h2>
+    <div class="cols">
+      <div><label for="hours">Weekly hours (your zone)</label><input id="hours" value="mon-fri 09:00-12:00,13:00-17:00"></div>
+      <div><label for="tz">Your time zone</label><select id="tz"></select></div>
+      <div><label for="viewer">Visitor's time zone</label><select id="viewer"></select></div>
+    </div>
+    <div class="cols">
+      <div><label for="len">Length (minutes)</label><input id="len" type="number" min="5" max="480" value="30"></div>
+      <div><label for="buf">Buffer after (minutes)</label><input id="buf" type="number" min="0" max="240" value="15"></div>
+      <div><label for="notice">Minimum notice (hours)</label><input id="notice" type="number" min="0" max="720" value="4"></div>
+    </div>
+    <label for="ics">Your busy time: paste calendar (.ics) text, or leave the sample</label>
+    <textarea id="ics" spellcheck="false">BEGIN:VCALENDAR
+BEGIN:VEVENT
+DTSTART;TZID=America/New_York:20261019T100000
+DTEND;TZID=America/New_York:20261019T110000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE
+SUMMARY:Team standup
+END:VEVENT
+END:VCALENDAR</textarea>
+    <p id="msg" class="err" aria-live="polite"></p>
+    <div id="out" aria-live="polite"></div>
+    <p class="note">The server uses this exact code. Weekly standups from the sample block Monday and Wednesday at 10:00 New York time and keep that time across daylight saving. Slots are measured from the moment you load the page.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Slot Keeper</th></tr></thead><tbody>
+      <tr><td>Calendly, SavvyCal, Acuity, Zoho Bookings</td><td>Priced per seat per month; invitee details live with them; reminders, buffers and multiple event types sit on paid tiers</td><td>Your server, unlimited event types and bookings, buffers, notice, reminders, no seat fee</td></tr>
+      <tr><td>Cal.com and other open-source schedulers</td><td>Full platforms: a database, a build, integrations to configure, real operations work</td><td>One Node process and one JSON file; deploys in a click</td></tr>
+      <tr><td>Back-and-forth email, "what times work?"</td><td>Slow, easy to double-book, nobody reminds the other side, time zones get muddled</td><td>One link; only free times; invitation, reminder and reschedule link included</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: one host per booking page (no round-robin or team routing), it reads your calendar's busy time but does not write to it (subscribe to the bookings feed), no video-room creation (paste your meeting link), no payments, no mobile app, one admin key. Recurring events use the common rules (daily, weekly with days, monthly, yearly with count or end date); rarer rules count only their first occurrence and the admin page says so.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run your own copy</h2>
+    <p>Fork the repository, open <code>https://render.com/deploy?repo=&lt;your fork URL&gt;</code>, and Render builds it in <strong>your</strong> account with a generated admin key. Or <code>docker compose up</code> anywhere, or Fly.io with the steps in the repository. Add your calendar's secret iCal address as <code>BUSY_ICS_URL</code> and your Resend key to start sending invitations. Nothing runs on the author's accounts.</p>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/slot-keeper
+ADMIN_KEY=$(openssl rand -hex 16) COMPANY_NAME=Acme node server.mjs</pre>
+  </section>
+
+  <section class="card" aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <h3>Why not just use Calendly, Cal.com or SavvyCal?</h3>
+    <p>Those are polished and the right call if you need teams with round-robin routing, payments, workflows and a mobile app. Calendly and similar tools charge per seat per month for the features beyond a single basic link, and your invitees' details live on their servers. Slot Keeper is one small Node server in your own account: unlimited event types and bookings, your calendar's busy time respected, invitations with calendar files, reminders and a cancel or reschedule link, with no seat fee. If you are one person or a tiny team that mostly needs a booking link, it covers the job.</p>
+    <h3>How does it know I am busy elsewhere?</h3>
+    <p>Paste your calendar's secret iCal address (Google Calendar, Outlook and Apple Calendar all offer one) into BUSY_ICS_URL. The server reads it every five minutes and never offers a time that overlaps an event, including recurring events, all-day events and different time zones. If the feed cannot be read it keeps the last good copy and warns you on the admin page. It reads busy time only; it does not write to your calendar, so subscribe to the bookings feed it gives you to see bookings there.</p>
+    <h3>Does it handle time zones and daylight saving?</h3>
+    <p>Yes. Your weekly hours are in your zone and each invitee picks theirs; times shift correctly across daylight-saving changes, and a time that does not exist on the spring-forward day is never offered. The demo on this page uses the same code as the server.</p>
+    <h3>How are invitations and reminders sent?</h3>
+    <p>Through your own Resend account with your verified sending domain. It starts in dry-run mode: bookings are saved but no email is sent until you set DRY_RUN=false with RESEND_API_KEY, MAIL_FROM and HOST_EMAIL. Each confirmation carries a calendar file the invitee's app adds to their calendar, and cancelling sends a cancellation file that removes it. A reminder goes out once, a day ahead by default.</p>
+    <h3>Can invitees cancel or reschedule?</h3>
+    <p>Yes. Every booking gets a private link. Rescheduling keeps the old time until the new one is confirmed and then cancels it, so nobody is left with nothing. Only the person who booked, with the right link and email, can change it.</p>
+    <h3>What does it store?</h3>
+    <p>Event types, and each booking's name, email address, optional note and time, in one JSON file you control. IP addresses are held in memory only for rate limiting. Set RETENTION_DAYS to delete old bookings. You are the operator and responsible for your privacy notice and data-protection duties.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../support-desk/">Support Desk</a> answers customer email, <a href="../form-inbox/">Form Inbox</a> collects website forms, <a href="../status-keeper/">Status Keeper</a> runs a public status page and <a href="../proposal-maker/">Proposal Maker</a> sends proposals people can accept.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any booking page you run, responsible for the details it collects, a privacy notice, data-protection rules where you and your visitors live, and your own email sending. Check the time and zone of every booking; a missed or double-booked appointment is your responsibility. It is not legal, tax, or financial advice. Everything on this page runs in your browser: nothing you enter is uploaded and the page makes no network requests. Usage counters (opt-out below) stay in your browser's local storage.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+  </footer>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 27 open-source tools you run yourself.</p>
+  </main>
+  <script type="module">
+    import { parseHours, freeSlots, parseIcsBusy, groupByDay, fmtTime, fmtDay, validTz } from "./slot.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const zones = (() => { try { return Intl.supportedValuesOf("timeZone"); } catch { return ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"]; } })();
+    const mine = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    for (const id of ["tz", "viewer"]) for (const z of new Set(["UTC", ...zones, mine])) { const o = document.createElement("option"); o.textContent = z; $(id).append(o); }
+    $("tz").value = "America/New_York"; $("viewer").value = mine;
+    const begin = Date.now();
+    let first = true;
+    const run = () => {
+      const tz = $("tz").value, viewer = $("viewer").value;
+      const { hours, errors } = parseHours($("hours").value);
+      $("msg").textContent = errors.length ? errors.join("; ") : !Object.keys(hours).length ? "Add weekly hours, for example: mon-fri 09:00-17:00" : "";
+      $("out").innerHTML = "";
+      if ($("msg").textContent || !validTz(tz) || !validTz(viewer)) return;
+      const len = Math.max(5, Number($("len").value) || 30);
+      const ev = { id: "demo", minutes: len, tz, hours, bufferAfter: Math.max(0, Number($("buf").value) || 0), noticeMin: (Number($("notice").value) || 0) * 60, horizonDays: 7 };
+      const busy = parseIcsBusy($("ics").value, begin - 86400000, begin + 10 * 86400000, tz);
+      const days = groupByDay(freeSlots(ev, busy, begin), viewer);
+      if (!days.size) { $("out").textContent = "No open times in the next week."; return; }
+      for (const [, slots] of days) {
+        const p = document.createElement("p"), h = document.createElement("b"), row = document.createElement("div");
+        h.textContent = fmtDay(slots[0], viewer).replace(/, \d{4}$/, ""); row.className = "slots";
+        for (const s of slots) { const sp = document.createElement("span"); sp.textContent = fmtTime(s, viewer); row.append(sp); }
+        p.append(h); $("out").append(p, row);
+      }
+      if (!first) record("slots"); first = false;
+    };
+    for (const id of ["hours", "tz", "viewer", "len", "buf", "notice", "ics"]) $(id).addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

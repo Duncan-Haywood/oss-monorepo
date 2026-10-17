@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trial Conversion Timing Analyzer — how long should your SaaS trial be</title>
+  <meta name="description" content="Trial length analyzer for SaaS and app founders. Paste when each SaaS trial started and when that user first paid to see on which day people convert, whether they wait for the deadline, and what a shorter trial would have lost. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Trial Conversion Timing Analyzer — free, private, in your browser">
+  <meta property="og:description" content="Turn your own trial start and first-payment dates into a conversion-by-day curve and an honest range for what a shorter trial would cost.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Trial Conversion Timing Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the date each SaaS trial started and the date that user first paid. Shows on which day of the trial people convert, flags a last-day deadline pile-up, and prices what a shorter trial would lose from your own history with bootstrap ranges and a hold-out check. Runs entirely in your browser.", "featureList": "trial length analysis, trial conversion by day, time to convert, shorter trial what-if, deadline effect, bootstrap range, hold-out check, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good trial length?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal answer, because it depends on how long your product takes to show its value. The useful evidence is your own: the day each trial user first paid. If most of your conversions arrive in the first few days, a long trial mostly adds waiting. If they bunch at the end, people may be waiting for the deadline, and shortening the trial would pull them forward rather than lose them. This tool shows which pattern your trials have."}}, {"@type": "Question", "name": "How do I see when my trial users convert?", "acceptedAnswer": {"@type": "Answer", "text": "Export the date each trial started and the date each user first paid, leave the payment blank for those who did not, and paste the two columns here. The tool draws conversions per day and the running share, and reports the median and the 90th percentile day."}}, {"@type": "Question", "name": "What would shortening my trial cost?", "acceptedAnswer": {"@type": "Answer", "text": "The tool counts the conversions that happened after the shorter cutoff. That is the worst case, because it assumes none of those people would have converted sooner. You can set the share you believe would convert anyway, and the loss scales down with it. It is a range from your own history, not a forecast, and it cannot tell you what a shorter trial does to sign-ups."}}, {"@type": "Question", "name": "Can it tell me whether a longer trial would convert more?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your history has no trial longer than the one you ran, so nothing in it says what days beyond that would add. The tool only looks inside the length you offered, and says so. To learn about a longer trial you would have to run one."}}, {"@type": "Question", "name": "What is the deadline effect in trial conversion?", "acceptedAnswer": {"@type": "Answer", "text": "Many users pay on the last day or two of a trial because the deadline is what makes them decide. The tool flags when at least 30% of your conversions fall in the last two days and that is well above a flat spread. In that case the days before the deadline are not evidence of low interest, and a shorter trial could move the pile-up earlier."}}, {"@type": "Question", "name": "How many trials do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 30 finished trials and at least 8 conversions. A trial only counts once its whole window has passed, so a trial that is still running is left out rather than counted as a failure. With under 25 conversions the tool calls the result weak and asks you to read the ranges."}}, {"@type": "Question", "name": "Why does it say my timing is unstable?", "acceptedAnswer": {"@type": "Answer", "text": "It fits on the first 75% of your trials by start date and checks the last 25%. If the share of conversions arriving after the halfway day differs by more than fifteen points between the two, your conversion timing has moved, for example after a pricing or onboarding change, and an old average would mislead you."}}, {"@type": "Question", "name": "Is my customer data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The dates are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your trials. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TRIAL CONVERSION TIMING ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your trial longer than it needs to be?</h1>
+    <p>Paste <strong>the date each trial started and the date that user first paid</strong> (blank if they never did). The tool shows <strong>which day of the trial people convert</strong>, whether they wait for the deadline, and <strong>what a shorter trial would have lost</strong>, with a range from resampling your own trials and a check that your timing has not shifted.</p>
+    <p class="note">Your customer data never leaves this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your trials</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: trial start date, first payment date)</label>
+    <textarea id="rows" spellcheck="false" placeholder="trial_start,first_paid&#10;2026-03-01,2026-03-14&#10;2026-03-01,"></textarea>
+    <h2 style="margin-top:18px">Your trial and plan</h2>
+    <div class="row3">
+      <div><label for="trialdays">Trial length you offered (days)</label><input id="trialdays" inputmode="numeric" value="14"></div>
+      <div><label for="asof">Data is complete up to (date)</label><input id="asof" placeholder="defaults to the latest date in your file"></div>
+      <div><label for="price">Monthly price ($)</label><input id="price" inputmode="decimal" value="29"></div>
+      <div><label for="months">Expected paid months per customer</label><input id="months" inputmode="decimal" value="9"></div>
+      <div><label for="pull">Share of late payers who would pay sooner anyway (%)</label><input id="pull" inputmode="decimal" value="0"></div>
+    </div>
+    <p class="note">Use one row per trial and dates like 2026-03-14 (a timestamp is fine, only the date is read). A trial still running as of the date above is left out, not counted as a failure. Leaving the last box at 0 gives the worst case: every conversion after the shorter cutoff is lost.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your trials, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Conversions by day of the trial</h3>
+    <div class="legend note"><span>Bars: conversions on each day</span><span>Line: share of all conversions by that day</span></div>
+    <div id="chart"></div>
+    <h3>What a shorter trial would have cost</h3>
+    <p class="note">Counts conversions that came after the shorter cutoff, from your finished trials. The range is the middle 80% of 300 seeded resamples of those trials. It cannot see what a shorter trial does to sign-ups, and it says nothing about trials longer than the one you ran.</p>
+    <div class="scroll"><table id="sc"><thead><tr><th>Trial of</th><th class="n">Conversions after the cutoff</th><th class="n">80% range</th><th class="n">Lost per 100 trials</th><th class="n">Value lost per 100 trials</th></tr></thead><tbody></tbody></table></div>
+    <h3>Back-test</h3>
+    <div id="bt-note" class="note"></div>
+    <button type="button" id="download">Download scenarios CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Finished trials only:</strong> a trial counts once start + trial length is on or before the as-of date. Conversion day is first payment minus start. The share of conversions after day T is counted directly; the conversion rate under a T-day trial is your rate minus those late conversions, less the share you say would have paid sooner anyway. Ranges come from 300 seeded resamples of the finished trials. The back-test compares the share of conversions after the halfway day in the first 75% of trials (by start date) with the last 25%, and calls the timing unstable if they differ by more than 15 points.</p>
+    <p><strong>Not modelled:</strong> what a shorter or longer trial does to sign-ups, to who starts a trial, to activation or to later churn; reminder emails and discounts; card-upfront versus no-card trials; and anything about trials longer than the one you ran. Users who pay and cancel are counted as converted. Unverified: tested on simulated trials with known timing, not on a published dataset. Changing the trial length is an experiment; this shows what your history allows you to expect, not a result.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good trial length?</h3>
+    <p>There is no universal answer, because it depends on how long your product takes to show its value. The useful evidence is your own: the day each trial user first paid. If most of your conversions arrive in the first few days, a long trial mostly adds waiting. If they bunch at the end, people may be waiting for the deadline, and shortening the trial would pull them forward rather than lose them. This tool shows which pattern your trials have.</p>
+    <h3>How do I see when my trial users convert?</h3>
+    <p>Export the date each trial started and the date each user first paid, leave the payment blank for those who did not, and paste the two columns here. The tool draws conversions per day and the running share, and reports the median and the 90th percentile day.</p>
+    <h3>What would shortening my trial cost?</h3>
+    <p>The tool counts the conversions that happened after the shorter cutoff. That is the worst case, because it assumes none of those people would have converted sooner. You can set the share you believe would convert anyway, and the loss scales down with it. It is a range from your own history, not a forecast, and it cannot tell you what a shorter trial does to sign-ups.</p>
+    <h3>Can it tell me whether a longer trial would convert more?</h3>
+    <p>No. Your history has no trial longer than the one you ran, so nothing in it says what days beyond that would add. The tool only looks inside the length you offered, and says so. To learn about a longer trial you would have to run one.</p>
+    <h3>What is the deadline effect in trial conversion?</h3>
+    <p>Many users pay on the last day or two of a trial because the deadline is what makes them decide. The tool flags when at least 30% of your conversions fall in the last two days and that is well above a flat spread. In that case the days before the deadline are not evidence of low interest, and a shorter trial could move the pile-up earlier.</p>
+    <h3>How many trials do I need?</h3>
+    <p>At least 30 finished trials and at least 8 conversions. A trial only counts once its whole window has passed, so a trial that is still running is left out rather than counted as a failure. With under 25 conversions the tool calls the result weak and asks you to read the ranges.</p>
+    <h3>Why does it say my timing is unstable?</h3>
+    <p>It fits on the first 75% of your trials by start date and checks the last 25%. If the share of conversions arriving after the halfway day differs by more than fifteen points between the two, your conversion timing has moved, for example after a pricing or onboarding change, and an old average would mislead you.</p>
+    <h3>Is my customer data uploaded anywhere?</h3>
+    <p>No. The dates are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your trials. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the trials you supply; they do not guarantee what will happen when you change your trial length. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any billing, subscription-analytics or product-analytics vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your trials are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a>, the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a> and the <a href="../patreon-members-churn-analyzer/">Patreon members churn analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function chart(r) {
+      const W = 900, H = 240, L = 48, R = 40, T = 12, B = 34;
+      const n = r.perDay.length, slot = (W - L - R) / n, bw = Math.max(2, slot * 0.6);
+      const peak = Math.max(1, ...r.perDay.map((d) => d.conversions));
+      const y = (v) => T + (H - T - B) * (1 - v);
+      let line = "";
+      const bars = r.perDay.map((d, i) => {
+        const cx = L + slot * i + slot / 2;
+        line += (i ? "L" : "M") + cx.toFixed(1) + " " + y(d.cumulativeShare).toFixed(1) + " ";
+        const h = (H - B - T) * (d.conversions / peak);
+        return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${(H - B - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="#1f5f86" fill-opacity=".85"/>` +
+          (n <= 31 || i % 5 === 0 ? `<text x="${cx.toFixed(1)}" y="${H - 14}" font-size="11" text-anchor="middle" fill="#4c5a68">${d.day}</text>` : "");
+      }).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Conversions on each day of the trial and the running share of all conversions">` +
+        [0, 0.5, 1].map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}" stroke="#e3e9ef"/><text x="${L - 6}" y="${(y(t) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${Math.round(t * 100)}%</text>`).join("") +
+        bars + `<path d="${line}" fill="none" stroke="#b5533c" stroke-width="2"/>` +
+        `<text x="${W / 2}" y="${H - 1}" font-size="11" text-anchor="middle" fill="#4c5a68">Day of the trial</text></svg>`;
+    }
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const pull = num("#pull");
+      const r = analyze(parsed.rows, {
+        trialDays: num("#trialdays"), asOf: $("#asof").value.trim() || undefined,
+        monthlyPrice: num("#price"), paidMonths: num("#months"), pullForward: pull === undefined ? 0 : pull / 100,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const half = r.scenarios.find((s) => s.trialDays === Math.round(r.trialDays / 2)) || r.scenarios[0];
+      const big = [
+        [pct(r.rate, 1), `Trial-to-paid rate (${r.conversions} of ${r.n} finished trials)`],
+        [`day ${r.median} · day ${r.p90}`, "Median day and 90th percentile day that people first paid"],
+        [pct(r.lastTwoShare, 0), `Of conversions came in the last two days of the ${r.trialDays}-day trial${r.deadline ? ": a deadline pile-up" : ""}`],
+        [pct(half.lostShare, 0), `Of conversions came after day ${half.trialDays} (80% range ${pct(half.lostRange80[0], 0)} to ${pct(half.lostRange80[1], 0)})`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : r.verdict === "weak" ? ["medium", "weak evidence"] : ["high", "timing unstable"];
+      let msg = r.verdict === "usable" ? "Timing looked the same in your earlier and latest trials. Still an experiment to run, not a result: a shorter trial also changes who signs up and how they behave." : r.verdictNote;
+      if (r.deadline) msg += " Many conversions land on the deadline, so a shorter trial may move that pile-up earlier rather than lose those payers: try a higher share in the pull-forward box.";
+      $("#trust").innerHTML = `<div class="warn ${r.verdict === "unstable" ? "stop" : ""}"><span class="pill ${pill[0]}">${pill[1]}</span>${esc(msg)}</div>`;
+      $("#chart").innerHTML = chart(r);
+      $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.trialDays} days</td><td class="n">${pct(s.lostShare, 0)}</td><td class="n">${pct(s.lostRange80[0], 0)} to ${pct(s.lostRange80[1], 0)}</td><td class="n">${s.conversionsLostPer100.toFixed(1)} customers</td><td class="n">${money(s.valueLostPer100)}</td></tr>`).join("");
+      $("#bt-note").textContent = r.holdout ? `Share of conversions after day ${r.holdout.probeDay}: ${pct(r.holdout.fitLate, 0)} in the first 75% of trials (${r.holdout.fitConversions} conversions), ${pct(r.holdout.testLate, 0)} in the last 25% (${r.holdout.testConversions}). Gap: ${(r.holdout.gap * 100).toFixed(0)} points; over 15 is called unstable.` : "Too few conversions in one half to run the back-test.";
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText();
+      $("#trialdays").value = "14"; $("#asof").value = ""; $("#price").value = "29"; $("#months").value = "9"; $("#pull").value = "0";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 160 invented trials, not a real product."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your trials, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "shorter-trial-scenarios.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

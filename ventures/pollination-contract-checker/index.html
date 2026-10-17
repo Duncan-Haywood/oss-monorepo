@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pollination Contract Checker — Is the Fee Per Hive Worth It?</title>
+  <meta name="description" content="Free pollination contract checker for beekeepers: enter the fee per hive, miles, inspection failures, feed and losses, and see your net per hive and break-even fee. Growers can see cost per acre. Runs in your browser.">
+  <meta property="og:title" content="Pollination Contract Checker — free, private">
+  <meta property="og:description" content="Break-even fee per hive for an almond or orchard pollination contract after trucking, labour, feed, losses and forgone honey.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pollination Contract Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for beekeepers and growers: break-even fee per hive for a pollination contract after trucking, labour, feed, losses and forgone honey, plus the grower's cost per acre."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a beekeeper charge per hive for pollination?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number: it depends on the crop, the year, the minimum frame count in the contract, and your own costs. Work backwards instead. Add trucking, labour, feed, expected hive losses, the honey the hives would have made at home and any broker share, and divide by the hives that will pass inspection. That is your break-even fee. This tool calculates it from your numbers; anything above it is your margin."}}, {"@type": "Question", "name": "Why does inspection failure matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "Contracts typically pay only for hives that meet a minimum strength, often counted in frames of bees. A hive that fails is still trucked, fed and handled. Because the costs stay and the fee goes, every extra 10% of hives failing costs roughly a tenth of the fee on every hive you sent."}}, {"@type": "Question", "name": "How far can I truck bees before it stops paying?", "acceptedAnswer": {"@type": "Answer", "text": "When trucking per hive plus everything else exceeds the fee. Enter your miles, the truck cost per mile and how many hives fit on a load. The tool shows the break-even fee and tells you when the contract loses money."}}, {"@type": "Question", "name": "What does it cost a grower?", "acceptedAnswer": {"@type": "Answer", "text": "Hives per acre times the fee per hive. Enter your acres, your stocking rate and optionally your yield and price, and the tool shows the cost per acre and the yield lift that pays for it. It does not estimate what bees will actually add to your yield; that is a number you supply."}}, {"@type": "Question", "name": "Where do the numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. The tool contains no pollination prices, crop prices or cost data. The example values are made up."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this business, legal or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. A contract, insurance, pesticide-exposure terms and taxes need a qualified professional, your state apiarist or an extension agent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d2a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3d1c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3d1c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3d1c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d2a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f3d1c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f3d1c; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">POLLINATION CONTRACT CHECKER · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>A grower offered you a fee per hive. Does it clear your costs?</h1>
+    <p>Enter the fee and what it takes to deliver the bees. You get your <strong>net per hive, the cost breakdown and the break-even fee</strong>, after trucking, labour, feed, hive losses, hives that fail inspection and the honey they would have made at home. Growers can switch to the second card for cost per acre.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool contains no market data, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Beekeeper: the contract</h2>
+    <div class="grid">
+      <div><label for="hives">Hives you would send</label><input type="number" id="hives" min="1" step="1" value="200"></div>
+      <div><label for="fee">Fee per hive ($)</label><input type="number" id="fee" min="1" step="1" value="190"></div>
+      <div><label for="fail">Hives failing inspection (%)</label><input type="number" id="fail" min="0" step="1" value="5"></div>
+      <div><label for="broker">Broker share of fees (%)</label><input type="number" id="broker" min="0" step="1" value="0"></div>
+      <div><label for="miles">Miles, yard to orchard (one way)</label><input type="number" id="miles" min="0" step="1" value="300"></div>
+      <div><label for="permile">Truck cost per mile ($)</label><input type="number" id="permile" min="0" step="0.1" value="3.5"></div>
+      <div><label for="perload">Hives per truckload</label><input type="number" id="perload" min="1" step="1" value="400"></div>
+      <div><label for="labor">Labour hours per hive, each way</label><input type="number" id="labor" min="0" step="0.01" value="0.12"></div>
+      <div><label for="rate">Labour rate ($/hour)</label><input type="number" id="rate" min="0" step="1" value="25"></div>
+      <div><label for="feed">Feed per hive during contract ($)</label><input type="number" id="feed" min="0" step="1" value="14"></div>
+      <div><label for="loss">Hives lost or too weak to keep (%)</label><input type="number" id="loss" min="0" step="1" value="6"></div>
+      <div><label for="replace">Cost to replace a hive ($)</label><input type="number" id="replace" min="0" step="1" value="180"></div>
+      <div><label for="forgone">Income each hive would earn staying home ($)</label><input type="number" id="forgone" min="0" step="1" value="40"></div>
+      <div><label for="fixed">Other fixed costs ($)</label><input type="number" id="fixed" min="0" step="1" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Check the contract</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Check the contract.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Grower: what the bees cost per acre</h2>
+    <div class="grid">
+      <div><label for="acres">Acres</label><input type="number" id="acres" min="0" step="1" value="100"></div>
+      <div><label for="hpa">Hives per acre</label><input type="number" id="hpa" min="0" step="0.5" value="2"></div>
+      <div><label for="gfee">Fee per hive ($)</label><input type="number" id="gfee" min="0" step="1" value="190"></div>
+      <div><label for="yield">Expected yield per acre (units)</label><input type="number" id="yield" min="0" step="1" value="2500"></div>
+      <div><label for="price">Price per unit ($)</label><input type="number" id="price" min="0" step="0.01" value="2.5"></div>
+    </div>
+    <p><button type="button" id="grow">Work out the cost</button></p>
+    <div id="grower" aria-live="polite" class="note"></div>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Gross</strong> = hives passing inspection × fee. Failed hives are unpaid but still cost.</li>
+      <li><strong>Trucking</strong> = loads (rounded up) × 2 × miles × cost per mile. <strong>Labour</strong> = hives × hours × 2 (load and unload) × rate.</li>
+      <li><strong>Losses</strong> = hives × loss % × replacement cost. <strong>Forgone income</strong> is what each hive would have earned at home in those weeks.</li>
+      <li><strong>Break-even fee</strong> is the fee at which net is zero with your other inputs unchanged.</li>
+      <li><strong>Not modelled:</strong> pesticide-exposure terms, second-crop or honey flow after the contract, price changes mid-season, taxes, insurance beyond the fixed amount you enter, and contract terms.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a beekeeper charge per hive for pollination?</h3>
+    <p>There is no single number: it depends on the crop, the year, the minimum frame count in the contract, and your own costs. Work backwards instead. Add trucking, labour, feed, expected hive losses, the honey the hives would have made at home and any broker share, and divide by the hives that will pass inspection. That is your break-even fee. This tool calculates it from your numbers; anything above it is your margin.</p>
+    <h3>Why does inspection failure matter so much?</h3>
+    <p>Contracts typically pay only for hives that meet a minimum strength, often counted in frames of bees. A hive that fails is still trucked, fed and handled. Because the costs stay and the fee goes, every extra 10% of hives failing costs roughly a tenth of the fee on every hive you sent.</p>
+    <h3>How far can I truck bees before it stops paying?</h3>
+    <p>When trucking per hive plus everything else exceeds the fee. Enter your miles, the truck cost per mile and how many hives fit on a load. The tool shows the break-even fee and tells you when the contract loses money.</p>
+    <h3>What does it cost a grower?</h3>
+    <p>Hives per acre times the fee per hive. Enter your acres, your stocking rate and optionally your yield and price, and the tool shows the cost per acre and the yield lift that pays for it. It does not estimate what bees will actually add to your yield; that is a number you supply.</p>
+    <h3>Where do the numbers come from?</h3>
+    <p>From you. The tool contains no pollination prices, crop prices or cost data. The example values are made up.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this business, legal or tax advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. A contract, insurance, pesticide-exposure terms and taxes need a qualified professional, your state apiarist or an extension agent.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as your state apiarist, an extension agent, an attorney or a tax adviser. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any contract you sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>contract_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../grazing-lease-rate-calculator/">grazing lease rate calculator</a>, <a href="../apiary-profit-planner/">apiary profit planner</a>, <a href="../custom-farm-rate-calculator/">custom farm rate</a>, and <a href="../oyster-farm-growout-planner/">oyster farm growout planner</a></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { check, grower, sampleInput, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { hives: "hives", feePerHive: "fee", failPct: "fail", brokerPct: "broker", miles: "miles", truckCostPerMile: "permile", hivesPerLoad: "perload", laborHoursPerHive: "labor", laborRate: "rate", feedPerHive: "feed", lossPct: "loss", replaceCostPerHive: "replace", forgoneIncomePerHive: "forgone", extraFixed: "fixed" };
+    let last = null;
+
+    function run() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      const r = check(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.loses ? "high" : r.thin ? "medium" : "info"}">${r.loses ? "loses money" : r.thin ? "thin" : "result"}</span>${esc(a)}</div>`).join("");
+      const rows = [["Fees from paid hives", r.gross], ...Object.entries(r.costs).map(([k, x]) => [k, -x]), ["Net", r.net], ["Net per hive", r.netPerHive], ["Break-even fee per hive", r.breakEvenFee]];
+      $("#lines").innerHTML = rows.map(([k, x]) => `<tr><th scope="row">${esc(k)}</th><td class="n">${money(x)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Net ${money(r.net)}; break-even fee ${money(r.breakEvenFee)} per hive.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("contract_checked"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) $("#" + id).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#grow").addEventListener("click", () => {
+      const g = grower({ acres: $("#acres").value, hivesPerAcre: $("#hpa").value, feePerHive: $("#gfee").value, yieldPerAcre: $("#yield").value, pricePerUnit: $("#price").value });
+      $("#grower").textContent = g.error ? g.error : `${g.hives} hives, ${money(g.costPerAcre)} per acre, ${money(g.total)} total.` + (g.breakEvenYieldLiftPct != null ? ` Pollination is ${Math.round(g.costShareOfRevenue * 100)}% of crop revenue; the yield lift that pays for it is ${g.breakEvenYieldLiftUnits} units per acre (${g.breakEvenYieldLiftPct}%).` : "");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "pollination-contract-check.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

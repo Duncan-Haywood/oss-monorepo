@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Section 174A Catch-Up Deduction Calculator — 1-Year vs. 2-Year, Free</title>
+  <meta name="description" content="Free calculator for the Section 174A domestic R&amp;E catch-up deduction (OBBBA, Rev. Proc. 2025-28): compares taking your entire remaining unamortized 2022-2024 R&amp;E balance in 2025 against spreading it over 2025-2026, with current-year cash tax savings, an NOL flag when a deduction exceeds taxable income, and a present-value comparison. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Section 174A Catch-Up Calculator — 1-year vs. 2-year, free">
+  <meta property="og:description" content="Compare the two Rev. Proc. 2025-28 elections for your Section 174A R&amp;E catch-up deduction: all in 2025, or split across 2025-2026. See the cash tax savings, an NOL flag, and a present-value recommendation based on what you enter. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Section 174A Catch-Up Deduction Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares the two Rev. Proc. 2025-28 elections available on a 2025 return for an eligible small business's Section 174A domestic R&E catch-up deduction: deducting the entire remaining unamortized 2022-2024 balance in 2025, or spreading it ratably over 2025 and 2026. Computes the actual current-year cash tax saving each year (capped at that year's taxable income before the deduction, with a flag when the deduction would exceed it and create or increase a net operating loss), the present value of the combined savings across both years at a chosen discount rate, and the dollar and percentage difference between the two paths. Entirely client-side; nothing is uploaded.","featureList":"1-year vs. 2-year Section 174A catch-up election comparison, current-year cash tax savings capped to available taxable income, net operating loss (NOL) flag when a deduction exceeds taxable income, present-value comparison at an adjustable discount rate, plain-language recommendation based on the numbers entered"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Section 174A catch-up deduction?","acceptedAnswer":{"@type":"Answer","text":"A one-time deduction created by the One Big Beautiful Bill Act (OBBBA) for an eligible small business that had capitalized and was amortizing domestic research and experimental (R&E) costs from 2022-2024 under the old Section 174 rules. It covers whatever portion of those costs was not yet amortized by the start of the business's first tax year beginning after December 31, 2024 -- 2025, for a calendar-year filer -- and is claimed on that 2025 return."}},{"@type":"Question","name":"Who counts as an \"eligible small business\" for this catch-up?","acceptedAnswer":{"@type":"Answer","text":"A business whose average annual gross receipts for 2022, 2023, and 2024 (including a controlled group's) were $31 million or less -- the same Section 448(c) gross-receipts test used elsewhere in the tax code. This calculator does not check your gross receipts against that threshold; confirm your own eligibility before relying on either election."}},{"@type":"Question","name":"What is the difference between the 1-year and 2-year election?","acceptedAnswer":{"@type":"Answer","text":"Both are elected on the 2025 return under Rev. Proc. 2025-28. The 1-year option deducts the entire remaining unamortized balance in 2025. The 2-year option spreads it ratably over two years -- half in 2025, half in 2026. Taking it all in 2025 front-loads the tax savings, which is better if 2025's rate or income is expected to be higher than 2026's. Spreading it out is better if 2025's rate or income is expected to be lower -- for example a loss or near-breakeven year -- or if the rate is expected to rise in 2026."}},{"@type":"Question","name":"What happens if the deduction is bigger than my taxable income for that year?","acceptedAnswer":{"@type":"Answer","text":"The excess does not disappear, but it also does not produce an immediate cash tax saving that year -- it can create or increase a net operating loss (NOL) instead. This calculator flags that clearly and caps the current-year cash saving at that year's taxable income before the deduction. It does not model NOL carryforward value, the 80%-of-taxable-income limitation on using a post-2017 NOL in a later year, or state conformity -- that is a case to bring to a tax professional."}},{"@type":"Question","name":"Is this the same as amending my 2022-2024 returns directly?","acceptedAnswer":{"@type":"Answer","text":"No. A separate, fully retroactive election existed under the same Rev. Proc. to amend 2022-2024 returns directly, but its election window closed July 6, 2026. This calculator only compares the two elections still available on the 2025 return -- the full-balance-in-2025 option and the split-over-2025-2026 option -- which is the live choice a small business faces right now."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the two published Rev. Proc. 2025-28 catch-up election structures to the numbers you enter. It does not verify your small-business eligibility, does not model net operating loss carryforward value, does not know your complete tax return, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you elect either option."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .pathcard h3 { margin-top: 0; }
+    .winner { border: 2px solid #2a6b8e; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SECTION 174A CATCH-UP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>1-year or 2-year? Compare the Section 174A R&amp;E catch-up election.</h1>
+    <p>If your business capitalized and amortized domestic research and
+    experimental (R&amp;E) costs from 2022-2024 under the old Section 174
+    rules, the One Big Beautiful Bill Act gives you a one-time catch-up
+    deduction for whatever balance you had not yet amortized — claimed on
+    your 2025 return, either <strong>entirely in 2025</strong> or
+    <strong>split evenly across 2025 and 2026</strong> (Rev. Proc.
+    2025-28). This tool compares the actual cash tax savings and the
+    present value of each path, based on the numbers you enter.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your remaining unamortized balance</h2>
+    <label for="remaining-balance">Remaining unamortized domestic R&amp;E balance being caught up ($)</label>
+    <input type="number" id="remaining-balance" min="0" step="1000" placeholder="e.g. 180000">
+    <p class="note">The portion of your 2022-2024 domestic R&amp;E costs not
+    yet amortized as of the start of your first tax year beginning after
+    December 31, 2024 — 2025, for a calendar-year filer. This is not the
+    retroactive-amendment path (its election window closed July 6, 2026);
+    it is the choice you still make on your 2025 return.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Expected taxable income and rate, before this deduction</h2>
+    <div class="grid2">
+      <div>
+        <h3>2025</h3>
+        <label for="income-2025">Expected 2025 taxable income before this deduction ($)</label>
+        <input type="number" id="income-2025" step="1000" placeholder="e.g. 400000">
+        <label for="rate-2025">Marginal / effective tax rate for 2025 (%)</label>
+        <input type="number" id="rate-2025" min="0" max="100" step="0.1" placeholder="e.g. 21">
+      </div>
+      <div>
+        <h3>2026</h3>
+        <label for="income-2026">Expected 2026 taxable income before this deduction ($)</label>
+        <input type="number" id="income-2026" step="1000" placeholder="e.g. 450000">
+        <label for="rate-2026">Marginal / effective tax rate for 2026 (%)</label>
+        <input type="number" id="rate-2026" min="0" max="100" step="0.1" placeholder="e.g. 21">
+      </div>
+    </div>
+    <p class="note">Income can be negative — enter a negative number if you
+    expect a loss year. Rates can differ between the two years; that
+    difference is exactly what this tool is built to weigh.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Time value of money (optional)</h2>
+    <label for="discount-rate">Annual discount rate for comparing savings across both years (%)</label>
+    <input type="number" id="discount-rate" min="-20" max="50" step="0.1" value="6">
+    <p class="note">Defaults to 6% — a middle-of-the-range planning
+    assumption between a risk-free rate and a small business's typical cost
+    of borrowed cash (not an IRS-published figure). Adjust it to your own
+    cost of capital; a 0% rate compares the two paths on nominal dollars
+    only.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in your balance, income, and rates, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Comparison</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="grid2">
+      <div class="card pathcard" id="one-year-card">
+        <h3>1-year: all in 2025</h3>
+        <table>
+          <tbody id="one-year-table"></tbody>
+        </table>
+      </div>
+      <div class="card pathcard" id="two-year-card">
+        <h3>2-year: split 2025 / 2026</h3>
+        <table>
+          <tbody id="two-year-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates the cash
+      tax effect of one deduction only — not your total tax liability,
+      other deductions or credits, self-employment or payroll tax, AMT, or
+      state tax (state conformity to Section 174A varies).</li>
+      <li><strong>Does not verify small-business eligibility.</strong> The
+      $31 million average-gross-receipts test (2022-2024) is confirmed by
+      you, not checked here.</li>
+      <li><strong>No net operating loss (NOL) carryforward modeling.</strong>
+      When a deduction exceeds a year's taxable income, this tool flags the
+      excess but does not estimate what a resulting NOL is worth in a later
+      year, the Section 172(a) 80%-of-taxable-income limitation, or state
+      NOL rules.</li>
+      <li><strong>Does not model the retroactive-amendment election.</strong>
+      That separate path (amending 2022-2024 returns directly) had its own
+      election window, which closed July 6, 2026.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the Section 174A catch-up deduction?</h3>
+    <p>A one-time deduction created by the One Big Beautiful Bill Act (OBBBA) for an eligible small business that had capitalized and was amortizing domestic research and experimental (R&E) costs from 2022-2024 under the old Section 174 rules. It covers whatever portion of those costs was not yet amortized by the start of the business's first tax year beginning after December 31, 2024 -- 2025, for a calendar-year filer -- and is claimed on that 2025 return.</p>
+    <h3>Who counts as an "eligible small business" for this catch-up?</h3>
+    <p>A business whose average annual gross receipts for 2022, 2023, and 2024 (including a controlled group's) were $31 million or less -- the same Section 448(c) gross-receipts test used elsewhere in the tax code. This calculator does not check your gross receipts against that threshold; confirm your own eligibility before relying on either election.</p>
+    <h3>What is the difference between the 1-year and 2-year election?</h3>
+    <p>Both are elected on the 2025 return under Rev. Proc. 2025-28. The 1-year option deducts the entire remaining unamortized balance in 2025. The 2-year option spreads it ratably over two years -- half in 2025, half in 2026. Taking it all in 2025 front-loads the tax savings, which is better if 2025's rate or income is expected to be higher than 2026's. Spreading it out is better if 2025's rate or income is expected to be lower -- for example a loss or near-breakeven year -- or if the rate is expected to rise in 2026.</p>
+    <h3>What happens if the deduction is bigger than my taxable income for that year?</h3>
+    <p>The excess does not disappear, but it also does not produce an immediate cash tax saving that year -- it can create or increase a net operating loss (NOL) instead. This calculator flags that clearly and caps the current-year cash saving at that year's taxable income before the deduction. It does not model NOL carryforward value, the 80%-of-taxable-income limitation on using a post-2017 NOL in a later year, or state conformity -- that is a case to bring to a tax professional.</p>
+    <h3>Is this the same as amending my 2022-2024 returns directly?</h3>
+    <p>No. A separate, fully retroactive election existed under the same Rev. Proc. to amend 2022-2024 returns directly, but its election window closed July 6, 2026. This calculator only compares the two elections still available on the 2025 return -- the full-balance-in-2025 option and the split-over-2025-2026 option -- which is the live choice a small business faces right now.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the two published Rev. Proc. 2025-28 catch-up election structures to the numbers you enter. It does not verify your small-business eligibility, does not model net operating loss carryforward value, does not know your complete tax return, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you elect either option.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your business's small-business eligibility and your own numbers before electing either option on a filed return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also opening a savings account for a child this year? See the <a href="../trump-account-calculator/">Trump Account calculator</a> — a different brand-new 2025-2026 OBBBA provision, same "no signup, run the numbers yourself" shape.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of the 174A catch-up usually goes wrong</a>.</p>
+    <p>Want to see the 1-year-vs-2-year math worked all the way through? See <a href="./should-i-take-the-174a-catchup-in-one-year-or-two.html">should I take the 174A catch-up in one year or two?</a>, including why a weak 2025 can make the 1-year path waste most of the deduction into an unmodeled NOL.</p>
+    <p>Also doing R&amp;D? The <a href="../rd-tax-credit-calculator/">R&amp;D tax credit calculator</a> estimates the separate Section 41 credit and its payroll-tax offset.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareCatchUpPaths, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      balance: $("#remaining-balance"),
+      income2025: $("#income-2025"), rate2025: $("#rate-2025"),
+      income2026: $("#income-2026"), rate2026: $("#rate-2026"),
+      discountRate: $("#discount-rate"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      oneYearTable: $("#one-year-table"), twoYearTable: $("#two-year-table"),
+      oneYearCard: $("#one-year-card"), twoYearCard: $("#two-year-card"),
+      findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function renderPathTable(tbody, path) {
+      const y2025 = path["2025"];
+      const y2026 = path["2026"];
+      tbody.innerHTML = `
+        <tr><th scope="row">2025 deduction claimed</th><td>${money(y2025.deductionRequested)}</td></tr>
+        <tr><th scope="row">2025 cash tax saving</th><td>${money(y2025.cashSavings)}${y2025.createsOrIncreasesNol ? " ⚠ NOL" : ""}</td></tr>
+        <tr><th scope="row">2026 deduction claimed</th><td>${money(y2026.deductionRequested)}</td></tr>
+        <tr><th scope="row">2026 cash tax saving</th><td>${money(y2026.cashSavings)}${y2026.createsOrIncreasesNol ? " ⚠ NOL" : ""}</td></tr>
+        <tr><th scope="row">Nominal total saving</th><td>${money(path.nominalTotal)}</td></tr>
+        <tr><th scope="row"><strong>Present value of savings</strong></th><td><strong>${money(path.presentValue)}</strong></td></tr>`;
+    }
+
+    function runCalculate() {
+      const result = compareCatchUpPaths({
+        remainingBalance: Number(els.balance.value) || 0,
+        income2025: Number(els.income2025.value) || 0,
+        income2026: Number(els.income2026.value) || 0,
+        ratePercent2025: Number(els.rate2025.value) || 0,
+        ratePercent2026: Number(els.rate2026.value) || 0,
+        discountRatePercent: els.discountRate.value === "" ? undefined : Number(els.discountRate.value),
+      });
+
+      const recommendation = result.recommendedPath === "tie"
+        ? "the two paths are within a dollar of each other"
+        : `the <strong>${result.recommendedPath}</strong> path has the higher present-value saving by ${money(Math.abs(result.pvDifference))} (${Math.abs(result.pvDifferencePercent).toFixed(1)}%)`;
+      els.stats.innerHTML = `Based on what you told us: ${recommendation}. Nominal (undiscounted) totals — 1-year: <strong>${money(result.oneYear.nominalTotal)}</strong>, 2-year: <strong>${money(result.twoYear.nominalTotal)}</strong>.`;
+
+      renderPathTable(els.oneYearTable, result.oneYear);
+      renderPathTable(els.twoYearTable, result.twoYear);
+      els.oneYearCard.classList.toggle("winner", result.recommendedPath === "1-year");
+      els.twoYearCard.classList.toggle("winner", result.recommendedPath === "2-year");
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.balance.value = "180000";
+      els.income2025.value = "400000";
+      els.rate2025.value = "21";
+      els.income2026.value = "450000";
+      els.rate2026.value = "21";
+      els.discountRate.value = "6";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a $180,000 remaining unamortized R&E balance, $400,000 of 2025 taxable income and $450,000 of 2026 taxable income before this deduction, both at a 21% rate.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.balance.value = "";
+      els.income2025.value = "";
+      els.rate2025.value = "";
+      els.income2026.value = "";
+      els.rate2026.value = "";
+      els.discountRate.value = "6";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in your balance, income, and rates, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Choose a Search API by Records and Queries</title>
+  <meta name="description" content="Why hosted-search bills are really query bills, how Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and self-hosting differ, and what to check before switching.">
+  <link rel="canonical" href="./how-to-choose-a-search-api-by-records-and-queries.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why do search APIs bill so differently for the same app?", "acceptedAnswer": {"@type": "Answer", "text": "Per-request vendors such as Algolia charge for every thousand searches and every thousand records past a free tier, so a busy autocomplete box can cost far more than the index it queries. Cluster-priced engines such as Typesense Cloud and Elastic Cloud charge a flat fee for a memory size and nothing per search, and a self-hosted engine costs a small server plus your time. The same 500,000 records and 2 million searches a month can land more than a thousand dollars apart in the calculator."}}, {"@type": "Question", "name": "What matters more than the list price?", "acceptedAnswer": {"@type": "Answer", "text": "Your query pattern and index size. Search-as-you-type fires a request per keystroke unless you debounce it, which multiplies searches several times over. Flat-cluster plans only work while the index fits in memory, and record size, replicas and re-indexing change the answer. Features priced separately, such as vector or AI search, are not modelled."}}, {"@type": "Question", "name": "When should I switch providers?", "acceptedAnswer": {"@type": "Answer", "text": "When the 12-month spend under your growth rate differs enough to pay for the migration: re-indexing, changing the client library and query syntax, and rebuilding relevance tuning. Run the calculator with your own volumes and growth, and confirm the cluster fits your real index before deciding."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← Search API Pricing Calculator</a></p>
+  <h1>How to choose a search API by records and queries</h1>
+  <p>Put your record count, searches per month and growth rate into the <a href="./">calculator</a> to price Algolia, Meilisearch Cloud, Typesense Cloud, Elastic Cloud and a self-hosted engine side by side. These are the questions to settle before you trust the answer.</p>
+  <h2>Why do search APIs bill so differently for the same app?</h2>
+  <p>Per-request vendors such as Algolia charge for every thousand searches and every thousand records past a free tier, so a busy autocomplete box can cost far more than the index it queries. Cluster-priced engines such as Typesense Cloud and Elastic Cloud charge a flat fee for a memory size and nothing per search, and a self-hosted engine costs a small server plus your time. The same 500,000 records and 2 million searches a month can land more than a thousand dollars apart in the calculator.</p>
+  <h2>What matters more than the list price?</h2>
+  <p>Your query pattern and index size. Search-as-you-type fires a request per keystroke unless you debounce it, which multiplies searches several times over. Flat-cluster plans only work while the index fits in memory, and record size, replicas and re-indexing change the answer. Features priced separately, such as vector or AI search, are not modelled.</p>
+  <h2>When should I switch providers?</h2>
+  <p>When the 12-month spend under your growth rate differs enough to pay for the migration: re-indexing, changing the client library and query syntax, and rebuilding relevance tuning. Run the calculator with your own volumes and growth, and confirm the cluster fits your real index before deciding.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

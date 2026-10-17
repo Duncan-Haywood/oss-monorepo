@@ -1,0 +1,30 @@
+== mac4: 17 candidates, 1 rejected by the RTL equivalence gate (P:p3_dropped_carry_bug); 80 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+every candidate, cells/depth/cells*depth per script:
+candidate                   yosys_default     strash_map        dc2_map           dch_map           resyn2_map        
+reference                   101/19/1919       116/17/1972       105/19/1995       114/17/1938       106/18/1908       
+P:p0_csa                    114/19/2166       129/17/2193       118/19/2242       121/16/1936       117/16/1872       
+P:p1_flat_sum               107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+P:p2_balanced_tree          107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:chain_first_mux           107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:chain_first_and           107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:chain_last_mux            107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:chain_last_and            107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:tree_first_mux            107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:tree_first_and            107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:tree_last_mux             107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:tree_last_and             107/19/2033       121/17/2057       110/20/2200       118/17/2006       118/17/2006       
+S:csa_first_mux             118/20/2360       129/17/2193       120/20/2400       119/16/1904       119/17/2023       
+S:csa_first_and             116/20/2320       129/17/2193       118/20/2360       118/15/1770       119/17/2023       
+S:csa_last_mux              114/18/2052       132/16/2112       118/18/2124       120/16/1920       120/15/1800       
+S:csa_last_and              114/18/2052       132/16/2112       118/18/2124       120/16/1920       120/15/1800       
+
+best cells*depth per group (lower is better):
+group                             yosys_default  strash_map     dc2_map        dch_map        resyn2_map     best
+reference (script only)           1919           1972           1995           1938           1908           1908
+proposer files (3 valid)          2033           2057           2200           1936           1872           1872
+sweep (12 configs)                2033           2057           2124           1770           1800           1770
+ratio, proposer-best / reference, same script: yosys_default 1.06, strash_map 1.04, dc2_map 1.10, dch_map 1.00, resyn2_map 0.98
+ratio, sweep-best / reference, same script: yosys_default 1.06, strash_map 1.04, dc2_map 1.06, dch_map 0.91, resyn2_map 0.94
+reference default 1919; reference under its best script 1908 (resyn2_map); overall best 1770 = S:csa_first_and under dch_map (cells/depth 118/15)
+overall best / reference-default = 0.92; overall best / reference-best-script = 0.93
+tool: Yosys 0.33 (git sha1 2584903a060)

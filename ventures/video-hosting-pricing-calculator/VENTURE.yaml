@@ -1,0 +1,45 @@
+name: video-hosting-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices video hosting (Cloudflare Stream, Mux, Bunny Stream, api.video, DIY AWS MediaConvert + CloudFront) at a stored library, monthly minutes watched and monthly minutes uploaded from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the viewing levels where the cheapest platform changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of object-storage-pricing-calculator and
+# cdn-bandwidth-pricing-calculator. Nothing in the tree compares video-hosting platforms at one
+# stored + watched + uploaded volume.
+#
+# Where the first real visitor would come from: search phrases "mux vs cloudflare stream",
+# "cheapest video hosting for course", "bunny stream vs mux pricing", "video hosting cost per
+# minute"; r/SaaS, r/selfhosted and Indie Hackers threads from founders of course, membership
+# and UGC products. Vendor pages are rate cards per vendor; none shows all of them at one volume
+# with growth and the crossover, which is the wedge. A hosted pricing-change monitor is the
+# natural paid path later.
+hypotheses:
+  - claim: A founder of a course or video product will search for a platform price comparison at their minutes stored and watched, enter both numbers and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so viewing growth that pushes video spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/video-hosting-pricing-calculator/
+  analytics: null

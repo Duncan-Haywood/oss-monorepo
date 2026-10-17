@@ -1,0 +1,75 @@
+name: social-security-claiming-age-calculator
+description: >-
+  Free browser tool for people approaching retirement that compares Social
+  Security claiming ages 62 to 70 for one person or a couple: monthly check,
+  break-even age, and the best pair of claim ages once the spousal top-up and
+  the survivor benefit are counted, under planning ages, early death and long
+  life. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.21 (unrelated), no sibling; no Social Security tool in ventures/.
+# People aged 58-70 hold real money and one irreversible decision, and the
+# decision is worth tens of thousands of dollars: the common calculators show a
+# single-person break-even age and stop, which is the wrong question for a
+# married person, because the survivor keeps the larger check and the higher
+# earner's claim age therefore sets the household's floor for whoever lives
+# longer.
+#
+# First visitor: r/retirement, r/personalfinance and Bogleheads threads on
+# "when should I claim Social Security", and searches like "social security
+# break even calculator", "best age to claim social security married" and
+# "spousal vs survivor benefit". Volume not measured with an external tool.
+#
+# What makes it more than a calculator: the household search. It simulates
+# every pair of claim ages month by month with spousal and survivor rules and
+# reports the best pair under four scenarios, including the one that decides
+# most couples' answer: the higher earner dies at 75 and the other lives to 95.
+#
+# Privacy is the liability boundary: birth dates and benefit amounts never
+# leave the browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for retirement-income
+# tools (Roth conversion bracket fill sits next to it). A paid tier, if usage
+# appears, is a saved multi-scenario plan and a printable report, local only,
+# behind an env-var switch; not built. Advisor referrals are not built.
+#
+# Liability: illustrative estimates, not advice; the rules are cited from SSA's
+# published text; omissions (taxes, Medicare surcharges, earnings test) stated
+# on the page. Unverified: arithmetic checked by hand calculation only, not
+# against SSA's calculator. The first real benefit letter that disagrees is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Married people near retirement will use a no-signup tool that answers the
+      claiming question for the couple, survivor included, rather than reading
+      a single-person break-even age.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The early-death scenario is what changes minds: seeing the higher
+      earner's delay pay off for the survivor moves people to wait.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real SSA figure the tool contradicts on a point of arithmetic, at which point the model (spousal or survivor handling) needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/social-security-claiming-age-calculator/
+  analytics: null

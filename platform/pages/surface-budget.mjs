@@ -106,6 +106,95 @@ export const GENERIC_BUDGET_OVERRIDES = {
       '(the third-party transaction fee, plan allocation, target-margin and break-even algebra). Neither ' +
       'duplicates the other\'s worked example or conclusion. Allowed at two, which still blocks a third.',
   },
+  'sign-language-interpreter-rate-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-23: two sessions each added a generic-method page for this venture within the same ' +
+      'window, this session\'s own "vs. a spreadsheet" (a formula-builder who already has hours and a rate in a ' +
+      'sheet) and #5368\'s "vs. a flat fee per assignment" (an interpreter who skips arithmetic entirely and ' +
+      'quotes a memorized number). Both landed cleanly against an overlap check that was correct when it ran -- ' +
+      'the same collision shape surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator ' +
+      'and shopify-fee-calculator, from a third pair of angles: a spreadsheet formula misses the booking minimum, ' +
+      'the differential, and the team-interpreting recommendation the same way a flat memorized fee misses travel, ' +
+      'an evening differential, and that same team-interpreting recommendation -- but neither page\'s worked ' +
+      'example or conclusion duplicates the other\'s. Allowed at two, which still blocks a third.',
+  },
+  'apparel-decoration-price-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added a generic-method page for this venture within the same ' +
+      'window, this session\'s own "vs. a flat price per shirt" (a decorator who quotes one flat per-piece rate ' +
+      'no matter the job) and #5387\'s "vs. a spreadsheet" (a decorator who already builds a per-piece formula ' +
+      'but gets specific mechanics wrong -- setup spread over the wrong quantity, blanks bought without a ' +
+      'spoilage margin, embroidery machine time divided by heads when hooping should not be). Both landed ' +
+      'cleanly against an overlap check that was correct when it ran -- the same collision shape ' +
+      'surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator, shopify-fee-calculator ' +
+      'and sign-language-interpreter-rate-calculator, from a fourth pair of angles: no formula at all versus a ' +
+      'formula with specific, identified defects. Neither page\'s worked example or conclusion duplicates the ' +
+      'other\'s. Allowed at two, which still blocks a third.',
+  },
+  'atm-route-margin': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, #5410\'s "vs. a spreadsheet" (an operator who already builds a per-location formula but has no ' +
+      'cell that charges vault cash a cost of capital, since that cost never arrives as a bill) and this ' +
+      'session\'s own "vs. ranking your route by transaction count" (an operator who skips the formula entirely ' +
+      'and sorts locations by withdrawal count, which cannot distinguish a profitable placement from a losing ' +
+      'one at the identical transaction count). Both landed cleanly against an overlap check that was correct ' +
+      'when it ran -- the same collision shape surface-budget.mjs\'s own docstring already describes for ' +
+      'overtime-pay-calculator, shopify-fee-calculator, sign-language-interpreter-rate-calculator and ' +
+      'apparel-decoration-price-calculator, from a fifth pair of angles: a spreadsheet formula with one specific ' +
+      'missing cost versus no formula at all. Neither page\'s worked example or conclusion duplicates the ' +
+      'other\'s. Allowed at two, which still blocks a third.',
+  },
+  'fleet-repair-or-replace-planner': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, this session\'s own "vs. a spreadsheet" (an owner who already builds a per-asset formula but gets ' +
+      'the payback and budget-ranking arithmetic wrong the two specific ways calc.mjs\'s own header documents ' +
+      'having shipped) and #5541\'s "vs. comparing the repair bill to a new price" (an owner who skips a formula ' +
+      'entirely and holds this year\'s repair invoice up against a replacement quote, which leaves out downtime). ' +
+      'Both landed cleanly against an overlap check that was correct when it ran -- the same collision shape ' +
+      'surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator and atm-route-margin, from ' +
+      'a sixth pair of angles: a spreadsheet formula with specific documented defects versus no formula at all. ' +
+      'Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, which still blocks a ' +
+      'third.',
+  },
+  'menu-engineering-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, #5639\'s "vs. averaging margins in a spreadsheet" (an operator who builds a per-dish margin ' +
+      'formula but averages it unweighted, so a high-volume plate can misread as below the bar) and this ' +
+      'session\'s own "vs. ranking by food cost percentage" (an operator who never builds a margin figure at ' +
+      'all and instead sorts dishes by the one percentage every POS and recipe card already reports, which the ' +
+      'calculator\'s own shipped example ranks backwards from contribution margin). Both landed cleanly against ' +
+      'an overlap check that was correct when it ran -- the same collision shape surface-budget.mjs\'s own ' +
+      'docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator, atm-route-margin and ' +
+      'fleet-repair-or-replace-planner, from a seventh pair of angles: an unweighted spreadsheet formula versus ' +
+      'no formula at all. Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, ' +
+      'which still blocks a third.',
+  },
+  'facebook-marketplace-fee-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-25. This venture shipped with vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html ' +
+      'at launch (#5772), but that page was never registered in clauses.mjs\'s COMPARISON_DISCLAIMER_EXEMPT set, ' +
+      'so surface-budget.mjs misclassified it as named-product and reported "room for 1 more generic-method page" ' +
+      'on a venture that already had one. Two sessions read that false signal within the same window and took two ' +
+      'different, correct actions on it: this session registered the existing page\'s exemption (the fix the false ' +
+      'signal actually called for), and #5813 -- reading the same signal before this fix landed -- added a second, ' +
+      'independent page, "vs. doing the fee math by hand" (an eighth instance of the pair surface-budget.mjs\'s own ' +
+      'docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator, atm-route-margin, ' +
+      'fleet-repair-or-replace-planner and menu-engineering-calculator: a spreadsheet formula versus no formula at ' +
+      'all). Neither page\'s worked example or conclusion duplicates the other\'s, and removing either loses real, ' +
+      'independently written coverage rather than fixing a duplication. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */

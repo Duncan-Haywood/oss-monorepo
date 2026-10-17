@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Route Account Pruner — which recurring accounts to reprice or drop</title>
+  <meta name="description" content="Free tool for lawn, pool, pest, cleaning and other recurring route businesses. Paste your accounts (price, visits, minutes on site, drive minutes) to rank them by profit per route hour including driving, and see which to keep, reprice or drop. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Route Account Pruner — free, private, in your browser">
+  <meta property="og:description" content="Rank your recurring route accounts by what each hour of route time earns, driving included, and see which to reprice or drop.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Route Account Pruner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your recurring route accounts with price, visits, minutes on site and drive minutes. Ranks accounts by surplus per route hour, including driving, materials and vehicle cost, and recommends keep, reprice or drop with an assumed cancellation rate. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which route accounts should I drop?", "acceptedAnswer": {"@type": "Answer", "text": "The ones whose price does not cover the hours they take at what an hour of your time is worth. This tool counts the minutes on site and the minutes driving, takes out materials and vehicle cost, and compares what is left with the value you put on an hour. Accounts below that line are candidates to reprice or drop, worst first."}}, {"@type": "Question", "name": "How do I know what an hour of route time is worth?", "acceptedAnswer": {"@type": "Answer", "text": "It is what the hour would earn if you refilled it with a new account, used it for something else, or did not pay for it. A crew that can fill its day with new accounts at 80 dollars an hour should enter about 80; an owner-operator with a thin waitlist should enter less. The tool also shows how many accounts change verdict if that number is 20% lower or higher, so you can see whether the answer depends on it."}}, {"@type": "Question", "name": "Why does drive time matter so much?", "acceptedAnswer": {"@type": "Answer", "text": "A 30-minute lawn visit with 5 minutes of driving and a 30-minute visit with 35 minutes of driving pay the same but use 35 and 65 minutes of your day. Two accounts at the same price can differ by half in what they earn per hour. When driving is a large share of your route hours, a denser route usually beats repricing."}}, {"@type": "Question", "name": "How is a price increase judged?", "acceptedAnswer": {"@type": "Answer", "text": "For accounts below the line it tries every increase from 1% up to the largest you allow, and discounts each by the chance the customer cancels, using the cancellation rate you enter per 10% increase. A customer who cancels frees their hours, which go back to being worth their hourly value. It picks keep, reprice or drop, whichever has the highest expected surplus. Accounts already earning their hours are left alone."}}, {"@type": "Question", "name": "Where does the cancellation rate come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. One snapshot of accounts cannot measure how customers react to a price change; the default of 10% cancelling for each 10% increase is a placeholder. If you have raised prices before, use what you saw. The result moves with it, and the page says so."}}, {"@type": "Question", "name": "Does it work for pool, pest, cleaning, snow and other recurring routes?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, for any recurring service with a price, visits per month, time on site and time driving: lawn care, pool service, pest control, window and gutter cleaning, dog walking, mobile grooming, recurring cleaning or vending-style routes. It does not optimise the order of stops."}}, {"@type": "Question", "name": "Is my customer list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your customers' data. It works offline once the page has loaded."}}]}</script>
+    <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROUTE ACCOUNT PRUNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your route accounts are not worth the drive?</h1>
+    <p>Paste or upload your recurring accounts: <strong>price, visits per month, minutes on site and minutes driving</strong>. Tell it what an hour of route time is worth to you. The tool ranks every account by <strong>what it earns per route hour after materials and vehicle cost</strong>, and for each one below your line picks the best of three moves: <strong>keep it, raise the price, or drop it</strong>, allowing for customers who cancel when the price goes up.</p>
+    <p class="note">Your customer list never leaves this browser tab. Arithmetic on numbers you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your accounts</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: account, price, visits per month, minutes on site, drive minutes, materials per month)</label>
+    <textarea id="rows" spellcheck="false" placeholder="account,price,visits,on site min,drive min,materials&#10;Smith,160,4,45,8,12&#10;Oak St Duplex,120,4,30,35,10"></textarea>
+    <h2 style="margin-top:18px">Your economics</h2>
+    <div class="row3">
+      <div><label for="target">What an hour of route time is worth ($)</label><input id="target" inputmode="decimal" value="65"></div>
+      <div><label for="vehicle">Vehicle cost per driving hour ($)</label><input id="vehicle" inputmode="decimal" value="12"></div>
+      <div><label for="billing">Price column is</label><select id="billing"><option value="month">per month</option><option value="visit">per visit</option></select></div>
+      <div><label for="churn">Customers cancelling per 10% increase (%)</label><input id="churn" inputmode="decimal" value="10"></div>
+      <div><label for="maxinc">Largest increase to consider (%)</label><input id="maxinc" inputmode="decimal" value="25"></div>
+    </div>
+    <p class="note">The hour value is what a route hour would earn refilled, redeployed or unpaid, not your wage. Drive minutes are the extra driving each account adds, including the trip back. Materials are what you buy for that account per month (chemicals, fuel for equipment, disposal). The cancellation rate is your guess: one snapshot cannot measure it. At least 5 accounts.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your accounts, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Accounts, worst first</h3>
+    <p class="note">Surplus is what the account brings in after materials and vehicle cost, minus your hour value for every route hour it takes. Expected is the surplus after the recommended move, counting the chance a repriced customer cancels.</p>
+    <div class="scroll"><table id="acc"><thead><tr><th>Account</th><th class="n">Route hours</th><th class="n">Earns per hour</th><th class="n">Surplus a month</th><th>Move</th><th class="n">Expected after</th></tr></thead><tbody></tbody></table></div>
+    <h3>Does the answer depend on your hour value?</h3>
+    <div class="scroll"><table id="sens"><thead><tr><th>Hour worth</th><th class="n">Keep</th><th class="n">Reprice</th><th class="n">Drop</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download ranking CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Route hours</strong> = visits × (minutes on site + drive minutes) ÷ 60. <strong>Earns per hour</strong> = (monthly price − materials − driving hours × vehicle cost) ÷ route hours. <strong>Surplus</strong> = monthly price − materials − vehicle cost − hour value × route hours. For an account with negative surplus, every increase from 1% to your limit is scored as (1 − cancellation chance) × new surplus, with the chance growing in proportion to the increase (rate per 10% × increase ÷ 10%, capped at 100%); a customer who cancels leaves surplus 0. The move with the highest expected surplus among keep, the best increase, and drop is shown. Accounts with surplus of zero or more are kept as they are.</p>
+    <p><strong>Not modelled:</strong> the order of stops (a denser route changes every drive time), accounts that sell you other work or referrals, contract terms and notice periods, seasonality in visits, minimum prices set by law or contract, the cost of finding a replacement account, and how a cancelled customer talks about you. <strong>Unverified:</strong> the arithmetic is checked in unit tests against hand-calculated accounts; the cancellation response is an assumption you supply and has not been compared with real price changes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which route accounts should I drop?</h3>
+    <p>The ones whose price does not cover the hours they take at what an hour of your time is worth. This tool counts the minutes on site and the minutes driving, takes out materials and vehicle cost, and compares what is left with the value you put on an hour. Accounts below that line are candidates to reprice or drop, worst first.</p>
+    <h3>How do I know what an hour of route time is worth?</h3>
+    <p>It is what the hour would earn if you refilled it with a new account, used it for something else, or did not pay for it. A crew that can fill its day with new accounts at 80 dollars an hour should enter about 80; an owner-operator with a thin waitlist should enter less. The tool also shows how many accounts change verdict if that number is 20% lower or higher, so you can see whether the answer depends on it.</p>
+    <h3>Why does drive time matter so much?</h3>
+    <p>A 30-minute lawn visit with 5 minutes of driving and a 30-minute visit with 35 minutes of driving pay the same but use 35 and 65 minutes of your day. Two accounts at the same price can differ by half in what they earn per hour. When driving is a large share of your route hours, a denser route usually beats repricing.</p>
+    <h3>How is a price increase judged?</h3>
+    <p>For accounts below the line it tries every increase from 1% up to the largest you allow, and discounts each by the chance the customer cancels, using the cancellation rate you enter per 10% increase. A customer who cancels frees their hours, which go back to being worth their hourly value. It picks keep, reprice or drop, whichever has the highest expected surplus. Accounts already earning their hours are left alone.</p>
+    <h3>Where does the cancellation rate come from?</h3>
+    <p>From you. One snapshot of accounts cannot measure how customers react to a price change; the default of 10% cancelling for each 10% increase is a placeholder. If you have raised prices before, use what you saw. The result moves with it, and the page says so.</p>
+    <h3>Does it work for pool, pest, cleaning, snow and other recurring routes?</h3>
+    <p>Yes, for any recurring service with a price, visits per month, time on site and time driving: lawn care, pool service, pest control, window and gutter cleaning, dog walking, mobile grooming, recurring cleaning or vending-style routes. It does not optimise the order of stops.</p>
+    <h3>Is my customer list uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your customers' data. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are arithmetic on the accounts and assumptions you supply; they do not predict how customers will react, and they do not check any contract, notice or pricing rule that applies to you.</p>
+    <p><strong>Independent.</strong> Not affiliated with any route-service, scheduling or field-service software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your accounts are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pool-route-pricing/">pool route pricing calculator</a>, the <a href="../lawn-care-bid-calculator/">lawn care bid calculator</a> and the <a href="../service-hourly-yield-analyzer/">service hourly yield analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const churn = val("#churn"), maxinc = val("#maxinc");
+      const r = analyze(parsed.accounts, {
+        targetPerHour: val("#target"), vehiclePerHour: val("#vehicle"), billing: $("#billing").value,
+        churnPer10: churn === undefined ? undefined : churn / 100, maxIncrease: maxinc === undefined ? undefined : maxinc / 100,
+      });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.surplusNow), `Surplus a month today across ${r.n} accounts (${num(r.hours, 0)} route hours, ${money(r.revenue)} billed)`],
+        [pct(r.belowShare, 0), "Of accounts earn less than an hour of route time is worth to you"],
+        [`${r.repriced} reprice, ${r.dropped} drop`, `Recommended moves; dropping frees ${num(r.freedHours, 0)} route hours a month`],
+        [money(r.gain), `Expected gain a month if you make them (${money(r.surplusPlan)} surplus after), at your cancellation assumption`],
+        [pct(r.driveShare, 0), "Of your route hours are spent driving"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#acc tbody").innerHTML = r.rows.map((x) => {
+        const move = x.action === "reprice" ? `Raise ${pct(x.increase, 0)} (needs ${pct(x.neededIncrease, 0)} to break even on hours)` : x.action === "drop" ? (x.neededIncrease > r.options.maxIncrease ? "Drop (would need " + pct(x.neededIncrease, 0) + ")" : "Drop") : "Keep";
+        return `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours, 1)}</td><td class="n">${money(x.yieldPerHour)}</td><td class="n">${money(x.surplus)}</td><td>${esc(move)}</td><td class="n">${money(x.expected)}</td></tr>`;
+      }).join("");
+      $("#sens tbody").innerHTML = r.sens.map((s) => `<tr><td>${money(s.targetPerHour)} an hour${s.factor === 1 ? " (yours)" : ""}</td><td class="n">${s.keep}</td><td class="n">${s.reprice}</td><td class="n">${s.drop}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#target").value = "65"; $("#vehicle").value = "12"; $("#billing").value = "month"; $("#churn").value = "10"; $("#maxinc").value = "25";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 40 invented lawn-care accounts, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your accounts, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "route-account-ranking.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+name: us-freelancer-tax-set-aside-calculator
+description: >-
+  Free browser tool for US freelancers and 1099 contractors: enter revenue and expenses to see self-employment tax, federal income tax with the QBI deduction, a state estimate, the quarterly payment, and how much of every invoice to set aside. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session. The family already had UK, Canada, Australia, NZ, Ireland, Netherlands, South Africa and India set-aside tools, but not the largest market: the US had a Schedule SE calculator and a quarterly calendar, neither of which adds federal income tax, QBI and state into one per-invoice figure.
+#
+# First visitor: US freelancers, gig workers and 1099 contractors searching "how much to set aside for taxes 1099", "freelance tax calculator", "self employed tax calculator 2026". Evergreen, peaks Jan-April and before each 1040-ES date; volume not measured. Rivals are Keeper, Collective, QuickBooks and TurboTax estimators, most of which want sign-up and an email.
+#
+# Path to revenue (payment rails stay off): lead magnet into the freelancer tool cluster (rate calculators, proposal maker, contract tools); GitHub Sponsors. Not built: all-states brackets, an invoice-by-invoice set-aside tracker and a 1040-ES voucher helper behind an env-var switch.
+#
+# Liability: bracket, standard deduction and wage-base figures reuse the repo's other 2026 tools; the QBI income limit ($201,750 single / $403,500 joint) is written from memory and the tool takes no QBI above it. State tax is a user-entered flat rate. Every result tells the reader to verify on irs.gov, carries no-warranty and not-tax-advice clauses and says what it does not decide (credits, health insurance and retirement deductions, state brackets).
+hypotheses:
+  - claim: >-
+      US freelancers will use a free private calculator to learn what share of each invoice to set aside, because "save 30%" ignores their expense level, the QBI deduction and the fact that the next dollar costs more than the average dollar.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a figure differs from irs.gov.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/us-freelancer-tax-set-aside-calculator/
+  analytics: null

@@ -95,3 +95,10 @@ test("the worked example exercises a replace, a true deletion, and a no-op", asy
   assert.match(page, /delete_because_no_resource_config/);
   assert.match(page, /"no-op"/);
 });
+
+// Inbound hop for terraform-plan-cost-estimate, which would otherwise be a
+// crawlable orphan (`platform/pages/siblings.mjs` fails on one).
+test("index links one hop to the terraform-plan-cost-estimate sibling", async () => {
+  const page = await read("index.html");
+  assert.match(page, /href="\.\.\/terraform-plan-cost-estimate\/"/);
+});

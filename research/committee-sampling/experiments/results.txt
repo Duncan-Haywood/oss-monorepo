@@ -1,0 +1,52 @@
+E1 exact majority-capture probability, pool N=100 with B=30 Byzantine (beta=0.3)
+  m    hypergeometric   binomial(with repl.)   Hoeffding bound
+ 5    1.576e-01      1.631e-01           6.703e-01
+ 11   6.644e-02      7.822e-02           4.148e-01
+ 21   1.402e-02      2.639e-02           1.864e-01
+ 41   1.362e-04      3.570e-03           3.763e-02
+ 61   0.000e+00      5.287e-04           7.597e-03
+ 81   0.000e+00      8.169e-05           1.534e-03
+ 99   0.000e+00      1.555e-05           3.634e-04
+
+E2 smallest odd committee for capture probability <= 2^-40 (N=10^6, with replacement is binomial)
+  beta   exact m   ln(1/eps)/KL(1/2||beta)   exact/first-order   Hoeffding m
+ 0.05   31        33.4                      0.928               68
+ 0.1    49        54.3                      0.903               87
+ 0.2    111       124.3                     0.893               154
+ 0.3    285       318.0                     0.896               347
+ 0.4    1217      1358.4                    0.896               1386
+ 0.45   4943      5517.4                    0.896               5545
+
+E3 small pools: without replacement beats with replacement (target 1e-6)
+  N     B    m (hypergeometric)   m (binomial)
+ 50    10   21                   51
+ 100   20   31                   51
+ 100   30   53                   131
+ 500   150  101                  131
+ 5000  1500 127                  131
+
+E4 stake weighting: adversary runs 20 of 100 nodes, each holding kappa x an honest node's stake; committee m=41
+  kappa  stake share   P(capture) by stake-weighted draws   P(capture) by uniform node draws (beta=0.2)
+ 1      0.200         8.360e-06                            0.000e+00
+ 2      0.333         1.351e-02                            0.000e+00
+ 4      0.500         5.000e-01                            0.000e+00
+ 8      0.667         9.865e-01                            0.000e+00
+ 16     0.800         1.000e+00                            0.000e+00
+
+E5 safety vs liveness of a threshold-t rule, N=200, B=40 (beta=0.2), m=41
+  t    P(accept wrong)   P(cannot accept right)
+ 21   2.685e-07         2.685e-07
+ 25   2.178e-11         2.938e-04
+ 29   1.146e-16         3.337e-02
+ 33   2.100e-23         4.377e-01
+ 37   3.254e-32         9.533e-01
+ weight on liveness 1: best t=21  safety 2.68e-07  liveness 2.68e-07
+ weight on liveness 100: best t=20  safety 1.92e-06  liveness 3.23e-08
+ weight on liveness 1e+06: best t=17  safety 2.94e-04  liveness 2.18e-11
+
+E6 adaptive corruption (Byzantine chosen after the draw): bribing a majority costs price*(m//2+1); committee-size trade-off
+  loss L=1e6, per-member cost 1, random Byzantine share 0.2: optimal m and cost
+ L=1e+03    m*=15   total 19.24     capture prob 4.24e-03  bribe-a-majority cost at price 50: 400
+ L=1e+04    m*=25   total 28.69     capture prob 3.69e-04  bribe-a-majority cost at price 50: 650
+ L=1e+06    m*=43   total 48.24     capture prob 5.24e-06  bribe-a-majority cost at price 50: 1100
+ L=1e+09    m*=73   total 78.08     capture prob 5.08e-09  bribe-a-majority cost at price 50: 1850

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Grouped bars of cells times cycles per input vector for systolic and MAC-lane designs at three batch sizes; MAC lanes stay flat while systolic arrays grow">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cells x cycles per vector, by design and batch size R</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="248.7" y2="248.7" stroke="#ddd"/><text x="58" y="252.7" text-anchor="end" font-family="sans-serif" font-size="11">50000</text>
+<line x1="64" x2="624" y1="173.4" y2="173.4" stroke="#ddd"/><text x="58" y="177.4" text-anchor="end" font-family="sans-serif" font-size="11">100000</text>
+<line x1="64" x2="624" y1="98.2" y2="98.2" stroke="#ddd"/><text x="58" y="102.2" text-anchor="end" font-family="sans-serif" font-size="11">150000</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">R=4</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">R=8</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">R=16</text>
+<text x="344.0" y="366" text-anchor="middle" font-family="sans-serif" font-size="12">batch size R</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">cells x cycles / R</text>
+<rect x="82.7" y="201.2" width="37.3" height="122.8" fill="#c0392b"/>
+<rect x="269.3" y="154.9" width="37.3" height="169.1" fill="#c0392b"/>
+<rect x="456.0" y="65.8" width="37.3" height="258.2" fill="#c0392b"/>
+<rect x="120.0" y="207.1" width="37.3" height="116.9" fill="#1f6fb2"/>
+<rect x="306.7" y="172.7" width="37.3" height="151.3" fill="#1f6fb2"/>
+<rect x="493.3" y="113.6" width="37.3" height="210.4" fill="#1f6fb2"/>
+<rect x="157.3" y="231.4" width="37.3" height="92.6" fill="#2e8b57"/>
+<rect x="344.0" y="231.4" width="37.3" height="92.6" fill="#2e8b57"/>
+<rect x="530.7" y="231.4" width="37.3" height="92.6" fill="#2e8b57"/>
+<rect x="194.7" y="250.9" width="37.3" height="73.1" fill="#8e44ad"/>
+<rect x="381.3" y="250.9" width="37.3" height="73.1" fill="#8e44ad"/>
+<rect x="568.0" y="250.9" width="37.3" height="73.1" fill="#8e44ad"/>
+<rect x="486" y="42" width="18" height="10" fill="#c0392b"/><text x="510" y="52" font-family="sans-serif" font-size="11">systolic R x 2</text>
+<rect x="486" y="58" width="18" height="10" fill="#1f6fb2"/><text x="510" y="68" font-family="sans-serif" font-size="11">systolic R x 4</text>
+<rect x="486" y="74" width="18" height="10" fill="#2e8b57"/><text x="510" y="84" font-family="sans-serif" font-size="11">mac-lane P=2</text>
+<rect x="486" y="90" width="18" height="10" fill="#8e44ad"/><text x="510" y="100" font-family="sans-serif" font-size="11">mac-lane P=4</text>
+</svg>

@@ -1,0 +1,57 @@
+name: appointment-no-show-cost-calculator
+description: >-
+  Free browser tool for small medical, dental, therapy, chiropractic, vet and salon practices:
+  schedule, visit revenue, no-show and late-cancel rates, refills, a no-show fee and its collection
+  rate, reminder cost and effect, and overbooking in; annual revenue lost to no-shows, cost net of
+  refills and fees, the best overbooking level from an exact binomial model of arrivals, the
+  break-even no-show fee and reminder price, and a sensitivity grid out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "dental or medical
+# practice no-show cost and overbooking break-even calculator" scored 0.42 against the nearest
+# venture (dental-ppo-writeoff-calculator, a payer-contract job). That check did not surface the
+# generic appointment tools already in the tree, which a build-time look did: appointment-no-show-analyzer
+# (reads a booking export), appointment-overbooking-optimizer (daily history, beta-binomial),
+# appointment-deposit-calculator and no-show-fee-calculator (one fee each). None puts the whole-year
+# cost, refills, fee, reminders and overbooking in one place, and none reports a break-even reminder
+# price; this tool is the entry point, and the page links each of them for the deeper job.
+#
+# Why this niche: a practice owner asking "what do no-shows cost me, and should I add a fee,
+# reminders or double-booking" has one question with four levers and needs them compared on the
+# same numbers. Practice-management vendors sell the reminder; they do not report its break-even.
+#
+# First visitor: practice managers and owners of small clinics and salons in trade groups and
+# search ("cost of no-shows", "how many patients to overbook"). Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; no clinical, legal, billing-compliance or
+# fee-legality advice; no patient data is asked for; defaults are placeholders; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small practice owners will use a private calculator that compares a no-show fee, reminders
+      and overbooking on one set of numbers and reports break-even fee and reminder price, because
+      vendor tools sell one lever each.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A practice manager reports that the arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/appointment-no-show-cost-calculator/
+  analytics: null

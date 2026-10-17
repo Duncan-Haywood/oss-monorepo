@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cell Tower Lease Buyout Calculator (Is the Lump-Sum Offer Fair?) — Free</title>
+  <meta name="description" content="Free cell tower lease buyout calculator: compare a lump-sum offer with the rent you would keep collecting. Present value at your discount rate, the buyer's implied return, colocation upside, tenant-exit risk and an after-tax comparison. Nothing uploaded.">
+  <meta property="og:title" content="Is a cell tower lease buyout offer fair? Free calculator">
+  <meta property="og:description" content="Present value of your tower rent, the return the buyer earns at the offered price, and what changes with colocation, exit risk and tax. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M16 6v20M10 26l6-14 6 14M9 11a10 10 0 0 1 14 0' stroke='%23fff' stroke-width='1.800' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cell Tower Lease Buyout Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare a lump-sum cell tower, rooftop or ground lease buyout offer with the rent you would keep collecting: present value at your discount rate, the buyer's implied return, colocation upside, tenant-exit risk and an after-tax comparison. Runs in your browser; nothing is uploaded.", "featureList": "Present value of lease rent, implied buyer return, offer vs your discount rate, colocation upside, tenant exit sensitivity, partial-term buyouts, after-tax comparison"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I accept a lump-sum offer for my cell tower lease?", "acceptedAnswer": {"@type": "Answer", "text": "This tool does not tell you to. It shows what the offer is worth against the rent you would otherwise collect: the present value of that rent at your own discount rate, the annual return the buyer earns at the offered price, and the same comparison after tax. An offer that implies a buyer return well above what you could earn elsewhere is paying you less than the stream is worth to you."}}, {"@type": "Question", "name": "What is the implied return on a tower lease buyout?", "acceptedAnswer": {"@type": "Answer", "text": "It is the discount rate at which the rent you would give up is worth exactly the offer, an internal rate of return. A buyer paying $330,000 for $543,000 of discounted rent is earning that gap. The higher it is, the cheaper the buyer is getting your income. Compare it with what the money could earn if you kept it."}}, {"@type": "Question", "name": "Why does the tool ask about colocation?", "acceptedAnswer": {"@type": "Answer", "text": "Towers usually gain carriers over time, and many leases pay the landowner more when they do. A buyer prices that in; an offer built only on today's rent ignores it. The tool shows the value and the implied return with and without the extra carriers so you can see how much of the price rests on tenants that have not signed."}}, {"@type": "Question", "name": "What does tenant-exit chance mean?", "acceptedAnswer": {"@type": "Answer", "text": "The yearly probability that the carrier stops paying, through lease termination, tower decommissioning or consolidation. It shrinks the expected rent each year. Zero is a tower that never leaves; a few percent is a more cautious view. The grid shows how much the answer moves."}}, {"@type": "Question", "name": "Can I sell only part of the lease term?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Many offers buy the rent for a fixed number of years, then return it to you. Enter the years the offer buys; the tool values the years you sell and, separately, the years you keep."}}, {"@type": "Question", "name": "How is tax handled?", "acceptedAnswer": {"@type": "Answer", "text": "You type a rate for the lump sum, applied to the offer minus your basis, and a rate for ordinary rent. It is a rough comparison only. Whether a buyout is a sale, an easement or ordinary income depends on its structure, so confirm with a tax professional before signing anything."}}, {"@type": "Question", "name": "Is this legal, tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in, with simplified assumptions: yearly end-of-year payments, a constant escalator and a constant exit chance. Read your lease and any proposed contract with a real estate attorney, and check your lease for rights of first refusal and assignment clauses."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CELL TOWER LEASE BUYOUT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is the lump sum for my cell tower lease worth taking?</h1>
+    <p>Landowners with a tower, rooftop or ground lease get unsolicited offers to buy their future rent for cash. Type your rent, escalator and the offer. It shows what that rent is worth to you at your own discount rate, the annual return the buyer earns at the price, how much of the price rests on carriers not yet signed, and the same comparison after tax.</p>
+    <p class="note">Planning arithmetic on numbers you type in. Not legal, tax or financial advice. The example figures are placeholders, not a real lease.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your lease</h2>
+      <div class="grid">
+        <div><label for="monthlyRent">Current monthly rent ($)</label><input id="monthlyRent" type="number" step="any" value="0"></div>
+        <div><label for="escalator">Annual rent escalator (%)</label><input id="escalator" type="number" step="any" value="0"></div>
+        <div><label for="colocRent">Expected rent from added carriers ($/month, 0 if none)</label><input id="colocRent" type="number" step="any" value="0"></div>
+        <div><label for="colocYear">Year the added carriers start paying</label><input id="colocYear" type="number" step="any" value="0"></div>
+        <div><label for="churn">Yearly chance the tenant stops paying (%)</label><input id="churn" type="number" step="any" value="0"></div>
+        <div><label for="horizon">Years of rent to consider (1 to 99)</label><input id="horizon" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The offer and your tax</h2>
+      <div class="grid">
+        <div><label for="offer">Lump-sum offer ($)</label><input id="offer" type="number" step="any" value="0"></div>
+        <div><label for="offerYears">Years of rent the offer buys (same as above to sell it all)</label><input id="offerYears" type="number" step="any" value="0"></div>
+        <div><label for="discountRate">Your discount rate (%): what the money would earn if you kept it</label><input id="discountRate" type="number" step="any" value="0"></div>
+        <div><label for="basis">Your tax basis in the lease or land share ($)</label><input id="basis" type="number" step="any" value="0"></div>
+        <div><label for="lumpTaxPct">Tax rate on the lump sum (%)</label><input id="lumpTaxPct" type="number" step="any" value="0"></div>
+        <div><label for="rentTaxPct">Tax rate on rent (%)</label><input id="rentTaxPct" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Evaluate the offer</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Should I accept a lump-sum offer for my cell tower lease?</h3>
+      <p>This tool does not tell you to. It shows what the offer is worth against the rent you would otherwise collect: the present value of that rent at your own discount rate, the annual return the buyer earns at the offered price, and the same comparison after tax. An offer that implies a buyer return well above what you could earn elsewhere is paying you less than the stream is worth to you.</p>
+      <h3>What is the implied return on a tower lease buyout?</h3>
+      <p>It is the discount rate at which the rent you would give up is worth exactly the offer, an internal rate of return. A buyer paying $330,000 for $543,000 of discounted rent is earning that gap. The higher it is, the cheaper the buyer is getting your income. Compare it with what the money could earn if you kept it.</p>
+      <h3>Why does the tool ask about colocation?</h3>
+      <p>Towers usually gain carriers over time, and many leases pay the landowner more when they do. A buyer prices that in; an offer built only on today&#x27;s rent ignores it. The tool shows the value and the implied return with and without the extra carriers so you can see how much of the price rests on tenants that have not signed.</p>
+      <h3>What does tenant-exit chance mean?</h3>
+      <p>The yearly probability that the carrier stops paying, through lease termination, tower decommissioning or consolidation. It shrinks the expected rent each year. Zero is a tower that never leaves; a few percent is a more cautious view. The grid shows how much the answer moves.</p>
+      <h3>Can I sell only part of the lease term?</h3>
+      <p>Yes. Many offers buy the rent for a fixed number of years, then return it to you. Enter the years the offer buys; the tool values the years you sell and, separately, the years you keep.</p>
+      <h3>How is tax handled?</h3>
+      <p>You type a rate for the lump sum, applied to the offer minus your basis, and a rate for ordinary rent. It is a rough comparison only. Whether a buyout is a sale, an easement or ordinary income depends on its structure, so confirm with a tax professional before signing anything.</p>
+      <h3>Is this legal, tax or financial advice?</h3>
+      <p>No. It is arithmetic on numbers you type in, with simplified assumptions: yearly end-of-year payments, a constant escalator and a constant exit chance. Read your lease and any proposed contract with a real estate attorney, and check your lease for rights of first refusal and assignment clauses.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your lease allows assignment or has a right of first refusal, how the buyout is structured (sale, easement or assignment) and how it is taxed, what the right discount rate is for you, whether the tower will be decommissioned, any carrier consent needed, and whether to sell at all. Payments are modelled once a year at year end with a constant escalator and a constant exit chance.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../mobile-home-park-valuation-calculator/">mobile home park valuation calculator</a> the <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland lease calculator</a> and the <a href="../oil-gas-mineral-rights-offer-calculator/">mineral rights offer calculator</a> for other land-income decisions.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not real-estate, appraisal or investment advice. Valuations are arithmetic on figures you type; nothing here is an appraisal or an offer to buy or sell.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, pct, analyze } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const a = analyze(opts());
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.horizon || !a.offer) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const verdict = a.gap >= 0 ? "The offer is at or above what this rent is worth to you at " + a.rate + "%." : "The offer is " + money(-a.gap) + " below what this rent is worth to you at " + a.rate + "%, so the buyer earns " + pct(a.irr) + " a year on it.";
+      h += `<div class="finding"><h4>Offer against your own discount rate</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Offer", money(a.offer) + " for " + a.sold + " year(s) of rent"], ["Expected rent sold, undiscounted", money(a.undiscounted)], ["Worth to you at " + a.rate + "% (present value)", money(a.pvSold)], ["Offer as a share of that value", pct(a.offerVsPv, 0)], ["Return the buyer earns at this price", pct(a.irr)], ["Offer that would match your rate", money(a.matchOffer)], ["Offer as years of first-year income", a.multiple.toFixed(1) + "x"], ["Year the rent you sell would pass the offer", a.paybackYear ? "year " + a.paybackYear : "never within the term sold"]])}</div>`;
+      h += `<div class="finding"><h4>How much rests on carriers not yet signed</h4>${table(["Measure", "With added carriers", "Existing rent only"], [["Present value of rent sold", money(a.pvSold), money(a.pvSoldBare)], ["Return the buyer earns", pct(a.irr), pct(a.irrBare)]])}</div>`;
+      h += `<div class="finding"><h4>After tax (rough)</h4>${table(["Measure", "Result"], [["Tax on the lump sum", money(a.lumpTax)], ["Offer after tax", money(a.offerAfterTax)], ["Rent sold, present value after tax", money(a.pvSoldAfterTax)], ["After-tax gap (offer minus rent value)", (a.afterTaxGap >= 0 ? "+" : "") + money(a.afterTaxGap)], ["After-tax return the buyer-side price implies", pct(a.irrAfterTax)]])}</div>`;
+      if (!a.soldAll) h += `<div class="finding"><h4>What you keep</h4><p>Present value of the rent after year ${a.sold}: ${money(a.pvKept)}.</p></div>`;
+      h += `<div class="finding"><h4>Value of the rent sold at other discount rates</h4>${table(["Discount rate", "Present value", "Offer minus value"], a.rates.map((r) => [r.rate + "%", money(r.pv), (a.offer - r.pv >= 0 ? "+" : "") + money(a.offer - r.pv)]))}</div>`;
+      h += `<div class="finding"><h4>Present value by discount rate and yearly chance the tenant leaves</h4>${table(["Discount rate", ...a.churns.map((c) => c + "% exit")], a.grid.map((g) => [g.rate + "%", ...g.values.map(money)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

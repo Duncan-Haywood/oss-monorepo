@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. Qdrant's own pricing page | Vector Database Cost Calculator</title>
+<meta name="description" content="Qdrant publishes its own pricing page describing its plans and unit costs for its own service. This is a free, private tool for comparing estimated monthly cost across Qdrant and other vector database providers side by side, using rates you enter. Not affiliated with Qdrant.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-qdrant.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. Qdrant's own pricing page">
+<meta property="og:description" content="Two different jobs: Qdrant's pricing page describes Qdrant's own plans. This page estimates your index size and compares it across Qdrant and other providers side by side.">
+<meta property="og:url" content="https://example.invalid/vector-db-cost-calculator/vs-qdrant.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Qdrant's own pricing page?","acceptedAnswer":{"@type":"Answer","text":"Different jobs, and most people evaluating a vector database eventually use both. Qdrant's own pricing page documents Qdrant's specific plans -- including its self-hosted, Qdrant Cloud, and hybrid options -- and how its own usage-based pricing is calculated, for Qdrant alone. This calculator does not describe any single vendor's plan structure. It takes an index size you specify in vector count, dimension, and metadata, estimates the resulting storage footprint including an index-overhead multiplier you control, and compares the resulting monthly bill across up to three providers side by side, using storage and query rates you paste in yourself. If you already know you are choosing Qdrant and want its own documented plan details, use its pricing page. If you are comparing Qdrant against other providers and want the same workload priced the same way across all of them, this calculator is built for exactly that."}},{"@type":"Question","name":"Is this page affiliated with Qdrant?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Qdrant. Qdrant is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1f4f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4e9f0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Vector Database Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. Qdrant's own pricing page</h1>
+<p class="lede">Two different jobs: Qdrant's pricing page documents Qdrant's own plans -- self-hosted, Qdrant Cloud, and hybrid -- and how Qdrant bills for its own service. This page estimates the storage footprint of one workload and prices it identically across Qdrant and other vector database providers, side by side, using the rates you paste in.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Qdrant's pricing page</strong> is Qdrant's own documentation of
+  its plans -- including the option to self-host for infrastructure cost
+  alone, or run Qdrant Cloud on a usage-based tier -- and how those units are
+  billed for Qdrant specifically. It answers "what would this workload cost
+  on Qdrant" for Qdrant alone, using Qdrant's own current numbers. Qdrant's
+  own site is not reachable from this session to confirm today's specific
+  plan names, unit prices, or free-tier limits, so no dollar figure for
+  Qdrant appears anywhere on this page &mdash; only its well-documented
+  identity and category are stated here.
+</p>
+<p>
+  This calculator does a different, narrower job: it does not describe any
+  single vendor's plan structure. You type in your vector count, embedding
+  dimension, and any per-vector metadata size once; it computes the resulting
+  storage footprint in gigabytes, including an index-overhead multiplier you
+  set yourself rather than one this tool assumes on your behalf. You then
+  paste in the storage and query rates quoted by up to three providers &mdash;
+  Qdrant included, if you want it in the comparison &mdash; and it totals a
+  monthly estimate for each, ranked cheapest first. It runs free in any
+  browser, keeps no account, and nothing you type is uploaded.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I already know I'm using Qdrant and want its documented plan names, unit prices, and free-tier limits, self-hosted or Cloud.</td><td>Qdrant's own pricing page.</td></tr>
+<tr><td>I want to know what my specific index (vector count, dimension, metadata) actually weighs in gigabytes before pricing anything.</td><td>This calculator's storage estimator.</td></tr>
+<tr><td>I'm deciding between Qdrant and one or two other providers and want the same workload priced identically across all of them.</td><td>This calculator &mdash; free, instant, private, no account.</td></tr>
+<tr><td>I need Qdrant's actual current numbers, not an estimate from rates I typed in.</td><td>Qdrant's own pricing page &mdash; this calculator never fetches or asserts a vendor's price.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most people choosing a vector database get different value from each:
+  Qdrant's pricing page for Qdrant's own documented plan details, and a
+  private calculator like this one for putting the same workload on the same
+  basis across several providers before committing. This page's own figures
+  are arithmetic on the rates you entered, not a live quote or a determination
+  that either option is cheaper in general.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or Qdrant's own pricing page?</h3>
+<p>Different jobs, and most people evaluating a vector database eventually use both. Qdrant's own pricing page documents Qdrant's specific plans -- including its self-hosted, Qdrant Cloud, and hybrid options -- and how its own usage-based pricing is calculated, for Qdrant alone. This calculator does not describe any single vendor's plan structure. It takes an index size you specify in vector count, dimension, and metadata, estimates the resulting storage footprint including an index-overhead multiplier you control, and compares the resulting monthly bill across up to three providers side by side, using storage and query rates you paste in yourself. If you already know you are choosing Qdrant and want its own documented plan details, use its pricing page. If you are comparing Qdrant against other providers and want the same workload priced the same way across all of them, this calculator is built for exactly that.</p>
+<h3>Is this page affiliated with Qdrant?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Qdrant. Qdrant is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">Vector Database Cost Calculator</a> to size your own index, or read <a href="what-is-vector-index-overhead.html">what is index overhead</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or engineering advice, and it does not replace a qualified professional or a vendor's own documented pricing. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against Qdrant &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Container Demurrage &amp; Detention Calculator — Free</title>
+  <meta name="description" content="Free calculator for importers and forwarders: what will demurrage and detention cost on your containers? Enter your dates, free days and tiered per-day rates to see the bill, the last free day, what one more day costs and what an earlier pickup is worth. Nothing uploaded.">
+  <meta property="og:title" content="Demurrage and detention calculator — price a late container before it is late">
+  <meta property="og:description" content="Demurrage and detention per container from your own tariff, the last free day, and the value of an earlier pickup. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M6 11h20v11H6zm4 3v5m4-5v5m4-5v5m4-5v5' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Container Demurrage & Detention Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price ocean container demurrage and detention from your own free days and tiered per-day rates, see the last free day, what one more day costs and what an earlier pickup is worth. Runs in your browser; nothing is uploaded.","featureList":"Demurrage and detention per container, last free day, tiered per-day rates, weekend rules, exemption days, early-pickup value, sensitivity grid"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between demurrage and detention?","acceptedAnswer":{"@type":"Answer","text":"Demurrage is the charge for a loaded container sitting at the port or terminal past its free time. Detention is the charge for keeping the container outside the terminal past its free time, until the empty is returned. They run on separate clocks with separate free days and rates, and a delay at one end can be billed at both."}},{"@type":"Question","name":"What is the last free day, and why does it matter so much?","acceptedAnswer":{"@type":"Answer","text":"It is the final day the container can leave the terminal without a demurrage charge. Charges are tiered, so each day after it is billed at a rising rate, and the last days cost the most. The calculator shows the last free day for both clocks and what one more day costs."}},{"@type":"Question","name":"Do weekends and holidays count toward free time?","acceptedAnswer":{"@type":"Answer","text":"It depends on the carrier and the port. Some count every calendar day, some skip weekends and holidays. The calculator lets you set that for each clock, and lets you add exemption days for a closed terminal or a hold that was not your doing. Check your own tariff for the rule that applies."}},{"@type":"Question","name":"How much is paying to pick up a container earlier worth?","acceptedAnswer":{"@type":"Answer","text":"The calculator moves pickup and the empty return earlier together, so detention keeps its length and only the port-side clock changes. The saving per container is the most a rush fee, an earlier trucker slot or expedited drayage is worth paying."}},{"@type":"Question","name":"Is this legal or customs advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the dates and tariff numbers you type in. The defaults are placeholders, not any carrier's tariff. Whether a charge was billed correctly or can be disputed is for you and your advisor to decide."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CONTAINER DEMURRAGE &amp; DETENTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will this container's dwell time cost?</h1>
+    <p>Enter the discharge, pickup and empty-return dates and the free days and tiered per-day rates from your carrier's tariff. It prices demurrage and detention per box and in total, shows each clock's last free day and what one more day costs, and what pulling the whole chain earlier is worth.</p>
+    <p class="note">Planning arithmetic on your own tariff numbers. The defaults are placeholders, not any carrier's rates.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The shipment</h2>
+      <div class="grid">
+        <div><label for="containers">Containers (count)</label><input id="containers" type="number" step="any" value="0"></div>
+        <div><label for="dischargeDate">Discharge date (container off the vessel)</label><input id="dischargeDate" type="date" value=""></div>
+        <div><label for="pickupDate">Pickup date (gate-out from the terminal)</label><input id="pickupDate" type="date" value=""></div>
+        <div><label for="returnDate">Empty return date (back at the carrier's yard)</label><input id="returnDate" type="date" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Demurrage tariff (port or terminal side)</h2>
+      <div class="grid">
+        <div><label for="demFree">Free days</label><input id="demFree" type="number" step="any" value="0"></div>
+        <div><label for="demCountWeekends">Weekends count toward the clock?</label><select id="demCountWeekends"><option value="1">Yes, every calendar day counts</option><option value="0">No, skip weekends</option></select></div>
+        <div><label for="demExempt">Exemption days (terminal closed, hold not yours)</label><input id="demExempt" type="number" step="any" value="0"></div>
+        <div><label for="dem1Days">Tier 1 length (days)</label><input id="dem1Days" type="number" step="any" value="0"></div>
+        <div><label for="dem1Rate">Tier 1 rate ($ per container per day)</label><input id="dem1Rate" type="number" step="any" value="0"></div>
+        <div><label for="dem2Days">Tier 2 length (days)</label><input id="dem2Days" type="number" step="any" value="0"></div>
+        <div><label for="dem2Rate">Tier 2 rate ($ per container per day)</label><input id="dem2Rate" type="number" step="any" value="0"></div>
+        <div><label for="dem3Rate">Tier 3 rate, every day after ($ per container per day)</label><input id="dem3Rate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Detention tariff (empty not yet returned)</h2>
+      <div class="grid">
+        <div><label for="detFree">Free days</label><input id="detFree" type="number" step="any" value="0"></div>
+        <div><label for="detCountWeekends">Weekends count toward the clock?</label><select id="detCountWeekends"><option value="1">Yes, every calendar day counts</option><option value="0">No, skip weekends</option></select></div>
+        <div><label for="detExempt">Exemption days</label><input id="detExempt" type="number" step="any" value="0"></div>
+        <div><label for="det1Days">Tier 1 length (days)</label><input id="det1Days" type="number" step="any" value="0"></div>
+        <div><label for="det1Rate">Tier 1 rate ($ per container per day)</label><input id="det1Rate" type="number" step="any" value="0"></div>
+        <div><label for="det2Days">Tier 2 length (days)</label><input id="det2Days" type="number" step="any" value="0"></div>
+        <div><label for="det2Rate">Tier 2 rate ($ per container per day)</label><input id="det2Rate" type="number" step="any" value="0"></div>
+        <div><label for="det3Rate">Tier 3 rate, every day after ($ per container per day)</label><input id="det3Rate" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Price the dwell time</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is the difference between demurrage and detention?</h3>
+      <p>Demurrage is the charge for a loaded container sitting at the port or terminal past its free time. Detention is the charge for keeping the container outside the terminal past its free time, until the empty is returned. They run on separate clocks with separate free days and rates, and a delay at one end can be billed at both.</p>
+      <h3>What is the last free day, and why does it matter so much?</h3>
+      <p>It is the final day the container can leave the terminal without a demurrage charge. Charges are tiered, so each day after it is billed at a rising rate, and the last days cost the most. The calculator shows the last free day for both clocks and what one more day costs.</p>
+      <h3>Do weekends and holidays count toward free time?</h3>
+      <p>It depends on the carrier and the port. Some count every calendar day, some skip weekends and holidays. The calculator lets you set that for each clock, and lets you add exemption days for a closed terminal or a hold that was not your doing. Check your own tariff for the rule that applies.</p>
+      <h3>How much is paying to pick up a container earlier worth?</h3>
+      <p>The calculator moves pickup and the empty return earlier together, so detention keeps its length and only the port-side clock changes. The saving per container is the most a rush fee, an earlier trucker slot or expedited drayage is worth paying.</p>
+      <h3>Is this legal or customs advice?</h3>
+      <p>No. It is arithmetic on the dates and tariff numbers you type in. The defaults are placeholders, not any carrier's tariff. Whether a charge was billed correctly or can be disputed is for you and your advisor to decide.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your carrier's actual tariff, free days and rates, how your carrier counts the first and last day (this counts the day after discharge or gate-out as day 1), holidays, whether a charge was validly billed or can be disputed, regulatory billing and dispute windows, chassis and pre-pull per-diem, storage at a container freight station, and currency. Every default is a placeholder, not a rate card: check each one against your own tariff.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../import-landed-cost-calculator/">import landed cost calculator</a> (duty, tariffs and fees on the same shipment) and the <a href="../container-load-planner/">container load planner</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, customs, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting every carrier, terminal and regulatory rule that applies to a charge or its dispute. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no booking, container or company identifiers are asked for or needed. Anonymous feature events (<code>dwell_priced</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a charge, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, compare, fmtDay, sensitivity, rushTable } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const isDate = (k) => /Date$/.test(k);
+    const opts = () => { const o = {}; for (const k of KEYS) { if (isDate(k)) { o[k] = $(k).value || DEFAULTS[k]; continue; } const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const sh = (n) => (n > 0 ? "+" + n : String(n));
+    function run() {
+      const o = opts();
+      const c = compare(o);
+      const d = c.dates;
+      if (![d.discharge, d.pickup, d.ret].every(Number.isFinite)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter the discharge, pickup and empty-return dates.</div>'; $("out").hidden = false; return; }
+      if (d.pickup < d.discharge || d.ret < d.pickup) { $("result").innerHTML = '<div class="finding"><span class="pill">Check dates</span> The order should be discharge, then pickup, then empty return.</div>'; $("out").hidden = false; return; }
+      let h = "";
+      h += `<div class="finding"><h4>${c.total > 0 ? "Dwell time costs" : "No charge on these dates"}</h4><p class="stats"><strong>${money(c.total)}</strong> in total: ${money(c.dem.total)} demurrage and ${money(c.det.total)} detention.</p></div>`;
+      const row = (name, k) => [name, String(k.counted), String(k.free), String(k.chargeable), fmtDay(k.lastFree), money(k.perContainer), money(k.total), money(k.nextDay)];
+      h += `<div class="finding"><h4>By clock</h4>${table(["Clock", "Days counted", "Free days", "Chargeable", "Last free day", "Per container", "Total", "One more day"], [row("Demurrage (discharge to pickup)", c.dem), row("Detention (pickup to empty return)", c.det)])}<p class="note">The last free day is the final day with no charge; "one more day" is what the next day would add across all containers.</p></div>`;
+      const r = rushTable(o);
+      h += `<div class="finding"><h4>What an earlier pickup is worth</h4>${table(["Pull pickup and return earlier by", "Saves in total", "Saves per container"], r.map((x) => [x.days + (x.days === 1 ? " day" : " days"), money(x.saving), money(x.perContainer)]))}<p class="note">Pickup and the empty return move together, so detention keeps its length and only the port-side clock changes. A rush fee per container below the saving is worth paying on these numbers.</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>Total bill by pickup and return date</h4>${table(["Pickup (days) \\ Empty return (days)", ...g[0].cells.map((x) => sh(x.shift))], g.map((x) => [sh(x.shift), ...x.cells.map((y) => money(y.total))]))}<p class="note">Days earlier (negative) or later (positive) than the dates you entered.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("dwell_priced");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+E1  exact relative variance of a run mean vs the definition and simulation (ac = 0.7, rho = 0.49, 20,000 replicates)
+    n=1    exact 2.00000  double-sum 2.00000  simulated 2.01792  ratio 1.009
+    n=10   exact 0.50902  double-sum 0.50902  simulated 0.49938  ratio 0.981
+    n=50   exact 0.11385  double-sum 0.11385  simulated 0.11299  ratio 0.992
+    n=200  exact 0.02903  double-sum 0.02903  simulated 0.02907  ratio 1.002
+
+E2  run length for a +-5% relative half-width at 95% (a=0.9, b=1, q=1); gain = twin's LQR gain, twin pole = m*a
+    r     m     K      ac_real  ac_twin  n_twin  n_real  ratio   halfwidth if run n_twin   coverage
+    0.1   0.5   0.410    0.490    0.040    3084    5018   1.63     0.0638                0.876
+    0.1   0.8   0.657    0.243    0.063    3098    3458   1.12     0.0528                0.936
+    0.1   1.0   0.823    0.077    0.077    3110    3110   1.00     0.0500                0.950
+    0.1   1.5   1.244   -0.344    0.106    3144    3896   1.24     0.0557                0.922
+    0.1   2.0   1.672   -0.772    0.128    3177   12110   3.81     0.0976                0.685
+    0.1   3.0   2.549  unstable
+    1.0   0.5   0.236    0.664    0.214    3368    7910   2.35     0.0766                0.799
+    1.0   0.8   0.406    0.494    0.314    3746    5058   1.35     0.0581                0.908
+    1.0   1.0   0.538    0.362    0.362    4002    4002   1.00     0.0500                0.950
+    1.0   1.5   0.936   -0.036    0.414    4342    3082   0.71     0.0421                0.980
+    1.0   2.0   1.402   -0.502    0.398    4229    5145   1.22     0.0551                0.924
+    1.0   3.0   2.380  unstable
+    5.0   0.5   0.087    0.813    0.363    4007   15069   3.76     0.0969                0.688
+    5.0   0.8   0.178    0.722    0.542    5632    9771   1.73     0.0659                0.863
+    5.0   1.0   0.280    0.620    0.620    6905    6905   1.00     0.0500                0.950
+    5.0   1.5   0.734    0.166    0.616    6837    3248   0.48     0.0345                0.996
+    5.0   2.0   1.289   -0.389    0.511    5250    4166   0.79     0.0445                0.972
+    5.0   3.0   2.341  unstable
+
+E3  the effect is the closed-loop pole, not the gain: ratio (1+rho_r)(1-rho_t)/((1-rho_r)(1+rho_t)) vs exact ratio, r=1
+    m=0.5: asymptotic 2.349  exact 2.349
+    m=1.5: asymptotic 0.710  exact 0.710
+    m=2.0: asymptotic 1.217  exact 1.217
+
+E4  sized in the twin: too short when the real loop is slower (m=2, r=0.1; m=0.5, r=5), wastefully long when faster (m=1.5, r=5)
+    m=2.0 r=0.1: n_twin=3177, real coverage 0.685 (nominal 0.950), real half-width 0.0976 vs 0.05
+    m=0.5 r=5.0: n_twin=4007, real coverage 0.688 (nominal 0.950), real half-width 0.0969 vs 0.05
+    m=1.5 r=5.0: n_twin=6837, real coverage 0.996 (nominal 0.950), real half-width 0.0345 vs 0.05
+
+E5  simulation check of coverage: run n_twin steps on the real loop, is |mean x^2 / E x^2 - 1| <= eps? (2000 runs)
+    m=2.0 r=0.1: n_twin=3177  predicted coverage 0.685  simulated 0.678
+    m=0.5 r=5.0: n_twin=4007  predicted coverage 0.688  simulated 0.673
+    m=1.5 r=5.0: n_twin=6837  predicted coverage 0.996  simulated 0.997
+
+E6  repair: size from a real pilot (lag-one autocorrelation of x), r=1, m=2, target eps=0.05
+    true n_real = 5145, twin-sized n = 4229
+    pilot   median n_hat  10%..90%           P(n_hat < n_real)  P(n_hat < 0.8 n_real)
+    100         5142     4086..6566           0.50              0.11
+    400         5121     4551..5821           0.51              0.01
+    1600        5123     4861..5447           0.53              0.00

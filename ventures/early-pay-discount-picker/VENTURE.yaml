@@ -1,0 +1,51 @@
+name: early-pay-discount-picker
+description: >-
+  Free browser tool for small businesses with several 2/10 net 30 style supplier discounts and a limited pile of cash: enter the
+  cash you can spare, your cost of cash, and each invoice's amount, discount, discount deadline and due day, and get the set of
+  invoices to pay early that nets the most. Checks every combination exactly (up to 14 invoices), compares it with highest-rate-first,
+  biggest-discount-first and earliest-deadline-first rules, shows each invoice's annual rate, what 25, 50 and 100 percent more cash
+  would add, and re-solves with the cost of cash halved and doubled. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows invoice-payment-terms-calculator (single
+# invoice, take-it-or-wait) and subcontractor-cashflow-planner (when invoices turn into cash); neither chooses among several
+# discounts under one cash limit, which is a knapsack problem owners solve by instinct.
+#
+# Why this niche: contractors, distributors, restaurants and shops get 2/10 net 30 terms from several suppliers at once and
+# usually pay whichever invoice is on top. Each discount is a 20-50% annual return, so a wrong pick on a few thousand dollars of
+# cash is real money, and an exact answer is cheap to compute.
+#
+# First visitor: people searching "2/10 net 30 worth it", "early payment discount calculator", "which invoices to pay first";
+# r/smallbusiness, r/Accounting, bookkeeper forums. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not accounting or financial advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid accounts-payable
+# optimiser reading a bill-pay export.
+
+hypotheses:
+  - claim: >-
+      Owners and bookkeepers with several early-pay discounts on the table will use a free tool that picks which invoices to
+      pay with limited cash, and will return each pay run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/early-pay-discount-picker/
+  analytics: null

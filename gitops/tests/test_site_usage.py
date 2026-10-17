@@ -294,6 +294,7 @@ def test_slug_for_buckets_pages_and_ignores_assets() -> None:
     # Which category page someone lands on is the same kind of signal as
     # which tool; collapsing all seven into one "c" row would hide it.
     assert slug_for("/c/marketplace/index.html") == "c/marketplace"
+    assert slug_for("/c/index.html") == "c"  # the Tools index, not a category named "index"
     # Assets say nothing about a person choosing to use a tool, and counting
     # them would scale every number by whatever each page happens to load.
     for asset in ("/amazon-fba-calculator/calc.mjs", "/pf-chrome.css", "/sitemap.xml", "/icon-192.png"):
@@ -392,7 +393,15 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # — whether an informational query sends anyone to the index is the
             # question the page exists to answer — so it is named here rather
             # than folded onto the hub.
-            | {"_hub", "about", "compare", "guides", "404", "offline"}
+            # `research` is the research portfolio's homepage, published by
+            # build.mjs at RESEARCH_PATH, a top-level page like `about`.
+            # `engineering` is the engineering status page (engineering.mjs),
+            # another top-level page about the site rather than a tool.
+            # `writing` is the essays index and its posts (writing.mjs); every
+            # post counts toward the one `writing` row.
+            # `c` is the Tools index at `c/` (every category, plus the
+            # browse-by-type pages `c/apps` and `c/cli`).
+            | {"_hub", "c", "c/apps", "c/cli", "about", "compare", "guides", "research", "engineering", "writing", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()

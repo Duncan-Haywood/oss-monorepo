@@ -1,0 +1,63 @@
+name: liquidation-pallet-bid-calculator
+description: >-
+  Free browser tool for resellers who buy liquidation pallets and truckloads at
+  auction: paste a manifest (item, qty, retail, condition) and get the max bid
+  from a seeded Monte Carlo simulation of recovery rate, sell-through and
+  damage: probability of profit, expected net, P10/P50/P90, max bid for a loss
+  probability and for a target ROI, break-even recovery rate, a recovery
+  sensitivity table, per-line contribution and top-five concentration risk.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "free browser tool for resellers to compute max bid on liquidation pallets
+# from a manifest CSV using Monte Carlo recovery simulation": top match 0.14
+# (storage-auction-max-bid-calculator), unrelated. That venture prices one
+# storage unit from a photo-based guess with a single recovery rate; this one
+# reads a line-level manifest, has recovery by condition class, and treats the
+# bid as a risk decision (probability of loss, concentration) rather than a
+# single expected-value number. Adjacent: ebay-fee-calculator and
+# whatnot-seller-payout (sell side), linked from the page.
+#
+# First visitor: searches "liquidation pallet calculator", "how much to bid on
+# a liquidation pallet", "pallet profit calculator", "recovery rate liquidation";
+# reseller communities (r/Flipping, r/FulfillmentByAmazon, FB reseller groups).
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: manifests never leave the browser (tests
+# assert no network calls). No auction platform or marketplace is named or ranked.
+#
+# Path to revenue (payment rails stay off): donations and a lead magnet only. A
+# later paid tier could be saved recovery-rate libraries or a hosted API; not
+# built. Liability: an estimate from the visitor's own assumptions, not advice
+# or a guarantee; the page lists what is not modelled. Unverified: tested against
+# closed-form arithmetic and simulation identities only, not real pallet
+# outcomes; default recovery rates are placeholders, not market data.
+
+hypotheses:
+  - claim: >-
+      Liquidation resellers will use a private, no-signup tool that turns a
+      manifest into a max bid with a stated chance of loss, and will return
+      before the next auction.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a max bid or break-even recovery disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/liquidation-pallet-bid-calculator/
+  analytics: null

@@ -1,0 +1,63 @@
+name: cheap-meal-plan-optimizer
+description: >-
+  Free browser tool: enter foods with a price and nutrition per serving, set
+  calorie, protein, fat, carb and fibre bounds, and a simplex plus
+  branch-and-bound solver finds the lowest-cost servings per day, the weekly
+  cost, the extra cost of each target and how cost rises with the protein
+  minimum, checked against exhaustive search on small menus. Refuses plans
+  under 1,200 calories. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session asked for a deeper, algorithmic
+# tool, after a first attempt (a league schedule generator) turned out to have
+# been built by a parallel session minutes earlier (#6154) and was dropped.
+# duplicate_check.py: closest row was production-mix-optimizer 0.18 (a
+# different LP, for a workshop); nothing near the 0.45 line.
+#
+# Why this niche: "cheapest high protein meal plan", "budget meal plan" and
+# "cost of eating X g of protein" are high-volume consumer searches (students,
+# lifters, families under food-price pressure). Existing free tools are recipe
+# or macro trackers; few solve the cost minimisation and none that we found
+# shows the marginal price of each target. Consumer-side and free, it is a lead
+# magnet toward a pantry/grocery-list product and a natural base for a hosted
+# version with live store prices (needs a price data source, not built).
+#
+# First visitor: people searching "cheapest meal plan", "budget meal plan
+# high protein", "minimum cost diet calculator". Volume not measured with an
+# external tool.
+#
+# Liability boundary: nutrition is a sensitive domain, so: arithmetic on
+# user-typed numbers only; starter nutrition is approximate generic data and
+# prices are labelled EXAMPLE; not medical, dietary or nutrition advice; hard
+# floor of 1,200 kcal a day; stated not suitable for children, pregnancy,
+# eating disorders or medical conditions; no health claims; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Budget-conscious people chasing a protein target will use a private
+      solver that prices their own foods, and the marginal-cost-per-target
+      readout changes what they buy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a plan that breaks a stated nutrient bound or serving cap, or that is dearer than a simple alternative the solver should have found.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cheap-meal-plan-optimizer/
+  analytics: null

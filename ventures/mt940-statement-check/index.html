@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MT940 Statement Checker and CSV Converter</title>
+  <meta name="description" content="Free MT940 checker: finds why a SWIFT MT940 bank statement fails to import or does not balance (opening plus transactions versus closing, gaps between statements, bad :61: lines, period decimals, repeats), with line numbers, and converts it to CSV. Runs in your browser.">
+  <meta property="og:title" content="MT940 Statement Check — free, private, in your browser">
+  <meta property="og:description" content="Check an MT940 bank statement balances, find the line that breaks an import, and convert it to CSV. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "MT940 Statement Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that checks SWIFT MT940 bank statements: balance arithmetic, statement continuity, :61: layout, comma decimals, repeats and the closing - line, and converts the transactions to CSV."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my MT940 file fail to import, or import the wrong amounts?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a period used as the decimal separator (SWIFT amounts use a comma), a missing closing - line, a :61: line that does not follow the value date, optional entry date, C/D, amount, N plus type code layout, and an opening balance plus transactions that do not equal the closing balance. This tool reads every statement in the file and gives a line number for each."}}, {"@type": "Question", "name": "How does the balance check work?", "acceptedAnswer": {"@type": "Answer", "text": "For each statement it adds the signed transactions (C and reversal-of-debit as plus, D and reversal-of-credit as minus) to the opening balance (:60F:) and compares the result to the closing balance (:62F:). A difference means a transaction is missing, repeated, or has the wrong sign. It also checks that each statement opens where the previous one for the same account closed, which finds a missing day or month. Amounts are compared exactly, not as floating point."}}, {"@type": "Question", "name": "Can I convert MT940 to CSV?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. After checking, download a CSV with one row per transaction: account, statement, value date, entry date, signed amount, currency, reference, bank reference, type code, counterparty name and description taken from the :86: line. Choose a comma or a period as the decimal mark. The :86: free text is split into labelled parts when it uses /EREF/NAME/REMI/ or ?20 ?32 subfields; otherwise it is kept whole."}}, {"@type": "Question", "name": "What does it fix automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Only provable things: amounts written with a period are rewritten with a comma, and a missing closing - line is added. A wrong total, a missing transaction, a repeat or an unreadable :61: line is reported and left alone, because the file alone cannot say which number is right."}}, {"@type": "Question", "name": "Does it read CAMT.053?", "acceptedAnswer": {"@type": "Answer", "text": "No. CAMT.053 is the XML successor to MT940. If you drop one in, the tool says so instead of reporting a broken MT940. Use the camt.053 statement check for it."}}, {"@type": "Question", "name": "Is my statement uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser tab and a test in the code asserts there are no network calls. A statement holds account numbers and counterparties, so do not paste one into a tool that uploads it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MT940 STATEMENT CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does my MT940 statement balance, and why won't it import?</h1>
+    <p>Drop in a <strong>SWIFT MT940</strong> bank statement and get every problem <strong>with its line number</strong>: <strong>opening balance plus transactions that do not equal the closing balance</strong> (and by how much), <strong>statements that do not continue</strong> from the previous one, <strong>unreadable :61: lines</strong>, <strong>period decimals</strong>, <strong>missing :86: descriptions</strong>, repeats and a <strong>missing closing - line</strong>. Then download the transactions as <strong>CSV</strong> for Excel, QuickBooks, Xero or your own import.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device; bank statements hold account numbers and counterparties, so that matters. This checks the file against the MT940 layout banks commonly export, not against your bank or your accounting software. Banks vary; confirm against yours. For QIF files use the <a href="../qif-file-check/">QIF file check</a>. Independent of every product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your MT940 statement</h2>
+    <p class="note">A .sta, .mt940, .swi or .txt download from your bank, or its text pasted below. Several statements in one file are fine.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".sta,.mt940,.swi,.940,.txt,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder=":20:STMT001&#10;:25:NL91ABNA0417164300&#10;:60F:C240101EUR1000,00&#10;:61:240102D42,10NMSCNONREF&#10;:62F:C240131EUR957,90&#10;-"></textarea>
+    <div class="grid">
+      <div><label for="decimal">CSV decimal mark</label><select id="decimal"><option value=".">Period (1234.56)</option><option value=",">Comma (1234,56)</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="validate">Check statement</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check statement.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Downloads</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Repaired MT940 preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-fixed">Download repaired MT940</button> <button type="button" class="secondary" id="download-transactions">Download transactions as CSV</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Structure:</strong> each statement opens with :20: and carries :25: (account), :28C: (statement number), :60F: or :60M: (opening balance), :61: with an optional :86: per transaction, and :62F: or :62M: (closing balance); a line with only - ends the message.</li>
+      <li><strong>Balance:</strong> opening plus signed transactions must equal the closing balance, compared exactly; each statement must open where the previous one for the same account closed.</li>
+      <li><strong>:61: lines:</strong> YYMMDD value date, optional MMDD entry date, C, D, RC or RD, an amount with a comma, N and a three-character type code, then the reference.</li>
+      <li><strong>Fixed automatically:</strong> amounts written with a period become commas, and a missing closing - line is added.</li>
+      <li><strong>Never guessed:</strong> a total that does not add up, which transaction is missing or repeated, an unreadable :61: line, or a wrong sign.</li>
+      <li><strong>Not checked:</strong> that the balances match your bank, that the file came from your bank, :64: and :65: available balances, bank-specific :86: codes, CAMT.053 XML, or what any one importer will accept. Read from memory of common MT940 practice, which varies by bank and by yearly SWIFT revision; confirm against your bank's own specification.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my MT940 file fail to import, or import the wrong amounts?</h3>
+    <p>The usual causes are a period used as the decimal separator (SWIFT amounts use a comma), a missing closing - line, a :61: line that does not follow the value date, optional entry date, C/D, amount, N plus type code layout, and an opening balance plus transactions that do not equal the closing balance. This tool reads every statement in the file and gives a line number for each.</p>
+    <h3>How does the balance check work?</h3>
+    <p>For each statement it adds the signed transactions (C and reversal-of-debit as plus, D and reversal-of-credit as minus) to the opening balance (:60F:) and compares the result to the closing balance (:62F:). A difference means a transaction is missing, repeated, or has the wrong sign. It also checks that each statement opens where the previous one for the same account closed, which finds a missing day or month. Amounts are compared exactly, not as floating point.</p>
+    <h3>Can I convert MT940 to CSV?</h3>
+    <p>Yes. After checking, download a CSV with one row per transaction: account, statement, value date, entry date, signed amount, currency, reference, bank reference, type code, counterparty name and description taken from the :86: line. Choose a comma or a period as the decimal mark. The :86: free text is split into labelled parts when it uses /EREF/NAME/REMI/ or ?20 ?32 subfields; otherwise it is kept whole.</p>
+    <h3>What does it fix automatically?</h3>
+    <p>Only provable things: amounts written with a period are rewritten with a comma, and a missing closing - line is added. A wrong total, a missing transaction, a repeat or an unreadable :61: line is reported and left alone, because the file alone cannot say which number is right.</p>
+    <h3>Does it read CAMT.053?</h3>
+    <p>No. CAMT.053 is the XML successor to MT940. If you drop one in, the tool says so instead of reporting a broken MT940. Use the <a href="../camt053-statement-check/">camt.053 statement check</a> for it.</p>
+    <h3>Is my statement uploaded anywhere?</h3>
+    <p>No. It is read in your browser tab and a test in the code asserts there are no network calls. A statement holds account numbers and counterparties, so do not paste one into a tool that uploads it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bookkeeper or your accounting software's own import checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking balances and transaction counts after you import, and a clean result is not a promise that any importer will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to SWIFT, Intuit, QuickBooks, Xero, Sage, DATEV, Exact, Moneybird or any bank or company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../camt053-statement-check/">camt.053 statement check</a> covers the XML successor, the <a href="../qif-file-check/">QIF file check</a> covers QIF bank files, the <a href="../ofx-file-check/">OFX file check</a> covers OFX, QFX and QBO files, the <a href="../bai2-statement-reader/">BAI2 statement reader</a> reads the US cash-management format, and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> builds a bank file from a CSV.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, toCsv, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, cleaned = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = validate(text);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.statements} statement${s.statements === 1 ? "" : "s"} · ${s.transactions} transaction${s.transactions === 1 ? "" : "s"}${s.currencies.length ? ` · ${esc(s.currencies.join(", "))}` : ""}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No problems found.</p>";
+      cleaned = repair(text);
+      $("#fix-box").hidden = false;
+      $("#fix-note").textContent = cleaned.changes.length ? `${cleaned.changes.length} change${cleaned.changes.length === 1 ? "" : "s"} made to the MT940. Anything that cannot be proven is left as it was and named above.` : "Nothing to change in the MT940 itself.";
+      $("#fix-list").innerHTML = cleaned.changes.map((c) => `<li>${esc(c)}</li>`).join("");
+      $("#fixed-out").value = cleaned.text;
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} transaction(s).` : `No errors in ${s.transactions} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a made-up three-transaction euro statement that balances."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: a period decimal, a repeated transaction, a missing :86:, a total that is off by 4.19, a gap before the second statement and missing closing - lines."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; cleaned = null; status.textContent = "Choose a file or paste the text, then click Check statement."; });
+    $("#download-fixed").addEventListener("click", () => { if (!cleaned) return; record("fixes_applied"); download("statement-repaired.sta", cleaned.text, "text/plain"); });
+    $("#download-transactions").addEventListener("click", () => { if (!lastResult) return; record("fixes_applied"); download("mt940-transactions.csv", toCsv(lastResult, { decimal: $("#decimal").value }), "text/csv"); });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#fixed-out").value); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("mt940-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

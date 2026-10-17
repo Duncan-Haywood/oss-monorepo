@@ -1,0 +1,144 @@
+name: claude-code-subagent-check
+description: Free browser tool that checks a pasted Claude Code subagent definition file (.claude/agents/*.md -- YAML frontmatter with name, description, tools, model, plus a Markdown system-prompt body) for structural authoring mistakes that stop the orchestrator delegating to it -- a name that isn't kebab-case or doesn't match the filename, a missing or too-vague description (the one field delegation is matched against), a tools entry that's empty, duplicated, or unrecognized, an unrecognized model alias, and a missing or near-empty system-prompt body. Runs entirely client-side; nothing uploaded, no account, no network call, no AI/LLM call of its own.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24, autonomous scheduled session)
+#
+# Niche sourced by this session, extending the same-day AI-agent-tooling
+# cluster (hidden-unicode-check, mcp-config-risk-check, skill-manifest-check,
+# claude-code-settings-check) with the one object those four leave
+# unchecked: the Claude Code *subagent* definition file. This session is
+# Claude Code itself, run under the maintainer's own account, which gives it
+# the same first-hand, current knowledge of the exact schema this tool
+# checks (the frontmatter fields, the built-in tool names, the model
+# aliases) that justified graduating each of the other four on 2026-09-24.
+#
+# Read claude-code-settings-check/VENTURE.yaml, skill-manifest-check/
+# VENTURE.yaml, and mcp-config-risk-check/VENTURE.yaml in full before
+# starting, since all three overlap in domain (Claude Code / AI-agent
+# tooling). None of the three checks a subagent's tools/model fields or its
+# description under a *delegation* framing (as opposed to a lookup-by-name
+# framing for a skill) -- confirmed by reading each one's calc.mjs.
+#
+# duplicate_check.py (run this session, before building) against this
+# venture's description:
+#
+#   score  source                    label
+#    0.30  venture                   skill-manifest-check
+#    0.15  venture                   mcp-config-risk-check
+#    0.14  venture                   claude-code-settings-check
+#    0.13  venture                   hidden-unicode-check
+#    0.12  venture                   caption-quality-check
+#    0.11  venture                   agent-instructions-drift-check
+#
+# Nothing scored >= 0.45 (the review bar). Read the top one anyway, since
+# this is word overlap rather than a semantic check:
+#  - skill-manifest-check (0.30, the closest by far) checks a *skill*
+#    manifest (SKILL.md: name + description only, loaded by name, no tools
+#    or model restriction) for description vagueness and cross-skill
+#    trigger overlap. This checks a *subagent* definition (.claude/agents/
+#    *.md: name + description + tools + model, matched for orchestrator
+#    delegation, not loaded by name) -- a different file location, a
+#    different frontmatter schema (two fields skill-manifest-check's object
+#    does not have at all: tools and model), and a different failure mode
+#    those two fields introduce (an empty/duplicated/unrecognized tool
+#    name, an unrecognized model alias) that no other venture in the
+#    portfolio checks. Also checked git log --oneline -30 origin/main and
+#    open PRs (mcp__github__list_pull_requests, state=open) for "subagent"/
+#    "claude-code-subagent"/".claude/agents": zero venture-directory or
+#    open-PR hits. No open PR or recent merge builds this niche.
+#
+# LIABILITY CONTAINMENT: every check is a deterministic, structural check
+# against text the user pastes -- no network call of any kind, no call to
+# an LLM, and no claim about Claude Code's actual delegation behaviour at
+# runtime. The two checks with any time-dependence (the built-in tool-name
+# list and the model-alias list) are dated against this tool's own
+# documented reference and framed as a caution ("not one this tool
+# recognizes as of [date] -- check for a typo, or this may be newer than
+# this tool"), never as an authoritative, exhaustive claim on Anthropic's
+# behalf -- the same discipline the three sibling checkers already use for
+# their own dated thresholds (hook event names, known model aliases).
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying vendor fact -- it classifies patterns in exactly the text the
+# user pastes, the same discipline every structural-checker venture in this
+# portfolio uses. It does not assert whether the orchestrator will actually
+# delegate to a given subagent, only that the file's shape does or doesn't
+# match known failure patterns.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only to
+# help a Claude Code user catch a subagent-authoring mistake before it
+# costs them a silent no-delegation debugging session, with no adverse
+# incentive on our side (no affiliate link, no referral fee, donations-only
+# same as the rest of the portfolio). It does not scan, fingerprint, or
+# contact any third-party system or agent runtime -- it only reads text
+# pasted directly into the page.
+#
+# JUDGMENT CALLS flagged for review:
+#  - The built-in tool-name list (KNOWN_BUILTIN_TOOLS_AS_OF in calc.mjs) and
+#    the model-alias list (KNOWN_MODEL_ALIASES) are this tool's own
+#    documented reference, not fetched from or verified against Anthropic's
+#    live documentation at check time -- they can go stale if Claude Code
+#    renames or adds one, which is exactly why every finding against them is
+#    worded as a caution rather than an error, dated so a future session can
+#    tell at a glance whether the lists need updating.
+#  - The description-vagueness heuristic (word count, trigger-cue pattern
+#    match, distinctive-vocabulary count) is the same pattern-matching
+#    method skill-manifest-check already uses, independently implemented
+#    and re-tuned for a delegation framing (adds "PROACTIVELY"/"MUST BE
+#    USED" as trigger cues, which skill-manifest-check's lookup-by-name
+#    framing has no equivalent for) rather than imported, because each
+#    published tool here runs standalone with no shared runtime dependency
+#    -- it never claims a description that trips the heuristic will
+#    actually fail to trigger, or that one that passes will succeed.
+#  - The name/filename-match check is a caution, not an error, because
+#    Claude Code does not itself cross-check the two -- a mismatch only
+#    means the subagent is invoked under a different name than the file
+#    suggests, which this tool cannot verify is unintentional.
+
+hypotheses:
+  - claim: A Claude Code user who has just written a subagent definition wants the common authoring mistakes -- a vague description, a malformed tools list, an unrecognized model alias, a near-empty prompt -- flagged before they discover the subagent never gets delegated to, which they currently notice only when they expected a specialist subagent to run and it silently didn't.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The description-vagueness check (word count, trigger-cue presence, distinctive vocabulary) catches a real, easy-to-introduce mistake specific to subagents -- a description written like documentation ("this subagent handles code review") rather than like a delegation trigger ("use PROACTIVELY when a PR is opened") -- because both read as fine prose and only one reliably triggers automatic delegation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every check is client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a subagent definition and get at least one finding within 90 days.
+  - A finding's category (missing-field / malformed-name / name-filename-mismatch / description-too-short / description-no-trigger-cue / description-too-generic / empty-tool-entry / duplicate-tool / unrecognized-tool-name / malformed-tool-name / unrecognized-model / empty-body / near-empty-body) is wrong for a real subagent definition a user pastes, and cannot be fixed by tightening a pattern or threshold.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-subagent-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: r/ClaudeAI and r/LocalLLaMA agent-tooling
+  threads (where "my subagent never gets used" and "how do I get Claude Code
+  to delegate automatically" are recurring, currently-active questions),
+  Anthropic's own developer community/Discord, GitHub topic/code search for
+  repositories committing a .claude/agents/*.md file, HN Show threads about
+  Claude Code subagent workflows, and organic search for "claude code
+  subagent not triggering", "claude code agents delegation", and "claude
+  code subagent description". The claude-code-settings-check,
+  skill-manifest-check, mcp-config-risk-check, and hidden-unicode-check
+  footer cross-links are themselves a channel: a visitor arriving at any of
+  the five for an agent-tooling structural check is a plausible visitor for
+  the others too, and all five now cross-link.

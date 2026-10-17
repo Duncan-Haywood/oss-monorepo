@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Reduce Your Neon Postgres Bill: Levers Ranked by Dollar Impact</title>
+  <meta name="description" content="Where a Neon serverless Postgres bill comes from and the changes that usually cut it most: scale to zero, autoscaling limits, stale branches, restore window, storage pruning and data transfer, with the arithmetic for each.">
+  <link rel="canonical" href="./how-to-reduce-your-neon-bill.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Neon costs usually dominate?", "acceptedAnswer": {"@type": "Answer", "text": "For most teams it is compute (CU-hours), because a branch that never scales to zero bills around the clock, followed by storage. Branches, restore history and data transfer matter once you create a branch per pull request or move a lot of data out. Estimate your own mix with the estimator rather than assuming."}}, {"@type": "Question", "name": "Is there a minimum on a paid Neon plan?", "acceptedAnswer": {"@type": "Answer", "text": "Paid usage-based plans carry a monthly minimum, so the bill never falls below it however little you use. The estimator shows the minimum as a floor and lets you edit it."}}, {"@type": "Question", "name": "Do the savings add up?", "acceptedAnswer": {"@type": "Answer", "text": "No. Scale-to-zero and rightsizing act on the same compute hours, so each lever is calculated alone and the list is a ranking, not a plan total."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Neon Bill Estimator</a></p>
+  <h1>How to reduce your Neon Postgres bill: levers ranked by dollar impact</h1>
+  <p>A Neon invoice on a usage-based plan is a monthly minimum plus separately metered usage: compute in CU-hours, storage in GB-months, restore history, extra branches and data transfer out. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers on your console's Billing and Usage pages.</p>
+
+  <h2>1. Scale to zero on every branch that is not production</h2>
+  <p>Compute bills for the hours an endpoint is active. A dev, staging or preview branch that stays awake overnight and at weekends pays for hours nobody uses. Enable autosuspend and a short idle timeout: removing 35% of 1,000 CU-hours at $0.106 saves about $37 a month, and it is a settings change.</p>
+
+  <h2>2. Rightsize the autoscaling range</h2>
+  <p>A minimum compute size set above what the load needs keeps paying for idle capacity, and a maximum set too high lets one bad query run up hours. Look at the actual CPU and memory graphs and lower both ends. Removing 20% of 1,000 CU-hours is about $21.</p>
+
+  <h2>3. Delete stale branches</h2>
+  <p>Branch-per-pull-request workflows are one of Neon's best features and a quiet cost: branches beyond the plan allowance bill per branch-month, and each holds its own changes. Expire preview branches when the pull request closes. Twenty extra branches at $1.50 is $30 a month; half of them gone saves $15.</p>
+
+  <h2>4. Shorten the restore window</h2>
+  <p>Restore history is storage that keeps every change inside the window. A 30-day window on a write-heavy database can cost more than the data itself. Keep what your recovery plan actually needs and no more.</p>
+
+  <h2>5. Prune storage</h2>
+  <p>Table and index bloat, unused indexes, old logs and audit tables all bill per GB-month. Drop unused indexes, vacuum or repack bloated tables, and move cold rows to cheaper object storage. Fifty GB at $0.35 is $17.50 a month, and 20% off is $3.50 on a small database and far more on a large one.</p>
+
+  <h2>6. Cut data transfer</h2>
+  <p>Data transfer out beyond the allowance is billed per GB. Cache read-heavy queries, return only the columns you need, and run your application compute in the same region as the database so traffic stays on the cheap side of the bill.</p>
+
+  <h2>Run it on your numbers</h2>
+  <p>Enter your usage in the <a href="./">estimator</a> or from the CLI, and gate a budget in CI:</p>
+  <pre>node cli.mjs estimate usage.csv --budget 200</pre>
+
+  <h2>What this cannot see</h2>
+  <p>Plans, regions, projects, contracts and price changes are outside it. Prices here are approximate list prices and editable. The estimate is arithmetic on your inputs, never a bill reader.</p>
+
+  <h2>Common questions</h2>
+  <h3>Which Neon costs usually dominate?</h3>
+  <p>For most teams it is compute (CU-hours), because a branch that never scales to zero bills around the clock, followed by storage. Branches, restore history and data transfer matter once you create a branch per pull request or move a lot of data out. Estimate your own mix with the estimator rather than assuming.</p>
+  <h3>Is there a minimum on a paid Neon plan?</h3>
+  <p>Paid usage-based plans carry a monthly minimum, so the bill never falls below it however little you use. The estimator shows the minimum as a floor and lets you edit it.</p>
+  <h3>Do the savings add up?</h3>
+  <p>No. Scale-to-zero and rightsizing act on the same compute hours, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Neon is a trademark of its owner; this project is not affiliated with or endorsed by Neon or Databricks.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

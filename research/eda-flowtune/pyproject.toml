@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-flowtune"
+version = "0.1.0"
+description = "Does the best ABC pass sequence for one design transfer to another? Tuning the synthesis flow across seven small SKY130-mapped designs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

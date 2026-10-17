@@ -1,0 +1,56 @@
+name: license-compat-check
+description: >-
+  Free browser tool and zero-dependency CLI that check a dependency tree's declared
+  licenses against how you ship (closed-source binary, hosted SaaS, internal tool, or an
+  open-source license such as MIT or GPL-3.0) and list exactly which packages conflict,
+  need review or are fine, with the usual fix. Reads npm, pip-licenses and CSV input;
+  usable as a CI gate; can generate a THIRD_PARTY_NOTICES file. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED, build-now
+# queue empty). Not another trade-bid calculator: the developer-CLI shape the pipeline
+# README argues for. duplicate_check.py closest match 0.30 (license-drift-check, which diffs
+# two snapshots for a changed license; this asks whether a license is compatible with how
+# the project ships, a different question with different logic). It cross-links license-drift-check.
+#
+# First visitor: developers and small-company founders searching "can I use GPL in a
+# commercial app", "GPL vs Apache compatibility", "AGPL SaaS dependency", "SSPL
+# dependency" and "license compatibility checker"; plus teams that lived through the
+# Terraform/Redis/Elastic relicensings and now audit their trees. Volume not measured
+# with an external tool. Paid incumbents (FOSSA, Snyk, Black Duck) sell hosted policy
+# scanning to larger teams; this is the free local one for the rest.
+#
+# Liability boundary: a rules table of widely published FSF/OSI positions applied to
+# strings the user supplies; says it is not legal advice, carries a no-warranty clause, makes
+# no compliance claim, no network calls, no data collected.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end
+# for a hosted, continuously-scanning policy service later.
+
+hypotheses:
+  - claim: >-
+      Developers about to ship a closed-source app, a SaaS or an open-source library will
+      paste their dependency licenses into a free local checker to find conflicts
+      before a customer's legal review does, and some will wire the CLI into CI.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a verdict that contradicts the FSF or OSI published position it cites.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/license-compat-check/
+  analytics: null

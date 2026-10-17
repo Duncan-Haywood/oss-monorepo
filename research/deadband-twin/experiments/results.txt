@@ -1,0 +1,38 @@
+Deadband twin: real actuator has deadband d, twin has none. Servo x+ = x + dz(-k x), x0 = 5.
+
+== 1. Resting error of the real loop (twin predicts 0), 2000 steps ==
+d      k     twin final |x|   real final |x|   exact d/k    min over run - d/k
+0.05   0.5   4.94e-324        0.100000         0.100000     0.00e+00
+0.2    0.4   4.94e-324        0.500000         0.500000     0.00e+00
+0.2    0.9   0.00e+00         0.222222         0.222222     0.00e+00
+0.5    0.1   1.53e-91         5.000000         5.000000     0.00e+00
+
+== 2. Certifying a tolerance eps: twin says any k works; real loop needs k >= d/eps (d=0.2, k <= 1) ==
+eps     twin steps (k=0.4)   real final |x| (k=0.4)   k needed   real final |x| at k needed (capped at 1)
+0.5     5                    0.5000                   0.400      0.5000
+0.2     7                    0.5000                   1.000      0.2000
+0.05    10                   0.5000                   4.000      0.2000
+
+== 3. Gain a linear twin fits from Gaussian excitation of std s (d=1): population 2Q(d/s) vs simulated (n=400000) ==
+s      2Q(d/s)   simulated   small-signal true gain
+0.25   0.0001    0.0001      0
+0.5    0.0455    0.0457      0
+1      0.3173    0.3170      0
+2      0.6171    0.6164      0
+5      0.8415    0.8414      0
+
+== 4. Identifying d by bisection on [0,1] with n real probes, d=0.3137; then compensating (k=0.4) ==
+n   d_hat      |d_hat-d|   bound       real stall |x|   exact   (no compensation: 0.7842)
+0   0.50000    0.18630    0.50000     0.11644           0.11644
+2   0.37500    0.06130    0.12500     0.03831           0.03831
+4   0.34375    0.03005    0.03125     0.01878           0.01878
+6   0.32031    0.00661    0.00781     0.00413           0.00413
+8   0.31445    0.00075    0.00195     0.00047           0.00047
+12  0.31360    0.00010    0.00012     0.00025           0.00025
+
+== 5. Over- vs under-compensation by the same error e = 0.1 (d=0.2, k=0.4 and 0.9) ==
+k     dh     real |x|   exact
+0.4   0.1    0.25000    0.25000
+0.4   0.3    0.06250    0.06250
+0.9   0.1    0.11111    0.11111
+0.9   0.3    0.09091    0.09091

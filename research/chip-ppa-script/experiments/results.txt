@@ -1,0 +1,22 @@
+== add16: 22 candidates, 1 rejected by the RTL equivalence gate (P:a2_carry_select_bug); 105 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+cells*depth, per script:
+group                             yosys_default  strash_map     dc2_map        dch_map        resyn2_map     best over scripts
+reference (script only)           2542           1540           2542           1540           1620           1540
+proposer files (4 valid, best)    2090           1280           2156           1230           1386           1230
+sweep configs (16, best)          2090           1155           2112           1078           1470           1078
+ratio, proposer-best / reference, same script: yosys_default 0.82, strash_map 0.83, dc2_map 0.85, dch_map 0.80, resyn2_map 0.86
+reference under yosys_default 2542; reference under its best script 1540 (strash_map); overall best 1078 = S:csel_2 under dch_map cells/depth (98, 11)
+overall best / reference-default = 0.42; overall best / reference-best-script = 0.70
+
+== mul6: 13 candidates, 1 rejected by the RTL equivalence gate (P:m3_off_by_one); 60 (candidate, script) pairs scored; 0 mapped netlists NOT equivalent to the reference 
+cells*depth, per script:
+group                             yosys_default  strash_map     dc2_map        dch_map        resyn2_map     best over scripts
+reference (script only)           3740           3458           4002           3401           3363           3363
+proposer files (3 valid, best)    3850           3629           4117           3515           3580           3515
+sweep configs (8, best)           3850           3629           4117           3515           3580           3515
+ratio, proposer-best / reference, same script: yosys_default 1.03, strash_map 1.05, dc2_map 1.03, dch_map 1.03, resyn2_map 1.06
+reference under yosys_default 3740; reference under its best script 3363 (resyn2_map); overall best 3363 = reference under resyn2_map cells/depth (177, 19)
+overall best / reference-default = 0.90; overall best / reference-best-script = 1.00
+
+summary: add16: best/ref-default 0.42, best/ref-best-script 0.70; mul6: best/ref-default 0.90, best/ref-best-script 1.00
+tool: Yosys 0.33 (git sha1 2584903a060)

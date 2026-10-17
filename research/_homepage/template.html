@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duncan Haywood — Verifiable ML Research</title>
+<meta name="description" content="{{PROJECT_COUNT}} open-source research projects with reproducible code: verifiable decentralised ML training, proper scoring and digital twins.">
+<meta property="og:title" content="Duncan Haywood — Verifiable ML Research">
+<meta property="og:description" content="{{PROJECT_COUNT}} open-source research projects on incentive-compatible verification of decentralised ML training.">
+<meta property="og:type" content="website">
+{{SOCIAL_META}}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
+  --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
+  --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
+  --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
+  --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f0f13;--bg-2:#15151b;--surface:#18181f;--text:#ecebf1;--muted:#a3a1ad;--faint:#75737f;
+  --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
+  --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
+  --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5.5rem}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px;white-space:nowrap}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+
+/* top bar */
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.brand{font-weight:600;color:var(--text);letter-spacing:-.01em;display:flex;align-items:center;gap:.6rem}
+.brand .mark{width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center}
+.topbar nav{display:flex;gap:1.25rem;font-size:14px}
+.topbar nav a{color:var(--muted)}
+.topbar nav a:hover{color:var(--text)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:84px 0 64px;border-bottom:1px solid var(--border)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(600px 300px at 85% 10%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%),
+             radial-gradient(500px 280px at 5% 100%,color-mix(in srgb,var(--t-effort) 10%,transparent),transparent 70%);}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(var(--border-strong) 1px,transparent 1px);background-size:22px 22px;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%);-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%)}
+.hero .wrap{position:relative;z-index:1}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:center}
+@media (max-width:1000px){.hero-grid{grid-template-columns:1fr}}
+@media (max-width:600px){.hero{padding:48px 0 40px}}
+.map{background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--border);border-radius:16px;padding:1.3rem 1.3rem .9rem;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
+.map .label{margin-bottom:.6rem}
+.map a{display:grid;grid-template-columns:1fr auto;gap:.3rem .75rem;padding:.55rem 0;border-top:1px solid var(--border);color:var(--text);font-size:14px}
+.map a:first-of-type{border-top:0}
+.map a:hover{text-decoration:none}
+.map a:hover .name{color:var(--c)}
+.map .n{font:500 12.5px var(--mono);color:var(--muted)}
+.map .bar{grid-column:1/-1;height:5px;border-radius:3px;background:var(--bg-2);overflow:hidden}
+.map .bar i{display:block;height:100%;border-radius:3px;background:var(--c)}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font:500 12.5px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;
+  border:1px solid var(--border);background:var(--surface);padding:.35rem .75rem;border-radius:999px}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--t-effort);box-shadow:0 0 0 3px color-mix(in srgb,var(--t-effort) 25%,transparent)}
+h1{font:600 clamp(2.2rem,5vw,3.6rem)/1.08 var(--serif);letter-spacing:-.02em;margin:1.4rem 0 1.1rem;max-width:18ch}
+h1 em{font-style:italic;color:var(--accent-ink)}
+.intro{font-size:1.1rem;color:var(--muted);max-width:62ch;margin:0 0 2rem}
+.cta{display:flex;gap:.75rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-weight:500;font-size:14.5px;padding:.65rem 1.1rem;border-radius:9px;border:1px solid var(--border-strong);color:var(--text);background:var(--surface)}
+.btn:hover{text-decoration:none;border-color:var(--text)}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.primary:hover{opacity:.88}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:2.5rem;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;max-width:760px}
+.stat{background:var(--surface);padding:1.1rem 1.25rem}
+.stat b{display:block;font:600 1.9rem/1.1 var(--serif);letter-spacing:-.01em}
+.stat span{font-size:13px;color:var(--muted);line-height:1.35;display:block;margin-top:.2rem}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* featured */
+.featured{padding:56px 0 8px}
+.label{font:500 12.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin:0 0 1rem}
+.feat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.feat-grid{grid-template-columns:1fr}}
+.feat{position:relative;display:block;padding:1.4rem 1.4rem 1.25rem;border-radius:14px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);color:var(--text);transition:box-shadow .2s,transform .2s,border-color .2s}
+.feat:hover{text-decoration:none;box-shadow:var(--shadow-hover);transform:translateY(-2px);border-color:var(--border-strong)}
+.feat .theme-tag{margin-bottom:.8rem}
+.feat h3{font:600 1.3rem/1.25 var(--serif);margin:0 0 .5rem;letter-spacing:-.01em}
+.feat p{margin:0;color:var(--muted);font-size:14px}
+.feat .go{display:inline-block;margin-top:1rem;font-size:13.5px;font-weight:500;color:var(--accent-ink)}
+
+/* toolbar */
+.toolbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--border);margin-top:40px}
+.toolbar .wrap{display:flex;align-items:center;gap:14px;padding-top:12px;padding-bottom:12px}
+.search{position:relative;flex:0 0 280px}
+.search input{width:100%;font:inherit;font-size:14px;color:var(--text);background:var(--surface);border:1px solid var(--border-strong);border-radius:9px;padding:.55rem 2.2rem .55rem 2.1rem;outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search svg{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search kbd{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font:11px var(--mono);color:var(--faint);border:1px solid var(--border);border-radius:4px;padding:0 .35rem}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.chips{mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);padding-right:40px}
+.chip.zero{opacity:.4}
+.chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:.45rem;font-size:13px;color:var(--muted);border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:.32rem .75rem;white-space:nowrap}
+.chip:hover{text-decoration:none;color:var(--text);border-color:var(--border-strong)}
+.chip.active{color:var(--text);border-color:var(--c)}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.chip small{font:11.5px var(--mono);color:var(--faint)}
+@media (max-width:760px){.toolbar .wrap{flex-direction:column;align-items:stretch}.search{flex:none}}
+
+/* sections */
+.theme{padding:56px 0 8px}
+.theme-head{display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;align-items:baseline;margin-bottom:1.5rem}
+.theme-num{font:500 13px var(--mono);color:var(--c)}
+.theme h2{font:600 clamp(1.6rem,3vw,2.1rem)/1.15 var(--serif);letter-spacing:-.015em;margin:0}
+.theme-head p{grid-column:2;margin:.25rem 0 0;color:var(--muted);max-width:70ch}
+.theme-tag{display:inline-flex;align-items:center;gap:.4rem;font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--c)}
+.theme-tag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+@media (max-width:400px){.grid{grid-template-columns:1fr}}
+.card{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.15rem 1.2rem 1rem;box-shadow:var(--shadow);transition:box-shadow .2s,border-color .2s}
+.card::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--c);opacity:.85}
+.card:hover{box-shadow:var(--shadow-hover);border-color:var(--border-strong)}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.55rem}
+.slug{font:12px var(--mono);color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tests{flex:0 0 auto;font:500 11.5px var(--mono);color:var(--muted);background:var(--bg-2);border:1px solid var(--border);border-radius:6px;padding:.05rem .45rem}
+.card h3{font:600 1.08rem/1.3 var(--sans);letter-spacing:-.01em;margin:0 0 .45rem}
+.card h3 a{color:var(--text)}
+.lede{margin:0 0 .75rem;color:var(--muted);font-size:14px;line-height:1.55}
+.card details{margin-top:auto;border-top:1px solid var(--border);padding-top:.6rem}
+.card summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;color:var(--muted);user-select:none}
+.card summary::-webkit-details-marker{display:none}
+.card summary:hover{color:var(--text)}
+.card summary .chev{transition:transform .2s}
+.card details[open] summary .chev{transform:rotate(180deg)}
+.card summary a{font-weight:500;color:var(--accent-ink)}
+.abstract{font-size:13.5px;line-height:1.6;color:var(--text);margin:.7rem 0 .2rem}
+.empty{display:none;text-align:center;color:var(--muted);padding:4rem 0}
+
+footer{margin-top:72px;border-top:1px solid var(--border);padding:32px 0 48px;color:var(--faint);font-size:13.5px}
+footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+footer a{color:var(--muted)}
+[hidden]{display:none!important}
+{{THEME_VARS}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="#"><span class="mark"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.4 2.4L10 3.2" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Duncan Haywood</a>
+  <nav><a href="../" data-pf-to="hub">Tools</a><a href="#projects">Projects</a><a href="{{REPO_URL}}">GitHub</a></nav>
+</div></header>
+
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+  <span class="eyebrow"><span class="dot"></span>Open research · MIT licensed</span>
+  <h1>Incentives for <em>verifiable</em> decentralised ML</h1>
+  <p class="intro">Research code and white papers on incentive-compatible verification of decentralised ML training: proper scoring rules, peer prediction, inspection games, prediction markets and expert routing. Each project states a question, derives closed-form results, checks them numerically, and lists its limitations. Builds on algorithmic economics and information elicitation (CU Boulder, Frongillo, Waggoner) and Gensyn's verifiable-ML work.</p>
+  <div class="cta">
+    <a class="btn primary" href="#projects">Browse {{PROJECT_COUNT}} projects ↓</a>
+    <a class="btn" href="{{REPO_URL}}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>{{PROJECT_COUNT}}</b><span>research projects</span></div>
+    <div class="stat"><b>{{TEST_COUNT}}</b><span>unit tests</span></div>
+    <div class="stat"><b>{{THEME_COUNT}}</b><span>research themes</span></div>
+    <div class="stat"><b>0</b><span>runtime dependencies</span></div>
+  </div>
+  </div>
+  <aside class="map" aria-label="Research map">
+    <p class="label">Research map</p>
+{{MAP}}
+  </aside>
+</div></section>
+
+<section class="featured"><div class="wrap">
+  <p class="label">Start here</p>
+  <div class="feat-grid">
+{{FEATURED}}
+  </div>
+</div></section>
+{{LOGS}}
+
+<div class="toolbar" id="projects"><div class="wrap">
+  <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="Search projects…" aria-label="Search projects" autocomplete="off"><kbd>/</kbd></label>
+  <nav class="chips" aria-label="Themes">
+{{CHIPS}}
+  </nav>
+</div></div>
+
+<main class="wrap">
+{{SECTIONS}}
+  <p class="empty" id="empty">No projects match that search.</p>
+</main>
+
+<footer><div class="wrap">
+  <span>© Duncan Haywood · MIT licensed, provided as is with no warranty · {{PROJECT_COUNT}} projects, {{TEST_COUNT}} tests</span>
+  <span><a href="{{REPO_URL}}">github.com/{{REPO}}</a></span>
+</div></footer>
+
+<script>
+(function(){
+  var q=document.getElementById('q'),cards=[].slice.call(document.querySelectorAll('.card')),
+      themes=[].slice.call(document.querySelectorAll('.theme')),empty=document.getElementById('empty'),
+      chips=[].slice.call(document.querySelectorAll('.chip'));
+  function filter(){
+    var terms=q.value.toLowerCase().trim().split(/\s+/).filter(Boolean),shown=0;
+    cards.forEach(function(c){var t=c.getAttribute('data-search');
+      var ok=terms.every(function(w){return t.indexOf(w)>=0});c.hidden=!ok;if(ok)shown++});
+    themes.forEach(function(s){var n=s.querySelectorAll('.card:not([hidden])').length;s.hidden=n===0;
+      var chip=document.querySelector('.chip[href="#'+s.id+'"]');if(chip){chip.querySelector('small').textContent=n;chip.classList.toggle('zero',n===0)}});
+    empty.style.display=shown?'none':'block';
+  }
+  q.addEventListener('input',filter);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/'&&document.activeElement!==q){e.preventDefault();q.focus()}
+    if(e.key==='Escape'&&document.activeElement===q){q.value='';filter();q.blur()}});
+  if('IntersectionObserver'in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){
+      chips.forEach(function(c){c.classList.toggle('active',c.getAttribute('href')==='#'+e.target.id)})}})},
+      {rootMargin:'-30% 0px -60% 0px'});
+    themes.forEach(function(s){io.observe(s)});
+  }
+})();
+</script>
+</body>
+</html>

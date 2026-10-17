@@ -1,0 +1,85 @@
+name: service-hourly-yield-analyzer
+description: >-
+  Free browser tool that reads a booking or sales export (Square Appointments,
+  Acuity, Vagaro, Fresha, Booksy, Mindbody or Jobber style) and reports revenue
+  per booked hour by service, staff member, weekday and hour of day, flags the
+  services that earn the least for the chair time they take, and estimates a
+  price change and the value of idle hours under typed assumptions. The file is
+  read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Salons, barbers, spas,
+# trainers, tutors and detailers sell hours, not units: a $150 colour that holds
+# the chair for 150 minutes earns $60 an hour and a $45 haircut earns $90, but
+# every scheduling app ranks services by ticket size or booking count. Owners
+# who want the per-hour view build a pivot table or pay for a business-analytics
+# tier. The tool helps an owner earn more directly: it names the services to
+# reprice, shorten or drop, and prices an idle hour.
+#
+# Distinct from ventures/appointment-no-show-analyzer (loss from missed
+# bookings) and ventures/booth-rent-vs-commission (a typed-number choice between
+# two pay structures): this one measures where the hours earn, from the export.
+#
+# First visitor: r/salons, r/Barber and r/smallbusiness threads about pricing
+# services and raising prices, and searches like "revenue per hour by service
+# salon" and "which services are most profitable per hour". Volume not measured.
+#
+# What makes it more than a pivot: yield is summed dollars over summed hours of
+# the same bookings (never a mean of per-booking rates); rows missing a price or
+# a duration are left out and counted, never guessed; no-shows are shown as
+# empty chair time; groups under five bookings are marked and never named best
+# or worst; staff differences carry a warning that service mix drives them.
+#
+# Privacy is the liability boundary: the export never leaves the browser (a
+# test asserts no network calls), so the portfolio holds no client or sales data
+# and needs no scheduling-app credential.
+#
+# Path to revenue (payment rails stay off): lead magnet into the no-show
+# analyzer and booth-rent calculator. A paid tier, if usage appears, is
+# multi-month trend comparison and price-list export, local-only, behind an
+# env-var switch; not built. Not built: an API integration, which needs
+# credentials and terms review.
+#
+# Liability: arithmetic on the user's file and typed assumptions, model and
+# omissions stated on the page, no advice, no warranty, independent of the named
+# vendors, the price what-if flagged as the user's assumption, revenue per hour
+# stated to be not profit per hour; pricing decisions are the owner's.
+#
+# Unverified: column names and status words are matched by alias and no real
+# export from any named vendor was available; the first user report of an
+# unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Owners of appointment businesses will drop a booking export into a
+      no-signup tool to see revenue per hour by service rather than build a
+      pivot table or pay for an analytics tier.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a service earn under three quarters of their hourly average leads
+      at least one owner to reprice or re-time it, and re-running the export
+      each quarter is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/service-hourly-yield-analyzer/
+  analytics: null

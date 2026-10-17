@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "workcell-twin"
+version = "0.1.0"
+description = "Fork-join makespan of a lab workcell planned in a deterministic-duration twin: exact expected maximum of gamma branches, how many parallel stations the twin over-buys, promise-meeting probability, and a fitted-variance repair"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

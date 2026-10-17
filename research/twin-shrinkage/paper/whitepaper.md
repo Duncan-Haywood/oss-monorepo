@@ -1,0 +1,34 @@
+# How far should a real-plant estimate be pulled toward its digital twin? Exact James–Stein risk, the twin's worth in real samples, and a single-parameter hazard
+
+*Stylised: Gaussian estimation noise, whitened (orthogonal-design) coordinates, twin discrepancy fixed or Gaussian; pure Python, every number is from `experiments/results.txt` (seeded, ~1 min; Monte-Carlo cells are 8,000–40,000 draws, so simulated risks carry ≈0.5–1.5% error). "Real" is itself a simulation; no robot data.*
+
+## Question
+A twin supplies a prediction `θ_T` of a real plant's `d` parameters; a real experiment supplies an unbiased estimate `X ~ N(θ, s²I)`. The twin's discrepancy `δ = θ − θ_T` is unknown, so using `θ_T` alone is risky and ignoring it wastes information. How much does shrinking `X` toward `θ_T` help, when does it hurt, and what does it do to an individual parameter?
+
+## Method
+Write `λ = ‖δ‖²/s²`. Risks below are `E‖est − θ‖²/s²`. Real-only `X` has risk `d`; twin-only `λ`; the oracle blend `θ_T + w(X−θ_T)` with `w = λ/(λ+d)` has `dλ/(λ+d)` but needs `λ`. The James–Stein estimator toward the twin, `θ_T + (1 − (d−2)s²/‖X−θ_T‖²)(X−θ_T)`, needs no `λ`; its exact risk is
+`d − (d−2)² E[1/χ²_d(λ)]`, `E[1/χ²_d(λ)] = E[1/(d−2+2K)]`, `K ~ Poisson(λ/2)`,
+evaluated by a Poisson series (`js_risk`). Consequences derived from it: risk `2` at `λ=0` for every `d ≥ 3`; risk `< d` for all `λ`; deficit `(d−2)²/λ` from `d` as `λ→∞`; and for `δ_i` i.i.d. with variance `τ²`, as `d→∞` risk/`d` → `τ²/(τ²+s²)`, i.e. with `s² = σ²/n` the twin is worth `n_eq = n + σ²/τ²` real samples. Simulations use the positive-part estimator, unknown-variance variants, blockwise shrinkage, and a regression system-identification loop with a Hadamard design (`XᵀX = nI`, so least squares is exactly `N(θ, σ²/n I)`).
+
+## Results
+1. **The exact formula matches simulation** (d = 3, 10, 30; λ = 0…4d): e.g. d=10, λ=10: exact 6.2091 vs simulated 6.2071; d=30, λ=30: 16.2371 vs 16.2370. The one exception is the negative-part estimator at d=3: at λ=1.5 the simulation gave 26.6 against an exact 2.38, because the squared error has infinite variance for `d ≤ 4` (a rare `‖X‖²≈0` draw over-shoots); the exact formula, and the positive-part estimator (2.14 at d=3, λ=1.5), are unaffected.
+2. **The twin never hurts in aggregate, and its saving is set by `λ/d`.** Saving `1 − JS/real` at `λ/d` = 0 / 0.25 / 1 / 4 is 0.333/0.261/0.137/0.031 (d=3), 0.800/0.635/0.379/0.138 (d=10), 0.980/0.783/0.488/0.193 (d=100); the large-`d` Bayes limit is 0.800/0.500/0.200 at 0.25/1/4. At `λ/d = 1`, where twin-only merely ties real-only, JS still saves 14% (d=3), 38% (d=10), 49% (d=100).
+3. **Not knowing `λ` costs little at large `d`, a lot at small `d` near a perfect twin.** JS risk over the oracle blend's: 1.727/1.242/1.025 at `λ/d = 1` for d=3/10/100; at `λ/d=0.05` it is 14.3/5.0/1.4 (the oracle's risk is nearly 0 there).
+4. **Worth in real samples.** With `σ²=4`, `n=20`, the exact JS per-parameter risk equals that of least squares on `n'` real samples with `n'/n_eq` = 0.722/0.907/0.980 (τ²=0.25; d=5/20/100), 0.895/0.968/0.993 (τ²=1) and 0.970/0.991/0.998 (τ²=4), with `n_eq = n + σ²/τ²` = 36/24/21: the large-`d` twin is worth `σ²/τ²` = 16/4/1 real samples, and 10–28% less at d=5.
+5. **The hazard: one bad parameter.** With the twin exact in nine of ten parameters and off by `k·s` in one (positive-part JS), total risk stays below 10 (2.08/3.99/5.86/7.17/8.47/9.10 at k=1/2/3/4/6/8) but parameter 1's own risk reaches 2.9 at k=4 (real-only: 1; twin-only: 16). Its maximum over `k` is 1.25/2.86/7.86/25.5 at d=3/10/30/100, close to `d/4` (0.75/2.5/7.5/25; a heuristic, not proved): *the more parameters share a shrinkage factor, the larger the damage one mismatched parameter can take*, because the other parameters' noise keeps `‖X−θ_T‖²` small enough that shrinkage stays strong.
+6. **Blockwise shrinkage repairs it at a price.** d=30, one bad parameter: worst parameter-1 risk 7.87/2.87/1.65/1.21 for blocks of g=30/10/5/3, while a perfect twin's saving falls 0.961/0.874/0.721/0.461. Blocks of 5 (group parameters by physical subsystem) keep ~72% of the saving and cap the hazard at 1.65× the real-only variance.
+7. **Unknown noise variance (ν df), d=10, λ=10.** Total risk/d for known σ 0.610–0.613; with a plug-in `(d−2)ŝ²` factor 0.705/0.669/0.642/0.620 at ν=4/8/16/64; the small-sample factor `(d−2)ν/(ν+2)` was *worse* (0.725/0.681/0.648/0.622) here, and at λ=0 it costs 0.376/0.275/0.204/0.147 against plug-in 0.256/0.204/0.166/0.137 (known: 0.123–0.127). All still beat real-only (1.000).
+8. **End to end (d=8, n=64 Hadamard design, σ=1, twin = truth + δ with δ_i ~ N(0, τ²)).** Error relative to least squares (0.99–1.01): twin-only 0.000/0.250/1.001/3.953/16.2 and JS+ 0.161/0.336/0.595/0.855/0.954 at τ/s = 0/0.5/1/2/4; oracle blend 0.000/0.191/0.466/0.766/0.924. At τ/s=8 JS+ = 1.000 (twin ignored).
+
+## Limitations
+Gaussian noise and an orthogonal (whitened) design: with a poorly excited direction the natural loss and the whitened loss differ, and Bock's (1975) condition `tr Σ / λ_max(Σ) > 2` replaces `d ≥ 3` for the unweighted loss, so an ill-conditioned identification shrinks the effective dimension and the guarantee; this is not tested. The discrepancy `δ` is fixed or i.i.d. Gaussian, not structured (e.g. one physically coupled group of parameters), and the `d/4` worst case is a scaling read from simulation. The unknown-variance comparison is one setting (d=10, λ=10 and 0). Blocks are chosen without data; a data-driven grouping would need its own analysis. The negative-part estimator at `d ≤ 4` has infinite-variance loss, so the positive-part rule should be used. Preliminary; no robot data.
+
+## Next steps
+Shrinkage toward a *family* of twins (`twin-audit` fidelity as a prior on `τ²`); non-orthogonal designs and Bock's dimension condition; per-subsystem groupings learned from residuals; combining with `twin-evaluation`'s control variate for policy evaluation rather than parameter estimation; sequential experiments that stop when the shrunken estimate is precise enough.
+
+## References
+- Stein, C. (1956). Inadmissibility of the usual estimator for the mean of a multivariate normal distribution. *Proc. Third Berkeley Symp. Math. Statist. Probab.* 1, 197–206.
+- James, W. & Stein, C. (1961). Estimation with quadratic loss. *Proc. Fourth Berkeley Symp. Math. Statist. Probab.* 1, 361–379.
+- Efron, B. & Morris, C. (1973). Stein's estimation rule and its competitors — an empirical Bayes approach. *Journal of the American Statistical Association* 68(341), 117–130.
+- Baranchik, A. J. (1970). A family of minimax estimators of the mean of a multivariate normal distribution. *Annals of Mathematical Statistics* 41(2), 642–645.
+- Bock, M. E. (1975). Minimax estimators of the mean of a multivariate normal distribution. *Annals of Statistics* 3(1), 209–218.

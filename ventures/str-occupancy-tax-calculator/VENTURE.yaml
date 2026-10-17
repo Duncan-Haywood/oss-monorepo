@@ -1,0 +1,31 @@
+name: str-occupancy-tax-calculator
+description: Free browser calculator for short-term rental hosts that splits one stay's occupancy tax into up to four named layers (state, county, city, special district) plus a flat per-night fee, and reports what a platform's collection agreement already remits per layer versus the dollar amount left for the host to self-file directly, per stay and as an illustrative monthly rollup.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Hosts will use a per-layer occupancy-tax split because a platform's collection agreement is set per taxing authority, not per platform, and a payout statement never flags the layer it does not cover.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers looking for "airbnb occupancy tax calculator", "vrbo tax by county", or "short term rental tax I owe" will prefer a calculator that names each layer's remittance status over a generic combined-rate calculator or a state-only tax guide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The dollar amount a host must self-remit, shown separately from the total tax owed, is the number that changes host behavior -- because it is the only figure that maps directly to a filing obligation the platform will not surface. Measured by tax_worked firing against a stay where hostMustRemit > 0.
+    status: untested
+    checked: null
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No return usage or organic referral signal after 60 days of public availability.
+  - No unsolicited feedback, star, fork, or referral after 90 days.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/
+  analytics: null

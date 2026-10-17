@@ -1,0 +1,28 @@
+# Spending a Scarce Audit Budget on Heterogeneous Jobs: Deterrence Is a Knapsack
+
+*Stylised model; MIT licensed. Code: `src/audit_allocation`, results: `experiments/results.txt`.*
+
+## Abstract
+Refereed verification of decentralised ML jobs (`verification-game`, `spot-check-slashing`) usually treats jobs as identical. Real jobs differ in the gain `g_j` a cheater would earn and the harm `h_j` an undetected cheat causes. With a stake `S` and an expected-audit budget `B`, a best-responding cheater on job `j` is deterred iff the audit probability reaches `t_j = g_j/(g_j+S)`; below that it cheats and the principal loses `h_j(1−p_j)`. The loss is therefore discontinuous, and the principal's problem is a **knapsack**: deterring job `j` costs exactly `t_j`, prevents `h_j`, and partial audits below `t_j` only buy harm reduction at the linear rate `h_j`. We give the exact optimum structure (deter a set exactly, spend the remainder on one job), a greedy rule with a proved 1/3 guarantee (measured worst case 0.69 over 3000 instances), show that a uniform audit rate wastes budget (deterring everything costs `n·max t_j` versus `Σ t_j`, 1.9× at high gain dispersion; at half the full-deterrence budget uniform audits lose 65% of total harm versus 19% optimal), prove that gain heterogeneity lowers the cost of full deterrence relative to the mean-gain instance (Jensen), and show stake and audits substitute: `S*(B)` solves `Σ g_j/(g_j+S) = B`, closed form `g(n/B−1)` for identical jobs.
+
+## 1. Model
+Job `j`: an unaudited cheat gains `g_j`; an audit (probability `p_j`) catches it and the cheater forfeits `S`. Cheating pays iff `(1−p_j)g_j > p_jS`, i.e. `p_j < t_j := g_j/(g_j+S)` (ties resolved to honesty, the usual Stackelberg convention). A successful cheat costs the principal `h_j`; a caught one is corrected. The principal commits to `p` with `Σp_j ≤ B` first; the cheater best-responds on every job. Loss on job `j`: `h_j(1−p_j)` if `p_j<t_j`, else 0. The Monte Carlo of a best-responding cheater matches this formula (E5: 4.5000/4.4986, 1.2000/1.2024, 0.3500/0.3501).
+
+## 2. Structure of the optimum
+The loss is linear-decreasing in `p_j` on `[0,t_j)` and jumps to 0 at `t_j`. Deterring costs `t_j<1` per `h_j` prevented, which beats the linear slope `h_j` per unit, so an optimal policy **deters a set `D` exactly** (`p_j=t_j`) and puts the remaining budget on **one** undeterred job (highest `h`), capped below its threshold. Brute force over `(D, k)` is exact for small `n` and beats random policies in the tests. Finding `D` is 0/1 knapsack with weights `t_j` and values `h_j`: NP-hard in general, so a rule matters.
+
+**Density greedy.** Deter in decreasing `h_j/t_j = h_j(g_j+S)/g_j` while it fits, spend the rest on the best undeterred job, and compare with (i) the best single deterrable job and (ii) pure partial spending `B·max h_j`. Since `OPT ≤ 2·(knapsack candidate) + (partial candidate)`, the best candidate prevents at least **1/3** of OPT's harm (a proof by the standard knapsack argument; the tests check it). Density order alone fails: with `B` below every `t_j` partial spending on the largest `h` wins (4-job instance, loss 6.08 optimal versus 6.71 density-only; E3). Empirically the full rule is far better than its bound: worst ratio 0.69 over 3000 random instances, within 1% of optimal on 91% of them, and mean loss within 0.6% of optimal at every budget (E2).
+
+## 3. What a uniform audit rate costs
+Auditing every job with `p=B/n` deters only jobs with `t_j ≤ B/n`. Deterring all needs `n·max t_j` versus `Σ t_j` under the optimal policy. With lognormal gains (`n=20`, `S=1`) the two are 10.0/10.0 at identical gains and 9.43 versus 18.10 at dispersion 1.5, so uniform auditing needs **1.9× the budget** (E1). For a fixed budget, expected loss as a fraction of total harm at `B/full = 0.25, 0.5, 0.75, 1.0` is 0.42, 0.19, 0.06, 0 optimal versus 0.85, 0.65, 0.44, 0.26 uniform (E2, 200 instances, `n=10`): even a full-deterrence budget leaves a quarter of harm under uniform audits.
+
+**Jensen.** `t(g)=g/(g+S)` is concave in `g`, so `Σ t(g_j) ≤ n·t(ḡ)`: at equal mean gain, heterogeneity makes full deterrence *cheaper* (tested on 50 random instances). Intuition: high-gain jobs need audits near 1 but few of them can exist for a given mean.
+
+## 4. Stake substitutes for audits
+The least stake deterring everything within budget `B` solves `Σ g_j/(g_j+S) = B` (bisection; closed form `S=g(n/B−1)` for identical jobs). For 20 lognormal jobs, `S*` is 31.1, 14.0, 5.7, 1.8 at `B=1,2,4,8` (E4), below the identical-mean formula (33.1, 15.7, 7.0, 2.6) by Jensen. Doubling audits roughly halves the needed stake at small budgets, consistent with `spot-check-slashing` (stake and audits are complements *in the deterrence condition* but substitutes *for the same deterrence target*).
+
+## 5. Limitations
+One-shot best response; the cheater sees `p` (worst case, and the assumption that makes deterrence exact); jobs independent and the cheater unconstrained across jobs (no cheater capacity limit, no collusion: see `replicated-execution`); audits are perfect and costless beyond the budget; `g_j, h_j` known to the principal (learning them, or reporting them strategically, is the natural next step); the stake `S` is common (job-specific stakes would make `t_j` a free parameter and the knapsack degenerates). The 1/3 guarantee is a worst-case bound proved by a short argument, not tight; the paper's contribution is the clean structure, executable checks and the measured cost of uniformity.
+
+## Reproduce
+`PYTHONPATH=src python3 -m unittest discover -s tests -v` (10 tests) and `PYTHONPATH=src python3 experiments/run.py`.

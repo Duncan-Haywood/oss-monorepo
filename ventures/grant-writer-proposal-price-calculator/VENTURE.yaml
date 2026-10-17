@@ -1,0 +1,55 @@
+name: grant-writer-proposal-price-calculator
+description: >-
+  Free browser calculator for freelance grant writers: enter the hourly pay you want, the share of time you cannot bill,
+  your tax load and a revision buffer, then get the flat fee floor for each proposal, a check on fees you already
+  quoted and whether a month of proposals fits your hours. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Grep of ventures/ found grant-indirect-cost-calculator,
+# grant-deadline-tracker and grant-reporting-tracker (all nonprofit-side tools) but no pricing tool for the freelance
+# grant writer. Writers quote from a guessed hourly rate and routinely eat revision rounds and unfunded hours; the
+# usual answer is a forum thread or a hand-built spreadsheet. The real analogues are proposal/quote tools for
+# consultants (Bonsai, HoneyBook) and fundraising-consultant rate surveys; the free no-signup flat-fee model for this
+# one trade is the gap, and a natural lead magnet for those who sell grant-writing training or proposal software.
+#
+# First visitor: freelance grant writers and new nonprofit consultants asking in writer communities what to charge for
+# a proposal; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors only. If usage appears the paid layer is what
+# a browser page cannot do: saved rate cards, a scope-of-work and engagement-letter generator, a pipeline tracker with
+# funder deadlines. Not built.
+#
+# Liability: arithmetic on typed numbers; the page lists what it omits and is not tax, legal or financial advice. It
+# deliberately prices on hours and shows a percentage of the award only as a sense check, because fundraising
+# professional codes and many funders object to percentage-of-award pay.
+#
+# Unverified: the model (target hourly grossed up for unbillable share, overhead and one tax-load share, times
+# estimated hours padded by a revision buffer) is a simple pricing model written without review by a working grant
+# writer. The first user report that it misses a cost they carry is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Freelance grant writers will use a no-signup calculator that turns a target hourly pay and an hours estimate into a
+      flat proposal fee, and checks fees they have already quoted, before they send the next quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports the model omits a cost every freelance grant writer carries, at which point the model needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/grant-writer-proposal-price-calculator/
+  analytics: null

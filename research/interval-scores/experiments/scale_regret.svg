@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the regret of a symmetric interval with half-width lam*z*s, in units of the optimal score, against lam for three miscoverage levels: regret is near zero at lam=1 and rises on both sides, faster for narrower intervals">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Interval scores: regret of a misreported scale</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="267.8" y2="267.8" stroke="#ddd"/><text x="58" y="271.8" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="211.6" y2="211.6" stroke="#ddd"/><text x="58" y="215.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="155.4" y2="155.4" stroke="#ddd"/><text x="58" y="159.4" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="99.3" y2="99.3" stroke="#ddd"/><text x="58" y="103.3" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="138.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.7</text>
+<text x="194.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.85</text>
+<text x="317.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.18</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">width multiplier lam</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">regret / optimal score</text>
+<polyline points="64.0,249.8 138.7,299.8 194.7,318.4 317.9,317.3 400.0,294.5 624.0,192.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="249.8" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="299.8" r="3" fill="#c0392b"/>
+<circle cx="194.7" cy="318.4" r="3" fill="#c0392b"/>
+<circle cx="317.9" cy="317.3" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="294.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="192.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">alpha=0.2</text>
+<polyline points="64.0,178.2 138.7,279.3 194.7,314.2 317.9,313.6 400.0,281.3 624.0,156.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="178.2" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="279.3" r="3" fill="#1f6fb2"/>
+<circle cx="194.7" cy="314.2" r="3" fill="#1f6fb2"/>
+<circle cx="317.9" cy="313.6" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="281.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="156.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">alpha=0.1</text>
+<polyline points="64.0,71.2 138.7,252.6 194.7,309.4 317.9,310.0 400.0,270.9 624.0,133.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="138.7" cy="252.6" r="3" fill="#2e8b57"/>
+<circle cx="194.7" cy="309.4" r="3" fill="#2e8b57"/>
+<circle cx="317.9" cy="310.0" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="270.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="133.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">alpha=0.05</text>
+</svg>

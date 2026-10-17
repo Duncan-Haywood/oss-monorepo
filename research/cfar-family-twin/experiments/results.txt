@@ -1,0 +1,88 @@
+N=16 reference cells, twin = Gaussian clutter, real = independent gamma texture (shape nu) per cell; 300000 windows per estimate
+Test cell integrated out analytically (Rao-Blackwell); '+-' is one standard error of the Monte Carlo mean.
+
+== 1. Twin calibration (design Pfa 1e-2, 1e-4) ==
+detector  design  alpha_twin  twin Pfa on independent windows  exact-formula alpha
+CA        0.01    5.341       9.980e-03 +- 2.4e-05            5.336
+OS75      0.01    4.427       1.003e-02 +- 3.1e-05            4.425
+OS50      0.01    9.485       9.992e-03 +- 3.9e-05            9.467
+LOG       0.01    9.850       1.000e-02 +- 3.2e-05            -
+CA        0.0001  12.465      9.857e-05 +- 9.4e-07            12.452
+OS75      0.0001  11.086      1.015e-04 +- 1.6e-06            11.080
+OS50      0.0001  26.622      9.789e-05 +- 2.3e-06            26.417
+LOG       0.0001  25.091      9.862e-05 +- 1.5e-06            -
+(CA and OS thresholds also come out of exact formulas; LOG has none, so its twin threshold is Monte Carlo only.)
+
+== 2. Direct-simulation check of the Rao-Blackwell estimate (design 1e-2, 400k trials, test cell simulated) ==
+nu=2 OS75  direct MC 0.0361   Rao-Blackwell 0.0364 +- 0.0001
+nu=2 LOG   direct MC 0.0446   Rao-Blackwell 0.0450 +- 0.0001
+nu=5 OS75  direct MC 0.0211   Rao-Blackwell 0.0215 +- 0.0000
+nu=5 LOG   direct MC 0.0224   Rao-Blackwell 0.0229 +- 0.0000
+
+== 3. Real Pfa when the threshold is set in the Gaussian twin (inflation = real / design) ==
+design  nu    CA                    OS75                  OS50                  LOG                   
+0.01    2     3.02x (+-0%)          3.64x (+-0%)          4.74x (+-0%)          4.50x (+-0%)          
+0.01    5     1.95x (+-0%)          2.15x (+-0%)          2.36x (+-0%)          2.29x (+-0%)          
+0.01    20    1.26x (+-0%)          1.30x (+-0%)          1.31x (+-0%)          1.31x (+-0%)          
+0.0001  2     30.11x (+-0%)         34.92x (+-0%)         41.01x (+-0%)         44.21x (+-0%)         
+0.0001  5     9.14x (+-0%)          9.20x (+-1%)          8.29x (+-1%)          9.41x (+-1%)          
+0.0001  20    2.34x (+-1%)          2.23x (+-1%)          1.94x (+-2%)          2.19x (+-1%)          
+
+== 4. Repair: threshold multiplier that restores the design Pfa in real clutter (calibrated on independent windows) ==
+design  nu    detector  alpha_real/alpha_twin  extra dB   Pfa check on other windows
+0.01    2     CA        1.568                  1.95       9.98e-03 +- 2e-05
+0.01    2     OS75      1.739                  2.40       9.95e-03 +- 3e-05
+0.01    2     OS50      2.028                  3.07       1.00e-02 +- 3e-05
+0.01    2     LOG       1.918                  2.83       9.98e-03 +- 2e-05
+0.01    5     CA        1.247                  0.96       1.00e-02 +- 2e-05
+0.01    5     OS75      1.303                  1.15       1.00e-02 +- 3e-05
+0.01    5     OS50      1.369                  1.36       1.00e-02 +- 3e-05
+0.01    5     LOG       1.334                  1.25       9.98e-03 +- 3e-05
+0.01    20    CA        1.066                  0.28       1.00e-02 +- 2e-05
+0.01    20    OS75      1.078                  0.33       1.00e-02 +- 3e-05
+0.01    20    OS50      1.087                  0.36       9.97e-03 +- 4e-05
+0.01    20    LOG       1.082                  0.34       9.96e-03 +- 3e-05
+0.0001  2     CA        2.342                  3.70       9.95e-05 +- 7e-07
+0.0001  2     OS75      2.552                  4.07       9.93e-05 +- 1e-06
+0.0001  2     OS50      2.837                  4.53       1.01e-04 +- 1e-06
+0.0001  2     LOG       2.713                  4.33       9.92e-05 +- 9e-07
+0.0001  5     CA        1.560                  1.93       9.95e-05 +- 7e-07
+0.0001  5     OS75      1.602                  2.05       1.01e-04 +- 1e-06
+0.0001  5     OS50      1.624                  2.11       9.82e-05 +- 1e-06
+0.0001  5     LOG       1.612                  2.07       9.84e-05 +- 1e-06
+0.0001  20    CA        1.148                  0.60       1.01e-04 +- 9e-07
+0.0001  20    OS75      1.150                  0.61       1.02e-04 +- 1e-06
+0.0001  20    OS50      1.139                  0.57       9.94e-05 +- 2e-06
+0.0001  20    LOG       1.150                  0.61       9.85e-05 +- 1e-06
+
+== 5. Detection at equal *real* Pfa = 1e-4 (repaired thresholds), Rayleigh target, mean power over clutter mean ==
+nu    SNR dB  CA       OS75     OS50     LOG       | twin promise at design threshold in Gaussian clutter
+2     15      0.4307   0.3932   0.3543   0.4092    | 0.6996 0.6616 0.6027 0.6535
+2     20      0.7582   0.7319   0.7028   0.7439    | 0.8922 0.8756 0.8485 0.8721
+2     25      0.9152   0.9043   0.8919   0.9094    | 0.9645 0.9587 0.9489 0.9574
+5     15      0.5674   0.5306   0.4842   0.5335    | 0.6996 0.6616 0.6027 0.6535
+5     20      0.8330   0.8134   0.7874   0.8153    | 0.8922 0.8756 0.8485 0.8721
+5     25      0.9435   0.9362   0.9262   0.9369    | 0.9645 0.9587 0.9489 0.9574
+20    15      0.6615   0.6246   0.5713   0.6187    | 0.6996 0.6616 0.6027 0.6535
+20    20      0.8761   0.8592   0.8334   0.8566    | 0.8922 0.8756 0.8485 0.8721
+20    25      0.9589   0.9529   0.9435   0.9519    | 0.9645 0.9587 0.9489 0.9574
+
+== 6. Same comparison but in the twin itself (Gaussian clutter, design Pfa 1e-4): the CFAR loss the twin sees ==
+SNR dB  CA       OS75     OS50     LOG      
+15      0.6996   0.6616   0.6027   0.6535   
+20      0.8922   0.8756   0.8485   0.8721   
+25      0.9645   0.9587   0.9489   0.9574   
+
+== 7. Direct check of the Pd Rao-Blackwell table (nu=5, SNR 20 dB, repaired CA and LOG thresholds, 400k trials) ==
+CA   direct MC 0.8325   table 0.8330
+LOG  direct MC 0.8151   table 0.8153
+
+== 8. Known-scale oracle: no window noise at all, fixed threshold T = -ln(design) on clutter of known unit mean ==
+Reference cells are independent of the test cell's texture, so a better scale estimate cannot track it. Note the oracle's threshold (-ln design) is below the CA twin threshold (alpha_twin x window mean), so it is a comparison, not a bound.
+design  nu    oracle real Pfa   inflation x   (CA window inflation from section 3)
+0.01    2     2.881e-02         2.88          3.02
+0.01    5     1.949e-02         1.95          1.95
+0.01    20    1.279e-02         1.28          1.26
+0.0001  2     3.624e-03         36.24         30.11
+0.0001  5     1.245e-03         12.45         9.14
+0.0001  20    3.075e-04         3.07          2.34

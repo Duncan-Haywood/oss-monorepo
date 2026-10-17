@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Subscription Proration Calculator — Upgrades, Downgrades, Cancellations</title>
+  <meta name="description" content="Free proration calculator for SaaS and subscription businesses: enter the billing period, what was billed and the mid-cycle changes, and see each day-count segment, the credit or charge due, tax, the next renewal and what the balance would be on other change dates. Private, runs in your browser.">
+  <meta property="og:title" content="Subscription proration calculator: what is owed after a mid-cycle change? Free, private">
+  <meta property="og:description" content="Period, amount billed and changes in; segments, credit or charge, and a change-date table out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Subscription Proration Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I prorate a subscription upgrade in the middle of a billing period?", "acceptedAnswer": {"@type": "Answer", "text": "Split the period at the change date. The old amount covers the days before it and the new amount the days from it on, each as a share of the period's days. Add the two, subtract what the customer already paid, and the difference is the charge or credit. Paste your dates and amounts and the page does exactly that and shows every line."}}, {"@type": "Question", "name": "Should the renewal date move when someone upgrades?", "acceptedAnswer": {"@type": "Answer", "text": "Both are common. Keeping the renewal date charges only the difference for the days left. Restarting the period on the change date credits the unused old time and bills a full new period from today. The page has a mode for each so you can see what the customer would pay under either."}}, {"@type": "Question", "name": "How is a cancellation or downgrade refund calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the change date and the new amount; 0 means cancelled. The unused days at the old amount come back as a credit. Whether you refund it, keep it as account credit or keep it at all depends on your terms, which this page does not decide."}}, {"@type": "Question", "name": "Does it match Stripe, Chargebee or Paddle?", "acceptedAnswer": {"@type": "Answer", "text": "It uses plain day-count proration rounded half up to the cent. Billing providers can prorate by the second, round differently or apply their own rules, so check the figure against the provider's preview before you rely on it."}}, {"@type": "Question", "name": "Is my billing data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The arithmetic runs in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SUBSCRIPTION PRORATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a customer owe after a mid-cycle upgrade, downgrade or cancellation?</h1>
+    <p>Enter the billing period, the amount already billed and each change with its date. You get the <strong>day-count segments</strong>, the <strong>credit or charge</strong> to issue now, <strong>tax</strong>, the <strong>next renewal</strong>, and a table of the balance if the same change had happened on other dates. Use it to answer a billing ticket, to check your billing provider's preview, or to set a proration policy.</p>
+    <p class="note">It works from your own figures. It does not know your billing provider's rounding or your refund terms.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>The billing period</h2>
+    <div class="grid">
+      <div><label for="mode">What happens to the renewal date</label><select id="mode"><option value="prorate">Keep it: charge the difference for the days left</option><option value="reset">Restart the period on the change date</option></select></div>
+      <div><label for="periodstart">Period start (YYYY-MM-DD)</label><input id="periodstart" placeholder="2026-01-01"></div>
+      <div><label for="periodend">Renewal date: period end (YYYY-MM-DD)</label><input id="periodend" placeholder="2026-02-01"></div>
+      <div><label for="startamount">Amount billed for this period, dollars</label><input id="startamount" inputmode="decimal" placeholder="100"></div>
+      <div><label for="taxpct">Tax on the balance, % (0 if none)</label><input id="taxpct" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <label for="changes">Changes: one per line, the first day the new amount applies, then the new amount per period (0 cancels)</label>
+    <textarea id="changes" placeholder="2026-01-17, 150"></textarea>
+    <p>
+      <button type="button" id="calc">Work out the balance</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the period, then click Work out the balance.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Segments</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">From</th><th scope="col">To (not included)</th><th scope="col" class="n">Days</th><th scope="col" class="n">Amount per period</th><th scope="col" class="n">Charge</th></tr></thead><tbody id="seg-rows"></tbody></table></div>
+    <h3>If the first change had happened on another date</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Change date</th><th scope="col" class="n">Credit for unused old time</th><th scope="col" class="n">Charge for new</th><th scope="col" class="n">Net balance</th></tr></thead><tbody id="sweep-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download change-date table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Keep the renewal date:</strong> the old amount covers the days before each change and each new amount the days from it, every segment as days / days in the period of that amount, rounded half up to the cent. The balance is the sum of the segments minus what was billed.</li>
+      <li><strong>Restart the period:</strong> credit = billed amount x unused days / days in the period; new charge = the full new amount; the next renewal is one period length after the change date.</li>
+      <li><strong>Tax</strong> is the entered percent of the balance, rounded half up, and is negative for a credit.</li>
+      <li><strong>Not decided:</strong> whether you refund, credit or keep the unused part, your provider's rounding or per-second proration, trials, usage charges, discounts and coupons, tax rules for credit notes, and currencies with other minor units.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How do I prorate a subscription upgrade in the middle of a billing period?</h3>
+    <p>Split the period at the change date. The old amount covers the days before it and the new amount the days from it on, each as a share of the period's days. Add the two, subtract what the customer already paid, and the difference is the charge or credit. Paste your dates and amounts and the page does exactly that and shows every line.</p>
+    <h3>Should the renewal date move when someone upgrades?</h3>
+    <p>Both are common. Keeping the renewal date charges only the difference for the days left. Restarting the period on the change date credits the unused old time and bills a full new period from today. The page has a mode for each so you can see what the customer would pay under either.</p>
+    <h3>How is a cancellation or downgrade refund calculated?</h3>
+    <p>Enter the change date and the new amount; 0 means cancelled. The unused days at the old amount come back as a credit. Whether you refund it, keep it as account credit or keep it at all depends on your terms, which this page does not decide.</p>
+    <h3>Does it match Stripe, Chargebee or Paddle?</h3>
+    <p>It uses plain day-count proration rounded half up to the cent. Billing providers can prorate by the second, round differently or apply their own rules, so check the figure against the provider's preview before you rely on it.</p>
+    <h3>Is my billing data uploaded anywhere?</h3>
+    <p>No. The arithmetic runs in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before charging or refunding a customer. Treat it as a worksheet to check, not a billing system.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../saas-seat-true-up/">SaaS seat true-up</a>, the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a> and the <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars, iso } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { mode: "mode", periodstart: "periodStart", periodend: "periodEnd", startamount: "startAmount", taxpct: "taxPct", changes: "changes" };
+    const IDLE = "Fill in the period, then click Work out the balance.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${r.net >= 0 ? "Charge" : "Credit"} ${dollars(Math.abs(r.net))}${r.taxPct ? ` plus tax = ${dollars(r.invoice)}` : ""}; next renewal ${iso(r.nextRenewal)} at ${dollars(r.nextAmount)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#seg-rows").innerHTML = r.segments.map((s) => `<tr><td>${iso(s.from)}</td><td>${iso(s.to)}</td><td class="n">${s.days}</td><td class="n">${dollars(s.amount)}</td><td class="n">${dollars(s.charge)}</td></tr>`).join("");
+      $("#sweep-rows").innerHTML = r.sweep.map((x) => `<tr><td>${iso(x.date)}</td><td class="n">${dollars(x.credit)}</td><td class="n">${dollars(x.charge)}</td><td class="n">${dollars(x.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check the figure against your billing provider's preview before charging.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: $100 plan upgraded to $150 on 17 January in a 31-day period. Illustrative figures.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = id === "mode" ? "prorate" : ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("proration-summary.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("proration-by-change-date.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

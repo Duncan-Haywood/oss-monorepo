@@ -1,0 +1,58 @@
+name: app-review-insights
+description: >-
+  Free browser tool for indie app developers: drop in a Google Play or App Store review CSV and see which release dropped the rating,
+  which complaint themes cost the most stars, the phrases unique to unhappy reviews and the low-star reviews still without a reply.
+  The file never leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. duplicate_check.py: nearest are app-listing-metadata-check (0.43, checks a store
+# listing before submission, does not read reviews) and app-subscription-proceeds-calculator (0.33). Nothing in the portfolio reads
+# a review export.
+#
+# Why this niche: paid review-monitoring tools (AppFollow, Appbot, AppTweak, Sensor Tower) are priced for app teams with budget; a
+# solo developer with a few hundred reviews wants the "which release broke it, what are they angry about" answer once a release and
+# has the CSV from the console already. Rating is the top conversion lever on a store page, so the buyer has money and a reason.
+#
+# First visitor: indie iOS and Android developers on r/androiddev, r/iOSProgramming, r/indiehackers and Indie Hackers asking "how do
+# I analyze my app reviews", "my rating dropped after the update"; search phrases "app review analyzer", "google play reviews
+# export csv analysis". Volume not measured with an external tool.
+#
+# Liability boundary: counting and keyword matching over a file the user supplies. Themes are plain keyword lists shown to the user,
+# the star-cost figure is labelled a what-if. No store credentials, no scraping, no reviewer personal data leaves the device (a
+# test asserts no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. The natural paid layer is a hosted weekly digest pulled from
+# the store APIs with the developer's own credentials, plus an LLM-written reply drafter; both need an owner decision on accounts
+# and API spend and are not built. A native mobile companion (reply queue on the phone) is the later, deeper step.
+
+hypotheses:
+  - claim: >-
+      Indie app developers who see a rating drop will run the console's review CSV through a no-signup tool to find the release and
+      the complaint behind it before paying for a monitoring service.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The unanswered low-star queue is the reason to return after every release, because replying can lead a reviewer to revise.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a theme or release finding that does not match the reviews in their own file, at which point the keyword lists or the regression rule need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/app-review-insights/
+  analytics: null

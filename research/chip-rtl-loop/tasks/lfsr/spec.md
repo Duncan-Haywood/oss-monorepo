@@ -1,0 +1,1 @@
+Module `lfsr(input clk, input rst, input en, output [7:0] q)`. 8-bit Fibonacci LFSR with polynomial x^8 + x^6 + x^5 + x^4 + 1. Synchronous active-high reset sets the register to 8'h01. When `en` is 1 at a rising clock edge, the register shifts left by one: new bit 0 = q[7] ^ q[5] ^ q[4] ^ q[3]; otherwise it holds. `q` is the register.

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-revwidth"
+version = "0.1.0"
+description = "How wide must the 1.5 mm L-bracket be to clear buckling under a reversed load?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

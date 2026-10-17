@@ -1,0 +1,13 @@
+[project]
+name = "garment-wearpair"
+version = "0.1.0"
+description = "Best two-garment wardrobe (a shell and a layer) against the best single garment, by wearing mix"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-thermal/src", "../garment-teardown/src", "../garment-comfortcost/src", "../garment-wearmix/src"]

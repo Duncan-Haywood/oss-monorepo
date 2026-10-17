@@ -1,0 +1,7 @@
+class,price,minutes,supplies,matting_minutes,matting_fee,deshed_minutes,deshed_fee
+Small smooth,55,45,4,20,15,10,10
+Small doodle,85,90,6,30,20,0,0
+Medium doodle,110,130,8,40,25,0,0
+Medium double coat,95,110,8,25,15,30,30
+Large double coat,130,140,12,30,20,40,40
+Giant,150,180,16,40,30,45,45

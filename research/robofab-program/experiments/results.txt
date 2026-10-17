@@ -1,0 +1,38 @@
+== Session-written programs (drafts, then revisions after twin feedback) ==
+drafts   move   L0=pass L1=pass L2=FAIL REF=FAIL  REF:['premature_move']
+drafts   wall   L0=FAIL L1=FAIL L2=FAIL REF=FAIL  REF:['collision']
+drafts   heavy  L0=pass L1=pass L2=pass REF=FAIL  REF:['premature_move']
+drafts   far    L0=pass L1=pass L2=pass REF=FAIL  REF:['payload']
+revised  move   L0=pass L1=pass L2=pass REF=pass  REF:[]
+revised  wall   L0=pass L1=pass L2=pass REF=pass  REF:[]
+revised  heavy  L0=pass L1=pass L2=pass REF=pass  REF:[]
+revised  far    L0=pass L1=pass L2=pass REF=FAIL  REF:['payload']
+
+== Injected-bug mutants of the 3 revised programs that pass REF: 162 programs ==
+REF fails 69, REF passes 93
+Twin FAIL = flagged. caught = twin fails & REF fails; missed = twin passes & REF fails; false alarm = twin fails & REF passes
+L0: caught 38/69 (0.55), missed 31, false alarms 0, agree-pass 93
+L1: caught 46/69 (0.67), missed 23, false alarms 0, agree-pass 93
+L2: caught 60/69 (0.87), missed 9, false alarms 0, agree-pass 93
+
+Catch rate by mutation kind (caught / REF-failing), and false alarms:
+delete_step  n= 24 REFfail= 16  L0 15/16 (FA 0)  L1 16/16 (FA 0)  L2 16/16 (FA 0)
+grip_wait    n= 18 REFfail= 12  L0 0/12 (FA 0)  L1 0/12 (FA 0)  L2 6/12 (FA 0)
+low_lift     n= 36 REFfail=  5  L0 5/5 (FA 0)  L1 5/5 (FA 0)  L2 5/5 (FA 0)
+speed        n= 54 REFfail=  9  L0 0/9 (FA 0)  L1 7/9 (FA 0)  L2 9/9 (FA 0)
+xy_shift     n= 30 REFfail= 27  L0 18/27 (FA 0)  L1 18/27 (FA 0)  L2 24/27 (FA 0)
+
+REF failure reasons (mutants): {'joint_speed': 8, 'grasp_or_place_error': 21, 'grip_miss': 9, 'not_placed': 15, 'release_empty': 12, 'drop': 3, 'still_held': 3, 'premature_move': 12, 'collision': 8, 'slip': 3}
+
+L2 misses (9): move xy_shift 6:x+3mm -> ['grasp_or_place_error']; move grip_wait wait=0.12 -> ['premature_move']; move grip_wait wait=0.14 -> ['premature_move']; wall xy_shift 6:x+3mm -> ['grasp_or_place_error']; wall grip_wait wait=0.12 -> ['premature_move']; wall grip_wait wait=0.14 -> ['premature_move']; heavy xy_shift 6:x+3mm -> ['grasp_or_place_error']; heavy grip_wait wait=0.12 -> ['premature_move']; heavy grip_wait wait=0.14 -> ['premature_move']
+L2 false alarms (0): 
+
+== Sensitivity: how many REF-failing mutants does L2 miss as REF is changed? (162 mutants) ==
+REF as above             L2 missed 9, L2 false alarms 0
+no hidden offset         L2 missed 6, L2 false alarms 0
+hidden offset x2         L2 missed 12, L2 false alarms 0
+grip_wait 0.10 (= L2)    L2 missed 3, L2 false alarms 0
+grip_wait 0.25           L2 missed 99, L2 false alarms 0
+mu, force = L2           L2 missed 9, L2 false alarms 0
+flat payload             L2 missed 9, L2 false alarms 0
+repeat sigma = L2        L2 missed 9, L2 false alarms 0

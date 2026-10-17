@@ -1,0 +1,30 @@
+jurors correct w.p. a=0.7; prize V=100.0; appeal fee = j*n with j=1.0; cost counted in juror seats
+
+1. Fee window V(1-q) <= j n < V q by panel size
+  n=  1  M=0.7000  window=[ 30.000,  70.000)  fee=   1  regime=both
+  n=  3  M=0.7840  window=[ 21.600,  78.400)  fee=   3  regime=both
+  n=  5  M=0.8369  window=[ 16.308,  83.692)  fee=   5  regime=both
+  n=  9  M=0.9012  window=[  9.881,  90.119)  fee=   9  regime=both
+  n= 11  M=0.9218  window=[  7.822,  92.178)  fee=  11  regime=truth
+  n= 15  M=0.9500  window=[  5.001,  94.999)  fee=  15  regime=truth
+  n= 27  M=0.9857  window=[  1.426,  98.574)  fee=  27  regime=truth
+  n= 81  M=0.9999  window=[  0.008,  99.992)  fee=  81  regime=truth
+  smallest deterring odd n: V=100 -> 11, V=1000 -> 23, V=10000 -> 41
+
+2. Three-tier courts (exact vs Monte Carlo 200k)
+  efficient  [3,11,27] j=1    err=0.00024 (MC 0.00021) seats=  5.83 (MC   5.84) tiers=1.233 E[wrong-side appeals]=0.000
+  leaky      [3,9,27]  j=1    err=0.00141 (MC 0.00135) seats= 14.67 (MC  14.68) tiers=2.099 E[wrong-side appeals]=0.784
+  cheap fees [3,11,27] j=.05  err=0.01426 (MC 0.01412) seats= 41.00 (MC  41.00) tiers=3.000 E[wrong-side appeals]=1.706
+  dear fees  [3,11,27] j=9    err=0.21600 (MC 0.21749) seats=  3.00 (MC   3.00) tiers=1.000 E[wrong-side appeals]=0.000
+  product law prod(1-M_k) for [3,11,27] = 0.00024; last tier alone (wasteful) err = 0.01426
+
+3. Equal-seat single court vs efficient appeal ladder (a=0.7, ladder n_k = 3, 11, 27, 81...)
+  K=2: ladder err=1.69e-02 at  5.38 expected seats (worst case 14); single panel of 7 seats err=1.26e-01  (7.5x worse)
+  K=3: ladder err=2.41e-04 at  5.83 expected seats (worst case 41); single panel of 7 seats err=1.26e-01  (523.2x worse)
+  K=4: ladder err=1.97e-08 at  5.85 expected seats (worst case 122); single panel of 7 seats err=1.26e-01  (6404786.5x worse)
+
+4. Shared bias rho (ladder [3,11,27,81,243], V=100, j=1)
+  rho=0.00: err=0.0000  floor rho(1-a)=0.0000  seats=5.85  tiers=1.233
+  rho=0.05: err=0.0150  floor rho(1-a)=0.0150  seats=7.49  tiers=1.266
+  rho=0.10: err=0.0300  floor rho(1-a)=0.0300  seats=9.14  tiers=1.300
+  rho=0.30: err=0.0900  floor rho(1-a)=0.0900  seats=25.26  tiers=2.236

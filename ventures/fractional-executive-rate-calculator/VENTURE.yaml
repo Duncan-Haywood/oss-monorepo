@@ -1,0 +1,55 @@
+name: fractional-executive-rate-calculator
+description: >-
+  Free browser calculator for fractional CFOs, CMOs, CTOs and other part-time executives: enter the full-time package
+  you are replacing and get the day rate, hourly rate and monthly retainer prices that actually cover unsold days,
+  admin time, the benefits you now buy yourself and the payroll tax you now pay, then test a client mix against your
+  capacity and target. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Grep of ventures/ found no fractional-executive pricing tool
+# (nearest are freelance-retainer-calculator and job-offer-total-comp-calculator; the first prices hourly freelance
+# work, the second compares employee offers, neither converts an executive salary into a part-time retainer with
+# utilisation and capacity). Fractional executives are a fast-growing, high-rate segment whose usual pricing question
+# is "what is a day worth against the salary I would get" -- answered today by forum threads and a hand-built
+# spreadsheet. The real analogues are fractional-talent marketplaces (Toptal Finance, Chief Outsiders, GoFractional)
+# that sell the engagement; the free no-signup rate model is the gap and a natural lead magnet for those who sell.
+#
+# First visitor: executives leaving full-time roles to go fractional and asking in operator communities what to
+# charge; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors only. If usage appears the paid layer is what
+# a browser page cannot do: saved scenarios, a proposal and retainer-agreement generator, pipeline and utilisation
+# tracking across clients. Not built.
+#
+# Liability: arithmetic on typed numbers; the page lists what it omits and is not tax, legal or financial advice.
+#
+# Unverified: the model (revenue needed grossed up by one payroll-tax share, billable days reduced by time off and a
+# non-billable share, times a sold share) is a simple pricing model written without review by a working fractional
+# executive. The first user report that it misses a cost they carry is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Executives going fractional will use a no-signup rate calculator that converts a full-time package into a day
+      rate and retainer prices, before they quote their first client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports the model omits a cost every fractional executive carries, at which point the model needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fractional-executive-rate-calculator/
+  analytics: null

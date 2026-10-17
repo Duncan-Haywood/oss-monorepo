@@ -4,4 +4,5 @@
   <url><loc>./why-terraform-plan-json-leaks-secrets.html</loc></url>
   <url><loc>./vs-gitleaks.html</loc></url>
   <url><loc>./vs-checkov.html</loc></url>
+  <url><loc>./vs-manually-reading-the-plan-json.html</loc></url>
 </urlset>

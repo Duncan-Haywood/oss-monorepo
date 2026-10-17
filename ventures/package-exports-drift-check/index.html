@@ -98,7 +98,7 @@ node cli.mjs check --json                    # machine-readable</pre>
         <tr><td><code>null</code> (explicitly blocked subpath)</td><td>Not a file target, ignored entirely — this is intentional, correct package.json</td></tr>
       </tbody>
     </table>
-    <p class="note">More: <a href="why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a>. Already use <a href="vs-publint.html">publint</a>? See how the two compare.</p>
+    <p class="note">More: <a href="why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a> &middot; <a href="vs-manually-checking-exports-targets.html">this checker vs. manually checking each target by eye</a>. Already use <a href="vs-publint.html">publint</a>? See how the two compare.</p>
   </section>
 
   <section class="card">
@@ -118,7 +118,7 @@ node cli.mjs check --json                    # machine-readable</pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a> and <a href="../structured-data-drift-check/">Structured Data Drift Check</a> ask the same "does the doc still match the code" question about a different pair of files, with the same deterministic, no-upload shape.</p>
+    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a> and <a href="../structured-data-drift-check/">Structured Data Drift Check</a> ask the same "does the doc still match the code" question about a different pair of files, with the same deterministic, no-upload shape. <a href="../node-version-drift-check/">Node Version Drift Check</a> does the same for the Node.js versions declared in <code>engines.node</code>, <code>.nvmrc</code>, the Dockerfile and CI.</p>
     <p class="support">Free and open source. If this saved you a broken publish, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

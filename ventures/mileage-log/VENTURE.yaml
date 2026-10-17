@@ -1,0 +1,75 @@
+name: mileage-log
+description: >-
+  Free, private mileage log for self-employed drivers and contractors that works
+  offline in the browser: log trips by odometer, typed miles or GPS while the
+  page is open, price each at the IRS standard rate for its own date (the 2026
+  business rate changed July 1), get the Schedule C Part IV split, and check the
+  log for the gaps an examiner looks for. CSV and JSON export; data never leaves
+  the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, a different archetype from
+# the CSV-analyzer ventures shipped the same day (three of which collided with
+# parallel sessions): an installable, offline, stateful app rather than a
+# calculator or a file analyzer. The paid market is real -- MileIQ, Everlance,
+# TripLog, QuickBooks Self-Employed charge roughly $6-15 a month per user -- and
+# the buyer has a concrete dollar reason: a contemporaneous log is what makes
+# the standard-rate deduction survive an examination.
+# duplicate_check.py top score 0.18 (home-office-deduction-calculator);
+# mileage-deduction-method-calculator chooses between standard-rate and actual
+# expenses from typed totals, it does not keep a log.
+#
+# First visitor: gig drivers, real-estate agents, home-visit contractors and
+# other self-employed people on r/Bookkeeping, r/personalfinance, r/Etsy,
+# r/uberdrivers and r/realtors asking for a free mileage tracker or "what does
+# the IRS need in a mileage log"; search phrases "free mileage log", "irs
+# mileage log requirements", "mileage tracker no subscription". Volume not
+# measured with an external tool.
+#
+# Honest limits, stated on the page: GPS tracking only works while the page is
+# open with the screen on (a web page cannot track in the background), so this
+# is a log you control rather than an automatic tracker; storage is one browser,
+# so it prompts for a JSON backup. Rates come from the sibling venture's
+# irs.gov-verified table; medical is the least certain and every rate can be
+# overridden. The site-level service worker (platform/pages/offline.mjs) makes
+# the page work offline and installable.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If it earns repeat visitors, the natural
+# next steps are a native wrapper for background tracking (the one thing a web
+# page cannot do), multi-vehicle support and a year-end PDF for a tax preparer.
+
+hypotheses:
+  - claim: >-
+      Self-employed drivers and contractors who resist a $6-15 a month tracker
+      will keep a free, no-account log if it tells them, in plain words, what
+      the IRS expects and where their log is weak.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The audit-readiness findings (missing purposes, round numbers, late
+      entries, unlogged miles) are what make users return to fix the log, and
+      the January backup-and-export is the recurring reason to come back.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong rate or deduction, or lost trips to browser storage clearing, at which point the rate table or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mileage-log/
+  analytics: null

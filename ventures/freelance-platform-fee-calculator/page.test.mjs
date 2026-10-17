@@ -128,3 +128,11 @@ test('index links one hop to the marketplace-fee-compare sibling', () => {
     'index must link ../marketplace-fee-compare/ so crawlers reach the multi-channel fee comparison in one hop',
   );
 });
+
+test('index links one hop to the upwork-connects-roi-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/upwork-connects-roi-calculator\/"/,
+    'index must link ../upwork-connects-roi-calculator/ so crawlers reach the Connects ROI calculator in one hop',
+  );
+});

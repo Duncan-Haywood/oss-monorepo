@@ -1,14 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULTS, computeJobBid } from './calc.mjs';
+import { DEFAULTS, calculateJobBid } from './calc.mjs';
 import {
   FIELD_IDS,
   OPTIONAL_FIELD_IDS,
   REQUIRED_FIELD_IDS,
+  TERM_NUMBER_FIELD_IDS,
+  TERM_TEXT_FIELD_IDS,
+  MAX_TERM_TEXT,
   encodeInputs,
   decodeInputs,
   formValues,
+  overlongTerms,
 } from './share.mjs';
+
+const ALL_FIELD_IDS = [...FIELD_IDS, ...TERM_NUMBER_FIELD_IDS, ...TERM_TEXT_FIELD_IDS];
 
 const SAMPLE = {
   technicianCount: 3, hoursOnSitePerTechnician: 6, laborRatePerHour: 50,
@@ -47,13 +53,13 @@ test('a link built with nothing checked leaves proposedPrice out entirely, not e
   assert.ok(!new URLSearchParams(encoded).has('proposedPrice'), 'proposedPrice was encoded despite being unset');
   const decoded = decodeInputs(encoded);
   assert.ok(!('proposedPrice' in decoded), 'proposedPrice came back from a link that never carried it');
-  assert.equal(computeJobBid(decoded).proposed, null);
+  assert.equal(calculateJobBid(decoded).proposed, null);
 });
 
 test('a link with a checked price computes the identical comparison on the other end', () => {
   for (const input of [SAMPLE, CHECKED]) {
-    const sender = computeJobBid(input);
-    const recipient = computeJobBid(decodeInputs(encodeInputs(input)));
+    const sender = calculateJobBid(input);
+    const recipient = calculateJobBid(decodeInputs(encodeInputs(input)));
     assert.deepEqual(recipient, sender);
   }
 });
@@ -79,9 +85,9 @@ test('a non-string source decodes to nothing rather than throwing', () => {
   assert.deepEqual(decodeInputs(42), {});
 });
 
-test('formValues covers every field the form owns, including proposedPrice, not just the ones a link carried', () => {
+test('formValues covers every field the form owns, including proposedPrice and the proposal terms, not just the ones a link carried', () => {
   const values = formValues({ technicianCount: 3 });
-  assert.deepEqual(Object.keys(values).sort(), [...FIELD_IDS].sort());
+  assert.deepEqual(Object.keys(values).sort(), [...ALL_FIELD_IDS].sort());
 });
 
 test('formValues clears a field a link did not carry, rather than leaving a stale value', () => {
@@ -97,7 +103,7 @@ test('formValues clears a field a link did not carry, rather than leaving a stal
 test('formValues clears proposedPrice when the link had nothing checked, so a recipient sees the sender\'s scenario', () => {
   const values = formValues(decodeInputs(encodeInputs(SAMPLE)));
   assert.equal(values.proposedPrice, '', 'proposedPrice was left for the recipient\'s own leftover value to fill');
-  assert.deepEqual(computeJobBid(values), computeJobBid(SAMPLE));
+  assert.deepEqual(calculateJobBid(values), calculateJobBid(SAMPLE));
 });
 
 test('formValues round-trips a checked price as a form string', () => {
@@ -105,7 +111,7 @@ test('formValues round-trips a checked price as a form string', () => {
   for (const id of FIELD_IDS) {
     assert.equal(values[id], String(CHECKED[id]), `${id} differs as a form value`);
   }
-  assert.deepEqual(computeJobBid(values), computeJobBid(CHECKED));
+  assert.deepEqual(calculateJobBid(values), calculateJobBid(CHECKED));
 });
 
 test('formValues on an empty decode clears the whole form', () => {
@@ -116,4 +122,49 @@ test('formValues on an empty decode clears the whole form', () => {
 test('formValues on a missing argument clears the whole form rather than throwing', () => {
   const values = formValues();
   for (const id of FIELD_IDS) assert.equal(values[id], '');
+});
+
+// The proposal panel's terms (`platform/proposal/adopt.mjs`) round-trip
+// through the same link and saved draft as the bid itself -- see
+// `platform/proposal/term-ids.test.mjs`, which fails this venture if
+// share.mjs stops naming all five.
+const TERMS = {
+  depositPercent: 50,
+  validDays: 15,
+  paymentTerms: 'Deposit on acceptance, balance on completion.',
+  proposalNotes: 'Waste manifest available on request.',
+  proposalExclusions: 'Structural repair\nOdor-source removal',
+};
+
+test('the deposit and terms round-trip through a link exactly as typed', () => {
+  const encoded = encodeInputs({ ...SAMPLE, ...TERMS });
+  const decoded = decodeInputs(encoded);
+  for (const id of [...TERM_NUMBER_FIELD_IDS, ...TERM_TEXT_FIELD_IDS]) {
+    assert.equal(decoded[id], TERMS[id], `${id} did not survive the link`);
+  }
+});
+
+test('a link with no terms leaves them out of formValues, not defaulted to the recipient\'s own leftover value', () => {
+  const values = formValues(decodeInputs(encodeInputs(SAMPLE)));
+  for (const id of [...TERM_NUMBER_FIELD_IDS, ...TERM_TEXT_FIELD_IDS]) {
+    assert.equal(values[id], '', `${id} was not cleared for a link that never carried it`);
+  }
+});
+
+test('term text survives control-character stripping and a straight round trip', () => {
+  const encoded = encodeInputs({ proposalNotes: 'Line one\nLine two \u0007' });
+  assert.equal(decodeInputs(encoded).proposalNotes, 'Line one\nLine two');
+});
+
+test('term text past MAX_TERM_TEXT is dropped, not truncated, on encode and on decode', () => {
+  const long = 'x'.repeat(MAX_TERM_TEXT + 1);
+  assert.equal(new URLSearchParams(encodeInputs({ paymentTerms: long })).has('paymentTerms'), false);
+  const params = new URLSearchParams();
+  params.set('paymentTerms', long);
+  assert.deepEqual(decodeInputs(params.toString()), {});
+});
+
+test('overlongTerms names exactly the text fields that would not fit in a link', () => {
+  assert.deepEqual(overlongTerms({ paymentTerms: 'short' }), []);
+  assert.deepEqual(overlongTerms({ paymentTerms: 'x'.repeat(MAX_TERM_TEXT + 1) }), ['paymentTerms']);
 });

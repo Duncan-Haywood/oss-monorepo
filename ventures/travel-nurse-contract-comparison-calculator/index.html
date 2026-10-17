@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Travel Nurse Contract Comparison Calculator — Real Take-Home for Every Offer</title>
+  <meta name="description" content="Free calculator that compares travel nurse and locum contract offers by real take-home pay. Enter taxable rate, stipends, guaranteed hours, housing, travel and gaps between assignments for up to three offers. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Travel Nurse Contract Comparison Calculator — free, private, in your browser">
+  <meta property="og:description" content="Which travel nurse offer actually pays more? Take-home per week and per year, cancelled-shift risk, and the taxable rate needed to match the best offer. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Travel Nurse Contract Comparison Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares up to three travel nurse or locum contract offers by real take-home pay: taxable wages, stipends, guaranteed hours risk, health premium, housing, travel and the gap between assignments. Runs entirely in your browser.","featureList":"Side-by-side offers, take-home per week and per year, cancelled-shift sensitivity, taxable rate needed to match the best offer, per-diem ceiling check, CSV download"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the real take-home of a travel nurse contract?","acceptedAnswer":{"@type":"Answer","text":"Not the weekly gross in the recruiter's text. It is taxable wages after tax, plus stipends if they really are untaxed, minus your health premium, the housing and travel you pay for, and averaged over the unpaid weeks between assignments. This tool does that arithmetic for up to three offers side by side."}},{"@type":"Question","name":"Why can a higher weekly gross pay less?","acceptedAnswer":{"@type":"Answer","text":"Stipend-heavy packages look big but depend on hours being guaranteed and on you keeping a qualifying tax home. A lower gross with a higher taxable rate can be worth more once overtime, cancelled shifts and the weeks between contracts are counted."}},{"@type":"Question","name":"What is a tax home?","acceptedAnswer":{"@type":"Answer","text":"In general, a regular place of business or post of duty, or a home you keep and pay for where you actually live and work part of the time. If you do not have one, agencies generally must treat stipends as taxable wages. This tool only asks you to say whether you do; it cannot decide for you. Ask a tax professional."}},{"@type":"Question","name":"What is a guaranteed hours clause?","acceptedAnswer":{"@type":"Answer","text":"A promise that you are paid for the scheduled hours even if the hospital cancels your shifts. Without it, low-census cancellations reduce pay, and some agencies also reduce the stipends in proportion. The sensitivity table shows what 10, 20 and 30 percent cancelled shifts do to each offer."}},{"@type":"Question","name":"How is overtime paid?","acceptedAnswer":{"@type":"Answer","text":"Usually at 1.5 times the taxable hourly rate, not the total package rate. A stipend-heavy offer with a low taxable rate therefore pays much less for extra shifts. Enter the multiplier your contract states."}},{"@type":"Question","name":"What does this tool leave out?","acceptedAnswer":{"@type":"Answer","text":"Actual tax brackets, state residency rules, the exact per-diem rate for each city and date, retirement matches, licensure and compact fees, agency-specific deductions, referral bonuses and the value of benefits beyond the premium you type. The tax rate is a single percentage you choose."}},{"@type":"Question","name":"Is my information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+      .offer { border-top: 1px solid #d9dfe6; margin-top: 16px; padding-top: 4px; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TRAVEL NURSE CONTRACT COMPARISON CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which travel nurse offer actually pays more?</h1>
+    <p>Enter up to three offers. See <strong>take-home per week and per year</strong> after tax, health premium, housing, travel and the <strong>unpaid weeks between contracts</strong>, what happens if the hospital <strong>cancels shifts</strong>, and the <strong>taxable hourly rate</strong> a weaker offer would need to match the best one.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your tax picture</h2>
+    <div class="grid">
+      <div><label for="taxRate">Federal plus state tax rate on taxable pay, percent</label><input type="text" id="taxRate" inputmode="decimal" value="20" autocomplete="off"></div>
+      <div><label for="taxHome">Do you keep a qualifying tax home?</label><select id="taxHome"><option value="yes">Yes, stipends are untaxed</option><option value="no">No, treat stipends as wages</option></select></div>
+    </div>
+    <p class="note">Social Security and Medicare (7.65%) are added on top of the rate you enter, for taxable pay only. This is one flat percentage, not a tax return. Whether you have a tax home is a tax question this tool cannot answer.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The offers</h2>
+    <p class="note">Leave Offer C's taxable rate empty to compare two. Housing and travel cost are what <em>you</em> pay at the assignment beyond what you would pay at home anyway, for example rent on a second place. For a staff job near home, enter 0. Your rent at home is not modelled, so duplicate-expense costs of keeping a tax home are on you to consider.</p>
+    <div class="offer" id="box-a">
+      <h3>Offer A</h3>
+      <div class="grid">
+        <div><label for="a-name">Name (agency, hospital)</label><input type="text" id="a-name" placeholder="Offer A" autocomplete="off"></div>
+        <div><label for="a-rate">Taxable hourly rate</label><input type="text" id="a-rate" inputmode="decimal" placeholder="e.g. 30" autocomplete="off"></div>
+        <div><label for="a-hours">Guaranteed hours per week</label><input type="text" id="a-hours" inputmode="decimal" placeholder="36" value="36" autocomplete="off"></div>
+        <div><label for="a-weeks">Contract weeks</label><input type="text" id="a-weeks" inputmode="decimal" placeholder="13" value="13" autocomplete="off"></div>
+        <div><label for="a-otHours">Overtime hours per week</label><input type="text" id="a-otHours" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-otMult">Overtime multiplier</label><input type="text" id="a-otMult" inputmode="decimal" placeholder="1.5" value="1.5" autocomplete="off"></div>
+        <div><label for="a-housing">Weekly housing stipend</label><input type="text" id="a-housing" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-mie">Weekly meals and incidentals stipend</label><input type="text" id="a-mie" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-bonus">Sign-on or completion bonus, total</label><input type="text" id="a-bonus" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-travel">Travel reimbursement, one time</label><input type="text" id="a-travel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-housingCost">Your weekly housing cost here</label><input type="text" id="a-housingCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-travelCost">Your travel cost, one time</label><input type="text" id="a-travelCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-premium">Your weekly health premium</label><input type="text" id="a-premium" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-gap">Unpaid weeks after this contract</label><input type="text" id="a-gap" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-guaranteed">Hours guaranteed in writing?</label><select id="a-guaranteed"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="a-cancel">Expected shifts cancelled, percent</label><input type="text" id="a-cancel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="a-prorate">Stipends cut when hours are missed?</label><select id="a-prorate"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="a-gsaLodging">Per-diem lodging rate for this city, per day (optional)</label><input type="text" id="a-gsaLodging" inputmode="decimal" autocomplete="off"></div>
+        <div><label for="a-gsaMie">Per-diem meals rate for this city, per day (optional)</label><input type="text" id="a-gsaMie" inputmode="decimal" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="offer" id="box-b">
+      <h3>Offer B</h3>
+      <div class="grid">
+        <div><label for="b-name">Name (agency, hospital)</label><input type="text" id="b-name" placeholder="Offer B" autocomplete="off"></div>
+        <div><label for="b-rate">Taxable hourly rate</label><input type="text" id="b-rate" inputmode="decimal" placeholder="e.g. 30" autocomplete="off"></div>
+        <div><label for="b-hours">Guaranteed hours per week</label><input type="text" id="b-hours" inputmode="decimal" placeholder="36" value="36" autocomplete="off"></div>
+        <div><label for="b-weeks">Contract weeks</label><input type="text" id="b-weeks" inputmode="decimal" placeholder="13" value="13" autocomplete="off"></div>
+        <div><label for="b-otHours">Overtime hours per week</label><input type="text" id="b-otHours" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-otMult">Overtime multiplier</label><input type="text" id="b-otMult" inputmode="decimal" placeholder="1.5" value="1.5" autocomplete="off"></div>
+        <div><label for="b-housing">Weekly housing stipend</label><input type="text" id="b-housing" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-mie">Weekly meals and incidentals stipend</label><input type="text" id="b-mie" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-bonus">Sign-on or completion bonus, total</label><input type="text" id="b-bonus" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-travel">Travel reimbursement, one time</label><input type="text" id="b-travel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-housingCost">Your weekly housing cost here</label><input type="text" id="b-housingCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-travelCost">Your travel cost, one time</label><input type="text" id="b-travelCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-premium">Your weekly health premium</label><input type="text" id="b-premium" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-gap">Unpaid weeks after this contract</label><input type="text" id="b-gap" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-guaranteed">Hours guaranteed in writing?</label><select id="b-guaranteed"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="b-cancel">Expected shifts cancelled, percent</label><input type="text" id="b-cancel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="b-prorate">Stipends cut when hours are missed?</label><select id="b-prorate"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="b-gsaLodging">Per-diem lodging rate for this city, per day (optional)</label><input type="text" id="b-gsaLodging" inputmode="decimal" autocomplete="off"></div>
+        <div><label for="b-gsaMie">Per-diem meals rate for this city, per day (optional)</label><input type="text" id="b-gsaMie" inputmode="decimal" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="offer" id="box-c">
+      <h3>Offer C (optional)</h3>
+      <div class="grid">
+        <div><label for="c-name">Name (agency, hospital)</label><input type="text" id="c-name" placeholder="Offer C" autocomplete="off"></div>
+        <div><label for="c-rate">Taxable hourly rate</label><input type="text" id="c-rate" inputmode="decimal" placeholder="e.g. 30" autocomplete="off"></div>
+        <div><label for="c-hours">Guaranteed hours per week</label><input type="text" id="c-hours" inputmode="decimal" placeholder="36" value="36" autocomplete="off"></div>
+        <div><label for="c-weeks">Contract weeks</label><input type="text" id="c-weeks" inputmode="decimal" placeholder="13" value="13" autocomplete="off"></div>
+        <div><label for="c-otHours">Overtime hours per week</label><input type="text" id="c-otHours" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-otMult">Overtime multiplier</label><input type="text" id="c-otMult" inputmode="decimal" placeholder="1.5" value="1.5" autocomplete="off"></div>
+        <div><label for="c-housing">Weekly housing stipend</label><input type="text" id="c-housing" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-mie">Weekly meals and incidentals stipend</label><input type="text" id="c-mie" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-bonus">Sign-on or completion bonus, total</label><input type="text" id="c-bonus" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-travel">Travel reimbursement, one time</label><input type="text" id="c-travel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-housingCost">Your weekly housing cost here</label><input type="text" id="c-housingCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-travelCost">Your travel cost, one time</label><input type="text" id="c-travelCost" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-premium">Your weekly health premium</label><input type="text" id="c-premium" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-gap">Unpaid weeks after this contract</label><input type="text" id="c-gap" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-guaranteed">Hours guaranteed in writing?</label><select id="c-guaranteed"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="c-cancel">Expected shifts cancelled, percent</label><input type="text" id="c-cancel" inputmode="decimal" placeholder="0" value="0" autocomplete="off"></div>
+        <div><label for="c-prorate">Stipends cut when hours are missed?</label><select id="c-prorate"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        <div><label for="c-gsaLodging">Per-diem lodging rate for this city, per day (optional)</label><input type="text" id="c-gsaLodging" inputmode="decimal" autocomplete="off"></div>
+        <div><label for="c-gsaMie">Per-diem meals rate for this city, per day (optional)</label><input type="text" id="c-gsaMie" inputmode="decimal" autocomplete="off"></div>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Compare offers</button>
+      <button type="button" class="secondary" id="load-example">Load sample offers</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the boxes above, then click Compare offers.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Take-home by offer</h3>
+    <div class="scroll"><table id="offer-table"><thead><tr><th>Offer</th><th class="n">Advertised weekly gross</th><th class="n">Taxes</th><th class="n">Your costs</th><th class="n">Take-home, contract</th><th class="n">Per week, incl. gap</th><th class="n">Per year</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Per week divides take-home by contract weeks plus unpaid gap weeks. Per year multiplies that by 52. The shaded row keeps the most.</p>
+    <h3>If shifts get cancelled</h3>
+    <div class="scroll"><table id="sens-table"><thead><tr><th>Offer</th><th class="n">0% cancelled</th><th class="n">10%</th><th class="n">20%</th><th class="n">30%</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Take-home per week under each share of scheduled shifts cancelled. An offer that guarantees hours in writing does not move.</p>
+    <h3>Taxable rate needed to match the best offer</h3>
+    <div class="scroll"><table id="match-table"><thead><tr><th>Offer</th><th class="n">Current taxable rate</th><th class="n">Rate that matches the best</th></tr></thead><tbody></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download the tables as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Taxable pay:</strong> (rate x guaranteed hours + rate x overtime multiplier x overtime hours) x share of shifts actually paid. Tax is your rate plus 7.65% on that.</li>
+      <li><strong>Stipends and travel reimbursement:</strong> untaxed if you say you keep a tax home, otherwise taxed like wages. If you enter a per-diem rate, stipends above 7 x that daily rate are flagged.</li>
+      <li><strong>Bonus:</strong> always taxed. <strong>Costs:</strong> health premium and housing per week, travel once. <strong>Gap:</strong> unpaid weeks add to the period the take-home is averaged over.</li>
+      <li><strong>Not modelled:</strong> tax brackets, state residency, the actual per-diem table, retirement matches, licence and compact fees, agency deductions, benefits beyond the premium, duplicate-expense rules and the audit risk of stipends.</li>
+      <li><strong>Unverified:</strong> the arithmetic is checked by hand calculation only, not against a real payroll stub. If yours disagrees, that is the priority report.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the real take-home of a travel nurse contract?</h3>
+    <p>Not the weekly gross in the recruiter's text. It is taxable wages after tax, plus stipends if they really are untaxed, minus your health premium, the housing and travel you pay for, and averaged over the unpaid weeks between assignments. This tool does that arithmetic for up to three offers side by side.</p>
+    <h3>Why can a higher weekly gross pay less?</h3>
+    <p>Stipend-heavy packages look big but depend on hours being guaranteed and on you keeping a qualifying tax home. A lower gross with a higher taxable rate can be worth more once overtime, cancelled shifts and the weeks between contracts are counted.</p>
+    <h3>What is a tax home?</h3>
+    <p>In general, a regular place of business or post of duty, or a home you keep and pay for where you actually live and work part of the time. If you do not have one, agencies generally must treat stipends as taxable wages. This tool only asks you to say whether you do; it cannot decide for you. Ask a tax professional.</p>
+    <h3>What is a guaranteed hours clause?</h3>
+    <p>A promise that you are paid for the scheduled hours even if the hospital cancels your shifts. Without it, low-census cancellations reduce pay, and some agencies also reduce the stipends in proportion. The sensitivity table shows what 10, 20 and 30 percent cancelled shifts do to each offer.</p>
+    <h3>How is overtime paid?</h3>
+    <p>Usually at 1.5 times the taxable hourly rate, not the total package rate. A stipend-heavy offer with a low taxable rate therefore pays much less for extra shifts. Enter the multiplier your contract states.</p>
+    <h3>What does this tool leave out?</h3>
+    <p>Actual tax brackets, state residency rules, the exact per-diem rate for each city and date, retirement matches, licensure and compact fees, agency-specific deductions, referral bonuses and the value of benefits beyond the premium you type. The tax rate is a single percentage you choose.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a tax professional, your agency or your employer. Results are illustrative estimates that depend entirely on the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before signing a contract.</p>
+    <p><strong>Independent.</strong> Not affiliated with any staffing agency, hospital or government agency. Tax descriptions identify the general idea and are not a legal opinion.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your rates and offers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>contracts_compared</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Own a place travel nurses rent? The <a href="../midterm-rental-calculator/">mid-term rental calculator</a> weighs a furnished 30-day-plus rental against a long-term lease and nightly renting.</p>
+    <p>Working extra shifts? The <a href="../overtime-pay-calculator/">overtime pay calculator</a> shows what a week with overtime pays.</p>
+    <p>Weighing a permanent employed physician or APP offer instead? The <a href="../physician-wrvu-compensation-calculator/">physician wRVU compensation calculator</a> compares base, productivity and fixed-salary pay.</p>
+    <p>Employed physician comparing a base-plus-wRVU offer? The <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a> shows the effective rate per wRVU and the crossover between two offers &mdash; nothing uploaded. Locum tenens clinician on a 1099? The <a href="../locum-tenens-vs-employed-calculator/">locum tenens vs employed calculator</a> compares that contract with a W-2 offer.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => "$" + money(n);
+    const P = ["a", "b", "c"];
+    const F = ["name", "rate", "hours", "weeks", "otHours", "otMult", "housing", "mie", "bonus", "travel", "housingCost", "travelCost", "premium", "gap", "guaranteed", "cancel", "prorate", "gsaLodging", "gsaMie"];
+    const DEFAULTS = { hours: "36", weeks: "13", otHours: "0", otMult: "1.5", housing: "0", mie: "0", bonus: "0", travel: "0", housingCost: "0", travelCost: "0", premium: "0", gap: "0", guaranteed: "no", cancel: "0", prorate: "no" };
+    let last = null;
+
+    function readOffer(p) { const o = {}; for (const f of F) o[f] = $("#" + p + "-" + f).value; return o; }
+    function fillOffer(p, v) { for (const f of F) $("#" + p + "-" + f).value = v && v[f] !== undefined ? v[f] : (DEFAULTS[f] ?? ""); }
+    function read() {
+      const offers = P.map(readOffer).filter((o, i) => i < 2 || String(o.rate).trim() !== "");
+      return { taxRate: $("#taxRate").value, taxHome: $("#taxHome").value, offers };
+    }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.results[a.best];
+      const tiles = [[a.offers[a.best].label, "keeps the most"], [usd(b.netPerWeekAll), "take-home per week, whole period"], [usd(b.netPerYear), "take-home per year at that pace"]];
+      if (a.offers.length > 1) { const worst = a.results.reduce((m, r) => Math.min(m, r.netPerWeekAll), Infinity); tiles.push([usd(b.netPerWeekAll - worst), "a week better than the weakest offer"]); }
+      $("#big").innerHTML = tiles.map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => '<div class="finding"><h4><span class="pill ' + f.severity + '">' + f.severity + "</span>" + esc(f.title) + "</h4><p>" + esc(f.detail) + "</p></div>").join("");
+      $("#offer-table tbody").innerHTML = a.offers.map((o, i) => { const r = a.results[i]; return '<tr class="' + (i === a.best ? "best" : "") + '"><td>' + esc(o.label) + '</td><td class="n">' + usd(r.grossWeekly) + '</td><td class="n">' + usd(r.taxes) + '</td><td class="n">' + usd(r.costs) + '</td><td class="n">' + usd(r.net) + '</td><td class="n">' + usd(r.netPerWeekAll) + '</td><td class="n">' + usd(r.netPerYear) + "</td></tr>"; }).join("");
+      $("#sens-table tbody").innerHTML = a.offers.map((o, i) => "<tr><td>" + esc(o.label) + "</td>" + a.sensitivity[i].map((v) => '<td class="n">' + usd(v) + "</td>").join("") + "</tr>").join("");
+      $("#match-table tbody").innerHTML = a.offers.map((o, i) => "<tr><td>" + esc(o.label) + '</td><td class="n">$' + o.rate.toFixed(2) + '</td><td class="n">' + (i === a.best ? "best offer" : a.needed[i] === null ? "cannot match by rate" : "$" + a.needed[i].toFixed(2) + " (+$" + (a.needed[i] - o.rate).toFixed(2) + " an hour)") + "</td></tr>").join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("contracts_compared"); });
+    $("#load-example").addEventListener("click", () => {
+      const x = sampleInput();
+      $("#taxRate").value = x.taxRate; $("#taxHome").value = x.taxHome;
+      P.forEach((p, i) => fillOffer(p, x.offers[i]));
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: invented offers, not real agencies."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      P.forEach((p) => fillOffer(p, null));
+      $("#taxRate").value = "20"; $("#taxHome").value = "yes"; report.hidden = true; last = null;
+      status.textContent = "Fill in the boxes above, then click Compare offers.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "travel-nurse-offer-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

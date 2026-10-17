@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tangent-log"
+version = "0.1.0"
+description = "Bounded-payment log score by quadratic tangent extension: strictly proper, closed-form range, log-identical on [eps,1-eps], and a sharp curvature-per-payment comparison with Brier"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

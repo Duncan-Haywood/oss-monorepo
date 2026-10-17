@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>State Residency Day Counter — 183-day rule tracker for remote workers and snowbirds</title>
+  <meta name="description" content="Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="State Residency Day Counter — free, private, in your browser">
+  <meta property="og:description" content="Count your days in each state, see how close you are to the 183-day rule, and keep a day-range record. For remote workers, snowbirds and digital nomads.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "State Residency Day Counter", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter where you spent the year and the counter totals the days in each state, checks them against the commonly published 183-day and other statutory residency tests, shows how much room is left and the date you would cross a limit, estimates remote-work wages by state from workdays, and exports a day-range record. Runs entirely in your browser; nothing is uploaded.", "featureList": "183-day rule counter, multi-state residency day tracker, statutory residency check, remote work wage allocation by state, travel day log export, snowbird and digital nomad day count"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many days can I spend in a state before I become a tax resident?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number. Several states, including New York, New Jersey, Connecticut, Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan and Maine, publish a statutory test: you are treated as a resident if you keep a permanent place of abode there and spend more than 183 days in the state. Oregon uses 200 days and Idaho 270. Many other states, California among them, decide residency by domicile and where your ties are strongest, so a day count alone does not settle it. The counter shows where you stand against the commonly published day tests and lets you enter your own limit."}}, {"@type": "Question", "name": "Does the day I arrive or leave count?", "acceptedAnswer": {"@type": "Answer", "text": "Often yes. New York, for example, counts any part of a day spent in the state as a day. The counter defaults to that conservative reading and counts both the arrival day and the departure day. You can switch to counting nights, which drops the departure day, but check what your state says before relying on it."}}, {"@type": "Question", "name": "What is a permanent place of abode?", "acceptedAnswer": {"@type": "Answer", "text": "Broadly, a home you keep and could use, whether you own or rent it, as opposed to a hotel stay or a short visit to relatives. Because the statutory tests usually need both the abode and the day count, the counter only flags a statutory state as over the limit when you tell it you keep a home there. Whether a particular dwelling counts is a question for the state's own guidance or a tax professional."}}, {"@type": "Question", "name": "What if I am a resident of two states?", "acceptedAnswer": {"@type": "Answer", "text": "It happens, usually when one state treats you as domiciled there and another treats you as a statutory resident. The usual relief is a credit on the return of the state where you are a resident for tax paid to the other, which is why people who live partly in two states keep a day-by-day record. The counter produces that record and a CSV to keep."}}, {"@type": "Question", "name": "How are my wages split between states when I work remotely while travelling?", "acceptedAnswer": {"@type": "Answer", "text": "Many states tax wages for work physically done in the state, and an employer's allocation often follows days worked. The counter estimates a share by counting Monday to Friday workdays in each state, splitting a shared travel day evenly, and applying it to the annual wages you type. It ignores holidays and your employer's own rules, and some states have a convenience-of-the-employer rule that can pull remote work back to the employer's state, so treat the figure as an estimate to discuss with a payroll or tax professional."}}, {"@type": "Question", "name": "Can I use this to prove where I was to a tax authority?", "acceptedAnswer": {"@type": "Answer", "text": "It builds an organised record from dates you enter, which is a good start for the contemporaneous log auditors ask for, but it is not evidence by itself. Keep what supports the dates: travel receipts, card statements, calendar entries and phone or toll records. Nothing you type is stored or uploaded, so download the CSV and keep your own copy."}}, {"@type": "Question", "name": "Is my travel history uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b3a2e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b3a2e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #ddd8cc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b3a2e12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7b7862; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5e7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe8dd; color: #3b3a2e; }
+    button.small { padding: 6px 10px; margin: 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #ece8dc; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    #obst td { padding: 4px 3px; }
+    #obst input { padding: 6px 6px; font-size: 14px; width: 90px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.info { background: #e6e9ef; color: #2c3e50; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f6f3ea; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #3b3a2e; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd8cc; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .seg { display: inline-flex; gap: 16px; margin: 4px 0; }
+    .seg label { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    .seg input { width: auto; }
+    canvas { width: 100%; display: block; background: #fbfaf6; border: 1px solid #ddd8cc; border-radius: 8px; margin: 6px 0 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 4px; font-size: .88rem; }
+    .legend span.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid #0003; }
+    tr.rec td { background: #eef6ee; }
+    details summary { cursor: pointer; font-weight: 700; color: #3b3a2e; }
+    .ghost { color: #54503f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STATE RESIDENCY DAY COUNTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many days have I spent in each state, and am I near the 183-day line?</h1>
+    <p>List <strong>where you were and when</strong>. The counter totals the days per state, checks them against the <strong>commonly published statutory residency tests</strong>, shows the <strong>room you have left</strong> and the date you would cross a limit, splits <strong>remote-work wages by workdays</strong>, and gives you a <strong>day-range record</strong> to keep.</p>
+    <p class="note">An organising aid, not tax or legal advice: residency also turns on domicile and your ties, which a day count cannot settle. New to this? Read <a href="./183-day-rule-by-state.html">the 183-day rule by state, with a worked example</a>, <a href="./remote-work-convenience-of-the-employer-rule.html">how the convenience-of-the-employer rule can tax remote days</a>, or <a href="./snowbird-days-in-new-york.html">how many days a Florida snowbird can spend in New York</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. The year</h2>
+    <div class="row4">
+      <div><label for="year">Tax year</label><input id="year" inputmode="numeric" value="2025"></div>
+      <div><label for="asof">Today, for the as-of count (YYYY-MM-DD, blank = whole year)</label><input id="asof" placeholder="2025-09-30"></div>
+      <div><label for="home">State to assume for days not listed (optional)</label><input id="home" maxlength="2" placeholder="FL" style="text-transform:uppercase"></div>
+      <div><label for="employer">Employer's state, for convenience-of-the-employer rules (optional)</label><input id="employer" maxlength="2" placeholder="NY" style="text-transform:uppercase"></div>
+      <div><label for="wages">Annual wages, to split by workdays (optional, $)</label><input id="wages" inputmode="decimal"></div>
+    </div>
+    <label for="conv">How to count a trip</label>
+    <select id="conv"></select>
+
+    <h2 style="margin-top:18px">2. Where you were</h2>
+    <label for="stays">One stay per line: dates then state. Examples: <code>2025-01-03 to 2025-03-30 FL</code>, <code>6/2 - 6/9 New York</code>. Add <code>off</code> to a line if you were not working there.</label>
+    <textarea id="stays" rows="9" aria-label="Stays, one per line" placeholder="2025-01-01 to 2025-03-31 FL&#10;2025-04-01 to 2025-08-29 NY&#10;2025-08-30 to 2025-09-14 NJ off"></textarea>
+
+    <h2 style="margin-top:18px">3. Homes and limits</h2>
+    <div class="row4">
+      <div><label for="abode">States where you keep a home you could use (codes, comma separated)</label><input id="abode" placeholder="NY, FL"></div>
+      <div><label for="limits">Your own limits (state and days, comma separated)</label><input id="limits" placeholder="OH 90, GA 150"></div>
+    </div>
+    <button type="button" id="analyze">Count my days</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <div style="margin-top:12px"><label for="ics">Or import your calendar (.ics file from Google, Apple or Outlook). Events whose location names a state become stay lines you can check and edit. The file is read in your browser and never uploaded.</label><input id="ics" type="file" accept=".ics,text/calendar"></div>
+    <div style="margin-top:12px"><label for="timeline">Or import Google Timeline history (the Semantic Location History .json files from Google Takeout). Place visits whose address names a state become stay lines. Read in your browser, never uploaded.</label><input id="timeline" type="file" accept=".json,application/json" multiple></div>
+    <p id="form-status" role="status" class="note">Enter your stays, then click Count my days.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <div class="scroll"><table id="st"><thead><tr><th>State</th><th class="n">Days</th><th class="n">To as-of date</th><th class="n">Limit</th><th class="n">Room left</th><th>Status</th><th>Would cross on</th><th class="n">Workdays</th><th class="n">Wages</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="st-note"></p>
+    <div id="employer-box" hidden></div>
+    <canvas id="view" role="img" aria-label="Calendar of the year coloured by state"></canvas>
+    <div class="legend" id="legend"></div>
+    <div id="trip-box" style="margin-top:12px">
+      <h3>Planning a trip? See what it would change</h3>
+      <p class="note">Add a trip to the stays above without saving it: it shows the days it adds to each state, whether it crosses a published limit, and the longest trip from that start date that stays within the limit.</p>
+      <div class="row4">
+        <div><label for="trip-state">State</label><input id="trip-state" maxlength="2" placeholder="NY" style="text-transform:uppercase"></div>
+        <div><label for="trip-start">First day (YYYY-MM-DD)</label><input id="trip-start" placeholder="2025-10-15"></div>
+        <div><label for="trip-days">Length in days</label><input id="trip-days" inputmode="numeric" placeholder="14"></div>
+      </div>
+      <button type="button" class="secondary" id="trip-run">Check this trip</button>
+      <p id="trip-out" role="status"></p>
+    </div>
+    <button type="button" id="download">Download the day record (CSV)</button>
+    <button type="button" id="download-log">Download the day-by-day log (CSV, one row per date)</button>
+    <button type="button" id="download-packet">Download printable audit packet (.html, print to PDF)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Days:</strong> every date in the year is checked against your stays. A day counts for a state if any stay in that state covers it; the arrival and departure days both count unless you choose to count nights. Two states can share a travel day. Overlaps that are more than a travel day are flagged as a probable typo and counted in both.</p>
+    <p><strong>Limits:</strong> the table of commonly published tests is: a permanent place of abode plus more than 183 days for New York, New Jersey, Connecticut, Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan and Maine; more than 200 days for Oregon; more than 270 days for Idaho; and for California a presumption of residency beyond about nine months. A statutory state is only marked over the limit when you say you keep a home there. You can type your own limit for any state. Rules change; check the state's current guidance.</p>
+    <p><strong>Would cross on:</strong> the date you would pass the limit if you were in the state every day from the as-of date onward.</p>
+    <p><strong>Workdays:</strong> Monday to Friday days, split evenly across the states worked on a shared day, as a share of all workdays; the wage figure applies that share to the wages you typed. Holidays and weekends worked are not modelled. Name your employer's state to see the convenience-of-the-employer view for the states commonly described as applying it (NY, NE, DE, AR; PA, NJ and CT against states that do the same).</p>
+    <p><strong>Not modelled:</strong> domicile, where your family and belongings are, what counts as a permanent place of abode, part-year resident rules, reciprocity agreements, city taxes, foreign days, and state-specific ways of counting a day. The counts are checked against an independent recount in the test suite, but unverified against any tax authority's own determination.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many days can I spend in a state before I become a tax resident?</h3>
+    <p>There is no single number. Several states, including New York, New Jersey, Connecticut, Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan and Maine, publish a statutory test: you are treated as a resident if you keep a permanent place of abode there and spend more than 183 days in the state. Oregon uses 200 days and Idaho 270. Many other states, California among them, decide residency by domicile and where your ties are strongest, so a day count alone does not settle it. The counter shows where you stand against the commonly published day tests and lets you enter your own limit.</p>
+    <h3>Does the day I arrive or leave count?</h3>
+    <p>Often yes. New York, for example, counts any part of a day spent in the state as a day. The counter defaults to that conservative reading and counts both the arrival day and the departure day. You can switch to counting nights, which drops the departure day, but check what your state says before relying on it.</p>
+    <h3>What is a permanent place of abode?</h3>
+    <p>Broadly, a home you keep and could use, whether you own or rent it, as opposed to a hotel stay or a short visit to relatives. Because the statutory tests usually need both the abode and the day count, the counter only flags a statutory state as over the limit when you tell it you keep a home there. Whether a particular dwelling counts is a question for the state's own guidance or a tax professional.</p>
+    <h3>What if I am a resident of two states?</h3>
+    <p>It happens, usually when one state treats you as domiciled there and another treats you as a statutory resident. The usual relief is a credit on the return of the state where you are a resident for tax paid to the other, which is why people who live partly in two states keep a day-by-day record. The counter produces that record and a CSV to keep.</p>
+    <h3>How are my wages split between states when I work remotely while travelling?</h3>
+    <p>Many states tax wages for work physically done in the state, and an employer's allocation often follows days worked. The counter estimates a share by counting Monday to Friday workdays in each state, splitting a shared travel day evenly, and applying it to the annual wages you type. It ignores holidays and your employer's own rules, and some states have a convenience-of-the-employer rule that can pull remote work back to the employer's state, so treat the figure as an estimate to discuss with a payroll or tax professional.</p>
+    <h3>Can I use this to prove where I was to a tax authority?</h3>
+    <p>It builds an organised record from dates you enter, which is a good start for the contemporaneous log auditors ask for, but it is not evidence by itself. Keep what supports the dates: travel receipts, card statements, calendar entries and phone or toll records. Nothing you type is stored or uploaded, so download the CSV and keep your own copy.</p>
+    <h3>Is my travel history uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and it works offline once the page has loaded.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
+    <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>, <code>trip_checked</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { CONVENTIONS, tripImpact, auditReportHtml, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let last = null;
+    const PALETTE = ["#1b5e7a", "#b5532a", "#5b7f2b", "#7a4a8f", "#a08b1c", "#2a8a7a", "#a02f4f", "#566074", "#8a5a2a", "#3d6fb0"];
+
+    $("#conv").innerHTML = Object.entries(CONVENTIONS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+    const later = (fn) => setTimeout(fn, 0);
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const codes = (t) => t.split(/[\s,;]+/).map((s) => s.trim().toUpperCase()).filter(Boolean);
+
+    function fill(spec) {
+      $("#year").value = spec.year;
+      $("#asof").value = spec.asOf ? dayIso(spec.asOf) : "";
+      $("#home").value = spec.homeState || "";
+      $("#wages").value = spec.wages ?? "";
+      $("#employer").value = spec.employerState || "";
+      $("#conv").value = spec.convention || "inclusive";
+      $("#abode").value = Object.keys(spec.abode || {}).filter((k) => spec.abode[k]).join(", ");
+      $("#limits").value = Object.entries(spec.overrides || {}).map(([k, v]) => `${k} ${v.limit}`).join(", ");
+      $("#stays").value = spec.stays.map((s) => `${dayIso(s.start)} to ${dayIso(s.end)} ${s.state}${s.work === false ? " off" : ""}`).join("\n");
+    }
+
+    $("#ics").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = icsToStays(await f.text(), Number($("#year").value));
+      if (!r.lines.length) { $("#form-status").textContent = `No events with a US state in the location were found (${r.skipped} skipped).`; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      $("#form-status").textContent = `Imported ${r.imported} events as ${r.lines.length} stay lines; ${r.skipped} skipped (no state, or outside ${$("#year").value}). Check them, add the days the calendar does not cover, then click Count my days.`;
+    });
+
+    $("#timeline").addEventListener("change", async (e) => {
+      const files = [...e.target.files];
+      if (!files.length) return;
+      const year = Number($("#year").value);
+      const docs = [];
+      for (const f of files) { try { docs.push(JSON.parse(await f.text())); } catch { /* reported below */ } }
+      if (!docs.length) { $("#form-status").textContent = "Those files are not JSON. Use the Semantic Location History files from Google Takeout."; return; }
+      const r = timelineToStays(JSON.stringify(docs), year);
+      if (!r.lines.length) { $("#form-status").textContent = `No place visits with a US state in the address were found (${r.skipped} skipped).`; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      $("#form-status").textContent = `Imported ${r.imported} place visits as ${r.lines.length} stay lines; ${r.skipped} skipped (no address or state, travel, or outside ${year}). Check them, add the days the history does not cover, then click Count my days.`;
+    });
+
+    function readSpec() {
+      const year = Number($("#year").value);
+      const { stays, errors } = parseStays($("#stays").value, year);
+      if (errors.length) return { error: errors.map((e) => `Line ${e.line}: ${e.message}`).join(" ") };
+      let asOf;
+      const asRaw = $("#asof").value.trim();
+      if (asRaw) {
+        asOf = parseDate(asRaw, year);
+        if (asOf === null) return { error: "The as-of date is not a real date. Use YYYY-MM-DD or leave it blank." };
+      }
+      const overrides = {};
+      const lim = $("#limits").value.trim();
+      if (lim) {
+        const parts = lim.split(/[,;]+/).map((s) => s.trim()).filter(Boolean);
+        for (const p of parts) {
+          const m = p.match(/^([A-Za-z]{2})\s+(\d{1,3})$/);
+          if (!m) return { error: `"${p}" is not a limit. Write a state code and a number of days, like OH 90.` };
+          overrides[m[1].toUpperCase()] = { limit: Number(m[2]) };
+        }
+      }
+      const abode = Object.fromEntries(codes($("#abode").value).map((c) => [c, true]));
+      const w = $("#wages").value.trim();
+      const wages = w === "" ? null : Number(w.replace(/[$,]/g, ""));
+      const home = $("#home").value.trim().toUpperCase();
+      return { spec: { year, stays, asOf, homeState: home || null, employerState: $("#employer").value.trim().toUpperCase() || null, abode, overrides, convention: $("#conv").value, wages: Number.isFinite(wages) ? wages : null, homeWorks: true } };
+    }
+
+    function draw(result) {
+      const cv = $("#view");
+      const dpr = window.devicePixelRatio || 1;
+      const cell = 22, pad = 40, w = pad + 31 * cell + 6, h = 12 * cell + 8;
+      cv.width = w * dpr; cv.height = h * dpr;
+      cv.style.aspectRatio = `${w} / ${h}`;
+      const g = cv.getContext("2d");
+      if (!g) return;
+      g.scale(dpr, dpr);
+      g.clearRect(0, 0, w, h);
+      const color = {};
+      result.states.forEach((s, i) => (color[s.code] = PALETTE[i % PALETTE.length]));
+      const { start } = yearBounds(result.year);
+      const owner = new Map();
+      for (const s of result.states) for (const r of s.ranges) for (let d = r.start; d <= r.end; d++) owner.set(d, [...(owner.get(d) || []), s.code]);
+      g.font = "12px system-ui, sans-serif";
+      for (let m = 0; m < 12; m++) {
+        g.fillStyle = "#54503f";
+        g.fillText(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m], 2, m * cell + 15);
+        for (let d = 1; d <= 31; d++) {
+          const n = toDay(result.year, m + 1, d);
+          if (n === null) continue;
+          const who = owner.get(n);
+          g.fillStyle = who ? color[who[who.length - 1]] : "#e4e0d2";
+          g.fillRect(pad + (d - 1) * cell, m * cell + 2, cell - 2, cell - 2);
+          if (who && who.length > 1) { g.fillStyle = color[who[0]]; g.fillRect(pad + (d - 1) * cell, m * cell + 2, (cell - 2) / 2, cell - 2); }
+        }
+      }
+      $("#legend").innerHTML = result.states.map((s) => `<span><span class="sw" style="background:${color[s.code]}"></span>${esc(s.code)}</span>`).join("") + `<span><span class="sw" style="background:#e4e0d2"></span>not listed</span>`;
+    }
+
+    function render(result) {
+      last = result;
+      $("#report").hidden = false;
+      $("#notices").innerHTML = result.notices.map((n) => `<div class="warn">${esc(n)}</div>`).join("");
+      const over = result.states.filter((s) => s.status === "over");
+      const close = result.states.filter((s) => s.status === "close");
+      const top = result.states[0];
+      $("#big").innerHTML = [
+        [fmtNum(result.totalDays), `days in ${result.year}`],
+        [top ? `${top.code} ${fmtNum(top.days)}` : "", "most days in one state"],
+        [fmtNum(over.length), "over a day limit"],
+        [fmtNum(close.length), "within 14 days of a limit"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#verdict").textContent = over.length
+        ? `Over a published day limit: ${over.map((s) => `${s.name} (${s.days} days, limit ${s.rule.limit})`).join("; ")}. That is a flag to look at, not a conclusion about where you owe tax.`
+        : close.length
+          ? `Within 14 days of a limit: ${close.map((s) => `${s.name} (${s.days} of ${s.rule.limit})`).join("; ")}.`
+          : "No state with a published day test is over or near its limit on these dates.";
+      $("#st tbody").innerHTML = result.states.map((s) => {
+        const pill = { over: "high", close: "high", under: "good" }[s.status] || "info";
+        const cross = s.triggerDate ? dayIso(s.triggerDate) : s.rule ? "not this year" : "";
+        return `<tr><td><strong>${esc(s.code)}</strong> <span class="ghost">${esc(s.name)}</span></td><td class="n">${s.days}${s.assumedDays ? ` <span class="ghost">(${s.assumedDays} assumed)</span>` : ""}</td><td class="n">${s.daysToDate}</td><td class="n">${s.rule ? s.rule.limit : ""}</td><td class="n">${s.room === null ? "" : s.room}</td><td><span class="pill ${pill}">${esc(statusText(s))}</span></td><td>${cross}</td><td class="n">${fmtNum(s.workdays, 1)}</td><td class="n">${fmtMoney(s.wages)}</td></tr>`;
+      }).join("");
+      const em = result.employer;
+      $("#employer-box").hidden = !em;
+      if (em) $("#employer-box").innerHTML = `<h3>Convenience of the employer: ${esc(em.name)}</h3><p>${esc(em.note)}</p><p>Worked in ${esc(em.code)}: <strong>${fmtNum(em.physicalDays, 1)}</strong> workdays. Worked elsewhere but possibly claimed by ${esc(em.code)}: <strong>${fmtNum(em.remoteDays, 1)}</strong> workdays${em.byState.length ? " (" + em.byState.map((b) => esc(b.code) + " " + fmtNum(b.days, 1) + (b.noWageTax ? ", no wage tax" : "")).join("; ") + ")" : ""}. ${em.claimableWages != null ? `Wages ${esc(em.code)} may claim: <strong>${fmtMoney(em.claimableWages)}</strong>; of those, <strong>${fmtMoney(em.doubleTaxWages)}</strong> were earned in states that also tax wages, so a credit is worth asking about.` : "Type your annual wages to see dollar figures."} Whether the rule applies to you depends on whether your employer required you to work out of state; check with the state or a tax professional.</p>`;
+      $("#st-note").textContent = result.states.filter((s) => s.rule).map((s) => `${s.code}: ${s.rule.note}`).join(" ");
+      draw(result);
+    }
+
+    function run() {
+      const r = readSpec();
+      if (r.error) { status.textContent = r.error; return false; }
+      try { render(analyze(r.spec)); status.textContent = "Done. Scroll down for the result."; return true; }
+      catch (e) { status.textContent = e.message; return false; }
+    }
+
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("count_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleSpec());
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented year, not a real person."; } });
+    });
+    $("#trip-run").addEventListener("click", () => {
+      const out = $("#trip-out");
+      const r = readSpec();
+      if (r.error) { out.textContent = r.error; return; }
+      const year = r.spec.year;
+      const start = parseDate($("#trip-start").value.trim(), year);
+      const days = Number($("#trip-days").value);
+      if (start === null) { out.textContent = "The first day is not a real date. Use YYYY-MM-DD."; return; }
+      try {
+        const t = tripImpact(r.spec, { state: $("#trip-state").value.trim().toUpperCase(), start, days });
+        const lines = t.changes.map((c) => `${c.code}: ${c.before} → ${c.after} days${c.limit ? ` (limit ${c.limit})` : ""}${c.crossed ? " — crosses the limit" : ""}`);
+        out.textContent = (lines.length ? lines.join("; ") + ". " : "This trip does not change any state's day count. ")
+          + (t.maxSafeDays === null ? "" : t.maxSafeDays < 1 ? `Even one day from that date would put ${t.trip.state} over its ${t.tripLimit}-day limit.` : `Longest stay from that date within the ${t.tripLimit}-day limit: ${t.maxSafeDays} day(s).`)
+          + " A planning aid, not a determination of residency.";
+        record("trip_checked");
+      } catch (e) { out.textContent = e.message; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["asof", "home", "employer", "wages", "stays", "abode", "limits"]) $("#" + id).value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = `state-days-${last.year}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#download-log").addEventListener("click", () => {
+      if (!last) return;
+      const r = readSpec();
+      if (r.error) { status.textContent = r.error; return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([dailyLogCsv(r.spec)], { type: "text/csv" }));
+      a.download = `state-daily-log-${last.year}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("daily_log_downloaded");
+    });
+    $("#download-packet").addEventListener("click", () => {
+      if (!last) return;
+      const r = readSpec();
+      if (r.error) { status.textContent = r.error; return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([auditReportHtml(r.spec)], { type: "text/html" }));
+      a.download = `state-residency-audit-packet-${last.year}.html`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("audit_packet_downloaded");
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

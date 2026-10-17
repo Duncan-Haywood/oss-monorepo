@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK R&amp;D Tax Relief Calculator (RDEC, ERIS, claims agency fee)</title>
+  <meta name="description" content="Free UK R&amp;D tax relief calculator: what the merged scheme credit or R&amp;D-intensive loss-maker relief is worth in cash or tax, the PAYE and NIC cap, and what a claims agency's percentage fee would cost you. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="R&amp;D tax credits calculator: what is my claim worth? Free, private">
+  <meta property="og:description" content="Size your UK R&amp;D tax relief claim before you pay an agency 15-20% of it.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK R&D Tax Relief Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is R&D tax relief?", "acceptedAnswer": {"@type": "Answer", "text": "A UK corporation tax relief for companies doing work that seeks an advance in science or technology. Since April 2024 most companies claim the merged scheme: a 20% taxable credit on qualifying costs."}}, {"@type": "Question", "name": "What is the difference between a profitable and a loss-making claim?", "acceptedAnswer": {"@type": "Answer", "text": "A profitable company uses the credit to reduce its corporation tax bill, netting about 15p per \u00a31 of qualifying cost at the 25% rate. A loss-maker can take it as cash at about 16.2p per \u00a31, subject to a cap tied to PAYE and NIC."}}, {"@type": "Question", "name": "What is ERIS?", "acceptedAnswer": {"@type": "Answer", "text": "Enhanced R&D Intensive Support: an extra 86% deduction and a 14.5% payable credit for loss-making companies whose qualifying R&D is at least 30% of total spend. It can be worth more than the merged scheme."}}, {"@type": "Question", "name": "Why are subcontractor costs only 65%?", "acceptedAnswer": {"@type": "Answer", "text": "Only 65% of payments to unconnected subcontractors and externally provided workers counts as qualifying expenditure."}}, {"@type": "Question", "name": "What is the payable credit cap?", "acceptedAnswer": {"@type": "Answer", "text": "Cash credits are capped at \u00a320,000 plus 300% of the company's PAYE and NIC liability for the period. Anything above carries forward."}}, {"@type": "Question", "name": "Should I use a claims agency?", "acceptedAnswer": {"@type": "Answer", "text": "Many charge 10-20% of the benefit. This calculator shows what the fee would be so you can compare it with doing the claim yourself or with an accountant on a fixed fee."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK R&amp;D TAX RELIEF CALCULATOR · MERGED SCHEME · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is my R&amp;D tax relief claim worth?</h1>
+    <p>Enter the costs of your qualifying R&amp;D project and your profit or loss. You get the merged-scheme credit, the enhanced relief for R&amp;D-intensive loss makers, the cash or tax saved, the PAYE and NIC cap, and what an adviser's percentage fee would take.</p>
+    <p class="note">Check the figures on GOV.UK. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="staff">Staff costs on R&amp;D: salary, employer NIC, pension (&pound;)</label><input id="staff" type="number" step="0.01" min="0"></div>
+      <div><label for="epw">Externally provided workers (&pound;)</label><input id="epw" type="number" step="0.01" min="0"></div>
+      <div><label for="subcontract">Subcontractors (&pound;)</label><input id="subcontract" type="number" step="0.01" min="0"></div>
+      <div><label for="consumables">Consumables: materials, power, water (&pound;)</label><input id="consumables" type="number" step="0.01" min="0"></div>
+      <div><label for="software">Software used for R&amp;D (&pound;)</label><input id="software" type="number" step="0.01" min="0"></div>
+      <div><label for="cloud">Data and cloud costs (&pound;)</label><input id="cloud" type="number" step="0.01" min="0"></div>
+      <div><label for="profit">Profit before R&amp;D relief, negative for a loss (&pound;)</label><input id="profit" type="number" step="0.01"></div>
+      <div><label for="totalSpend">Total company expenditure (&pound;, for the 30% intensity test)</label><input id="totalSpend" type="number" step="0.01" min="0"></div>
+      <div><label for="payeNic">PAYE and NIC paid in the period (&pound;)</label><input id="payeNic" type="number" step="0.01" min="0"></div>
+      <div><label for="feePct">Adviser fee quoted (% of benefit)</label><input id="feePct" type="number" step="0.01" min="0"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out my claim</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out my claim.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>Qualifying costs</h2>
+    <div class="scroll"><table><thead><tr><th>Cost</th><th class="n">Spent</th><th class="n">Qualifies</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="copy-summary">Copy summary</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> the merged R&amp;D expenditure credit at 20%, notional tax for profitable and loss-making companies, enhanced R&amp;D intensive support, the 30% intensity test, the 65% factor for subcontractors and external workers, and the PAYE and NIC cap on cash credits.</li>
+      <li><strong>Gives:</strong> the qualifying spend, the value of each route, the better one, and the fee an adviser would take at the percentage you enter.</li>
+      <li><strong>Not decided:</strong> whether your project is R&amp;D in HMRC's sense, connected-party and group rules, grants and subsidised spend, overseas costs, contracted-out R&amp;D, prior-year carry-forwards, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is R&amp;D tax relief?</h3>
+    <p>A UK corporation tax relief for companies doing work that seeks an advance in science or technology. Since April 2024 most companies claim the merged scheme: a 20% taxable credit on qualifying costs.</p>
+    <h3>What is the difference between a profitable and a loss-making claim?</h3>
+    <p>A profitable company uses the credit to reduce its corporation tax bill, netting about 15p per £1 of qualifying cost at the 25% rate. A loss-maker can take it as cash at about 16.2p per £1, subject to a cap tied to PAYE and NIC.</p>
+    <h3>What is ERIS?</h3>
+    <p>Enhanced R&amp;D Intensive Support: an extra 86% deduction and a 14.5% payable credit for loss-making companies whose qualifying R&amp;D is at least 30% of total spend. It can be worth more than the merged scheme.</p>
+    <h3>Why are subcontractor costs only 65%?</h3>
+    <p>Only 65% of payments to unconnected subcontractors and externally provided workers counts as qualifying expenditure.</p>
+    <h3>What is the payable credit cap?</h3>
+    <p>Cash credits are capped at £20,000 plus 300% of the company's PAYE and NIC liability for the period. Anything above carries forward.</p>
+    <h3>Should I use a claims agency?</h3>
+    <p>Many charge 10-20% of the benefit. This calculator shows what the fee would be so you can compare it with doing the claim yourself or with an accountant on a fixed fee.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with a qualified accountant or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a>, the <a href="../uk-capital-allowances-calculator/">UK capital allowances calculator</a>, the <a href="../uk-employer-hiring-cost-calculator/">UK employer hiring cost calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { staff: "staff", epw: "epw", subcontract: "subcontract", consumables: "consumables", software: "software", cloud: "cloud", profit: "profit", totalSpend: "totalSpend", payeNic: "payeNic", feePct: "feePct" };
+    const IDLE = "Fill in the figures, then click Work out my claim.";
+    
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `Your claim is worth about ${gbp(r.bestBenefit)} (${r.best === "eris" ? "ERIS" : r.rdec.kind === "cash" ? "merged scheme, paid as cash" : "merged scheme, as tax saved"}). An adviser at ${r.feePct}% would take ${gbp(r.fee)}.`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#schedule").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${gbp(l.spent)}</td><td class="n">${gbp(l.qualifying)}</td></tr>`).join("") + `<tr class="total"><td>Qualifying R&amp;D spend</td><td></td><td class="n">${gbp(r.qualifying)}</td></tr>`;
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before you file.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a loss-making software company with £239,500 of qualifying R&D costs.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-summary").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(summaryText(last)); status.textContent = "Summary copied."; } catch { status.textContent = "Copy failed: select the text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("rd-tax-relief.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

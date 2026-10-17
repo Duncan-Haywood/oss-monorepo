@@ -1,0 +1,13 @@
+[project]
+name = "garment-stackpareto"
+version = "0.1.0"
+description = "Trade-off front of angle shift against chroma and oxide mass for a thin-film structural-colour stack"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../garment-stackopt/src", "../garment-thincolor/src"]

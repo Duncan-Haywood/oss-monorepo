@@ -1,0 +1,43 @@
+Minimum-mass bracket under process rules (h = 2.5 mm mesh in the search; best of 3 seeds; units mm, g, MPa)
+process             w      r      b    mass  stress    tip |  free w     r     b    mass |  price x | seeds (mass)
+FDM             24.48  14.01   3.91   16.28    19.7   2.33 |   24.48 14.01  3.91   16.28 |    1.000 | rules [17.41, 16.28, 16.51] free [17.41, 16.28, 16.51]
+CNC routing     11.61   8.67   3.00   14.09    99.9   1.79 |   14.48 13.73  1.96   11.37 |    1.239 | rules [14.09, 14.19, 14.20] free [11.37, 11.79, 11.56]
+laser cutting   14.41  10.74   2.00   33.32   100.0   0.45 |   14.38 11.20  2.01   33.55 |    0.993 | rules [41.01, 35.37, 33.32] free [35.82, 33.55, 33.67]
+casting         13.86  10.78   4.65   25.41    49.9   0.62 |   19.32 11.68  2.42   17.81 |    1.427 | rules [26.06, 25.41, 25.69] free [17.81, 18.32, 18.03]
+
+Fine-mesh recheck of the chosen designs (h = 0.7 mm): peak von Mises stress vs the working stress
+case                         search h2.5  fine h0.7   allow  over by
+FDM (rules)                         19.7       23.4      20      17%
+FDM (free)                          19.7       23.4      20      17%
+CNC routing (rules)                 99.9      125.8     100      26%
+CNC routing (free)                  99.8      122.4     100      22%
+laser cutting (rules)              100.0      125.9     100      26%
+laser cutting (free)                99.8      123.1     100      23%
+casting (rules)                     49.9       58.5      50      17%
+casting (free)                      49.1       60.1      50      20%
+
+CNC routing: smallest inner radius the tool leaves (tool radius, mm)
+ tool radius      w      r      b    mass
+       0.500  11.81   5.11   3.00   14.22
+       1.500  11.81   5.11   3.00   14.22
+       3.175  11.61   8.67   3.00   14.09
+       5.000  11.66   8.04   3.00   14.12
+       7.000  11.66   8.50   3.00   14.13
+       9.000  11.59  13.19   3.00   14.24
+
+Casting: draft angle (deg)
+       draft      w      r      b    mass
+       0.000  13.73  13.73   4.58   25.16
+       1.500  13.75  11.88   4.79   26.06
+       3.000  13.91  14.85   4.64   25.61
+       5.000  14.11   8.91   4.75   25.99
+      10.000  14.35  12.04   4.90   26.97
+
+Casting: max wall-thickness ratio (0 = rule off)
+       ratio      w      r      b    mass
+       2.000  11.89   8.10   5.99   28.32
+       3.000  13.75  11.88   4.79   26.06
+       5.000  16.50  11.61   3.35   21.45
+       0.000  19.40  11.62   2.44   17.97
+
+FE evaluations per optimisation (mean over seeds): FDM 788, CNC routing 906, laser cutting 999, casting 601

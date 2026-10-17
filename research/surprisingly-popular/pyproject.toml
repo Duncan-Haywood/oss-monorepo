@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "surprisingly-popular"
+version = "0.1.0"
+description = "Surprisingly-popular verdicts for rare-but-diagnostic verifier signals: exact vote-fraction threshold, exact finite-n error vs majority and Bayes, prior misspecification region, Byzantine breakdown"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

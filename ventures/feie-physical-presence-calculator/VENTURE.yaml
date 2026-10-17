@@ -1,0 +1,40 @@
+name: feie-physical-presence-calculator
+description: 'Free, zero-network browser calculator for the Form 2555 physical presence test: list your stays abroad and get your best 12-month window, how many of the 330 full days you have, how many days you can still spend elsewhere, the first date you reach 330, and the prorated foreign earned income exclusion. Arithmetic on the dates the user types, not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more/keep-more: US expats and digital nomads with real foreign earnings (the exclusion is worth tens of thousands of dollars of income) track days in a spreadsheet and lose the 330-day test by a few trips.
+# Checked 2026-10-03: no FEIE/expat venture exists in ventures/ (descriptions grepped for expat, foreign earned, physical presence, bona fide); not in screened-out.md; closest is state-residency-day-counter (state limits, not the 330-day sliding window).
+#
+# First visitor: searches "physical presence test calculator", "330 days abroad calculator", "FEIE 330 day count", "how many days can I spend in the US on FEIE";
+# r/expats, r/digitalnomad, r/USExpatTaxes. Volume not measured with an external tool.
+# A hosted version that imports passport/flight history and alerts before a trip breaks the window is the natural paid upgrade.
+hypotheses:
+  - claim: A US expat or nomad will list their stays, see exactly how many spare days a planned US trip leaves, and change or shorten the trip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the sliding 12-month window count more often than for the exclusion amount.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed dates in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No user reports changing a trip or filing decision because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/feie-physical-presence-calculator/
+  analytics: null

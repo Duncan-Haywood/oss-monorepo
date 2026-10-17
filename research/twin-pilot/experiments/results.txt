@@ -1,0 +1,64 @@
+== E1  threshold rho*(r) = 2 sqrt(r)/(1+r), and the gain slope at it
+  r=0.010: rho*=0.1980  (twin-evaluation threshold at rho*: 0.0100)  slope 2sqrt(r)(1+r)/(1-r)=0.204  gain at rho=0.8: 0.538
+  r=0.050: rho*=0.4259  (twin-evaluation threshold at rho*: 0.0500)  slope 2sqrt(r)(1+r)/(1-r)=0.494  gain at rho=0.8: 0.393
+  r=0.072: rho*=0.5006  (twin-evaluation threshold at rho*: 0.0720)  slope 2sqrt(r)(1+r)/(1-r)=0.620  gain at rho=0.8: 0.336
+  r=0.100: rho*=0.5750  (twin-evaluation threshold at rho*: 0.1000)  slope 2sqrt(r)(1+r)/(1-r)=0.773  gain at rho=0.8: 0.272
+  r=0.172: rho*=0.7077  (twin-evaluation threshold at rho*: 0.1720)  slope 2sqrt(r)(1+r)/(1-r)=1.174  gain at rho=0.8: 0.132
+  r=0.300: rho*=0.8427  (twin-evaluation threshold at rho*: 0.3000)  slope 2sqrt(r)(1+r)/(1-r)=2.034  gain at rho=0.8: 0.000
+
+== E2  decision only (r=0.05, rho*=0.4259): rule 'use the twin iff rho_hat > rho*', oracle allocation once chosen (a twin chosen below rho* is run with its optimal plan, which is worse than real-only)
+  misclassification probability and regret in units of the real-only variance; m = pilot pairs; 20000 pilots per cell
+  P(wrong):      m=10     m=20     m=40     m=80     m=160    
+  rho=0.20     0.258    0.148    0.064    0.014    0.001       (rho-rho* = -0.226)
+  rho=0.30     0.360    0.288    0.192    0.105    0.036       (rho-rho* = -0.126)
+  rho=0.40     0.494    0.468    0.436    0.396    0.353       (rho-rho* = -0.026)
+  rho=0.45     0.438    0.424    0.419    0.382    0.348       (rho-rho* = +0.024)
+  rho=0.50     0.361    0.325    0.267    0.195    0.114       (rho-rho* = +0.074)
+  rho=0.60     0.225    0.141    0.068    0.016    0.002       (rho-rho* = +0.174)
+  rho=0.80     0.030    0.003    0.000    0.000    0.000       (rho-rho* = +0.374)
+  regret / real-only variance:
+  rho=0.20     0.0128   0.0074   0.0032   0.0007   0.0000   
+  rho=0.30     0.0153   0.0122   0.0081   0.0045   0.0015   
+  rho=0.40     0.0059   0.0056   0.0052   0.0047   0.0042   
+  rho=0.45     0.0055   0.0054   0.0053   0.0048   0.0044   
+  rho=0.50     0.0158   0.0142   0.0117   0.0086   0.0050   
+  rho=0.60     0.0287   0.0180   0.0086   0.0020   0.0002   
+  rho=0.80     0.0120   0.0013   0.0000   0.0000   0.0000   
+
+  prior-averaged regret, rho ~ U(0.2, 0.8) (density f=1/0.6), by quadrature over rho with 4000 pilots each, vs the law f*slope*(1-rho*^2)^2/(2m)
+  m= 10: simulated 0.01736   law 0.02760   ratio 0.63
+  m= 20: simulated 0.01060   law 0.01380   ratio 0.77
+  m= 40: simulated 0.00603   law 0.00690   ratio 0.87
+  m= 80: simulated 0.00323   law 0.00345   ratio 0.94
+  m=160: simulated 0.00173   law 0.00173   ratio 1.00
+
+== E3  plug-in allocation regret, variance(plan for rho_hat)/variance(oracle) - 1 for rho > rho*, C=1000, c_R=1, c_T=0.05
+  (rho_hat drawn from a pilot of m pairs; ranges with rho_hat <= rho* fall back to real-only and are counted)   20000 pilots per cell
+  mean regret:   m=10      m=20      m=40      m=80      m=160     
+  rho=0.5      0.0364    0.0240    0.0169    0.0116    0.0068      m*regret: 0.36 0.48 0.68 0.93 1.08
+  rho=0.6      0.0541    0.0319    0.0162    0.0063    0.0024      m*regret: 0.54 0.64 0.65 0.50 0.38
+  rho=0.7      0.0603    0.0256    0.0097    0.0041    0.0020      m*regret: 0.60 0.51 0.39 0.33 0.31
+  rho=0.8      0.0530    0.0187    0.0076    0.0036    0.0018      m*regret: 0.53 0.37 0.30 0.29 0.28
+  rho=0.9      0.0415    0.0158    0.0073    0.0035    0.0017      m*regret: 0.42 0.32 0.29 0.28 0.27
+  delta-method constant  curvature/2*(1-rho^2)^2  (regret ~ constant/m when rho_hat cannot cross rho*):
+  rho=0.5: 0.405
+  rho=0.6: 0.342
+  rho=0.7: 0.301
+  rho=0.8: 0.276
+  rho=0.9: 0.267
+
+== E4  the whole adaptive procedure (pilot m pairs reused, plan from rho_hat, finish budget), C=1000, c_R=1, c_T=0.05; sigma_R^2=2, mu=1, twin bias b=+0.7
+  twin: noise-free tau=0 (rho=0.707) and noisy tau=1 (rho=0.5), and a weak twin (context share 0.2, rho=0.2)
+  rho=0.707 noise-free   m=10: bias +0.0003 (se 0.0007)  var/oracle 1.112  real-only var/oracle 1.336  coverage 0.946  used twin 0.90
+  rho=0.707 noise-free   m=20: bias +0.0017 (se 0.0007)  var/oracle 1.049  real-only var/oracle 1.336  coverage 0.946  used twin 0.97
+  rho=0.707 noise-free   m=40: bias +0.0001 (se 0.0007)  var/oracle 0.989  real-only var/oracle 1.336  coverage 0.955  used twin 1.00
+  rho=0.5  faithful      m=10: bias +0.0003 (se 0.0008)  var/oracle 1.038  real-only var/oracle 1.046  coverage 0.952  used twin 0.64
+  rho=0.5  faithful      m=20: bias +0.0006 (se 0.0008)  var/oracle 1.025  real-only var/oracle 1.046  coverage 0.949  used twin 0.68
+  rho=0.5  faithful      m=40: bias +0.0009 (se 0.0008)  var/oracle 0.993  real-only var/oracle 1.046  coverage 0.952  used twin 0.72
+  rho=0.2  weak twin     m=10: bias +0.0005 (se 0.0013)  var/oracle 1.080  real-only var/oracle 1.000  coverage 0.948  used twin 0.27
+  rho=0.2  weak twin     m=20: bias +0.0019 (se 0.0013)  var/oracle 1.003  real-only var/oracle 1.000  coverage 0.950  used twin 0.15
+  rho=0.2  weak twin     m=40: bias +0.0020 (se 0.0013)  var/oracle 1.008  real-only var/oracle 1.000  coverage 0.950  used twin 0.06
+
+real	6m8.734s
+user	6m4.822s
+sys	0m0.044s

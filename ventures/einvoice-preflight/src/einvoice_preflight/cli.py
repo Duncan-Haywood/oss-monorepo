@@ -653,17 +653,28 @@ h1 {{ margin-top: 0; }} h2 {{ font-size: 1.05rem; }} .overall {{ color: {accent}
 '''
 
 
+def _seller_key(invoice: dict[str, Any]) -> str:
+    """Seller identity for duplicate detection: id, VAT id, or name."""
+    seller = invoice.get("supplier")
+    if isinstance(seller, dict):
+        for field in ("id", "vat_id", "name"):
+            value = seller.get(field)
+            if isinstance(value, str) and value.strip():
+                return f"{field}:{' '.join(value.lower().split())}"
+    return ""
+
+
 def _add_batch_duplicate_findings(
     reports: list[tuple[Path, list[dict[str, str]]]],
     invoices: list[tuple[Path, Any]],
 ) -> None:
-    """Flag repeated invoice numbers without including the number in output."""
-    number_paths: dict[str, list[Path]] = {}
+    """Flag a seller repeating an invoice number, without echoing the number."""
+    number_paths: dict[tuple[str, str], list[Path]] = {}
     for path, invoice in invoices:
         if isinstance(invoice, dict) and isinstance(invoice.get("invoice_number"), str):
             number = invoice["invoice_number"].strip()
             if number:
-                number_paths.setdefault(number, []).append(path)
+                number_paths.setdefault((_seller_key(invoice), number), []).append(path)
     duplicates = {path for paths in number_paths.values() if len(paths) > 1 for path in paths}
     for path, errors in reports:
         if path in duplicates:

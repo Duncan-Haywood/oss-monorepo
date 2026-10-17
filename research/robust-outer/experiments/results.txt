@@ -1,0 +1,65 @@
+== 1. Exact floor vs literal outer-loop simulation (H=4, 3 modes a=1,.25,.05, alpha=0.5, N=15; 150k rounds; attackers at +1e6 sigma, mean at +1.5 sigma) ==
+aggregator     f  E b (mean)  N Var b   exact      sim        ratio
+mean           0    0.0000    1.0000   0.00482   0.00483   1.002
+median         0    0.0000    1.5254   0.00735   0.00739   1.006
+median         2    0.1905    1.7748   0.12233   0.12076   0.987
+trim3          3    0.3931    1.3847   0.49102   0.48950   0.997
+mean           2    0.2000    0.8667   0.12956   0.12908   0.996
+literal local steps (N=9, f=2, median, H=3): sim 0.54050 vs exact 0.53536
+
+== 2. Price of robustness with no attackers: N Var(b), mean = 1 ==
+N     median   trim 1   trim N/4   pi/2
+3     1.3460   nan   nan     1.5708
+5     1.4342   1.1408   nan     1.5708
+9     1.4949   1.0627   1.1479     1.5708
+15    1.5254   1.0356   1.1346     1.5708
+31    1.5489   1.0191   1.1632     1.5708
+101   1.5641   1.0051   1.1965     1.5708
+
+== 3. Worst-case bias in honest-noise sigmas: median of N with f one-sided attackers; asymptotic z(eps): Phi(z)=1/(2(1-eps)) ==
+eps=f/N  N=16     N=32     N=128    z(eps)   1.2533 eps   mean bias per unit offset (= eps)   break-even offset z/eps
+0.0625   0.0826   0.0831   0.0835   0.0837   0.0783       0.0625                              1.338 sigma
+0.1250   0.1777   0.1787   0.1797   0.1800   0.1567       0.1250                              1.440 sigma
+0.2500   0.4245   0.4272   0.4298   0.4307   0.3133       0.2500                              1.723 sigma
+0.3750   0.8287   0.8332   0.8391   0.8416   0.4700       0.3750                              2.244 sigma
+
+== 4. Bias loss versus sync interval H (median, N=15, f=2; eta=0.2, sigma=1; bias loss per mode, a=0.25) ==
+E b = 0.1905
+H     Vw/s^2   bias loss   sqrt((1+q^H)/(1-q^H))   single-worker SGD std (limit)
+1     16.0000   0.07260     6.2450                  0.6405
+2     8.0053   0.03632     4.4173                  0.6405
+4     4.0131   0.01821     3.1276                  0.6405
+16    1.0553   0.00479     1.6038                  0.6405
+64    0.4422   0.00201     1.0383                  0.6405
+256   0.4103   0.00186     1.0000                  0.6405
+
+== 5. More workers do not remove the attack bias (eps = 1/8 attackers, H=4, alpha=0.2, a=(1,.25,.05)) ==
+N     f    variance loss  bias loss   total    (mean, attackers at +2 sigma: total)
+8     1    0.00527        0.09749     0.10276   0.19894
+16    2    0.00287        0.09901     0.10188   0.19743
+32    4    0.00150        0.10015     0.10165   0.19667
+64    8    0.00077        0.10083     0.10159   0.19629
+128   16   0.00039        0.10119     0.10158   0.19610
+
+== 6. Which trim level? N=32, f=4, worst-case attackers, H=4, alpha=0.2 ==
+t    variance loss  bias loss   total
+4    0.00104        0.19978     0.20082
+5    0.00107        0.16362     0.16469
+6    0.00109        0.14429     0.14538
+8    0.00116        0.12275     0.12391
+10   0.00123        0.11115     0.11238
+12   0.00132        0.10449     0.10582
+15   0.00150        0.10015     0.10165   <- best
+best t over all t>=f: 15
+worst-case bias (sigmas) by trim level, N=32: f=1: t=f 0.069, t=15 (median) 0.040  f=2: t=f 0.131, t=15 (median) 0.083  f=4: t=f 0.252, t=15 (median) 0.179  f=8: t=f 0.527, t=15 (median) 0.427
+
+== 7. Offset crossover: mean vs median vs trim(f), N=15, f=2, H=4, alpha=0.2: total loss as the attack offset grows ==
+offset (sigma)  mean      median    trim2
+0.25            0.00508   0.11706   0.21003
+0.5             0.01553   0.11706   0.21003
+1               0.05733   0.11706   0.21003
+1.5             0.12698   0.11706   0.21003
+3               0.50314   0.11706   0.21003
+10              5.57422   0.11706   0.21003
+100             557.26368   0.11706   0.21003
+break-even offset (median): 1.429 sigma; (trim2): 1.931 sigma

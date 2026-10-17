@@ -1,0 +1,22 @@
+# robofab-reachorder: 384 valid orders (side arm, jaw 30 mm); min l1 (mm, l2=l1) per order
+# l1 grid 10 mm, base grid 20 mm, wrist point only; tray gap 120 mm
+
+H=100 clear= 0  best=80.0 worst=80.0 median=80.0 distinct_target_sets=27  histogram={80.0: 384}
+H=100 clear=10  best=80.0 worst=80.0 median=80.0 distinct_target_sets=27  histogram={80.0: 384}
+H=100 clear=30  best=80.0 worst=80.0 median=80.0 distinct_target_sets=27  histogram={80.0: 384}
+H=100 clear=60  best=80.0 worst=80.0 median=80.0 distinct_target_sets=27  histogram={80.0: 384}
+H=200 clear= 0  best=120.0 worst=120.0 median=120.0 distinct_target_sets=27  histogram={120.0: 384}
+H=200 clear=10  best=120.0 worst=120.0 median=120.0 distinct_target_sets=27  histogram={120.0: 384}
+H=200 clear=30  best=120.0 worst=120.0 median=120.0 distinct_target_sets=27  histogram={120.0: 384}
+H=200 clear=60  best=120.0 worst=120.0 median=120.0 distinct_target_sets=27  histogram={120.0: 384}
+
+## Tray gap x clearance (H=100): does order ever change the answer?
+gap=  0 clear= 30  best=60.0 worst=60.0 distinct_target_sets=27
+gap=  0 clear=120  best=60.0 worst=60.0 distinct_target_sets=27
+gap=  0 clear=250  best=90.0 worst=90.0 distinct_target_sets=27
+gap= 40 clear= 30  best=70.0 worst=70.0 distinct_target_sets=27
+gap= 40 clear=120  best=70.0 worst=70.0 distinct_target_sets=27
+gap= 40 clear=250  best=90.0 worst=90.0 distinct_target_sets=27
+gap=120 clear= 30  best=80.0 worst=80.0 distinct_target_sets=27
+gap=120 clear=120  best=80.0 worst=80.0 distinct_target_sets=27
+gap=120 clear=250  best=100.0 worst=100.0 distinct_target_sets=27

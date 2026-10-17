@@ -1,0 +1,52 @@
+Cost 3000 stack evaluations per run, 8 seeds, 8 layers, K=8 training draws, sigma=0.05, CVaR25 = mean of worst 2 of 8.
+Evaluation: 200 held-out draws per error model. Medians over seeds. cols: mean J | 90th-percentile J | share feasible (C*>=40, hue within 30 deg)
+
+== target: quarter-wave stack designed at 620 nm (hue 92)
+-- evaluated under iid errors
+                    design   mean J   p90 J feasible
+              quarter-wave    14.10   17.96     1.00
+          random, mean/iid    16.46   23.89     0.89
+        random, CVaR25/iid    18.37   27.00     0.85
+         random, mean/corr    21.42   38.56     0.72
+       random, CVaR25/corr    20.42   33.09     0.65
+     Nelder-Mead, mean/iid    21.61   47.10     0.68
+   Nelder-Mead, CVaR25/iid    25.59   43.11     0.72
+    Nelder-Mead, mean/corr    35.78   85.25     0.44
+  Nelder-Mead, CVaR25/corr    33.48   65.82     0.45
+-- evaluated under corr(rho=0.5) errors
+                    design   mean J   p90 J feasible
+              quarter-wave    16.11   22.44     0.97
+          random, mean/iid    21.33   31.98     0.80
+        random, CVaR25/iid    22.15   31.98     0.82
+         random, mean/corr    20.49   37.31     0.73
+       random, CVaR25/corr    21.59   32.70     0.73
+     Nelder-Mead, mean/iid    23.75   51.52     0.64
+   Nelder-Mead, CVaR25/iid    27.83   46.33     0.68
+    Nelder-Mead, mean/corr    35.11   88.13     0.51
+  Nelder-Mead, CVaR25/corr    37.11   69.58     0.39
+
+== target: quarter-wave stack designed at 450 nm (hue 213)
+-- evaluated under iid errors
+                    design   mean J   p90 J feasible
+              quarter-wave    28.17   37.22     0.93
+          random, mean/iid    34.96   52.17     0.51
+        random, CVaR25/iid    39.85   67.47     0.47
+         random, mean/corr    38.90   67.47     0.46
+       random, CVaR25/corr    39.55   60.42     0.47
+     Nelder-Mead, mean/iid    41.40   76.55     0.40
+   Nelder-Mead, CVaR25/iid    50.79   83.16     0.24
+    Nelder-Mead, mean/corr    47.70   83.38     0.39
+  Nelder-Mead, CVaR25/corr    44.55   74.19     0.38
+-- evaluated under corr(rho=0.5) errors
+                    design   mean J   p90 J feasible
+              quarter-wave    36.44   54.67     0.73
+          random, mean/iid    40.02   66.88     0.51
+        random, CVaR25/iid    45.74   76.13     0.46
+         random, mean/corr    40.49   72.66     0.44
+       random, CVaR25/corr    42.91   69.07     0.46
+     Nelder-Mead, mean/iid    50.41   86.94     0.40
+   Nelder-Mead, CVaR25/iid    57.80   90.62     0.28
+    Nelder-Mead, mean/corr    48.01   82.22     0.40
+  Nelder-Mead, CVaR25/corr    45.31   72.52     0.39
+
+(runtime 1110 s)

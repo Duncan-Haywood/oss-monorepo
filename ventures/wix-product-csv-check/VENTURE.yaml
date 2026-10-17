@@ -1,0 +1,38 @@
+name: wix-product-csv-check
+description: >-
+  Free browser tool that checks a Wix Stores product CSV before it is imported: Variant rows with
+  no Product row, variant choices that are not in the Product row's option list, repeated
+  handleIds and variant combinations, names over 80 characters, price, surcharge, visible,
+  inventory and discount formats, image links that are not web addresses, Excel-damaged SKUs and
+  semicolon-separated files, each with its line number, plus a safe-fixes pass that cleans the
+  mechanical faults and never edits a name, description, image address, collection, option choice,
+  handleId or SKU. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Siblings cover Shopify, WooCommerce,
+# BigCommerce, Square, Squarespace and Etsy; none reads Wix Stores' product layout, which is the
+# only one of them that models variants as separate rows keyed by handleId with option choices
+# declared on the Product row. Wix is among the most-used site builders for small shops, and
+# anyone migrating a catalogue in, or bulk-editing prices and stock in a spreadsheet, hits
+# imports that drop variants or reject rows with a terse summary.
+#
+# First visitor: store owners and freelancers searching the literal symptoms ("Wix product CSV
+# import error", "Wix import variants not showing", "Wix CSV handleId", "Wix products import
+# failed"). Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it understands the Product/Variant row model, so it
+# catches the faults that actually lose data (an orphan variant, a choice the product never
+# declared, a combination repeated) and not just formatting; the repair step is deliberately
+# narrow and lists every change.
+#
+# Privacy is the liability boundary: catalogues and costs can be commercially sensitive, so the
+# file never leaves the browser (a test asserts no network calls). Rules are stated as read from
+# memory, with an explicit not-checked list.
+#
+# Path to revenue (payment rails stay off): lead magnet for the small-shop and web-freelancer
+# audience, cross-linked to the sibling checkers. A paid version, if usage appears, is bulk checks
+# across exports and saved rule sets behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Wix clause,
+# trademark used nominatively.

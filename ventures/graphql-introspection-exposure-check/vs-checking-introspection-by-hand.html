@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL Introspection Exposure Checker vs. checking by hand</title>
+<meta name="description" content="Pasting an introspection query into GraphiQL or curl catches the obvious case. It also tends to test from the API's own trusted UI rather than an arbitrary origin, and it leaves severity -- whether the exposed surface includes mutations -- to be spotted by eye in a schema that can run to thousands of fields.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does pasting an introspection query into GraphiQL or curl actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It answers the yes/no question directly: send the standard __schema introspection query, and a populated response means introspection is enabled. That single request genuinely settles whether the endpoint answers at all -- the same request this tool sends." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does testing from GraphiQL hosted on the API's own domain understate the risk?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A GraphiQL or Playground UI served by the API itself makes its introspection request from that API's own origin, which any same-origin request is always allowed to do -- it says nothing about whether an arbitrary third-party page, running in a visitor's browser on a different origin, could run the same query and read the response. That is exactly what CORS governs, and it is the realistic exposure: a malicious or compromised page anywhere on the web probing the endpoint from a stranger's browser. This tool's browser check runs from this page's own origin and reports whether the target's CORS policy actually permits that cross-origin read, then falls back to a CLI (which is never subject to CORS) when it does not -- so a clean result names which of the two questions it answered rather than leaving CORS untested." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is spotting the mutation surface easy to miss by eye?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A real API's introspection response can list hundreds of types and enough fields that the raw JSON runs to thousands of lines. GraphiQL's docs explorer defaults to browsing the Query type, and mutationType is a separate branch of the same tree a reader has to think to open. This tool always parses mutationType.fields and subscriptionType.fields specifically, counts them, and raises the finding as danger rather than notice the moment any mutation field is present -- because an exposed write surface is a materially worse finding than an exposed read surface, and that distinction should not depend on a reader remembering to check the second tab." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why check field names for sensitive wording automatically instead of reading the schema yourself?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reading every field name in a schema of even moderate size for words like admin, resetPassword, or impersonateUser is tedious and easy to shortcut once the obvious top-level fields look ordinary. This tool scans every query and mutation field name against a fixed list of sensitive-operation wording and lists the matches -- still a hint to review by hand, not proof of a missing authorization check, since GraphQL field-level auth is common and no introspection response can show it. What the automated scan changes is coverage: it checks every field name, not just the ones a skim happens to land on." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the GraphQL Introspection Exposure Checker</a></p>
+<h1>GraphQL Introspection Exposure Checker vs. checking by hand</h1>
+<p>
+  Pasting the standard <code>__schema</code> introspection query into GraphiQL, Postman, or a
+  <code>curl</code> command and reading whether it comes back populated is a real, fast way to
+  answer the yes/no question: does this endpoint answer an unauthenticated introspection query at
+  all. It is also the method most developers already reach for, since every GraphQL server ships
+  a playground that runs the identical query. This page names no product or company being
+  compared against -- "checking by hand" is a generic manual habit, not a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Checking by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Endpoint answers a plain introspection query with a populated schema</td><td>Correctly reads as "enabled"</td><td>Correctly reads as "enabled"</td></tr>
+    <tr><td>Endpoint returns an explicit "introspection is disabled" error</td><td>Correctly reads as "disabled"</td><td>Correctly reads as "disabled", and names the distinction from a dead or wrong-URL endpoint</td></tr>
+    <tr><td>Testing from a GraphiQL UI hosted on the API's own domain</td><td>Same-origin request always succeeds -- says nothing about whether a third-party page could read the same response</td><td>Runs the request from this page's own origin, so a successful browser result demonstrates the target's CORS policy actually permits a cross-origin read</td></tr>
+    <tr><td>Schema exposes a mutation type buried among hundreds of query fields</td><td>Easy to skim the default Query tab and never open Mutation</td><td>Always parses <code>mutationType.fields</code> and <code>subscriptionType.fields</code> specifically and escalates the finding to danger the moment any mutation field exists</td></tr>
+    <tr><td>Field names matching sensitive wording (admin, resetPassword, impersonateUser)</td><td>Requires reading every field name in a schema that can run to thousands of lines</td><td>Scans every query and mutation field name against a fixed sensitive-wording list and lists every match</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code from the same classification</td></tr>
+  </tbody>
+</table>
+
+<h2>The gap that matters most: which origin actually asked</h2>
+<p>
+  A GraphQL playground served by the API itself runs its introspection query from that API's own
+  origin, and a same-origin request is never subject to CORS -- so success there proves only that
+  the endpoint answers introspection queries at all, not that an attacker's page on a different
+  origin could read the response too. This tool's browser check deliberately runs from a separate
+  origin (this page), so a successful result means the target's own CORS configuration actually
+  permits an arbitrary third-party site to read a schema dump from a visitor's browser -- the
+  realistic exposure path, and one that testing from the API's own tooling cannot demonstrate
+  either way. When the target's CORS policy blocks that read, the browser check correctly reports
+  it cannot tell and the CLI -- never subject to CORS, since that restriction is enforced by
+  browsers, not by Node's <code>fetch</code> -- still gets a definitive answer.
+</p>
+
+<h2>The gap that matters second: severity, not just yes/no</h2>
+<p>
+  "Introspection is enabled" is one finding. Whether the exposed schema includes a mutation type --
+  the API's entire write surface, before an attacker has to guess a single field name -- is a
+  materially different severity, and it is the one thing a person skimming a large schema by eye
+  is most likely to miss, because GraphiQL's docs explorer opens on the Query type by default and
+  Mutation is a separate branch to think to click into. This tool raises the finding to danger the
+  moment <code>mutationType.fields</code> is non-empty, specifically so that severity does not
+  depend on a reader remembering to open the second tab.
+</p>
+
+<h2>When to still just look</h2>
+<p>
+  If you already know the endpoint answers introspection and you only want to browse the schema
+  interactively -- read a specific type's fields, follow a resolver's arguments -- GraphiQL's docs
+  explorer is the better tool for that; it is built for exploration, not for a pass/fail exposure
+  verdict. The gap this tool closes is the two questions above: whether the exposure is reachable
+  from an arbitrary origin, and whether the exposed surface includes writes, both of which a
+  same-origin skim of the schema does not answer.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does pasting an introspection query into GraphiQL or curl actually show you?</h3>
+<p>It answers the yes/no question directly: send the standard __schema introspection query, and a populated response means introspection is enabled. That single request genuinely settles whether the endpoint answers at all -- the same request this tool sends.</p>
+<h3>Why does testing from GraphiQL hosted on the API's own domain understate the risk?</h3>
+<p>A GraphiQL or Playground UI served by the API itself makes its introspection request from that API's own origin, which any same-origin request is always allowed to do -- it says nothing about whether an arbitrary third-party page, running in a visitor's browser on a different origin, could run the same query and read the response. That is exactly what CORS governs, and it is the realistic exposure: a malicious or compromised page anywhere on the web probing the endpoint from a stranger's browser. This tool's browser check runs from this page's own origin and reports whether the target's CORS policy actually permits that cross-origin read, then falls back to a CLI (which is never subject to CORS) when it does not -- so a clean result names which of the two questions it answered rather than leaving CORS untested.</p>
+<h3>Why is spotting the mutation surface easy to miss by eye?</h3>
+<p>A real API's introspection response can list hundreds of types and enough fields that the raw JSON runs to thousands of lines. GraphiQL's docs explorer defaults to browsing the Query type, and mutationType is a separate branch of the same tree a reader has to think to open. This tool always parses mutationType.fields and subscriptionType.fields specifically, counts them, and raises the finding as danger rather than notice the moment any mutation field is present -- because an exposed write surface is a materially worse finding than an exposed read surface, and that distinction should not depend on a reader remembering to check the second tab.</p>
+<h3>Why check field names for sensitive wording automatically instead of reading the schema yourself?</h3>
+<p>Reading every field name in a schema of even moderate size for words like admin, resetPassword, or impersonateUser is tedious and easy to shortcut once the obvious top-level fields look ordinary. This tool scans every query and mutation field name against a fixed list of sensitive-operation wording and lists the matches -- still a hint to review by hand, not proof of a missing authorization check, since GraphQL field-level auth is common and no introspection response can show it. What the automated scan changes is coverage: it checks every field name, not just the ones a skim happens to land on.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class -- whether an unauthenticated introspection query succeeds against the one
+  endpoint you name. A clean report describes what that request found, not a guarantee the API
+  has no other security issues.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. You are responsible for reviewing and verifying its output
+  before relying on it, and for having authorisation to test any system you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

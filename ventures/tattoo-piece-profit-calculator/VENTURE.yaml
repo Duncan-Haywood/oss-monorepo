@@ -1,0 +1,59 @@
+name: tattoo-piece-profit-calculator
+description: >-
+  Free browser tool for tattoo artists: enter the hourly take-home wanted, shop
+  commission or booth rent, setup time, supplies per session and free touch-ups, list
+  the pieces being quoted, and see the lowest price, profit over the target and the
+  effective hourly rate for each once drawing, setup and touch-up hours are counted,
+  the shop minimum, and a single-session needle-rate ladder. No client data; nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py closest match 0.36 (booth-rent-vs-commission,
+# which compares a salon split with booth rent on a recurring client book for stylists and
+# barbers; it does not price one-off pieces with drawing, multi-session setup or touch-ups).
+# No ventures/ directory names tattoo. screened-out.md rows not hit.
+#
+# Why this niche: tattoo pricing is quoted per needle hour but the work is not. Custom
+# pieces carry unpaid drawing and consult hours, every session carries setup, breakdown and
+# supplies, healed work gets free touch-ups, and a shop takes a share. On a small piece the
+# kept hourly rate is often half the quoted one, and artists rarely have a number for the
+# shop minimum below which a walk-in loses money.
+#
+# First visitor: working and apprentice tattoo artists searching "how much to charge for a
+# tattoo", "tattoo hourly rate", "tattoo shop minimum", and artist communities asking
+# whether to rent a booth or take a split. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; no market rates, shop contract
+# terms, licence rules or tax treatment asserted; says what it does not model. No client data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead magnet
+# for a future hosted piece log that tracks effective hourly across real bookings.
+
+hypotheses:
+  - claim: >-
+      Tattoo artists will use a private, no-signup piece profit calculator when
+      deciding what to quote and whether to take small pieces, because drawing, setup
+      and touch-up hours are unpaid and invisible in the needle rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tattoo-piece-profit-calculator/
+  analytics: null

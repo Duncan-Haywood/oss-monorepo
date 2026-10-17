@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01BgDj4wumcmAnNSMMLR15BJ",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T03:39:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "step 1 derive.py fetch needs GitHub API access and returned HTTP 403 in a cloud session; the step does not say what to do then (I rebuilt from cache)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Skipped audit (records mirrored/doc-only), candidate writing (none has 10 runs) and a new drift report (one exists today); shipped measurement refresh and E19 only."
+    }
+  ],
+  "goal": null,
+  "notes": "Light review: no prompt or doc change; derived/runs.json rebuilt from cache; E19 logged.",
+  "corrections": [],
+  "redteam": null
+}

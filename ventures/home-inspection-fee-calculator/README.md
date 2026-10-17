@@ -12,6 +12,8 @@ without underpricing the extra time it actually takes, which used to mean
 guessing at a flat per-square-foot number that priced an easy slab job and a
 hard crawlspace job the same.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-inspection-fee-calculator/
+
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
 account, API key, upload, or paid dependency.

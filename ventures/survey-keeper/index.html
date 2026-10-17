@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
+  <meta name="description" content="Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source, CSV export and an alert on every detractor. Open source, MIT, no per-response fee. Try the NPS calculator in your browser.">
+  <meta property="og:title" content="Survey Keeper — an NPS survey that says why the score is what it is">
+  <meta property="og:description" content="NPS with a confidence range, detractor-heavy words and a webhook on every detractor, in one zero-dependency Node server. No per-response fee.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Survey Keeper", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; Node.js 20+ for the server", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Open-source, self-hosted surveys and Net Promoter Score: NPS, rating, choice and text questions, a 95% range on the score, the words detractors use more than promoters, results by source, CSV export and a webhook alert on every detractor, with no per-response fee."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just use Typeform, SurveyMonkey or Delighted?", "acceptedAnswer": {"@type": "Answer", "text": "Those are polished and the right call if you need logic branching, a design studio, panels of respondents or a vendor to call. They charge by the month, often cap responses on the cheaper plans, and your customers' answers live on their servers. Survey Keeper is one small Node server in your own account: NPS, rating, choice and free-text questions, results with a confidence range, CSV export and no per-response fee. It suits a product or shop that wants a pulse from a few hundred customers."}}, {"@type": "Question", "name": "How is the NPS calculated, and what is the range?", "acceptedAnswer": {"@type": "Answer", "text": "Each answer counts as +1 for a 9 or 10, 0 for a 7 or 8 and -1 for 0 to 6. The score is the average times 100. The 95% range comes from the variance of that three-point score, so with 20 answers it is wide and with 400 it narrows. If a change moves the score by less than the range, you cannot tell it from noise."}}, {"@type": "Question", "name": "What is the detractor-words table?", "acceptedAnswer": {"@type": "Answer", "text": "For every free-text question, Survey Keeper lists the words that come up in comments and shows whether detractors or promoters use each one more often. It is plain word counting with stop words removed, not a language model. A word like billing that detractors use several times as often as promoters points at what to fix first."}}, {"@type": "Question", "name": "Can I paste scores I already have?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The demo on this page takes lines of a score and an optional comment, for example 9, fast and friendly, and shows the NPS, its range and the word table in your browser. Nothing you paste is uploaded."}}, {"@type": "Question", "name": "How do I run a survey?", "acceptedAnswer": {"@type": "Answer", "text": "Define it in plain text, one question per line, such as nps*: How likely are you to recommend us? and text: What is the main reason for your score? Share the link, add ?ref=email or ?ref=app to see each channel's score, or embed it in an iframe from an origin you allow."}}, {"@type": "Question", "name": "What does it store?", "acceptedAnswer": {"@type": "Answer", "text": "Your survey definitions and each response as the answers given, a timestamp and an optional short source tag, in one JSON file you control. It stores no name, email or IP address unless a respondent types one into a comment. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice and any consent your respondents' location requires."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2030; background: #f6f7fb; }
+    body { max-width: 920px; margin: auto; padding: 28px; }
+    a { color: #2342b8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14204f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14204f; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506b; }
+    .card { background: #fff; border: 1px solid #dde1ec; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b5bdd6; border-radius: 7px; font: 14px ui-monospace, monospace; min-height: 180px; }
+    pre { background: #eef0f8; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: .82rem; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3e6f1; vertical-align: top; }
+    .big { font-size: 2.8rem; font-weight: 700; color: #14204f; line-height: 1; }
+    .pos { color: #13703a; } .neg { color: #a3191f; font-weight: 600; }
+    .row { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; }
+  </style>
+</head>
+<body>
+  <main>
+  <h1>An NPS survey that tells you why the score is what it is.</h1>
+  <p>Survey Keeper is the open-source survey and Net Promoter Score server for a small product or shop. Define questions in plain text, share a link, and read results with a confidence range, the words detractors use more than promoters, and a score for each channel you sent it through. Below is the same calculation the server uses, running on sample answers you can replace. Everything on this page runs in your browser; nothing you type is uploaded.</p>
+
+  <section class="card" aria-labelledby="lab">
+    <h2 id="lab">Try it: paste scores and comments</h2>
+    <label for="data">One answer per line: a score from 0 to 10, then an optional comment</label>
+    <textarea id="data" spellcheck="false">10, love how fast search is
+9, great support team
+9
+8, fine but the export is slow
+7
+6, billing is confusing and invoices are hard to find
+4, billing page is confusing, no way to download invoices
+3, export is slow and support took days
+10, easy to get started
+2, support was slow to answer
+9, search is fast
+8, good value</textarea>
+    <div class="row" aria-live="polite">
+      <div><div class="big" id="nps">—</div><div class="note" id="range"></div></div>
+      <div class="note" id="split"></div>
+    </div>
+    <p id="warn" class="note"></p>
+    <h3>What people mention</h3>
+    <table><thead><tr><th scope="col">Word</th><th scope="col">Comments</th><th scope="col">Detractors vs promoters</th></tr></thead><tbody id="themes"></tbody></table>
+    <p class="note">Word counting with common words removed, not a language model. A word detractors use at least 1.5 times as often as promoters is a place to look first.</p>
+  </section>
+
+  <section class="card">
+    <h2>Why someone would use this</h2>
+    <table><thead><tr><th scope="col">Today</th><th scope="col">Catch</th><th scope="col">Survey Keeper</th></tr></thead><tbody>
+      <tr><td>Typeform, SurveyMonkey, Delighted, Survicate</td><td>Monthly fees that rise with responses; answers live with them; the cheap tiers hide trend and export</td><td>Your server, unlimited surveys and responses, no per-response fee</td></tr>
+      <tr><td>LimeSurvey, Formbricks</td><td>Full platforms: a database, a build, many settings</td><td>One Node process and one JSON file</td></tr>
+      <tr><td>A Google Form and a spreadsheet</td><td>No NPS maths, no range, no per-channel score, no alert on an unhappy customer</td><td>NPS, 95% range, results by <code>?ref=</code> and a webhook on every detractor</td></tr>
+    </tbody></table>
+    <p class="note">Honest limits: no skip logic or page branching, no email sending (share the link or embed it), one admin key, no respondent panel, and the word table is counting, not sentiment analysis. For research-grade surveys, use a full platform.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it yourself</h2>
+    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo &amp;&amp; cd oss-monorepo/ventures/survey-keeper
+node --test
+ADMIN_KEY=$(openssl rand -hex 16) node server.mjs</pre>
+    <p class="note">Open <code>http://localhost:8080/admin</code> (any user name, <code>ADMIN_KEY</code> as the password), edit the sample survey, and share <code>/s/customer-pulse?ref=email</code>. One-click Render deploy, Fly.io and Docker are in the README.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just use Typeform, SurveyMonkey or Delighted?</h3>
+    <p>Those are polished and the right call if you need logic branching, a design studio, panels of respondents or a vendor to call. They charge by the month, often cap responses on the cheaper plans, and your customers' answers live on their servers. Survey Keeper is one small Node server in your own account: NPS, rating, choice and free-text questions, results with a confidence range, CSV export and no per-response fee. It suits a product or shop that wants a pulse from a few hundred customers.</p>
+    <h3>How is the NPS calculated, and what is the range?</h3>
+    <p>Each answer counts as +1 for a 9 or 10, 0 for a 7 or 8 and -1 for 0 to 6. The score is the average times 100. The 95% range comes from the variance of that three-point score, so with 20 answers it is wide and with 400 it narrows. If a change moves the score by less than the range, you cannot tell it from noise.</p>
+    <h3>What is the detractor-words table?</h3>
+    <p>For every free-text question, Survey Keeper lists the words that come up in comments and shows whether detractors or promoters use each one more often. It is plain word counting with stop words removed, not a language model. A word like billing that detractors use several times as often as promoters points at what to fix first.</p>
+    <h3>Can I paste scores I already have?</h3>
+    <p>Yes. The demo on this page takes lines of a score and an optional comment, for example 9, fast and friendly, and shows the NPS, its range and the word table in your browser. Nothing you paste is uploaded.</p>
+    <h3>How do I run a survey?</h3>
+    <p>Define it in plain text, one question per line, such as nps*: How likely are you to recommend us? and text: What is the main reason for your score? Share the link, add ?ref=email or ?ref=app to see each channel's score, or embed it in an iframe from an origin you allow.</p>
+    <h3>What does it store?</h3>
+    <p>Your survey definitions and each response as the answers given, a timestamp and an optional short source tag, in one JSON file you control. It stores no name, email or IP address unless a respondent types one into a comment. IP addresses are held in memory only for rate limiting. You are the operator and responsible for your privacy notice and any consent your respondents' location requires.</p>
+  </section>
+
+  <footer>
+    <p>Same builder, other jobs: <a href="../help-keeper/">Help Keeper</a> runs a help center, <a href="../feedback-board/">Feedback Board</a> collects feature requests, <a href="../form-inbox/">Form Inbox</a> collects website forms and <a href="../support-desk/">Support Desk</a> answers customer email.</p>
+    <p><strong>No warranty.</strong> This tool and the server are provided free and as-is, without warranty of any kind, express or implied, and with no uptime or delivery guarantee. You are the operator of any survey you run, responsible for its questions, a privacy notice and the data-protection and consent rules where you and your respondents live. The NPS, its range and the word table are heuristics, they depend on who answers, and they can be wrong. This is not legal, tax, or financial advice.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> &middot; <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> Don't count my usage</label></p>
+    <p class="note">Part of the <a href="../self-hosted-saas-stack/">self-hosted SaaS stack</a>: 28 open-source tools you run yourself.</p>
+  </footer>
+  </main>
+  <script type="module">
+    import { parsePasted, npsStats, themes, bucket } from "./survey.mjs";
+    import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const sign = (n) => (n > 0 ? "+" + n : String(n));
+    let first = true;
+    const run = () => {
+      const rows = parsePasted($("data").value), s = npsStats(rows.map((r) => r.score));
+      $("nps").textContent = s.nps == null ? "—" : sign(s.nps);
+      $("range").textContent = s.ci ? "NPS, 95% range " + sign(s.ci[0]) + " to " + sign(s.ci[1]) : "NPS";
+      $("split").textContent = s.n ? s.promoters + " promoters · " + s.passives + " passives · " + s.detractors + " detractors · " + s.n + " answers" : "Paste at least one score.";
+      $("warn").textContent = s.n && s.n < 30 ? "Fewer than 30 answers: read the score as a rough signal; the range shows how wide it is." : "";
+      const body = $("themes"); body.textContent = "";
+      const ts = themes(rows.filter((r) => r.text).map((r) => ({ text: r.text, group: bucket(r.score) })));
+      for (const t of ts) {
+        const tr = document.createElement("tr");
+        const verdict = t.lift == null ? "—" : t.lift >= 1.5 ? t.lift + "× more from detractors" : t.lift <= 0.67 ? "promoter word" : "even";
+        for (const v of [t.term, String(t.count), verdict]) { const td = document.createElement("td"); td.textContent = v; tr.append(td); }
+        if (t.lift != null && t.lift >= 1.5) tr.lastChild.className = "neg";
+        body.append(tr);
+      }
+      if (!ts.length) { const tr = document.createElement("tr"), td = document.createElement("td"); td.colSpan = 3; td.textContent = "No repeated words yet."; tr.append(td); body.append(tr); }
+      if (!first) record("paste"); first = false;
+    };
+    $("data").addEventListener("input", run);
+    run();
+    $("optout").checked = usageOptedOut();
+    $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
+  </script>
+</body>
+</html>

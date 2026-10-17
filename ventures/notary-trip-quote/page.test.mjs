@@ -189,3 +189,13 @@ test('index links one hop to the process-server-fee-calculator sibling', () => {
     'index must link ../process-server-fee-calculator/ so crawlers reach the process server calculator in one hop',
   );
 });
+
+// Reciprocal with mobile-signing-agent-day-picker's link back here: one trip's
+// price versus which offered signings to take in a day.
+test('index links one hop to the mobile-signing-agent-day-picker sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/mobile-signing-agent-day-picker\/"/,
+    'index must link ../mobile-signing-agent-day-picker/ so crawlers reach the day picker in one hop',
+  );
+});

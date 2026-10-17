@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Amazon Seller Profit Analyzer — Free Transaction Report Tool</title>
+  <meta name="description" content="Free Amazon seller profit analyzer: drop in your Seller Central Transaction report CSV and get profit per SKU, a fee waterfall, ad spend, refund and reimbursement findings. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Amazon Seller Profit Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Per-SKU profit, fee waterfall and findings from an Amazon Transaction report. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Amazon Seller Profit Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an Amazon Seller Central Transaction report CSV into per-SKU profit, a fee waterfall, ad, storage and refund findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "Per-SKU profit after fees and cost of goods, fee waterfall, advertising share of sales, refund rate and refund fee findings, reimbursement tally, monthly table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see profit per SKU from the Amazon Transaction report without paying for a seller tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Seller Central go to Reports, Payments, Date Range Reports (or Reports Repository, Transaction), generate the CSV for the period and drop it here. The tool adds up each SKU's sales, referral fees, FBA fees, refunds and promotions from the file, then subtracts the unit cost you enter. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "Where do the unit costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "You. Amazon's report has what Amazon paid you, not what your products cost. Type a cost per unit next to each SKU or paste lines like SKU,cost. Profit is left blank for a SKU without a cost rather than counted as free."}}, {"@type": "Question", "name": "What counts as account-level cost?", "acceptedAnswer": {"@type": "Answer", "text": "Rows in the report that are not tied to a sale: advertising charges, the seller subscription, FBA storage, aged-inventory, removal and placement fees, claims and reimbursements. Transfers to your bank are payouts and are not counted as a cost."}}, {"@type": "Question", "name": "How is the refund administration fee worked out?", "acceptedAnswer": {"@type": "Answer", "text": "When an order is refunded, Amazon returns the referral fee less an administration fee. The tool matches each refund row to its order row by order id and reports the referral fee that was not returned. Orders whose original sale is outside the file's date range cannot be matched and are left out."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Cost of goods you have not entered, inbound shipping to Amazon, prep and packaging, taxes and income tax, returns Amazon has not yet processed, sales tax handling, and any fee outside the period you exported. Treat the result as an estimate from the file, not your books."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+  </style>
+</head>
+</head>
+<body>
+  <header>
+    <p class="note">AMAZON SELLER PROFIT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Amazon SKUs actually make money?</h1>
+    <p>Drop in the <strong>Transaction report</strong> from Seller Central and get <strong>profit per SKU</strong>, a <strong>fee waterfall</strong>, and findings on ad spend, refunds, storage and reimbursements, without giving a seller-tools vendor access to your Amazon account or sending anyone your order data.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Order IDs and SKUs in it are not sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Transaction report</h2>
+    <p class="note">Seller Central → Reports → Payments → Date Range Reports → Generate → Download CSV (the Transaction view with columns like “date/time”, “type”, “sku”, “selling fees”, “fba fees”, “total”). A few summary lines above the header are fine.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder='"date/time","settlement id","type","order id","sku","description","quantity",…'></textarea>
+    <label for="costs">Unit cost per SKU (optional): one <code>SKU,cost</code> per line</label>
+    <textarea id="costs" spellcheck="false" placeholder="KITCHEN-SCALE-BLK,4.10"></textarea>
+    <div class="checkbox-row"><input type="checkbox" id="resell" checked><label for="resell">Refunded units go back into stock (their cost is not lost)</label></div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze. You can type costs into the SKU table afterwards too.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of sales</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Profit by SKU</h3>
+    <p class="note">Sorted by sales. Type a unit cost to fill in profit; figures update as you type. SKU profit excludes account-level costs (ads, storage, subscription).</p>
+    <div class="scroll"><table><thead><tr><th scope="col">SKU</th><th class="n" scope="col">Units</th><th class="n" scope="col">Refunded</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Amazon paid you</th><th class="n" scope="col">Unit cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="skus"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Units</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Ads, storage, other</th><th class="n" scope="col">Net before cost of goods</th></tr></thead><tbody id="months"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the SKU table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Per SKU</strong>, “Amazon paid you” is the sum of the file’s <em>total</em> column over that SKU’s Order and Refund rows, so it reconciles to the report line by line. Sales, promotions, referral fees, FBA fees and refunds are the same rows split by column.</li>
+      <li><strong>Profit</strong> is that amount minus unit cost × net units (units sold − refunded, if refunded units are restocked; otherwise every unit sold). A SKU without a cost has no profit shown.</li>
+      <li><strong>Account-level rows</strong> (advertising, subscription, storage and inventory fees, claims, reimbursements) are grouped by their description. Bank transfers are payouts and are excluded.</li>
+      <li><strong>Refund fee kept</strong> matches each refund to its order by order id and sums the referral fee not returned.</li>
+      <li><strong>Not modelled:</strong> inbound freight and prep, packaging, sales tax and income tax, returns not yet processed, fees outside the exported period, multi-currency conversion, and any cost you have not entered.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see profit per SKU from the Amazon Transaction report without paying for a seller tool?</h3>
+    <p>Yes. In Seller Central go to Reports, Payments, Date Range Reports (or Reports Repository, Transaction), generate the CSV for the period and drop it here. The tool adds up each SKU's sales, referral fees, FBA fees, refunds and promotions from the file, then subtracts the unit cost you enter. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>Where do the unit costs come from?</h3>
+    <p>You. Amazon's report has what Amazon paid you, not what your products cost. Type a cost per unit next to each SKU or paste lines like SKU,cost. Profit is left blank for a SKU without a cost rather than counted as free.</p>
+    <h3>What counts as account-level cost?</h3>
+    <p>Rows in the report that are not tied to a sale: advertising charges, the seller subscription, FBA storage, aged-inventory, removal and placement fees, claims and reimbursements. Transfers to your bank are payouts and are not counted as a cost.</p>
+    <h3>How is the refund administration fee worked out?</h3>
+    <p>When an order is refunded, Amazon returns the referral fee less an administration fee. The tool matches each refund row to its order row by order id and reports the referral fee that was not returned. Orders whose original sale is outside the file's date range cannot be matched and are left out.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Cost of goods you have not entered, inbound shipping to Amazon, prep and packaging, taxes and income tax, returns Amazon has not yet processed, sales tax handling, and any fee outside the period you exported. Treat the result as an estimate from the file, not your books.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Amazon and Seller Central are trademarks of Amazon.com, Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by Amazon.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also selling on Amazon? See the <a href="../amazon-fba-calculator/">Amazon FBA calculator</a> and the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>.</p>
+    <p>Slow stock piling up in FBA? The <a href="../fba-aged-inventory-fee-analyzer/">FBA aged inventory and storage fee analyzer</a> compares holding, marking down and removing per SKU.</p>
+    <p>Losing inventory in the warehouse? The <a href="../fba-reimbursement-claim-finder/">FBA reimbursement claim finder</a> lists lost and damaged units Amazon may not have reimbursed.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Keeping your own books? The <a href="../amazon-settlement-to-journal/">Amazon settlement to journal converter</a> turns a settlement report into month-split Xero or QuickBooks journals, checked against the deposit.</p>
+    <p>Running Amazon ads? Drop a search term report into the <a href="../amazon-ppc-search-term-analyzer/">Amazon PPC search term analyzer</a> to see wasted spend, negatives and harvest terms &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, parseCosts, sampleCsv, sampleCosts, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let rows = [], skipped = [], last = null, costs = {};
+
+    function render() {
+      const r = last = analyze(rows, { costs, returnsResellable: $("#resell").checked });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.gross)}</strong> of sales on ${s.unitsSold} units across ${s.skuCount} SKUs. Amazon paid out <strong>${money(s.operating)}</strong> after fees, refunds, ads and storage`
+        + (s.profit !== null ? `; after your unit costs${s.allCosted ? "" : " (costed SKUs only)"} that leaves <strong>${money(s.profit)}</strong> (${pct(s.profit / s.gross)} of sales).` : ".");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const line = (label, v, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td class="n${v < 0 ? " neg" : ""}">${bold ? "<strong>" + money(v) + "</strong>" : money(v)}</td><td class="n">${s.gross ? pct(v / s.gross) : "–"}</td></tr>`;
+      const a = s.account;
+      $("#waterfall").innerHTML = [
+        line("Product sales, shipping and gift credits", s.gross),
+        line("Promotions", s.promo), line("Referral fees", s.referral), line("FBA fees", s.fba), line("Other transaction fees", s.otherFees),
+        line("Refunded sales", s.refundAmount), line("Referral fees returned on refunds", s.refundReferralBack),
+        line("Advertising", a.advertising), line("Subscription", a.subscription), line("FBA storage and inventory fees", a["fba-inventory"]),
+        line("Reimbursements", a.reimbursement), line("Claims, adjustments and other fees", a.claims + a["adjustment-negative"] + a["other-fees"] + a.other),
+        line("Paid out by Amazon (before cost of goods)", s.operating, true),
+        s.anyCosted ? line("Cost of goods (entered)", -s.cogsTotal) : "",
+        s.profit !== null ? line("Profit", s.profit, true) : "",
+      ].join("");
+      $("#skus").innerHTML = r.skus.map((k) => {
+        const v = costs[k.sku];
+        return `<tr><th scope="row">${esc(k.sku)}</th><td class="n">${k.unitsSold}</td><td class="n">${k.unitsRefunded}${k.unitsSold ? " (" + pct(k.refundRate, 0) + ")" : ""}</td><td class="n">${money(k.gross)}</td><td class="n">${money(k.referral + k.fba + k.otherFees)}</td><td class="n">${money(k.netProceeds)}</td>`
+          + `<td class="n"><input class="cost" data-sku="${esc(k.sku)}" inputmode="decimal" aria-label="Unit cost for ${esc(k.sku)}" value="${v === undefined ? "" : v}"></td>`
+          + `<td class="n${k.profit !== null && k.profit < 0 ? " neg" : ""}">${k.profit === null ? "–" : money(k.profit)}</td><td class="n">${k.margin === null ? "–" : pct(k.margin)}</td></tr>`;
+      }).join("");
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${m.units}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.account)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      return true;
+    }
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      rows = n.rows; skipped = n.skipped;
+      const c = parseCosts($("#costs").value);
+      costs = c.costs;
+      if (!render()) return false;
+      status.textContent = `Read ${rows.length} transaction rows.` + (c.bad.length ? ` Ignored cost line(s): ${c.bad.slice(0, 5).join(", ")}.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#costs").value = sampleCosts();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small four-SKU FBA seller. Not real orders."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#costs").value = ""; $("#file").value = ""; report.hidden = true; rows = []; costs = {}; last = null; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#resell").addEventListener("change", () => { if (rows.length) render(); });
+    $("#skus").addEventListener("change", (e) => {
+      const el = e.target.closest("input.cost");
+      if (!el) return;
+      const t = el.value.trim();
+      const v = t === "" ? undefined : parseFloat(t.replace(/[^0-9.]/g, ""));
+      if (v === undefined || Number.isNaN(v)) delete costs[el.dataset.sku]; else costs[el.dataset.sku] = v;
+      render();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const head = "sku,units_sold,units_refunded,sales,fees,amazon_paid,unit_cost,profit";
+      const body = last.skus.map((k) => [q(k.sku), k.unitsSold, k.unitsRefunded, k.gross, k.referral + k.fba + k.otherFees, k.netProceeds, costs[k.sku] ?? "", k.profit ?? ""].map((v) => typeof v === "number" ? Math.round(v * 100) / 100 : v).join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([[head].concat(body).join("\n")], { type: "text/csv" }));
+      a.download = "profit-by-sku.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

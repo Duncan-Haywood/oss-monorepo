@@ -1,0 +1,32 @@
+name: google-ads-editor-csv-check
+description: >-
+  Free browser tool that checks a Google Ads Editor import CSV before it is imported: headlines over
+  30 characters and descriptions over 90, responsive search ads with too few headlines or descriptions,
+  exclamation marks and duplicate headlines, display paths, keywords with symbols Google rejects,
+  plus-sign broad match modifier, brackets that conflict with the Criterion Type, duplicate keywords,
+  Final URLs without https, blank ad groups, unknown Status values and budgets or bids with currency
+  symbols, each with its line number, plus a safe-fixes pass that converts the delimiter and cleans
+  spaces, numbers and capitalisation. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. google-ads-wasted-spend-analyzer reads a
+# search-terms report (what already spent money); nothing in the catalogue checks the file an agency
+# or in-house marketer BUILDS to import into Google Ads Editor. Paid search is the largest ad budget
+# a small business controls, agencies build campaigns in spreadsheets (keyword x ad-group x RSA
+# matrices) and Editor skips or truncates rows with errors that surface only after the import.
+#
+# First visitor: marketers searching the literal symptoms ("Google Ads Editor import errors",
+# "responsive search ad headline 30 characters", "Google Ads Editor CSV format", "Editor skipped
+# rows"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test asserts no network
+# calls). Rules are stated as read from memory, with an explicit not-checked list; ad policy,
+# trademarks, extensions, audiences and Performance Max are out of scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the paid-search audience, cross-linked to
+# google-ads-wasted-spend-analyzer. A paid version, if usage appears, is bulk checks, saved rule sets
+# and an RSA generator behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-Google clause,
+# trademark used nominatively.

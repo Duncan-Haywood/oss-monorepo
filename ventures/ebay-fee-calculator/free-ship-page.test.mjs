@@ -79,8 +79,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareFreeShipping({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -92,21 +92,21 @@ test('default inputs on the page match the worked example', () => {
     freeShipSellThroughPct: 70,
     monthlyFreeShipListings: 40,
   });
-  assert.ok(Math.abs(comparison.buyerPays.expectedProfit - 10.089475) < 1e-6, 'default buyer-pays');
-  assert.ok(Math.abs(comparison.freeShip.expectedProfit - 12.84115) < 1e-6, 'default free-ship');
-  assert.match(html, /\$10\.09/);
-  assert.match(html, /\$12\.84/);
-  assert.match(html, /\$2\.75/);
-  assert.match(html, /\$110\.07/);
+  assert.ok(Math.abs(comparison.buyerPays.expectedProfit - 9.96028) < 1e-6, 'default buyer-pays');
+  assert.ok(Math.abs(comparison.freeShip.expectedProfit - 12.67672) < 1e-6, 'default free-ship');
+  assert.match(html, /\$9\.96/);
+  assert.match(html, /\$12\.68/);
+  assert.match(html, /\$2\.72/);
+  assert.match(html, /\$108\.66/);
   assert.match(html, /55\.0%/);
-  assert.match(html, /\$40\.97/);
-  assert.match(html, /\$18\.34/);
-  assert.match(html, /\$9\.56/);
-  assert.match(html, /\$0\.53/);
-  assert.match(html, /73\.9%/);
-  assert.match(html, /\$1\.66/);
-  assert.match(html, /\$9\.17/);
-  assert.match(html, /\$0\.92/);
+  assert.match(html, /\$41\.01/);
+  assert.match(html, /\$18\.11/);
+  assert.match(html, /\$9\.41/);
+  assert.match(html, /\$0\.55/);
+  assert.match(html, /74\.1%/);
+  assert.match(html, /\$1\.63/);
+  assert.match(html, /\$9\.05/);
+  assert.match(html, /\$0\.91/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

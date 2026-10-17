@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mileage Deduction Method Calculator — 2026, Free</title>
+  <meta name="description" content="Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Mileage Deduction Method Calculator — free, 2026">
+  <meta property="og:description" content="Standard mileage rate or actual expenses? Uses the two 2026 IRS rates (72.5 and 76 cents) and your own car costs. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mileage Deduction Method Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares the 2026 IRS standard mileage rate (72.5 cents per mile before July 1, 76 cents from July 1) with the actual-expense method for a self-employed person's business vehicle, and shows which gives the larger deduction and roughly what it is worth in tax. Entirely client-side; nothing is uploaded.","featureList":"Two-rate 2026 standard mileage deduction, actual-expense deduction by business-use share, parking and tolls, break-even cost per mile, estimated tax value, first-year election warning"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 IRS standard mileage rate for business?","acceptedAnswer":{"@type":"Answer","text":"It is 72.5 cents per mile for business miles driven January 1 through June 30, 2026, and 76 cents per mile for business miles driven July 1 through December 31, 2026 (IRS Notice 2026-10, raised mid-year by Announcement 2026-11). Each mile is deducted at the rate for the half of the year it was driven in."}},{"@type":"Question","name":"Is it better to take the standard mileage rate or actual expenses?","acceptedAnswer":{"@type":"Answer","text":"Whichever gives the larger deduction, if you qualify for both. Actual expenses win for a car that costs a lot to run per business mile (high depreciation, fuel, insurance and repairs), and the standard rate wins for a cheap-to-run car driven a lot for business. Compare the two using your own numbers before you choose."}},{"@type":"Question","name":"Can I deduct parking and tolls with the standard mileage rate?","acceptedAnswer":{"@type":"Answer","text":"Yes. Business parking fees and tolls are deductible in addition to the standard mileage rate, and they are also deductible under the actual-expense method, so they add the same amount to either method."}},{"@type":"Question","name":"Can I switch between the standard mileage rate and actual expenses?","acceptedAnswer":{"@type":"Answer","text":"For a car you own, you must choose the standard mileage rate in the first year the car is available for business use. You can switch from the standard rate to actual expenses in a later year, but if you start with actual expenses on a car you cannot use the standard rate for that car afterwards."}},{"@type":"Question","name":"When can I not use the standard mileage rate?","acceptedAnswer":{"@type":"Answer","text":"You cannot use it if you operate five or more cars at the same time, or if you have claimed accelerated (MACRS), Section 179 or special depreciation on the car, or if you started with actual expenses on a car you own."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 IRS mileage rates to the figures you enter, for a sole proprietor or single-member LLC deducting vehicle costs on Schedule C. It does not replace IRS Publication 463 or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MILEAGE DEDUCTION METHOD CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Standard mileage rate or actual expenses in 2026?</h1>
+    <p>The IRS standard mileage rate changed mid-year: <strong>72.5 cents</strong>
+    per business mile through June 30 and <strong>76 cents</strong> from July 1.
+    Enter your miles for each half and your real car costs to see which
+    deduction is larger for your business vehicle.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your miles</h2>
+    <div class="grid">
+      <div>
+        <label for="miles-h1">Business miles driven Jan 1 – Jun 30, 2026</label>
+        <input type="number" id="miles-h1" min="0" step="1" placeholder="e.g. 6000">
+      </div>
+      <div>
+        <label for="miles-h2">Business miles driven Jul 1 – Dec 31, 2026</label>
+        <input type="number" id="miles-h2" min="0" step="1" placeholder="e.g. 4000">
+      </div>
+      <div>
+        <label for="total-miles">Total miles on the car in 2026 (business + personal)</label>
+        <input type="number" id="total-miles" min="0" step="1" placeholder="e.g. 12000">
+      </div>
+    </div>
+    <p class="note">Business miles exclude commuting between home and a
+    regular workplace. Use the odometer log you keep for the year.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your actual car costs for the whole year</h2>
+    <div class="grid">
+      <div>
+        <label for="fuel">Fuel and oil ($)</label>
+        <input type="number" id="fuel" min="0" step="1" placeholder="e.g. 3200">
+      </div>
+      <div>
+        <label for="insurance">Auto insurance ($)</label>
+        <input type="number" id="insurance" min="0" step="1" placeholder="e.g. 1800">
+      </div>
+      <div>
+        <label for="repairs">Repairs, maintenance and tires ($)</label>
+        <input type="number" id="repairs" min="0" step="1" placeholder="e.g. 900">
+      </div>
+      <div>
+        <label for="registration">Registration and licenses ($)</label>
+        <input type="number" id="registration" min="0" step="1" placeholder="e.g. 250">
+      </div>
+      <div>
+        <label for="depreciation">Depreciation or lease payments ($)</label>
+        <input type="number" id="depreciation" min="0" step="1" placeholder="e.g. 3000">
+      </div>
+      <div>
+        <label for="other-actual">Other car costs, such as car washes or interest ($)</label>
+        <input type="number" id="other-actual" min="0" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="parking">Business parking and tolls ($) — added to both methods</label>
+        <input type="number" id="parking" min="0" step="1" placeholder="e.g. 300">
+      </div>
+    </div>
+    <p class="note">Enter the full-year cost of the car; the calculator
+    applies your business-use share (business miles ÷ total miles) for
+    the actual-expense method.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Tax value and eligibility</h2>
+    <div class="grid">
+      <div>
+        <label for="tax-rate">Your marginal federal income tax rate (%)</label>
+        <input type="number" id="tax-rate" min="0" step="1" placeholder="e.g. 22">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="se-tax" checked>
+      <label for="se-tax">Include self-employment tax (15.3% on 92.35%) in the tax estimate</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="standard-blocked">
+      <label for="standard-blocked">I run five or more cars at once, or already used actual expenses, MACRS or Section 179 on this car</label>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare methods</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your miles and costs, then click Compare methods.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Self-employed vehicle costs only.</strong> This is for a
+      sole proprietor or single-member LLC deducting car expenses on
+      Schedule C. It does not model an employee's unreimbursed expenses.</li>
+      <li><strong>No depreciation schedules.</strong> You type in the
+      depreciation or lease cost; the tool does not compute MACRS, Section
+      179, bonus depreciation, luxury-car caps or a lease inclusion amount.</li>
+      <li><strong>Rough tax estimate.</strong> The tax value multiplies the
+      deduction by your marginal rate plus, optionally, self-employment tax.
+      It ignores the Social Security wage base cap, the half-of-SE-tax
+      deduction and state tax.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> The mileage rates are
+      set by the IRS each year and can change mid-year, as they did in 2026;
+      confirm the current figures before relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 IRS standard mileage rate for business?</h3>
+    <p>It is 72.5 cents per mile for business miles driven January 1 through June 30, 2026, and 76 cents per mile for business miles driven July 1 through December 31, 2026 (IRS Notice 2026-10, raised mid-year by Announcement 2026-11). Each mile is deducted at the rate for the half of the year it was driven in.</p>
+    <h3>Is it better to take the standard mileage rate or actual expenses?</h3>
+    <p>Whichever gives the larger deduction, if you qualify for both. Actual expenses win for a car that costs a lot to run per business mile (high depreciation, fuel, insurance and repairs), and the standard rate wins for a cheap-to-run car driven a lot for business. Compare the two using your own numbers before you choose.</p>
+    <h3>Can I deduct parking and tolls with the standard mileage rate?</h3>
+    <p>Yes. Business parking fees and tolls are deductible in addition to the standard mileage rate, and they are also deductible under the actual-expense method, so they add the same amount to either method.</p>
+    <h3>Can I switch between the standard mileage rate and actual expenses?</h3>
+    <p>For a car you own, you must choose the standard mileage rate in the first year the car is available for business use. You can switch from the standard rate to actual expenses in a later year, but if you start with actual expenses on a car you cannot use the standard rate for that car afterwards.</p>
+    <h3>When can I not use the standard mileage rate?</h3>
+    <p>You cannot use it if you operate five or more cars at the same time, or if you have claimed accelerated (MACRS), Section 179 or special depreciation on the car, or if you started with actual expenses on a car you own.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS mileage rates to the figures you enter, for a sole proprietor or single-member LLC deducting vehicle costs on Schedule C. It does not replace IRS Publication 463 or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for keeping the records the IRS requires. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deduction_compared</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing what you can save for retirement instead? The <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> covers the self-employed retirement limit.</p>
+    <p>Need the trips behind those miles? Keep a dated log with the <a href="../mileage-log/">free mileage log</a>: it prices each trip at the IRS rate for its date and checks the log for audit gaps, offline, on your device.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { mileageMethodOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const IDS = ["miles-h1", "miles-h2", "total-miles", "fuel", "insurance", "repairs", "registration", "depreciation", "other-actual", "parking", "tax-rate"];
+    const field = (id) => $("#" + id);
+    const val = (id) => Number(field(id).value) || 0;
+
+    const els = {
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const r = mileageMethodOutcome({
+        milesFirstHalf: val("miles-h1"), milesSecondHalf: val("miles-h2"), totalMiles: val("total-miles"),
+        fuel: val("fuel"), insurance: val("insurance"), repairs: val("repairs"), registration: val("registration"),
+        depreciationOrLease: val("depreciation"), otherActual: val("other-actual"), parkingTolls: val("parking"),
+        incomeTaxRatePct: val("tax-rate"), seTaxApplies: $("#se-tax").checked, standardBlocked: $("#standard-blocked").checked,
+      });
+      const winner = r.best === "standard" ? "the standard mileage rate" : "actual expenses";
+      els.stats.innerHTML = r.businessMiles > 0
+        ? `Larger 2026 deduction: <strong>${winner}</strong>, ${money(r.bestTotal)} (est. tax value ${money(r.taxSavingsBest)}).`
+        : "Enter your business miles to compare the two methods.";
+      els.resultTable.innerHTML = [
+        `<tr><th scope="row">Business miles</th><td>${r.businessMiles.toLocaleString()}</td></tr>`,
+        `<tr><th scope="row">Business-use share of the car</th><td>${(r.businessUse * 100).toFixed(1)}%</td></tr>`,
+        `<tr><th scope="row">Standard mileage deduction (72.5c / 76c)</th><td>${money(r.standard)}</td></tr>`,
+        `<tr><th scope="row">Actual-expense deduction (business share)</th><td>${money(r.actual)}</td></tr>`,
+        `<tr><th scope="row">Parking and tolls (added to both)</th><td>${money(r.parking)}</td></tr>`,
+        `<tr><th scope="row"><strong>Standard total</strong></th><td><strong>${money(r.standardTotal)}</strong></td></tr>`,
+        `<tr><th scope="row"><strong>Actual-expense total</strong></th><td><strong>${money(r.actualTotal)}</strong></td></tr>`,
+        `<tr><th scope="row">Difference between methods</th><td>${money(r.gap)} (about ${money(r.taxSavingsGap)} in tax)</td></tr>`,
+        `<tr><th scope="row">Break-even actual cost per business mile</th><td>${money(r.breakEvenActualCostPerBusinessMile)}</td></tr>`,
+      ].join("");
+      renderFindings(els.findings, r.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("deduction_compared");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "miles-h1": "6000", "miles-h2": "4000", "total-miles": "12000", fuel: "3200", insurance: "1800", repairs: "900", registration: "250", depreciation: "3000", "other-actual": "", parking: "300", "tax-rate": "22" };
+      for (const id of IDS) field(id).value = ex[id] ?? "";
+      $("#se-tax").checked = true;
+      $("#standard-blocked").checked = false;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: 6,000 business miles before July and 4,000 after, 12,000 total miles, $9,150 of yearly car costs, $300 parking. Standard rate gives $7,390.00, actual expenses give $7,625.00 (83.3% business use), so actual expenses win by $235.00 before parking is added to both.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of IDS) field(id).value = "";
+      $("#se-tax").checked = true;
+      $("#standard-blocked").checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Enter your miles and costs, then click Compare methods.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

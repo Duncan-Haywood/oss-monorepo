@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP Config Risk Check vs. reading the config by hand</title>
+<meta name="description" content="Reading a short config with one server catches an obvious problem, like a bare shell command. It reliably misses a secret-shaped literal sitting under an unrelated key name, a missing version pin buried in one of four different package-manager syntaxes, and a tool name that collides across two servers loaded together -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reading-the-config-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MCP Config Risk Check vs. reading the config by hand">
+<meta property="og:description" content="Reading a config yourself catches an obviously broad command. It cannot reliably catch a secret-shaped literal under an unrelated key name, a missing version pin in one of four different package-manager syntaxes, or a tool name shadowed across two servers -- all of which this checker computes exactly.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/vs-reading-the-config-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just read the config myself?","acceptedAnswer":{"@type":"Answer","text":"For a config with one or two servers and an obviously broad command like a bare shell launch, yes -- that case is visible on a single read. What reading does not reliably catch is a secret-shaped literal sitting under a key not named token or secret, a missing version pin buried inside one of four different package-manager argument syntaxes, or a tool name that collides between two servers loaded together. Those need every server's command, args, and env checked the same mechanical way, not remembered while skimming."}},{"@type":"Question","name":"Why is spotting a hardcoded secret harder than it looks?","acceptedAnswer":{"@type":"Answer","text":"Because a reviewer scanning by eye naturally looks at keys named token, key, secret, or password and skims past the rest. A literal that matches a real secret's shape -- an sk- style key, a gh_-prefixed GitHub token, a Slack xox- token, an AWS AKIA access key, a bearer token -- can sit under any key name at all, including one that gives no hint. Confirming every value's shape against every known secret pattern, regardless of what its key happens to be called, is a pattern match across the whole config, not a read of the keys that look suspicious."}},{"@type":"Question","name":"Why is a missing version pin easy to miss on a read-through?","acceptedAnswer":{"@type":"Answer","text":"Because npx, uvx, pipx run, and docker run each pin a version in a different place and syntax -- an @version suffix on a package name, a bare docker image without a :tag, or an argument list with no pin at all -- and a config with a dozen servers mixes all four. Holding four different pin syntaxes in mind while scanning a dozen args arrays, and noticing the one that has none, is exactly the kind of check that is reliable when it is the same mechanical comparison every time and unreliable when it depends on remembering which syntax applies to which command."}},{"@type":"Question","name":"What about a tool name that collides across two servers?","acceptedAnswer":{"@type":"Answer","text":"That needs comparing every tool name a connected server exposes against every tool name every other connected server exposes -- not reading one server's config in isolation, but holding all of them in mind at once and checking for an exact match. With two servers and a handful of tools each this is manageable by eye; past a handful of servers it is the same kind of pairwise comparison a person does slowly and inconsistently and a check does exactly the same way every time."}},{"@type":"Question","name":"Is this page making a live comparison against a tool or company?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes a manual habit anyone approving an MCP server config already has -- reading the command, args, and env blocks by eye before trusting it. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em}.lede{font-size:1.05rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 5px 20px #18315a0b}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#58657a}code{background:#eef2fa;padding:0 4px;border-radius:4px}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; MCP Config Risk Check</a></p>
+<header>
+<h1>MCP Config Risk Check vs. reading the config by hand</h1>
+<p class="lede">Reading a short config with one obviously broad command catches that command. It reliably misses a secret-shaped literal sitting under an unrelated key name, a missing version pin buried inside one of four different package-manager syntaxes, and a tool name that collides across two servers loaded together &mdash; which is what this free, no-upload checker computes exactly, in one pass.</p>
+</header>
+<section>
+<h2>Where reading it yourself stops being enough</h2>
+<p>
+  Anyone approving a new MCP server already does this: open the config, read the
+  <code>command</code>/<code>args</code>/<code>env</code> block, and decide whether it looks right.
+  For a single server with a bare shell command or an obviously root filesystem path, that read
+  catches it. The problem is the other checks below are not the kind of thing a skim of the
+  rendered keys and values reliably surfaces, especially once a config carries more than a
+  couple of servers.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What you're trying to confirm</th><th scope="col">Reading the config yourself</th><th scope="col">This checker</th></tr></thead>
+<tbody>
+<tr><td>A server's <code>command</code> is a shell interpreter, or an argument is exactly a root path like <code>/</code>, <code>~</code>, or <code>C:\</code>.</td><td>Works. This is the one case a plain read reliably catches.</td><td>Also catches it, in the same pass as everything below.</td></tr>
+<tr><td>An <code>env</code> value matches a real secret's shape (an <code>sk-</code> key, a <code>ghp_</code>/<code>gho_</code> token, a Slack <code>xox-</code> token, an AWS <code>AKIA</code> key, a bearer token) sitting under a key not named token, key, or secret.</td><td>Easy to skim past &mdash; a reviewer's eye is drawn to keys that look suspicious by name, not to every value's shape regardless of its key.</td><td>Matched against every value against every known token shape, independent of the key name.</td></tr>
+<tr><td>A package or image launched with no version pin, across <code>npx</code>, <code>uvx</code>, <code>pipx run</code>, and <code>docker run</code> &mdash; four different pin syntaxes in the same config.</td><td>Requires remembering which syntax applies to which command while scanning every <code>args</code> array; easy to miss the one entry with no pin at all.</td><td>Checked against each command's own pin syntax, the same way every time.</td></tr>
+<tr><td>Whether a key named like a secret actually holds a live literal, versus a proper environment-variable reference such as <code>"${MY_API_KEY}"</code>.</td><td>The two read as visually similar strings in a JSON value; misreading one for the other is easy at a glance.</td><td>Checked against the exact reference syntax, not just whether the value looks token-shaped.</td></tr>
+<tr><td>A tool name exposed by more than one connected server, once the pasted data includes each server's own tool list.</td><td>Requires holding every server's full tool list in mind at once and comparing them pairwise &mdash; manageable with two servers, unreliable past a handful.</td><td>Compared exactly, name by name, across every server in the pasted data.</td></tr>
+<tr><td>Re-checking an entire config again after adding or updating one server.</td><td>One server at a time, remembered by hand, every time something changes.</td><td>One paste, the whole config, every time.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A quick read is still the fastest way to catch an obviously broad command in a small config, and
+  this checker is not doing anything a careful line-by-line audit couldn't &mdash; it is reading the
+  same <code>command</code>/<code>args</code>/<code>env</code> blocks a careful audit would, just
+  checking every value's shape and every pin syntax automatically instead of leaving the comparison
+  to be remembered by hand.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses JSON you paste entirely in your own browser. It never sends your config anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just read the config myself?</h3>
+<p>For a config with one or two servers and an obviously broad command like a bare shell launch, yes -- that case is visible on a single read. What reading does not reliably catch is a secret-shaped literal sitting under a key not named token or secret, a missing version pin buried inside one of four different package-manager argument syntaxes, or a tool name that collides between two servers loaded together. Those need every server's command, args, and env checked the same mechanical way, not remembered while skimming.</p>
+<h3>Why is spotting a hardcoded secret harder than it looks?</h3>
+<p>Because a reviewer scanning by eye naturally looks at keys named token, key, secret, or password and skims past the rest. A literal that matches a real secret's shape -- an sk- style key, a gh_-prefixed GitHub token, a Slack xox- token, an AWS AKIA access key, a bearer token -- can sit under any key name at all, including one that gives no hint. Confirming every value's shape against every known secret pattern, regardless of what its key happens to be called, is a pattern match across the whole config, not a read of the keys that look suspicious.</p>
+<h3>Why is a missing version pin easy to miss on a read-through?</h3>
+<p>Because npx, uvx, pipx run, and docker run each pin a version in a different place and syntax -- an @version suffix on a package name, a bare docker image without a :tag, or an argument list with no pin at all -- and a config with a dozen servers mixes all four. Holding four different pin syntaxes in mind while scanning a dozen args arrays, and noticing the one that has none, is exactly the kind of check that is reliable when it is the same mechanical comparison every time and unreliable when it depends on remembering which syntax applies to which command.</p>
+<h3>What about a tool name that collides across two servers?</h3>
+<p>That needs comparing every tool name a connected server exposes against every tool name every other connected server exposes -- not reading one server's config in isolation, but holding all of them in mind at once and checking for an exact match. With two servers and a handful of tools each this is manageable by eye; past a handful of servers it is the same kind of pairwise comparison a person does slowly and inconsistently and a check does exactly the same way every time.</p>
+<h3>Is this page making a live comparison against a tool or company?</h3>
+<p>No. This page describes a manual habit anyone approving an MCP server config already has -- reading the command, args, and env blocks by eye before trusting it. It names no competing product or company. The checker itself makes no network request of any kind: the browser page parses pasted JSON in your own browser, and nothing you paste is ever uploaded.</p>
+<p class="note">
+  Want to know what a zero-finding scan actually means? Read <a href="./why-a-clean-scan-isnt-a-safety-guarantee.html">why a clean scan isn't a safety guarantee</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, and it does not replace reviewing your own config and each server's source before trusting it. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your config is never uploaded, and this page makes no live comparison against anything and no network call of any kind &mdash; it is a static page describing a manual method. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

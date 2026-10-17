@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Your Best Margin Product May Not Be Your Best Product</title>
+  <meta name="description" content="A $40 margin cake loses to a $4 margin bun when ovens are the limit. A worked example of product mix, the value of one more oven hour, and why margin per unit misleads when capacity is limited.">
+  <meta property="og:title" content="Why Your Best Margin Product May Not Be Your Best Product">
+  <meta property="og:description" content="Ten custom cakes earned $400 of an oven's 40 hours; 200 buns earned $800. Here is how to find your own version of that gap.">
+  <link rel="canonical" href="./why-your-best-margin-product-may-not-be-your-best-product.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I always make the product with the highest margin?","acceptedAnswer":{"@type":"Answer","text":"Not when you cannot make everything. Margin per unit ignores how much of a scarce resource each unit consumes. Compare products by what they earn per unit of the resource that runs out; the optimizer does that for every resource at once."}},{"@type":"Question","name":"What if I have several limits at once, such as oven time and labour?","acceptedAnswer":{"@type":"Answer","text":"Then no single ratio works, because the best mix depends on which limit binds. That is what linear programming is for: it weighs all the limits together, and its shadow prices tell you which limit is actually costing you money this week."}},{"@type":"Question","name":"How do I use the value of one more hour?","acceptedAnswer":{"@type":"Answer","text":"Compare it with what an extra hour costs you: overtime pay, a second shift, a rented oven, a helper. If the value is higher, buy it, up to the range the tool shows. If it is lower, the limit is not worth relaxing."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #0f5a6e; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dce5; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #0f5a6e; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5563; }
+  </style>
+</head>
+<body>
+  <main>
+  <p><a href="./">&larr; Production mix optimizer</a></p>
+  <h1>Why your best margin product may not be your best product</h1>
+  <p>When you can sell more than you can make, something is the limit: oven hours, a machine, a person, a bench. Every product draws on that limit at a different rate, so the product that earns the most per unit is often not the one that earns the most per hour of the thing that runs out. The way to see it is to price the limit, then charge each product for the share of it that it uses.</p>
+  <p><a class="cta" href="./">Open the free production mix optimizer</a></p>
+
+  <h2>A worked example</h2>
+  <p>An invented bakery has 40 oven hours a week. A custom cake sells for $50, costs $10 in materials and takes 4 oven hours: a $40 margin. A bun sells for $5, costs $1 and takes 0.2 hours: a $4 margin. The bakery can sell up to 10 cakes and 1,000 buns a week.</p>
+  <table>
+    <thead><tr><th>Plan</th><th class="n">Cakes</th><th class="n">Buns</th><th class="n">Weekly margin</th></tr></thead>
+    <tbody>
+      <tr><td>Highest margin per unit first</td><td class="n">10</td><td class="n">0</td><td class="n">$400</td></tr>
+      <tr><td>Optimizer</td><td class="n">0</td><td class="n">200</td><td class="n">$800</td></tr>
+    </tbody>
+  </table>
+  <p>Ten cakes use all 40 hours and earn $400, or $10 an hour. Two hundred buns use the same 40 hours and earn $800, or $20 an hour. The optimizer prices an oven hour at $20: that is the shadow price, what one more hour would add while the plan keeps its shape. It holds for another 160 hours, because after that the bun demand limit of 1,000 is reached. Charging each product for the oven hours it uses, a cake costs 4 &times; $20 = $80 of crowded-out production against a $40 margin, so its net per unit is &minus;$40, while a bun's net is $0: it is exactly the break-even product at the margin.</p>
+  <p>None of those figures is real; the method is what matters. Notice what the answer does not say: it does not say cakes are bad. If a customer wants a cake at $90, the margin is $80 and the net is zero, and the plan would change. The tool shows the price at which a product earns its place by showing its resource cost.</p>
+
+  <h2>Finding your own gap</h2>
+  <ol>
+    <li>List the things that run out in a week and how much of each you have. Add overtime you could buy and what it costs.</li>
+    <li>For every product, enter its price, its per-unit cost, how much of each limit one unit uses, a batch size if you make them in trays or runs, the minimum you have promised and the most you can sell.</li>
+    <li>Read the plan, then the value of one more unit of each limit, and compare that with what extra capacity costs you.</li>
+    <li>Look at the net per unit of products that did not make the plan: that is how much more each would have to earn to be worth making.</li>
+  </ol>
+
+  <h2>Common questions</h2>
+  <h3>Should I always make the product with the highest margin?</h3>
+  <p>Not when you cannot make everything. Margin per unit ignores how much of a scarce resource each unit consumes. Compare products by what they earn per unit of the resource that runs out; the optimizer does that for every resource at once.</p>
+  <h3>What if I have several limits at once, such as oven time and labour?</h3>
+  <p>Then no single ratio works, because the best mix depends on which limit binds. That is what linear programming is for: it weighs all the limits together, and its shadow prices tell you which limit is actually costing you money this week.</p>
+  <h3>How do I use the value of one more hour?</h3>
+  <p>Compare it with what an extra hour costs you: overtime pay, a second shift, a rented oven, a helper. If the value is higher, buy it, up to the range the tool shows. If it is lower, the limit is not worth relaxing.</p>
+  <p>Pricing a menu rather than planning production? The <a href="../restaurant-pos-menu-mix-analyzer/">restaurant menu mix analyzer</a> looks at what sells.</p>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, or financial advice. The example bakery, prices and hours are invented. Usage and costs are assumed constant per unit; verify the output against your own books before acting on it. You remain responsible for decisions made from it. No data is uploaded. Usage counting is local to your device and can be switched off on the tool page.</p>
+    <p><a href="./">Use the optimizer</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopify Payments Fee Analyzer — Free Effective-Rate and Fee Waterfall Tool</title>
+  <meta name="description" content="Free Shopify Payments fee analyzer: drop in your Transactions export CSV and see your real effective rate, fees by card brand and card source, refund and chargeback cost, and what-if rates. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Shopify Payments Fee Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Your real Shopify Payments fee rate by card brand, source and currency, from your own Transactions export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shopify Payments Fee Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Shopify Payments Transactions export CSV into a fee waterfall, effective rate by card brand, card source and payment method, refund and dispute cost, a foreign-currency premium and what-if rates. Runs entirely in your browser; the file is never uploaded.", "featureList": "Fee waterfall by transaction type, effective rate by card brand and card source, refund fee cost, dispute and chargeback cost, currency-conversion premium, monthly table, editable what-if rates"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see my real Shopify Payments fee rate without paying for a tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In your Shopify admin go to Finances, then Payouts, then Transactions, and export the transactions as CSV. Drop the file in here and the tool adds up every charge, fee, refund and dispute and gives you the effective rate overall and by card brand, card source and payment method. Nothing is uploaded."}}, {"@type": "Question", "name": "Why is my effective rate higher than the plan's headline rate?", "acceptedAnswer": {"@type": "Answer", "text": "Headline rates cover a domestic card on a same-currency order. International cards, currency conversion, American Express, small orders (where the fixed per-transaction fee is a large share) and dispute fees all push the blended rate above it. The waterfall shows which of them is doing it in your own file."}}, {"@type": "Question", "name": "Do I get the processing fee back when I refund an order?", "acceptedAnswer": {"@type": "Answer", "text": "Generally no: the sale is returned but the fee on the original charge is not, so every refund costs the fee on top of the lost margin. The tool matches each refund to its charge by order number and shows the fee you did not get back. Check your current Shopify terms, as they can change."}}, {"@type": "Question", "name": "What does a chargeback cost?", "acceptedAnswer": {"@type": "Answer", "text": "The disputed amount, a dispute fee, and, if you win, a reversal of the amount. The tool lists dispute count, dispute fees, reversals won and the net cost, and the dispute rate as a share of charges."}}, {"@type": "Question", "name": "How does the what-if work?", "acceptedAnswer": {"@type": "Answer", "text": "Two editable what-ifs. One applies a percentage plus a fixed amount per charge that you type to every charge in the file and shows the difference. The other moves volume from international to domestic cards at the rates each paid in your file. They are arithmetic on your numbers, not Shopify's current rates."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Your Shopify plan price, third-party gateway fees, app charges, taxes, shipping label costs, the true cost of goods, and anything sold outside Shopify Payments. Rows with types it does not know are shown in an “other” line so they are visible rather than lost."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified accountant."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0d6b45; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c7b7; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c7b7; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0d6b45; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefe5; color: #0b3d2a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dcefe5; color: #0b3d2a; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9c7b7; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    .inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .result-line { background: #eef7f2; border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHOPIFY PAYMENTS FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is Shopify Payments really costing you?</h1>
+    <p>Drop in your <strong>Payments Transactions export</strong> and see the <strong>fee waterfall</strong> by transaction type, your <strong>effective rate</strong> by card brand, card source and payment method, what <strong>refunds</strong> and <strong>chargebacks</strong> cost in fees you do not get back, and what a different rate would save.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Order numbers in it are not sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your transactions file</h2>
+    <p class="note">Shopify admin → Finances → Payouts → Transactions → Export → CSV. Columns such as “Transaction Date”, “Type”, “Order”, “Card Brand”, “Card Source”, “Amount”, “Fee”, “Net”, “Payment Method Name”, “Presentment Currency” and “Currency” are matched without regard to case; missing optional columns are fine.</p>
+    <label for="tx-file">Transactions CSV</label>
+    <input type="file" id="tx-file" accept=".csv,text/csv">
+    <label for="tx-paste">…or paste the file text</label>
+    <textarea id="tx-paste" spellcheck="false" placeholder="Transaction Date,Type,Order,Card Brand,Card Source,…,Amount,Fee,Net,…"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste its text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Fee waterfall by transaction type</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Type</th><th class="n" scope="col">Rows</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Net</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Effective rate by card brand</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Card brand</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="g-brand"></tbody></table></div>
+    <h3>By card source (domestic, international, wallets)</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Card source</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="g-source"></tbody></table></div>
+    <h3>By payment method</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Payment method</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="g-method"></tbody></table></div>
+    <h3>Domestic vs international, and foreign-currency checkouts</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Group</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="g-origin"></tbody><tbody id="g-currency"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Charge fees</th><th class="n" scope="col">Rate</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Net</th></tr></thead><tbody id="months"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the breakdown as CSV</button></p>
+  </section>
+
+  <section class="card" id="whatif" hidden>
+    <h2>What if…</h2>
+    <p class="note">Editable arithmetic on your own file. These are rates you type, not Shopify's current rates; check your plan for what actually applies.</p>
+    <div class="inline">
+      <div><label for="plan-pct">Card rate, % of each charge</label><input id="plan-pct" inputmode="decimal" value="2.9"></div>
+      <div><label for="plan-cents">Fixed fee per charge, cents</label><input id="plan-cents" inputmode="decimal" value="30"></div>
+      <div><label for="intl-target">International share of volume, %</label><input id="intl-target" inputmode="decimal" value="10"></div>
+    </div>
+    <p class="result-line" id="wi-plan"></p>
+    <p class="result-line" id="wi-intl"></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Every row lands in exactly one bucket</strong>: charge, refund, dispute, dispute won, adjustment, reserve, other, and payout. Payouts move money already counted, so they are excluded from fees and from the net total. Rows the tool cannot read are listed with their line number and the reason.</li>
+      <li><strong>The fee</strong> on a row is Amount minus Net, so it does not matter whether the file writes fees as positive or negative.</li>
+      <li><strong>The effective rate</strong> is fees on charges divided by the amount of charges. Refund cost is the fee on the refunded share of the original charge (matched by order number) that was not returned; refunds with no charge in the file are estimated at the overall rate and labelled.</li>
+      <li><strong>Domestic vs international</strong> is read from the Card Source and Payment Method Name text; wallets are shown separately and left out of that split. The foreign-currency premium is how much more the charges presented in another currency paid than same-currency charges in this file.</li>
+      <li><strong>Not modelled:</strong> your Shopify plan price, third-party gateway fees, app charges, taxes, shipping labels, cost of goods, and sales that did not go through Shopify Payments.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see my real Shopify Payments fee rate without paying for a tool?</h3>
+    <p>Yes. In your Shopify admin go to Finances, then Payouts, then Transactions, and export the transactions as CSV. Drop the file in here and the tool adds up every charge, fee, refund and dispute and gives you the effective rate overall and by card brand, card source and payment method. Nothing is uploaded.</p>
+    <h3>Why is my effective rate higher than the plan's headline rate?</h3>
+    <p>Headline rates cover a domestic card on a same-currency order. International cards, currency conversion, American Express, small orders (where the fixed per-transaction fee is a large share) and dispute fees all push the blended rate above it. The waterfall shows which of them is doing it in your own file.</p>
+    <h3>Do I get the processing fee back when I refund an order?</h3>
+    <p>Generally no: the sale is returned but the fee on the original charge is not, so every refund costs the fee on top of the lost margin. The tool matches each refund to its charge by order number and shows the fee you did not get back. Check your current Shopify terms, as they can change.</p>
+    <h3>What does a chargeback cost?</h3>
+    <p>The disputed amount, a dispute fee, and, if you win, a reversal of the amount. The tool lists dispute count, dispute fees, reversals won and the net cost, and the dispute rate as a share of charges.</p>
+    <h3>How does the what-if work?</h3>
+    <p>Two editable what-ifs. One applies a percentage plus a fixed amount per charge that you type to every charge in the file and shows the difference. The other moves volume from international to domestic cards at the rates each paid in your file. They are arithmetic on your numbers, not Shopify's current rates.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Your Shopify plan price, third-party gateway fees, app charges, taxes, shipping label costs, the true cost of goods, and anything sold outside Shopify Payments. Rows with types it does not know are shown in an “other” line so they are visible rather than lost.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own records or a qualified accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Shopify is a trademark of Shopify Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by Shopify.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Want profit per product as well? The <a href="../shopify-payout-profit-analyzer/">Shopify payout profit analyzer</a> joins the Orders export to this same Transactions file; this page goes deeper on fee rate by card, currency, refund cost and what-if rates.</p>
+    <p>Pricing an order rather than reading a file? See the <a href="../shopify-fee-calculator/">Shopify fee calculator</a> for one order, and the <a href="../where-to-sell-calculator/">where-to-sell calculator</a> to compare channels.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeTransactions, analyze, whatIfPlan, whatIfIntl, sampleData, BUCKETS, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report"), whatif = $("#whatif");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const LABELS = { charge: "Charges", refund: "Refunds", dispute: "Disputes and chargebacks", dispute_won: "Disputes won (reversals)", adjustment: "Adjustments", reserve: "Reserve holds and releases", other: "Other (unrecognised type)", payout: "Payouts (excluded from fees)" };
+    let skipped = [], last = null;
+
+    const groupRows = (list) => list.length ? list.map((g) => `<tr><th scope="row">${esc(g.key)}</th><td class="n">${g.count}</td><td class="n">${money(g.gross)}</td><td class="n">${money2(g.fees)}</td><td class="n">${pct(g.rate, 2)}</td></tr>`).join("") : `<tr><td colspan="5">No charges.</td></tr>`;
+
+    function renderWhatIf() {
+      if (!last || last.invalid) return;
+      const s = last.summary;
+      const p = parseFloat($("#plan-pct").value), c = parseFloat($("#plan-cents").value);
+      const w = Number.isFinite(p) && Number.isFinite(c) ? whatIfPlan(s, p, c) : null;
+      $("#wi-plan").textContent = w
+        ? `At ${p}% + ${c}¢ per charge, the ${s.chargeCount} charges would have cost ${money2(w.fees)} (${pct(w.rate, 2)}) instead of ${money2(s.chargeFees)} (${pct(s.effectiveRate, 2)}): ${w.saved >= 0 ? "a saving of" : "an extra"} ${money2(Math.abs(w.saved))} over this file's period.`
+        : "Enter a percentage and a fixed amount in cents.";
+      const t = parseFloat($("#intl-target").value);
+      const i = Number.isFinite(t) ? whatIfIntl(s, t) : null;
+      $("#wi-intl").textContent = s.intl
+        ? (i ? `International cards are ${pct(s.intl.share, 1)} of the volume whose origin is known. At ${t}% instead, about ${money(Math.abs(i.moved))} of sales would move ${i.moved >= 0 ? "to domestic cards and save" : "to international cards and cost"} about ${money2(Math.abs(i.saved))}, using the ${pct(s.intl.intlRate, 2)} and ${pct(s.intl.domRate, 2)} rates this file paid.` : "Enter a target international share in percent.")
+        : "This file does not label both domestic and international cards, so that what-if is not available.";
+    }
+
+    function render(rows) {
+      const r = last = analyze(rows);
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; whatif.hidden = true; return false; }
+      const s = r.summary;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.gross)}</strong> in ${s.chargeCount} charges cost <strong>${money2(s.chargeFees)}</strong> in fees, an effective rate of <strong>${pct(s.effectiveRate, 2)}</strong>. After refunds, disputes and other rows, fees of every kind total ${money2(s.totalFees)}; you were paid out ${money(s.payouts)}.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#waterfall").innerHTML = BUCKETS.filter((b) => s.buckets[b].count > 0).map((b) => {
+        const k = s.buckets[b];
+        return `<tr><th scope="row">${LABELS[b]}</th><td class="n">${k.count}</td><td class="n${k.amount < 0 ? " neg" : ""}">${money2(k.amount)}</td><td class="n${k.fees < 0 ? "" : ""}">${money2(k.fees)}</td><td class="n${k.net < 0 ? " neg" : ""}">${money2(k.net)}</td></tr>`;
+      }).join("")
+        + `<tr><th scope="row"><strong>Total excluding payouts</strong></th><td class="n"><strong>${s.rowCount - s.payoutCount}</strong></td><td class="n"></td><td class="n"><strong>${money2(s.totalFees)}</strong></td><td class="n"><strong>${money2(s.operatingNet)}</strong></td></tr>`
+        + (s.refundAmount > 0 ? `<tr><th scope="row">Refund cost: fees not returned</th><td class="n">${s.refundsMatched + s.refundsUnmatched}</td><td class="n"></td><td class="n">${money2(s.refundCost)}</td><td class="n">${s.refundsUnmatched ? "incl. estimate" : ""}</td></tr>` : "");
+      $("#g-brand").innerHTML = groupRows(r.groups.brand);
+      $("#g-source").innerHTML = groupRows(r.groups.source);
+      $("#g-method").innerHTML = groupRows(r.groups.method);
+      $("#g-origin").innerHTML = groupRows(r.groups.origin);
+      $("#g-currency").innerHTML = groupRows(r.groups.currency);
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${m.charges}</td><td class="n">${money(m.gross)}</td><td class="n">${money2(m.chargeFees)}</td><td class="n">${pct(m.rate, 2)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) could not be read and are not counted: ` + skipped.slice(0, 8).map((k) => `line ${k.line} (${k.reason})`).join("; ") + (skipped.length > 8 ? "…" : "") : "";
+      report.hidden = false; whatif.hidden = false;
+      renderWhatIf();
+      return true;
+    }
+
+    function run(text) {
+      const n = normalizeTransactions(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; whatif.hidden = true; return false; }
+      skipped = n.skipped;
+      if (!render(n.rows)) return false;
+      status.textContent = `Read ${n.rows.length} transaction rows` + (skipped.length ? `; ${skipped.length} could not be read (listed below the tables).` : ".");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#tx-file").files[0];
+      const text = f ? await f.text() : $("#tx-paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste its text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const t = sampleData();
+      $("#tx-paste").value = t; $("#tx-file").value = "";
+      if (run(t)) { record("example_loaded"); status.textContent = "Worked example: a synthetic US store over four months. Replace it with your own file."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#tx-paste").value = ""; $("#tx-file").value = ""; report.hidden = true; whatif.hidden = true; last = null; status.textContent = "Cleared."; });
+    for (const id of ["#plan-pct", "#plan-cents", "#intl-target"]) $(id).addEventListener("input", renderWhatIf);
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const body = [];
+      for (const [name, list] of [["brand", last.groups.brand], ["source", last.groups.source], ["method", last.groups.method], ["origin", last.groups.origin], ["currency", last.groups.currency]])
+        for (const g of list) body.push([name, q(g.key), g.count, g.gross.toFixed(2), g.fees.toFixed(2), (g.rate * 100).toFixed(3)].join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([["dimension,group,charges,sales,fees,rate_percent"].concat(body).join("\n")], { type: "text/csv" }));
+      a.download = "fee-rate-breakdown.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

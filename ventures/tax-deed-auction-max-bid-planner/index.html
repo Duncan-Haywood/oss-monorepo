@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit</title>
+  <meta name="description" content="Free tax deed auction max bid calculator. Enter resale price, repairs, surviving liens, quiet title, occupant, holding and cash costs and your target profit; it shows the maximum bid and stress-tests your bids. Private, in your browser.">
+  <meta property="og:title" content="Tax Deed Auction Max Bid Planner — the most to bid and still hit your profit">
+  <meta property="og:description" content="Free tax deed auction max bid calculator. Enter resale price, repairs, surviving liens, quiet title, occupant, holding and cash costs and your target profit; it shows the maximum bid and stress-tests your bids. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tax Deed Auction Max Bid Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for tax deed auction buyers. Enter the resale price, repairs, surviving liens, quiet title, occupant, holding and financing costs and your target profit; it returns the maximum bid and tests your planned bids. Runs in your browser; nothing is uploaded.","featureList":"tax deed auction max bid calculator, tax deed investing profit calculator, surviving liens on tax deed, quiet title cost budget, bid stress test"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the maximum bid at a tax deed auction?","acceptedAnswer":{"@type":"Answer","text":"It is the highest bid at which you still earn your target profit after every cost of the deal: buyer's premium and recording fees, liens the deed does not remove, clearing title and occupants, repairs, carrying costs and the return your cash could have earned. Work backwards from the price you can resell for, subtract those costs and your target profit, and what is left is the most you can bid."}},{"@type":"Question","name":"Do liens survive a tax deed sale?","acceptedAnswer":{"@type":"Answer","text":"It depends on the state and the lien. Many states extinguish mortgages and most junior liens, but some municipal liens, federal tax liens with redemption rights, HOA assessments, easements and special assessments can survive and become the buyer's problem. Run a title search before the sale and enter the surviving amount; this tool only subtracts the number you type."}},{"@type":"Question","name":"Why is the quiet title cost in the calculation?","acceptedAnswer":{"@type":"Answer","text":"Title insurers and resale buyers often will not close on a bare tax deed until a quiet-title action confirms it. That is a legal fee and several months of delay, so it belongs in the budget before you bid, not after you win."}},{"@type":"Question","name":"How much should I discount for risk when bidding?","acceptedAnswer":{"@type":"Answer","text":"The calculator shows your profit if the resale price turns out 10% and 20% lower, and the value drop that wipes out your profit at the maximum bid. Many buyers bid well under the maximum so that a bad surprise, such as a title problem or occupant, still leaves them whole."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this legal, tax or investment advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Tax deed rules, redemption periods and lien priority vary by state and county, and buying at auction carries risk of loss. Talk to a real-estate attorney, title company or tax professional before bidding."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TAX DEED AUCTION MAX BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the most you can bid at a tax deed auction?</h1>
+    <p>Enter what the property will resell for and what winning it will really cost. The tool takes out <strong>buyer's premium, surviving liens, quiet title, occupants, repairs, carrying costs and the return on your cash</strong>, then gives the <strong>maximum bid</strong> that still hits your target profit and stress-tests the bids you are considering.</p>
+    <p class="note">The method with a worked example: <a href="./how-to-set-a-max-bid-at-a-tax-deed-auction.html">how to set a max bid at a tax deed auction</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The resale</h2>
+    <div class="row3"><div><label for="resale">Resale price you expect (as repaired, $)</label><input type="number" id="resale" min="1" step="any" max="100000000" value="120000"></div><div><label for="sc">Selling costs (% of resale)</label><input type="number" id="sc" min="0" step="0.5" max="29" value="7"></div><div><label for="mo">Months to resell</label><input type="number" id="mo" min="0.5" step="0.5" max="60" value="6"></div><div><label for="rep">Repairs and rehab ($)</label><input type="number" id="rep" min="0" step="500" value="30000"></div><div><label for="mh">Holding costs per month: tax, insurance, utilities ($)</label><input type="number" id="mh" min="0" step="25" value="650"></div><div><label for="ir">Return your cash could earn elsewhere (% a year)</label><input type="number" id="ir" min="0" step="0.5" max="40" value="10"></div></div>
+    <h2 style="margin-top:20px">2. What winning costs besides the bid</h2>
+    <div class="row3"><div><label for="pm">Buyer's premium or auction fee (% of bid)</label><input type="number" id="pm" min="0" step="0.5" max="30" value="5"></div><div><label for="rc">Recording, deed and transfer fees ($)</label><input type="number" id="rc" min="0" step="50" value="450"></div><div><label for="ln">Liens that survive the sale ($)</label><input type="number" id="ln" min="0" step="100" value="3500"></div><div><label for="qt">Quiet title or title clearing ($)</label><input type="number" id="qt" min="0" step="100" value="3500"></div><div><label for="ev">Occupant removal, legal ($)</label><input type="number" id="ev" min="0" step="100" value="2500"></div><div><label for="tp">Target profit (% of resale)</label><input type="number" id="tp" min="0" step="0.5" max="59" value="12"></div><div><label for="tm">Or minimum target profit ($)</label><input type="number" id="tm" min="0" step="500" value="15000"></div></div>
+    <h2 style="margin-top:20px">3. Bids to test</h2>
+    <p class="note">Each row is a bid you might make, such as the opening bid or what you think it will go for. Up to six.</p>
+    <div class="scroll"><table id="bids"><thead><tr><th>Label</th><th>Bid ($)</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-bid">Add a bid</button>
+    <button type="button" id="solve">Find my max bid</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Find my max bid.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Bid</th><th class="num">Amount</th><th class="num">All-in cost</th><th class="num">Profit</th><th class="num">Return on cash</th><th class="num">Value down 10%</th><th class="num">Value down 20%</th><th>Target</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>All-in cost:</strong> bid plus premium, recording, surviving liens, quiet title and occupant costs, plus repairs, plus monthly holding costs, plus a carrying charge on the cash you put in for the months you hold it.</p>
+    <p><strong>Profit:</strong> resale price, less selling costs, less all-in cost. It is a straight line in the bid, so the maximum bid has an exact formula, not a search.</p>
+    <p><strong>Check:</strong> the test suite recomputes profit at the maximum bid for hundreds of random deals and confirms it equals your target to the cent.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the maximum bid at a tax deed auction?</h3>
+    <p>It is the highest bid at which you still earn your target profit after every cost of the deal: buyer's premium and recording fees, liens the deed does not remove, clearing title and occupants, repairs, carrying costs and the return your cash could have earned. Work backwards from the price you can resell for, subtract those costs and your target profit, and what is left is the most you can bid.</p>
+    <h3>Do liens survive a tax deed sale?</h3>
+    <p>It depends on the state and the lien. Many states extinguish mortgages and most junior liens, but some municipal liens, federal tax liens with redemption rights, HOA assessments, easements and special assessments can survive and become the buyer's problem. Run a title search before the sale and enter the surviving amount; this tool only subtracts the number you type.</p>
+    <h3>Why is the quiet title cost in the calculation?</h3>
+    <p>Title insurers and resale buyers often will not close on a bare tax deed until a quiet-title action confirms it. That is a legal fee and several months of delay, so it belongs in the budget before you bid, not after you win.</p>
+    <h3>How much should I discount for risk when bidding?</h3>
+    <p>The calculator shows your profit if the resale price turns out 10% and 20% lower, and the value drop that wipes out your profit at the maximum bid. Many buyers bid well under the maximum so that a bad surprise, such as a title problem or occupant, still leaves them whole.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this legal, tax or investment advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Tax deed rules, redemption periods and lien priority vary by state and county, and buying at auction carries risk of loss. Talk to a real-estate attorney, title company or tax professional before bidding.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not legal, tax, title or investment advice. <strong>Use at your own risk.</strong> Tax deed rules, redemption periods and lien priority differ by state and county, and an auction purchase can lose money; check any bid with a real-estate attorney, title company or tax professional.</p>
+    <p><strong>Independent.</strong> Not affiliated with any county, auction platform or title company, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a> and the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, pct, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_BIDS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const IDS = { resale: "resale", sellCostPct: "sc", months: "mo", repairs: "rep", monthlyHolding: "mh", interestPct: "ir", premiumPct: "pm", recording: "rc", liens: "ln", quietTitle: "qt", eviction: "ev", targetProfitPct: "tp", targetProfitMin: "tm" };
+    let R = null;
+    function bidRow(b) {
+      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Label for this bid"></td><td><input type="number" class="ba" min="1" step="any" value="' + esc(b.amount) + '" aria-label="Bid amount in dollars"></td><td><button type="button" class="secondary rm" aria-label="Remove this bid">Remove</button></td></tr>';
+    }
+    function setBids(bids) { $("#bids tbody").innerHTML = bids.map(bidRow).join(""); }
+    function read() {
+      const o = {};
+      for (const [k, id] of Object.entries(IDS)) o[k] = Number($("#" + id).value);
+      o.bids = [...document.querySelectorAll("#bids tbody tr")].map((r) => ({ label: r.querySelector(".bl").value.trim(), amount: Number(r.querySelector(".ba").value) }));
+      return o;
+    }
+    function fill(s) {
+      for (const [k, id] of Object.entries(IDS)) $("#" + id).value = s[k];
+      setBids(s.bids);
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[money(R.maxBid), "maximum bid for your target"], [money(R.target), "target profit"], [money(R.breakEvenBid), "bid where profit hits zero"], [R.wipeoutDropPct === null ? "n/a" : R.wipeoutDropPct.toFixed(1) + "%", "resale drop that erases the target at max bid"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      $("#out tbody").innerHTML = R.options.map((o) => "<tr><td>" + esc(o.label) + '</td><td class="num">' + money(o.amount) + '</td><td class="num">' + money(o.allIn) + '</td><td class="num">' + money(o.net) + '</td><td class="num">' + pct(o.roi) + '</td><td class="num">' + money(o.stress10) + '</td><td class="num">' + money(o.stress20) + "</td><td>" + (o.clears ? "Clears" : "Misses") + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setBids(sampleInput().bids);
+    $("#add-bid").addEventListener("click", () => { const n = document.querySelectorAll("#bids tbody tr").length; if (n >= MAX_BIDS) { status.textContent = "Up to " + MAX_BIDS + " bids."; return; } $("#bids tbody").insertAdjacentHTML("beforeend", bidRow({ label: "", amount: "" })); });
+    $("#bids").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a $120,000 resale, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("tax-deed-max-bid.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("tax-deed-max-bid.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

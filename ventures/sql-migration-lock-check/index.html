@@ -103,7 +103,7 @@ node check.mjs --fail-on-risk      # exit 2 if a statement can block the table</
     <p>No, and it has no way to. It reads SQL text and nothing else — no connection string, no credentials, no driver, no network calls at all. The browser page parses what you paste on your own device, and the CLI reads files from your own disk. That is what makes it safe to run against the migration you are about to apply to production: there is no connection to point at the wrong database.</p>
     <h3>Which databases does this apply to?</h3>
     <p>PostgreSQL. The lock levels, the rewrite rules, the <code>NOT VALID</code> / <code>VALIDATE CONSTRAINT</code> split and the <code>CONCURRENTLY</code> forms are all PostgreSQL semantics, and the advice would be wrong in places for MySQL, which has its own online-DDL rules, or SQLite, which rewrites tables for most <code>ALTER</code>s regardless. Running it against a MySQL migration will still flag statements that are risky there too, but read the reasoning rather than the verdict.</p>
-    <p>More: <a href="why-your-migration-locked-the-table.html">why your migration locked the table</a>. Already using <a href="vs-squawk.html">squawk</a>? See <a href="vs-squawk.html">how this checker compares</a>.</p>
+    <p>More: <a href="why-your-migration-locked-the-table.html">why your migration locked the table</a>. Already using <a href="vs-squawk.html">squawk</a>? See <a href="vs-squawk.html">how this checker compares</a>. Just reading the migration by eye? See <a href="vs-reading-the-migration-by-hand.html">how this checker compares</a> for the relational checks a single-statement read tends to miss.</p>
   </section>
 
   <footer>
@@ -112,6 +112,7 @@ node check.mjs --fail-on-risk      # exit 2 if a statement can block the table</
     <p>Everything runs in your browser. The SQL you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>A migration is one step in a deploy that can break quietly: <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> asks whether the rollout shipping this change drops requests, and <a href="../pinned-actions-check/">Pinned Actions Check</a> asks whether the workflow that ships it is pinned to immutable references — three slices of the same question.</p>
+    <p>Slow queries are the other half of database trouble: <a href="../postgres-explain-analyzer/">Postgres EXPLAIN Analyzer</a> reads an EXPLAIN ANALYZE plan and finds the missing index or disk spill.</p>
     <p class="support">Free and open source. If this caught a migration that would have locked your table, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

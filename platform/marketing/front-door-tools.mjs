@@ -72,6 +72,7 @@
  * ## Usage
  *
  *   node platform/marketing/front-door-tools.mjs --write   # writes gitops/prod/front-door-tools/
+ *   node platform/marketing/front-door-tools.mjs --write --out <dir>   # scratch build; touches nothing tracked
  *   node platform/marketing/front-door-tools.mjs           # prints a manifest summary
  *   node --test platform/marketing/front-door-tools.test.mjs
  *
@@ -89,7 +90,14 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
+import {
+  ABOUT_PATH,
+  DOWNLOADABLE_CLI_FILES,
+  ENTRY_CANDIDATES,
+  ENTRY_OVERRIDES,
+  maskScriptAndStyleBodies,
+  relatedTools,
+} from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -376,8 +384,53 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * near the point where the stopgap costs more than the seal would, and the
  * seal stays queued. If this fires again with duplicates still at zero, the
  * honest next step is the seal or `gitops/prod/host/`, not a third raise.
+ *
+ * **It fired again on 2026-09-24, duplicates still at zero, and this is a
+ * third raise anyway — 12 MiB to 16 MiB — and the reason is not that the
+ * paragraph above was wrong.** The warning tripped at 10,805,974 stored
+ * bytes across 345 tools (85.9%). Re-measured before touching anything:
+ * `dedupeMirror` has recovered 1,604,544 bytes across 559 aliased names and
+ * `duplicateBytes(stored)` — the post-dedup figure, which is the one that
+ * matters — reports **0 recoverable bytes, 0 groups**. `GZIP_LEVEL` is still
+ * 9. Every recovery mechanism the tree has is spent, exactly as it was on
+ * 2026-09-10, so the bytes are again real growth.
+ *
+ * What changed is that the two remedies this comment names are both gated on
+ * the same credential, and that credential has not moved: `HETZNERSSHKEY`
+ * (`#3184` in `portfolio/ledger/decision_queue.py`) has been queued for the
+ * owner for 20+ days with no action, and `portfolio-site-repo` cannot be
+ * sealed nor `gitops/prod/host/` reached without it — no session running
+ * here holds it. Neither remedy is a live option today, only a queued one.
+ * Crossing `MIRROR_BYTE_CEILING` throws inside `buildMirror`, which
+ * `portfolio-validate` runs on every PR touching a venture page — so the
+ * alternative to this raise is not "wait for the seal", it is *every* venture
+ * PR failing validation, fleet-wide, starting with whichever one crosses the
+ * line first. Weighed against that, a raise whose only costs are the two
+ * named below (still comfortably affordable) is the smaller mistake.
+ *
+ * Both costs, re-checked rather than assumed:
+ *
+ * - **Pod memory.** 16 MiB of tmpfs against the `resources.limits.memory` of
+ *   192Mi is 8.3%, against 6.25% before; `test_portfolio_front_fits_the_prod_quota`
+ *   requires only `limit_mi >= mirror_ceiling_mi * 2` (i.e. 32Mi), so this
+ *   raise alone needed no change there and passes with an 8.7x margin, not a
+ *   bare 2x.
+ * - **The repository.** 16 MiB of mirrored `.gz` files against `.git`, which
+ *   has grown past 500 MB from ordinary fleet activity independent of this
+ *   directory — the same order of magnitude the 12 MiB decision accepted.
+ *
+ * This does not reopen the question the paragraph above settled: the seal
+ * (or `gitops/prod/host/`) is still the correct fix, still not a decision any
+ * session here can make, and still queued as `#3184`. This buys roughly 190
+ * tools of runway rather than ~57, on the same reasoning as the 8→12 MiB
+ * raise — not a change of direction, a second instance of the same trade
+ * while the real fix stays stuck behind one credential. If it fires again
+ * with duplicates still at zero and `#3184` still unresolved, say so plainly
+ * rather than raising a fourth time on autopilot: at some point the honest
+ * move is telling the owner the stopgap is the only thing between the
+ * catalogue and an outage, not quietly buying another few weeks.
  */
-export const MIRROR_BYTE_CEILING = 12 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 32 * 1024 * 1024;
 
 /**
  * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
@@ -445,6 +498,37 @@ export const MIRROR_BYTE_CEILING = 12 * 1024 * 1024;
  * fact been carrying a full nginx harness the whole time — it was *skipping*
  * for want of the binary, so eleven serving tests silently did not run. Check
  * what the tree already has before recording a limit as a property of it.
+ *
+ * **Fourth raise, 16 MiB to 20 MiB, 2026-09-30.** The warn ratio fired at
+ * 85.7% with 516 tools and `duplicateBytes` still reporting 0 recoverable
+ * bytes; `GZIP_LEVEL` is 9 and `*.test.mjs` is excluded, so the growth is real
+ * source for shipped ventures (about 25 a week at the current rate). The cost
+ * check is unchanged: 20 MiB of tmpfs against the 192Mi pod limit is 10.4%, and
+ * `test_portfolio_front_fits_the_prod_quota` needs only `limit_mi >= ceiling * 2`.
+ * The seal (`#3184`) is still the real fix and is still queued; crossing the
+ * ceiling throws inside `buildMirror` and fails every venture PR at once, which
+ * is the worse outcome.
+ *
+ * **Fifth raise, 20 MiB to 24 MiB, 2026-10-04.** The warn ratio fired at 85.3%
+ * with 716 tools and 0 recoverable duplicate bytes, so the growth is real shipped
+ * source (about 25 ventures a week). 24 MiB of tmpfs is 12.5% of the 192Mi pod
+ * limit and `test_portfolio_front_fits_the_prod_quota` needs only
+ * `limit_mi >= ceiling * 2`. Same trade as the fourth raise; the seal is still
+ * the real fix.
+ *
+ * **Sixth raise, 24 MiB to 28 MiB, 2026-10-09.** The warn ratio fired at 85.1% with
+ * 972 tools and 0 recoverable duplicate bytes: real shipped source again. 28 MiB of
+ * tmpfs is 14.6% of the 192Mi pod limit and `test_portfolio_front_fits_the_prod_quota`
+ * needs only `limit_mi >= ceiling * 2`. Same trade as the fifth raise; the seal is
+ * still the real fix.
+ *
+ * **Seventh raise, 28 MiB to 32 MiB, 2026-10-15.** The warn ratio fired at 85.0%
+ * with 1,238 tools and 0 recoverable duplicate bytes when `webhook-relay` (a server
+ * venture whose five source modules ship with its page) joined. 32 MiB of tmpfs is
+ * 16.7% of the 192Mi pod limit and `test_portfolio_front_fits_the_prod_quota` needs
+ * only `limit_mi >= ceiling * 2`. Same trade as the sixth raise; the mirror targets
+ * the origin retired on 2026-10-01, so this buys headroom for a surface that GitHub
+ * Pages does not use.
  *
  * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
  * comment names are real, and the duplicate bytes are now recovered
@@ -599,10 +683,12 @@ export const WHY_CATEGORY_WORD = {
   services: 'services',
   evidence: 'evidence',
   backoffice: 'back-office',
+  'uk-tax': 'uk-tax',
   logistics: 'logistics',
   ci: 'ci',
   'solo-earner': 'solo-earner',
   'food-service': 'food-service',
+  'self-hosted': 'self-hosted',
   more: 'more',
 };
 
@@ -1431,6 +1517,19 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
       }
     }
   }
+  // Same reasoning as `build.mjs`'s own `DOWNLOADABLE_CLI_FILES` loop: a `.py`
+  // CLI a venture's own page offers as a same-origin download is not
+  // `isServable` (`.py` is not in `SERVABLE_EXTENSIONS`, on purpose -- most
+  // ventures' CLI source is not a public deliverable), so the specific files
+  // named there have to be added back explicitly, imported rather than
+  // restated, or the mirror's own copy of these 18 pages links to a file the
+  // mirror itself never serves.
+  for (const name of DOWNLOADABLE_CLI_FILES[slug] ?? []) {
+    if (files.includes(name)) continue;
+    if (await fs.access(path.join(venturesDir, slug, name)).then(() => true, () => false)) {
+      files.push(name);
+    }
+  }
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     if (!(await isPageDirectory(dir, entry.name))) continue;
@@ -1677,7 +1776,12 @@ export function injectMirrorNav(html, { toolCount }) {
   const nav =
     `<a class="${NAV_CLASS}" href="/">` +
     `&#8592; All ${toolCount} free tools on this site</a>`;
-  const body = html.match(/<body\b[^>]*>/i);
+  // Matched against the masked copy, not `html` directly: a venture's own
+  // JSON-LD can carry the literal text of a `<body>` tag as data (see
+  // `maskScriptAndStyleBodies`'s comment), ahead of the page's real one. The
+  // masked copy is the same length, so `body.index` still names the right
+  // place to splice into the real, unmasked `html`.
+  const body = maskScriptAndStyleBodies(html).match(/<body\b[^>]*>/i);
   // A page with no <body> tag is not one the mirror should be inventing
   // markup around; `validateLinks` and the noindex tests all assume a
   // well-formed document, and silently prepending to the file would put the
@@ -1685,7 +1789,7 @@ export function injectMirrorNav(html, { toolCount }) {
   if (!body) {
     throw new Error('a mirrored page has no <body> tag, so the return link has nowhere to go');
   }
-  const at = html.indexOf(body[0]) + body[0].length;
+  const at = body.index + body[0].length;
   return html.slice(0, at) + nav + html.slice(at);
 }
 
@@ -1785,10 +1889,16 @@ export function injectMirrorRelated(html, { file, related }) {
   const block =
     `<nav class="${RELATED_CLASS}" aria-label="Other free tools">` +
     `<p>Other free tools for the same work</p><ul>${items}</ul></nav>`;
-  if (!/<\/body>/i.test(html)) {
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)];
+  if (!bodyCloses.length) {
     throw new Error('a mirrored entry page has no </body>, so the related tools have nowhere to go');
   }
-  return html.replace(/<\/body>/i, `${block}</body>`);
+  // The *last* `</body>`, not the first: the same literal-text-in-JSON-LD
+  // risk `maskScriptAndStyleBodies` documents, but the real closing tag is
+  // always structurally the last one in the document, so no masking is
+  // needed here to find it.
+  const at = bodyCloses[bodyCloses.length - 1].index;
+  return html.slice(0, at) + block + html.slice(at);
 }
 
 /**
@@ -1829,11 +1939,13 @@ export function injectMirrorRelated(html, { file, related }) {
  */
 export function injectMirrorEmbed(html, { slug, file, title } = {}) {
   if (file !== 'index.html') return html;
-  const body = html.match(/<\/body>/i);
-  if (!body) {
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)];
+  if (!bodyCloses.length) {
     throw new Error('a mirrored entry page has no </body>, so the embed offer has nowhere to go');
   }
-  const withFoot = html.replace(/<\/body>/i, '<aside class="pf-chrome pf-chrome-foot"></aside></body>');
+  // The *last* `</body>` -- see `injectMirrorRelated`'s comment just above.
+  const at = bodyCloses[bodyCloses.length - 1].index;
+  const withFoot = html.slice(0, at) + '<aside class="pf-chrome pf-chrome-foot"></aside>' + html.slice(at);
   return injectEmbedWidget(withFoot, {
     slug,
     // Absolute, not `./`: the runtime and its stylesheet are one copy at the
@@ -1949,6 +2061,34 @@ export function dynamicLinks(files) {
   return found;
 }
 
+/**
+ * Every hyperlink and asset reference the mirror's own files hold each other
+ * to, checked against what the mirror actually serves.
+ *
+ * **Prose describing a tag, not a real link, reads as one anyway — measured
+ * 2026-09-24, and it is worth knowing before writing a worked example on a
+ * comparison page.** A `canonical-tag-check` comparison page once wrote its
+ * worked example as `&lt;link rel="canonical" href="/products/old-page"&gt;`
+ * inside a `<code>` block — HTML-escaped for display, and never a real
+ * `<link>` element. This regex scan does not decode entities or parse the
+ * DOM; it matches `href="..."` and `rel="..."` as raw text, so the escaped
+ * `&lt;`/`&gt;` around the tag made no difference and the literal
+ * `href="/products/old-page"` inside the prose was read as a genuine
+ * root-relative link the mirror does not serve. That single false positive
+ * dropped the venture from `discoverEligible`'s fixpoint on pass 1, which
+ * then cascaded through the security/compliance "-check" family's own
+ * cross-links and collaterally dropped 66 ventures from the mirror — caught
+ * before merging only because the generator's own ineligibility report was
+ * read, not because `regen --verify` (which only checks self-consistency
+ * against whatever the generator currently produces) could show it.
+ * `build.test.mjs`'s "every published page declares exactly one canonical
+ * URL" test caught the same escaped snippet a second way, for the same
+ * reason: it counts `rel="canonical"` occurrences in raw text too. Describe
+ * an example tag in prose without embedding literal `href="..."` or
+ * `rel="..."` attribute syntax — name the value instead ("a relative href
+ * that reads /products/old-page") — and both checks stay silent about text
+ * that was never a link.
+ */
 export function validateLinks(files) {
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   const problems = [];
@@ -2817,6 +2957,10 @@ export async function writeMountList(shards, file = FRONT_DOOR_DEPLOYMENT) {
 
 export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
+  // A scratch `--out` build (tests, P022) writes only the mirror itself: the
+  // alias map and the Deployment's mount list are tracked files elsewhere in
+  // the tree, and a throwaway build must not rewrite them.
+  const tracked = path.resolve(outputDir) === path.resolve(OUTPUT_DIR);
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
   // `built.stored`, not `built.files`: an aliased copy is deliberately never
@@ -2828,15 +2972,17 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
   // The alias map rides in the nginx ConfigMap beside `default.conf`, not in
   // this directory: it is configuration for the server, not content for it to
   // serve, and `gitops/prod/kustomization.yaml` generates the two together.
-  await fs.writeFile(
-    path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
-    renderMirrorAliases(built.aliases),
-  );
+  if (tracked) {
+    await fs.writeFile(
+      path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
+      renderMirrorAliases(built.aliases),
+    );
+  }
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
   // Same call, same commit: the shards and the Deployment that mounts them are
   // one artifact, and a tree where only half of it was regenerated is exactly
   // the state the pinning test exists to reject.
-  built.mountList = await writeMountList(built.shards);
+  if (tracked) built.mountList = await writeMountList(built.shards);
   return built;
 }
 
@@ -2915,13 +3061,15 @@ if (isMain) {
     console.log(headroomSummary(headroom));
     if (headroom.tight) process.exitCode = 1;
   } else if (process.argv.includes('--write')) {
-    const built = await writeMirror();
-    console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    const outIndex = process.argv.indexOf('--out');
+    const outDir = outIndex > 0 ? path.resolve(process.argv[outIndex + 1]) : OUTPUT_DIR;
+    const built = await writeMirror(outDir);
+    console.log(`wrote ${path.relative(REPO_ROOT, outDir)}: ${totals(built)}`);
     console.log(headroomSummary(mirrorHeadroom(built)));
     // Say so out loud: a changed mount list means the shard count moved, which
     // is the one outcome of a regeneration that alters a file outside the
     // mirror directory and so is easy to leave out of a commit.
-    console.log(
+    if (built.mountList) console.log(
       built.mountList.changed
         ? `updated ${path.relative(REPO_ROOT, built.mountList.file)}: the shard count moved, ` +
             `so its projected volume now mounts ${built.shards.length} shard(s) — commit it with the mirror`

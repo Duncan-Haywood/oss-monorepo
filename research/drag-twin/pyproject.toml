@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drag-twin"
+version = "0.1.0"
+description = "Linear-drag twin of a quadratic-drag vehicle: a twin fitted at one speed is exact only there; coast-down time, terminal speed and safe speed under a stopping-distance limit are all off away from the fit speed, with closed forms"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

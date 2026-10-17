@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handover-twin"
+version = "0.1.0"
+description = "When to give up waiting for a human: a light-tailed simulated human never makes a collaborative robot abort, exact regret and calibration budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

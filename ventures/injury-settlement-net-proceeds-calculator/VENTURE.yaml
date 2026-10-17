@@ -1,0 +1,54 @@
+name: injury-settlement-net-proceeds-calculator
+description: >-
+  Free browser tool for people with a personal-injury settlement offer: enter the gross amount, attorney fee (on gross
+  or net of costs), case costs, medical liens with negotiated reductions, the Medicare procurement-cost formula, and
+  any taxable portion, and see what the client actually takes home, the net at other offer sizes, and the gross needed
+  to net a target. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.15-0.27, all
+# unrelated; no settlement-net tool in ventures/. High-intent, high-dollar search ("settlement calculator",
+# "how much will I get from my settlement after fees and liens", "car accident settlement net"). Incumbents are
+# personal-injury law-firm blogs whose calculators are lead forms that ask for contact details.
+#
+# Who: injured people deciding on an offer, and the plaintiff-side paralegals and attorneys who explain it. The paying
+# buyer, if there is one, is a plaintiff firm that wants a client-ready net sheet with its name and saved cases; not
+# built, behind an env-var switch if usage appears.
+#
+# Path to revenue (payment rails stay off): lead magnet; a branded client net sheet for plaintiff firms is the paid
+# version.
+#
+# Liability: arithmetic on the user's own figures with visible rules; no state lien statute table is shipped that could
+# go stale; carries the no-warranty and not-legal-or-tax-advice clauses and lists what is not decided (lien validity,
+# the final Medicare demand, ERISA terms, taxability, minors and special-needs trusts, structured settlements).
+#
+# Unverified: no plaintiff attorney has checked it against a real closing statement. The first wrong result is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      A person holding a settlement offer will type the fee, costs and liens into a no-upload page to see the
+      take-home figure before deciding, because the gross is the only number the insurer quotes and the net is the one
+      that matters.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A plaintiff attorney reports a result that differs materially from a correct net computation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/injury-settlement-net-proceeds-calculator/
+  analytics: null

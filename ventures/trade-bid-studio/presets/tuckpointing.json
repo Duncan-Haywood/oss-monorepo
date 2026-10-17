@@ -1,0 +1,41 @@
+{
+  "slug": "tuckpointing-bid-calculator",
+  "name": "Tuckpointing",
+  "group": "Paving, concrete & masonry",
+  "summary": "Brick repointing priced from wall area, method, access, mortar type, brick and lintel replacement.",
+  "fit": "good",
+  "crewSize": 1,
+  "setupHours": 2.8,
+  "hourlyWage": 32,
+  "burdenRate": 30,
+  "overheadRate": 15,
+  "targetMargin": 20,
+  "tripFee": 95,
+  "items": [
+    {
+      "label": "Point-only smear, Type N mortar",
+      "unit": "sq ft",
+      "qty": 320,
+      "hoursPerUnit": 0.055,
+      "materialPerUnit": 0.42,
+      "source": "40 ft x 8 ft wall (index.html); suggestedMethodKit('smear'): 0.055 point h/sq ft, mortar $0.42/sq ft; Type N premium $0 (suggestedMortarKit)"
+    },
+    {
+      "label": "Ladder access and mortar mixing",
+      "unit": "job",
+      "qty": 1,
+      "hoursPerUnit": 1.1,
+      "materialPerUnit": 0,
+      "source": "suggestedAccessKit('ground') 0.7 h, $0 equipment + suggestedMortarKit('type-n') 0.4 h mix"
+    },
+    {
+      "label": "Travel",
+      "unit": "mile",
+      "qty": 12,
+      "hoursPerUnit": 0.035,
+      "materialPerUnit": 2.8,
+      "source": "travelMiles 12 (index.html); suggestedExtraKit hoursPerMile 0.035, travelPerMile $2.80"
+    }
+  ],
+  "specialistModels": "Grind-and-point and relay methods with blade wear, scaffold or swing-stage access, lime and color-matched mortar premiums, brick, lintel, caulk and power-wash extras; setupHours = 1.6 trip + 1.2 site hours."
+}

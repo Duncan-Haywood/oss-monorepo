@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PTE Tax Election Calculator — Free</title>
+  <meta name="description" content="Free calculator for S corporation and partnership owners: does a state pass-through entity tax (PTET) election save federal tax once the SALT cap, its income phase-out, your credit and the 20% pass-through deduction are counted? See the saving, why, and the income where it starts to pay. Nothing uploaded.">
+  <meta property="og:title" content="Is a PTET election worth it? Free calculator">
+  <meta property="og:description" content="Federal and state tax with and without a pass-through entity tax election, and where the election starts to pay. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M7 22h4v-7H7zm7 0h4V9h-4zm7 0h4v-10h-4z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PTE Tax Election Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimate whether a state pass-through entity tax (PTET) election saves federal tax for an S corporation or partnership owner, with the SALT cap phase-out, the lower AGI, the credit and the lost 20% pass-through deduction. Runs in your browser; nothing is uploaded.","featureList":"Federal and state tax with and without a PTET election, SALT cap phase-out, QBI deduction effect, first income at which the election pays, sensitivity grid"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a PTET election always save federal tax?","acceptedAnswer":{"@type":"Answer","text":"No. It only helps when your state and local taxes already exceed the SALT deduction cap. If they fit under the cap, moving the state tax to the entity changes nothing except a smaller 20% pass-through deduction, and the election costs you money. The calculator shows which side you are on and the income at which it starts to pay."}},{"@type":"Question","name":"How does a pass-through entity tax election work?","acceptedAnswer":{"@type":"Answer","text":"The partnership or S corporation pays state income tax itself, deducts it in computing the income that flows to you, and the state gives you a credit or exclusion so you are not taxed again on the same income. Because the deduction is taken at the entity, it is not subject to the personal SALT cap."}},{"@type":"Question","name":"Why does the election lower my AGI and raise my cap?","acceptedAnswer":{"@type":"Answer","text":"The entity-level deduction reduces the income reported to you. The SALT cap phases out as income rises, so lower income means a higher cap, which can restore some deduction for your other state and local taxes. The calculator includes that effect."}},{"@type":"Question","name":"Why does it reduce my 20% pass-through deduction?","acceptedAnswer":{"@type":"Answer","text":"The qualified business income deduction is a percentage of the business income that reaches your return. A PTET payment deducted at the entity lowers that income, so the deduction base shrinks. The calculator shows the lost deduction as its own line."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in, with one flat federal rate. State rules differ on who may elect, the rate, the credit, the payment deadline and whether the election is binding, so confirm with a tax professional before electing. The defaults are placeholders."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">PTE TAX ELECTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is a pass-through entity tax election worth it?</h1>
+    <p>Enter your pass-through income, your state's PTET rate and credit, your other state and local taxes and the SALT cap. It compares federal plus state tax with and without the election, splits the difference into its causes, and finds the income at which the election starts to pay.</p>
+    <p class="note">Planning arithmetic on your own numbers, with one flat federal rate.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your pass-through income</h2>
+      <div class="grid">
+        <div><label for="pteIncome">Your share of pass-through income subject to the state PTET ($)</label><input id="pteIncome" type="number" step="any" value="0"></div>
+        <div><label for="otherIncome">Other income on your return before this ($: wages, interest, other AGI)</label><input id="otherIncome" type="number" step="any" value="0"></div>
+        <div><label for="fedRatePct">Federal marginal rate on the change (%)</label><input id="fedRatePct" type="number" step="any" value="0"></div>
+        <div><label for="qbiRatePct">20% pass-through deduction rate that applies (%; 0 if none)</label><input id="qbiRatePct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. The state election</h2>
+      <div class="grid">
+        <div><label for="pteRatePct">State PTET rate on the income (%)</label><input id="pteRatePct" type="number" step="any" value="0"></div>
+        <div><label for="personalRatePct">State income tax rate on the same income without the election (%)</label><input id="personalRatePct" type="number" step="any" value="0"></div>
+        <div><label for="creditPct">Share of the PTET payment the state credits against your personal tax (%)</label><input id="creditPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Your other deductions</h2>
+      <div class="grid">
+        <div><label for="otherSalt">Other state and local tax you pay ($: property tax, tax on other income)</label><input id="otherSalt" type="number" step="any" value="0"></div>
+        <div><label for="otherItemized">Other itemized deductions ($: mortgage interest, charity)</label><input id="otherItemized" type="number" step="any" value="0"></div>
+        <div><label for="standardDeduction">Standard deduction ($)</label><input id="standardDeduction" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. The SALT cap</h2>
+      <div class="grid">
+        <div><label for="saltCap">SALT cap ($)</label><input id="saltCap" type="number" step="any" value="0"></div>
+        <div><label for="phaseoutThreshold">MAGI where the cap starts to shrink ($)</label><input id="phaseoutThreshold" type="number" step="any" value="0"></div>
+        <div><label for="phaseoutRatePct">Cap lost per dollar of MAGI over that (%)</label><input id="phaseoutRatePct" type="number" step="any" value="0"></div>
+        <div><label for="capFloor">Lowest the cap can fall to ($)</label><input id="capFloor" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Compare with and without the election</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Does a PTET election always save federal tax?</h3>
+      <p>No. It only helps when your state and local taxes already exceed the SALT deduction cap. If they fit under the cap, moving the state tax to the entity changes nothing except a smaller 20% pass-through deduction, and the election costs you money. The calculator shows which side you are on and the income at which it starts to pay.</p>
+      <h3>How does a pass-through entity tax election work?</h3>
+      <p>The partnership or S corporation pays state income tax itself, deducts it in computing the income that flows to you, and the state gives you a credit or exclusion so you are not taxed again on the same income. Because the deduction is taken at the entity, it is not subject to the personal SALT cap.</p>
+      <h3>Why does the election lower my AGI and raise my cap?</h3>
+      <p>The entity-level deduction reduces the income reported to you. The SALT cap phases out as income rises, so lower income means a higher cap, which can restore some deduction for your other state and local taxes. The calculator includes that effect.</p>
+      <h3>Why does it reduce my 20% pass-through deduction?</h3>
+      <p>The qualified business income deduction is a percentage of the business income that reaches your return. A PTET payment deducted at the entity lowers that income, so the deduction base shrinks. The calculator shows the lost deduction as its own line.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in, with one flat federal rate. State rules differ on who may elect, the rate, the credit, the payment deadline and whether the election is binding, so confirm with a tax professional before electing. The defaults are placeholders.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your state lets your entity elect and which owners are covered, the true rate and credit rules, payment deadlines and estimated-payment requirements, whether the election is binding or can be revoked, how a loss, a multi-state return or a non-resident owner changes things, the alternative minimum tax, and the exact federal bracket your change lands in. This uses one flat federal rate on the change, and a 20% pass-through deduction base without its wage and property limits. The cap figures and every other default are placeholders, not current law: check them for your year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../salt-cap-calculator/">SALT cap calculator</a> (the cap and its phase-out on their own), the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a> and the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting every federal and state rule that applies to an election, its deadlines and its payments. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors, and no taxpayer identifiers are asked for or needed. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you decide, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+    <script type="module">
+    import { DEFAULTS, num, money, compare, firstPayingIncome, sensitivity } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      if (!(o.pteIncome > 0) || !(o.pteRatePct > 0) || !(o.fedRatePct > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter pass-through income, a PTET rate and a federal rate above zero.</div>'; $("out").hidden = false; return; }
+      const c = compare(o);
+      let h = "";
+      h += `<div class="finding"><h4>${c.helps ? "The election saves" : "The election costs"}</h4><p class="stats"><strong>${money(Math.abs(c.savings))}</strong> a year on these numbers. Federal tax ${c.federalSavings >= 0 ? "falls" : "rises"} by ${money(Math.abs(c.federalSavings))}; your state bill ${Math.abs(c.stateChange) < 1 ? "does not change" : (c.stateChange > 0 ? "rises by " : "falls by ") + money(Math.abs(c.stateChange))}.</p></div>`;
+      h += `<div class="finding"><h4>Why</h4>${table(["Effect on federal tax", "Amount"], [["State tax moved to the entity: itemized deduction change", money(c.parts.deductionChange)], ["Lower AGI (income reported to you falls by the PTET payment)", money(c.parts.agiDrop)], ["Smaller 20% pass-through deduction", money(c.parts.qbiLoss)]])}<p class="note">Positive is tax saved. Without the election, ${money(c.no.saltStuck)} of your state and local tax sits above the cap and earns no deduction; with it, ${money(c.yes.saltStuck)}. Your cap is ${money(c.no.cap)} without the election and ${money(c.yes.cap)} with it.${c.yes.wastedCredit > 0 ? ` The state credit exceeds your personal tax on this income by ${money(c.yes.wastedCredit)}, which this assumes is lost.` : ""}</p></div>`;
+      const x = firstPayingIncome(o);
+      h += `<div class="finding"><h4>Where it starts to pay</h4><p>${x === null ? "On these settings the election does not pay at any income up to $5 million." : `Holding everything else fixed, the election first saves tax at about <strong>${money(x)}</strong> of pass-through income. Below that, your state and local tax fits under the cap and the election only shrinks your 20% deduction.`}</p></div>`;
+      const g = sensitivity(o);
+      h += `<div class="finding"><h4>Yearly saving by income and federal rate</h4>${table(["Pass-through income \\ Federal rate", ...g[0].cells.map((x) => x.rate + "%")], g.map((r) => [money(r.income), ...r.cells.map((x) => money(x.savings))]))}<p class="note">Negative means the election costs money.</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("compare_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -210,3 +210,12 @@ test("every table wide enough to overflow a phone is in its own horizontal scrol
     "each table needs a scroller wrapper, or the page body scrolls sideways at 360px",
   );
 });
+
+// Added 2026-10-02 when embroidery-shop-quote-calculator shipped: the embroidery-specific
+// tool had no inbound link from a sibling until this page named it.
+test("index links one hop to the embroidery-shop-quote-calculator sibling", () => {
+  assert.ok(
+    html.includes('href="../embroidery-shop-quote-calculator/"'),
+    "index must link ../embroidery-shop-quote-calculator/ so a crawler reaches that tool in one hop",
+  );
+});

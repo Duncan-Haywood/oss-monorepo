@@ -3,4 +3,5 @@
   <url><loc>./index.html</loc></url>
   <url><loc>./why-package-json-exports-fields-drift-from-what-you-actually-publish.html</loc></url>
   <url><loc>./vs-publint.html</loc></url>
+  <url><loc>./vs-manually-checking-exports-targets.html</loc></url>
 </urlset>

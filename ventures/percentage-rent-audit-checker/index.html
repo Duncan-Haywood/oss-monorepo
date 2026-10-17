@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Percentage Rent Audit Checker — Free, Runs in Your Browser</title>
+  <meta name="description" content="Free tool for retail and restaurant tenants: recompute your landlord's percentage rent statement from your lease breakpoint, exclusions and your own sales, see the overcharge in dollars, and copy a dispute note.">
+  <meta property="og:title" content="Percentage Rent Audit Checker — free">
+  <meta property="og:description" content="Recompute the percentage rent your landlord billed, price each excluded sales line, and copy a review note. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Percentage Rent Audit Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free browser tool that recomputes a landlord's percentage-rent statement from your lease terms and your own sales: breakpoint, lease exclusions, cap and estimates paid, with a dispute note."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I audit my landlord's percentage rent statement?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes. Leases with a percentage-rent clause normally let the tenant ask for the sales report behind the bill, and many set a short window to object, so find the date and clause first. Disputes are won with your own sales report for the same dates, not with a note that only says the number looks high."}}, {"@type": "Question", "name": "What is a natural breakpoint in a percentage rent lease?", "acceptedAnswer": {"@type": "Answer", "text": "It is base rent divided by the percentage rate: at a 6% rate and $60,000 of annual base rent, the natural breakpoint is $1,000,000. Percentage rent is charged only on gross sales above it. Some leases state a different, artificial breakpoint instead, and then the stated number controls."}}, {"@type": "Question", "name": "What can be excluded from gross sales for percentage rent?", "acceptedAnswer": {"@type": "Answer", "text": "It depends entirely on the lease's definition of Gross Sales. Sales tax, refunds and returns, gift-card sales (until redeemed), employee discounts and tips are common exclusions, but none is automatic. Read your definition and mark only the lines your lease excludes."}}, {"@type": "Question", "name": "Why does an excluded amount sometimes change nothing?", "acceptedAnswer": {"@type": "Answer", "text": "Percentage rent is charged only on sales above the breakpoint. If an excluded amount sits below it, taking it out lowers sales but not the rent by itself. The tool prices each line alone and then recomputes the combined answer, which is the figure to trust."}}, {"@type": "Question", "name": "Is this legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It redoes the arithmetic from the lease terms and sales figures you type. It does not read your lease, and your lease and your landlord's statement control."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    [hidden] { display: none !important; }
+      .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
+    .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PERCENTAGE RENT AUDIT CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Did your landlord bill the right percentage rent?</h1>
+    <p>Retail and restaurant leases often charge a percentage of gross sales above a breakpoint. Type the lease terms, the
+    landlord's statement and your own sales report. The tool recomputes the rent, prices each line you can question (a wrong
+    sales figure, refunds, gift-card sales, a cap) in dollars, and names the record that would prove it.</p>
+    <p class="note">Nothing is uploaded. Your sales are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Lease terms</h2>
+    <div class="grid">
+      <div><label for="rate">Percentage rate, %</label><input type="number" id="rate" step="0.1" min="0"></div>
+      <div><label for="mode">Breakpoint</label><select id="mode"><option value="natural">Natural (base rent / rate)</option><option value="artificial">Artificial (stated in lease)</option></select></div>
+      <div id="base-wrap"><label for="base">Base rent for the lease year ($)</label><input type="number" id="base" step="100" min="0"></div>
+      <div id="art-wrap" hidden><label for="art">Stated breakpoint for the lease year ($)</label><input type="number" id="art" step="1000" min="0"></div>
+      <div><label for="cap">Percentage rent cap, if any ($)</label><input type="number" id="cap" step="100" min="0"></div>
+    </div>
+    <p class="note">Use figures for the same period as the statement. For a partial lease year, enter the base rent or breakpoint for those months.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The landlord's statement</h2>
+    <div class="grid">
+      <div><label for="lsales">Gross sales the landlord used ($)</label><input type="number" id="lsales" step="1000" min="0"></div>
+      <div><label for="billed">Percentage rent billed ($)</label><input type="number" id="billed" step="10" min="0"></div>
+      <div><label for="paid">Percentage rent estimates already paid ($)</label><input type="number" id="paid" step="10" min="0"></div>
+      <div><label for="sdate">Statement date</label><input type="date" id="sdate"></div>
+      <div><label for="window">Days the lease gives you to object</label><input type="number" id="window" step="1" min="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Your own records</h2>
+    <div class="grid">
+      <div><label for="osales">Gross sales in your POS or books, same dates ($)</label><input type="number" id="osales" step="1000" min="0"></div>
+    </div>
+    <p class="note">Leave blank to start from the landlord's figure. Then list amounts inside that figure that your lease excludes from Gross Sales.</p>
+    <table class="cls">
+      <thead><tr><th>Line</th><th>Amount in gross sales ($)</th><th>Lease excludes it</th><th>Remove</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-row">Add a line</button></p>
+  </section>
+
+  <section class="card">
+    <h2>4. For the note (optional)</h2>
+    <div class="grid">
+      <div><label for="tenant">Tenant name</label><input type="text" id="tenant"></div>
+      <div><label for="period">Lease year</label><input type="text" id="period" placeholder="2025 lease year"></div>
+      <div><label for="clause">Lease clause</label><input type="text" id="clause" placeholder="Section 4.2"></div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Check the statement</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the rate, breakpoint inputs, the landlord's sales and the amount billed, then click Check the statement.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="total" id="report-total"></p>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Review note (edit before you send)</h3>
+    <textarea id="note" rows="12" style="width:100%;box-sizing:border-box" aria-label="Review note"></textarea>
+    <p><button type="button" class="secondary" id="copy-note">Copy note</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not legal, tax, or financial advice.</strong> Your lease and your landlord's statement control.</li>
+      <li><strong>No lease reading.</strong> You supply the rate, breakpoint, cap and which sales lines your lease excludes; the tool cannot tell what your Gross Sales definition says.</li>
+      <li><strong>No other charges.</strong> Common-area, tax and insurance pass-throughs are separate and not checked here.</li>
+      <li><strong>It does not decide who is right.</strong> Each line is priced alone, so lines can overlap near the breakpoint; the combined figure is the one that adds up. A line is only worth raising if your records prove it.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I audit my landlord's percentage rent statement?</h3>
+    <p>Usually yes. Leases with a percentage-rent clause normally let the tenant ask for the sales report behind the bill, and many set a short window to object, so find the date and clause first. Disputes are won with your own sales report for the same dates, not with a note that only says the number looks high.</p>
+    <h3>What is a natural breakpoint in a percentage rent lease?</h3>
+    <p>It is base rent divided by the percentage rate: at a 6% rate and $60,000 of annual base rent, the natural breakpoint is $1,000,000. Percentage rent is charged only on gross sales above it. Some leases state a different, artificial breakpoint instead, and then the stated number controls.</p>
+    <h3>What can be excluded from gross sales for percentage rent?</h3>
+    <p>It depends entirely on the lease's definition of Gross Sales. Sales tax, refunds and returns, gift-card sales (until redeemed), employee discounts and tips are common exclusions, but none is automatic. Read your definition and mark only the lines your lease excludes.</p>
+    <h3>Why does an excluded amount sometimes change nothing?</h3>
+    <p>Percentage rent is charged only on sales above the breakpoint. If an excluded amount sits below it, taking it out lowers sales but not the rent by itself. The tool prices each line alone and then recomputes the combined answer, which is the figure to trust.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. It redoes the arithmetic from the lease terms and sales figures you type. It does not read your lease, and your lease and your landlord's statement control.</p>
+  </section>
+
+  <footer>
+    <p>Before you sign, the <a href="../commercial-lease-effective-rent-calculator/">commercial lease effective rent calculator</a> and the <a href="../commercial-lease-abstract-reader/">commercial lease abstract reader</a> show what a lease really costs; for the common-area side of the bill see the <a href="../cam-reconciliation-check/">CAM reconciliation check</a>.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your lawyer, accountant, or broker. Check every figure against your lease and your landlord's statement.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you type.</p>
+    <p>Everything runs in your browser. Your sales figures and lease terms are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>statement_checked</code>, <code>example_loaded</code>, <code>note_copied</code>) are counted in this browser only, and stay off if you turn counting off or your browser sends Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+
+  <script type="module">
+    import { auditPercentageRent, disputeNote, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    function addLine(v = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input aria-label="Line description" class="x-label" type="text" value="${esc(v.label)}"></td>` +
+        `<td><input aria-label="Amount included in gross sales" class="x-amt" type="number" step="100" min="0" value="${esc(v.amount)}"></td>` +
+        `<td><input aria-label="Lease excludes this line" class="x-ex" type="checkbox" ${v.exclude === false ? "" : "checked"}></td>` +
+        `<td><button type="button" class="secondary r-del" aria-label="Remove this line">×</button></td>`;
+      tr.querySelector(".r-del").addEventListener("click", () => tr.remove());
+      $("#rows").appendChild(tr);
+    }
+    const g = (tr, c) => tr.querySelector(c).value;
+    function syncMode() {
+      const art = $("#mode").value === "artificial";
+      $("#art-wrap").hidden = !art;
+      $("#base-wrap").hidden = art;
+    }
+    function inputs() {
+      return {
+        ratePct: $("#rate").value, breakpointMode: $("#mode").value, baseRent: $("#base").value, artificialBreakpoint: $("#art").value, cap: $("#cap").value,
+        landlordSales: $("#lsales").value, billed: $("#billed").value, paid: $("#paid").value, ownSales: $("#osales").value,
+        statementDate: $("#sdate").value, auditWindowDays: $("#window").value,
+        exclusions: [...$("#rows").querySelectorAll("tr")].map((tr) => ({ label: g(tr, ".x-label"), amount: g(tr, ".x-amt"), leaseExcludes: tr.querySelector(".x-ex").checked })),
+      };
+    }
+    function reset() { $("#rows").innerHTML = ""; addLine({ label: "Refunds and returns" }); addLine({ label: "Gift card sales" }); addLine({ label: "Sales tax collected" }); }
+    reset();
+    $("#mode").addEventListener("change", syncMode);
+
+    function run() {
+      const out = $("#report");
+      try {
+        const r = auditPercentageRent(inputs());
+        $("#report-total").textContent = r.overcharge > 0 ? money(r.overcharge) + " billed above what your terms and records support" : r.overcharge < 0 ? "Your records support " + money(-r.overcharge) + " more than was billed" : "The bill matches your terms and records";
+        $("#report-stats").textContent = "Breakpoint " + money(r.breakpoint) + " (" + r.breakpointMode + "). Sales after your exclusions: " + money(r.correctSales) + ". Rent from those terms: " + money(r.correct) + " against " + money(r.billed) + " billed. Balance after estimates paid: " + money(r.owedCorrected) + " by your numbers, " + money(r.owedByLandlordStatement) + " by the statement." + (r.deadline ? " Your objection window runs to " + r.deadline + "." : "");
+        $("#report-findings").innerHTML = r.items.length ? r.items.map((f) => `<div class="finding"><h4><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "question it" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(Math.abs(f.dollars)) : ""}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("") : "<p>No differences found.</p>";
+        $("#note").value = disputeNote(r, { tenant: $("#tenant").value, period: $("#period").value, clause: $("#clause").value });
+        out.hidden = false;
+        $("#form-status").textContent = "";
+        record("statement_checked");
+        out.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        out.hidden = true;
+        $("#form-status").textContent = e.message;
+      }
+    }
+    $("#calculate").addEventListener("click", run);
+    $("#add-row").addEventListener("click", () => addLine());
+
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").innerHTML = "";
+      addLine({ label: "Refunds and returns", amount: 20000 });
+      addLine({ label: "Gift card sales", amount: 8000 });
+      addLine({ label: "Third-party delivery fees", amount: 5000, exclude: false });
+      $("#rate").value = "6"; $("#mode").value = "natural"; syncMode(); $("#base").value = "60000"; $("#art").value = ""; $("#cap").value = "";
+      $("#lsales").value = "1250000"; $("#billed").value = "15600"; $("#paid").value = "0"; $("#osales").value = "1240000";
+      $("#sdate").value = "2026-03-01"; $("#window").value = "90";
+      $("#tenant").value = "Corner Cafe LLC"; $("#period").value = "2025 lease year"; $("#clause").value = "Section 4.2";
+      run();
+      record("example_loaded");
+      $("#form-status").textContent = "Worked example: a cafe on $60,000 base rent and 6% over a natural breakpoint of $1,000,000. The landlord used $1,250,000 of sales and billed $15,600; the cafe's own report says $1,240,000, with refunds and gift-card sales its lease excludes.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      reset();
+      for (const id of ["rate", "base", "art", "cap", "lsales", "billed", "paid", "osales", "sdate", "window", "tenant", "period", "clause"]) $("#" + id).value = "";
+      $("#mode").value = "natural"; syncMode();
+      $("#report").hidden = true;
+      $("#form-status").textContent = "Enter the rate, breakpoint inputs, the landlord's sales and the amount billed, then click Check the statement.";
+    });
+    $("#copy-note").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText($("#note").value); $("#copy-note").textContent = "Copied"; } catch { $("#note").select(); $("#copy-note").textContent = "Select and copy"; }
+      record("note_copied");
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

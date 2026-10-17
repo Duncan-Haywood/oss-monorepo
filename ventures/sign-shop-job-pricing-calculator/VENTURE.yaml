@@ -1,0 +1,42 @@
+name: sign-shop-job-pricing-calculator
+description: >-
+  Free browser tool for sign and banner shops: enter size, quantity, material, print, design and install time and your
+  shop rate to get the price that earns your margin, the break-even, the price per square foot at any quantity and what a
+  job earns at the market rate. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. ventures/ has apparel-decoration-price-calculator and 3d-print-price-calculator
+# for adjacent print trades but nothing for wide-format signs, banners and vinyl, where one price per square foot hides
+# design, setup, waste and install.
+#
+# First visitor: a small sign or print shop owner searching "sign shop pricing calculator", "banner price per square foot"
+# or "how to price vinyl banners". Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures; not financial, tax or business advice; nothing stored or sent.
+
+hypotheses:
+  - claim: >-
+      Small sign shops will use a private job-pricing calculator because per-square-foot rules of thumb lose money on small,
+      design-heavy and install jobs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sign-shop-job-pricing-calculator/
+  analytics: null

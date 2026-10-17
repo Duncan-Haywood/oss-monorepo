@@ -1,0 +1,55 @@
+name: investor-update-builder
+description: >-
+  Free browser tool for startup founders: turns monthly MRR, customers and cash into
+  growth, net burn, runway, burn multiple and a default-alive check, and writes the
+  monthly investor update email. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a new-venture session. duplicate_check.py: top score 0.31
+# (saas-efficiency-metrics-calculator, a metrics calculator with no update writer or
+# default-alive test); no investor-update venture and no screened-out row. A first
+# attempt at a SAFE/cap-table simulator was abandoned because safe-dilution-calculator
+# and startup-exit-waterfall-calculator already cover it.
+#
+# Why this niche: "investor update template" and "how to write an investor update" are
+# evergreen founder searches, and the paid incumbents (Visible, Foresight, Dock) charge
+# a monthly fee and want the founder's accounting connected. A founder with four numbers
+# and ten minutes wants the email, with burn multiple and runway done correctly.
+#
+# First visitor: early-stage founder and accelerator communities that trade update
+# templates. Search volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers plus a text template. No advice,
+# no connected accounts, no data about any real company. Says so on the page.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end
+# for a paid hosted-updates-and-shareable-dashboard product later, and a referral
+# surface for the startup finance tools its readers already ask about.
+
+hypotheses:
+  - claim: >-
+      Founders will type a few months of MRR and cash into a no-signup builder each
+      month instead of writing the investor update from scratch, and will come back
+      the next month with the saved file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a runway or burn figure that disagrees with the definition on the page by more than rounding.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/investor-update-builder/
+  analytics: null

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" role="img" aria-label="Line plot: AUROC rises from chance to near 1 as paired RMSE grows, for coarser Euler timesteps and for friction errors">
+<rect width="700" height="380" fill="#fff"/>
+<text x="350.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">C2ST AUROC vs paired RMSE of a MuJoCo twin (log x)</text>
+<line x1="64" x2="684" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="684" y1="273.3" y2="273.3" stroke="#ddd"/><text x="58" y="277.3" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="684" y1="222.6" y2="222.6" stroke="#ddd"/><text x="58" y="226.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="684" y1="171.8" y2="171.8" stroke="#ddd"/><text x="58" y="175.8" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="684" y1="121.1" y2="121.1" stroke="#ddd"/><text x="58" y="125.1" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="684" y1="70.4" y2="70.4" stroke="#ddd"/><text x="58" y="74.4" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.00282</text>
+<text x="160.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.00432</text>
+<text x="270.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.00706</text>
+<text x="317.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.00867</text>
+<text x="427.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.01415</text>
+<text x="578.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.02769</text>
+<text x="684.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.04418</text>
+<text x="374.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">paired RMSE of twin vs real, noise-free (rad)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">C2ST AUROC (0.5 = chance)</text>
+<line x1="64" x2="684" y1="197.2" y2="197.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,189.6 270.8,153.6 427.5,95.5 578.7,76.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="189.6" r="3" fill="#c0392b"/>
+<circle cx="270.8" cy="153.6" r="3" fill="#c0392b"/>
+<circle cx="427.5" cy="95.5" r="3" fill="#c0392b"/>
+<circle cx="578.7" cy="76.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">Euler timestep (0.002 to 0.02 s)</text>
+<polyline points="160.1,191.1 317.1,169.8 684.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="160.1" cy="191.1" r="3" fill="#1f6fb2"/>
+<circle cx="317.1" cy="169.8" r="3" fill="#1f6fb2"/>
+<circle cx="684.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="254" y="32" width="14" height="10" fill="#1f6fb2"/><text x="274" y="41" font-family="sans-serif" font-size="11">friction loss (-10%, -20%, 0)</text>
+</svg>

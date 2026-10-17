@@ -1,0 +1,58 @@
+Slip twin: real = linear single-track car with tyre slip; twin = kinematic bicycle (no slip). m=1500 Iz=2500 a=1.2 b=1.4 L=2.6
+understeer car Cf=60000 Cr=80000: K = 0.00481 s^2/m, characteristic speed 23.26 m/s
+oversteer  car Cf=80000 Cr=50000: K = -0.00375 s^2/m, critical speed 26.33 m/s
+
+== 1. Steady turn at the twin's steering angle delta = L/R, R = 100 m: real radius vs twin ==
+car         v    R_real(sim)   R_real(1+Kv^2/L)   twin error   calibrated-twin error
+understeer  5.00      104.623           104.623       -4.4%      -0.00%
+understeer 10.00      118.491           118.491      -15.6%      -0.00%
+understeer 15.00      141.605           141.605      -29.4%      -0.00%
+understeer 20.00      173.964           173.964      -42.5%      +0.00%
+understeer 23.26      200.042           200.042      -50.0%      -0.00%
+understeer 30.00      266.420           266.420      -62.5%      +0.00%
+oversteer   5.00       96.394            96.394       +3.7%      -0.00%
+oversteer  10.00       85.577            85.577      +16.9%      -0.00%
+oversteer  15.00       67.548            67.548      +48.0%      -0.00%
+oversteer  20.00       42.308            42.308     +136.4%      -0.00%
+
+== 2. Closed loop: delta = -kp y - kd psi.  Twin (kinematic): s^2 + (v kd/L) s + v^2 kp/L, Hurwitz for every v, kp, kd > 0 ==
+kp     kd     twin ok on v=1..60   calibrated twin ok   real max stable speed (m/s)
+0.02   0.20   True                 True                 no limit below 300
+0.02   0.50   True                 True                 no limit below 300
+0.02   1.00   True                 True                 no limit below 300
+0.02   2.00   True                 True                 no limit below 300
+0.02   4.00   True                 True                 no limit below 300
+0.05   0.20   True                 True                 23.1
+0.05   0.50   True                 True                 no limit below 300
+0.05   1.00   True                 True                 no limit below 300
+0.05   2.00   True                 True                 no limit below 300
+0.05   4.00   True                 True                 no limit below 300
+0.10   0.20   True                 True                 15.5
+0.10   0.50   True                 True                 36.3
+0.10   1.00   True                 True                 no limit below 300
+0.10   2.00   True                 True                 no limit below 300
+0.10   4.00   True                 True                 no limit below 300
+0.20   0.20   True                 True                 12.2
+0.20   0.50   True                 True                 19.0
+0.20   1.00   True                 True                 no limit below 300
+0.20   2.00   True                 True                 no limit below 300
+0.20   4.00   True                 True                 no limit below 300
+0.40   0.20   True                 True                 10.7
+0.40   0.50   True                 True                 14.0
+0.40   1.00   True                 True                 23.8
+0.40   2.00   True                 True                 no limit below 300
+0.40   4.00   True                 True                 no limit below 300
+0.80   0.20   True                 True                 10.1
+0.80   0.50   True                 True                 12.0
+0.80   1.00   True                 True                 16.4
+0.80   2.00   True                 True                 no limit below 300
+0.80   4.00   True                 True                 no limit below 300
+gain pairs certified stable at every speed 1..60 by the twin (and its calibration) but unstable below 60 m/s on the real car: 11 of 30
+
+== 3. Time-domain check of one gain pair, kp = 0.4, kd = 0.5, initial offset 1 m ==
+v= 8.0  real |y| max over t in [25,30] s: 1.148e-09   real stable (Routh): True   twin stable: True
+v=20.0  real |y| max over t in [25,30] s: 4.608e+07   real stable (Routh): False   twin stable: True
+
+== 4. Oversteer car: same gains kp = 0.05, kd = 0.5 ==
+max stable speed (real): 23.7 m/s   critical speed: 26.33 m/s   twin: stable at all speeds
+open-loop (vy, r) block Hurwitz at v = 10, 20, 30 m/s: [True, True, False]

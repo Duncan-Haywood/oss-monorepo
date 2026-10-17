@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gust-twin"
+version = "0.1.0"
+description = "Gust twin: a twin whose wind gusts are iid per step with the logged variance understates the position variance of a PD-held vehicle by 2(a+kd)/(dt(a^2+a kd+kp)); a spectrum-matched white twin overstates by exactly (a^2+a kd+kp)/(a(a+kd))"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,45 @@
+name: npm-lockfile-duplicates-check
+description: 'Free tool that finds packages installed at more than one version in an npm package-lock.json -- ranks same-major copies npm dedupe can remove ahead of cross-major ones, shows which dependant requires each copy, suggests an overrides entry, and can fail CI past a limit -- in the browser (paste the lockfile) or as a zero-dependency Node CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other zero-dependency
+# lockfile *-check tools (lockfile-license-check). duplicate_check.py's closest match was
+# lockfile-license-check at 0.20, which audits licences, not versions. Not in screened-out.md.
+# Inspiration only, not named on any page: dependency-analysis features in bundler analysers
+# and package-manager audit commands, which need an installed tree or a build.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are high. It reads a file
+# the user already holds, sends nothing off the device, and only reports versions. The risk is a
+# suggested overrides entry breaking a build; the page says to test and that it is not advice.
+#
+# First visitor channel: search for "npm duplicate dependencies", "npm dedupe package-lock",
+# "find duplicate packages node_modules", and bundle-size threads (r/webdev, r/node).
+hypotheses:
+  - claim: 'A developer trying to shrink an install or bundle will paste a lockfile and find same-major duplicates that npm dedupe removes.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add dupes-check.mjs --max-same-major 0 to CI so dedupable copies cannot creep back.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using dupes-check.mjs or dupes.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/
+  analytics: null

@@ -1,0 +1,57 @@
+name: collision-shop-drp-profit-calculator
+description: >-
+  Free browser tool for collision repair shop owners weighing an insurer direct repair
+  program (DRP): your retail prices, the program's labor rate, parts discount and materials
+  cap, the jobs you already do for that insurer and the volume it promises in; profit with
+  and without the program, break-even new repair orders, what one program job gives up and
+  the lowest labor rate worth accepting out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. Closest existing row is
+# auto-repair-effective-labor-rate (general repair shops, effective labor rate); this
+# page is the collision-specific DRP signing decision with paint-materials caps, parts
+# discounts, repriced existing jobs and whole-technician steps, which that one does not model.
+#
+# Why this niche: ~30,000 US collision shops are offered DRP contracts by the large insurers
+# in exchange for volume, at a lower labor rate, a parts discount and a paint-and-materials
+# cap, with scorecards on cycle time. Owners sign or drop on feel. Estimating systems
+# (CCC, Mitchell, Audatex) and shop management software report production, not whether the
+# program as a whole earns more than the retail work it replaces.
+#
+# First visitor: independent and small-chain collision shop owners and managers, in
+# r/Autobody, body-shop owner groups and "is a DRP worth it" searches. Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed numbers; defaults are placeholders; no
+# contract, insurance-regulation, steering, tax or employment advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted
+# version that reads an estimating-system export and fits the real job mix (not built).
+
+hypotheses:
+  - claim: >-
+      Collision shop owners will use a private calculator that puts the month with an
+      insurer DRP beside the month without it, because their estimating and management
+      systems report production but never the margin given up on every program job against
+      the volume promised.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A shop owner reports that the program arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/collision-shop-drp-profit-calculator/
+  analytics: null

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "validate-twin"
+version = "0.1.0"
+description = "Validating a digital twin's rare-failure rate against real trials: exact pass probability of a difference test, why passing is not validation, and the real failures an equivalence test needs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Node Version Drift Check — Do Your package.json, .nvmrc, Dockerfile and CI Agree on Node.js?</title>
+  <meta name="description" content="Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Do your package.json, .nvmrc, Dockerfile and CI agree on Node.js?">
+  <meta property="og:description" content="A deterministic Node.js version-drift checker: pins that break engines.node, majors that disagree across files, end-of-life Node.js in CI, and an unbounded engines range. No account, no upload.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Node Version Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Detects Node.js version drift inside a repo: a pinned version that does not satisfy engines.node, pins that disagree on major version across .nvmrc, Dockerfile and GitHub Actions, end-of-life majors, and an unbounded engines range with nothing pinned. Runs entirely in the browser or as a zero-dependency Node.js CLI."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why check Node.js versions across files at all?","acceptedAnswer":{"@type":"Answer","text":"A repo usually states its Node.js version in four or five places that nobody keeps in step: engines.node in package.json, an .nvmrc, the Dockerfile base image, and the GitHub Actions setup-node step. When they drift, local development, CI and production quietly run different majors, so a bug appears in one and not the others, or a dependency that needs a newer Node.js is installed on an older one."}},{"@type":"Question","name":"How does it decide whether a pin satisfies engines.node?","acceptedAnswer":{"@type":"Answer","text":"It has its own small semver range parser (caret, tilde, comparators, hyphen ranges, x-ranges, spaces as AND, double pipe as OR). A pin such as 20 is treated as any 20.x version, so it is only flagged when no 20.x version could possibly satisfy the range; an exact pin such as 20.4.0 is checked exactly."}},{"@type":"Question","name":"Where do the end-of-life dates come from, and can they go stale?","acceptedAnswer":{"@type":"Answer","text":"They come from a small table copied from the Node.js release schedule at nodejs.org/en/about/previous-releases, labelled with the date it was written. Even majors end on April 30 of their third year and odd majors are never long-term support. The table is a snapshot, so a major newer than the table is reported as unknown rather than supported, and you should confirm anything important on nodejs.org."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is computed in your browser from the text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either; it only reads files already on your own disk."}}]}</script>
+  <style>
+      :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea, input[type=date] { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea { min-height: 110px; resize: vertical; }
+    input[type=date] { width: auto; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    ul.findings { list-style: none; margin: 10px 0; padding: 0; }
+    ul.findings li { background: #fef3f3; border: 1px solid #f3d1d1; border-radius: 8px; padding: 10px 12px; margin: 0 0 8px; font-size: .92rem; }
+    ul.findings li.notice { background: #f5f7fa; border-color: #d5dbe3; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NODE VERSION DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Do your package.json, .nvmrc, Dockerfile and CI agree on which Node.js to run?</h1>
+    <p>Paste the files that declare a Node.js version and see where they drift apart: a pinned version that <strong>cannot satisfy <code>engines.node</code></strong>, pins that <strong>disagree on the major version</strong> across files, a CI matrix or pin on an <strong>end-of-life</strong> Node.js, and an <code>engines.node</code> range with <strong>no upper bound</strong> and nothing pinned.</p>
+    <p class="note">Nothing is uploaded. Everything runs in this browser against the text you paste in. End-of-life dates are a static table copied from nodejs.org on 2026-10-11 and shown as of the date you pick.</p>
+  </header>
+
+  <section class="card">
+    <h2>Check a repo's Node.js versions</h2>
+    <p class="note">Leave a box empty if the repo has no such file. The boxes start with a worked example that has real drift in it.</p>
+    <label for="in-package">package.json <span class="note">(engines.node, volta.node)</span></label>
+    <textarea id="in-package" spellcheck="false">{
+  "name": "api",
+  "engines": { "node": "&gt;=22 &lt;25" }
+}</textarea>
+    <label for="in-nvmrc">.nvmrc or .node-version <span class="note"></span></label>
+    <textarea id="in-nvmrc" spellcheck="false">v20.11.1</textarea>
+    <label for="in-toolversions">.tool-versions <span class="note">(nodejs line)</span></label>
+    <textarea id="in-toolversions" spellcheck="false">nodejs 22.11.0</textarea>
+    <label for="in-dockerfile">Dockerfile <span class="note">(FROM node:&lt;tag&gt;)</span></label>
+    <textarea id="in-dockerfile" spellcheck="false">FROM node:18-alpine AS build
+WORKDIR /app
+COPY . .
+RUN npm ci
+
+FROM node:22-alpine
+COPY --from=build /app /app
+CMD ["node", "server.js"]</textarea>
+    <label for="in-workflow">GitHub Actions workflow <span class="note">(actions/setup-node)</span></label>
+    <textarea id="in-workflow" spellcheck="false">name: ci
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci &amp;&amp; npm test</textarea>
+    <label for="in-today">Judge end-of-life as of</label>
+    <input type="date" id="in-today">
+    <p>
+      <button type="button" id="check-versions">Check Node.js versions</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear-all">Clear all boxes</button>
+    </p>
+    <p class="note" id="check-status"></p>
+    <div id="report" hidden aria-live="polite">
+      <p id="report-summary"></p>
+      <ul class="findings" id="findings-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in CI before a merge?</h2>
+    <p>Same logic, zero dependencies, one command per repo:</p>
+    <pre class="cmd">node cli.mjs                       # scan the current directory
+node cli.mjs /path/to/repo         # scan a specific checkout
+node cli.mjs --format json
+node cli.mjs --fail-on-risk        # exit 2 if any risk finding exists
+node cli.mjs --today 2026-10-11    # judge end-of-life as of a fixed date</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node.js 18+, nothing to install, no network call ever. <code>--fail-on-risk</code> makes it a one-line CI gate.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Check</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Pin violates engines.node</td><td>A version from <code>.nvmrc</code>, <code>.node-version</code>, <code>.tool-versions</code>, a Dockerfile <code>FROM node:</code> tag, Volta's <code>volta.node</code> or a <code>setup-node</code> step that no matching version could satisfy against <code>engines.node</code></td></tr>
+        <tr><td>Majors disagree</td><td>Non-matrix pins in different files that name different Node.js majors (a CI matrix is meant to test several, so it is exempt)</td></tr>
+        <tr><td>End-of-life Node.js</td><td>Any pin or matrix entry whose major is past its end-of-life date in the dated table, plus a notice when one is within 90 days</td></tr>
+        <tr><td>Unbounded engines</td><td><code>engines.node</code> like <code>&gt;=18</code> with no upper bound while no file pins a Node.js version at all</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Aliases such as <code>lts/*</code>, <code>latest</code> and <code>node</code> change over time, so they are listed as notices and never guessed. A <code>${{ matrix.x }}</code> reference is resolved from the workflow's own matrix. Also read: <a href="why-node-version-drift-happens.html">why Node.js versions drift</a>, and <a href="vs-eyeballing-and-npm-engine-strict.html">how this compares to eyeballing the files or npm's engine-strict</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why check Node.js versions across files at all?</h3>
+    <p>A repo usually states its Node.js version in four or five places that nobody keeps in step: engines.node in package.json, an .nvmrc, the Dockerfile base image, and the GitHub Actions setup-node step. When they drift, local development, CI and production quietly run different majors, so a bug appears in one and not the others, or a dependency that needs a newer Node.js is installed on an older one.</p>
+    <h3>How does it decide whether a pin satisfies engines.node?</h3>
+    <p>It has its own small semver range parser (caret, tilde, comparators, hyphen ranges, x-ranges, spaces as AND, double pipe as OR). A pin such as 20 is treated as any 20.x version, so it is only flagged when no 20.x version could possibly satisfy the range; an exact pin such as 20.4.0 is checked exactly.</p>
+    <h3>Where do the end-of-life dates come from, and can they go stale?</h3>
+    <p>They come from a small table copied from the Node.js release schedule at nodejs.org/en/about/previous-releases, labelled with the date it was written. Even majors end on April 30 of their third year and odd majors are never long-term support. The table is a snapshot, so a major newer than the table is reported as unknown rather than supported, and you should confirm anything important on nodejs.org.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything is computed in your browser from the text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either; it only reads files already on your own disk.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace running your tests on the Node.js version you actually deploy. The end-of-life dates come from a static table copied from nodejs.org/en/about/previous-releases on 2026-10-11 and may be out of date; check nodejs.org for the current schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>versions_checked</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="note">Node.js is a trademark of the OpenJS Foundation; Volta and nvm are the names of independent projects. They are named here only to describe which files this tool reads. Not affiliated with, endorsed by, or sponsored by Node.js, the OpenJS Foundation, Volta, nvm, npm or GitHub.</p>
+    <p>Related checkers on the same repo: <a href="../package-exports-drift-check/">Package Exports Drift Check</a> compares a package.json exports map against what you actually publish, and <a href="../docker-base-image-eol-check/">Docker Base Image EOL Check</a> checks a Dockerfile's base image against its end-of-life date — the same read-only, no-upload shape on neighbouring files.</p>
+    <p class="support">Free and open source. If this saved you a "works on my machine" afternoon, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, hasRisk, summarize, describeFinding } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const BOXES = {
+      "package.json": "#in-package",
+      ".nvmrc": "#in-nvmrc",
+      ".tool-versions": "#in-toolversions",
+      "Dockerfile": "#in-dockerfile",
+      ".github/workflows/ci.yml": "#in-workflow",
+    };
+    // A fixed worked example, so this venture's own page.test.mjs can extract
+    // it and run it through the real engine to prove it demonstrates real
+    // drift (PRODUCT_PLAYBOOK.md 5e, "prove it on a worked example").
+    const EXAMPLE_FILES = {
+      "package.json": "{\n  \"name\": \"api\",\n  \"engines\": { \"node\": \">=22 <25\" }\n}",
+      ".nvmrc": "v20.11.1",
+      ".tool-versions": "nodejs 22.11.0",
+      "Dockerfile": "FROM node:18-alpine AS build\nWORKDIR /app\nCOPY . .\nRUN npm ci\n\nFROM node:22-alpine\nCOPY --from=build /app /app\nCMD [\"node\", \"server.js\"]",
+      ".github/workflows/ci.yml": "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        node: [18, 20, 22]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: ${{ matrix.node }}\n      - run: npm ci && npm test"
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+    const isoToday = () => new Date().toISOString().slice(0, 10);
+    $("#in-today").value = isoToday();
+
+    function renderCheck() {
+      const files = [];
+      for (const [name, sel] of Object.entries(BOXES)) {
+        const text = $(sel).value;
+        if (text.trim()) files.push({ path: name, text });
+      }
+      // The .nvmrc box also accepts a .node-version file's contents.
+      const today = $("#in-today").value || isoToday();
+      const report = analyze(files, { today });
+      $("#check-status").textContent = files.length ? "" : "Paste at least one file above.";
+      $("#report-summary").innerHTML = `<span class="${hasRisk(report) ? "changed" : "ok"}">${escapeHtml(summarize(report))}</span>`;
+      $("#findings-list").innerHTML = report.findings
+        .map((f) => `<li class="${f.severity === "risk" ? "risk" : "notice"}">${escapeHtml(describeFinding(f))}</li>`)
+        .join("");
+      $("#report").hidden = false;
+      record("versions_checked");
+    }
+
+    function fill(values) {
+      for (const [name, sel] of Object.entries(BOXES)) $(sel).value = values[name] || "";
+    }
+
+    $("#check-versions").addEventListener("click", renderCheck);
+    $("#load-example").addEventListener("click", () => {
+      fill(EXAMPLE_FILES);
+      renderCheck();
+      record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => {
+      fill({});
+      $("#report").hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

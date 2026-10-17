@@ -1,0 +1,66 @@
+name: str-turnover-scheduler
+description: >-
+  Free browser tool for short-term-rental hosts, co-hosts and small cleaning companies: paste Airbnb, VRBO or
+  Booking.com iCal feeds (or a property, check-in, check-out CSV) and it builds the turnover cleaning schedule. One
+  clean per checkout, assigned to cleaners day by day with travel time, same-day windows checked against how long the
+  clean takes, double bookings across feeds flagged, the smallest crew that clears every deadline, and the margin on
+  each property's cleaning fee. Downloads a schedule CSV, a message per cleaner and a calendar file. Calendars are read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py: str-nightly-rate-optimizer 0.38 (prices the
+# night, not the clean), str-host-payout-calculator 0.25, str-occupancy-tax-calculator 0.25. Nothing near 0.45. Not in
+# screened-out.md.
+# Closest sibling, found after the check: str-turnover-crew-planner (2026-10-02) takes one day's typed turnovers and picks
+# which to accept and which crew runs each, for a cleaning company. This one starts from the iCal feeds a host already has,
+# plans a multi-day horizon, flags double bookings across feeds and sizes the crew. Cross-linked; neither reads the other.
+# Search phrases: "airbnb cleaning schedule", "turnover schedule template", "how many cleaners do I need airbnb",
+# "same day turnover airbnb", "vrbo ical cleaning calendar", "airbnb cleaner scheduling".
+# Volume not measured with an external tool.
+#
+# Who: hosts with 3 to 30 listings, co-hosting businesses and one-van cleaning companies that today read three calendar
+# apps and a spreadsheet to tell cleaners where to be. They pay for the cleaners every week, so a missed same-day
+# turnover (a guest standing outside a dirty unit) costs a review and a refund. Paying buyer, if any: the cleaning
+# company or co-host that wants the schedule pushed to cleaners automatically.
+#
+# What makes it more than a calendar: it treats the turnover as a deadline problem. It finds the stays that cannot be
+# cleaned in time whatever the crew size, sizes the crew by simulation rather than by rule of thumb, and carries travel
+# time between units.
+#
+# Path to revenue (payment rails stay off): lead magnet for the host/co-host audience. A paid version, if usage
+# appears, is a pasted-feed refresh link and cleaner text reminders behind an env-var switch (the user's own SMS
+# provider key); not built.
+#
+# Liability: scheduling arithmetic on the user's own calendars. It does not book or message anyone, stores nothing,
+# carries the no-warranty and not-advice clauses, and says plainly that cleaner status (employee or contractor) and
+# local rental rules are not decided here.
+#
+# Unverified: only synthetic iCal feeds tested. Real exports vary by platform (Airbnb marks blocks "Not available",
+# some feeds carry times). The first report of a feed it cannot read is the priority fix. The scheduler is a greedy
+# earliest-deadline heuristic, not an optimal solver; the crew sweep is the check that it is good enough.
+
+hypotheses:
+  - claim: >-
+      A host or co-host with several listings will paste their calendar feeds into a no-upload page to see which
+      turnovers are at risk and how many cleaners next week needs, because the platforms show bookings but not the
+      cleaning workload across listings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "airbnb cleaning schedule" and "same day turnover" prefer a tool that shows a schedule per cleaner
+      to a blank template.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

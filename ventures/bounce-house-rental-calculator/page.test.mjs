@@ -328,3 +328,9 @@ test('typing is not counted as a pricing', () => {
   assert.equal([...index.matchAll(live)].length, 2);
   assert.doesNotMatch(index, /addEventListener\(['"]input['"],[^)]*count\(['"]quote_priced['"]\)/);
 });
+
+test('index links one hop to the event-seating-chart-optimizer sibling', () => {
+  const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /href="\.\.\/event-seating-chart-optimizer\/"/, 'index must link ../event-seating-chart-optimizer/ so crawlers reach the seating optimizer in one hop');
+  assert.match(index, /event seating chart optimizer/i);
+});

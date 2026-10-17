@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KDP Royalty Report Analyzer — Royalties per Book, Store and Format</title>
+  <meta name="description" content="Free KDP royalty report analyzer for self-published authors: drop in your royalty CSV and see net royalty per book, marketplace and royalty option, refund rates, Kindle Unlimited page reads, delivery costs, a 70% price-band check and what ad spend left. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="KDP Royalty Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="What each book, store and royalty option actually paid, what refunds and delivery costs took, and whether ads paid for themselves. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "KDP Royalty Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a KDP royalty report CSV into net royalty per title, royalty option and marketplace, refund rates, Kindle Unlimited pages read, delivery and printing costs, a 70% price-band check and what ad spend left. Runs entirely in your browser; the file is never uploaded.", "featureList": "Royalty per title, per marketplace and per royalty option, refund rate, KENP pages valued at your rate, delivery and printing costs, 70% price-band estimate, ad spend break-even, single-currency analysis"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see my KDP royalties per book and per store in one place?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drop in the royalty report CSV you download from KDP Reports (or paste it) and the tool sums net royalty per title, per royalty option and per marketplace, with units sold, units refunded and royalty per unit. It is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How do I value Kindle Unlimited page reads?", "acceptedAnswer": {"@type": "Answer", "text": "The report lists pages read (KENP), not the money. Type the per-page rate from your KDP payments page and the tool adds pages times that rate to each title. Amazon sets the real rate each month, so the figure is only as good as the rate you enter; without a rate the pages are shown and left out of the totals."}}, {"@type": "Question", "name": "Does it mix currencies?", "acceptedAnswer": {"@type": "Answer", "text": "No. Dollars, pounds and other currencies are never converted or added together. The tool analyzes one currency at a time, defaults to the one with the most royalty, and lists the others so you can switch."}}, {"@type": "Question", "name": "What does the 70% price-band check do?", "acceptedAnswer": {"@type": "Answer", "text": "It finds sales paid at the 35% royalty option whose offer price falls inside a range you can edit (defaulting to 2.99\u20139.99) and estimates what 70% less the file's own delivery cost would have paid. Whether a title is eligible for 70% in a given store is Amazon's rule and changes, so this is an estimate to prompt you to check the title's pricing page, not a promise."}}, {"@type": "Question", "name": "Does it work with an Excel report?", "acceptedAnswer": {"@type": "Answer", "text": "Save the sheet as CSV first. Column names are matched by alias, and the layout is based on the known KDP royalty report columns rather than tested against every account, so if something is not read the page names the skipped lines and why."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to your report and the figures you type. It is independent of Amazon and not affiliated with or endorsed by Amazon or Kindle Direct Publishing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">KDP ROYALTY REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What did each of your books actually earn?</h1>
+    <p>Drop in your <strong>KDP royalty report CSV</strong> and get <strong>net royalty per title, marketplace and royalty option, refund rates, Kindle Unlimited pages read, delivery and printing costs</strong>, a <strong>70% price-band check</strong> and what your <strong>ad spend left</strong>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Amazon: not affiliated with or endorsed by Amazon or Kindle Direct Publishing. Column names are matched by alias and the layout was not verified against a live account; if yours is not read, the page tells you which rows were skipped and why.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your royalty report</h2>
+    <p class="note">Columns looked for, under several spellings each: <strong>Royalty</strong> and/or <strong>KENP read</strong>, plus <strong>Title</strong>, <strong>Royalty Date</strong>, <strong>Marketplace</strong>, <strong>Royalty Type</strong>, <strong>Transaction Type</strong>, <strong>Units Sold</strong>, <strong>Units Refunded</strong>, <strong>Net Units Sold</strong>, <strong>Avg. Offer Price</strong>, <strong>Avg. Delivery/Manufacturing Cost</strong> and <strong>Currency</strong>. These are assumed names, not Amazon's documented ones. Save an Excel report as CSV first.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Royalty Date,Title,Marketplace,Royalty Type,Units Sold,Units Refunded,Net Units Sold,Royalty,Currency"></textarea>
+    <div class="grid">
+      <div><label for="currency">Currency to analyze</label><select id="currency"><option value="">Largest by royalty</option></select></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Rates, ads and price range (all optional)</h2>
+    <p class="note">Amounts are in the currency chosen above. Nothing is converted.</p>
+    <div class="grid">
+      <div><label for="kenprate">Kindle Unlimited rate per page read</label><input type="number" id="kenprate" min="0" step="any" placeholder="from your payments page"></div>
+      <div><label for="adspend">Ad spend for the whole range</label><input type="number" id="adspend" min="0" step="any" placeholder="e.g. 120"></div>
+      <div><label for="bandmin">70% price range: from</label><input type="number" id="bandmin" min="0" step="any" value="2.99"></div>
+      <div><label for="bandmax">70% price range: to</label><input type="number" id="bandmax" min="0" step="any" value="9.99"></div>
+    </div>
+    <p class="note">The price range is used only to flag 35% sales that might qualify for 70%. It is a starting value you should check against Amazon's current rules for that store.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By title</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Title</th><th class="n" scope="col">Sold</th><th class="n" scope="col">Refunded</th><th class="n" scope="col">Refund rate</th><th class="n" scope="col">Net units</th><th class="n" scope="col">Royalty</th><th class="n" scope="col">Per unit</th><th class="n" scope="col">KENP pages</th><th class="n" scope="col">KENP value</th><th class="n" scope="col">Total</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-title"></tbody></table></div>
+    <h3>By marketplace</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Marketplace</th><th class="n" scope="col">Net units</th><th class="n" scope="col">Royalty</th><th class="n" scope="col">KENP pages</th><th class="n" scope="col">Total</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-market"></tbody></table></div>
+    <h3>By royalty option</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Option</th><th class="n" scope="col">Net units</th><th class="n" scope="col">Royalty</th><th class="n" scope="col">Per unit</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-format"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Net units</th><th class="n" scope="col">Royalty</th><th class="n" scope="col">KENP pages</th><th class="n" scope="col">Total</th></tr></thead><tbody id="by-month"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download title table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Royalty</strong> is summed as the file states it. Refund rows are negative, so it is net of refunds. Delivery and printing costs are already taken out by Amazon and are shown only to see how big they are.</li>
+      <li><strong>Reconciles.</strong> The per-title, per-marketplace and per-option rows each add up to the total at the top (for the chosen currency).</li>
+      <li><strong>Units:</strong> sold, refunded (from a refunded-units column or refund rows) and net; free or promotional rows carry no royalty and are counted apart.</li>
+      <li><strong>Kindle Unlimited</strong> pages are valued only at the rate you type; the file gives pages, not money.</li>
+      <li><strong>70% price band:</strong> an estimate of 70% of the offer price less the row's own delivery cost, for 35% sales priced in the range you set. Eligibility and rules are Amazon's.</li>
+      <li><strong>Ads:</strong> your spend for the range is subtracted from royalty plus page-read value; the report does not contain ad data.</li>
+      <li><strong>Not modelled:</strong> taxes and withholding, exchange rates, cover, editing and other production costs, read-through between books, payment timing, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see my KDP royalties per book and per store in one place?</h3>
+    <p>Yes. Drop in the royalty report CSV you download from KDP Reports (or paste it) and the tool sums net royalty per title, per royalty option and per marketplace, with units sold, units refunded and royalty per unit. It is read in your browser and never uploaded.</p>
+    <h3>How do I value Kindle Unlimited page reads?</h3>
+    <p>The report lists pages read (KENP), not the money. Type the per-page rate from your KDP payments page and the tool adds pages times that rate to each title. Amazon sets the real rate each month, so the figure is only as good as the rate you enter; without a rate the pages are shown and left out of the totals.</p>
+    <h3>Does it mix currencies?</h3>
+    <p>No. Dollars, pounds and other currencies are never converted or added together. The tool analyzes one currency at a time, defaults to the one with the most royalty, and lists the others so you can switch.</p>
+    <h3>What does the 70% price-band check do?</h3>
+    <p>It finds sales paid at the 35% royalty option whose offer price falls inside a range you can edit (defaulting to 2.99–9.99) and estimates what 70% less the file's own delivery cost would have paid. Whether a title is eligible for 70% in a given store is Amazon's rule and changes, so this is an estimate to prompt you to check the title's pricing page, not a promise.</p>
+    <h3>Does it work with an Excel report?</h3>
+    <p>Save the sheet as CSV first. Column names are matched by alias, and the layout is based on the known KDP royalty report columns rather than tested against every account, so if something is not read the page names the skipped lines and why.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to your report and the figures you type. It is independent of Amazon and not affiliated with or endorsed by Amazon or Kindle Direct Publishing.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide and the figures you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Amazon.</strong> Amazon, Kindle and Kindle Direct Publishing are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to Amazon or Kindle Direct Publishing in any way. Column names are matched by alias and may not match every export.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Deciding between Kindle Unlimited and selling wide? Try the <a href="../kdp-royalty-calculator/">KDP royalty calculator</a>. Need the royalties in your books? <a href="../kdp-royalty-to-journal/">KDP royalty to journal</a> turns the same kind of report into Xero or QuickBooks journals.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null || v === undefined ? "–" : money(v));
+    const num = (id) => Number($(id).value) || 0;
+    let last = null;
+
+    function fillCurrencies(list, chosen) {
+      $("#currency").innerHTML = `<option value="">Largest by royalty</option>` + list.map((c) => `<option value="${esc(c.code)}"${c.code === chosen ? " selected" : ""}>${esc(c.code || "No currency code")}</option>`).join("");
+    }
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const r = analyze(n.rows, { currency: $("#currency").value === "" ? undefined : $("#currency").value, kenpRate: num("#kenprate"), adSpend: num("#adspend"), bandMin: num("#bandmin"), bandMax: num("#bandmax"), from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      fillCurrencies(r.currencies, $("#currency").value === "" ? "" : r.summary.currency);
+      const s = r.summary, cur = s.currency ? `${esc(s.currency)} ` : "";
+      const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
+      $("#report-stats").innerHTML = `${span}${s.sold} units sold, ${s.refundUnits} refunded (${pct(s.refundRate)}), ${s.netUnits} net: <strong>net royalty ${cur}${money(s.royalty)}</strong>${s.kenp ? `, ${s.kenp.toLocaleString("en-US")} KENP pages${s.kenpValue !== null ? ` worth ${cur}${money(s.kenpValue)} at your rate` : " (not valued)"}` : ""}, <strong>total ${cur}${money(s.total)}</strong>, ${rate(s.royaltyPerUnit)} per net unit.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-title").innerHTML = r.byTitle.map((t) => `<tr><th scope="row">${esc(t.label)}</th><td class="n">${t.sold}</td><td class="n">${t.refundUnits}</td><td class="n">${pct(t.refundRate)}</td><td class="n">${t.netUnits}</td><td class="n">${money(t.royalty)}</td><td class="n">${rate(t.royaltyPerUnit)}</td><td class="n">${t.kenp.toLocaleString("en-US")}</td><td class="n">${rate(t.kenpValue)}</td><td class="n">${money(t.total)}</td><td class="n">${pct(t.share)}</td></tr>`).join("");
+      $("#by-market").innerHTML = r.byMarket.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.netUnits}</td><td class="n">${money(m.royalty)}</td><td class="n">${m.kenp.toLocaleString("en-US")}</td><td class="n">${money(m.total)}</td><td class="n">${pct(m.share)}</td></tr>`).join("");
+      $("#by-format").innerHTML = r.byFormat.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.netUnits}</td><td class="n">${money(m.royalty)}</td><td class="n">${rate(m.royaltyPerUnit)}</td><td class="n">${pct(m.share)}</td></tr>`).join("");
+      $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.netUnits}</td><td class="n">${money(m.royalty)}</td><td class="n">${m.kenp.toLocaleString("en-US")}</td><td class="n">${money(m.total)}</td></tr>`).join("") : `<tr><td colspan="5">The file has no dates.</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#currency").addEventListener("change", () => { if (last) $("#analyze").click(); });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      $("#currency").value = "";
+      if (!$("#kenprate").value) $("#kenprate").value = 0.0045;
+      if (!$("#adspend").value) $("#adspend").value = 60;
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic sales of three made-up books, with a sample KENP rate and ad spend filled in. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; fillCurrencies([], ""); status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const f = (v) => (v === null || v === undefined ? "" : v.toFixed(2));
+      const rows = ["title,units_sold,units_refunded,net_units,royalty,royalty_per_unit,kenp_pages,kenp_value,total"].concat(last.byTitle.map((t) => [q(t.label), t.sold, t.refundUnits, t.netUnits, t.royalty.toFixed(2), f(t.royaltyPerUnit), t.kenp, f(t.kenpValue), t.total.toFixed(2)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "kdp-royalty-by-title.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

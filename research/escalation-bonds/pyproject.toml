@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "escalation-bonds"
+version = "0.1.0"
+description = "Bond-escalation dispute games: subgame-perfect outcomes, budget races, deterrence bond and capital lock-up under a fallible final oracle"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

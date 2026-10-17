@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-monitor"
+version = "0.1.0"
+description = "Anytime-valid monitoring of a deployed digital twin: an e-process on closed-loop prediction residuals, exact detection rate, the closed-loop blind direction, and the price of dithering to see it"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Insurance Denial Appeal Builder — Appeal Letter, Deadline and Checklist for a Denied Claim</title>
+  <meta name="description" content="Free tool for patients: paste your health insurance denial letter and get the likely denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and calendar reminders. Runs in your browser, the letter is never uploaded.">
+  <meta property="og:title" content="Insurance Denial Appeal Builder — free, private, in your browser">
+  <meta property="og:description" content="Turn a denied-claim letter into an appeal deadline, a draft appeal letter and an evidence checklist. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Insurance Denial Appeal Builder","applicationCategory":"HealthApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste a health insurance denial letter and get the likely denial reason, the appeal deadline for your plan type, an appeal letter draft, a checklist of what to gather and a calendar file with reminders. Runs entirely in your browser; nothing is uploaded.","featureList":"Denial reason detection, appeal deadline calculator, appeal letter draft, evidence checklist, calendar reminders"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long do I have to appeal a health insurance denial?","acceptedAnswer":{"@type":"Answer","text":"For most employer and individual (Marketplace) plans the appeal window is at least 180 days from when you received the denial notice. Medicare Advantage plans commonly allow 60 days and Original Medicare 120 days for the first appeal. Medicaid deadlines vary by state. The date printed on your own notice is the one that counts, and this tool uses it when you enter it."}},{"@type":"Question","name":"What should an insurance appeal letter include?","acceptedAnswer":{"@type":"Answer","text":"Your name and member ID, the claim number and date of service, the reason the plan gave, why the service was needed, a request for the clinical criteria and claim file the plan used, and the documents that support you, such as a letter from your clinician and your chart notes. The tool drafts all of this and lists what to gather for your denial reason."}},{"@type":"Question","name":"What does CO-50 or CO-197 mean on my explanation of benefits?","acceptedAnswer":{"@type":"Answer","text":"These are standard adjustment reason codes. CO-50 is commonly defined as not medically necessary, CO-197 as missing prior authorization or precertification, CO-96 as a non-covered charge and CO-18 as a duplicate claim. Paste your denial text and the tool reads the codes and phrases to suggest the reason; check it against your paperwork."}},{"@type":"Question","name":"Should I appeal or ask the doctor's office to fix the claim?","acceptedAnswer":{"@type":"Answer","text":"If the reason is a coding or billing problem, a missing authorization the provider can request after the fact, or a filing problem, call the provider's billing office first; a corrected claim is often faster than an appeal. If the plan decided the service was not necessary, excluded or experimental, an appeal with clinical support is the route."}},{"@type":"Question","name":"What happens if my appeal is denied?","acceptedAnswer":{"@type":"Answer","text":"For most commercial plans you can ask for an independent external review, generally within four months of the final internal denial. Medicare and Medicaid have their own next levels. The tool shows the next step for your plan type."}},{"@type":"Question","name":"Does this tool give legal or medical advice?","acceptedAnswer":{"@type":"Answer","text":"No. It drafts a letter and computes reminder dates from rules of thumb. It does not know your plan's terms, and it cannot promise that an appeal succeeds. You are responsible for checking every date and statement before you send anything."}},{"@type":"Question","name":"Is my denial letter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The text is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors. A denial letter contains health information, which is why nothing is sent to a server."}}]}</script>
+  <style>
+      :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .7; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .few { color: #6a7580; font-style: italic; }
+    .bar { display: inline-block; height: 8px; background: #c4553a; border-radius: 4px; vertical-align: middle; margin-left: 6px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">INSURANCE DENIAL APPEAL BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Your insurance denied the claim. Here is the appeal, the deadline and what to attach.</h1>
+    <p>Paste the text of your <strong>denial letter or explanation of benefits</strong>. The tool reads the <strong>denial reason</strong>, works out your <strong>appeal deadline</strong>, drafts the <strong>appeal letter</strong>, lists the <strong>evidence to gather</strong> for that kind of denial and gives you a <strong>calendar file</strong> with reminders before the deadline.</p>
+    <p class="note">The text is read in this browser tab and never leaves your device. Dates are reminders computed from rules of thumb; the date on your notice controls. Not medical, legal or insurance advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The denial</h2>
+    <label for="paste">Paste the denial letter or EOB text (optional, it fills in what it can read)</label>
+    <textarea id="paste" spellcheck="false" placeholder="Reason code: CO-50 … not medically necessary … appeal within 180 days"></textarea>
+    <p><button type="button" id="read">Read the denial</button> <button type="button" class="secondary" id="load-example">Load sample denial</button> <button type="button" class="secondary" id="clear-all">Clear</button></p>
+    <p class="note" id="read-note">Reading is optional: you can fill the fields below by hand.</p>
+    <div class="grid">
+      <div><label for="plan">Type of plan</label><select id="plan"><option value="commercial">Employer or individual/Marketplace plan</option><option value="medicare_advantage">Medicare Advantage plan</option><option value="medicare_original">Original Medicare (Part A/B)</option><option value="medicaid">Medicaid or CHIP</option><option value="other">Other or not sure</option></select></div>
+      <div><label for="reason">Denial reason</label><select id="reason"></select></div>
+      <div><label for="received">Date you received the notice</label><input type="date" id="received"></div>
+      <div><label for="days">Days stated in the notice (optional)</label><input type="number" id="days" min="10" max="400" inputmode="numeric" placeholder="e.g. 180"></div>
+      <div><label for="timing">Kind of appeal</label><select id="timing"><option value="post">Payment for care already received</option><option value="pre">Approval before care</option><option value="urgent">Urgent (delay would risk health)</option></select></div>
+      <div><label for="amount">Amount denied (optional)</label><input type="number" id="amount" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. For the letter</h2>
+    <div class="grid">
+      <div><label for="patient">Your name</label><input type="text" id="patient" autocomplete="off"></div>
+      <div><label for="insurer">Insurer</label><input type="text" id="insurer" autocomplete="off"></div>
+      <div><label for="memberId">Member ID</label><input type="text" id="memberId" autocomplete="off"></div>
+      <div><label for="claimNumber">Claim number</label><input type="text" id="claimNumber" autocomplete="off"></div>
+      <div><label for="serviceDate">Date of service</label><input type="text" id="serviceDate" autocomplete="off" placeholder="YYYY-MM-DD"></div>
+      <div><label for="provider">Provider</label><input type="text" id="provider" autocomplete="off"></div>
+      <div><label for="service">Service or treatment</label><input type="text" id="service" autocomplete="off"></div>
+      <div><label for="phone">Your phone</label><input type="text" id="phone" autocomplete="off"></div>
+    </div>
+    <label for="why">Why you needed it (in your own words, optional)</label>
+    <textarea id="why" spellcheck="false" placeholder="What symptoms, what was tried first, what your doctor said"></textarea>
+    <label for="lateReason">If the deadline may have passed, why you could not appeal sooner (optional)</label>
+    <input type="text" id="lateReason" autocomplete="off">
+    <p><button type="button" id="build">Build my appeal</button></p>
+    <p class="note" id="form-status">Fill what you know, then click Build my appeal.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="notes"></div>
+    <h3>Before you send</h3>
+    <ol id="checklist"></ol>
+    <label for="letter">Draft appeal letter</label>
+    <textarea id="letter" spellcheck="false" style="min-height:420px"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download letter (.txt)</button> <button type="button" class="secondary" id="ics">Download deadline reminders (.ics)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Reading the denial:</strong> adjustment reason codes (CO-50, CO-197, CO-96 and others) and phrases such as "not medically necessary", "prior authorization", "out of network" or "investigational" are scored; the best match is suggested and the evidence for it is shown. You can change it.</li>
+      <li><strong>Deadlines:</strong> 180 days for employer and individual plans, 60 for Medicare Advantage, 120 for Original Medicare, counted from the day you received the notice. Medicaid varies by state, so enter the days from your notice. A number in the notice always overrides these.</li>
+      <li><strong>The letter:</strong> a first-person draft with the reason, a request for the criteria and claim file, and the documents to enclose for that kind of denial. It states no facts you did not give it.</li>
+      <li><strong>Not checked:</strong> whether your plan covers the service, whether the denial is correct, state-specific rules, plan-specific deadlines shorter than the rule of thumb, and anything not in the text you pasted.</li>
+      <li><strong>Unverified:</strong> the reason-code list and phrase matches come from public coding references and have not been tested on real denial letters from many insurers. If it misreads yours, change the reason by hand.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How long do I have to appeal a health insurance denial?</h3>
+    <p>For most employer and individual (Marketplace) plans the appeal window is at least 180 days from when you received the denial notice. Medicare Advantage plans commonly allow 60 days and Original Medicare 120 days for the first appeal. Medicaid deadlines vary by state. The date printed on your own notice is the one that counts, and this tool uses it when you enter it.</p>
+    <h3>What should an insurance appeal letter include?</h3>
+    <p>Your name and member ID, the claim number and date of service, the reason the plan gave, why the service was needed, a request for the clinical criteria and claim file the plan used, and the documents that support you, such as a letter from your clinician and your chart notes. The tool drafts all of this and lists what to gather for your denial reason.</p>
+    <h3>What does CO-50 or CO-197 mean on my explanation of benefits?</h3>
+    <p>These are standard adjustment reason codes. CO-50 is commonly defined as not medically necessary, CO-197 as missing prior authorization or precertification, CO-96 as a non-covered charge and CO-18 as a duplicate claim. Paste your denial text and the tool reads the codes and phrases to suggest the reason; check it against your paperwork.</p>
+    <h3>Should I appeal or ask the doctor's office to fix the claim?</h3>
+    <p>If the reason is a coding or billing problem, a missing authorization the provider can request after the fact, or a filing problem, call the provider's billing office first; a corrected claim is often faster than an appeal. If the plan decided the service was not necessary, excluded or experimental, an appeal with clinical support is the route.</p>
+    <h3>What happens if my appeal is denied?</h3>
+    <p>For most commercial plans you can ask for an independent external review, generally within four months of the final internal denial. Medicare and Medicaid have their own next levels. The tool shows the next step for your plan type.</p>
+    <h3>Does this tool give legal or medical advice?</h3>
+    <p>No. It drafts a letter and computes reminder dates from rules of thumb. It does not know your plan's terms, and it cannot promise that an appeal succeeds. You are responsible for checking every date and statement before you send anything.</p>
+    <h3>Is my denial letter uploaded anywhere?</h3>
+    <p>No. The text is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors. A denial letter contains health information, which is why nothing is sent to a server.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, legal, tax, or financial advice, and it does not replace your provider, your insurer or a qualified professional. Results are estimates that depend entirely on the text you provide and the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, before sending an appeal, and before missing or assuming any deadline. A drafted letter is a starting point, not a guarantee of any outcome.</p>
+    <p><strong>Independent.</strong> Not affiliated with any insurer, health plan, hospital, clinic or government agency. Plan and insurer names you type appear only in your own letter.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your denial letter, which contains health information, is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>denial_read</code>, <code>appeal_built</code>, <code>letter_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Got a bill rather than a denial? The <a href="../medical-bill-error-checker/">medical bill error checker</a> looks for duplicate and unbundled charges.</p>
+    <p>Running a practice? The <a href="../era-835-underpayment-finder/">835 ERA underpayment finder</a> reads your remittance files and lists denied claims with plain-language reasons, plus lines paid below your contract rates.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { REASONS, readDenial, deadlines, appealLetter, checklist, calendar, sampleDenial } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const status = $("#form-status"), report = $("#report");
+    const today = () => new Date().toISOString().slice(0, 10);
+    $("#reason").innerHTML = Object.entries(REASONS).map(([id, r]) => `<option value="${id}">${esc(r.label)}</option>`).join("");
+    let last = null;
+
+    function state() {
+      const v = (id) => $("#" + id).value.trim();
+      const timing = v("timing");
+      return { plan: v("plan"), reason: v("reason"), received: v("received"), statedDays: Number(v("days")) || null, urgent: timing === "urgent", preService: timing === "pre", amount: Number(v("amount")) || 0,
+        patient: v("patient"), insurer: v("insurer"), memberId: v("memberId"), claimNumber: v("claimNumber"), serviceDate: v("serviceDate"), provider: v("provider"), service: v("service"), phone: v("phone"), why: v("why"), lateReason: v("lateReason") };
+    }
+
+    function letter() {
+      if (!last) return;
+      const s = state();
+      $("#letter").value = appealLetter({ ...s, date: today(), late: last.status === "passed" });
+    }
+
+    function readIt() {
+      const text = $("#paste").value;
+      if (!text.trim()) { $("#read-note").textContent = "Paste the letter text first."; return false; }
+      const r = readDenial(text);
+      if (r.top) $("#reason").value = r.top;
+      if (r.noticeDate && !$("#received").value) $("#received").value = r.noticeDate;
+      if (r.statedDays) $("#days").value = r.statedDays;
+      if (r.claimNumber && !$("#claimNumber").value) $("#claimNumber").value = r.claimNumber;
+      if (r.memberId && !$("#memberId").value) $("#memberId").value = r.memberId;
+      if (r.urgent) $("#timing").value = "urgent";
+      const bits = [];
+      if (r.top) bits.push(`Reason: ${REASONS[r.top].label} (${r.reasons[0].why.join("; ")})`); else bits.push("No denial reason recognised, choose one by hand");
+      if (r.noticeDate) bits.push(`notice date ${r.noticeDate} (check it is the date you received it)`);
+      if (r.statedDays) bits.push(`${r.statedDays}-day window stated`);
+      $("#read-note").textContent = bits.join(". ") + ".";
+      return true;
+    }
+
+    function build() {
+      const s = state();
+      const d = deadlines({ plan: s.plan, received: s.received, today: today(), statedDays: s.statedDays, urgent: s.urgent, preService: s.preService });
+      if (d.error) { status.textContent = d.error; report.hidden = true; return false; }
+      last = d;
+      const lbl = { open: "open", closing: "closing soon", passed: "looks passed", unknown: "check your notice" }[d.status];
+      $("#big").innerHTML = [[d.appealBy || "–", "appeal by"], [d.daysLeft === null ? "–" : String(d.daysLeft), "days left"], [lbl, "window"], [s.amount ? "$" + s.amount.toLocaleString("en-US") : "–", "amount denied"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#notes").innerHTML = `<p>${esc(d.plan)}: ${esc(d.basis)}.</p>` + d.notes.map((n) => `<p>${esc(n)}</p>`).join("") + `<p class="note">If the appeal fails: ${esc(d.next)}</p><p class="note">${esc(REASONS[s.reason].firstStep)}</p>`;
+      $("#checklist").innerHTML = checklist(s.reason, { urgent: s.urgent }).map((i) => `<li>${esc(i.step)}</li>`).join("");
+      letter();
+      report.hidden = false;
+      status.textContent = "Built. Review every date and statement before you send.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#read").addEventListener("click", () => { if (readIt()) record("denial_read"); });
+    $("#build").addEventListener("click", () => { if (build()) record("appeal_built"); });
+    for (const id of ["patient", "insurer", "memberId", "claimNumber", "serviceDate", "provider", "service", "phone", "why", "lateReason", "amount"]) $("#" + id).addEventListener("input", letter);
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleDenial();
+      readIt();
+      $("#patient").value = "Alex Rivera"; $("#insurer").value = "Acme Health Plan"; $("#provider").value = "Lakeside Imaging Center"; $("#service").value = "MRI lumbar spine without contrast";
+      $("#serviceDate").value = "2026-08-11"; $("#amount").value = "2480";
+      $("#why").value = "Six weeks of low back pain with numbness down my left leg that did not improve with physical therapy and anti-inflammatories. My doctor ordered the MRI to look for a disc problem.";
+      build(); record("example_loaded"); status.textContent = "Sample data: an invented denial, not a real patient.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const el of document.querySelectorAll("input, textarea")) el.value = ""; report.hidden = true; last = null; $("#read-note").textContent = "Reading is optional: you can fill the fields below by hand."; status.textContent = "Fill what you know, then click Build my appeal."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#letter");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Letter copied."; record("letter_copied"); }
+      catch { box.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    const save = (name, type, body) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type })); a.download = name; a.click(); };
+    $("#download").addEventListener("click", () => { if (last) save("insurance-appeal-letter.txt", "text/plain", $("#letter").value); });
+    $("#ics").addEventListener("click", () => {
+      const s = state();
+      const cal = last && calendar(last, { claim: s.claimNumber, stamp: new Date().toISOString().replace(/[-:]|\.\d+/g, "") });
+      if (cal) save("appeal-deadline-reminders.ics", "text/calendar", cal); else status.textContent = "No deadline to put in a calendar. Enter the days stated in your notice.";
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

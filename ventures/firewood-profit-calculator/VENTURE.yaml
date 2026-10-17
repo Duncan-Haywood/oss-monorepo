@@ -1,0 +1,40 @@
+name: firewood-profit-calculator
+description: 'Free, zero-network browser calculator for firewood sellers: enter wood cost, hours to cut and split, equipment and fuel, delivery miles, cords per load, your wage and the share of wood that never sells, and get profit per cord and per hour, the price per cord and per face cord you need to earn a wage, and what wood cost and delivery distance do to it. Arithmetic on the numbers the user types, not accounting or tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: part-time and seasonal firewood sellers price by feel and never count their hours or delivery miles.
+# Checked 2026-10-03: no firewood venture exists in ventures/; not in screened-out.md; closest are farmers-market-booth-calculator and custom-farm-rate-calculator.
+#
+# First visitor: searches "how much to charge for a cord of firewood", "firewood business profit", "face cord vs cord price";
+# r/firewood, r/smallbusiness, r/homestead and Facebook marketplace sellers. Volume not measured with an external tool.
+# A hosted version that logs each delivery and customer and sends reminder texts for reorders is the natural paid upgrade.
+hypotheses:
+  - claim: A firewood seller will enter their own hours and miles, see profit per hour below the wage they wanted, and raise a price or add a delivery fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for what to charge per cord or face cord at least as often as for profit per hour.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No seller reports changing a price or delivery radius because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/firewood-profit-calculator/
+  analytics: null

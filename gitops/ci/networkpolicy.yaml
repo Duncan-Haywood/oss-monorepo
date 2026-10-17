@@ -84,25 +84,3 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-    # `hetzner-gitops-ci.yml`'s `preflight` job (workflow_dispatch only,
-    # never on a normal push or pull_request) SSHes to the two Hetzner boxes
-    # to run `bootstrap/preflight.sh` as a read-only health check. Its
-    # `runs-on` reads the same `vars.CI_RUNNER` switch as every other job, so
-    # once an owner flips that to `self-hosted` this pod is where that job
-    # runs -- and the 443-only rule above would otherwise silently strand
-    # it: connection-refused on :22, not the runner-starvation signature, so
-    # nothing here would say why. Scoped to exactly the two box addresses
-    # `bootstrap/preflight.sh` and this workflow both hardcode (89.167.29.39,
-    # the control-plane; 157.180.80.188, the agent node) and to port 22 only
-    # -- narrower than the 0.0.0.0/0:443 rule above, not an addition to its
-    # blast radius, the same way `gitops/agents/networkpolicy.yaml`'s
-    # `governor-egress` scopes its own apiserver rule to a single /32 rather
-    # than widening anything.
-    - to:
-        - ipBlock:
-            cidr: 89.167.29.39/32
-        - ipBlock:
-            cidr: 157.180.80.188/32
-      ports:
-        - protocol: TCP
-          port: 22

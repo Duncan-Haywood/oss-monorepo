@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flex-twin"
+version = "0.1.0"
+description = "An unmodelled flexible mode: a rigid-body twin certifies every bandwidth, the real two-mass plant with load-side sensing is unstable above a bandwidth set by modal damping, exactly independent of the mass ratio"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RDS Instance Cost: Multi-AZ, io1 IOPS, Graviton and Idle Instances</title>
+  <meta name="description" content="Where an Amazon RDS bill is avoidable: Multi-AZ on dev and staging, io1 provisioned IOPS that gp3 covers, x86 classes with a cheaper Graviton twin, idle instances, and what is only an upper bound.">
+  <link rel="canonical" href="./rds-multi-az-iops-and-graviton-cost.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should dev and staging RDS databases be Multi-AZ?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Multi-AZ bills the instance and its storage twice for a synchronous standby that only matters if production traffic must survive a zone failure. A dev or staging database can be single-AZ and restored from a snapshot if the zone fails."}}, {"@type": "Question", "name": "Can gp3 replace io1 on RDS?", "acceptedAnswer": {"@type": "Answer", "text": "Often, yes. gp3 includes a baseline of 3,000 IOPS below 400 GB and 12,000 at 400 GB and above with no per-IOPS charge, while io1 bills every provisioned IOPS every month. If your provisioned IOPS is inside that baseline and CloudWatch shows peaks under it, the per-IOPS charge is avoidable. Verify latency after the change."}}, {"@type": "Question", "name": "Is a Graviton RDS instance really cheaper?", "acceptedAnswer": {"@type": "Answer", "text": "For the same size, the Graviton families (t4g, m6g, r6g) list below their x86 twins (t3, m5, r5) for MySQL, MariaDB and PostgreSQL. Changing the class restarts the instance and needs an engine version that supports it, so test on a restored copy first."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">RDS Instance Cost Advisor</a> · guide</p>
+  <h1>RDS instance cost: Multi-AZ, io1 IOPS, Graviton and idle instances</h1>
+  <p>Short answer: <strong>an RDS instance bills for every hour it exists, doubled if it is Multi-AZ, plus storage and any provisioned IOPS</strong>. Most avoidable spend is a standby nobody needs, per-IOPS charges a cheaper volume type includes, an older instance family, and databases that serve nobody.</p>
+
+  <h2>What it costs (illustrative)</h2>
+  <ul>
+    <li><strong>Instance hours:</strong> class price times about 730 hours a month. Multi-AZ doubles it and doubles the storage.</li>
+    <li><strong>Storage:</strong> gp2 and gp3 about $0.115 per GB-month; io1 about $0.125 per GB-month plus about $0.10 per provisioned IOPS per month.</li>
+    <li>These are US East list prices for MySQL, MariaDB and PostgreSQL; the tool lets you edit every price.</li>
+  </ul>
+
+  <h2>Where the money is</h2>
+  <ul>
+    <li><strong>Multi-AZ outside production:</strong> a synchronous standby for a dev or staging database.</li>
+    <li><strong>io1 provisioned IOPS:</strong> 10,000 IOPS is about $1,000 a month per zone before storage, and gp3 includes 3,000 (under 400 GB) or 12,000 (400 GB and over) at no per-IOPS charge.</li>
+    <li><strong>x86 classes:</strong> m5, r5 and t3 have Graviton twins (m6g, r6g, t4g) that list lower for the same size.</li>
+    <li><strong>Idle instances:</strong> a retired service or sandbox with near-zero CPU that still bills every hour.</li>
+    <li><strong>Upper bounds only:</strong> one size down on a low-CPU instance, and a one-year Reserved Instance. The advisor shows them but never counts them in the saving, because they depend on peaks, memory and a commitment.</li>
+  </ul>
+
+  <h2>Measure and fix</h2>
+  <ol>
+    <li>Instances: <code>aws rds describe-db-instances --query 'DBInstances[].[DBInstanceIdentifier,DBInstanceClass,Engine,MultiAZ,StorageType,AllocatedStorage,Iops]' --output text</code></li>
+    <li>CPU: CloudWatch <code>CPUUtilization</code> averaged over 30 days per instance; peak <code>ReadIOPS + WriteIOPS</code> before touching io1.</li>
+    <li>Paste rows into the <a href="./">advisor</a> or run <code>node cli.mjs analyze instances.csv</code>. It prints an <code>aws rds modify-db-instance</code> command per fix.</li>
+    <li>Change one instance at a time on a copy or in a maintenance window; class and storage changes restart or reconfigure a live database.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>Should dev and staging RDS databases be Multi-AZ?</h3>
+  <p>Usually not. Multi-AZ bills the instance and its storage twice for a synchronous standby that only matters if production traffic must survive a zone failure. A dev or staging database can be single-AZ and restored from a snapshot if the zone fails.</p>
+  <h3>Can gp3 replace io1 on RDS?</h3>
+  <p>Often, yes. gp3 includes a baseline of 3,000 IOPS below 400 GB and 12,000 at 400 GB and above with no per-IOPS charge, while io1 bills every provisioned IOPS every month. If your provisioned IOPS is inside that baseline and CloudWatch shows peaks under it, the per-IOPS charge is avoidable. Verify latency after the change.</p>
+  <h3>Is a Graviton RDS instance really cheaper?</h3>
+  <p>For the same size, the Graviton families (t4g, m6g, r6g) list below their x86 twins (t3, m5, r5) for MySQL, MariaDB and PostgreSQL. Changing the class restarts the instance and needs an engine version that supports it, so test on a restored copy first.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind. It is not engineering, financial, legal or compliance advice, and you are responsible for verifying prices and features against the current AWS documentation and for the availability and performance effect of any instance change. Vendor and product names are trademarks of their owners and are used only to describe what the tool reads.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

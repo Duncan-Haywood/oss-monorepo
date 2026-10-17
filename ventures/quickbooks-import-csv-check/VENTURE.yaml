@@ -1,0 +1,40 @@
+name: quickbooks-import-csv-check
+description: >-
+  Free browser tool that checks a QuickBooks Online customer, vendor or products-and-services import
+  CSV before it is uploaded: blank, repeated, over-long and colon-containing names, opening balances
+  and as-of dates, mixed day/month and month/day dates, unreadable emails, ZIP codes that lost their
+  zero, tax IDs and phone numbers Excel turned into scientific notation, vendor 1099 flags, item
+  types, SKUs and inventory fields, each with its line number, plus a safe-fixes pass that never edits
+  an email, phone, address, ZIP, SKU or tax ID, and a splitter for files over the commonly documented
+  1,000-row limit. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. Neighbours in ventures/: bank-csv-to-qbo-converter
+# (bank statements into QBO), 1099-vendor-csv-checker (a 1099 filing file), xero-invoice-csv-check
+# (Xero invoices); none reads the *list* imports a bookkeeper runs when onboarding a client onto
+# QuickBooks Online -- customers, vendors, products and services. duplicate_check.py scored the niche
+# 0.33 against the nearest venture, below the "read this first" bar.
+#
+# First visitor: bookkeepers and small-business owners searching the literal symptoms ("QuickBooks
+# import customers skipped rows", "QuickBooks display name already in use import", "QuickBooks
+# import limit 1000 rows", "Excel scientific notation phone QuickBooks", "QuickBooks import date
+# format day month"), Intuit Community threads, r/Bookkeeping and r/quickbooks. Bookkeepers are
+# the target because this is a task they repeat for every new client and are paid for, so a faster
+# clean-up has a direct dollar value to them. Volume not measured with an external tool.
+#
+# What makes it more than a CSV linter: it knows the shared-name rule (display names unique across
+# customers, vendors and employees), the sub-customer colon, balance-plus-as-of-date pairs, and the
+# day/month versus month/day trap that silently re-dates opening balances; it recovers from the Excel
+# round trip; it splits a long file into import-sized parts; and its repair step is deliberately narrow.
+#
+# Privacy is the liability boundary: client lists, balances and tax IDs are sensitive, so the file never
+# leaves the browser (a test asserts no network calls) and tax IDs are shown only as their last four.
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper audience, cross-linked to the
+# bank-statement, 1099 and Xero siblings. A paid version, if usage appears, is a bookkeeper pack
+# (several clients, saved rule sets, a team licence) behind an env-var switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory with every limit
+# worded as "commonly documented", no warranty, not accounting or tax advice, independent-of-Intuit
+# clause, trademark used nominatively.

@@ -1,0 +1,16 @@
+{
+ "top": "popcount",
+ "kind": "comb",
+ "inputs": [
+  [
+   "x",
+   16
+  ]
+ ],
+ "outputs": [
+  [
+   "n",
+   5
+  ]
+ ]
+}

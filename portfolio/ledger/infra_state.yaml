@@ -12,6 +12,8 @@
 #   - the self-hosted runner stack that exists as insurance for exactly that
 #     (`gitops/ci/`) runs as pods on the k3s cluster.
 #   - the cluster is what `hetzner-ssh-key-is-a-public-key` reaches.
+#     (2026-10-01: the owner deleted the servers; that row and the cluster
+#     route are retired, and the readings below say so.)
 #
 # So a route can be independent of the other route and still be un-grantable,
 # and the queue had no way to say so. An owner reading "do the cheapest first"
@@ -254,9 +256,11 @@ readings:
       and the portfolio's public surface is not blocked on this row.
 
   k3s-cluster:
+    # RETIRED 2026-10-01: servers deleted by owner 2026-10-01; permanent.
+    # This is not an outage to restore -- there is nothing left to
+    # re-measure. Do not ask for HETZNERSSHKEY; GitHub Pages is the only host.
     verdict: down
-    measured: "2026-09-04"
-    run: 33889983086
+    measured: "2026-10-01"
     how: >-
       Dispatch `Outage triage` (`.github/workflows/outage-triage.yml`); it
       needs no secret and reports per-port reachability from a runner.
@@ -301,6 +305,7 @@ readings:
       SSH-key blocker (`hetzner-ssh-key-is-a-public-key`) is unchanged and
       still owner-only: nothing in this session's reach can rotate it.
     note: >-
+      Servers deleted by owner 2026-10-01; permanent. History below.
       `:6443` refused on both boxes, so the k3s API server is not listening —
       a dead or absent cluster rather than a crashed ingress. `:22` is open
       on both, which is what makes the SSH route credible rather than
@@ -354,8 +359,11 @@ readings:
     # installed. Nothing in this repository can install it — that needs SSH,
     # which is `hetzner-ssh-key-is-a-public-key`. What it is *not* downstream
     # of is the two rows that have blocked everything else all week.
-    verdict: up
-    measured: "2026-09-16"
+    # RETIRED 2026-10-01: servers deleted by owner 2026-10-01; permanent.
+    # This is not an outage to restore -- there is nothing left to
+    # re-measure. Do not ask for HETZNERSSHKEY; GitHub Pages is the only host.
+    verdict: down
+    measured: "2026-10-01"
     # No run id: verified in a session sandbox, not from a dispatch, because
     # a dispatch is precisely what this route does not need. The commands
     # below reproduce it anywhere with bash, python3 and systemd-analyze.
@@ -439,6 +447,7 @@ readings:
       running `bootstrap/restore-cluster.sh` from a machine holding the five
       credentials) has not yet been taken.
     note: >-
+      Servers deleted by owner 2026-10-01; permanent. History below.
       Added 2026-09-05. The Codex worker's dev capacity had exactly two
       schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,
       as a fallback, GitHub Actions (`github-actions-runners` above). The
@@ -480,8 +489,11 @@ readings:
     # are about whether a route can run on this today, and for that purpose a
     # network that was never created and one that is broken are the same
     # answer. The note says which it is.
+    # RETIRED 2026-10-01: servers deleted by owner 2026-10-01; permanent.
+    # This is not an outage to restore -- there is nothing left to
+    # re-measure. Do not ask for HETZNERSSHKEY; GitHub Pages is the only host.
     verdict: down
-    measured: "2026-09-05"
+    measured: "2026-10-01"
     # No run id: this one is read from the tree and from an action log another
     # run already captured, not from a dispatch of its own. Every other
     # reading here cites the run that produced it; this field is left out
@@ -494,6 +506,7 @@ readings:
       SSH works, `ip -4 addr show` on either box and look for 10.10.0.10 /
       10.10.0.11; `bootstrap/restore-cluster.sh` does exactly this probe.
     note: >-
+      Servers deleted by owner 2026-10-01; permanent. History below.
       `create_private_network` defaults to true, but `infra/Makefile` refuses
       to apply and the only Hetzner token here is read-only by deliberate
       policy (`infra/scripts/assert_hcloud_read_only.sh` — Hetzner has no
@@ -571,8 +584,8 @@ readings:
 
   github-pages-branch-route:
     verdict: up
-    measured: "2026-09-23"
-    run: 35908329748
+    measured: "2026-10-05"
+    run: 37346376540
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
@@ -902,3 +915,94 @@ readings:
       "$HTTPS_PROXY/__agentproxy/status"` `selective` field at the start of
       any session before trusting either verdict — it is the cheapest signal
       for which policy a given session is running under.
+      **2026-09-24: re-measured, same `selective: false` environment, and
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded
+      again** — `POST https://api.indexnow.org/indexnow -> 200`, 1557 URLs
+      announced from the then-current `gh-pages` snapshot. `indexnow_state.py`
+      still reports the catalogue-level verdict as `never`, and that reading
+      is correct as designed: its own docstring says a by-hand submission
+      leaves no artifact it can see, so it counts only `publish-pages-branch.yml`
+      runs (all starved). Two by-hand announcements are now on record here
+      (this one and 2026-09-23's 1234-URL run) with no committed workflow run
+      to show for either — re-announce after any further catalogue growth
+      rather than assuming one submission covers what shipped since.
+      **2026-09-24 (later the same day): re-measured again, same
+      `selective: false` environment, third by-hand announcement --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded**
+      (`POST https://api.indexnow.org/indexnow -> 200`, 1556 URLs from the
+      then-current `gh-pages` snapshot, after two more merges had grown the
+      catalogue since the prior reading). Confirms the pattern rather than
+      changing it: a session in this egress mode can announce, the workflow
+      route stays starved and un-runnable, and `indexnow_state.py`'s `never`
+      verdict remains correct-as-designed for the reason already stated
+      above. Re-announce again after further catalogue growth.
+      **2026-09-24 (still the same day, ~18:06-18:10Z), fourth by-hand
+      announcement, same `selective: false` environment --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded
+      again** (`POST https://api.indexnow.org/indexnow -> 200`, 1567 URLs
+      announced from the `gh-pages` snapshot at `7a82f64b9`, run by hand as
+      part of that session's own `publish-branch.sh` publish). Fourth
+      instance of the identical shape in two days: the by-hand route keeps
+      working every time it is tried, the count keeps moving with the
+      catalogue (1234 -> 1557 -> 1556 -> 1567 across four readings, net
+      growth with some session-to-session noise from what each snapshot
+      happened to contain), and `publish-pages-branch.yml` remains the only
+      route with real egress that has never once fired. Nothing here changes
+      `indexnow_state.py`'s `never` verdict or the reasoning above for why
+      that is correct-as-designed. Re-announce again after further
+      catalogue growth rather than treating any one of these four readings
+      as still current.
+      **2026-09-24 (a fifth by-hand announcement): re-measured again, same
+      `selective: false` environment** -- `platform/marketing/indexnow.mjs
+      --submit --ref gh-pages` succeeded (`POST
+      https://api.indexnow.org/indexnow -> 200`, 1592 URLs from the
+      then-current `gh-pages` snapshot, after `claude-code-settings-check`
+      and its two follow-up fixes had grown the catalogue since the prior
+      reading). Confirms the pattern rather than changing it; re-announce
+      again after further catalogue growth.
+      **2026-09-24 (a sixth): re-measured again, same `selective: false`
+      environment** -- `platform/marketing/indexnow.mjs --submit --ref
+      gh-pages` succeeded (`POST https://api.indexnow.org/indexnow ->
+      200`, 1599 URLs, after `mega-backdoor-roth-calculator` (#5769)
+      graduated and the mirror was republished). The local clone needed
+      `git fetch origin gh-pages` plus `git branch -f gh-pages
+      origin/gh-pages` first -- the script reads the ref with `git show
+      gh-pages:catalog.json`, which needs a local branch by that name, not
+      only the `origin/gh-pages` remote-tracking ref a plain fetch leaves
+      behind.
+      **2026-09-24 (another by-hand announcement, later the same day; exact
+      ordinal not tracked here since concurrent sessions are recording their
+      own instances of this same reading in parallel and the count would
+      race the same way `sync_tree_counts.py`'s counters do) --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded
+      again** (`POST https://api.indexnow.org/indexnow -> 200`, 1600 URLs
+      from the `gh-pages` snapshot at `a4b7d9d65`, pushed 2026-09-24T21:11:30Z).
+      Same environment, same result: the by-hand route keeps working when
+      tried, `publish-pages-branch.yml` remains starved on every run,
+      `indexnow_state.py`'s `never` verdict is unaffected (it reads only
+      workflow history by design). Re-announce again after further
+      catalogue growth.
+      **2026-09-25: re-measured again, same `selective: false` environment
+      -- `platform/marketing/indexnow.mjs --submit --ref origin/gh-pages`
+      succeeded** (`POST https://api.indexnow.org/indexnow -> 200`, 1629
+      URLs from the `gh-pages` snapshot at `96f5bc3f`, built from `main`'s
+      own tip per `pages_state.py --require-current` the same session).
+      `origin/gh-pages` (the remote-tracking ref left by a plain
+      `git fetch origin gh-pages`) worked directly this time -- no local
+      `gh-pages` branch needed, unlike the 2026-09-24 sixth reading above.
+      `ci_starvation.py` confirmed Actions was starved on this session's own
+      three most recent `main` pushes (`runner_id: 0`, ~2-4s, no steps)
+      immediately beforehand, so `publish-pages-branch.yml`'s own announce
+      step still had no runner to fire from. Same pattern, unaffected
+      verdict; re-announce again after further catalogue growth.
+      **2026-09-25 (same session, ~10 minutes later): `main` had moved
+      (concurrent sessions merged `claude-code-hooks-security-check` and
+      three comparison pages), so `pages_state.py` read the `gh-pages`
+      snapshot as `stale` again immediately after the reading above.
+      Re-ran the standing job --
+      `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+      -- which pushed `gh-pages` to `c8e46340af` (built from `main`'s new
+      tip `d175c404`) and its own announce step succeeded** (`POST
+      https://api.indexnow.org/indexnow -> 200`, 1631 URLs). Confirms the
+      by-hand route remains the only one that fires during this starvation
+      window; `publish-pages-branch.yml` itself stayed starved throughout.

@@ -152,7 +152,7 @@ jobs:
     # references one, which is the check that would have caught the Pages gate
     # before it shipped.
     if: ${{ github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED == 'true' }}
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 25
     env:
       ROUTINE_ID: trig_016b8b1JDqehTCbBjSwSGkju

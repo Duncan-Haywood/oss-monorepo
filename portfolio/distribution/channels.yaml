@@ -1,0 +1,252 @@
+# One row per distribution channel. Ladder: none -> artifact -> queued -> live -> measured
+# (portfolio/distribution/README.md). Terms must be read on the day the channel is built.
+channels:
+  - id: bluesky-bot
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/bluesky.mjs
+    workflow: .github/workflows/distribute-bluesky.yml
+    enabled_by: repository variable DISTRIBUTE_BLUESKY=true, plus secrets BSKY_HANDLE and BSKY_APP_PASSWORD (an app password, never the account password)
+    what_it_posts: one post per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."
+    dedupe: stateless; reads the account's own recent posts and skips any tool whose URL is already there
+    terms_to_confirm_by_owner_when_enabling:
+      - Bluesky Terms of Service and Community Guidelines (automated accounts must be labelled; set the account's bot label/bio when creating it)
+      - AT Protocol createSession / createRecord are the documented public API; app passwords are the documented credential for scripts
+      - rate limits are generous for 3 posts a day; the script never retries a failed post in a loop
+    owner_ask: create a Bluesky account for the portfolio, label it as automated, store the app password as a secret, set the variable
+    dry_run: node platform/distribution/bluesky.mjs
+  - id: mastodon-bot
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/mastodon.mjs
+    workflow: .github/workflows/distribute-mastodon.yml
+    enabled_by: repository variables DISTRIBUTE_MASTODON=true and MASTODON_INSTANCE (https URL), plus secret MASTODON_TOKEN (write:statuses scope only)
+    what_it_posts: one public status per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."
+    dedupe: stateless; reads the account's own recent statuses and skips any tool whose URL is already there, plus an Idempotency-Key per tool
+    safety: refuses to post unless the account is flagged as a bot (verify_credentials.bot); no mentions, no replies, no DMs
+    terms_to_confirm_by_owner_when_enabling:
+      - the chosen instance's rules on bot accounts and self-promotion (they differ per instance; pick one that welcomes bots, e.g. botsin.space-style servers, and re-read its rules the day you sign up)
+      - set "This is a bot account" in profile settings; the script checks it
+    owner_ask: pick an instance that allows labelled bots, create the account, create an app token with write:statuses (and read:accounts), store it as MASTODON_TOKEN, set the two variables
+    dry_run: node platform/distribution/mastodon.mjs
+  - id: devto-crosspost
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/devto.mjs
+    workflow: .github/workflows/distribute-devto.yml
+    enabled_by: repository variable DISTRIBUTE_DEVTO=true plus secret DEVTO_API_KEY; articles are created as drafts until DEVTO_PUBLISH=true
+    what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, canonical_url set to the tool page, body links back, states it is free MIT software and not professional advice, ends "Posted automatically"
+    dedupe: stateless; reads the account's own articles (GET /api/articles/me/all) and skips any tool whose URL is already a canonical_url
+    terms_to_confirm_by_owner_when_enabling:
+      - dev.to Terms and Code of Conduct, in particular the rules on spam and self-promotion (articles must be useful on their own; if the first drafts read as thin, keep DEVTO_PUBLISH unset and edit by hand)
+      - Forem API v1 documents POST /api/articles with canonical_url and an api-key header; generate the key under Settings > Extensions
+      - agents did not read the live terms on build day (no network to dev.to from the build session), so this row is unconfirmed until the owner does
+    owner_ask: create the dev.to account, generate an API key, store it as DEVTO_API_KEY, set DISTRIBUTE_DEVTO=true; review the first drafts before setting DEVTO_PUBLISH=true
+    dry_run: node platform/distribution/devto.mjs
+  - id: hashnode-crosspost
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/hashnode.mjs
+    workflow: .github/workflows/distribute-hashnode.yml
+    enabled_by: repository variables DISTRIBUTE_HASHNODE=true and HASHNODE_PUBLICATION_ID, plus secret HASHNODE_TOKEN; articles are created as drafts until HASHNODE_PUBLISH=true
+    what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, originalArticleURL (canonical) set to the tool page, same body and disclosures as the dev.to channel (free MIT software, not professional advice, posted automatically)
+    dedupe: stateless; reads the publication's own posts and drafts (canonicalUrl) and skips any tool whose URL is already there
+    terms_to_confirm_by_owner_when_enabling:
+      - Hashnode Terms of Service and content policy on spam and self-promotion (articles must be useful on their own; if the first drafts read as thin, keep HASHNODE_PUBLISH unset and edit by hand)
+      - the Public API at gql.hashnode.com documents createDraft, publishPost (originalArticleURL) and Post.canonicalUrl; a personal access token goes in the Authorization header. Agents had no network to Hashnode on build day, so the query shape and the terms are unconfirmed until the first live draft
+    owner_ask: create the Hashnode account and publication, generate a personal access token, store it as HASHNODE_TOKEN, set HASHNODE_PUBLICATION_ID and DISTRIBUTE_HASHNODE=true; review the first drafts before setting HASHNODE_PUBLISH=true
+    dry_run: node platform/distribution/hashnode.mjs
+  - id: github-release-digest
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/releases.mjs
+    workflow: .github/workflows/distribute-releases.yml
+    enabled_by: repository variable DISTRIBUTE_RELEASES=true (uses the workflow's own GITHUB_TOKEN; no external account or secret)
+    what_it_posts: one release per ISO week (tag launches-YYYY-MM-DD) listing tools launched in the last 7 days (platform/pages/launched.json), at most 25, each with a link and its one-line description, plus the free/MIT and not-professional-advice lines
+    dedupe: stateless; a release that already has the week's tag is left alone; no release when nothing launched
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms of Service and Acceptable Use (releases on our own repository are a first-party feature; no third party is contacted)
+    owner_ask: set DISTRIBUTE_RELEASES=true. Note it creates a tag on the default branch each week.
+    dry_run: node platform/distribution/releases.mjs
+  - id: npm-cli-packages
+    rung: artifact
+    built: 2026-10-15
+    code: platform/distribution/npm.mjs
+    workflow: .github/workflows/distribute-npm.yml
+    enabled_by: repository variable DISTRIBUTE_NPM=true plus secret NPM_TOKEN (an npm automation token); optional variable NPM_SCOPE (e.g. @yourname) to publish under a scope
+    what_it_posts: one npm package per zero-dependency venture CLI (cli.mjs plus the sibling files it imports, an MIT LICENSE, the venture README with a free/open-source/not-advice footer), at most 5 new packages per run, version 0.1.0; a bin wrapper makes `npx <name>` work because npm's bin symlink defeats the CLIs' direct-invocation guard
+    dedupe: stateless; a package name that already exists on the registry is skipped, so nothing is ever republished or overwritten
+    terms_to_confirm_by_owner_when_enabling:
+      - npm Terms of Use and Open-Source Terms (publishing under your own account; free public packages)
+      - npm's policy on name squatting and spam: the run is capped and each package is a working tool, but check the cap suits you
+      - decide scope vs unscoped names before the first publish, because a published name cannot be reclaimed
+    owner_ask: create or choose the npm account, store NPM_TOKEN as a repository secret, set NPM_SCOPE if wanted, then set DISTRIBUTE_NPM=true
+    dry_run: node platform/distribution/npm.mjs
+  - id: mcp-server
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/mcp.mjs
+    server: platform/distribution/mcp-server.mjs
+    workflow: .github/workflows/distribute-mcp.yml
+    enabled_by: repository variable DISTRIBUTE_MCP=true plus secret NPM_TOKEN; optional variable MCP_PACKAGE_NAME (default monorepo-projects-mcp)
+    what_it_posts: one npm package, monorepo-projects-mcp, bundling every zero-dependency venture CLI whose closure imports no network or process module (133 of 142 today) behind a stdio MCP server with three tools (list_tools, tool_help, run_tool); also writes a server.json for the official MCP registry
+    dedupe: stateless; skipped when the registry already shows the current VERSION. Bump VERSION in mcp.mjs to ship a changed tool set
+    safety: arguments go to node as an array, never a shell; 20 s timeout; 200 KB output cap; the child gets a minimal environment; CLIs importing http/https/net/child_process/vm or calling fetch/eval are excluded at build time
+    terms_to_confirm_by_owner_when_enabling:
+      - npm Terms of Use (same account as npm-cli-packages)
+      - "MCP registry (registry.modelcontextprotocol.io) publishing: `mcp-publisher` needs a GitHub login proving the io.github.<owner> namespace; agents did not run it. server.json is generated into the package"
+      - decide the package name before the first publish; a published name cannot be reclaimed
+    owner_ask: same npm token as npm-cli-packages; set DISTRIBUTE_MCP=true; optionally run mcp-publisher once against the generated server.json
+    dry_run: node platform/distribution/mcp.mjs
+  - id: pypi-python-clis
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/pypi.mjs
+    workflow: .github/workflows/distribute-pypi.yml
+    enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token, passed to twine as the password with username __token__)
+    what_it_posts: one PyPI project per stdlib-only Python venture CLI (ventures/<slug>/check.py with a main(), an MIT LICENSE, a VENTURE.yaml description), at most 5 new per run, installable with `pipx run <slug>`. The tool source is shipped unchanged; the README gains a free/open-source/not-advice footer linking the tool page. Tools importing anything outside a stdlib allowlist, or any network or process module, are skipped.
+    dedupe: stateless; a project name that already exists on PyPI is skipped, so nothing is republished or overwritten
+    terms_to_confirm_by_owner_when_enabling:
+      - PyPI Terms of Use and Acceptable Use Policy (free public projects under your own account)
+      - PyPI's policy on name squatting and spam: each project is a working tool and the run is capped, but check the cap suits you
+      - project names are first-come and cannot be reclaimed once published; names equal the venture slugs
+      - agents did not read the live terms on build day (no network to pypi.org from the build session), so this row is unconfirmed until the owner does
+    owner_ask: create the PyPI account, create an API token, store it as PYPI_TOKEN, set DISTRIBUTE_PYPI=true (a first-run token must be account-scoped; narrow it afterwards)
+    dry_run: node platform/distribution/pypi.mjs
+  - id: pypi-pyproject-packages
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/pypi-packages.mjs
+    workflow: .github/workflows/distribute-pypi-packages.yml
+    enabled_by: same as pypi-python-clis (variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN)
+    what_it_posts: "one PyPI project per Python venture that already ships a pyproject.toml, a src/ tree, a LICENSE and a README and has no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run; built from a clean copy so no site files ship; all five built and passed twine check on 2026-10-16. Complements pypi-python-clis, which wraps single-file check.py tools."
+    dedupe: stateless; a project name already on PyPI is skipped
+    terms_to_confirm_by_owner_when_enabling:
+      - same PyPI terms and name-squatting policy as pypi-python-clis; the combined weekly cap is 5 + 3 new projects
+    owner_ask: none beyond pypi-python-clis
+    dry_run: node platform/distribution/pypi-packages.mjs
+  - id: homebrew-tap
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/homebrew.mjs
+    workflow: .github/workflows/distribute-homebrew.yml
+    enabled_by: repository variable DISTRIBUTE_HOMEBREW=true, variable HOMEBREW_TAP_REPO (e.g. you/homebrew-tools), and secret HOMEBREW_TAP_TOKEN (a token with contents:write on that one repository only)
+    what_it_posts: one `Formula/<slug>.rb` per venture CLI already published by npm-cli-packages, in the owner's own tap repository (not homebrew-core). The formula installs the npm tarball and its sha256 is computed from the tarball the registry serves; a package not yet on npm is skipped. At most 10 new formulas per run.
+    dedupe: stateless; a formula file already in the tap is never rewritten
+    depends_on: npm-cli-packages must be live first
+    terms_to_confirm_by_owner_when_enabling:
+      - Homebrew taps are third-party repositories, so no Homebrew approval is involved; GitHub Terms apply to the tap repository
+      - agents did not read live terms on build day, and the generated formulas were not run through `brew audit` (no Homebrew in the build session)
+    owner_ask: create an empty homebrew-<name> repository, store HOMEBREW_TAP_TOKEN, set HOMEBREW_TAP_REPO and DISTRIBUTE_HOMEBREW=true (after DISTRIBUTE_NPM has published packages)
+    dry_run: node platform/distribution/homebrew.mjs
+  - id: ghcr-container-images
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghcr.mjs
+    workflow: .github/workflows/distribute-ghcr.yml
+    enabled_by: repository variable DISTRIBUTE_GHCR=true (no secret, the job logs in to ghcr.io with its own GITHUB_TOKEN, packages:write)
+    what_it_posts: one image `ghcr.io/<owner>/<slug>:0.1.0` per venture CLI that npm-cli-packages can package (FROM node:22-alpine, non-root, OCI source/licence labels linking to this repository). At most 5 new images per run.
+    dedupe: stateless; a tag that `docker manifest inspect` finds is never rebuilt
+    depends_on: nothing (does not need npm to be live)
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms and the Container registry terms; agents did not read live terms on build day
+      - new GHCR packages are private by default: after the first push, set each package (or the org default) to public in package settings, which only the owner can do
+      - the Dockerfile and workflow were not built here (no Docker daemon in the build session); the build context was checked by running its bin.mjs with node
+    owner_ask: set DISTRIBUTE_GHCR=true, then make the first pushed packages public
+    dry_run: node platform/distribution/ghcr.mjs
+  - id: zenodo-citation
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/citation.mjs
+    workflow: none (a one-time owner switch, then releases.mjs's weekly GitHub release is archived automatically)
+    enabled_by: the owner switches this repository on in Zenodo's GitHub integration; nothing in the tree is gated
+    what_it_posts: root CITATION.cff (GitHub's "Cite this repository" box, read by Zenodo for the archive's metadata) and research/CITATIONS.bib (one BibTeX entry per research project, 463 at build). Authors are the project ("oss-monorepo contributors"), never a named person.
+    dedupe: files are regenerated deterministically; `node platform/distribution/citation.mjs --check` exits 1 when stale
+    depends_on: DISTRIBUTE_RELEASES=true (github-release-digest) for a DOI per release; CITATION.cff works without it
+    terms_to_confirm_by_owner_when_enabling:
+      - Zenodo terms of use and GitHub integration docs; agents did not read them live on build day
+      - a DOI is minted under the owner's Zenodo account and is permanent: review the metadata before the first release is archived
+    owner_ask: log in to zenodo.org with GitHub and flip this repository on
+    dry_run: node platform/distribution/citation.mjs
+  - id: browser-extension
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/webext.mjs
+    workflow: none (artifact only; the owner uploads a zip to each store by hand, once per tool)
+    enabled_by: nothing in the tree is gated; building a package is always allowed. Uploading is the owner's step
+    what_it_posts: 'nothing automatically. `webext.mjs --build <slug> <dir>` writes a Manifest V3 extension (and a deterministic .zip) for any static venture page (1184 of 1251 today): a toolbar click opens the tool offline in a tab, no permissions requested, no remote code, inline scripts moved to files, MIT LICENSE and a README bundled. Loaded unpacked in Chromium and exercised end to end on shift-roster-builder on 2026-10-16'
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Chrome Web Store developer agreement (one-time registration fee) and its spam and repetitive-content policy: do not upload hundreds of near-identical listings; start with the few tools people return to weekly (shift-roster-builder, league-schedule-generator)
+      - Edge Add-ons and Firefox AMO accept the same package; Firefox may want browser_specific_settings.gecko.id added before the first upload
+      - store descriptions and privacy answers: the package collects nothing (say so)
+    owner_ask: create a Chrome Web Store developer account, then upload the zip for one tool at a time
+    dry_run: node platform/distribution/webext.mjs
+  - id: vscode-extension
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/vscode.mjs
+    workflow: none (artifact only; the owner publishes the .vsix once)
+    enabled_by: nothing in the tree is gated; building a package is always allowed. Publishing is the owner's step
+    what_it_posts: 'nothing automatically. `vscode.mjs --build <dir>` writes one dependency-free .vsix, "Free Tools Catalogue": a command-palette command that quick-picks across all launched tools (1,254 today, searchable by name and description) and opens the pick in the browser. No network code, no settings, no telemetry; the list is baked in at build time. MIT LICENSE and README bundled'
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Open VSX (Eclipse Foundation) publisher agreement and namespace claim, or the VS Code Marketplace publisher terms (Azure DevOps account). Agents had no network to either on build day, so both are unread
+      - set VSCODE_PUBLISHER at build time to the namespace you register (default duncan-haywood); a published extension id cannot be reclaimed
+      - the .vsix was checked as a valid zip with the expected members and its extension.js is exercised against a stubbed vscode API in tests; it has not been installed in a real VS Code
+    owner_ask: register an Open VSX namespace (and/or VS Code Marketplace publisher), then `npx ovsx publish <file>.vsix -p <token>` once
+    dry_run: node platform/distribution/vscode.mjs
+  - id: github-actions
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ghaction.mjs
+    workflow: none (the actions are committed files; `ghaction.mjs --check` fails when one is stale)
+    enabled_by: 'nothing in the tree is gated and no account or secret is needed. Anyone can already write `uses: duncan-haywood/oss-monorepo/platform/distribution/actions/<slug>@main`'
+    what_it_posts: nothing automatically. 18 stdlib-only `*-check` venture linters (Actions, Docker, Kubernetes, JWT, dependency-confusion checks) become reusable composite actions with `path`, `fail-on-risk` and `format` inputs; each runs the venture's own check.py from the action checkout, with no network calls
+    dedupe: not applicable (deterministic files)
+    terms_to_confirm_by_owner_when_enabling:
+      - optional: GitHub Marketplace listing needs a dedicated repository with action.yml at its root and the Marketplace developer agreement; not required for `uses:` to work
+    owner_ask: none to use them; optionally mirror one action per repository for a Marketplace listing
+    dry_run: node platform/distribution/ghaction.mjs
+  - id: pre-commit-hooks
+    rung: artifact
+    built: 2026-10-17
+    code: platform/distribution/precommit.mjs
+    workflow: none (the hooks are one committed file, `.pre-commit-hooks.yaml`; `precommit.mjs --check` fails when it is stale)
+    enabled_by: 'nothing in the tree is gated and no account or secret is needed. Anyone can already add `repo: https://github.com/duncan-haywood/oss-monorepo` with a pinned `rev` and a hook id to their .pre-commit-config.yaml'
+    what_it_posts: nothing automatically. The same 19 stdlib-only `*-check` venture linters as github-actions become pre-commit hooks (language script, whole-tree scan, --fail-on-risk, no network calls)
+    dedupe: not applicable (deterministic file)
+    terms_to_confirm_by_owner_when_enabling:
+      - none; pre-commit reads the file from a clone. The repository must be public for strangers to use it
+    owner_ask: none
+    dry_run: node platform/distribution/precommit.mjs
+    verified: ran one hook through real pre-commit against a scratch repository; it failed on a workflow with no timeout-minutes, as the check does
+  - id: android-play-store
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/android.mjs
+    workflow: none (artifact only; the owner builds, signs and uploads once per tool)
+    enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing and uploading are the owner's steps
+    what_it_posts: nothing automatically. `android.mjs --build <slug> <dir>` writes a Bubblewrap Trusted Web Activity project input for any published venture page (1196 of 1251 today) - twa-manifest.json, a 512 px icon, an assetlinks template, a Play store listing with the data-safety answers (collects nothing) and BUILD.md. The iOS counterpart is the ios-app-store channel below.
+    dedupe: not applicable (no automated posting)
+    terms_to_confirm_by_owner_when_enabling:
+      - Google Play Developer Program Policies and distribution agreement (one-time registration fee, identity verification, a closed test for new personal accounts); agents did not read them live on build day
+      - Play's minimum-functionality and spam rules: list a few tools people return to weekly, not hundreds of near-identical apps
+      - assetlinks.json must be served at the origin root, so full-screen mode needs a user site (<owner>.github.io) or the custom domain; on the current project-page subpath the app shows a browser address bar
+      - the signing keystore is created on first build and cannot be recovered if lost
+    owner_ask: create a Play Console account, then build and upload one tool at a time following the generated BUILD.md
+    dry_run: node platform/distribution/android.mjs
+  - id: ios-app-store
+    rung: artifact
+    built: 2026-10-16
+    code: platform/distribution/ios.mjs
+    workflow: none (artifact only; the owner generates the Xcode project, signs and uploads once per tool)
+    enabled_by: nothing in the tree is gated; building the inputs is always allowed. Signing, TestFlight and App Review are the owner's steps
+    what_it_posts: 'nothing automatically. `ios.mjs --build <slug> <dir>` writes an XcodeGen project input (project.yml, SwiftUI + WKWebView sources, an opaque 1024 px RGB icon, a privacy manifest declaring no tracking and no collected data, an App Store listing with the App Privacy answers, BUILD.md) for any static venture page the browser-extension packager accepts (1184 of 1251 today). The page and the files it imports are bundled and served over an app:// scheme whose Content-Security-Policy has connect-src none, so "collects nothing" is enforced; links leave for Safari, CSV exports open the share sheet. Unlike android-play-store it works offline from the bundle and needs no origin-root file.'
+    dedupe: not applicable (no automated posting)
+    not_verified: the Swift and project.yml were NOT compiled (no Xcode or Swift toolchain in the build session). Tests check structure only (balanced braces, JSON-as-YAML parses, icon is RGB, no network APIs). The owner runs it in the Simulator first (BUILD.md says so)
+    terms_to_confirm_by_owner_when_enabling:
+      - Apple Developer Program License Agreement (annual fee, identity verification) and App Review Guidelines, in particular 4.2 minimum functionality (repackaged websites are rejected; these are standalone offline tools) and 4.3 spam (do not submit hundreds of near-identical apps; start with the few tools people return to weekly); agents did not read them live on build day
+      - bundle ids are io.github.<owner>.<slug>; change one if Apple says it is taken
+    owner_ask: join the Apple Developer Program, then follow the generated BUILD.md for one tool at a time (Simulator, TestFlight, then App Review)
+    dry_run: node platform/distribution/ios.mjs

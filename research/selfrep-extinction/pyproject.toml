@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selfrep-extinction"
+version = "0.1.0"
+description = "Exact mean extinction time of a wearing-out replicating printer fleet as a birth-death chain, checked against a simulation"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

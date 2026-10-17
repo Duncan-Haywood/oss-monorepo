@@ -64,7 +64,7 @@
     <p class="eyebrow">FOR BARS, RESTAURANTS AND BEVERAGE PROGRAMS</p>
     <h1>What does this drink actually cost you to pour?</h1>
     <p>A pour cost percentage from memory is a guess. Enter what the bottles actually cost and how much of each goes into the glass, and see the real liquor cost percentage against your own target &mdash; plus what a small over-pour on the well is quietly costing you across a year of shifts.</p>
-    <p class="seo-link"><a href="./how-to-calculate-pour-cost.html">How to calculate pour cost (with the formula and a worked example)</a> &middot; <a href="./vs-binwise.html">This calculator vs. BinWise</a> &middot; <a href="./vs-wisk.html">This calculator vs. WISK</a></p>
+    <p class="seo-link"><a href="./how-to-calculate-pour-cost.html">How to calculate pour cost (with the formula and a worked example)</a> &middot; <a href="./vs-a-spreadsheet.html">This calculator vs. a spreadsheet</a> &middot; <a href="./vs-binwise.html">This calculator vs. BinWise</a> &middot; <a href="./vs-wisk.html">This calculator vs. WISK</a></p>
   </header>
 
   <main class="layout">
@@ -211,8 +211,12 @@
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record — export or note down anything you need to keep.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bottle costs, recipes, menu prices, and drink counts are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Saving a recipe writes it to this browser's local storage on this device only, and <em>Forget my saved recipe</em> deletes it. <em>Copy shareable link</em> puts the same numbers in the page's URL fragment instead of a server &mdash; nothing about your recipe leaves your device either way.</p>
     <p>Running the same arithmetic on the kitchen side? The <a href="../menu-engineering-calculator/">menu engineering calculator</a> sorts a food menu into stars, plowhorses, puzzles and dogs from each dish&rsquo;s plate cost, price and units sold.</p>
+    <p>Pricing something you roast rather than pour? The <a href="../coffee-roaster-margin-calculator/">coffee roaster margin calculator</a> turns green coffee price and roast loss into margin by channel.</p>
+    <p>Pricing a whole bar-service event instead of one drink? The <a href="../mobile-bartender-event-quote/">Mobile Bartender Event Quote</a> prices bartenders, drinks, supplies and travel and checks a client's per-head ask.</p>
+    <p>Related tool: the <a href="../supplier-price-creep-checker/">supplier price creep checker</a> finds the invoice lines whose price has crept up since your last order. Brewing the beer you pour? The <a href="../craft-brewery-batch-margin-calculator/">craft brewery batch margin calculator</a> shows what each beer earns by sales channel.</p>
     <p class="support">Free and open source. If it changes how you price a drink, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-  </footer>
+    <p>Supplier prices creeping up? The <a href="../supplier-price-creep-checker/">supplier price creep checker</a> reads invoice lines and flags the items that stepped up &mdash; nothing uploaded.</p>
+</footer>
 
   <script type="module">
     import { calculatePourCost, ALL_INPUT_IDS } from './calc.mjs';

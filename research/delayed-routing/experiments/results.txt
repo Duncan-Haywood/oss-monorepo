@@ -1,0 +1,38 @@
+== E1  bound tightness: measured regret / [ln N/eta + eta T/8 + eta D/2], eta=eta_opt(D) ==
+bernoulli gap .1   mean delay    0  regret/bound = 0.562 +- 0.003
+bernoulli gap .1   mean delay    5  regret/bound = 0.506 +- 0.001
+bernoulli gap .1   mean delay   20  regret/bound = 0.427 +- 0.004
+bernoulli gap .1   mean delay  100  regret/bound = 0.248 +- 0.004
+switching b=100    mean delay    0  regret/bound = 0.532 +- 0.020
+switching b=100    mean delay    5  regret/bound = 0.465 +- 0.033
+switching b=100    mean delay   20  regret/bound = 0.370 +- 0.032
+switching b=100    mean delay  100  regret/bound = 0.206 +- 0.019
+
+== E2  punish-the-leader adversary, N=2, T=4000: regret vs constant delay d ==
+ d    regret(eta_delay-blind)  regret(eta_opt(D))   bound(eta_opt)   sqrt(1+4d) growth of bound
+   0       18.6                   18.6               37.2       x1.00 (theory x1.00)
+   1       31.0                   13.9               83.2       x2.24 (theory x2.24)
+   3       67.4                   19.4              134.2       x3.60 (theory x3.60)
+  10      199.2                   35.5              238.2       x6.40 (theory x6.40)
+  30      548.4                   64.3              408.8       x10.98 (theory x10.98)
+ 100     1258.9                  101.2              740.9       x19.90 (theory x19.90)
+
+== E3  heterogeneous fleet vs uniform delay at the same D: switching losses N=8 T=4000 ==
+frac slow 0.02 x delay 500 (mean  10.0): mixed fleet regret  146.4+-13.5   geometric same mean  175.7+-13.7
+frac slow 0.10 x delay 100 (mean  10.0): mixed fleet regret  164.0+-14.4   geometric same mean  175.7+-13.7
+frac slow 0.50 x delay  20 (mean  10.0): mixed fleet regret  177.1+-14.2   geometric same mean  175.7+-13.7
+frac slow 1.00 x delay  10 (mean  10.0): mixed fleet regret  178.1+-14.0   geometric same mean  175.7+-13.7
+
+== E4  learning-rate rules under mean delay 20, switching b=100, N=8, T=4000 ==
+delay-blind            regret   122.2 +- 10.5
+oracle eta_opt(D)      regret   215.3 +- 18.5
+adaptive (observed)    regret   154.3 +- 19.0
+3x too big             regret   165.5 +-  6.4
+3x too small           regret   246.0 +- 26.0
+
+== E5  subsidy of an LMSR router that must hit per-round regret target 0.05 ==
+mean delay  rounds needed T*  (bound 2sqrt(lnN*T(1/8+dbar/2)) <= 0.05 T)   liquidity b=1/eta   worst-case MM loss b ln N
+        0               416                                                              5.0              10.4
+        5             8,734                                                            105.0             218.3
+       20            33,687                                                            405.0             842.2
+      100           166,771                                                           2005.0            4169.3

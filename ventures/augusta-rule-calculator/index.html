@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Augusta Rule Calculator — What Renting Your Home to Your Business Saves</title>
+  <meta name="description" content="Free Augusta rule calculator. Enter days rented to your own business, a fair daily rent and your tax rates to see the federal, self-employment and state tax saved, net of costs, and how the saving changes if the rate is cut back. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Augusta Rule Calculator — free, private, in your browser">
+  <meta property="og:description" content="Rent your home to your own business for up to 14 days tax-free? See the tax saved, net of costs, and the effect of a lower rate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Augusta Rule Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Prices the Augusta rule, renting your home to your own business for 14 days or fewer: rent excluded from your income, federal, self-employment and state tax saved, net of documentation costs, with sensitivity to the daily rate. Runs in your browser.", "featureList": "Augusta rule tax saving, S corporation, sole proprietor and C corporation cases, self-employment tax, QBI adjustment, rate sensitivity, multi-year net saving, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Augusta rule?", "acceptedAnswer": {"@type": "Answer", "text": "Section 280A(g) of the Internal Revenue Code lets a homeowner rent a home for 14 days or fewer in a year without reporting the rent as income. When your own business is the renter and pays a fair market price, the business deducts the rent and you exclude it. It is named after Augusta, Georgia, where homeowners rent houses to visitors during the Masters golf tournament."}}, {"@type": "Question", "name": "Can my business rent my home under the Augusta rule?", "acceptedAnswer": {"@type": "Answer", "text": "Often, yes, if the days have a real business purpose such as a board meeting, planning retreat or client event, the rent is a fair price, and the total is 14 days or fewer in the year. Whether your facts qualify is a question for a tax professional; this tool only prices the saving."}}, {"@type": "Question", "name": "How is the saving calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Rent is days times the daily rate. The federal saving is the rent times the tax rate you enter, reduced by 20 percent if you turn on the qualified business income deduction. Sole proprietors and general partners also save self-employment tax on 92.35 percent of the rent. State savings use the rate you enter."}}, {"@type": "Question", "name": "What daily rate should I use?", "acceptedAnswer": {"@type": "Answer", "text": "A fair market rate for comparable space and use in your area, supported by written quotes or listings from nearby venues that hold similar meetings. An unsupported high rate is the usual reason the deduction is challenged, so the tool shows the saving at lower rates too."}}, {"@type": "Question", "name": "What if I rent for more than 14 days?", "acceptedAnswer": {"@type": "Answer", "text": "Above 14 days the exclusion does not apply and the rent is taxable income, so this tool stops at 14. Count every day the home is rented to anyone, not only to your business."}}, {"@type": "Question", "name": "What records should I keep?", "acceptedAnswer": {"@type": "Answer", "text": "A written rental agreement, the business purpose and attendees for each day, proof the business paid you, the days used, and the comparable rates behind your daily price."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AUGUSTA RULE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does renting your home to your business for 14 days save you?</h1>
+    <p>Enter the days, a fair daily rent and your tax rates. You get the <strong>rent excluded from your income</strong>, the <strong>federal, self-employment and state tax saved</strong>, the <strong>net after costs</strong>, and what happens if the <strong>daily rate is cut back</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>The rental</h2>
+    <div class="grid">
+      <div><label for="days">Days rented to your business (0 to 14)</label><input type="text" id="days" inputmode="decimal" placeholder="12" autocomplete="off"></div>
+      <div><label for="rate">Daily rent, dollars (fair market)</label><input type="text" id="rate" inputmode="decimal" placeholder="1200" autocomplete="off"></div>
+      <div><label for="entity">How your business is taxed</label><select id="entity"><option value="se">Sole proprietor, single-member LLC or general partner</option><option value="s">S corporation</option><option value="c">C corporation</option></select></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Tax rates (editable)</h2>
+    <div class="grid">
+      <div><label for="fedRate">Federal tax rate on the deduction, percent (owner's bracket; corporate rate for a C corporation)</label><input type="text" id="fedRate" inputmode="decimal" placeholder="32" autocomplete="off"></div>
+      <div><label for="stateRate">State tax rate, percent (blank for 0)</label><input type="text" id="stateRate" inputmode="decimal" placeholder="5" autocomplete="off"></div>
+      <div><label for="qbi">Does the 20% qualified business income deduction apply to this business?</label><select id="qbi"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="ssBase">Sole proprietor or partner: Social Security wage base already reached this year?</label><select id="ssBase"><option value="under">No, full self-employment tax</option><option value="over">Yes, Medicare share only</option></select></div>
+      <div><label for="seRate">Self-employment tax rate at the margin, percent (blank for 15.3, or 2.9 above the wage base)</label><input type="text" id="seRate" inputmode="decimal" placeholder="15.3" autocomplete="off"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Costs and horizon</h2>
+    <div class="grid">
+      <div><label for="setupCost">One-time setup cost, dollars (appraisal or comparables, agreement; blank for 0)</label><input type="text" id="setupCost" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="annualCost">Yearly cost, dollars (minutes, bookkeeping, preparer time; blank for 0)</label><input type="text" id="annualCost" inputmode="decimal" placeholder="250" autocomplete="off"></div>
+      <div><label for="years">Years you expect to repeat it (blank for 5)</label><input type="text" id="years" inputmode="decimal" placeholder="5" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the rental and your tax rates, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If you rent fewer days</h3>
+    <div class="scroll"><table id="days-table"><thead><tr><th>Days</th><th class="n">Rent excluded</th><th class="n">Total tax saved</th></tr></thead><tbody></tbody></table></div>
+    <h3>If the daily rate is cut back</h3>
+    <div class="scroll"><table id="rate-table"><thead><tr><th>Scenario</th><th class="n">Daily rent</th><th class="n">Total tax saved</th><th class="n">Net after yearly cost</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Rent is days times the daily rate, up to 14 days. Federal saving is rent times your federal rate, times 80 percent if you turn on the qualified business income deduction (a deduction lowers the income that deduction is based on). For a sole proprietor, single-member LLC owner or general partner, self-employment tax saved is rent times 92.35 percent times the self-employment rate. An S corporation saves income tax only; a C corporation deducts at the corporate rate and you exclude the rent personally. State saving is rent times your state rate. Net saving is the total tax saved less your yearly cost, and the multi-year figure also subtracts the one-time setup cost.</p>
+    <p><strong>Not modelled:</strong> whether your business purpose and days qualify, whether the daily rate is a fair market price, the deduction for half of self-employment tax, phase-outs and limits on the qualified business income deduction, state rules that differ from federal, whether the rent changes any other tax such as the net investment income tax, and audit risk. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Confirm your facts and the current rules with a qualified tax professional.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the Augusta rule?</h3>
+    <p>Section 280A(g) of the Internal Revenue Code lets a homeowner rent a home for 14 days or fewer in a year without reporting the rent as income. When your own business is the renter and pays a fair market price, the business deducts the rent and you exclude it. It is named after Augusta, Georgia, where homeowners rent houses to visitors during the Masters golf tournament.</p>
+    <h3>Can my business rent my home under the Augusta rule?</h3>
+    <p>Often, yes, if the days have a real business purpose such as a board meeting, planning retreat or client event, the rent is a fair price, and the total is 14 days or fewer in the year. Whether your facts qualify is a question for a tax professional; this tool only prices the saving.</p>
+    <h3>How is the saving calculated?</h3>
+    <p>Rent is days times the daily rate. The federal saving is the rent times the tax rate you enter, reduced by 20 percent if you turn on the qualified business income deduction. Sole proprietors and general partners also save self-employment tax on 92.35 percent of the rent. State savings use the rate you enter.</p>
+    <h3>What daily rate should I use?</h3>
+    <p>A fair market rate for comparable space and use in your area, supported by written quotes or listings from nearby venues that hold similar meetings. An unsupported high rate is the usual reason the deduction is challenged, so the tool shows the saving at lower rates too.</p>
+    <h3>What if I rent for more than 14 days?</h3>
+    <p>Above 14 days the exclusion does not apply and the rent is taxable income, so this tool stops at 14. Count every day the home is rented to anyone, not only to your business.</p>
+    <h3>What records should I keep?</h3>
+    <p>A written rental agreement, the business purpose and attendees for each day, proof the business paid you, the days used, and the comparable rates behind your daily price.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter and on tax rules that change; whether a rental qualifies depends on your facts. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the Internal Revenue Service or any tax authority, and no company is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Choosing how to pay yourself? See the <a href="../s-corp-reasonable-compensation-calculator/">S corporation reasonable compensation calculator</a>. Other owner tax moves: the <a href="../solo-401k-contribution-calculator/">solo 401(k) contribution calculator</a> and the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["days", "rate", "entity", "fedRate", "stateRate", "qbi", "ssBase", "seRate", "setupCost", "annualCost", "years"];
+    const DEFAULTS = { entity: "se", qbi: "no", ssBase: "under" };
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? DEFAULTS[k] ?? ""; }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[usd(a.rent), "Rent excluded from your income"], [usd(a.gross), "Total tax saved per year"], [usd(a.yearNet), "Net saving per year after costs"], [usd(a.totalNet), "Net over " + a.p.years + " years after setup"]];
+      if (a.p.days > 0) tiles.push([usd(a.perDay), "Tax saved per day rented"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#days-table tbody").innerHTML = a.dayTable.map((d) => `<tr><td>${d.days}</td><td class="n">${usd(d.rent)}</td><td class="n">${usd(d.gross)}</td></tr>`).join("");
+      $("#rate-table tbody").innerHTML = a.rateTable.map((s) => `<tr class="${s.label === "Your rate" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.rate)}</td><td class="n">${usd(s.gross)}</td><td class="n">${usd(s.net)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("estimate_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented business owner, not a real return."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the rental and your tax rates, then click Calculate."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "augusta-rule.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -46,6 +46,34 @@ which is what puts it in `discoverability.test.mjs`'s population even though it
 is not a trade calculator at all. Mechanical readiness is not a reason to
 adopt, the same rule the two exclusions above already state.
 
+**Likewise `liquidation-pallet`** (`liquidation-pallet-bid-calculator`, graduated
+2026-09-30) does not adopt, deliberately: it is a reseller's max hammer bid on a
+liquidation pallet or truckload, a figure the buyer keeps to themselves, with no
+customer to hand a proposal to. Its slug ends in `-bid-calculator` because the
+bid is the product, which is what puts it in `discoverability.test.mjs`'s
+population even though it is not a trade calculator.
+
+**`water-well-drilling`** (`water-well-drilling-bid-calculator`, graduated
+2026-10-09) does not adopt yet. Its customer is a homeowner, so it is a
+candidate, but it prices the job through `analyze()` rather than the
+`readInput()` / `calculate*(readInput())` pair `inspect()` anchors on, and a
+proposal for a well also needs terms the tool does not model (a dry-hole
+clause, a yield disclaimer). Adopting it is a follow-up, not part of the
+launch.
+
+**`hoarding-cleanout`** (`hoarding-cleanout-bid-calculator`) does not adopt yet.
+Its customer is often a family member or a social worker rather than the
+occupant, so who signs and who is billed is a question a generic proposal
+template answers wrongly, and the job needs terms the tool does not model
+(hazard and sanitising scope, valuables found, a volume-overrun change-order
+rate). It is a follow-up; the calculator already prints the overrun rate.
+
+**`hydroseeding-job` and `lawn-aeration-overseeding`** (their `-bid-calculator`
+slugs) landed after the last adoption batch and do not adopt yet. Both are
+homeowner-facing lawn jobs, so they are candidates: each needs a `trades.json`
+entry and a check that its pricing fits the `readInput()` anchor `inspect()`
+looks for. Adopting them is a follow-up, listed here so the README stays true.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the
@@ -594,3 +622,7 @@ a judgement call; all three were spelling.
 The first of those is the one to remember when adopting a venture whose
 calculator validates: the render loop and the printed sheet want *opposite*
 behaviour from a bad figure, and both are right.
+
+## `sauna-cold-plunge-install` does not ship it yet
+
+`sauna-cold-plunge-install` prices an install from a bill of materials with an electrician pass-through, a distance table and an overrun check. Its output is a cost-and-break-even readout, not a scope with a deposit split, so the printed proposal has nothing to carry yet. Adopt it per "Adopting a calculator" above if that changes.

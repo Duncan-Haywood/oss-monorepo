@@ -1,0 +1,49 @@
+name: qcd-calculator
+description: >-
+  Free browser tool for IRA owners 70 1/2 and older: compares a qualified charitable distribution with giving the same
+  cash and deducting it, showing the effect on AGI, taxable Social Security, the senior deduction, federal and state
+  tax and what the gift really costs, and how much of the RMD it covers. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. ventures/ had RMD, inherited-IRA, Roth-conversion, IRMAA and
+# charity-bunching tools but no QCD tool (grep for qcd and charitable-dist found only mentions inside those).
+#
+# Why this niche: retirees who give to charity and take required minimum distributions are the audience with the most
+# tax at stake per click and the least tax software aimed at them. The 2026 rule changes (0.5% AGI floor on itemized
+# gifts, the new non-itemizer deduction, the temporary senior deduction and its phase-out) changed the answer for many
+# households this year, and the old "QCD always wins" rule of thumb now needs numbers. Incumbents are custodian
+# brochures and advisor blog posts; a private what-if with the Social Security and senior-deduction knock-ons is the
+# gap. Free tool is a lead magnet; a paid year-end giving worksheet pack is the later revenue path (not built).
+#
+# First visitor: someone searching "QCD calculator", "qualified charitable distribution vs donating cash" or "does a
+# QCD lower my Social Security tax". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no filing, no transfers; tax-year figures are in one constant
+# block and the page points to IRS Publication 590-B. Not tax advice.
+
+hypotheses:
+  - claim: >-
+      Retirees who give to charity will use a private what-if that prices a QCD against a cash gift including the
+      Social Security and senior-deduction effects, because custodian guides only say the QCD "lowers AGI".
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/qcd-calculator/
+  analytics: null

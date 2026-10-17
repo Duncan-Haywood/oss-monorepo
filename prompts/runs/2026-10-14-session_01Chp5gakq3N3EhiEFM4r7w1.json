@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-14",
+  "session": "https://claude.ai/code/session_01Chp5gakq3N3EhiEFM4r7w1",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new-project",
+  "projects": [
+    "robofab-solrefmap"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-research-monorepo/pull/398",
+  "commits": [
+    "57cbb8f"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 5,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [
+    "pip and python3 pointed at different interpreters; mujoco install needed python3 -m pip"
+  ],
+  "integrity_issues": [],
+  "notes": "Queue empty: claude/sleepy-shannon-ck1uzg (ambient-crossfit) superseded by main, no PR, left alone; ~430 older branches have no merge base with the rewritten main. No routing.json, so prompt 0. Track 4 drawn at random.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

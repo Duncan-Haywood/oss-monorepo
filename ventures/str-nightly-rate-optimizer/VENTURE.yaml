@@ -1,0 +1,67 @@
+name: str-nightly-rate-optimizer
+description: >-
+  Free browser tool for short-term rental hosts: paste or upload listed nights
+  as nightly price and booked or empty, enter the platform fee and turnover
+  cost, and get a booking-chance curve by price (logistic regression with an
+  interval), the nightly price with the highest expected profit per listed
+  night searched only inside the range actually listed, bootstrap ranges and a
+  hold-out back-test that says when price does not explain which nights
+  booked. Refuses a history where prices never varied. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "short-term rental nightly rate optimizer from own booking history lead time
+# occupancy": closest is str-host-payout-calculator at 0.39 and
+# str-occupancy-tax-calculator at 0.36, below the read-this-first bar. Adjacent:
+# str-host-payout-calculator (what a booking nets after fees, no price choice),
+# str-cleaning-fee-pricing-calculator (the cleaning fee), price-elasticity-
+# estimator (generic price vs quantity), bid-win-rate-optimizer and renewal-rent-
+# optimizer (same logistic machinery, different decision). Alternatives: paid
+# dynamic-pricing services (PriceLabs, Wheelhouse, Beyond) that price from market
+# data for a fee; a spreadsheet of nights by price band (no uncertainty, no
+# costs); host-forum rules of thumb.
+#
+# First visitor: searches "what should I charge per night airbnb", "airbnb
+# nightly rate calculator", "does lowering my airbnb price increase bookings";
+# r/airbnb_hosts, r/AirBnBHosts, host Facebook groups. Volume not measured with an
+# external tool. Hosts with one to five listings are the segment paid dynamic-
+# pricing subscriptions price least comfortably.
+#
+# Privacy is the liability boundary: bookings never leave the browser (tests
+# assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could add market comparables from a licensed data source; not
+# built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# "unidentified" and refuses when data cannot support an answer, and states it
+# does not know taxes, licensing or platform rules. Unverified: tested on
+# simulated nights with known curves, not on a published dataset.
+
+hypotheses:
+  - claim: >-
+      Short-term rental hosts with a season or more of listed nights will use a
+      private, no-signup tool that turns them into a nightly price
+      recommendation, and will return as their history grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the slope or the best price disagrees with a standard logistic regression on the same data.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-nightly-rate-optimizer/
+  analytics: null

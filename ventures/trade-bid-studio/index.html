@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade Bid Studio — Price Any Contracting Job and Find Your Walk-Away Number</title>
+  <meta name="description" content="Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor's lower quote actually leaves you. Plus 121 trade-specific bid calculators.">
+  <meta property="og:title" content="Trade Bid Studio">
+  <meta property="og:description" content="Markup is not margin. Find the price that keeps your margin, the number below which the job loses money, and what a cheaper quote leaves you.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trade Bid Studio","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Universal bid build-up from labor hours, burden, materials, subcontractors and overhead, price at a target margin, walk-away price, markup versus margin converter, competitor-quote check, labor-overrun cushion, line-item takeoffs for 119 trades with starting rates from each trade's own calculator, directory of 121 trade-specific bid calculators"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the difference between markup and margin?","acceptedAnswer":{"@type":"Answer","text":"Markup is profit as a percentage of your cost; margin is profit as a percentage of the price. A 25% markup is only a 20% margin, so a contractor who adds 25% to cost and believes they earn a 25% margin is under-pricing every job."}},{"@type":"Question","name":"What is a walk-away price?","acceptedAnswer":{"@type":"Answer","text":"It is your full cost: labor, payroll burden, materials, subcontractors, other costs and a share of overhead. Any price below it loses money before you earn a dollar of profit."}},{"@type":"Question","name":"How do I price a job at a target margin?","acceptedAnswer":{"@type":"Answer","text":"Divide the full cost by one minus the margin. A job costing $2,750 at a 20% margin is $2,750 / 0.8 = $3,437.50, not $2,750 x 1.20."}},{"@type":"Question","name":"Where do the trade starting rates come from?","acceptedAnswer":{"@type":"Answer","text":"Each trade's takeoff is taken from that trade's own calculator in this collection: its production rates, coverage and default prices, with the source of every figure recorded in the open-source preset file. They are examples so the form is not blank, not industry standards and not a statement of what your crew does. Replace them with your own hours and supplier prices."}},{"@type":"Question","name":"Is my pricing uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The page runs in your browser with no account and no network requests."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2230; background: #eaeef5; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b4f9e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
+    section { background: #f7f9fd; border: 1px solid #c6d0e3; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a3b0ca; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .result { position: sticky; top: 15px; background: #1c2742; color: #f1f5fc; border-color: #1c2742; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    .note { font-size: .82rem; opacity: .86; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #8a2517; }
+    .conv { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+    .conv label { flex: 1 1 140px; }
+    .conv output { font-size: 1.3rem; font-weight: 700; padding-bottom: 8px; }
+    #directory { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; padding: 0; list-style: none; }
+    #directory li { background: #fff; border: 1px solid #c6d0e3; border-radius: 10px; padding: 12px; }
+    #directory a { font-weight: 700; color: #2b4f9e; }
+    #directory p { margin: 6px 0 0; font-size: .8rem; color: #4a5470; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5470; }
+    footer a { color: #2b4f9e; }
+    select { width: 100%; box-sizing: border-box; border: 1px solid #a3b0ca; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[readonly] { background: #e3e8f2; color: #3a4460; }
+    .takeoff-wrap { overflow-x: auto; margin: 14px 0; }
+    #takeoff { width: 100%; border-collapse: collapse; font-size: .86rem; min-width: 560px; }
+    #takeoff th { text-align: left; font-size: .75rem; color: #4a5470; padding: 4px 6px; }
+    #takeoff td { padding: 3px 4px; vertical-align: middle; }
+    #takeoff td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #takeoff input { padding: 7px; }
+    #takeoff .unit { width: 7em; }
+    .linkish { background: none; border: 0; color: #2b4f9e; font: inherit; text-decoration: underline; cursor: pointer; padding: 4px; }
+    .btn { border: 1px solid #2b4f9e; background: #fff; color: #2b4f9e; border-radius: 7px; padding: 8px 12px; font: inherit; font-weight: 650; cursor: pointer; }
+    .takeoff-sum { background: #fff; border: 1px solid #c6d0e3; border-radius: 9px; padding: 10px 12px; font-size: .87rem; }
+    .error { color: #8a2517; font-weight: 650; }
+    #directory .start { margin-left: 8px; font-size: .8rem; font-weight: 650; }
+    @media (max-width: 780px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CONTRACTORS AND SERVICE CREWS</p>
+    <h1>Trade Bid Studio</h1>
+    <p>Add up your labor, materials and overhead, pick the margin you want to keep, and see the price, the <strong>walk-away number</strong> below which the job loses money, and what a competitor's lower quote really leaves you. Works for any trade. <strong>Start from your trade</strong> and the hours and materials are worked out from a takeoff of the job, with starting rates taken from that trade's own calculator, every one of them yours to change.</p>
+  </header>
+
+  <div class="layout">
+    <div>
+      <section aria-labelledby="start">
+        <h2 id="start">Start from your trade (optional)</h2>
+        <label>Trade<select id="trade"><option value="">No trade: I'll type my own hours and materials</option></select></label>
+        <p class="note" id="tradeSummary">Pick a trade to get a line-item takeoff with starting rates from that trade's calculator. The totals fill in step 1.</p>
+        <div id="takeoffPanel" hidden>
+          <div class="takeoff-wrap">
+            <table id="takeoff">
+              <caption class="note" style="text-align:left">Takeoff: quantity &times; crew hours per unit, quantity &times; materials per unit. Starting rates are examples, not your numbers: change them.</caption>
+              <thead><tr><th scope="col">Work</th><th scope="col">Qty</th><th scope="col">Unit</th><th scope="col">Crew h / unit</th><th scope="col">$ / unit</th><th scope="col">Crew h</th><th scope="col">Materials</th><th scope="col"><span class="sr-only" style="position:absolute;left:-9999px">Remove</span></th></tr></thead>
+              <tbody id="takeoffRows"></tbody>
+            </table>
+          </div>
+          <button type="button" class="btn" id="addLine">Add a line</button>
+          <div class="fields" style="margin-top:14px">
+            <label>Crew size (people)<input id="crewSize" type="number" min="1" step="1" value="1"></label>
+            <label>Setup and clean-up (crew hours per job)<input id="setupHours" type="number" min="0" step="any" value="0"></label>
+            <label>Minimum on-site time (crew hours)<input id="minOnSiteHours" type="number" min="0" step="any" value="0"></label>
+            <label>Miles one way<input id="milesOneWay" type="number" min="0" step="any" value="0"></label>
+            <label>Average drive speed (mph)<input id="speedMph" type="number" min="1" step="any" value="35"></label>
+          </div>
+          <p class="takeoff-sum" id="takeoffSum" aria-live="polite"></p>
+          <p class="note" id="specialist"></p>
+        </div>
+      </section>
+      <section aria-labelledby="costs">
+        <h2 id="costs">1. What the job costs you</h2>
+        <p class="note" id="fromTakeoff" hidden>Labor hours and materials come from the takeoff above. Choose "No trade" to type your own.</p>
+        <div class="fields">
+          <label>Labor hours (all crew, total)<input id="laborHours" type="number" min="0" step="any" value="40"></label>
+          <label>Wage per hour ($)<input id="wage" type="number" min="0" step="any" value="30"></label>
+          <label>Payroll burden (%)<input id="burdenPct" type="number" min="0" step="any" value="25"></label>
+          <label>Materials, at cost ($)<input id="materials" type="number" min="0" step="any" value="1000"></label>
+          <label>Subcontractors, at cost ($)<input id="subs" type="number" min="0" step="any" value="0"></label>
+          <label>Other costs: dump, permit, travel ($)<input id="other" type="number" min="0" step="any" value="0"></label>
+        </div>
+      </section>
+      <section aria-labelledby="profit">
+        <h2 id="profit">2. What you want to keep</h2>
+        <div class="fields">
+          <label>Overhead share (% of direct cost)<input id="overheadPct" type="number" min="0" step="any" value="10"></label>
+          <label>Target margin (% of price)<input id="marginPct" type="number" min="0" max="95" step="any" value="20"></label>
+          <label>Extra markup on materials (%)<input id="materialMarkupPct" type="number" min="0" step="any" value="0"></label>
+          <label>Extra markup on subs (%)<input id="subMarkupPct" type="number" min="0" step="any" value="0"></label>
+          <label>A competitor's / customer's price ($, optional)<input id="offeredPrice" type="number" min="0" step="any" placeholder="e.g. 3000"></label>
+        </div>
+      </section>
+      <section aria-labelledby="conv">
+        <h2 id="conv">Markup vs margin converter</h2>
+        <div class="conv">
+          <label>Markup %<input id="convMarkup" type="number" min="0" step="any" value="25"></label>
+          <div>is a margin of <output id="convMargin">20%</output></div>
+          <label>Margin %<input id="convMarginIn" type="number" min="0" max="95" step="any" value="30"></label>
+          <div>needs a markup of <output id="convMarkupOut">42.86%</output></div>
+        </div>
+      </section>
+    </div>
+    <aside class="result" aria-live="polite" aria-label="Result">
+      <h2>Your bid</h2>
+      <div class="hero-number" id="price">—</div>
+      <p class="note">Price that keeps your target margin.</p>
+      <dl>
+        <dt>Walk-away price</dt><dd id="walkAway"></dd>
+        <dt>Labor + burden</dt><dd id="laborBurden"></dd>
+        <dt>Materials + subs + other</dt><dd id="nonLabor"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Profit at this price</dt><dd id="profitOut"></dd>
+        <dt>Margin / markup</dt><dd id="mm"></dd>
+        <dt>Labor slip that erases profit</dt><dd id="overrun"></dd>
+        <dt id="perUnitLabel" hidden>Price per unit</dt><dd id="perUnit" hidden></dd>
+      </dl>
+      <div class="verdict" id="verdict" hidden></div>
+      <p class="note">Transparent arithmetic from your own inputs, not a price recommendation.</p>
+    </aside>
+  </div>
+
+  <section aria-labelledby="dir">
+    <h2 id="dir">Need hours and quantities worked out? Pick your trade (<span id="count">121</span>)</h2>
+    <label>Search trades<input id="search" type="search" placeholder="roofing, tile, HVAC, paving…"></label>
+    <ul id="directory"></ul>
+    <p id="none" class="note" hidden>No match. Use the studio above: it works for any trade.</p>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Common questions</h2>
+    <h3>What is the difference between markup and margin?</h3>
+    <p>Markup is profit as a percentage of your cost; margin is profit as a percentage of the price. A 25% markup is only a 20% margin, so a contractor who adds 25% to cost and believes they earn a 25% margin is under-pricing every job.</p>
+    <h3>What is a walk-away price?</h3>
+    <p>It is your full cost: labor, payroll burden, materials, subcontractors, other costs and a share of overhead. Any price below it loses money before you earn a dollar of profit.</p>
+    <h3>How do I price a job at a target margin?</h3>
+    <p>Divide the full cost by one minus the margin. A job costing $2,750 at a 20% margin is $2,750 / 0.8 = $3,437.50, not $2,750 x 1.20.</p>
+    <h3>Where do the trade starting rates come from?</h3>
+    <p>Each trade's takeoff is taken from that trade's own calculator in this collection: its production rates, coverage and default prices, with the source of every figure recorded in the open-source preset file. They are examples so the form is not blank, not industry standards and not a statement of what your crew does. Replace them with your own hours and supplier prices.</p>
+    <h3>Is my pricing uploaded anywhere?</h3>
+    <p>No. The page runs in your browser with no account and no network requests.</p>
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or accounting advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, licensing and supply costs, and a qualified professional, before submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Trade calculators listed here are independent tools, not endorsed by any trade body or software vendor.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous local tallies of which feature was used and never include wages, costs or prices.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does. <a href="markup-vs-margin.html">Markup vs margin explained</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, markupToMargin, marginToMarkup, overrunToBreakEven, money } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { takeoffTotals, fromPreset } from './takeoff.mjs';
+    import { PRESETS, GROUPS } from './presets.mjs';
+    const el = id => document.getElementById(id);
+    const ids = ['laborHours', 'wage', 'burdenPct', 'materials', 'subs', 'other', 'overheadPct', 'marginPct', 'materialMarkupPct', 'subMarkupPct', 'offeredPrice'];
+    let counted = false;
+    const byId = new Map(PRESETS.map(p => [p.id, p]));
+    const bySlug = new Map(PRESETS.map(p => [p.slug, p]));
+    const takeoffIds = ['crewSize', 'setupHours', 'minOnSiteHours', 'milesOneWay', 'speedMph'];
+    let lines = [];
+    let lastTakeoff = null;
+    const fmtH = h => `${Math.round(h * 100) / 100} h`;
+    const count = event => { try { recordUsage(localStorage, el('usageOptOut').checked, event); } catch {} };
+
+    // Trade picker, grouped the way a contractor browses.
+    for (const group of GROUPS) {
+      const members = PRESETS.filter(p => p.group === group);
+      if (!members.length) continue;
+      const og = document.createElement('optgroup');
+      og.label = group;
+      for (const p of members) {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.name;
+        og.append(o);
+      }
+      el('trade').append(og);
+    }
+
+    function numberCell(value, key, i, label) {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.type = 'number'; input.min = '0'; input.step = 'any'; input.value = value;
+      input.setAttribute('aria-label', `${label}: ${key}`);
+      input.addEventListener('input', () => { lines[i][key] = input.value; update(); });
+      td.append(input);
+      return td;
+    }
+
+    function renderRows() {
+      const body = el('takeoffRows');
+      body.replaceChildren(...lines.map((line, i) => {
+        const tr = document.createElement('tr');
+        const name = document.createElement('td');
+        const ni = document.createElement('input');
+        ni.value = line.label; ni.setAttribute('aria-label', `Line ${i + 1}: work`);
+        ni.addEventListener('input', () => { lines[i].label = ni.value; update(); });
+        name.append(ni);
+        const unit = document.createElement('td');
+        const ui = document.createElement('input');
+        ui.className = 'unit'; ui.value = line.unit; ui.setAttribute('aria-label', `Line ${i + 1}: unit`);
+        ui.addEventListener('input', () => { lines[i].unit = ui.value; update(); });
+        unit.append(ui);
+        const label = line.label || `Line ${i + 1}`;
+        const hours = document.createElement('td'); hours.className = 'num';
+        const mat = document.createElement('td'); mat.className = 'num';
+        const rm = document.createElement('td');
+        const rb = document.createElement('button');
+        rb.type = 'button'; rb.className = 'linkish'; rb.textContent = 'Remove';
+        rb.setAttribute('aria-label', `Remove ${label}`);
+        rb.disabled = lines.length === 1;
+        rb.addEventListener('click', () => { lines.splice(i, 1); renderRows(); update(); });
+        rm.append(rb);
+        tr.append(name, numberCell(line.qty, 'quantity', i, label), unit,
+          numberCell(line.hoursPerUnit, 'crew hours per unit', i, label),
+          numberCell(line.materialPerUnit, 'materials per unit', i, label), hours, mat, rm);
+        return tr;
+      }));
+      el('addLine').disabled = lines.length >= 30;
+    }
+
+    function applyTrade(id, { fromHash = false } = {}) {
+      const preset = byId.get(id);
+      el('trade').value = preset ? id : '';
+      const active = Boolean(preset);
+      el('takeoffPanel').hidden = !active;
+      el('fromTakeoff').hidden = !active;
+      el('laborHours').readOnly = active;
+      el('materials').readOnly = active;
+      if (!active) {
+        lines = []; lastTakeoff = null;
+        el('tradeSummary').textContent = 'Pick a trade to get a line-item takeoff with starting rates from that trade\'s calculator. The totals fill in step 1.';
+        if (!fromHash && location.hash) history.replaceState(null, '', location.pathname + location.search);
+        update();
+        return;
+      }
+      const { takeoff, form } = fromPreset(preset);
+      lines = takeoff.items.map(item => ({ ...item }));
+      for (const key of takeoffIds) el(key).value = takeoff[key];
+      for (const [key, value] of Object.entries(form)) el(key).value = value;
+      el('tradeSummary').textContent = preset.summary;
+      const spec = el('specialist');
+      spec.replaceChildren('For more: ');
+      const a = document.createElement('a');
+      a.href = `../${preset.slug}/`;
+      a.textContent = `the ${preset.name.toLowerCase()} bid calculator`;
+      spec.append(a, ` also models: ${preset.specialistModels}`);
+      if (!fromHash) history.replaceState(null, '', `#trade=${id}`);
+      renderRows();
+      update();
+      count('trade_picked');
+    }
+
+    function syncTakeoff() {
+      if (!lines.length) { el('takeoffSum').textContent = ''; return null; }
+      try {
+        const t = takeoffTotals({ items: lines, ...Object.fromEntries(takeoffIds.map(k => [k, el(k).value])) });
+        const rows = el('takeoffRows').children;
+        t.lines.forEach((line, i) => {
+          rows[i].children[5].textContent = fmtH(line.crewHours);
+          rows[i].children[6].textContent = money(line.materials);
+        });
+        el('laborHours').value = Math.round(t.laborHours * 100) / 100;
+        el('materials').value = Math.round(t.materials * 100) / 100;
+        el('takeoffSum').className = 'takeoff-sum';
+        el('takeoffSum').textContent = `${fmtH(t.workHours)} of work + ${fmtH(t.setupHours)} setup`
+          + (t.minimumApplied ? `, raised to your ${fmtH(t.onSiteHours)} minimum on site` : '')
+          + ` + ${fmtH(t.travelHours)} driving = ${fmtH(t.crewHours)} for a crew of ${t.crewSize}: `
+          + `${fmtH(t.laborHours)} of labor and ${money(t.materials)} of materials, filled into step 1.`;
+        return t;
+      } catch (err) {
+        el('takeoffSum').className = 'takeoff-sum error';
+        el('takeoffSum').textContent = err.message;
+        return null;
+      }
+    }
+
+    function update() {
+      lastTakeoff = lines.length ? syncTakeoff() : null;
+      const input = Object.fromEntries(ids.map(i => [i, el(i).value]));
+      const r = calculateBid(input);
+      const lead = lastTakeoff?.lead;
+      const showUnit = Boolean(lead && lead.qty > 0 && r.price > 0);
+      el('perUnitLabel').hidden = !showUnit;
+      el('perUnit').hidden = !showUnit;
+      if (showUnit) {
+        el('perUnitLabel').textContent = `Price per ${lead.unit} (${lead.label.toLowerCase()})`;
+        el('perUnit').textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(r.price / lead.qty);
+      }
+      el('price').textContent = money(r.price);
+      el('walkAway').textContent = money(r.walkAway);
+      el('laborBurden').textContent = money(r.labor + r.burden);
+      el('nonLabor').textContent = money(r.materials + r.subs + r.other);
+      el('overhead').textContent = money(r.overhead);
+      el('profitOut').textContent = money(r.profit);
+      el('mm').textContent = `${r.effectiveMarginPct}% / ${r.effectiveMarkupPct}%`;
+      const slip = overrunToBreakEven(input);
+      el('overrun').textContent = slip === null ? '—' : `${slip}%`;
+      const v = el('verdict');
+      if (r.offer) {
+        v.hidden = false;
+        v.className = r.offer.loses ? 'verdict bad' : 'verdict';
+        v.textContent = r.offer.loses
+          ? `At ${money(r.offer.price)} you lose ${money(-r.offer.profit)} on this job. Walk away or change the scope.`
+          : `At ${money(r.offer.price)} you keep ${money(r.offer.profit)} (${r.offer.marginPct}% margin)${r.offer.belowTarget ? ', below your target margin' : ', at or above your target margin'}.`;
+      } else { v.hidden = true; }
+      if (!counted) { counted = true; try { recordUsage(localStorage, el('usageOptOut').checked, 'bid_calculated'); } catch {} }
+    }
+    function convert() {
+      el('convMargin').textContent = `${markupToMargin(el('convMarkup').value)}%`;
+      el('convMarkupOut').textContent = `${marginToMarkup(el('convMarginIn').value)}%`;
+    }
+    ids.forEach(i => el(i).addEventListener('input', update));
+    takeoffIds.forEach(i => el(i).addEventListener('input', update));
+    el('trade').addEventListener('change', e => applyTrade(e.target.value));
+    el('addLine').addEventListener('click', () => {
+      lines.push({ label: '', unit: 'each', qty: 1, hoursPerUnit: 0, materialPerUnit: 0 });
+      renderRows(); update();
+      el('takeoffRows').lastElementChild.querySelector('input').focus();
+    });
+    const fromHash = () => {
+      const m = location.hash.match(/^#trade=([a-z0-9-]+)$/);
+      if (m && byId.has(m[1])) applyTrade(m[1], { fromHash: true });
+    };
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    ['convMarkup', 'convMarginIn'].forEach(i => el(i).addEventListener('input', convert));
+    update(); convert();
+
+    try {
+      el('usageOptOut').checked = readOptOut(localStorage);
+      el('usageOptOut').addEventListener('change', () => writeOptOut(localStorage, el('usageOptOut').checked));
+    } catch {}
+
+    fetch('./trades.json').then(r => r.json()).then(trades => {
+      const list = el('directory');
+      const render = q => {
+        const needle = q.trim().toLowerCase();
+        const shown = trades.filter(t => !needle || `${t.title} ${t.blurb}`.toLowerCase().includes(needle));
+        list.replaceChildren(...shown.map(t => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `../${t.slug}/`;
+          a.textContent = `${t.title} bid calculator`;
+          li.append(a);
+          const preset = bySlug.get(t.slug);
+          if (preset) {
+            const s = document.createElement('a');
+            s.href = `#trade=${preset.id}`;
+            s.className = 'start';
+            s.textContent = 'Price it here';
+            s.setAttribute('aria-label', `Price a ${preset.name.toLowerCase()} job in the studio`);
+            s.addEventListener('click', () => setTimeout(() => el('start').scrollIntoView({ behavior: 'smooth' }), 0));
+            li.append(s);
+          }
+          const p = document.createElement('p');
+          p.textContent = t.blurb;
+          li.append(p);
+          return li;
+        }));
+        el('count').textContent = trades.length;
+        el('none').hidden = shown.length > 0;
+      };
+      el('search').addEventListener('input', e => { render(e.target.value); try { recordUsage(localStorage, el('usageOptOut').checked, 'directory_searched'); } catch {} });
+      render('');
+    }).catch(() => { el('none').hidden = false; el('none').textContent = 'The trade list could not load; the studio above still works.'; });
+  </script>
+</body>
+</html>

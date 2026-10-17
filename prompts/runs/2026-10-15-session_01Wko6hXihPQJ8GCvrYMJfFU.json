@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01Wko6hXihPQJ8GCvrYMJfFU",
+  "prompt_version": 0,
+  "input": "add an action item to study large engineering orgs and venture capital engineering teams especially early stage but other stages too. across lots of different places looking at engineering blogs books etc. successful tech and swe and engineering companies. look for potential lessons and insights that can be pulled from them and applied to this repo. throughput shouldn't suffer significantly without a worthwhile upside. this should go in blogs. this is a long term action set up. you can check research as well.",
+  "input_sha256": "0fe120d671a17053633ae9e02ace00eb87f76fe536d514876b7cfd58d09aa3a0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-15T00:00:50Z",
+  "ended": "2026-10-15T00:04:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "usage": null,
+  "tool_calls": null,
+  "task": "meta",
+  "projects": [],
+  "pr": null,
+  "commits": [
+    "b730301"
+  ],
+  "lines_added": 20,
+  "lines_removed": 1,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": 0,
+  "tests_added": 0,
+  "build_ok": true,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "Adds track 10 milestone 7 (swe-orgs), a standing study of engineering-org practices, and renumbers 'Later' to 8. 'this should go in blogs' was read as 'backlogs', i.e. the PROJECTS.md action list. Starting references are cited from memory without fetching; the first swe-orgs run should verify each. Usage null: get_session returned no usage block.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

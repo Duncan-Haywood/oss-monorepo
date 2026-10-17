@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Mileage Allowance Calculator 2026/27 — HMRC 45p/25p Rates</title>
+  <meta name="description" content="Free UK business mileage calculator using HMRC approved rates (45p/25p). Employees: see tax relief on what your employer under-pays. Self-employed: compare simplified mileage with actual vehicle costs. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Mileage Allowance Calculator 2026/27. Free, private">
+  <meta property="og:description" content="HMRC approved mileage, tax relief on the shortfall, and simplified vs actual costs.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Mileage Allowance Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What are the HMRC mileage rates?", "acceptedAnswer": {"@type": "Answer", "text": "For cars and vans, 45p a mile for the first 10,000 business miles in the tax year and 25p after that. Motorcycles are 24p and bicycles 20p. Passengers add 5p a mile for each passenger carried on business."}}, {"@type": "Question", "name": "Can I claim if my employer already pays mileage?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if they pay less than the approved amount. You can claim tax relief on the difference at your marginal rate. If they pay more, the excess is taxable."}}, {"@type": "Question", "name": "Does commuting count?", "acceptedAnswer": {"@type": "Answer", "text": "No. Travel from home to a regular workplace is ordinary commuting. Journeys to a temporary workplace or between workplaces for work usually count."}}, {"@type": "Question", "name": "Simplified mileage or actual costs if I am self-employed?", "acceptedAnswer": {"@type": "Answer", "text": "Simplified mileage needs only a mileage log. Actual costs need receipts and capital allowances, and you generally cannot switch back for the same vehicle. Compare both with your numbers."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK MILEAGE ALLOWANCE CALCULATOR 2026/27 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you claim for business miles?</h1>
+    <p>Enter your business miles and what your employer pays per mile. You get the HMRC approved amount, the tax relief on any shortfall, and, if self-employed, whether simplified mileage or actual vehicle costs gives the bigger deduction.</p>
+    <p class="note">Written from the published rates without a live lookup. GOV.UK and HMRC decide. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="status">You are</label><select id="status"><option value="employee">An employee</option><option value="self-employed">Self-employed</option></select></div>
+      <div><label for="vehicle">Vehicle</label><select id="vehicle"><option value="car">Car or van</option><option value="motorcycle">Motorcycle</option><option value="bicycle">Bicycle</option></select></div>
+      <div><label for="miles">Business miles this tax year</label><input id="miles" type="text" inputmode="numeric" placeholder="14000"></div>
+      <div><label for="employerPence">Employer pays (pence per mile, employees)</label><input id="employerPence" type="text" inputmode="decimal" placeholder="30"></div>
+      <div><label for="passengerMiles">Passenger miles (car only, optional)</label><input id="passengerMiles" type="text" inputmode="numeric" placeholder="0"></div>
+      <div><label for="taxRate">Marginal income tax rate (%)</label><select id="taxRate"><option>19</option><option selected>20</option><option>21</option><option>40</option><option>42</option><option>45</option><option>48</option></select></div>
+      <div><label for="class4">Class 4 NI rate (self-employed)</label><select id="class4"><option value="6">6%</option><option value="2">2%</option><option value="0">None</option></select></div>
+      <div><label for="runningCosts">Total yearly vehicle running costs (£, self-employed, optional)</label><input id="runningCosts" type="text" inputmode="decimal" placeholder="4200"></div>
+      <div><label for="totalMiles">Total miles driven this year (optional)</label><input id="totalMiles" type="text" inputmode="numeric" placeholder="12000"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your miles, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> AMAP rates by vehicle, the 10,000-mile step, passenger payments, the employee shortfall or taxable excess, and a self-employed simplified-vs-actual comparison.</li>
+      <li><strong>Not decided:</strong> which journeys qualify, capital allowances, VAT on fuel, Scottish or Welsh rate bands beyond the rate you pick, employer advisory fuel rates for company cars, and whether you may switch method. HMRC or your adviser decide these.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What are the HMRC mileage rates?</h3>
+    <p>For cars and vans, 45p a mile for the first 10,000 business miles in the tax year and 25p after that. Motorcycles are 24p and bicycles 20p. Passengers add 5p a mile for each passenger carried on business.</p>
+    <h3>Can I claim if my employer already pays mileage?</h3>
+    <p>Yes, if they pay less than the approved amount. You can claim tax relief on the difference at your marginal rate. If they pay more, the excess is taxable.</p>
+    <h3>Does commuting count?</h3>
+    <p>No. Travel from home to a regular workplace is ordinary commuting. Journeys to a temporary workplace or between workplaces for work usually count.</p>
+    <h3>Simplified mileage or actual costs if I am self-employed?</h3>
+    <p>Simplified mileage needs only a mileage log. Actual costs need receipts and capital allowances, and you generally cannot switch back for the same vehicle. Compare both with your numbers.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or accounting advice. You are responsible for verifying its output on GOV.UK or with HMRC before you rely on it or file a claim.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-self-assessment-tax-calculator/">UK Self Assessment tax calculator</a>, the <a href="../uk-simplified-expenses-calculator/">UK simplified expenses calculator</a> and the <a href="../uk-tax-code-checker/">UK tax code checker</a>.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + (Math.round(n * 100) / 100).toFixed(2);
+    let last = null;
+    const map = { status: "status", vehicle: "vehicle", miles: "miles", employerPence: "employerPence", passengerMiles: "passengerMiles", taxRate: "taxRate", class4: "class4", runningCosts: "runningCosts", totalMiles: "totalMiles" };
+    const IDLE = "Enter your miles, then click Calculate.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.status === "employee"
+        ? `${gbp(r.allowance)} approved · ${r.shortfall ? gbp(r.relief) + " tax relief to claim" : "nothing to claim"}`
+        : `${gbp(r.allowance)} deduction · about ${gbp(r.saving)} saved`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the rates on GOV.UK before relying on them.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: employee, 14,000 miles, employer pays 30p.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) if (!["status","vehicle","taxRate","class4"].includes(id)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-mileage-allowance-summary.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

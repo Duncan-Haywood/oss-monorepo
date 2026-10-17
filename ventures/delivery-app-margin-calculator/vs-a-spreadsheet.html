@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delivery App Margin Calculator vs. a spreadsheet</title>
+<meta name="description" content="A spreadsheet multiplies a ticket by a commission rate fine, once you have written a formula for every channel's fee shape — percentage of price, a separate processing rate and fixed fee, packaging, extra bagging minutes — and a second formula, solved backwards, for the delivery-menu price or commission rate that matches dine-in profit. This calculator has all of that built in. Free, no sign-up, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Delivery App Margin Calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet multiplies a ticket by a commission rate fine once every channel's fee formula is already written and correct. Where it goes quiet: solving backwards for the delivery price or commission rate that matches dine-in profit, and keeping six channels' different fee shapes in sync as rates change.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a delivery app's cut just the ticket times a commission percentage?","acceptedAnswer":{"@type":"Answer","text":"The multiplication itself is trivial and a spreadsheet does it fine once you already know the commission rate. What a plain spreadsheet does not do on its own is apply a different fee shape per channel — dine-in and pickup pay card processing only, a marketplace commission is often bundled with payment processing while some plans split them, and packaging cost plus extra bagging minutes at your hourly wage are cash the restaurant spends whether or not the app takes a cut. Six channels, six formulas, kept in sync as any one rate changes."}},{"@type":"Question","name":"Will a spreadsheet tell me the delivery-menu price that matches dine-in profit?","acceptedAnswer":{"@type":"Answer","text":"Not without solving the fee formula backwards, which most spreadsheets used for this are not set up to do. Profit is price minus commission minus processing minus packaging minus labor minus food cost; the price that reproduces a target profit is that equation rearranged for price, and the algebra changes depending on whether the fee is a straight percentage or has a fixed component too. This calculator solves it directly for every channel and also reports the commission rate a channel would need, at its current listed price, to match dine-in — the number worth having ready when a plan renewal comes up."}},{"@type":"Question","name":"What happens if I mix up which fees apply to the listed price versus the payout?","acceptedAnswer":{"@type":"Answer","text":"Nothing catches it — a spreadsheet returns whatever the formula says, whether the commission and processing rates you wired in apply to the right base or not. This calculator applies each channel's commission, payment rate, and fixed fee to the same defined base for every channel, so a rate typed into the wrong cell in a spreadsheet cannot silently understate or overstate what one channel keeps relative to another."}},{"@type":"Question","name":"Does this replace a restaurant's own P&L or accounting spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or accounting system that tracks every day's sales, costs, and margin across a full month or year is still the right tool for that ongoing record. This page answers one narrower question at a time — what does today's ticket actually keep on each channel, and what price or commission rate would match dine-in — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#2a1f14;background:#f6efe6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#9a3412;overflow-wrap:anywhere}.eyebrow{font-weight:700;color:#9a3412;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#6b5344}section{background:#fff;border:1px solid #e4d4c4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #2a1f1410;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e4d4c4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#6b5344}.fine,.note{font-size:.88rem;color:#6b5344}footer{color:#6b5344;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Delivery App Margin Calculator</a></p>
+<header>
+<h1>Delivery App Margin Calculator vs. a spreadsheet</h1>
+<p class="lede">A spreadsheet multiplies a ticket by a commission rate fine &mdash; once you have written a formula for every channel's fee shape, and a second one, solved backwards, for the price or commission rate that matches dine-in. This page has both built in.</p>
+</header>
+<section>
+<h2>What each does</h2>
+<p>
+  A restaurant's own spreadsheet can absolutely hold a ticket price, a
+  commission rate, and a formula that multiplies them. That arithmetic is
+  trivial and correct <em>once every cell already has the right formula in
+  it</em>. What it does not do on its own is apply a <strong>different fee
+  shape per channel</strong>: dine-in and pickup pay card processing only,
+  a marketplace's commission is often a percentage that bundles payment
+  processing while some plans split the two into separate rates, and
+  packaging plus extra bagging minutes at your hourly wage are cash the
+  restaurant spends on every delivery ticket whether or not the app takes
+  a cut. Six channels, six fee shapes, six formulas to keep in sync as any
+  one rate changes.
+</p>
+<p>
+  This calculator carries those six fee shapes built in. Enter one
+  ticket's price, food cost, packaging cost, hourly wage, and the
+  commission and processing rates from your own statements, and it reports
+  what dine-in, pickup, each delivery app, and your own driver keep after
+  fees &mdash; plus, solved for you rather than by hand, the delivery-menu
+  price that would match dine-in profit on that ticket, the commission
+  rate a channel would need at its current price to match it, and the
+  monthly cash gap if you change neither. It runs free in any browser,
+  keeps no account, and uploads nothing you type.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's a ticket times a commission percentage?</td><td>Either one &mdash; a spreadsheet multiplies fine, once the formula is written.</td></tr>
+<tr><td>Does this channel's fee apply to the listed price, and is processing bundled in or separate?</td><td>This calculator &mdash; each channel's commission, payment rate, and fixed fee are applied on the same defined base automatically; a spreadsheet needs a correct formula per channel and no drift between them.</td></tr>
+<tr><td>What do packaging and extra bagging minutes add, in dollars?</td><td>This calculator &mdash; packaging cost plus labor minutes times your hourly wage, computed per channel; a spreadsheet needs its own formula and an hourly-wage cell kept current.</td></tr>
+<tr><td>What delivery-menu price matches what I'd keep dine-in on the same ticket?</td><td>This calculator's own column &mdash; the fee formula solved backwards for price, not a flat markup guess or a manual goal-seek.</td></tr>
+<tr><td>What commission rate would this app need, at today's listed price, to match dine-in?</td><td>This calculator &mdash; the same formula solved backwards for rate instead of price, ready for a plan-renewal conversation.</td></tr>
+<tr><td>What is the monthly cash gap if I change nothing?</td><td>This calculator &mdash; the per-ticket gap times your expected monthly order count for that channel.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No, on either &mdash; but this calculator needs no template, no formula to write, and nothing to keep in sync across six channels' cells.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A spreadsheet is still the right tool for an ongoing monthly P&amp;L
+  across every channel over a year. This page answers one narrower
+  question at a time &mdash; what does today's ticket actually keep on
+  each channel, and what price or rate would match dine-in &mdash; and
+  nothing it computes is saved anywhere once you leave the page.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, your entries are saved to this browser's local storage only, and nothing is uploaded anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't a delivery app's cut just the ticket times a commission percentage?</h3>
+<p>The multiplication itself is trivial and a spreadsheet does it fine once you already know the commission rate. What a plain spreadsheet does not do on its own is apply a different fee shape per channel &mdash; dine-in and pickup pay card processing only, a marketplace commission is often bundled with payment processing while some plans split them, and packaging cost plus extra bagging minutes at your hourly wage are cash the restaurant spends whether or not the app takes a cut. Six channels, six formulas, kept in sync as any one rate changes.</p>
+<h3>Will a spreadsheet tell me the delivery-menu price that matches dine-in profit?</h3>
+<p>Not without solving the fee formula backwards, which most spreadsheets used for this are not set up to do. Profit is price minus commission minus processing minus packaging minus labor minus food cost; the price that reproduces a target profit is that equation rearranged for price, and the algebra changes depending on whether the fee is a straight percentage or has a fixed component too. This calculator solves it directly for every channel and also reports the commission rate a channel would need, at its current listed price, to match dine-in &mdash; the number worth having ready when a plan renewal comes up.</p>
+<h3>What happens if I mix up which fees apply to the listed price versus the payout?</h3>
+<p>Nothing catches it &mdash; a spreadsheet returns whatever the formula says, whether the commission and processing rates you wired in apply to the right base or not. This calculator applies each channel's commission, payment rate, and fixed fee to the same defined base for every channel, so a rate typed into the wrong cell in a spreadsheet cannot silently understate or overstate what one channel keeps relative to another.</p>
+<h3>Does this replace a restaurant's own P&L or accounting spreadsheet?</h3>
+<p>No. A spreadsheet or accounting system that tracks every day's sales, costs, and margin across a full month or year is still the right tool for that ongoing record. This page answers one narrower question at a time &mdash; what does today's ticket actually keep on each channel, and what price or commission rate would match dine-in &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+<p class="note">
+  Open the <a href="./">Delivery App Margin Calculator</a> to run your own ticket, or see <a href="vs-toast.html">this calculator vs. Toast</a> if you already run restaurant point-of-sale software.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

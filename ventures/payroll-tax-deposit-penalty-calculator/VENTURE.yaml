@@ -1,0 +1,67 @@
+name: payroll-tax-deposit-penalty-calculator
+description: >-
+  Free browser tool for small employers that turns pasted payday liabilities
+  and deposits into the deposit schedule (monthly or semiweekly from the
+  lookback total), every due date with weekends, federal holidays and the
+  $100,000 next-day rule, and the failure-to-deposit penalty at 2%, 5% and
+  10%, then solves the cheapest legal way to designate the deposits
+  (min-cost matching) against the IRS newest-first default. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session. duplicate_check.py scored
+# the niche 0.20 at most (closest: rd-tax-credit-calculator and
+# estimated-tax-penalty-calculator, which cover other IRS penalties, not
+# Form 941 deposits).
+#
+# Distribution channel, named rather than assumed: small employers, payroll
+# bookkeepers and owners who fell behind searching "payroll tax deposit
+# schedule monthly or semiweekly", "failure to deposit penalty calculator",
+# "IRS CP136 / penalty notice deposit applied". The need recurs every payday
+# and a missed deposit is a percentage penalty on money already withheld.
+# Incumbents are payroll providers (who hide the penalty maths) and IRS
+# pages; none solves the designation question. Volume not measured with an
+# external tool.
+#
+# Liability: the one risk is a wrong date or penalty. Mitigations: the only
+# tables shipped are statutory (the $50,000 lookback line, the $100,000 rule,
+# the 2/5/10% tiers, the federal holiday calendar), all of it is unit tested
+# against hand-counted dates, bad input throws instead of being clamped, and
+# the page states three times that it is not tax or legal advice, omits
+# interest and the 15% notice tier and says so. It files and pays nothing.
+
+hypotheses:
+  - claim: >-
+      An employer who is behind on deposits will use a free no-signup tool that
+      shows each due date and the penalty, rather than wait for the IRS notice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing that a different designation of the same deposits lowers the
+      penalty is what makes an owner or bookkeeper ask for one within the
+      90-day window.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: fixed arithmetic shipped with the page, nothing
+  # uploaded or fetched. One more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's figure instead of the IRS notice or their tax professional, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/payroll-tax-deposit-penalty-calculator/
+  analytics: null

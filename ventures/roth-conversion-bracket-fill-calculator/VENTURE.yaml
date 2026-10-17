@@ -1,0 +1,61 @@
+name: roth-conversion-bracket-fill-calculator
+description: >-
+  Free browser calculator for 2026 Roth conversions: the exact conversion
+  that fills a chosen federal bracket, the tax it costs, room in every
+  bracket, years to convert a traditional IRA balance, the 65+ senior-
+  deduction phase-out (6% of MAGI over $75k/$150k) and the Medicare IRMAA
+  first-tier cliff. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (build-now pipeline
+# empty). duplicate_check.py: nearest are mega-backdoor-roth-calculator (0.27)
+# and backdoor-roth-pro-rata-calculator (0.23) -- both are about getting money
+# INTO a Roth, not converting existing pre-tax balances bracket by bracket.
+#
+# Distribution: "roth conversion calculator" / "roth conversion bracket
+# filling" are evergreen queries peaking in Q4 (year-end conversion window)
+# and among FIRE / early-retiree forums (r/financialindependence, Bogleheads).
+# The audience holds six-figure IRA balances and real money at stake. Search
+# volume not measured with an external tool, per the pipeline's caveat.
+#
+# Facts verified 2026-09-29: 2026 brackets and standard deductions (Rev. Proc.
+# 2025-32), OBBBA senior deduction and 6% phase-out, 2026 IRMAA first tier.
+#
+# Liability: applies published rules to the user's own numbers; page states
+# 2026-only, ordinary-income-only, MAGI~AGI, and that it is not a
+# recommendation to convert.
+
+hypotheses:
+  - claim: >-
+      Pre-retirees and early retirees with six-figure traditional IRA
+      balances will search for and return to a free, no-signup calculator
+      that returns the exact bracket-filling conversion, rather than
+      estimating it in a spreadsheet each Q4.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Users 65 or older will be surprised that the senior-deduction phase-out
+      and the IRMAA cliff change what a conversion really costs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong conversion or tax figure from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/roth-conversion-bracket-fill-calculator/
+  analytics: null

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fishing Crew Share Settlement Calculator — Free Lay Splitter, Private</title>
+  <meta name="description" content="Free settlement calculator for commercial fishing boats. Enter the catch, fuel, ice, bait and food, the boat share and each crew share; get every payout, the boat's true trip profit and the gross sales needed to pay a deckhand your target. Nothing uploaded.">
+  <meta property="og:title" content="Fishing crew share settlement: who gets what from the trip">
+  <meta property="og:description" content="Catch and costs in; boat share, every crew payout, day rates and break-even sales out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Cpath d='M6 20l3-7h14l3 7v5h-3v-2H9v2H6zm5-5l-1.5 3.5h13L21 15z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fishing Crew Share Settlement Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Settle a commercial fishing trip: catch sales, shared costs, boat share and crew shares to every payout, day rates and break-even gross. Runs in your browser; nothing is uploaded.", "featureList": "Crew payouts by share, boat trip profit, day rate per hand, break-even sales, price sensitivity"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does a fishing lay or crew share work?", "acceptedAnswer": {"@type": "Answer", "text": "Sales of the catch come in; commission or lumper fees and the trip costs the boat and crew agree to share (fuel, ice, bait, food) come off the top; what is left is the net. The boat takes its percentage of the net and the crew splits the rest by shares, commonly 1 for a deckhand, less for a green hand and more for an engineer or captain. Every boat's agreement differs, so enter your own."}}, {"@type": "Question", "name": "Who pays for fuel and bait under a lay?", "acceptedAnswer": {"@type": "Answer", "text": "That is set by your crew agreement. This tool treats fuel, ice, bait, food and other trip costs as shared, taken off the top before the split. If your boat pays fuel from its own share, enter 0 for fuel and put it in the boat's daily cost instead."}}, {"@type": "Question", "name": "What happens on a trip that loses money?", "acceptedAnswer": {"@type": "Answer", "text": "In this model the crew's pool is zero and the boat absorbs the shortfall. Some agreements differ, so check yours."}}, {"@type": "Question", "name": "Is this legal, tax or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you enter. Crew pay, self-employment tax, fishing-vessel crew rules and settlement paperwork are for you and your advisor to confirm."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f6fc; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4ed8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14307d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14307d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d3def5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14307d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1e9fb; color: #14307d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3eaf8; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e3eaf8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #dfe8fb; color: #14307d; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3def5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #aabbe0; border-radius: 7px; font: 14px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FISHING CREW SHARE SETTLEMENT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who gets what from the trip?</h1>
+    <p>Enter what you landed and sold, the costs that come off the top, the boat's percentage and each crew member's shares. You get every payout, what the boat really makes after its own costs, the day rate per hand, and the gross sales a deckhand needs to hit your target.</p>
+    <p class="note">Arithmetic on your own numbers and your own crew agreement.</p>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="h-catch">
+      <h2 id="h-catch">1. The catch</h2>
+      <label for="catch">One line per species: name, pounds, price per pound</label>
+      <textarea id="catch" spellcheck="false" placeholder="Halibut, 1800, 6.25&#10;Black cod, 900, 4.10"></textarea>
+      <div id="catch-errors" class="error" role="alert"></div>
+    </section>
+
+    <section class="card" aria-labelledby="h-costs">
+      <h2 id="h-costs">2. Costs and the split</h2>
+      <div class="grid">
+        <div><label for="commission">Commission / lumper / dock fees (% of sales)</label><input id="commission" type="number" min="0" max="100" step="0.5" value="5"></div>
+        <div><label for="fuel">Fuel ($)</label><input id="fuel" type="number" min="0" step="10" value="0"></div>
+        <div><label for="ice">Ice ($)</label><input id="ice" type="number" min="0" step="10" value="0"></div>
+        <div><label for="bait">Bait ($)</label><input id="bait" type="number" min="0" step="10" value="0"></div>
+        <div><label for="food">Groceries / food ($)</label><input id="food" type="number" min="0" step="10" value="0"></div>
+        <div><label for="other">Other shared trip costs ($)</label><input id="other" type="number" min="0" step="10" value="0"></div>
+        <div><label for="boatpct">Boat share of the net (%)</label><input id="boatpct" type="number" min="0" max="100" step="1" value="40"></div>
+        <div><label for="days">Days on the trip</label><input id="days" type="number" min="1" step="1" value="4"></div>
+        <div><label for="boatdaily">Boat's own cost per day ($: insurance, maintenance, loan)</label><input id="boatdaily" type="number" min="0" step="10" value="0"></div>
+        <div><label for="target">Day rate you want a full-share hand to clear ($)</label><input id="target" type="number" min="0" step="10" value="300"></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-crew">
+      <h2 id="h-crew">3. The crew</h2>
+      <label for="crew">One line per person: name, shares (1 = full hand), personal charges such as food or an advance (optional)</label>
+      <textarea id="crew" spellcheck="false" placeholder="Deckhand 1, 1&#10;Deckhand 2, 1, 150&#10;Green hand, 0.5"></textarea>
+      <div id="crew-errors" class="error" role="alert"></div>
+      <button type="button" id="run">Settle the trip</button>
+      <button type="button" class="secondary" id="example">Load an example</button>
+      <button type="button" class="secondary" id="reset">Clear</button>
+    </section>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Settlement</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How does a fishing lay or crew share work?</h3>
+      <p>Sales of the catch come in; commission or lumper fees and the trip costs the boat and crew agree to share (fuel, ice, bait, food) come off the top; what is left is the net. The boat takes its percentage of the net and the crew splits the rest by shares, commonly 1 for a deckhand, less for a green hand and more for an engineer or captain. Every boat's agreement differs, so enter your own.</p>
+      <h3>Who pays for fuel and bait under a lay?</h3>
+      <p>That is set by your crew agreement. This tool treats fuel, ice, bait, food and other trip costs as shared, taken off the top before the split. If your boat pays fuel from its own share, enter 0 for fuel and put it in the boat's daily cost instead.</p>
+      <h3>What happens on a trip that loses money?</h3>
+      <p>In this model the crew's pool is zero and the boat absorbs the shortfall. Some agreements differ, so check yours.</p>
+      <h3>Is this legal, tax or accounting advice?</h3>
+      <p>No. It is arithmetic on the numbers you enter. Crew pay, self-employment tax, fishing-vessel crew rules and settlement paperwork are for you and your advisor to confirm.</p>
+      
+    </section>
+
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Your actual crew agreement, who pays for what, how a loss trip is treated, taxes and self-employment contributions, vessel and crew regulations, quota or permit lease costs, and any adjustments made at the dock. Shared costs are taken off the top; the boat's own daily cost is only used to judge the boat's trip profit.</p>
+      <p>Pricing charters instead? See the <a href="../fishing-charter-trip-pricing-calculator/">fishing charter trip pricing calculator</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>settle_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you an hour, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCatch, parseCrew, settle, breakEven, priceSensitivity, diagnose, num, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const $ = (id) => document.getElementById(id);
+    const EXAMPLE_CATCH = "Halibut, 1800, 6.25\nBlack cod, 900, 4.10\nLingcod, 600, 1.80";
+    const EXAMPLE_CREW = "Deckhand 1, 1\nDeckhand 2, 1, 150\nGreen hand, 0.5";
+    const EXAMPLE_VALUES = { commission: 5, fuel: 1900, ice: 350, bait: 600, food: 420, other: 0, boatpct: 40, days: 4, boatdaily: 450, target: 300 };
+    const LABEL = { high: "Act", medium: "Watch", info: "Note" };
+    const val = (id) => { const n = num($(id).value); return n >= 0 ? n : 0; };
+
+    function run() {
+      const c = parseCatch($("catch").value), p = parseCrew($("crew").value);
+      $("catch-errors").innerHTML = c.errors.map(esc).join("<br>");
+      $("crew-errors").innerHTML = p.errors.map(esc).join("<br>");
+      if (!c.catch.length || !p.crew.length) { $("out").hidden = true; return; }
+      const o = { commissionPct: val("commission"), fuel: val("fuel"), ice: val("ice"), bait: val("bait"), food: val("food"), other: val("other"), boatPct: val("boatpct"), days: val("days") || 1, boatDaily: val("boatdaily") };
+      const target = val("target");
+      const r = settle(c.catch, p.crew, o), be = breakEven(p.crew, o, target);
+      let h = `<div class="finding"><h4>The trip</h4><p class="stats">${money(r.gross)} sold (${Math.round(r.pounds).toLocaleString("en-US")} lb) − ${money(r.commission)} commission − ${money(r.tripCosts)} trip costs = <strong>${money(r.net)} net</strong>. Boat takes ${money(r.boatReceives)} (${r.boatPct}%), crew pool ${money(r.crewPool)} over ${r.totalShares} shares = ${money(r.perShare)} a share.</p>`
+        + `<div class="scroll"><table><thead><tr><th>Crew</th><th class="n">Shares</th><th class="n">Share pay</th><th class="n">Personal</th><th class="n">Take-home</th><th class="n">Per day</th></tr></thead><tbody>`
+        + r.people.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shares}</td><td class="n">${money(x.share)}</td><td class="n">${money(x.personal)}</td><td class="n">${money(x.takeHome)}</td><td class="n">${money(x.perDay)}</td></tr>`).join("")
+        + `</tbody></table></div></div>`;
+      h += `<div class="finding"><h4>The boat</h4><p>Receives ${money(r.boatReceives)}, carries ${money(r.boatCosts)} of its own cost over ${r.days} day${r.days === 1 ? "" : "s"}: <strong>${money(r.boatProfit)}</strong> trip profit.${be.boatCover ? ` Break-even gross for the boat: ${money(be.boatCover)}.` : ""}${be.crewTarget ? ` A full-share hand reaches ${money(target)} a day at about ${money(be.crewTarget)} gross.` : ""}</p></div>`;
+      h += `<div class="finding"><h4>If prices move</h4><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Gross</th><th class="n">Net</th><th class="n">Full hand per day</th><th class="n">Boat profit</th></tr></thead><tbody>`
+        + priceSensitivity(c.catch, p.crew, o).map((s) => `<tr><td>${s.pct > 0 ? "+" : ""}${s.pct}%</td><td class="n">${money(s.gross)}</td><td class="n">${money(s.net)}</td><td class="n">${money(s.handPerDay)}</td><td class="n">${money(s.boatProfit)}</td></tr>`).join("")
+        + `</tbody></table></div></div>`;
+      for (const f of diagnose(r, o, target, be)) h += `<div class="finding"><h4><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("settle_run");
+    }
+
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => {
+      $("catch").value = EXAMPLE_CATCH; $("crew").value = EXAMPLE_CREW;
+      for (const [k, v] of Object.entries(EXAMPLE_VALUES)) $(k).value = v;
+      record("example_loaded"); run();
+    });
+    $("reset").addEventListener("click", () => { $("catch").value = ""; $("crew").value = ""; $("out").hidden = true; $("catch-errors").textContent = ""; $("crew-errors").textContent = ""; });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

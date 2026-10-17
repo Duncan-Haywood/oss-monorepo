@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mortgage Escrow Analysis Checker — Why Your Escrow Payment Went Up and What Is In Question</title>
+  <meta name="description" content="Free tool for homeowners: enter your tax and insurance bills and the numbers on your annual escrow statement, and see the payment they support, your shortage, the largest allowed cushion and a twelve-month schedule, with a draft request for the servicer's worksheet. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Mortgage Escrow Analysis Checker — free, private, in your browser">
+  <meta property="og:description" content="Check an annual escrow statement against your own bills: cushion limit, shortage spread, surplus refund and what your payment should be. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mortgage Escrow Analysis Checker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an annual mortgage escrow statement against your own tax and insurance bills: the payment the numbers support, the shortage, the largest allowed cushion, a twelve-month balance schedule, and a request for the servicer's worksheet. Runs entirely in your browser.", "featureList": "Escrow payment check, shortage and surplus calculation, cushion limit check, twelve-month schedule, insurance what-if, servicer request letter, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why did my mortgage escrow payment go up?", "acceptedAnswer": {"@type": "Answer", "text": "Your servicer collects one-twelfth of your yearly property tax and homeowners insurance each month. When either bill rises, or when the account balance falls short of what the servicer projects it needs, the annual escrow analysis raises the payment. There are usually two parts: the higher monthly share of the new bills, and an extra amount that recovers any shortage, often spread over twelve months so it drops off the following year. This tool separates the two and shows what your own bills and starting balance imply."}}, {"@type": "Question", "name": "What is an escrow shortage, and do I have to pay it all at once?", "acceptedAnswer": {"@type": "Answer", "text": "A shortage means the projected balance at the lowest point of the coming year is below the cushion the servicer aims for. Under Regulation X, when the shortage is at least one month's escrow payment the servicer may require it to be repaid in equal monthly payments over at least twelve months. When it is smaller, the servicer may ask for it within 30 days or spread it over at least twelve months. A deficiency, meaning a negative projected balance, may be repaid faster, in two or more payments. You can usually choose to pay a shortage in a lump sum to lower the monthly payment."}}, {"@type": "Question", "name": "How much cushion can my lender keep in escrow?", "acceptedAnswer": {"@type": "Answer", "text": "At most one-sixth of the estimated total annual disbursements from the account, which is two months of the escrow payment. The lender may hold less. If the statement shows a larger cushion, ask which yearly amounts it used, because a difference in inputs can explain it."}}, {"@type": "Question", "name": "How is my escrow payment calculated?", "acceptedAnswer": {"@type": "Answer", "text": "The servicer projects the year's bills and when each is due, sets the monthly deposit at one-twelfth of the total, and projects the balance month by month using aggregate accounting. The balance needed at the start of the year is the cushion minus the lowest point of deposits less bills over the year. If your starting balance is below that, the gap is a shortage. This tool repeats the arithmetic from the numbers you enter and shows the twelve-month schedule."}}, {"@type": "Question", "name": "Do I get a refund if there is an escrow surplus?", "acceptedAnswer": {"@type": "Answer", "text": "If the analysis finds a surplus of $50 or more and you are current on the loan, the servicer must refund it within 30 days of the analysis. A surplus under $50 may be refunded or credited against next year's payments. Check that the refund arrived and that the new payment was not set as if the money were still needed."}}, {"@type": "Question", "name": "Does this prove my servicer made a mistake?", "acceptedAnswer": {"@type": "Answer", "text": "No. The tool works from the numbers you type and cannot see the servicer's worksheet. A difference is a question to put to the servicer, and it can come from a different bill amount, a different payment month or a starting balance the servicer projected differently. The amounts shown are what is in question, not money you are owed."}}, {"@type": "Question", "name": "What do I need from my statement?", "acceptedAnswer": {"@type": "Answer", "text": "The annual escrow account statement lists the projected yearly payments for tax and insurance, the month each is paid, the projected balance at the start of the new year, the new monthly payment and any shortage or surplus. Use your actual tax bill and insurance declarations page for the yearly amounts if you have them, and the statement for the rest."}}, {"@type": "Question", "name": "Is my mortgage information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin: 8px 0; }
+    @media (max-width: 720px) { .grid, .row { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { min-height: 120px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    .low td { background: #fdf0d5; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MORTGAGE ESCROW ANALYSIS CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is your new mortgage escrow payment right?</h1>
+    <p>Enter your <strong>yearly tax and insurance bills</strong> and the numbers from your <strong>annual escrow statement</strong>. See the <strong>payment those numbers support</strong>, whether the <strong>cushion is over the one-sixth limit</strong>, whether a <strong>shortage is being collected faster than the rules allow</strong>, whether a <strong>surplus</strong> should come back to you, and a <strong>twelve-month balance schedule</strong>. Then copy a <strong>request for the servicer's worksheet</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Results are questions for the servicer, not findings that a figure is wrong. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your bills for the coming escrow year</h2>
+    <p class="note">The <strong>yearly amount</strong> is the full year's bill, not one installment: enter a tax paid in two installments as one row per installment, each with its own month. Use your actual tax bill and insurance declarations page where you have them.</p>
+    <div class="grid">
+      <div><label for="start-month">Escrow year starts in</label><select id="start-month"><option value="">Choose month</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12" selected>December</option></select></div>
+      <div><label for="start-balance">Projected balance at the start of the year</label><input type="text" id="start-balance" inputmode="decimal" placeholder="from the statement" autocomplete="off"></div>
+    </div>
+      <div class="row">
+        <input type="text" id="name1" aria-label="Escrow item 1 name" value="Property tax" autocomplete="off">
+        <input type="text" id="amt1" aria-label="Escrow item 1 amount for the year" inputmode="decimal" placeholder="Yearly amount" autocomplete="off">
+        <select id="mon1" aria-label="Escrow item 1 month paid"><option value="">Month paid</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11" selected>November</option><option value="12">December</option></select>
+      </div>
+      <div class="row">
+        <input type="text" id="name2" aria-label="Escrow item 2 name" value="Homeowners insurance" autocomplete="off">
+        <input type="text" id="amt2" aria-label="Escrow item 2 amount for the year" inputmode="decimal" placeholder="Yearly amount" autocomplete="off">
+        <select id="mon2" aria-label="Escrow item 2 month paid"><option value="">Month paid</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4" selected>April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      </div>
+      <div class="row">
+        <input type="text" id="name3" aria-label="Escrow item 3 name" value="Flood or other insurance" autocomplete="off">
+        <input type="text" id="amt3" aria-label="Escrow item 3 amount for the year" inputmode="decimal" placeholder="Yearly amount" autocomplete="off">
+        <select id="mon3" aria-label="Escrow item 3 month paid"><option value="">Month paid</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      </div>
+      <div class="row">
+        <input type="text" id="name4" aria-label="Escrow item 4 name" value="Mortgage insurance or other" autocomplete="off">
+        <input type="text" id="amt4" aria-label="Escrow item 4 amount for the year" inputmode="decimal" placeholder="Yearly amount" autocomplete="off">
+        <select id="mon4" aria-label="Escrow item 4 month paid"><option value="">Month paid</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      </div>
+      <div class="row">
+        <input type="text" id="name5" aria-label="Escrow item 5 name" value="Second tax installment or other" autocomplete="off">
+        <input type="text" id="amt5" aria-label="Escrow item 5 amount for the year" inputmode="decimal" placeholder="Yearly amount" autocomplete="off">
+        <select id="mon5" aria-label="Escrow item 5 month paid"><option value="">Month paid</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+      </div>
+  </section>
+
+  <section class="card">
+    <h2>2. What the statement says <span class="note">(optional, but this is what gets checked)</span></h2>
+    <div class="grid">
+      <div><label for="stated-payment">New monthly escrow payment</label><input type="text" id="stated-payment" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="old-payment">Current monthly escrow payment</label><input type="text" id="old-payment" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-annual">Servicer's projected yearly bills, total</label><input type="text" id="stated-annual" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-cushion">Cushion or reserve</label><input type="text" id="stated-cushion" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-shortage">Shortage amount</label><input type="text" id="stated-shortage" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-shortage-monthly">Monthly amount that recovers the shortage</label><input type="text" id="stated-shortage-monthly" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-surplus">Surplus amount</label><input type="text" id="stated-surplus" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="current">Are you current on the loan?</label><select id="current"><option value="yes">Yes, payments arrive within 30 days of due</option><option value="no">No</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="who-name">Your name (for the letter, optional)</label><input type="text" id="who-name" autocomplete="off"></div>
+      <div><label for="who-servicer">Servicer (for the letter, optional)</label><input type="text" id="who-servicer" autocomplete="off"></div>
+      <div><label for="who-loan">Loan number (for the letter, optional)</label><input type="text" id="who-loan" autocomplete="off"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Check the escrow numbers</button>
+      <button type="button" class="secondary" id="load-example">Load sample statement</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in section 1, add what the statement says, then click Check the escrow numbers.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="note" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Twelve-month balance schedule</h3>
+    <div class="scroll"><table id="schedule"><thead><tr><th>Month</th><th class="n">Opening</th><th class="n">Deposit</th><th class="n">Bills paid</th><th class="n">Closing</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Deposit is one-twelfth of the yearly bills; it lands before that month's bills. The shaded row is the lowest closing balance. The servicer's own worksheet is authoritative where it differs.</p>
+    <h3>What if one bill changes?</h3>
+    <div class="grid">
+      <div><label for="wi-item">Bill</label><select id="wi-item"></select></div>
+      <div><label for="wi-amount">New yearly amount</label><input type="text" id="wi-amount" inputmode="decimal" autocomplete="off" placeholder="for example an insurance quote"></div>
+    </div>
+    <p><button type="button" class="secondary" id="wi-run">Show the change</button></p>
+    <p id="wi-result" class="note"></p>
+    <label for="letter">Draft request to the servicer</label>
+    <textarea id="letter" spellcheck="false" style="min-height:280px"></textarea>
+    <p class="note">Send it to the address the servicer designates for notices of error and information requests, which is on its website and usually on your statement. Edit it first.</p>
+    <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download schedule and findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Monthly payment:</strong> one-twelfth of the yearly bills that the servicer reasonably expects to pay from the account (12 CFR 1024.17(c)(1)(ii)), plus any amount recovering a shortage.</li>
+      <li><strong>Cushion:</strong> no greater than one-sixth of the yearly disbursements, which is two months of the payment (12 CFR 1024.17(c)(5)). The servicer may hold less.</li>
+      <li><strong>Balance needed at the start of the year:</strong> the cushion minus the lowest point of cumulative deposits less bills over the twelve months, using aggregate accounting (12 CFR 1024.17(c)(4)).</li>
+      <li><strong>Shortage:</strong> your starting balance is below that figure. Repaid over at least twelve months, or within 30 days if it is under one month's payment (12 CFR 1024.17(f)(3)).</li>
+      <li><strong>Deficiency:</strong> the balance would go negative. May be repaid in two or more payments (12 CFR 1024.17(f)(4)).</li>
+      <li><strong>Surplus:</strong> $50 or more is refunded within 30 days when the account is current (12 CFR 1024.17(f)(2)).</li>
+      <li><strong>Amount in question</strong> adds the yearly effect of each flagged item that has one. It is the most that could be affected, not a refund you are owed.</li>
+      <li><strong>Not checked:</strong> the servicer's own worksheet, disbursement dates other than the month you enter, state law, your loan documents (which may set stricter terms), escrow waivers, whether a tax or insurance bill is itself correct, and anything not typed above.</li>
+      <li><strong>Unverified:</strong> the rules were read from the published regulation, but the arithmetic has been run only against invented statements and worked by hand, not against a real servicer's worksheet. If a real statement disagrees, that is the priority report.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my mortgage escrow payment go up?</h3>
+    <p>Your servicer collects one-twelfth of your yearly property tax and homeowners insurance each month. When either bill rises, or when the account balance falls short of what the servicer projects it needs, the annual escrow analysis raises the payment. There are usually two parts: the higher monthly share of the new bills, and an extra amount that recovers any shortage, often spread over twelve months so it drops off the following year. This tool separates the two and shows what your own bills and starting balance imply.</p>
+    <h3>What is an escrow shortage, and do I have to pay it all at once?</h3>
+    <p>A shortage means the projected balance at the lowest point of the coming year is below the cushion the servicer aims for. Under Regulation X, when the shortage is at least one month's escrow payment the servicer may require it to be repaid in equal monthly payments over at least twelve months. When it is smaller, the servicer may ask for it within 30 days or spread it over at least twelve months. A deficiency, meaning a negative projected balance, may be repaid faster, in two or more payments. You can usually choose to pay a shortage in a lump sum to lower the monthly payment.</p>
+    <h3>How much cushion can my lender keep in escrow?</h3>
+    <p>At most one-sixth of the estimated total annual disbursements from the account, which is two months of the escrow payment. The lender may hold less. If the statement shows a larger cushion, ask which yearly amounts it used, because a difference in inputs can explain it.</p>
+    <h3>How is my escrow payment calculated?</h3>
+    <p>The servicer projects the year's bills and when each is due, sets the monthly deposit at one-twelfth of the total, and projects the balance month by month using aggregate accounting. The balance needed at the start of the year is the cushion minus the lowest point of deposits less bills over the year. If your starting balance is below that, the gap is a shortage. This tool repeats the arithmetic from the numbers you enter and shows the twelve-month schedule.</p>
+    <h3>Do I get a refund if there is an escrow surplus?</h3>
+    <p>If the analysis finds a surplus of $50 or more and you are current on the loan, the servicer must refund it within 30 days of the analysis. A surplus under $50 may be refunded or credited against next year's payments. Check that the refund arrived and that the new payment was not set as if the money were still needed.</p>
+    <h3>Does this prove my servicer made a mistake?</h3>
+    <p>No. The tool works from the numbers you type and cannot see the servicer's worksheet. A difference is a question to put to the servicer, and it can come from a different bill amount, a different payment month or a starting balance the servicer projected differently. The amounts shown are what is in question, not money you are owed.</p>
+    <h3>What do I need from my statement?</h3>
+    <p>The annual escrow account statement lists the projected yearly payments for tax and insurance, the month each is paid, the projected balance at the start of the new year, the new monthly payment and any shortage or surplus. Use your actual tax bill and insurance declarations page for the yearly amounts if you have them, and the statement for the rest.</p>
+    <h3>Is my mortgage information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your servicer, a housing counselor or a qualified professional. Results are estimates that depend entirely on the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, before disputing a payment, and before withholding any payment. A flagged item is a question, not a finding that a servicer is wrong. Keep paying the amount your servicer bills while you ask.</p>
+    <p><strong>Independent.</strong> Not affiliated with any mortgage lender, servicer, government agency or the Consumer Financial Protection Bureau. Regulation citations identify the published rule and are not a legal opinion.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your loan and escrow numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>escrow_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Have an escrow account because of a mortgage? The <a href="../property-tax-appeal-calculator/">property tax appeal calculator</a> shows whether appealing the assessment is worth the fee. Choosing a rate? The <a href="../mortgage-points-break-even-calculator/">mortgage points break-even calculator</a> shows whether buying points pays back before you sell or refinance. Need cash from the house? The <a href="../heloc-vs-cash-out-refinance-calculator/">HELOC vs cash-out refinance calculator</a> prices both.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, whatIf, requestLetter, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const ROWS = [1, 2, 3, 4, 5];
+    let last = null, lastInput = null;
+
+    function read() {
+      return {
+        startMonth: $("#start-month").value,
+        startBalance: $("#start-balance").value,
+        items: ROWS.map((i) => ({ name: $("#name" + i).value, amount: $("#amt" + i).value, month: $("#mon" + i).value })),
+        statedPayment: $("#stated-payment").value, oldPayment: $("#old-payment").value, statedAnnual: $("#stated-annual").value,
+        statedCushion: $("#stated-cushion").value, statedShortage: $("#stated-shortage").value,
+        statedShortageMonthly: $("#stated-shortage-monthly").value, statedSurplus: $("#stated-surplus").value,
+        current: $("#current").value,
+      };
+    }
+
+    function fill(input) {
+      $("#start-month").value = String(input.startMonth);
+      $("#start-balance").value = input.startBalance;
+      ROWS.forEach((i, k) => {
+        const it = input.items[k] || { name: "", amount: "", month: "" };
+        $("#name" + i).value = it.name; $("#amt" + i).value = it.amount; $("#mon" + i).value = String(it.month || "");
+      });
+      $("#stated-payment").value = input.statedPayment || ""; $("#old-payment").value = input.oldPayment || "";
+      $("#stated-annual").value = input.statedAnnual || ""; $("#stated-cushion").value = input.statedCushion || "";
+      $("#stated-shortage").value = input.statedShortage || ""; $("#stated-shortage-monthly").value = input.statedShortageMonthly || "";
+      $("#stated-surplus").value = input.statedSurplus || ""; $("#current").value = input.current === false ? "no" : "yes";
+    }
+
+    function letter() {
+      if (!last) return;
+      $("#letter").value = requestLetter(last, { name: $("#who-name").value.trim(), servicer: $("#who-servicer").value.trim(), loan: $("#who-loan").value.trim(), date: new Date().toISOString().slice(0, 10) });
+    }
+
+    function run() {
+      const input = read();
+      const a = analyze(input);
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a; lastInput = input;
+      const s = a.summary;
+      const asks = a.findings.filter((f) => f.severity !== "info").length;
+      const tiles = [[String(asks), "item(s) worth asking about"], [usd(s.expectedPayment), "monthly payment these numbers support"], [s.statedPayment === null ? "–" : usd(s.statedPayment), "monthly payment on the statement"], [usd(s.cushionMax), "largest allowed cushion"], [usd(s.shortage), "shortage against that cushion"], [usd(s.surplus), "surplus"]];
+      if (asks) tiles.splice(1, 0, [usd(s.questioned), "most that is in question over a year"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `Yearly bills ${usd(s.annual)}, so one-twelfth is ${usd(s.monthly)} a month. Balance needed at the start of the year with the largest allowed cushion: ${usd(s.needed)}; you entered ${usd(s.startBalance)}.${s.deficiency ? " Part of the gap (" + usd(s.deficiency) + ") would take the balance negative, which is a deficiency rather than a shortage." : ""} After a shortage is paid off the payment falls to ${usd(s.paymentAfterShortage)}. Amounts in question are the most that could be affected, not a refund owed.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the statement disagrees with these numbers. That does not mean it is right: the servicer's worksheet was not checked.</p>`;
+      const minClose = Math.min(...a.rows.map((r) => r.closing));
+      $("#schedule tbody").innerHTML = a.rows.map((r) => `<tr class="${r.closing === minClose ? "low" : ""}"><td>${esc(r.month)}${r.items ? " — " + esc(r.items) : ""}</td><td class="n">${usd(r.opening)}</td><td class="n">${usd(r.deposit)}</td><td class="n">${r.disbursement ? usd(r.disbursement) : ""}</td><td class="n">${usd(r.closing)}</td></tr>`).join("");
+      $("#wi-item").innerHTML = a.items.map((i) => `<option value="${esc(i.name)}">${esc(i.name)} (${usd(i.amount)})</option>`).join("");
+      $("#wi-result").textContent = "";
+      letter();
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    for (const id of ["#who-name", "#who-servicer", "#who-loan"]) $(id).addEventListener("input", letter);
+    $("#analyze").addEventListener("click", () => { if (run()) record("escrow_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented statement, not a real loan."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      fill({ startMonth: "", startBalance: "", items: [], current: true });
+      for (const id of ["#who-name", "#who-servicer", "#who-loan", "#letter", "#wi-amount"]) $(id).value = "";
+      report.hidden = true; last = null; lastInput = null;
+      status.textContent = "Fill in section 1, add what the statement says, then click Check the escrow numbers.";
+    });
+    $("#wi-run").addEventListener("click", () => {
+      if (!lastInput) return;
+      const w = whatIf(lastInput, $("#wi-item").value, $("#wi-amount").value);
+      if (w.error) { $("#wi-result").textContent = w.error; return; }
+      const dir = w.monthlyChange < 0 ? "lower" : "higher";
+      $("#wi-result").textContent = `${w.itemName} at that amount would make the base monthly payment ${usd(Math.abs(w.monthlyChange))} ${dir} (${usd(w.monthlyBefore)} to ${usd(w.monthlyAfter)}), ${usd(Math.abs(w.yearlyChange))} a year, and move the shortage from ${usd(w.shortageBefore)} to ${usd(w.shortageAfter)}. The servicer only changes the payment at its next analysis, or sooner if you send proof of a new bill and it agrees.`;
+    });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#letter");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Letter copied."; }
+      catch { box.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "escrow-check.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

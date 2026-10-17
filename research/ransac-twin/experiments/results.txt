@@ -1,0 +1,22 @@
+N=100 s=2 target success p=0.99 mean inlier fraction m=0.5
+twin (every scene has 50 inliers): q=0.2475, K_twin=17, twin failure=0.0080
+
+(1) exact failure at K_twin and budget needed, real scenes ~ BetaBinomial(N, m, kappa)
+kappa   sd(frac)  fail@K_twin  K_real(p=.99)  K_real/K_twin  P(n_in<s)
+1e+07   0.050     0.0127       19               1.1        0.0000
+50      0.086     0.0235       23               1.4        0.0000
+10      0.158     0.0700       58               3.4        0.0000
+4       0.228     0.1408       458             26.9        0.0017
+2       0.292     0.2172       none             n/a        0.0198
+1       0.355     0.2997       none             n/a        0.0847
+
+(2) Monte-Carlo check of the exact failure at K_twin (3000 scenes per row)
+kappa=50   exact 0.0235  MC 0.0233
+kappa=4    exact 0.1408  MC 0.1397
+kappa=1    exact 0.2997  MC 0.2953
+
+(3) end-to-end line fit (y=0.5x+1, noise sd 0.05, thr 0.15, uniform outliers in [0,10]x[-10,10]);
+    a scene 'fails' if |slope error|>0.1 ; 1000 scenes per row, scene inlier count from the pmf
+twin K, iid-ish kappa=1e7    K=17   slope-failure rate 0.009
+twin K, kappa=4              K=17   slope-failure rate 0.126
+real K, kappa=4              K=458  slope-failure rate 0.018

@@ -44,7 +44,7 @@ README = REPO / "gitops" / "ci" / "README.md"
 
 # Must stay byte-identical to `RUNS_ON` in gitops/tests/test_ci_runner.py --
 # that is the switch expression every non-Docker job is required to carry.
-RUNS_ON = "${{ vars.CI_RUNNER || 'ubuntu-latest' }}"
+RUNS_ON = "${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}"
 
 SENTENCE = re.compile(r"(\d+) of the (\d+) `runs-on` lines across (\d+) workflows")
 

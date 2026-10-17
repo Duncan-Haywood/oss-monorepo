@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm Audit Triage — Which npm audit Vulnerabilities Does Your Code Actually Use?</title>
+  <meta name="description" content="Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Which npm audit findings actually matter?">
+  <meta property="og:description" content="Rank npm audit vulnerabilities by whether your code imports the package. Free, offline, with a CI gate CLI.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"npm Audit Triage","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Ranks npm audit --json findings by whether your code actually imports the vulnerable package, is reached only through an imported parent, or is test-only. Runs in the browser or as a zero-dependency CLI that can fail CI on reachable high-severity findings; nothing is uploaded and it makes no network calls."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does npm audit report so many vulnerabilities that do not matter?","acceptedAnswer":{"@type":"Answer","text":"npm audit matches your dependency tree against an advisory database and cannot see whether your code calls the vulnerable function, or even imports the package. Many findings sit in build tooling, test runners or transitive packages your application never loads at runtime. This tool adds one extra signal, whether the package is imported, so the findings you read first are the ones a real code path could reach."}},{"@type":"Question","name":"How does the triage decide a package is reachable?","acceptedAnswer":{"@type":"Answer","text":"It scans source text for import, require, dynamic import and re-export statements and compares the package names to the audit. A vulnerable package that is imported from runtime code is ranked first. One only reached through an imported parent package is ranked next. One imported only from test or tooling files, or not referenced at all, is ranked lowest. It is a static text scan, so it cannot see dynamic requires built from variables."}},{"@type":"Question","name":"Does this mean the low-ranked vulnerabilities are safe to ignore?","acceptedAnswer":{"@type":"Answer","text":"No. Not imported is not the same as not exploitable: a vulnerable package can still be loaded by a bundler, a postinstall script or a framework convention, and a build-time vulnerability can matter to your supply chain. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule."}},{"@type":"Question","name":"Does this tool upload my audit output or source code?","acceptedAnswer":{"@type":"Answer","text":"No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else."}},{"@type":"Question","name":"Is this security advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.imported, .pill.via-imported { background: #fde8e8; color: #9a3412; }
+    .pill.test-only { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NPM AUDIT TRIAGE · RUNS IN YOUR BROWSER</p>
+    <h1>Which npm audit findings does your code actually use?</h1>
+    <p><code>npm audit</code> prints 40 vulnerabilities and no way to tell the one your server imports from the one buried in a test runner. Paste the <code>npm audit --json</code> output and your source files: findings are ranked by whether the vulnerable package is <strong>imported by your code</strong>, <strong>reached through a package you import</strong>, <strong>test/tooling only</strong>, or <strong>not referenced</strong>. Paid platforms (Snyk, Socket) sell reachability analysis; this is the free, offline first pass.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It is a static text scan and a heuristic ranking, not a security audit.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste <code>npm audit --json</code></h2>
+    <textarea id="audit" spellcheck="false" placeholder='{"vulnerabilities":{ ... }}'></textarea>
+    <h2 style="margin-top:14px">2. Paste your source (optional but it is the point)</h2>
+    <p class="note">Concatenate files, or put a line <code>// file: src/app.js</code> before each so test files are recognised. In the CLI the directory is scanned for you.</p>
+    <textarea id="src" spellcheck="false" placeholder="// file: src/server.js&#10;import express from 'express';"></textarea>
+    <p>
+      <button type="button" id="check">Triage</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste the audit output above and click Triage.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Ranked findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Package</th><th>Severity</th><th>Reachability</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Want it as a CI gate?</h2>
+    <p>Same logic, zero dependencies. It reads the audit file and walks your source directory, nothing else:</p>
+    <pre class="cmd"><code>npm audit --json | node audit-triage.mjs - src             # triage, print ranked list
+npm audit --json | node audit-triage.mjs - src --fail-on high   # exit 1 if a reachable high/critical exists
+node audit-triage.mjs audit.json src lib --json              # machine-readable</code></pre>
+    <p class="note">Get <a href="audit-triage.mjs" rel="noopener">audit-triage.mjs</a> and <a href="triage.mjs" rel="noopener">triage.mjs</a> from the repo. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does npm audit report so many vulnerabilities that do not matter?</h3>
+    <p>npm audit matches your dependency tree against an advisory database and cannot see whether your code calls the vulnerable function, or even imports the package. Many findings sit in build tooling, test runners or transitive packages your application never loads at runtime. This tool adds one extra signal, whether the package is imported, so the findings you read first are the ones a real code path could reach.</p>
+    <h3>How does the triage decide a package is reachable?</h3>
+    <p>It scans source text for import, require, dynamic import and re-export statements and compares the package names to the audit. A vulnerable package that is imported from runtime code is ranked first. One only reached through an imported parent package is ranked next. One imported only from test or tooling files, or not referenced at all, is ranked lowest. It is a static text scan, so it cannot see dynamic requires built from variables.</p>
+    <h3>Does this mean the low-ranked vulnerabilities are safe to ignore?</h3>
+    <p>No. Not imported is not the same as not exploitable: a vulnerable package can still be loaded by a bundler, a postinstall script or a framework convention, and a build-time vulnerability can matter to your supply chain. The ranking tells you where to look first, not what to skip forever. Keep patching on a schedule.</p>
+    <h3>Does this tool upload my audit output or source code?</h3>
+    <p>No. Everything you paste is processed in this page and never leaves your device, and the page makes no network calls. The CLI reads the audit file and the source directory you name and nothing else.</p>
+    <h3>Is this security advice?</h3>
+    <p>No. It is a heuristic ranking of publicly reported advisories using a text scan of your code. It is not a security audit, penetration test or guarantee, and it can miss reachable vulnerabilities.</p>
+    <p>More: <a href="how-to-triage-npm-audit-findings.html">how to triage npm audit findings without ignoring real risk</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice or a security audit, and its heuristic reading of your imports can miss reachable vulnerabilities. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="audit-triage.mjs" rel="noopener">audit-triage.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The audit output and source you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../pip-audit-triage/">pip-audit Triage</a>, <a href="../cargo-audit-triage/">cargo audit Triage</a>, <a href="../lockfile-license-check/">Lockfile License Check</a>, <a href="../npm-provenance-check/">npm Provenance Check</a> and <a href="../npm-lockfile-duplicates-check/">npm Lockfile Duplicates Check</a>.</p>
+    <p class="support">Free and open source. If this told you where to look first, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { triage, summaryLine } from "./triage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { audit: $("#audit"), src: $("#src"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    // Synthetic audit output and source, fictional packages.
+    const EXAMPLE_AUDIT = JSON.stringify({ vulnerabilities: {
+      "serialize-thing": { name: "serialize-thing", severity: "critical", isDirect: true, via: [{ title: "Remote code execution via crafted input", severity: "critical" }], effects: [], fixAvailable: true },
+      "http-lib": { name: "http-lib", severity: "high", isDirect: false, via: [{ title: "Request smuggling", severity: "high" }], effects: ["api-client"], fixAvailable: { name: "api-client", version: "3.0.0", isSemVerMajor: true } },
+      "api-client": { name: "api-client", severity: "high", isDirect: true, via: ["http-lib"], effects: [], fixAvailable: false },
+      "test-runner": { name: "test-runner", severity: "high", isDirect: true, via: [{ title: "ReDoS in reporter", severity: "high" }], effects: [], fixAvailable: true },
+      "docs-builder": { name: "docs-builder", severity: "critical", isDirect: true, via: [{ title: "Path traversal in dev server", severity: "critical" }], effects: [], fixAvailable: false }
+    } }, null, 1);
+    const EXAMPLE_SRC = `// file: src/server.js
+import { render } from "serialize-thing";
+import client from "api-client";
+// file: test/server.test.js
+import runner from "test-runner";`;
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const LABEL = { imported: "imported by your code", "via-imported": "via a package you import", "test-only": "test / tooling only", "not-referenced": "not referenced" };
+
+    function splitFiles(text) {
+      const files = []; let path = "(pasted)"; let buf = [];
+      const flush = () => { if (buf.length) files.push({ path, text: buf.join("\n") }); buf = []; };
+      for (const line of text.split("\n")) {
+        const m = line.match(/^\s*\/\/\s*file:\s*(\S+)/i);
+        if (m) { flush(); path = m[1]; } else buf.push(line);
+      }
+      flush();
+      return files;
+    }
+
+    function run(auditText, srcText) {
+      if (!auditText.trim()) { els.status.innerHTML = `<span class="error">Paste the npm audit --json output first.</span>`; return false; }
+      const result = triage(auditText, splitFiles(srcText));
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      els.verdict.className = `verdict ${result.urgent.length ? "risk" : ""}`;
+      els.verdict.textContent = result.urgent.length ? `${result.urgent.length} high/critical finding(s) your code can reach. ` + summaryLine(result) : summaryLine(result);
+      els.rows.innerHTML = result.items.map((i) => `
+        <tr><td><code>${escapeHtml(i.name)}</code><div class="note">${escapeHtml(i.advisories[0] ? i.advisories[0].title : "")}</div></td>
+        <td>${escapeHtml(i.severity)}</td>
+        <td><span class="pill ${i.bucket}">${LABEL[i.bucket]}</span>${i.evidence[0] ? `<div class="note">${escapeHtml(i.evidence[0])}</div>` : ""}</td>
+        <td>${escapeHtml(i.fix)}</td></tr>`).join("")
+        || `<tr><td colspan="4" class="note">npm audit reported no vulnerabilities.</td></tr>`;
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.audit.value, els.src.value));
+    $("#load-example").addEventListener("click", () => {
+      els.audit.value = EXAMPLE_AUDIT;
+      els.src.value = EXAMPLE_SRC;
+      if (run(EXAMPLE_AUDIT, EXAMPLE_SRC)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: the critical in the docs builder ranks below the high in a package the server imports, because nothing runtime loads it.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.audit.value = ""; els.src.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste the audit output above and click Triage.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

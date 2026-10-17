@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Handyman Minimum Job Calculator — smallest job worth driving to</title>
+  <meta name="description" content="Handyman minimum job calculator. Enter the hourly pay you want, overhead, drive and estimate time and mileage to see your minimum trip charge, the smallest job worth driving to, the lowest price for each job you quote and what you really keep per hour. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Handyman Minimum Job Calculator — free, private, in your browser">
+  <meta property="og:description" content="What is the smallest job worth driving to? Minimum trip charge, price floor per job and effective hourly rate. No account, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Handyman Minimum Job Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter the hourly pay you want, monthly overhead, drive and estimate time and mileage. See the smallest job worth driving to, the minimum trip charge, the price floor and effective hourly rate for each job you quote. Runs entirely in your browser; nothing is uploaded.", "featureList": "minimum job size, minimum trip charge, price floor per job, effective hourly rate including drive time, job size ladder, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the smallest job a handyman should take?", "acceptedAnswer": {"@type": "Answer", "text": "The one where the work hours, at your quoted hourly rate, pay for the trip. Every job carries unpaid time (driving both ways, estimating, supply runs) and a mileage cost. Each billable hour contributes your quoted rate after payment fees, minus the pay you want per hour and your overhead per hour. Divide the trip cost by that contribution and you have the minimum job in hours; multiply by your rate for the minimum price."}}, {"@type": "Question", "name": "How do I set a minimum trip charge?", "acceptedAnswer": {"@type": "Answer", "text": "Add up the unpaid time you spend on every call at the hourly pay you want for your own time, add mileage, and divide by one minus your payment fee. The tool shows that number as the minimum trip charge: what you must collect before any work is done to break even on showing up."}}, {"@type": "Question", "name": "What is effective hourly rate and why is it lower than my quoted rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is what you keep per hour of all your time on the job, including driving, estimating and picking up materials, after payment fees, mileage, materials and overhead. A one-hour job at $85 an hour can keep less than half of that per hour once a 25-minute drive each way and a supply run are counted."}}, {"@type": "Question", "name": "How do I figure overhead per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Add your monthly business costs (insurance, phone, software, tools replaced, truck costs not counted as mileage) and divide by the billable work hours you actually do in a typical month, not the hours you wish you did. The tool charges that overhead on work hours only."}}, {"@type": "Question", "name": "Should I charge hourly or a flat price per job?", "acceptedAnswer": {"@type": "Answer", "text": "The tool works for both. Enter each job's work hours, materials and the flat price you would quote, and it shows the lowest price that pays your target and your effective hourly at that price. Where a flat price lands under the floor you can see which job it is."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Taxes, licence and permit costs, insurance claims, callbacks and warranty work, unpaid invoices, seasonal slow months, and local rules on what unlicensed work you may take. It is arithmetic on figures you type, not tax, legal or licensing advice."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HANDYMAN MINIMUM JOB CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the smallest job worth driving to?</h1>
+    <p>Enter the <strong>pay you want per hour</strong>, your <strong>overhead</strong>, and the <strong>drive, estimate and supply-run time</strong> every call costs you. The tool shows your <strong>minimum trip charge</strong>, the <strong>smallest job</strong> that pays at your quoted rate, the <strong>lowest price for each job</strong> you list, and what you <strong>actually keep per hour</strong>.</p>
+    <p class="note">Arithmetic on figures you supply. Not legal, tax or licensing advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your business</h2>
+    <div class="row3">
+      <div><label for="ownerHourly">Hourly pay you want for your own time ($)</label><input id="ownerHourly" inputmode="decimal" value=""></div>
+      <div><label for="quotedRate">Hourly rate you quote customers ($)</label><input id="quotedRate" inputmode="decimal" value=""></div>
+      <div><label for="overheadPerMonth">Overhead per month ($)</label><input id="overheadPerMonth" inputmode="decimal" value="0"></div>
+      <div><label for="billableHoursPerMonth">Billable work hours in a typical month</label><input id="billableHoursPerMonth" inputmode="decimal" value=""></div>
+      <div><label for="driveMinutesOneWay">Drive minutes, one way</label><input id="driveMinutesOneWay" inputmode="decimal" value="0"></div>
+      <div><label for="milesRoundTrip">Miles round trip</label><input id="milesRoundTrip" inputmode="decimal" value="0"></div>
+      <div><label for="costPerMile">Vehicle cost per mile ($)</label><input id="costPerMile" inputmode="decimal" value="0"></div>
+      <div><label for="quoteMinutes">Estimate and admin minutes per job</label><input id="quoteMinutes" inputmode="decimal" value="0"></div>
+      <div><label for="supplyRunMinutes">Supply run minutes per job</label><input id="supplyRunMinutes" inputmode="decimal" value="0"></div>
+      <div><label for="cardFeePct">Payment fee (% of price)</label><input id="cardFeePct" inputmode="decimal" value="3"></div>
+    </div>
+    <h2 style="margin-top:18px">Jobs you are pricing</h2>
+    <label for="jobs">Job, work hours, materials $, price you quote $ (one per line; leave the price blank to see only the floor)</label>
+    <textarea id="jobs" spellcheck="false" placeholder="Replace a faucet,2,60,210&#10;Fix a sticking door,0.5,5,"></textarea>
+    <p class="note">Work hours are the time on site doing the job. Drive, estimate and supply-run time come from the fields above and are added to every job. Materials are passed through at cost.</p>
+    <button type="button" id="analyze">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your numbers and jobs, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>By job</h3>
+    <div class="scroll"><table id="jt"><thead><tr><th>Job</th><th class="n">Work hrs</th><th class="n">All your hrs</th><th class="n">Your price</th><th class="n">Floor</th><th class="n">Profit over target</th><th class="n">Effective hourly</th><th>Vs floor</th></tr></thead><tbody></tbody></table></div>
+    <h3>Job size ladder at your quoted rate</h3>
+    <div class="scroll"><table id="lt"><thead><tr><th class="n">Work hours</th><th class="n">Price at your rate</th><th class="n">Effective hourly</th><th>Reaches your pay target</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Trip time:</strong> 2 × drive minutes + estimate minutes + supply-run minutes, as hours; it is unpaid time on every job. <strong>Trip cost:</strong> trip hours × your hourly pay + mileage. <strong>Minimum trip charge:</strong> trip cost ÷ (1 − payment fee). <strong>Overhead per hour:</strong> monthly overhead ÷ billable work hours, charged on work hours only. <strong>Cost of a job:</strong> (work hours + trip hours) × your pay + overhead on work hours + materials + mileage. <strong>Price floor:</strong> cost ÷ (1 − payment fee). <strong>Effective hourly:</strong> (price − payment fee − materials − mileage − overhead) ÷ (work hours + trip hours). <strong>Smallest job:</strong> trip cost ÷ (quoted rate × (1 − fee) − your pay − overhead per hour), in work hours.</p>
+    <p><strong>Not modelled:</strong> taxes, licences and permits, insurance claims, callbacks and warranty work, unpaid invoices, seasonal gaps, and local rules on the work you may do. Unverified: tested on hand-calculated examples, not on a real handyman business's books. It computes arithmetic; it does not tell you what customers will pay.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the smallest job a handyman should take?</h3>
+    <p>The one where the work hours, at your quoted hourly rate, pay for the trip. Every job carries unpaid time (driving both ways, estimating, supply runs) and a mileage cost. Each billable hour contributes your quoted rate after payment fees, minus the pay you want per hour and your overhead per hour. Divide the trip cost by that contribution and you have the minimum job in hours; multiply by your rate for the minimum price.</p>
+    <h3>How do I set a minimum trip charge?</h3>
+    <p>Add up the unpaid time you spend on every call at the hourly pay you want for your own time, add mileage, and divide by one minus your payment fee. The tool shows that number as the minimum trip charge: what you must collect before any work is done to break even on showing up.</p>
+    <h3>What is effective hourly rate and why is it lower than my quoted rate?</h3>
+    <p>It is what you keep per hour of all your time on the job, including driving, estimating and picking up materials, after payment fees, mileage, materials and overhead. A one-hour job at $85 an hour can keep less than half of that per hour once a 25-minute drive each way and a supply run are counted.</p>
+    <h3>How do I figure overhead per hour?</h3>
+    <p>Add your monthly business costs (insurance, phone, software, tools replaced, truck costs not counted as mileage) and divide by the billable work hours you actually do in a typical month, not the hours you wish you did. The tool charges that overhead on work hours only.</p>
+    <h3>Should I charge hourly or a flat price per job?</h3>
+    <p>The tool works for both. Enter each job's work hours, materials and the flat price you would quote, and it shows the lowest price that pays your target and your effective hourly at that price. Where a flat price lands under the floor you can see which job it is.</p>
+    <h3>What does this leave out?</h3>
+    <p>Taxes, licence and permit costs, insurance claims, callbacks and warranty work, unpaid invoices, seasonal slow months, and local rules on what unlicensed work you may take. It is arithmetic on figures you type, not tax, legal or licensing advice.</p>
+    <h3>Is my information uploaded?</h3>
+    <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or licensing advice and does not replace a qualified accountant. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any home services marketplace, franchise or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../shop-rate-calculator/">shop rate calculator</a>, the <a href="../hydroseeding-job-bid-calculator/">hydroseeding job bid calculator</a>, the <a href="../house-cleaning-quote-calculator/">house cleaning quote calculator</a>, the <a href="../locksmith-bid-calculator/">locksmith bid calculator</a>, the <a href="../plumber-flat-rate-price-calculator/">plumber flat-rate price calculator</a> and the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseJobs, analyze, reportCsv, sampleJob, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["ownerHourly", "quotedRate", "overheadPerMonth", "billableHoursPerMonth", "driveMinutesOneWay", "milesRoundTrip", "costPerMile", "quoteMinutes", "supplyRunMinutes", "cardFeePct"];
+    const IDLE = "Fill in your numbers and jobs, then click Calculate.";
+    let last = null;
+
+    function run() {
+      const jp = parseJobs($("#jobs").value);
+      if (jp.error) { status.textContent = jp.error; report.hidden = true; return false; }
+      const s = {};
+      for (const k of FIELDS) s[k] = $("#" + k).value;
+      const r = analyze(s, jp.rows);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...jp.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money2(r.minimumTripCharge), "Minimum trip charge (before any work)"],
+        [r.minimumJob ? r.minimumJob.hours.toFixed(1) + " hrs" : "n/a", "Smallest job worth driving to, in work hours"],
+        [r.minimumJob ? money2(r.minimumJob.price) : "n/a", "Price of that job at your quoted rate"],
+        [money2(r.tripCost), "Cost of every call before work starts"],
+      ];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      $("#jt tbody").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="n">${l.workHours}</td><td class="n">${l.totalHours.toFixed(2)}</td><td class="n">${l.hasPrice ? money2(l.price) : "—"}</td><td class="n">${money2(l.floor)}</td><td class="n">${l.hasPrice ? money2(l.profit) : "—"}</td><td class="n">${l.hasPrice ? money2(l.effectiveHourly) : "—"}</td><td>${l.hasPrice ? `<span class="pill ${l.meetsFloor ? "good" : "high"}">${l.meetsFloor ? "meets" : "under"}</span>` : "—"}</td></tr>`).join("");
+      $("#lt tbody").innerHTML = r.ladder.length ? r.ladder.map((x) => `<tr><td class="n">${x.hours}</td><td class="n">${money2(x.price)}</td><td class="n">${money2(x.effectiveHourly)}</td><td><span class="pill ${x.coversTarget ? "good" : "high"}">${x.coversTarget ? "yes" : "no"}</span></td></tr>`).join("") : `<tr><td colspan="4">Enter the hourly rate you quote to see this table.</td></tr>`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleJob();
+      for (const k of FIELDS) $("#" + k).value = s.settings[k];
+      $("#jobs").value = s.jobs;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented handyman business, not a real one."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#jobs").value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "handyman-minimum-job-result.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

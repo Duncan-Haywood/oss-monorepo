@@ -5,6 +5,8 @@ CycloneDX or SPDX JSON, from `syft`, `docker sbom`, `trivy`, `cdxgen`, or
 similar — and reports exactly which packages were added, removed, or changed
 version between two builds.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/
+
 **What it is not:** a vulnerability scanner, a license checker, or a
 compliance attestation. It compares only each package's name and version; it
 makes no claim about whether any package or version is safe, vulnerable, or
@@ -52,7 +54,10 @@ dependency drift before it merges.
 ## Formats understood
 
 - **CycloneDX** (`"bomFormat": "CycloneDX"`, or a top-level `components`
-  array) — reads each component's `name`, `version`, and `purl`.
+  array) — reads each component's `name`, `version`, and `purl`. Nested
+  `components` are included, and a `group` is prefixed to the name
+  (`@types` + `node` is `@types/node`), so same-named packages from
+  different groups are not merged.
 - **SPDX** (a `spdxVersion` field, or a top-level `packages` array) — reads
   each package's `name` and `versionInfo` (`NOASSERTION` is treated as no
   known version).

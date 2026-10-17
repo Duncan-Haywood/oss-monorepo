@@ -1,0 +1,47 @@
+== 1. Best mode by context (N none, S speech, G glance), default parameters
+  others=0 eyes_busy=False: rows=noise, cols=words [3, 5, 8, 12, 16, 24, 40]
+    noise 0.0: G G G S S S G
+    noise 0.5: G G G G G G G
+    noise 1.0: G G G G G G G
+  others=0 eyes_busy=True: rows=noise, cols=words [3, 5, 8, 12, 16, 24, 40]
+    noise 0.0: S S S S S S N
+    noise 0.5: S S S S S S N
+    noise 1.0: S S S N N N N
+  others=1 eyes_busy=False: rows=noise, cols=words [3, 5, 8, 12, 16, 24, 40]
+    noise 0.0: G G G G G G G
+    noise 0.5: G G G G G G G
+    noise 1.0: G G G G G G G
+  others=1 eyes_busy=True: rows=noise, cols=words [3, 5, 8, 12, 16, 24, 40]
+    noise 0.0: S S S S N N N
+    noise 0.5: S S N N N N N
+    noise 1.0: G G N N N N N
+  P(look within deadline): eyes free 0.865, eyes busy 0.181
+== 2. Monte Carlo check of the closed form (200000 draws)
+  max |closed form - Monte Carlo| over 6 cases: 0.0009
+== 3. Share of the 84 contexts won by each mode
+  none=0.23  speech=0.29  glance=0.49
+== 4. One-at-a-time sensitivity: share of contexts whose best mode changes (parameter x0.5 / x2)
+  look_rate          x0.5: 0.06   x2: 0.13
+  mask_per_noise     x0.5: 0.07   x2: 0.10
+  c_speech_per_s     x0.5: 0.15   x2: 0.17
+  c_glance           x0.5: 0.00   x2: 0.01
+  max_words          x0.5: 0.05   x2: 0.04
+  speech_rate        x0.5: 0.14   x2: 0.13
+  read_rate          x0.5: 0.01   x2: 0.04
+  deadline           x0.5: 0.10   x2: 0.13
+  others_mult        x0.5: 0.04   x2: 0.05
+  eyes_busy_factor   x0.5: 0.02   x2: 0.12
+== 5. Twin gap: modes chosen assuming look_rate=0.10, real look rate differs
+  real look_rate 0.02: regret 0.0322 per message
+  real look_rate 0.05: regret 0.0058 per message
+  real look_rate 0.10: regret 0.0000 per message
+  real look_rate 0.20: regret 0.0075 per message
+  real look_rate 0.40: regret 0.0356 per message
+== 6. Twin gap: assumed noise masking vs real
+  real mask_per_noise 0.2: regret 0.0176
+  real mask_per_noise 0.4: regret 0.0039
+  real mask_per_noise 0.6: regret 0.0000
+  real mask_per_noise 0.8: regret 0.0064
+  real mask_per_noise 1.0: regret 0.0172
+== 7. Break-even look rate: smallest look_rate at which glance becomes the best mode (6 words, noise 0.5, others 1, eyes free)
+  look_rate >= 0.010 per s (one glance every 100 s)

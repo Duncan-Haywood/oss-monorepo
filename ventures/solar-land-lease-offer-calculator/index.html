@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Solar Land Lease Offer Calculator — Is the Offer Worth It?</title>
+  <meta name="description" content="Free solar lease calculator for landowners: present value of an option-plus-term solar lease against what your land earns now, the break-even rent and escalator, and rent as a share of project revenue. Runs in your browser.">
+  <meta property="og:title" content="Solar Land Lease Offer Calculator — free, private">
+  <meta property="og:description" content="Weigh a solar lease offer against farming the land: present value, break-even rent per acre and break-even escalator.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Solar Land Lease Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free tool for landowners weighing a solar lease offer: present value over the option period and term against what the land earns now, break-even rent and escalator, and rent as a share of project revenue."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much do solar companies pay per acre to lease farmland?", "acceptedAnswer": {"@type": "Answer", "text": "It varies widely by state, grid access and developer, and this tool contains no rate survey. Enter the offer you actually have. The tool shows what it is worth over the option period and term, what it would take to match what the land earns now, and how it compares with the project's own revenue."}}, {"@type": "Question", "name": "Is a solar lease offer better than farming or cash-renting the land?", "acceptedAnswer": {"@type": "Answer", "text": "Compare present values, not first-year rent. The tool discounts the option payments, the escalating rent (less the extra property tax you carry) and any signing bonus, and sets them against your current cash rent growing at the rate you enter."}}, {"@type": "Question", "name": "What escalator should a solar lease have?", "acceptedAnswer": {"@type": "Answer", "text": "Enough to keep up with what the land would have earned otherwise. If the escalator is below the growth you expect in cash rents or inflation, the rent buys less each year; the tool shows the last year's rent in today's dollars and the escalator that would break even."}}, {"@type": "Question", "name": "What is an option period in a solar lease?", "acceptedAnswer": {"@type": "Answer", "text": "A development period, often several years, in which the developer pays a smaller amount to hold the land while it studies the site and applies for permits and grid connection. Whether you can keep farming during it is negotiable, so the tool lets you switch that on or off."}}, {"@type": "Question", "name": "Why does the tool ask about property tax and rollback?", "acceptedAnswer": {"@type": "Answer", "text": "Converting farmland can raise your assessment or trigger recapture of agricultural-use tax benefits. Both can sit with the owner unless the lease moves them to the developer, so the tool lets you subtract them. Ask your county assessor and a tax adviser what applies."}}, {"@type": "Question", "name": "What about decommissioning, indemnity and the other clauses?", "acceptedAnswer": {"@type": "Answer", "text": "Not modelled. Decommissioning security, indemnity, crop-damage payments, easements, termination rights and assignment all matter as much as rent. Have an attorney who knows energy leases review the real document."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you enter. A lease needs an attorney's review."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d2a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3d1c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3d1c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3d1c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d2a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f3d1c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f3d1c; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SOLAR LAND LEASE OFFER CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>A developer offered to lease your land for solar. Is the offer worth it?</h1>
+    <p>Enter the acres, the offered rent, escalator, option payments and what the land earns now. You get the <strong>present value of the lease against keeping the land as it is, the year-1 rent that would break even, the escalator that would break even, how fast inflation eats the rent, and rent as a share of project revenue</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The tool contains no rate surveys, and the example numbers are made up.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The land and the offer</h2>
+    <div class="grid">
+      <div><label for="acres">Leased acres</label><input type="number" id="acres" min="0" step="1" value="160"></div>
+      <div><label for="rent">Offered rent, year 1 of operation ($/acre/yr)</label><input type="number" id="rent" min="0" step="10" value="900"></div>
+      <div><label for="esc">Annual rent escalator (%)</label><input type="number" id="esc" min="-9" step="0.1" value="2"></div>
+      <div><label for="term">Operating term (years)</label><input type="number" id="term" min="0" step="1" value="35"></div>
+      <div><label for="optyears">Option / development period (years)</label><input type="number" id="optyears" min="0" step="1" value="3"></div>
+      <div><label for="optpay">Option payment ($/acre/yr)</label><input type="number" id="optpay" min="0" step="1" value="30"></div>
+      <div><label for="bonus">Signing bonus ($/acre, one time)</label><input type="number" id="bonus" min="0" step="10" value="0"></div>
+      <div><label for="alt">Land's current income ($/acre/yr, cash rent or net farm income)</label><input type="number" id="alt" min="0" step="5" value="280"></div>
+      <div><label for="altg">Growth of that income (%/yr)</label><input type="number" id="altg" min="-9" step="0.1" value="2.5"></div>
+      <div><label for="disc">Your discount rate (%)</label><input type="number" id="disc" min="0" step="0.5" value="6"></div>
+      <div><label for="tax">Extra property tax you carry once operating ($/acre/yr)</label><input type="number" id="tax" min="0" step="1" value="15"></div>
+      <div><label for="rollback">Ag-use rollback / recapture tax ($/acre, one time)</label><input type="number" id="rollback" min="0" step="10" value="0"></div>
+      <div><label for="apm">Acres per MWac of project</label><input type="number" id="apm" min="0" step="0.5" value="7"></div>
+      <div><label for="cf">Project capacity factor (%)</label><input type="number" id="cf" min="0" step="1" value="25"></div>
+      <div><label for="price">Project power price ($/MWh)</label><input type="number" id="price" min="0" step="1" value="40"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="farm" checked><label for="farm">I can keep farming the land during the option period</label></div>
+    <p>
+      <button type="button" id="analyze">Value the offer</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Change the numbers or load the example, then click Value the offer.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Value</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>Lease minus alternative (present value) by escalator and year-1 rent</h3>
+    <div class="scroll"><table><thead id="sens-head"></thead><tbody id="sens"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How the numbers work, and what they leave out</h2>
+    <ul>
+      <li><strong>Lease cash flow:</strong> option payments for the option years (plus your farm income if you can keep farming), then year-1 rent grown by the escalator each operating year, less the extra property tax you carry, plus any signing bonus and minus any rollback tax at year 0.</li>
+      <li><strong>Alternative:</strong> your current per-acre income grown at the rate you enter, over the same years. Both streams are discounted at your rate, payments at year end.</li>
+      <li><strong>Break-even rent</strong> is the year-1 rent at which the two present values match. <strong>Break-even escalator</strong> is the escalator that matches them at the offered rent.</li>
+      <li><strong>Rent share of project revenue</strong> uses acres per MWac, capacity factor and power price that you enter; it is a negotiating reference, not a market rate.</li>
+      <li><strong>Not modelled:</strong> decommissioning security, indemnity, crop-damage and easement payments, extension options, termination and assignment rights, income tax, and a developer's tax-credit economics.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much do solar companies pay per acre to lease farmland?</h3>
+    <p>It varies widely by state, grid access and developer, and this tool contains no rate survey. Enter the offer you actually have. The tool shows what it is worth over the option period and term, what it would take to match what the land earns now, and how it compares with the project's own revenue.</p>
+    <h3>Is a solar lease offer better than farming or cash-renting the land?</h3>
+    <p>Compare present values, not first-year rent. The tool discounts the option payments, the escalating rent (less the extra property tax you carry) and any signing bonus, and sets them against your current cash rent growing at the rate you enter.</p>
+    <h3>What escalator should a solar lease have?</h3>
+    <p>Enough to keep up with what the land would have earned otherwise. If the escalator is below the growth you expect in cash rents or inflation, the rent buys less each year; the tool shows the last year's rent in today's dollars and the escalator that would break even.</p>
+    <h3>What is an option period in a solar lease?</h3>
+    <p>A development period, often several years, in which the developer pays a smaller amount to hold the land while it studies the site and applies for permits and grid connection. Whether you can keep farming during it is negotiable, so the tool lets you switch that on or off.</p>
+    <h3>Why does the tool ask about property tax and rollback?</h3>
+    <p>Converting farmland can raise your assessment or trigger recapture of agricultural-use tax benefits. Both can sit with the owner unless the lease moves them to the developer, so the tool lets you subtract them. Ask your county assessor and a tax adviser what applies.</p>
+    <h3>What about decommissioning, indemnity and the other clauses?</h3>
+    <p>Not modelled. Decommissioning security, indemnity, crop-damage payments, easements, termination rights and assignment all matter as much as rent. Have an attorney who knows energy leases review the real document.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything is calculated in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It is arithmetic on numbers you enter. A lease needs an attorney's review.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional such as an attorney who handles energy leases, a tax adviser or your county assessor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for any lease you sign.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>offer_valued</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../grazing-lease-rate-calculator/">grazing lease rate calculator</a>, <a href="../hunting-lease-income-calculator/">hunting lease income</a>, <a href="../farmland-lease-cash-rent-vs-crop-share-calculator/">farmland cash rent vs crop share</a> and <a href="../commercial-solar-ppa-lease-buy-calculator/">commercial solar PPA vs lease vs buy</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, sensitivity, sampleInput, toCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const ids = { acres: "acres", rentPerAcre: "rent", escalatorPct: "esc", termYears: "term", optionYears: "optyears", optionPerAcre: "optpay", signingBonusPerAcre: "bonus", altCashRent: "alt", altGrowthPct: "altg", discountPct: "disc", extraTaxPerAcre: "tax", rollbackPerAcre: "rollback", acresPerMw: "apm", capacityFactorPct: "cf", powerPricePerMwh: "price" };
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const [k, id] of Object.entries(ids)) input[k] = $("#" + id).value;
+      input.farmDuringOption = $("#farm").checked ? 1 : 0;
+      return input;
+    }
+
+    function run() {
+      const input = read();
+      const r = analyze(input);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding"><span class="pill ${r.offerBeatsAlternative ? "info" : "high"}">${r.offerBeatsAlternative ? "result" : "below alternative"}</span>${esc(a)}</div>`).join("");
+      const rows = [["Year-1 operating rent", money(r.year1Rent)], ["Last-year rent", money(r.lastYearRent)], ["Total lease income (nominal)", money(r.nominalLease)], ["Lease, present value", money(r.npvLease)], ["Current use, present value", money(r.npvAlt)], ["Lease minus current use", money(r.npvGain)], ["Per acre", money(r.npvGainPerAcre)], ["Break-even year-1 rent per acre", r.breakEvenRent == null ? "—" : money(r.breakEvenRent)], ["Break-even escalator", r.breakEvenEscalatorPct == null ? "none up to 20%" : r.breakEvenEscalatorPct + "%"], ["Project size (MWac)", r.projectMw], ["Rent per MWac-year", money(r.rentPerMwYear)], ["Rent share of project revenue", r.rentSharePct == null ? "—" : r.rentSharePct + "%"]];
+      $("#lines").innerHTML = rows.map(([k, x]) => `<tr><th scope="row">${esc(k)}</th><td class="n">${esc(x)}</td></tr>`).join("");
+      const grid = sensitivity(input);
+      $("#sens-head").innerHTML = `<tr><th scope="col">Escalator</th>${grid[0].cells.map((c) => `<th class="n" scope="col">${money(c.rentPerAcre)}/acre</th>`).join("")}</tr>`;
+      $("#sens").innerHTML = grid.map((g) => `<tr><th scope="row">${g.escalatorPct}%</th>${g.cells.map((c) => `<td class="n">${c.npvGain == null ? "—" : money(c.npvGain)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Lease is worth ${money(r.npvLease)} against ${money(r.npvAlt)} for the land as it is (present value).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("offer_valued"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const [k, id] of Object.entries(ids)) $("#" + id).value = s[k];
+      $("#farm").checked = !!s.farmDuringOption;
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "solar-lease-offer.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Requirements Pin Check — Audit requirements.txt for Unpinned and Unhashed Dependencies</title>
+  <meta name="description" content="Paste your requirements.txt and see every unpinned version, missing hash, extra index URL and unpinned git dependency. Free pip requirements pin checker, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Is your requirements.txt actually reproducible?">
+  <meta property="og:description" content="Paste a requirements.txt and get every unpinned, unhashed or dependency-confusion-prone line listed, with a CI CLI.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Requirements Pin Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Audits a Python requirements.txt for unpinned and range versions, missing hashes, extra index URLs, plain-http sources and unpinned git or URL dependencies. Runs in the browser or as a zero-dependency CLI that can fail CI; nothing is uploaded and it makes no network calls."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does an unpinned requirements.txt matter?","acceptedAnswer":{"@type":"Answer","text":"pip resolves ranges and bare names to the newest matching release at install time, so two installs a week apart can produce different environments. A bad release, a yanked version or a hijacked package then reaches production without any change to your repository. An exact pin (==) plus hashes makes the install repeatable."}},{"@type":"Question","name":"What is the difference between a pin and a hash?","acceptedAnswer":{"@type":"Answer","text":"A pin (==1.2.3) names a version. A hash (--hash=sha256:...) names the exact file. Without hashes, a file re-uploaded or replaced under the same version number installs silently. pip-compile --generate-hashes and uv pip compile --generate-hashes write both, and pip install --require-hashes enforces them."}},{"@type":"Question","name":"Why is --extra-index-url flagged?","acceptedAnswer":{"@type":"Answer","text":"With two indexes pip considers candidates from both and picks the highest version, so a public package with the same name as your private one can win. That is the dependency-confusion attack. Prefer a single --index-url that proxies both, or pin with hashes."}},{"@type":"Question","name":"Does this tool upload my requirements.txt?","acceptedAnswer":{"@type":"Answer","text":"No. The text is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file."}},{"@type":"Question","name":"Is this a security audit?","acceptedAnswer":{"@type":"Answer","text":"No. It is a line scan of the file, not pip's resolver and not a vulnerability database lookup. It tells you how reproducible and tamper-resistant the install is, not whether a pinned version has known CVEs. It is not security or legal advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { padding: 8px; border: 1px solid #a8b3c1; border-radius: 7px; width: min(100%, 360px); }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a3412; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #17324a; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf1d8; color: #7a4a05; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REQUIREMENTS PIN CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your requirements.txt actually reproducible?</h1>
+    <p>Paste your <code>requirements.txt</code> and get every line that lets two installs differ: bare names, <strong>&gt;=</strong> ranges, missing <strong>--hash</strong>, <strong>--extra-index-url</strong> (dependency confusion), plain-http sources and git or URL dependencies that are not pinned to a commit or hash. It is the part of a supply-chain review you can do in thirty seconds, and a one-file CLI keeps it from regressing in CI.</p>
+    <p class="note">Nothing is uploaded. The text you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It scans the file only; it does not look up vulnerabilities and is not security advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Paste your requirements.txt</h2>
+    <textarea id="req" spellcheck="false" placeholder="flask&gt;=2.0&#10;requests==2.31.0"></textarea>
+    <p><label><input type="checkbox" id="hashes"> require hashes (flag exact pins with no --hash)</label></p>
+    <p>
+      <button type="button" id="check">Check requirements</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a requirements.txt above and click Check requirements.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Line</th><th>Requirement</th><th>Finding</th><th>Why it matters</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Want it as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file plus the shared module. It reads one local file and nothing else:</p>
+    <pre class="cmd"><code>node requirements-check.mjs                          # audit ./requirements.txt
+node requirements-check.mjs --fail-on high           # exit 1 on index/source/VCS risks
+node requirements-check.mjs --fail-on medium         # ...and unpinned versions
+node requirements-check.mjs --require-hashes --fail-on any
+node requirements-check.mjs --json                   # machine-readable</code></pre>
+    <p class="note">Get <a href="requirements-check.mjs" rel="noopener">requirements-check.mjs</a> and <a href="classify.mjs" rel="noopener">classify.mjs</a> from the repo. Node 18+, nothing to install, no network calls.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does an unpinned requirements.txt matter?</h3>
+    <p>pip resolves ranges and bare names to the newest matching release at install time, so two installs a week apart can produce different environments. A bad release, a yanked version or a hijacked package then reaches production without any change to your repository. An exact pin (==) plus hashes makes the install repeatable.</p>
+    <h3>What is the difference between a pin and a hash?</h3>
+    <p>A pin (==1.2.3) names a version. A hash (--hash=sha256:...) names the exact file. Without hashes, a file re-uploaded or replaced under the same version number installs silently. pip-compile --generate-hashes and uv pip compile --generate-hashes write both, and pip install --require-hashes enforces them.</p>
+    <h3>Why is --extra-index-url flagged?</h3>
+    <p>With two indexes pip considers candidates from both and picks the highest version, so a public package with the same name as your private one can win. That is the dependency-confusion attack. Prefer a single --index-url that proxies both, or pin with hashes.</p>
+    <h3>Does this tool upload my requirements.txt?</h3>
+    <p>No. The text is read in this page and never leaves your device. The page makes no network calls, and the CLI reads one local file.</p>
+    <h3>Is this a security audit?</h3>
+    <p>No. It is a line scan of the file, not pip's resolver and not a vulnerability database lookup. It tells you how reproducible and tamper-resistant the install is, not whether a pinned version has known CVEs. It is not security or legal advice.</p>
+    <p>More: <a href="pin-python-dependencies-guide.html">how to pin and hash Python dependencies with pip-tools or uv</a></p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a heuristic line scan, not a security audit, and it can be wrong. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="requirements-check.mjs" rel="noopener">requirements-check.mjs from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../dependency-confusion-check/">Dependency Confusion Check</a>, <a href="../pypi-provenance-check/">PyPI Provenance Check</a> and <a href="../pip-audit-triage/">pip-audit Triage</a>.</p>
+    <p class="support">Free and open source. If this caught an install you could not have reproduced, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = { req: $("#req"), status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows") };
+
+    // Synthetic requirements, fictional hosts.
+    const EXAMPLE = [
+      "--extra-index-url https://pypi.internal.example/simple",
+      "flask>=2.0",
+      "requests==2.31.0",
+      "numpy",
+      "mylib @ git+https://github.com/example/mylib.git@main",
+      "-e ./local-pkg",
+      "Requests==2.30.0",
+    ].join("\n");
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function run(text) {
+      if (!text.trim()) { els.status.innerHTML = `<span class="error">Paste a requirements.txt first.</span>`; return false; }
+      const result = analyze(text, { requireHashes: $("#hashes").checked });
+      if (result.error) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(result.error)}.</span>`;
+        els.reportCard.hidden = true;
+        return false;
+      }
+      const risky = result.findings.some((f) => f.severity === "high");
+      els.verdict.className = `verdict ${risky ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(result);
+      els.rows.innerHTML = result.findings.map((f) => `
+        <tr><td>${f.line}</td><td><code>${escapeHtml(f.name)}</code></td>
+        <td><span class="pill ${f.severity}">${f.category}</span></td><td>${escapeHtml(f.detail)}</td></tr>`).join("")
+        || `<tr><td colspan="4" class="note">Nothing to review: every requirement is pinned.</td></tr>`;
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#check").addEventListener("click", () => run(els.req.value));
+    $("#load-example").addEventListener("click", () => {
+      els.req.value = EXAMPLE;
+      if (run(EXAMPLE)) {
+        record("example_loaded");
+        els.status.textContent = "Worked example: the second index and the git branch are the high-risk lines; the duplicate Requests entry would conflict at install time.";
+      }
+    });
+    $("#clear").addEventListener("click", () => {
+      els.req.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a requirements.txt above and click Check requirements.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

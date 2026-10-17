@@ -97,6 +97,10 @@
   as <code>git-dumper</code> or GitTools. Only point it at a system you own or are authorised to
   test.
 </p>
+<p class="status-note">
+  See <a href="vs-checking-the-url-by-hand.html">this checker vs. checking the URL by hand</a> --
+  the two ways a manual look gets it wrong.
+</p>
 
 <div class="card">
   <h2>1. Run the CLI against your site</h2>
@@ -141,6 +145,7 @@
   <p>Checking an arbitrary third-party URL from inside a browser tab runs into CORS restrictions the target site's own headers control, and a page that could reach any URL a visitor types would itself be a server-side request forgery risk. A small local CLI with no such restriction, run from your own machine, is the same shape every other tool in this class (curl, git-dumper, GitTools) uses.</p>
   <h3>Does a clean report mean my site has no exposed secrets?</h3>
   <p>No. This checks one specific, well-documented exposure class -- a publicly readable <code>.git</code> directory at the path you point it at. It does not check other common source-control or backup exposures (a stray <code>.svn</code> directory, a <code>.env</code> file, a database dump left in the webroot), does not crawl the rest of the site, and only checks the one base URL you give it, not every subpath a real deployment might serve from. Treat a clean report as evidence about this one exposure class at this one path, not a full security assessment.</p>
+  <p><a href="how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html">How to tell a real exposed .git directory from a soft-404 false positive</a> -- the actual response bytes for both cases, side by side.</p>
 </section>
 
 <script type="module">
@@ -286,15 +291,24 @@
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
+  <p>Already found an exposure? <a href="how-to-fix-an-exposed-git-directory.html">How to fix a publicly
+  exposed .git directory</a> covers the order that limits damage first -- block access, assume
+  full-history exposure, rotate what was ever committed, then fix the deploy step itself.</p>
   <p>A publicly readable <code>.git</code> directory is one deployed-artifact secret exposure;
+  <a href="../dotenv-exposure-check/">Dotenv Exposure Checker</a> asks the same question of a
+  site's own <code>.env</code> file -- a different, and often more directly damaging, exposure
+  since a dotenv file holds live credentials rather than git-internal plumbing.
   <a href="../docker-build-secrets-check/">Docker Build Secrets Checker</a> asks the same "is a
   secret about to be shipped" question of a container image's build layers, and
   <a href="../env-example-drift-check/">.env.example Drift Checker</a> asks whether your example
   environment file has drifted from the variables your code actually reads (a different question
-  from whether a real <code>.env</code> is exposed, which this portfolio does not yet cover).
-  Once the repository itself is not exposed, <a href="../security-headers-check/">Security
-  Headers Checker</a> and <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a>
-  cover two response-header evidence classes worth a pass on the same site.</p>
+  from whether a real <code>.env</code> is exposed). Once the repository itself is not exposed,
+  <a href="../security-headers-check/">Security Headers Checker</a> and
+  <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a> cover two response-header
+  evidence classes worth a pass on the same site, and
+  <a href="../backup-file-exposure-check/">Backup File Exposure Checker</a> asks the same "read
+  what's actually there, name the exact evidence" question of a leftover backup archive or SQL
+  dump instead of git-internal plumbing.</p>
 </footer>
 </body>
 </html>

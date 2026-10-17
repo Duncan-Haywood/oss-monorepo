@@ -60,3 +60,9 @@ test("the plan and booking-window <select> elements carry all documented options
     assert.match(html, new RegExp(`<option value="${value}"`));
   }
 });
+
+// Closes an orphan pair: a crawler entering here reaches rv-rental-host-profit-calculator in one hop.
+test("index links one hop to rv-rental-host-profit-calculator", () => {
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\.\/rv-rental-host-profit-calculator\/"/);
+});

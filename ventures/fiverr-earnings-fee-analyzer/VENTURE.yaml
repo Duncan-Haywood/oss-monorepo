@@ -1,0 +1,80 @@
+name: fiverr-earnings-fee-analyzer
+description: >-
+  Free browser tool that turns a Fiverr seller earnings or revenue CSV into the
+  service fee actually observed, take-home per order, net revenue per gig and
+  buyer, repeat-buyer share, refunds, withdrawal costs, funds still clearing and
+  the price needed for a target take-home. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py's closest
+# matches: upwork-earnings-fee-analyzer (0.37, same archetype on a different
+# platform and a different file: Upwork ledger with hourly contracts),
+# freelance-platform-fee-calculator (0.24, prices one job's fee across platforms,
+# reads no history), then poshmark-fee-calculator and
+# gig-driver-earnings-report-analyzer (0.19). Nothing reads a Fiverr seller's own
+# order history: gig-based, fixed-price orders with tips, refunds and a
+# clearing period are a different shape from Upwork's hourly contracts.
+#
+# First visitor: r/Fiverr and the Fiverr Community forum threads asking "how much
+# does Fiverr really take" and "why is my payout less than my orders"; search
+# phrases "fiverr fee calculator", "fiverr earnings calculator", "fiverr
+# withdrawal fees". Volume not measured with an external tool.
+#
+# What makes it more than a sum: the fee rate is observed from the file rather than
+# assumed to be 20%, and the page says when it had to be assumed; refunds,
+# cancellations, tips, pending funds and withdrawal costs are separated; repeat
+# buyers and per-gig net are shown; per-hour ranking exists only when the seller
+# supplies hours; break-even price is solved for a target take-home, with and
+# without the seller's own refund rate.
+#
+# Privacy is the differentiator and the liability boundary: the file never leaves
+# the browser (a test asserts the page has no network calls), so the portfolio
+# holds no seller or buyer data and needs no partner API.
+#
+# Path to revenue (payment rails stay off): lead magnet with cross-links to the
+# other freelance fee tools; GitHub Sponsors. Nothing paid is built.
+#
+# Liability: arithmetic on the user's file and typed costs, model and omissions
+# stated on the page, default fee percentage stated as an assumption, no tax or
+# financial advice, no warranty, independent-of-Fiverr clause.
+#
+# Unverified: column names and type/status words are guesses matched by alias; no
+# real Fiverr export was available, so the first user report of an unread file is
+# the priority fix. Fiverr's actual fee rules, withdrawal fees and clearing period
+# are not asserted anywhere by the tool.
+
+hypotheses:
+  - claim: >-
+      Fiverr sellers will run a no-signup analysis of an earnings export they
+      already hold to see their real take-home and what to charge, before building
+      a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing net per gig, repeat-buyer share and the price needed for a target
+      take-home changes at least one gig price or gig priority, which is the
+      reason to come back with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong take-home figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-fee-analyzer/
+  analytics: null

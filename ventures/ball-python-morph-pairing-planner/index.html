@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ball Python Morph Pairing Planner — odds, clutch profit and best pairing</title>
+  <meta name="description" content="Free ball python morph pairing planner. Enter your females and males with their morphs and hets and what each morph sells for; get the genetics odds for every pairing, expected hatchlings, clutch profit and the best pairing. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Ball Python Morph Pairing Planner — free, private, in your browser">
+  <meta property="og:description" content="Which pairing should you make? Mendelian odds for every male and female, priced: expected hatchlings, revenue after fees and raising cost, and the chance of the morph you are after.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ball Python Morph Pairing Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "List your ball python females and males with their morphs and hets, add what each morph sells for, and the planner computes the Mendelian odds for every pairing, expected hatchlings, revenue after fees and raising cost, and ranks the pairings by expected profit or by the chance of a target morph. Runs entirely in your browser; nothing is uploaded.", "featureList": "Ball python genetics calculator, morph pairing planner, clutch profit, recessive het odds, super forms, lethal super spider, target morph probability, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which ball python pairing should I make this season?", "acceptedAnswer": {"@type": "Answer", "text": "List your females and males with their morphs and hidden hets, add what each outcome sells for, and the planner works out the odds for every possible pairing, the expected hatchlings, the revenue after fees and raising costs, and ranks the pairings by expected profit per clutch. It uses standard Mendelian odds for each gene."}}, {"@type": "Question", "name": "How are the odds calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each gene is treated as its own independent site. A recessive gene shows with two copies and hides as a het with one, an incomplete dominant shows with one copy and makes a Super form with two, a dominant looks the same with one or two copies, and a lethal dominant such as the spider type loses the double-copy eggs. The odds for every gene are multiplied together across all the genes in the pairing."}}, {"@type": "Question", "name": "What does 66% het mean?", "acceptedAnswer": {"@type": "Answer", "text": "A possible het is a baby from a het-by-visual or het-by-het pairing that has not been proven. The planner treats a 66% het as carrying the gene with two-in-three odds, so it passes the gene on to one third of eggs. Breeders also write 50% poss het for the baby of a visual and a normal. Enter the percentage you have."}}, {"@type": "Question", "name": "Why does it refuse some pairings?", "acceptedAnswer": {"@type": "Answer", "text": "Some genes sit at the same site on the chromosome, such as the Lesser, Butter and Mojave group, and Cinnamon with Black Pastel. Their odds are not independent, so a pairing that mixes them is refused instead of giving a wrong answer. Pair those animals by checking the breeder who produced the line."}}, {"@type": "Question", "name": "Can I add my own morphs?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The gene table is editable text: name, then R for recessive, I for incomplete dominant, D for dominant or L for dominant that is lethal when doubled, then optional aliases and an optional allelic group. Check each gene's inheritance with the breeder or project that produced it before you rely on it."}}, {"@type": "Question", "name": "Are the prices real?", "acceptedAnswer": {"@type": "Answer", "text": "No. The prices in the starter list are made-up examples. Enter what you actually sell each morph for. Any outcome you did not price uses the default price, and the planner tells you how much of the clutch fell into unpriced morphs."}}, {"@type": "Question", "name": "Is my collection uploaded or stored?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. Download the ranking as a CSV to keep it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f4f8f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2f6b3a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #44573f; }
+    .card { background: #fff; border: 1px solid #cfe0c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a2a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6e8a62; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 190px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f6b3a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcebd5; color: #1f4a2a; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e6f1e0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a2a; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #cfe0c8; }
+    table.t th { color: #1f4a2a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 10px 0; }
+    .tbl { border: 2px solid #a8c99c; border-radius: 12px; padding: 10px 12px; background: #f9fcf7; }
+    .tbl h4 { margin: 0 0 6px; font-size: .95rem; color: #1f4a2a; }
+    .tbl ul { margin: 0; padding-left: 18px; }
+    .tbl li { line-height: 1.4; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0c8; padding-top: 16px; }
+    .ghost { color: #44573f; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BALL PYTHON MORPH PAIRING PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which pairing is worth making this season?</h1>
+    <p>List your <strong>females and males</strong> with their morphs and hets, add <strong>what each morph sells for</strong>, and the planner works out the <strong>genetics odds for every possible pairing</strong>, the expected hatchlings, the <strong>revenue after fees and raising cost</strong>, and ranks the pairings by <strong>expected profit</strong> or by <strong>the chance of the morph you are after</strong>.</p>
+    <p class="note">The starter animals, genes and prices are <strong>examples</strong>: replace every price with what you really sell for, and check each gene's inheritance with the breeder who produced it. New to the maths? Read <a href="./how-to-work-out-ball-python-morph-odds.html">how ball python morph odds work, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Your animals</h2>
+    <div class="two">
+      <div><label for="females">Females, one per line: name | morphs</label>
+      <textarea id="females" spellcheck="false" placeholder="Luna | Pastel, het Albino, 50% het Clown"></textarea></div>
+      <div><label for="males">Males, one per line: name | morphs</label>
+      <textarea id="males" spellcheck="false" placeholder="Atlas | Pastel, Albino"></textarea></div>
+    </div>
+    <p class="note">Write visual morphs plainly (<code>Pastel</code>, <code>Clown</code>), a Super form as <code>Super Pastel</code>, a proven recessive carrier as <code>het Albino</code>, and an unproven one with its chance, <code>66% het Clown</code>. Leave the part after the bar empty for a normal.</p>
+    <h2 style="margin-top:18px">2. What each outcome sells for</h2>
+    <label for="prices">One per line: morph | price (use Normal for a normal; combinations in any order)</label>
+    <textarea id="prices" spellcheck="false" style="min-height:220px" placeholder="Pastel Clown | 380"></textarea>
+    <div class="row3"><div><label for="defprice">Price for any morph you did not list ($)</label><input id="defprice" inputmode="decimal" value="75"></div></div>
+    <h2 style="margin-top:18px">3. The clutch</h2>
+    <div class="row3">
+      <div><label for="eggs">Eggs per clutch</label><input id="eggs" inputmode="numeric" value="6"></div>
+      <div><label for="hatch">Hatch rate (%)</label><input id="hatch" inputmode="decimal" value="85"></div>
+      <div><label for="raise">Cost to raise one hatchling to sale ($)</label><input id="raise" inputmode="decimal" value="25"></div>
+      <div><label for="fee">Selling fees (% of price)</label><input id="fee" inputmode="decimal" value="8"></div>
+      <div><label for="overhead">Overhead per clutch: female upkeep, incubation ($)</label><input id="overhead" inputmode="decimal" value="60"></div>
+    </div>
+    <div class="two">
+      <div><label for="target">The morph you are trying to produce (optional)</label><input id="target" placeholder="Pastel, Clown"></div>
+      <div><label for="rank">Rank pairings by</label><select id="rank"><option value="profit">Expected profit per clutch</option><option value="target">Chance of at least one target morph</option></select></div>
+    </div>
+    <details style="margin-top:14px"><summary><strong>Gene table</strong> (edit to add your own morphs)</summary>
+      <label for="genes">One per line: name | R, I, D or L | aliases (optional) | allelic group (optional)</label>
+      <textarea id="genes" spellcheck="false" style="min-height:280px"></textarea>
+      <p class="note">R recessive · I incomplete dominant (a double copy is the Super form) · D dominant · L dominant that is lethal when doubled. Genes in the same group sit at the same site and are not modelled together.</p>
+    </details>
+    <button type="button" id="analyze">Rank the pairings</button>
+    <button type="button" class="secondary" id="load-example">Load the example collection</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your animals and prices, then click Rank the pairings.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Pairings, best first</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div style="overflow-x:auto"><table class="t" id="ranking"><thead><tr><th>#</th><th>Female</th><th>Male</th><th class="n">Hatchlings</th><th class="n">Net revenue</th><th class="n">Profit / clutch</th><th class="n">Target chance</th></tr></thead><tbody></tbody></table></div>
+    <h3 id="detail-title">Offspring odds</h3>
+    <label for="pick">Show the odds for</label>
+    <select id="pick"></select>
+    <p id="detail-note" class="note"></p>
+    <div style="overflow-x:auto"><table class="t" id="detail"><thead><tr><th>Offspring</th><th class="n">Chance per egg</th><th class="n">Expected hatchlings</th><th class="n">Price</th><th class="n">Net revenue</th><th class="n">At least one in the clutch</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download all pairings (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Odds:</strong> every gene is its own site and is inherited independently. For each gene the planner works out the chance an egg gets zero, one or two copies from the two parents (a possible het passes the gene on with half its het chance), names the result by the gene's type, and multiplies across genes. Outcomes with the same look and the same hidden hets are merged.</p>
+    <p><strong>Money:</strong> expected hatchlings of each outcome are eggs times hatch rate times its chance; revenue is that times its price less selling fees; profit is revenue less the raising cost per hatchling and the overhead per clutch. The chance of at least one of an outcome in a clutch is one minus the chance every egg misses.</p>
+    <p><strong>Not modelled:</strong> genes at the same site (Lesser, Butter and Mojave, or Cinnamon and Black Pastel), which are refused; linkage; sex; infertile eggs beyond the hatch rate you enter; the price premium for a proven het; unproven hets inside a baby's name; market swings; and breeder health or welfare. Gene types follow common breeder convention and may be wrong or out of date for your line. Unverified against real clutches: the odds are checked against an independent gamete-by-gamete count and every result is re-checked for probabilities that add to one.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which ball python pairing should I make this season?</h3>
+    <p>List your females and males with their morphs and hidden hets, add what each outcome sells for, and the planner works out the odds for every possible pairing, the expected hatchlings, the revenue after fees and raising costs, and ranks the pairings by expected profit per clutch. It uses standard Mendelian odds for each gene.</p>
+    <h3>How are the odds calculated?</h3>
+    <p>Each gene is treated as its own independent site. A recessive gene shows with two copies and hides as a het with one, an incomplete dominant shows with one copy and makes a Super form with two, a dominant looks the same with one or two copies, and a lethal dominant such as the spider type loses the double-copy eggs. The odds for every gene are multiplied together across all the genes in the pairing.</p>
+    <h3>What does 66% het mean?</h3>
+    <p>A possible het is a baby from a het-by-visual or het-by-het pairing that has not been proven. The planner treats a 66% het as carrying the gene with two-in-three odds, so it passes the gene on to one third of eggs. Breeders also write 50% poss het for the baby of a visual and a normal. Enter the percentage you have.</p>
+    <h3>Why does it refuse some pairings?</h3>
+    <p>Some genes sit at the same site on the chromosome, such as the Lesser, Butter and Mojave group, and Cinnamon with Black Pastel. Their odds are not independent, so a pairing that mixes them is refused instead of giving a wrong answer. Pair those animals by checking the breeder who produced the line.</p>
+    <h3>Can I add my own morphs?</h3>
+    <p>Yes. The gene table is editable text: name, then R for recessive, I for incomplete dominant, D for dominant or L for dominant that is lethal when doubled, then optional aliases and an optional allelic group. Check each gene's inheritance with the breeder or project that produced it before you rely on it.</p>
+    <h3>Are the prices real?</h3>
+    <p>No. The prices in the starter list are made-up examples. Enter what you actually sell each morph for. Any outcome you did not price uses the default price, and the planner tells you how much of the clutch fell into unpriced morphs.</p>
+    <h3>Is my collection uploaded or stored?</h3>
+    <p>No. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page. Download the ranking as a CSV to keep it.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not veterinary, animal husbandry, legal, tax or financial advice and does not replace a veterinarian, an experienced breeder or the project that produced your animals. It shows probabilities, not what a clutch will contain. Gene types, prices, hatch rates and costs come from what you type or edit; the starter values are examples. You are responsible for verifying each gene's inheritance and for the care of your animals.</p>
+    <p><strong>Independent.</strong> Not affiliated with any morph marketplace, breeder, registry or genetics project, and none is named or ranked here. The example prices are illustrative, not quotes.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your collection is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../backyard-egg-profit-calculator/">backyard egg profit calculator</a>, the <a href="../sheep-goat-flock-profit-planner/">sheep and goat flock profit planner</a> and the <a href="../marketplace-fee-compare/">marketplace fee compare</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildSpec, validateSpec, solve, verifyPlan, planCsv, money2, money0, fmt, pct, SAMPLE_GENES, SAMPLE_FEMALES, SAMPLE_MALES, SAMPLE_PRICES, SAMPLE_ECON } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    let last = null;
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+    const val = (id) => $(id).value.trim();
+
+    $("#genes").value = SAMPLE_GENES;
+
+    function read() {
+      return buildSpec({
+        genes: $("#genes").value, females: $("#females").value, males: $("#males").value, prices: $("#prices").value,
+        target: val("#target"), rankBy: $("#rank").value,
+        eggs: val("#eggs"), hatch: val("#hatch"), raise: val("#raise"), fee: val("#fee"), overhead: val("#overhead"), defaultPrice: val("#defprice"),
+      });
+    }
+
+    function showDetail(i) {
+      const p = last.res.ranked[i];
+      const s = last.spec;
+      $("#detail-title").textContent = `Offspring odds: ${p.mom} × ${p.dad}`;
+      const notes = [];
+      if (p.dead > 0) notes.push(`${pct(p.dead)} of eggs are a double copy of a lethal gene and do not hatch.`);
+      if (p.unlisted > 0) notes.push(`${pct(p.unlisted)} of eggs fall in morphs you did not price and use the default price. Add them to the price list for a better estimate.`);
+      $("#detail-note").textContent = notes.join(" ");
+      $("#detail tbody").innerHTML = p.rows.map((r) => `<tr><td>${esc(r.label)}${r.isTarget ? " ★" : ""}</td><td class="n">${pct(r.p, 2)}</td><td class="n">${fmt(r.n, 2)}</td><td class="n">${money0(r.price)}${r.listed ? "" : " *"}</td><td class="n">${money2(r.revenue)}</td><td class="n">${pct(r.atLeastOne)}</td></tr>`).join("");
+    }
+
+    function run() {
+      const { spec, errors } = read();
+      const all = [...errors, ...validateSpec(spec)];
+      $("#report").hidden = false;
+      if (all.length) {
+        status.textContent = all[0];
+        $("#notices").innerHTML = `<div class="bad"><strong>Fix these first:</strong><ul>${all.slice(0, 12).map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+        for (const id of ["#big", "#detail tbody", "#ranking tbody", "#pick"]) $(id).innerHTML = "";
+        last = null;
+        return false;
+      }
+      const res = solve(spec);
+      const problems = verifyPlan(spec, res);
+      last = { spec, res };
+      let notice = problems.length ? `<div class="bad">Internal check failed: ${esc(problems.join(" "))}</div>` : "";
+      if (res.refused.length) notice += `<div class="warn"><strong>Not modelled:</strong><ul>${res.refused.map((r) => `<li>${esc(r.mom)} × ${esc(r.dad)}: ${esc(r.error)}</li>`).join("")}</ul></div>`;
+      $("#notices").innerHTML = notice;
+      if (!res.ranked.length) {
+        status.textContent = "No pairing could be modelled.";
+        for (const id of ["#big", "#detail tbody", "#ranking tbody", "#pick"]) $(id).innerHTML = "";
+        return false;
+      }
+      const best = res.ranked[0];
+      const hasT = spec.target.size > 0;
+      $("#big").innerHTML = [
+        [`${best.mom} × ${best.dad}`, hasT && spec.rankBy === "target" ? "best chance of your target" : "best expected profit"],
+        [money0(best.profit), "expected profit, one clutch"],
+        [fmt(best.hatchlings, 1), "expected hatchlings"],
+        [hasT ? pct(best.targetChance) : "—", hasT ? "chance of at least one target" : "no target set"],
+      ].map(([a, b]) => `<div><strong>${esc(a)}</strong>${esc(b)}</div>`).join("");
+      $("#ranking tbody").innerHTML = res.ranked.map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.mom)}</td><td>${esc(p.dad)}</td><td class="n">${fmt(p.hatchlings, 1)}</td><td class="n">${money0(p.revenue)}</td><td class="n">${money0(p.profit)}</td><td class="n">${p.targetChance === null ? "—" : pct(p.targetChance)}</td></tr>`).join("");
+      $("#pick").innerHTML = res.ranked.map((p, i) => `<option value="${i}">${i + 1}. ${esc(p.mom)} × ${esc(p.dad)}</option>`).join("");
+      showDetail(0);
+      status.textContent = "Done. These are probabilities, not a promise about any one clutch. Check each gene's inheritance, then download the ranking.";
+      return true;
+    }
+
+    const later = (fn) => setTimeout(fn, 0);
+    $("#pick").addEventListener("change", () => { if (last) showDetail(Number($("#pick").value)); });
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      $("#genes").value = SAMPLE_GENES; $("#females").value = SAMPLE_FEMALES; $("#males").value = SAMPLE_MALES; $("#prices").value = SAMPLE_PRICES;
+      $("#eggs").value = SAMPLE_ECON.eggs; $("#hatch").value = SAMPLE_ECON.hatch; $("#raise").value = SAMPLE_ECON.raise; $("#fee").value = SAMPLE_ECON.fee; $("#overhead").value = SAMPLE_ECON.overhead;
+      $("#target").value = ""; $("#rank").value = "profit";
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Example collection: made-up animals and example prices. Replace them with yours."; } });
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ["#females", "#males", "#prices", "#target"]) $(id).value = "";
+      last = null; $("#report").hidden = true; status.textContent = "Cleared.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([planCsv(last.spec, last.res)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "ball-python-pairings.csv"; a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true;
+    });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

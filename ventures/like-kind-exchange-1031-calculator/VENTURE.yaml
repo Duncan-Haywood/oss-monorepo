@@ -1,0 +1,60 @@
+name: like-kind-exchange-1031-calculator
+description: >-
+  Free browser calculator for a Section 1031 like-kind exchange of investment
+  or business real estate: 45-day identification and 180-day closing dates
+  (with the tax-return cut-off), cash and mortgage boot, recognized versus
+  deferred gain, replacement property basis, estimated tax deferred at typed
+  rates, and a check of the three-property, 200% and 95% identification rules.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (session_gate: build-now
+# pipeline empty). Grep of ventures/ and screened-out.md found no 1031 tool.
+# Real estate investors have money and a hard deadline: a missed 45-day
+# identification voids the deferral of six-figure tax. Existing tools are
+# intermediary lead-gen calculators that ask for an email; this one is free,
+# local and shows boot and basis. It helps the user keep more of what they
+# earn.
+#
+# First visitor: r/realestateinvesting and BiggerPockets threads on "1031
+# boot", "45 day rule" and "1031 exchange calculator"; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the
+# depreciation-recapture and seller-net-sheet tools; sponsorship only. A
+# referral relationship with a qualified intermediary would need owner review
+# and is not built.
+#
+# Liability: arithmetic on typed numbers with rates supplied by the user, model
+# and omissions on the page, not advice, no warranty; property qualification,
+# state rules and structure explicitly left to an intermediary and CPA.
+#
+# Unverified: the rules were written from published IRS guidance without a tax
+# professional's review; the first user report of a wrong figure is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      Investors approaching a sale will use a no-signup 1031 calculator to
+      size boot and dates before talking to an intermediary.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, at which point the boot or basis logic needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/like-kind-exchange-1031-calculator/
+  analytics: null

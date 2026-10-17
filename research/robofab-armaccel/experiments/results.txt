@@ -1,0 +1,87 @@
+# robofab-armaccel: carry legs (pick -> lift above place) of the 6 free parts, min-jerk joint moves
+# shoulder height 0.1 m, links l1=l2=L, link mass 1.0 kg/m, gripper 0.1 kg, mu 0.5, density 1240.0; all assumed
+# robofab-reach minimum link on this grid: 0.08 m
+
+## Arm L=0.08 m (1.0 x minimum), base at (90.0, 40.0) mm, link mass 0.080 kg
+  torque limit  2.0 N m: total carry time 0.30 s; peak jaw force over all parts 1.021 N
+      rail_l    m= 2.38 g  T=0.05 s  a_up=  73.1 a_rad=  35.1 m/s^2  jaw force 0.213 N (static 0.023 N, x9.1)
+      rail_r    m= 2.38 g  T=0.04 s  a_up= 116.8 a_rad=  62.1 m/s^2  jaw force 0.312 N (static 0.023 N, x13.4)
+      finger_a  m= 1.59 g  T=0.05 s  a_up=  75.5 a_rad=  25.5 m/s^2  jaw force 0.136 N (static 0.016 N, x8.7)
+      finger_b  m= 1.59 g  T=0.05 s  a_up=  84.7 a_rad= 178.1 m/s^2  jaw force 0.325 N (static 0.016 N, x20.9)
+      link      m= 0.36 g  T=0.05 s  a_up=  71.8 a_rad= 133.8 m/s^2  jaw force 0.057 N (static 0.004 N, x16.4)
+      cover     m= 5.95 g  T=0.06 s  a_up=  77.1 a_rad= 148.6 m/s^2  jaw force 1.021 N (static 0.058 N, x17.5)
+  torque limit  5.0 N m: total carry time 0.20 s; peak jaw force over all parts 2.334 N
+      rail_l    m= 2.38 g  T=0.03 s  a_up= 203.0 a_rad=  97.4 m/s^2  jaw force 0.553 N (static 0.023 N, x23.7)
+      rail_r    m= 2.38 g  T=0.03 s  a_up= 207.7 a_rad= 110.3 m/s^2  jaw force 0.537 N (static 0.023 N, x23.0)
+      finger_a  m= 1.59 g  T=0.03 s  a_up= 209.8 a_rad=  70.9 m/s^2  jaw force 0.349 N (static 0.016 N, x22.4)
+      finger_b  m= 1.59 g  T=0.04 s  a_up= 132.3 a_rad= 278.3 m/s^2  jaw force 0.513 N (static 0.016 N, x32.9)
+      link      m= 0.36 g  T=0.03 s  a_up= 199.5 a_rad= 371.6 m/s^2  jaw force 0.163 N (static 0.004 N, x46.5)
+      cover     m= 5.95 g  T=0.04 s  a_up= 173.5 a_rad= 334.4 m/s^2  jaw force 2.334 N (static 0.058 N, x40.0)
+  torque limit 10.0 N m: total carry time 0.15 s; peak jaw force over all parts 4.173 N
+      rail_l    m= 2.38 g  T=0.03 s  a_up= 203.0 a_rad=  97.4 m/s^2  jaw force 0.553 N (static 0.023 N, x23.7)
+      rail_r    m= 2.38 g  T=0.02 s  a_up= 467.2 a_rad= 248.3 m/s^2  jaw force 1.210 N (static 0.023 N, x51.8)
+      finger_a  m= 1.59 g  T=0.02 s  a_up= 472.0 a_rad= 159.6 m/s^2  jaw force 0.766 N (static 0.016 N, x49.2)
+      finger_b  m= 1.59 g  T=0.03 s  a_up= 235.2 a_rad= 494.8 m/s^2  jaw force 0.918 N (static 0.016 N, x59.0)
+      link      m= 0.36 g  T=0.02 s  a_up= 448.8 a_rad= 836.1 m/s^2  jaw force 0.369 N (static 0.004 N, x105.4)
+      cover     m= 5.95 g  T=0.03 s  a_up= 308.5 a_rad= 594.6 m/s^2  jaw force 4.173 N (static 0.058 N, x71.5)
+
+## Arm L=0.12 m (1.5 x minimum), base at (10.0, 0.0) mm, link mass 0.120 kg
+  torque limit  2.0 N m: total carry time 0.70 s; peak jaw force over all parts 0.519 N
+      rail_l    m= 2.38 g  T=0.09 s  a_up=  87.4 a_rad= 110.5 m/s^2  jaw force 0.263 N (static 0.023 N, x11.3)
+      rail_r    m= 2.38 g  T=0.09 s  a_up=  65.8 a_rad=  97.0 m/s^2  jaw force 0.231 N (static 0.023 N, x9.9)
+      finger_a  m= 1.59 g  T=0.12 s  a_up=  90.1 a_rad=  87.5 m/s^2  jaw force 0.162 N (static 0.016 N, x10.4)
+      finger_b  m= 1.59 g  T=0.11 s  a_up=  79.4 a_rad=  87.7 m/s^2  jaw force 0.148 N (static 0.016 N, x9.5)
+      link      m= 0.36 g  T=0.13 s  a_up=  82.9 a_rad=  77.0 m/s^2  jaw force 0.033 N (static 0.004 N, x9.5)
+      cover     m= 5.95 g  T=0.16 s  a_up=  75.1 a_rad=  64.5 m/s^2  jaw force 0.519 N (static 0.058 N, x8.9)
+  torque limit  5.0 N m: total carry time 0.45 s; peak jaw force over all parts 1.246 N
+      rail_l    m= 2.38 g  T=0.06 s  a_up= 196.7 a_rad= 248.7 m/s^2  jaw force 0.595 N (static 0.023 N, x25.5)
+      rail_r    m= 2.38 g  T=0.06 s  a_up= 148.1 a_rad= 218.2 m/s^2  jaw force 0.524 N (static 0.023 N, x22.4)
+      finger_a  m= 1.59 g  T=0.08 s  a_up= 202.7 a_rad= 196.8 m/s^2  jaw force 0.346 N (static 0.016 N, x22.2)
+      finger_b  m= 1.59 g  T=0.07 s  a_up= 196.1 a_rad= 216.5 m/s^2  jaw force 0.374 N (static 0.016 N, x24.0)
+      link      m= 0.36 g  T=0.08 s  a_up= 218.8 a_rad= 203.2 m/s^2  jaw force 0.082 N (static 0.004 N, x23.3)
+      cover     m= 5.95 g  T=0.10 s  a_up= 192.3 a_rad= 165.1 m/s^2  jaw force 1.246 N (static 0.058 N, x21.3)
+  torque limit 10.0 N m: total carry time 0.33 s; peak jaw force over all parts 2.488 N
+      rail_l    m= 2.38 g  T=0.05 s  a_up= 283.2 a_rad= 358.1 m/s^2  jaw force 0.859 N (static 0.023 N, x36.8)
+      rail_r    m= 2.38 g  T=0.04 s  a_up= 333.1 a_rad= 490.9 m/s^2  jaw force 1.193 N (static 0.023 N, x51.1)
+      finger_a  m= 1.59 g  T=0.06 s  a_up= 360.4 a_rad= 349.8 m/s^2  jaw force 0.605 N (static 0.016 N, x38.8)
+      finger_b  m= 1.59 g  T=0.05 s  a_up= 384.4 a_rad= 424.4 m/s^2  jaw force 0.742 N (static 0.016 N, x47.6)
+      link      m= 0.36 g  T=0.06 s  a_up= 389.0 a_rad= 361.3 m/s^2  jaw force 0.143 N (static 0.004 N, x40.7)
+      cover     m= 5.95 g  T=0.07 s  a_up= 392.5 a_rad= 337.0 m/s^2  jaw force 2.488 N (static 0.058 N, x42.6)
+
+## Arm L=0.2 m (2.5 x minimum), base at (0.0, 0.0) mm, link mass 0.200 kg
+  torque limit  2.0 N m: total carry time 0.85 s; peak jaw force over all parts 0.318 N
+      rail_l    m= 2.38 g  T=0.13 s  a_up=  44.2 a_rad=  60.1 m/s^2  jaw force 0.143 N (static 0.023 N, x6.1)
+      rail_r    m= 2.38 g  T=0.12 s  a_up=  27.8 a_rad=  55.4 m/s^2  jaw force 0.134 N (static 0.023 N, x5.7)
+      finger_a  m= 1.59 g  T=0.15 s  a_up=  46.6 a_rad=  55.6 m/s^2  jaw force 0.093 N (static 0.016 N, x5.9)
+      finger_b  m= 1.59 g  T=0.14 s  a_up=  35.0 a_rad=  55.5 m/s^2  jaw force 0.088 N (static 0.016 N, x5.7)
+      link      m= 0.36 g  T=0.15 s  a_up=  44.4 a_rad=  57.0 m/s^2  jaw force 0.020 N (static 0.004 N, x5.8)
+      cover     m= 5.95 g  T=0.16 s  a_up=  42.1 a_rad=  53.4 m/s^2  jaw force 0.318 N (static 0.058 N, x5.4)
+  torque limit  5.0 N m: total carry time 0.55 s; peak jaw force over all parts 0.818 N
+      rail_l    m= 2.38 g  T=0.08 s  a_up= 116.7 a_rad= 158.6 m/s^2  jaw force 0.380 N (static 0.023 N, x16.3)
+      rail_r    m= 2.38 g  T=0.08 s  a_up=  62.4 a_rad= 124.7 m/s^2  jaw force 0.298 N (static 0.023 N, x12.7)
+      finger_a  m= 1.59 g  T=0.10 s  a_up= 104.8 a_rad= 125.0 m/s^2  jaw force 0.201 N (static 0.016 N, x12.9)
+      finger_b  m= 1.59 g  T=0.09 s  a_up=  84.8 a_rad= 134.2 m/s^2  jaw force 0.213 N (static 0.016 N, x13.7)
+      link      m= 0.36 g  T=0.10 s  a_up=  99.8 a_rad= 128.2 m/s^2  jaw force 0.046 N (static 0.004 N, x13.2)
+      cover     m= 5.95 g  T=0.10 s  a_up= 107.7 a_rad= 136.8 m/s^2  jaw force 0.818 N (static 0.058 N, x14.0)
+  torque limit 10.0 N m: total carry time 0.40 s; peak jaw force over all parts 1.679 N
+      rail_l    m= 2.38 g  T=0.06 s  a_up= 207.5 a_rad= 281.9 m/s^2  jaw force 0.679 N (static 0.023 N, x29.1)
+      rail_r    m= 2.38 g  T=0.06 s  a_up= 111.0 a_rad= 221.6 m/s^2  jaw force 0.528 N (static 0.023 N, x22.6)
+      finger_a  m= 1.59 g  T=0.07 s  a_up= 213.9 a_rad= 255.2 m/s^2  jaw force 0.415 N (static 0.016 N, x26.6)
+      finger_b  m= 1.59 g  T=0.07 s  a_up= 140.1 a_rad= 221.9 m/s^2  jaw force 0.353 N (static 0.016 N, x22.7)
+      link      m= 0.36 g  T=0.07 s  a_up= 203.8 a_rad= 261.7 m/s^2  jaw force 0.095 N (static 0.004 N, x27.1)
+      cover     m= 5.95 g  T=0.07 s  a_up= 219.7 a_rad= 279.1 m/s^2  jaw force 1.679 N (static 0.058 N, x28.8)
+
+## Grip-limited vs torque-limited carry time (L=0.12 m, torque limit 5 N m)
+part      F_jaw N  T_grip s T_torque s
+cover        0.02      none       0.10
+cover        0.05      none       0.10
+cover        0.10      0.53       0.10
+cover        0.20      0.29       0.10
+cover        0.30      0.23       0.10
+cover        0.50      0.17       0.10
+link         0.02      0.18       0.08
+link         0.05      0.11       0.08
+link         0.10      0.08       0.08
+link         0.20      0.06       0.08
+link         0.30      0.05       0.08
+link         0.50      0.04       0.08

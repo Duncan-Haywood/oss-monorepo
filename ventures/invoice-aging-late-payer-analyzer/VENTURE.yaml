@@ -1,0 +1,81 @@
+name: invoice-aging-late-payer-analyzer
+description: >-
+  Free browser tool that turns an invoice export (QuickBooks, FreshBooks, Wave,
+  Xero, Stripe, or a spreadsheet) into an accounts receivable aging report, days
+  sales outstanding, per-client days to pay, habitual late payers, a chase list,
+  the cost of paying late and a cash forecast from each client's own history. The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Freelancers, agencies and
+# trades routinely wait 45-90 days on net-30 invoices, and late payment is the
+# top cash-flow complaint of small service businesses. Existing answers are
+# accounting suites' AR aging reports (which show buckets, not each client's
+# habit, and need the suite), paid chasing services (Chaser, Upflow, Kolleno),
+# and spreadsheets. Nothing here is a no-signup file-in, answer-out tool that
+# says "this client always pays 20 days late, and this invoice is later than
+# even that". Buyers are the owners themselves, and the output is a decision
+# (chase this one first, ask this client for a deposit, expect this much in 30
+# days).
+#
+# First visitor: r/freelance, r/smallbusiness, r/Bookkeeping and agency-owner
+# groups asking about late-paying clients; search phrases "accounts receivable
+# aging report excel", "days sales outstanding calculator", "client always pays
+# late". Volume not measured.
+#
+# What makes it more than a total: per-client median days to pay, forecast of
+# open invoices from that history with invoices past their client's own pattern
+# split out as exceptions, trend detection on clients who are getting slower,
+# concentration risk, and the dollar-days cost of waiting at a typed rate.
+#
+# Privacy is the liability boundary: the file, which holds client names and
+# amounts, never leaves the browser (a test asserts no network calls), so the
+# portfolio holds no customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet into the retainer and bid
+# calculators, whose audience is the same owner. A paid version, if usage
+# appears, is a saved multi-month history and automated reminder drafts behind
+# an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and two typed rates, model and
+# omissions stated on the page, no financial or legal advice, no warranty,
+# independent-of-every-accounting-product clause, late fees described as
+# contract- and jurisdiction-dependent.
+#
+# Unverified: column names are matched by alias and no real accounting export
+# was available; the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Small service businesses will run a no-signup analysis of an invoice export
+      they already have to see which clients pay late before deciding on terms,
+      deposits or chasing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a client's own payment pattern and a 30-day cash forecast leads at
+      least one owner to change terms or chase order, which is the reason to
+      return with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/invoice-aging-late-payer-analyzer/
+  analytics: null

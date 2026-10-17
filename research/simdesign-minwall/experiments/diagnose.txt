@@ -1,0 +1,4 @@
+b=1.0 minwall=1.2: least-penalty grid point w=25 r=0.2: feasible=False violations={'min wall (b)': 0.167, 'buckling factor': 0.505} peak=nan MPa factor=1.48
+b=1.0 minwall=1.0: least-penalty grid point w=25 r=0.2: feasible=False violations={'buckling factor': 0.505} peak=nan MPa factor=1.48
+b=0.8 minwall=0.8: least-penalty grid point w=25 r=0.2: feasible=False violations={'buckling factor': 0.746} peak=nan MPa factor=0.76
+b=1.5 minwall=1.2: least-penalty grid point w=19 r=12.0: feasible=True violations={} peak=92.6 MPa factor=3.60

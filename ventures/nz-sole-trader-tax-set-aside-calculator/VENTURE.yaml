@@ -1,0 +1,37 @@
+name: nz-sole-trader-tax-set-aside-calculator
+description: >-
+  Free browser tool for New Zealand sole traders and freelancers: enter income and expenses to see income tax, ACC earners' levy, optional student loan repayment and how much of every invoice to set aside, with provisional tax and GST flags. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; the portfolio has a New Zealand GST registration checker, and Australian and Canadian set-aside tools, but no New Zealand one.
+#
+# First visitor: New Zealand freelancers and contractors searching "how much tax should I set aside self employed NZ". Evergreen, peaks near the 7 July IR3 deadline; volume not measured. Rivals are accountant and bank blog calculators and IRD's own tax calculators that want an email.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: ACC CoverPlus work levies, other income, 2026-27 rates, invoice-by-invoice tracker behind an env-var switch.
+#
+# Liability: 2025-26 IRD resident rates, ACC earners' levy and student loan threshold written from memory; every result tells the reader to verify on ird.govt.nz and acc.co.nz, carries no-warranty and not-tax-advice clauses and says what it does not decide.
+hypotheses:
+  - claim: >-
+      New Zealand self-employed people will use a free private calculator to learn what share of each invoice to set aside, because rules of thumb ignore their own expense level and ACC levy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: NZD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an IRD or ACC figure differs from the official source.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nz-sole-trader-tax-set-aside-calculator/
+  analytics: null

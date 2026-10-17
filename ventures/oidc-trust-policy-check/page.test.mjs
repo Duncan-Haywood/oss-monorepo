@@ -164,3 +164,29 @@ test('the Wiz comparison page FAQPage JSON-LD matches the visible copy verbatim'
     assert.ok(vsWiz.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
+
+test('index links to the vs-reading-the-trust-policy-by-eye comparison page, and the sitemap lists it', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(html, /href="vs-reading-the-trust-policy-by-eye\.html"/);
+  assert.match(sitemap, /vs-reading-the-trust-policy-by-eye\.html/);
+});
+
+test('the reading-by-eye comparison page links back, carries the required clauses, and names no product', () => {
+  const page = readFileSync(join(HERE, 'vs-reading-the-trust-policy-by-eye.html'), 'utf8');
+  assert.match(page, /<a href="index\.html">/);
+  assert.match(page, /No warranty/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the reading-by-eye comparison page FAQPage JSON-LD is valid and matches the visible copy', () => {
+  const page = readFileSync(join(HERE, 'vs-reading-the-trust-policy-by-eye.html'), 'utf8');
+  const blocks = jsonLdBlocks(page).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(page.includes(`<h3>${name}</h3>`), `FAQ question "${name}" has no matching <h3>`);
+    assert.ok(page.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});

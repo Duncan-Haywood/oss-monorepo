@@ -1,0 +1,55 @@
+name: pte-tax-election-calculator
+description: >-
+  Free browser tool for S corporation and partnership owners in states with a pass-through entity
+  tax election: pass-through income, state PTET rate and credit, other state and local tax, other
+  deductions and the SALT cap in; federal plus state tax with and without the election, the
+  effects that explain the difference (deduction, lower AGI and a higher cap, smaller 20%
+  pass-through deduction), the income at which the election first pays, and a sensitivity grid
+  out. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "SALT cap pass-through
+# entity tax election" scored 0.32 against the nearest venture (salt-cap-calculator), whose README
+# lists "No pass-through entity tax (PTET) election modeling" as out of scope. This is that
+# tool and it links to the cap calculator for the cap alone.
+#
+# Why this niche: business owners with six-figure pass-through income are told by their
+# accountants to "elect into the PTET", often without seeing the number, and the election can cost
+# money when the SALT cap does not bind. A calculator that shows both outcomes and the income where
+# they cross is the thing a prospective client wants before paying for the analysis. High-income
+# owners are the segment with money and a real, repeated yearly decision; sibling traffic for
+# "PTET election worth it" is the first visitor.
+#
+# Liability boundary: arithmetic on user-typed numbers with one flat federal rate; no advice on
+# eligibility, deadlines or whether to elect; defaults, including the cap figures, are labelled
+# placeholders; no taxpayer identifiers are asked for; nothing stored.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Pass-through owners will use a private calculator that shows the election's saving and its
+      causes, including the case where it costs money, because accountant explainers state the
+      benefit and skip the 20% deduction haircut and the cap that does not bind.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A tax professional reports that the arithmetic disagrees with their own worked example.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pte-tax-election-calculator/
+  analytics: null

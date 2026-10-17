@@ -31,7 +31,7 @@
         "name": "Should I add shipping insurance on eBay?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Insurance pays a typed replacement value when a tracked package is lost. Signature confirmation lowers item-not-received claims but does not reimburse. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 2.5% skip claims, $1.80 insurance that pays $18 at a 0.6% leftover-claim rate, $3.45 signature at 0.4%) skip expects $17.44, insurance expects $16.43, and signature expects $14.75. Insurance keeps $1.00 less after claims. Skip claims have to reach about 5.3%, or the premium has to stay at about $0.80, before insurance matches skip. That is arithmetic on your inputs, not advice to buy a policy."
+          "text": "Insurance pays a typed replacement value when a tracked package is lost. Signature confirmation lowers item-not-received claims but does not reimburse. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 2.5% skip claims, $1.80 insurance that pays $18 at a 0.6% leftover-claim rate, $3.45 signature at 0.4%) skip expects $17.21, insurance expects $16.20, and signature expects $14.52. Insurance keeps $1.01 less after claims. Skip claims have to reach about 5.3%, or the premium has to stay at about $0.79, before insurance matches skip. That is arithmetic on your inputs, not advice to buy a policy."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does shipping insurance beat skipping protection?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When the skip claim rate or the sunk cost is high enough that the premium is cheaper than the expected loss. On the same $40 listing, an 8% skip claim rate expects $15.44 against $16.43 insured. A $180 item with $85 cost and a $12 label flips insurance ahead ($55.79 vs $54.01) because a 2.5% loss on $99 of sunk cost is already more than a $1.80 premium."
+          "text": "When the skip claim rate or the sunk cost is high enough that the premium is cheaper than the expected loss. On the same $40 listing, an 8% skip claim rate expects $15.22 against $16.20 insured. A $180 item with $85 cost and a $12 label flips insurance ahead ($55.31 vs $54.02) because a 2.5% loss on $99 of sunk cost is already more than a $1.80 premium."
         }
       },
       {
@@ -116,8 +116,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -177,29 +177,29 @@
       looks cheap. It is also charged on every box that arrives.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack,
+      On the defaults — $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack,
       $5 return label, 10% returns, 2.5% skip claims, $1.80
       insurance that pays $18 at a 0.6% leftover-claim rate,
       $3.45 signature at 0.4%, forty shipments — skip expects
-      $17.44, insurance expects $16.43, and signature expects
-      $14.75. Insurance keeps $1.00 less on this decision and
-      −$40.06 across forty shipments. Signature keeps $2.69
-      less (−$107.47 / 40). Skip claims have to reach about
-      5.3%, or the premium has to stay at about $0.80, before
+      $17.21, insurance expects $16.20, and signature expects
+      $14.52. Insurance keeps $1.01 less on this decision and
+      −$40.24 across forty shipments. Signature keeps $2.69
+      less (−$107.67 / 40). Skip claims have to reach about
+      5.3%, or the premium has to stay at about $0.79, before
       insurance matches skip. If they keep the item, leftover
-      is $21.61 skip versus $19.80 insured. A claim on skip
+      is $21.34 skip versus $19.54 insured. A claim on skip
       leaves −$18.00 — the sunk cost, because the item does
       not come back.
     </p>
     <p>
       A higher claim rate or a heavier sunk cost flips it. Keep
       the same $40 listing and raise skip claims to 8%. Skip
-      expects $15.44; insurance still expects $16.43 — $0.99
+      expects $15.22; insurance still expects $16.20 — $0.98
       more. A $180 item with $12 shipping charged, $85 cost, a
-      $12 label, and $2 pack expects $54.01 skip versus $55.79
-      insured (+$1.78). Skip claims only have to reach about
-      1.4% before insurance matches, because 2.5% of $99 sunk
+      $12 label, and $2 pack expects $54.02 skip versus $55.31
+      insured (+$1.29). Skip claims only have to reach about
+      1.7% before insurance matches, because 2.5% of $99 sunk
       is already more than a $1.80 premium. Signature still
       trails on that SKU ($53.86) — deterrence without a
       payout does not cover a $3.45 add-on on every box.
@@ -222,9 +222,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I add shipping insurance on eBay?</h3>
-  <p>Insurance pays a typed replacement value when a tracked package is lost. Signature confirmation lowers item-not-received claims but does not reimburse. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 2.5% skip claims, $1.80 insurance that pays $18 at a 0.6% leftover-claim rate, $3.45 signature at 0.4%) skip expects $17.44, insurance expects $16.43, and signature expects $14.75. Insurance keeps $1.00 less after claims. Skip claims have to reach about 5.3%, or the premium has to stay at about $0.80, before insurance matches skip. That is arithmetic on your inputs, not advice to buy a policy.</p>
+  <p>Insurance pays a typed replacement value when a tracked package is lost. Signature confirmation lowers item-not-received claims but does not reimburse. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 2.5% skip claims, $1.80 insurance that pays $18 at a 0.6% leftover-claim rate, $3.45 signature at 0.4%) skip expects $17.21, insurance expects $16.20, and signature expects $14.52. Insurance keeps $1.01 less after claims. Skip claims have to reach about 5.3%, or the premium has to stay at about $0.79, before insurance matches skip. That is arithmetic on your inputs, not advice to buy a policy.</p>
   <h3>When does shipping insurance beat skipping protection?</h3>
-  <p>When the skip claim rate or the sunk cost is high enough that the premium is cheaper than the expected loss. On the same $40 listing, an 8% skip claim rate expects $15.44 against $16.43 insured. A $180 item with $85 cost and a $12 label flips insurance ahead ($55.79 vs $54.01) because a 2.5% loss on $99 of sunk cost is already more than a $1.80 premium.</p>
+  <p>When the skip claim rate or the sunk cost is high enough that the premium is cheaper than the expected loss. On the same $40 listing, an 8% skip claim rate expects $15.22 against $16.20 insured. A $180 item with $85 cost and a $12 label flips insurance ahead ($55.31 vs $54.02) because a 2.5% loss on $99 of sunk cost is already more than a $1.80 premium.</p>
   <h3>Is shipping insurance the same as a Standard Envelope or Authenticity Guarantee?</h3>
   <p>No. Standard Envelope is cheap untracked mail versus a tracked label. Authenticity Guarantee sends the item through a hub. Package protection is an add-on on a tracked label you already bought: skip the extra cost, buy insurance that pays replacement value, or add signature confirmation.</p>
 

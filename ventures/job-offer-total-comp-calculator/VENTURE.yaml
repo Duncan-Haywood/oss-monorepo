@@ -1,0 +1,64 @@
+name: job-offer-total-comp-calculator
+description: >-
+  Free browser tool that compares up to three job offers by four-year average
+  pay, equity at a confidence level the user sets, and true hourly rate after
+  commute and time off, and finds the base salary needed to counter. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.21 (unrelated). Chosen after a first draft of an ESPP tool was dropped
+# because espp-tax-calculator merged minutes earlier (#6052): four sessions
+# collided on tax calculators inside an hour, so this goes to the adjacent
+# career-decision niche instead. Serves the same tech-employee audience as the
+# equity-comp trio and cross-links them.
+# Comparing offers is a high-stakes decision people make with a napkin: base
+# salary hides equity, sign-on, match and hours. The tool's edge is haircutting
+# equity, spreading a sign-on, and pricing hours, then returning a counteroffer
+# base rather than only a ranking.
+#
+# First visitor: r/cscareerquestions, r/personalfinance, Blind and levels.fyi
+# threads on "how to compare offers", "startup vs big tech offer"; volume not
+# measured.
+#
+# Privacy is the liability boundary: offer details never leave the browser
+# (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for equity-comp tools;
+# a paid tier, if usage appears, is saved offers and a negotiation script, local
+# only; not built.
+#
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Candidates holding competing offers will use a no-signup tool that
+      haircuts equity and prices hours rather than a base-salary-only compare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The counteroffer base number is the output people copy into a negotiation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the comparison ranks offers in a way that contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/job-offer-total-comp-calculator/
+  analytics: null

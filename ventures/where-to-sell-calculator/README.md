@@ -1,7 +1,7 @@
 # Where to Sell Calculator
 
 One item, every channel. Enter what an item cost you and what you would sell it
-for, and see what **eBay, Etsy, Amazon, your own store and a direct sale** each
+for, and see what **eBay, Etsy, Amazon, Mercari, your own store and a direct sale** each
 leave you after fees — and after that channel's return rate — plus the price
 each channel would need to charge to match the best one, and, when you expect
 different volumes on each channel, which one actually keeps more cash in a
@@ -9,7 +9,11 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Reverb, TikTok Shop, Whatnot, Poshmark and StockX** are five more channels,
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
+
+**Depop and Facebook Marketplace** (added 2026-10-16, both off by default; each
+opens its dedicated calculator with the item already filled in) join
+**Reverb, TikTok Shop, Whatnot, Poshmark and StockX** as more channels,
 each switched off until you turn it on. Reverb only applies to musical
 instruments and audio gear; Poshmark only to clothing, shoes and accessories;
 StockX only to sneakers, streetwear and graded cards; TikTok Shop and Whatnot
@@ -221,21 +225,22 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay, Etsy, Amazon, Reverb, TikTok Shop,
-Whatnot, Poshmark, StockX and an own store (Shopify); a channel gains one the
-day its calculator learns to read a link.
+what is on screen. Today that is eBay, Etsy, Amazon, Mercari, Reverb, TikTok
+Shop, Whatnot, Poshmark, StockX and an own store (Shopify); a channel gains
+one the day its calculator learns to read a link.
 
 **The handoff now runs both ways for every channel that has one.** Each of
 `../ebay-fee-calculator/`, `../etsy-profit-calculator/`,
 `../amazon-fba-calculator/`, `../reverb-fee-calculator/`,
 `../shopify-fee-calculator/`, `../tiktok-shop-fee-calculator/`,
-`../whatnot-seller-payout/`, `../poshmark-fee-calculator/` and
-`../stockx-seller-payout-calculator/` carries its own
-item back into this page with
+`../whatnot-seller-payout/`, `../poshmark-fee-calculator/`,
+`../stockx-seller-payout-calculator/` and `../mercari-fee-calculator/`
+carries its own item back into this page with
 that channel already switched on (each ships its own `to-where-to-sell.mjs`,
 mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,
 Amazon and Shopify followed the same day. TikTok Shop and Whatnot followed
-later, then Poshmark, and StockX on 2026-09-22 — each calculator had already exported the field-name
+later, then Poshmark, StockX on 2026-09-22, and Mercari after that — each
+calculator had already exported the field-name
 contract this handoff needs (see each one's own `FIELD_IDS` / `INPUT_IDS`), but
 none had a where-to-sell channel preset or a `to-where-to-sell.mjs` module
 wired up, so a seller who landed on any of those pages first had no way into

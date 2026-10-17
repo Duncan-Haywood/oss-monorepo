@@ -1,0 +1,16 @@
+{
+ "top": "gray2bin",
+ "kind": "comb",
+ "inputs": [
+  [
+   "g",
+   8
+  ]
+ ],
+ "outputs": [
+  [
+   "b",
+   8
+  ]
+ ]
+}

@@ -1,0 +1,48 @@
+name: course-platform-fee-calculator
+description: >-
+  Free browser calculator for course creators and digital-product sellers: price, monthly sales, refund rate and each
+  platform's plan fee, transaction fee and card processing become what you keep per month on Gumroad, Podia, Teachable,
+  Thinkific, Kajabi and Udemy (every fee editable), a cheapest-by-volume ladder, and the sales-per-month crossover where a
+  flat-fee plan overtakes a percentage cut. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 (duplicate_check top score 0.26, no overlap). Commercial analogues: each platform's own pricing page
+# quotes only its bundle; blog posts "Teachable vs Kajabi vs Podia" compare features with stale fee tables. None offers an
+# interactive net-payout-at-my-volume page with the crossover. Sibling of freelance-platform-fee-calculator.
+# Where the first visitor comes from: search phrases "Gumroad fees calculator", "Teachable vs Podia transaction fees",
+# "how much does Gumroad take", "is Kajabi worth it at low volume"; r/courses, r/passive_income and indie-hacker threads on
+# leaving Gumroad's 10%. Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for creators; a later paid layer could be a hosted fee-schedule
+# tracker that alerts when a platform changes pricing. Not built: live fee scraping.
+#
+# Liability: arithmetic on user-editable numbers; says presets are unverified, carries no-warranty / not-advice clauses.
+#
+# Unverified: ALL preset fee schedules are from general knowledge, not checked against a live pricing page this session.
+
+hypotheses:
+  - claim: >-
+      A creator choosing or reconsidering a course platform will use a free calculator that shows net payout at their own
+      price and volume plus the volume where the cheapest plan changes, because no platform pricing page does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - A user reports a preset fee as wrong and fee drift makes the presets more work to maintain than the page earns.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/course-platform-fee-calculator/
+  analytics: null

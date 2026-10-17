@@ -1,0 +1,44 @@
+name: pastured-poultry-profit-planner
+description: >-
+  Free browser tool for pasture-raised broiler farmers. Enter batch size, losses, feed, processing and prices; get profit
+  per batch, per bird and per hour of your own labour, break-even price per dressed pound, mortality and feed-price
+  sensitivity, direct vs wholesale, and flock-size scenarios. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. No pastured-poultry venture exists in ventures/ (backyard-egg-profit-calculator is layers, not
+# meat birds); not in screened-out.md.
+# Who: small farms and homesteaders raising 50-1000 meat chickens a season for direct sale, and people deciding whether to
+# start. First visitor: searches like "is pastured poultry profitable", "cost to raise a pastured broiler", "pastured
+# chicken price per pound"; homesteading and small-farm forums. Volume not measured.
+#
+# Liability: arithmetic on the user's own numbers; no personal data, stores nothing, no-warranty and not-advice clauses.
+# Licensing, processing rules, disease, insurance and tax are explicitly out of scope on the page.
+#
+# Unverified: no farmer has used it. Defaults are placeholders. Path to revenue (payment rails stay off): lead magnet and
+# donations; if usage appears, saved batch logs and a printable cost sheet, then a paid tier behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Small pastured-poultry growers will use a private per-batch model because the thin margin per bird and the hours of
+      their own labour decide whether it pays, and spreadsheets rarely price the labour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pastured-poultry-profit-planner/
+  analytics: null

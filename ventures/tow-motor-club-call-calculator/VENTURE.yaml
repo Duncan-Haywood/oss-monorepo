@@ -1,0 +1,68 @@
+name: tow-motor-club-call-calculator
+description: >-
+  Free browser calculator for independent towing and roadside operators: cost of
+  a motor-club dispatch, profit per truck-hour, break-even and minimum acceptable
+  payout, an accept or decline verdict against the operator's own margin
+  threshold and cash-call alternative, a deadhead-by-wait sensitivity table and a
+  batch mode that ranks pasted calls by profit per truck-hour. Arithmetic on
+  typed numbers; runs in the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session; not in screened-out.md.
+# Independent tow and roadside operators take dispatches from motor clubs and
+# roadside platforms (Agero, Urgent.ly, Honk, AAA contractors) at payouts set by
+# the club, often with deductions and slow pay, and must decide per call whether
+# the truck-hour is better spent there or on a cash call. The decision is money:
+# a long deadhead plus an hour on scene turns a flat payout into a loss.
+# Existing answers are gut feel and spreadsheets. This is a no-signup answer
+# per call and a ranking of a pasted batch.
+#
+# First visitor: tow-operator forums and Facebook groups complaining about club
+# payouts and deadhead; search phrases "is agero worth it tow truck", "tow truck
+# cost per hour", "motor club tow payout". Volume not measured.
+#
+# Liability: arithmetic on typed numbers only. No rates, no club terms, no state
+# rules are built in; the page says rates and rules vary by state and
+# municipality and that this is not legal, rate or financial advice, plus an
+# independent-of-every-club clause. Nothing is uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet toward shop-rate and
+# bid calculators for the same small-fleet owner. A paid saved-history version,
+# if usage appears, would sit behind an env-var switch; not built.
+#
+# Unverified: no real club payout sheet was used; defaults are placeholders the
+# page labels as such.
+
+hypotheses:
+  - claim: >-
+      Independent tow operators will type their own truck cost and a dispatch's
+      numbers into a no-signup calculator to decide whether to accept it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing profit per truck-hour and the minimum acceptable payout leads at
+      least one operator to decline or counter a below-cost dispatch, which is
+      the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a call format the batch mode cannot read, at which point the model or parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tow-motor-club-call-calculator/
+  analytics: null

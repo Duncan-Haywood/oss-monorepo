@@ -1,0 +1,44 @@
+name: eu-data-act-checker
+description: >-
+  Free browser tool that applies the EU Data Act (Regulation (EU) 2023/2854) to a business's role (connected-product maker, related-service provider, data holder, third-party recipient, data processing service provider) and whole-group size: whether it is likely in scope, whether the Article 7 micro and small enterprise exemption covers it, the Article the call rests on, the result at each size class, and the main duties and dates for its role. Nothing is uploaded. A first read of the Regulation's text, not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no Data Act tool in ventures/ (duplicate_check.py nearest score 0.23). Not in screened-out.md.
+#
+# First visitor: an EU (or non-EU, selling into the EU) IoT/hardware maker, SaaS or cloud vendor, or its counsel asked "does the Data Act apply to us, and are we
+# exempt as an SME?"; search phrases "Data Act applies to me", "Data Act SME exemption", "Data Act connected product obligations September 2026". The
+# Regulation has applied since 12 September 2025 and the Art 3(1) design duty starts 12 September 2026, so questions are current. Volume not measured externally.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. The paid version, not built, would be a Data Act readiness checklist and a cloud
+# switching-clause generator, behind an env-var switch.
+#
+# Liability: encodes Art 1(3), Art 7 (micro and small exemption), Art 14 (no B2G duty for micro and small), Art 23-31 (switching, no size exemption), and the
+# Art 50, Art 3(1), Art 13 and Art 29 dates, each result naming its Article. It says plainly that national authorities enforce it, does not model
+# partner-enterprise proportional size beyond a yes/no, does not decide whether a product is a connected product, rejects bad input instead of clamping, and
+# carries the no-warranty and not-legal-advice clauses. Ethical risk is false comfort from an exempt result; the page says it is a first read.
+
+hypotheses:
+  - claim: >-
+      EU hardware makers, SaaS and cloud vendors asked whether the Data Act applies will use a free role-and-size checker to get a first answer, the Article behind it and the dates, instead of paying for a consultation to find out whether to start.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the scope, exemption, date or Article reference differs from the Regulation's text on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/eu-data-act-checker/
+  analytics: null

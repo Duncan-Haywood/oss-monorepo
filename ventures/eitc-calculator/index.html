@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EITC Calculator — Free 2025/2026 Earned Income Tax Credit Estimator</title>
+  <meta name="description" content="Free calculator for the federal Earned Income Tax Credit (EITC): the phase-in, plateau, and phase-out by number of qualifying children and filing status, the investment income limit, the married-filing-separately living-apart exception, and the AGI-vs-earned-income rule most hand calculations skip. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="EITC Calculator — free 2025/2026 Earned Income Tax Credit estimator">
+  <meta property="og:description" content="Estimate the federal Earned Income Tax Credit, including the AGI-vs-earned-income comparison, the investment income limit, and the married-filing-separately exception. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"EITC Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the federal Earned Income Tax Credit for 2025/2026: the phase-in, plateau, and phase-out by number of qualifying children (0, 1, 2, or 3+) and filing status, the $12,200 investment income limit, the age 25-64 requirement with no qualifying children, the married-filing-separately living-apart exception, and IRS Publication 596's own rule of computing the credit twice (once from earned income, once from AGI) and taking the smaller result. Entirely client-side; nothing is uploaded.","featureList":"EITC phase-in/plateau/phase-out by qualifying-child count and filing status, AGI-vs-earned-income dual lookup, investment income limit check, married-filing-separately living-apart exception, plain-English findings explaining every reduction"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much is the Earned Income Tax Credit?","acceptedAnswer":{"@type":"Answer","text":"Up to $664 with no qualifying children, $4,427 with one child, $7,316 with two children, or $8,231 with three or more children, for 2026. The credit phases in with earned income, plateaus at the maximum, then phases out at higher income -- see the phase-out question below."}},{"@type":"Question","name":"Does the credit depend on earned income or AGI?","acceptedAnswer":{"@type":"Answer","text":"Both. IRS Publication 596's own EIC Worksheet method computes the credit twice -- once using earned income, once using adjusted gross income (AGI) -- with the identical phase-in/plateau/phase-out formula, and the final credit is the SMALLER of the two results. A filer with low earned income but higher AGI (investment income under the limit, unemployment, a working spouse) can be phased out by AGI even though an earned-income-only lookup would suggest a larger credit -- the detail a hand calculation almost always misses."}},{"@type":"Question","name":"What is the investment income limit?","acceptedAnswer":{"@type":"Answer","text":"$12,200 for 2026. If investment income (interest, dividends, capital gains, rental income) exceeds that limit, the EITC is disallowed entirely, regardless of how low earned income or AGI is."}},{"@type":"Question","name":"Can I claim the EITC with no qualifying children?","acceptedAnswer":{"@type":"Answer","text":"Yes, but only if the filer (or, on a joint return, at least one spouse) is age 25 through 64 at year-end, is not claimed as a dependent, and lived in the US more than half the year."}},{"@type":"Question","name":"Can I claim it if I file married filing separately?","acceptedAnswer":{"@type":"Answer","text":"Generally no. The one exception: a qualifying child lived with you more than half the year AND you lived apart from your spouse for the last six months of the year (or are legally separated). That narrow case is treated like a single filer, using the single/head-of-household phase-out thresholds rather than the higher joint ones."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory amounts, phase-in/phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, does not verify age, residency, or relationship, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
+    .checkrow input { width: auto; margin-top: 4px; flex: 0 0 auto; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    .checkrow[hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EITC CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's your Earned Income Tax Credit worth?</h1>
+    <p>The federal Earned Income Tax Credit is worth up to <strong>$8,231</strong>
+    depending on how many qualifying children you have and how much you earn
+    — but it phases IN with earned income, plateaus at a maximum, then
+    phases OUT again, and IRS Publication 596's own worksheet computes it
+    <strong>twice</strong> (once from earned income, once from AGI) and
+    keeps the smaller result. This applies the phase-in/phase-out formula,
+    the investment income limit, and the AGI comparison.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status &amp; income</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="qss">Qualifying surviving spouse</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="earned-income">Earned income ($)</label>
+        <input type="number" id="earned-income" min="0" step="500" placeholder="e.g. 22000">
+      </div>
+      <div>
+        <label for="agi">Adjusted gross income (AGI) ($)</label>
+        <input type="number" id="agi" min="0" step="500" placeholder="leave blank if same as earned income">
+      </div>
+      <div>
+        <label for="investment-income">Investment income ($)</label>
+        <input type="number" id="investment-income" min="0" step="100" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="qualifying-children">Qualifying children</label>
+        <select id="qualifying-children">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3 or more</option>
+        </select>
+      </div>
+    </div>
+    <div class="checkrow" id="age-block">
+      <input type="checkbox" id="filer-age">
+      <label for="filer-age">I am (or, on a joint return, my spouse is) age 25 through 64 at year-end, not claimed as a dependent, and lived in the US more than half the year</label>
+    </div>
+    <div class="checkrow" id="mfs-block" hidden>
+      <input type="checkbox" id="lived-apart">
+      <label for="lived-apart">My qualifying child lived with me more than half the year, AND I lived apart from my spouse for the last six months of the year (or am legally separated)</label>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in filing status, income, and qualifying children, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates the EITC
+      only — not your total tax liability, other deductions or credits, or
+      state tax (many states offer their own EITC on top of the federal
+      one).</li>
+      <li><strong>Age, residency, relationship, and investment income are
+      self-reported</strong> — this tool does not verify any of them.</li>
+      <li><strong>Qualifying-child tests</strong> (relationship, residency,
+      age, joint-return) are assumed already met — this tool does not
+      determine who counts as a qualifying child.</li>
+      <li><strong>Federal only.</strong> Most states with their own EITC
+      compute it as a percentage of the federal credit — check your
+      state.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the Earned Income Tax Credit?</h3>
+    <p>Up to $664 with no qualifying children, $4,427 with one child, $7,316 with two children, or $8,231 with three or more children, for 2026. The credit phases in with earned income, plateaus at the maximum, then phases out at higher income -- see the phase-out question below.</p>
+    <h3>Does the credit depend on earned income or AGI?</h3>
+    <p>Both. IRS Publication 596's own EIC Worksheet method computes the credit twice -- once using earned income, once using adjusted gross income (AGI) -- with the identical phase-in/plateau/phase-out formula, and the final credit is the SMALLER of the two results. A filer with low earned income but higher AGI (investment income under the limit, unemployment, a working spouse) can be phased out by AGI even though an earned-income-only lookup would suggest a larger credit -- the detail a hand calculation almost always misses.</p>
+    <h3>What is the investment income limit?</h3>
+    <p>$12,200 for 2026. If investment income (interest, dividends, capital gains, rental income) exceeds that limit, the EITC is disallowed entirely, regardless of how low earned income or AGI is.</p>
+    <h3>Can I claim the EITC with no qualifying children?</h3>
+    <p>Yes, but only if the filer (or, on a joint return, at least one spouse) is age 25 through 64 at year-end, is not claimed as a dependent, and lived in the US more than half the year.</p>
+    <h3>Can I claim it if I file married filing separately?</h3>
+    <p>Generally no. The one exception: a qualifying child lived with you more than half the year AND you lived apart from your spouse for the last six months of the year (or are legally separated). That narrow case is treated like a single filer, using the single/head-of-household phase-out thresholds rather than the higher joint ones.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory amounts, phase-in/phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, does not verify age, residency, or relationship, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own age, residency, relationship, and income figures before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also checking the Child Tax Credit for the same return? See the <a href="../child-tax-credit-calculator/">Child Tax Credit calculator</a> — a separate, stackable federal credit with its own $2,200-per-child amount and phase-out, unrelated to the EITC's earned-income-based formula.</p>
+    <p>Estimating this by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand calculation of this credit usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeEitc, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), earnedIncome: $("#earned-income"), agi: $("#agi"),
+      investmentIncome: $("#investment-income"), qualifyingChildren: $("#qualifying-children"),
+      filerAge: $("#filer-age"), livedApart: $("#lived-apart"),
+      ageBlock: $("#age-block"), mfsBlock: $("#mfs-block"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), findings: $("#report-findings"),
+    };
+
+    function updateVisibility() {
+      const status = els.filingStatus.value;
+      const children = Number(els.qualifyingChildren.value) || 0;
+      els.mfsBlock.hidden = status !== "mfs";
+      els.ageBlock.hidden = children !== 0;
+    }
+    els.filingStatus.addEventListener("change", updateVisibility);
+    els.qualifyingChildren.addEventListener("change", updateVisibility);
+    updateVisibility();
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = computeEitc({
+        filingStatus: els.filingStatus.value,
+        earnedIncome: Number(els.earnedIncome.value) || 0,
+        agi: Number(els.agi.value) || 0,
+        investmentIncome: Number(els.investmentIncome.value) || 0,
+        qualifyingChildren: Number(els.qualifyingChildren.value) || 0,
+        filerAge25to64: els.filerAge.checked,
+        livedApartFromSpouse: els.livedApart.checked,
+      });
+
+      els.stats.innerHTML = `Estimated EITC: <strong><span class="price">${money(result.credit)}</span></strong>.`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      els.qualifyingChildren.value = "1";
+      updateVisibility();
+      els.earnedIncome.value = "13020";
+      els.agi.value = "33890";
+      els.investmentIncome.value = "0";
+      els.filerAge.checked = false;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: single filer, one qualifying child, $13,020 earned income (the full-credit amount on its own) but $33,890 AGI, which pushes the credit lower.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.earnedIncome.value = "";
+      els.agi.value = "";
+      els.investmentIncome.value = "";
+      els.filerAge.checked = false;
+      els.livedApart.checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Fill in filing status, income, and qualifying children, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

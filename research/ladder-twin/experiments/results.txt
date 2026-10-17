@@ -1,0 +1,54 @@
+== E0  ladder: lam ~ U(1,3), x'=-lam x, T=1, twin level l = explicit Euler with n=2^(l+1) fixed steps
+  smooth QoI E[x_T] = 0.159046;  failure P(x_T > e^-1.1) = P(lam<1.1) = 0.0500
+  l   n     cost   bias(smooth)   V_l(smooth)   bias(fail)    V_l(fail)
+  0   2     2      -7.571e-02   5.556e-03   -5.000e-02  0.000e+00
+  1   4     6      -6.451e-02   8.989e-03   -5.000e-02  0.000e+00
+  2   8     12     -3.189e-02   2.982e-05   -3.614e-02  1.367e-02
+  3   16    24     -1.575e-02   2.688e-06   -1.848e-02  1.735e-02
+  4   32    48     -7.817e-03   5.110e-07   -9.346e-03  9.051e-03
+  5   64    96     -3.894e-03   1.180e-07   -4.700e-03  4.625e-03
+  6   128   192    -1.943e-03   2.867e-08   -2.357e-03  2.338e-03
+  7   256   384    -9.707e-04   7.084e-09   -1.180e-03  1.175e-03
+  8   512   768    -4.851e-04   1.762e-09   -5.904e-04  5.892e-04
+  9   1024  1536   -2.425e-04   4.393e-10   -2.953e-04  2.950e-04
+  10  2048  3072   -1.212e-04   1.097e-10   -1.477e-04  1.476e-04
+  fitted rates (levels 9-11), x_l ~ 2^(-r l): smooth alpha=1.000 beta=2.001;  failure alpha=1.000 beta=1.000;  cost gamma=1
+
+== E1  smooth terminal state: total twin steps to reach RMSE eps (bias <= eps/sqrt2, variance <= eps^2/2), exact moments
+  eps        L   single-level steps   MLMC steps    saving   N_l (MLMC)
+  0.01       5               10,240         2,882      3.6x   [394, 289, 12, 3, 1, 1]
+  0.003      6              225,792        31,520      7.2x   [4396, 3228, 132, 28, 9, 3, 2]
+  0.001      8            8,113,152       287,094     28.3x   [39852, 29267, 1193, 254, 79, 27, 10, 4, 2]
+  0.0003     10         360,425,472     3,202,688    112.5x   [444439, 326387, 13294, 2823, 871, 296, 104, 37, 13, 5, 2]
+  0.0001     11       6,487,216,128    28,871,062    224.7x   [4004276, 2940659, 119775, 25427, 7840, 2664, 929, 327, 116, 41, 15, 6]
+  3e-05      13     288,306,462,720   321,551,586    896.6x   [44549952, 32716583, 1332560, 282889, 87218, 29630, 10329, 3631, 1281, 453, 160, 57, 20, 8]
+
+== E2  failure indicator: total twin steps to reach RMSE eps (bias <= eps/sqrt2, variance <= eps^2/2), exact moments
+  eps        L   single-level steps   MLMC steps    saving   N_l (MLMC)
+  0.03       3                1,088         2,468      0.4x   [1, 1, 79, 63]
+  0.01       5               55,360       112,952      0.5x   [1, 1, 1604, 1278, 653, 330]
+  0.003      7            2,641,920     3,071,360      0.9x   [1, 1, 27882, 22208, 11344, 5734, 2883, 1446]
+  0.001      8           48,095,744    38,545,868      1.2x   [1, 1, 296347, 236040, 120568, 60940, 30637, 15360, 7691]
+  0.0003     10       2,155,728,896   731,300,360      2.9x   [1, 1, 4302702, 3427095, 1750541, 884790, 444810, 223013, 111659, 55868, 27944]
+  0.0001     12      77,769,555,968   10,035,575,360      7.7x   [1, 1, 47817436, 38086507, 19454372, 9832973, 4943321, 2478419, 1240905, 620878, 310545, 155299, 77657]
+
+== E3  equal budget per level (N_l constant) versus optimal allocation, same variance target
+  smooth   eps=0.001: optimal 287,094 steps, equal-N_l 44,665,460 steps (155.6x)
+  failure  eps=0.001: optimal 38,545,868 steps, equal-N_l 149,503,284 steps (3.9x)
+
+== E4  simulation, 200 repetitions each (RMSE should be <= eps by construction; typically ~0.8 eps: bias eps/sqrt2 is a bound)
+  smooth   eps=0.01: MLMC   steps      2,882  RMSE 8.41e-03  mean err -4.41e-03  (0.84 eps)
+                      single steps     10,240  RMSE 8.09e-03  mean err -3.88e-03  (0.81 eps)
+  smooth   eps=0.003: MLMC   steps     31,520  RMSE 2.83e-03  mean err -1.79e-03  (0.94 eps)
+                      single steps    225,792  RMSE 3.04e-03  mean err -2.13e-03  (1.01 eps)
+  failure  eps=0.03: MLMC   steps      2,468  RMSE 2.94e-02  mean err -1.91e-02  (0.98 eps)
+                      single steps      1,088  RMSE 2.80e-02  mean err -2.01e-02  (0.93 eps)
+  failure  eps=0.01: MLMC   steps    112,952  RMSE 7.94e-03  mean err -4.44e-03  (0.79 eps)
+                      single steps     55,360  RMSE 8.09e-03  mean err -4.24e-03  (0.81 eps)
+
+== E5  the coarse twin alone
+  level 0 (n=2): smooth bias -0.0757 = -47.6% of truth;  failure claim 0.0000 vs real 0.0500
+  level 1 (n=4): smooth bias -0.0645 = -40.6% of truth;  failure claim 0.0000 vs real 0.0500
+  level 2 (n=8): smooth bias -0.0319 = -20.0% of truth;  failure claim 0.0139 vs real 0.0500
+  level 3 (n=16): smooth bias -0.0157 = -9.9% of truth;  failure claim 0.0315 vs real 0.0500
+  level 4 (n=32): smooth bias -0.0078 = -4.9% of truth;  failure claim 0.0407 vs real 0.0500

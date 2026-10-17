@@ -1,0 +1,58 @@
+name: tax-lot-sale-optimizer
+description: >-
+  Free browser tool for investors raising cash from a taxable account: paste purchase lots, enter the cash
+  or shares needed, and get the exact lots to sell for the lowest capital-gains tax, compared with FIFO,
+  LIFO and highest-cost-first, plus a wait-until-long-term table, a wash-sale warning and a CSV of lots to
+  sell. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "capital gains lot selection
+# optimizer specific identification" scored 0.25 at best (tax-loss-harvesting-calculator, which nets
+# positions the user already decided to sell and does not choose lots). The calculator niches around it
+# (QSBS, ISO/AMT, RSU withholding, IRMAA, Roth ladders) are saturated, so this is a solver, not a form:
+# an exact one-variable optimiser over the short/long split, verified against brute force.
+#
+# Why this niche: anyone selling part of a position (house down payment, tuition, tax bill, rebalancing)
+# gets their broker's default lot method, usually FIFO. Choosing lots is a legal, free lever worth
+# hundreds to thousands of dollars on a five-figure sale, and the brokers' own lot pickers show cost basis
+# but do not compute tax. Paid tax-lot tooling exists inside robo-advisors and portfolio-software suites;
+# a private, free, paste-your-lots what-if is the gap. Lead magnet and donation play, not sales-led.
+#
+# First visitor: someone in r/personalfinance, r/Bogleheads, r/tax or r/investing asking "which lots should I
+# sell", "HIFO vs FIFO" or "specific identification Fidelity/Schwab/Vanguard", or searching those phrases.
+# Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed lots and rates; embeds no tax table; does not recommend
+# buying or selling a security; not tax, legal or financial advice; nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later multi-security portfolios, broker CSV import
+# (Fidelity/Schwab/Vanguard formats), a year-end harvest planner across holdings, and a printable
+# instruction sheet for the broker (not built).
+
+hypotheses:
+  - claim: >-
+      Investors raising cash will paste their lots into a private page to see which to sell and what it
+      saves against their broker's default method, because brokers show cost basis but not the tax each
+      lot choice causes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A tax preparer or investor reports that a worked tax figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tax-lot-sale-optimizer/
+  analytics: null

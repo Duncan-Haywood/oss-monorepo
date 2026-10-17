@@ -1,0 +1,44 @@
+name: laser-cutting-engraving-job-price-calculator
+description: >-
+  Free browser calculator for laser cutting and engraving shops, makers and sign makers: enter the piece size, cut path, engraved area, sheet
+  materials, laser rate, labour, setup, scrap and margin, and see the price per piece, how many pieces nest per sheet, the price by order size,
+  the order that meets a customer's target price, and which material costs least. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-10 in a scheduled session. Nothing in ventures/ or screened-out.md prices laser work; cnc-machining-quote-calculator and
+# screen-print-job-quote-calculator are the same job-shop shape for other processes. None models sheet nesting, cut vs engrave speed per material
+# or the laser's earnings per hour.
+#
+# First visitor: laser owners (Glowforge, xTool, Epilog, OMTech) and Etsy makers searching "how to price laser cut items", "laser engraving
+# pricing calculator", "laser cutting cost per piece", plus r/lasercutting and Facebook group threads asking what to charge. Volume not measured.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; not legal, tax or financial advice; says what is not modelled and
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Laser owners selling cut and engraved pieces will type a job's size, material and speeds into a no-signup calculator to set a price, because
+      most price by gut feel or a multiple of material cost that ignores nesting waste, slow cut speeds and setup.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/laser-cutting-engraving-job-price-calculator/
+  analytics: null

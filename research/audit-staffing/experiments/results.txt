@@ -1,0 +1,53 @@
+E1 Erlang C vs simulation (M/M/10, R=8, 200k time units)
+  P(wait): exact 0.4092  sim 0.4066   E[Wq]: exact 0.2046  sim 0.2021
+  P(Wq>0.5): exact 0.1505  sim 0.1492
+  P(Wq>1.0): exact 0.0554  sim 0.0544
+  P(Wq>2.0): exact 0.0075  sim 0.0069
+
+E2 square-root staffing for P(wait) <= 0.2: exact minimal c vs R + beta sqrt(R), beta=1.062
+  R        exact c   R+b*sqrt(R)   spare capacity   utilisation
+  5        8         7.4           60.0%           0.625
+  20       26        24.7          30.0%           0.769
+  100      111       110.6         11.0%           0.901
+  500      525       523.7         5.0%            0.952
+  2500     2554      2553.1        2.2%            0.979
+  10000    10107     10106.2       1.1%            0.989
+
+E3 stake vs verifier capacity: lam=100 jobs/unit, G=1, audit takes s=1, wage w=1 per verifier, capital rate r=0.01, window d0=1, P(wait)<=0.2
+  stake S  audit a   R      c     cost
+  0.5      0.667    66.7   76    76.84
+  1        0.500    50.0   58    59.51
+  2        0.333    33.3   40    42.69
+  4        0.200    20.0   26    30.82
+  9        0.100    10.0   14    23.94
+  15       0.062    6.2    10    25.97
+  30       0.032    3.2    6     37.01
+  60       0.016    1.6    4     65.02
+  optimum S=9.68 (first-order sqrt rule S*=9.00), c=13, cost 23.63
+  how the optimum moves with capital cost r (w=1):
+    r=0.0025 exact S=21.70   rule S*=19.00   c=7    cost 12.68
+    r=0.01   exact S=9.70    rule S*=9.00    c=13   cost 23.66
+    r=0.04   exact S=4.30    rule S*=4.00    c=24   cost 44.56
+    r=0.16   exact S=1.40    rule S*=1.50    c=49   cost 80.98
+    r=0.64   exact S=0.10    rule S*=0.25    c=102  cost 114.31
+
+E4 service variability: E[Wq] at c=10, R=8, simulated vs Allen-Cunneen (cs2 = squared coeff. of variation)
+  service           cs2    sim      Allen-Cunneen
+  deterministic     0.00   0.108    0.102
+  exponential       1.00   0.205    0.205
+  lognormal s=1     1.72   0.250    0.278
+  lognormal s=1.5   8.49   0.629    0.971
+
+E5 bursty audit demand (geometric batches, mean b, exponential service, c=10, R=8): E[Wq] and P(wait)
+  b   sim E[Wq]  sim P(wait)   Poisson E[Wq]   Allen-Cunneen with ca2=E[B^2]/E[B]
+  1   0.204      0.410         0.205           0.205
+  2   0.587      0.588         0.205           0.409
+  4   1.454      0.725         0.205           0.818
+
+E6 flaky verifiers: each of c up with probability u for the period; c needed for P(wait)<=0.2 at R=20 (u=1: 26)
+  u      c needed   naive c/u   extra
+  0.99   26         26.3        -0.3
+  0.95   27         27.4        -0.4
+  0.9    29         28.9        +0.1
+  0.8    33         32.5        +0.5
+  0.7    38         37.1        +0.9

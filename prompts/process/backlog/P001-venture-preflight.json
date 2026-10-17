@@ -1,0 +1,31 @@
+{
+  "id": "P001",
+  "title": "One preflight command for a new venture's site-wide invariants",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "A new venture passes its own tests and still breaks a repository-wide invariant: launch date missing from launched.json, key order, mirror not regenerated, [hidden] CSS, broken inline script. These surface after merge as red main or a blocked Pages publish.",
+  "evidence": [
+    "11 post-merge fix-up commits in 2026-10-01..15 (#6975, #6963, #6962, #6900, #6914, #6895, #6894, #6792, #6761, #6729, #6561): prompts/process/reports/2026-10-15-addendum.md, finding 1",
+    "5 'unblock Pages publish' PRs: prompts/process/reports/2026-10-15.md, finding 3"
+  ],
+  "change": "Add one command (e.g. `node platform/pages/venture-preflight.mjs <slug>`) that runs the existing launched.json, mirror (`regen.mjs --verify`), page-integrity and inline-script checks for one slug, reusing the existing tests rather than new logic. Name it as the one line in the ventures sub-prompt.",
+  "touches": [
+    "platform/pages/",
+    "platform/marketing/",
+    "prompts/ventures/"
+  ],
+  "metric": "Post-merge fix-up commits per 100 new-venture merges",
+  "baseline": "11 per 686 (1.6%) in 2026-10-01..15",
+  "opened": "2026-10-15",
+  "source": "prompts/process/reports/2026-10-15*.md",
+  "pr": "#7163",
+  "result": "too early: platform/pages/venture-preflight.mjs exists; 0 of 424 run records mention it, so nobody is using it yet or none have said. Metric baseline (11 fix-ups/686) needs a later window.",
+  "history": [
+    {
+      "date": "2026-10-15",
+      "note": "Added platform/pages/venture-preflight.mjs (launched.json, build+check.mjs, regen --verify); first run found meter-keeper undated on main, fixed."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multipath-twin"
+version = "0.1.0"
+description = "Multipath twin: a free-space radar twin detects a two-ray-lobing target 100% inside its range but the real system only 2/3 of the time at the edge; a deterministic two-ray twin with a small height error is worse than free space inside r_c = 8 h_r dh / lambda, and a height-jitter ensemble is calibrated"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

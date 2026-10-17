@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>1031 Exchange Calculator — Deadlines, Boot and Deferred Gain, Free</title>
+  <meta name="description" content="Free 1031 like-kind exchange calculator for real estate investors: your 45-day identification and 180-day closing dates, cash and mortgage boot, recognized versus deferred gain, replacement property basis and the estimated tax you defer. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="1031 Exchange Calculator — free">
+  <meta property="og:description" content="45/180-day deadlines, boot, deferred gain, new basis and tax deferred for a Section 1031 like-kind exchange. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"1031 Exchange Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free 1031 like-kind exchange calculator: 45-day identification and 180-day closing deadlines, cash and mortgage boot, recognized and deferred gain, replacement property basis, and estimated tax deferred, with identification-rule checks. Entirely client-side; nothing is uploaded.","featureList":"45 and 180 day deadlines, return due date cut-off, cash boot, mortgage boot, deferred gain, new basis, tax deferred estimate, three-property 200% and 95% identification rules"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a 1031 exchange?","acceptedAnswer":{"@type":"Answer","text":"A Section 1031 like-kind exchange lets you defer federal capital gains tax and depreciation recapture when you sell real property held for investment or business use and reinvest in other real property. The tax is deferred, not forgiven: the gain carries into the replacement property's basis."}},{"@type":"Question","name":"What are the 45-day and 180-day deadlines?","acceptedAnswer":{"@type":"Answer","text":"You must identify replacement property in writing within 45 days of closing on the property you sold, and close on it within 180 days (or by your tax return due date for that year, if earlier, unless you file an extension). Neither deadline is extended for weekends or because a closing slips."}},{"@type":"Question","name":"What is boot in a 1031 exchange?","acceptedAnswer":{"@type":"Answer","text":"Boot is anything you receive that is not like-kind property: cash you take out, or mortgage debt you are relieved of that is not replaced by new debt or added cash. Boot is taxable, up to the amount of your gain."}},{"@type":"Question","name":"How do I fully defer the tax?","acceptedAnswer":{"@type":"Answer","text":"Buy replacement property that costs at least the net sale price, reinvest all of the net equity through a qualified intermediary, and take on at least as much debt as you paid off (or add cash to make up the difference)."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool does arithmetic on the numbers you enter with published rules, and the rates are yours to set. It cannot tell whether your property qualifies. Use a qualified intermediary and a CPA before you sell."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5d7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5d7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">1031 EXCHANGE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much tax does your 1031 exchange defer, and by when must you act?</h1>
+    <p>Enter the property you are selling and the one you plan to buy. You get your
+    <strong>45-day identification</strong> and <strong>180-day closing</strong> dates, any
+    <strong>boot</strong> that would be taxed now, the gain you defer, the basis of the replacement
+    property, and an estimate of the tax deferred at rates you set.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The property you are selling</h2>
+    <div class="grid">
+      <div>
+        <label for="sale-price">Sale price ($)</label>
+        <input type="number" id="sale-price" min="0" step="1" placeholder="e.g. 1000000">
+      </div>
+      <div>
+        <label for="selling-costs">Selling costs: commission, title, transfer tax ($)</label>
+        <input type="number" id="selling-costs" min="0" step="1" placeholder="e.g. 60000">
+      </div>
+      <div>
+        <label for="mortgage-payoff">Mortgage paid off at closing ($)</label>
+        <input type="number" id="mortgage-payoff" min="0" step="1" placeholder="e.g. 400000">
+      </div>
+      <div>
+        <label for="close-date">Closing date of the sale</label>
+        <input type="date" id="close-date" placeholder="">
+      </div>
+    </div>
+    <h2 style="margin-top:18px">Your tax basis in it</h2>
+    <div class="grid">
+      <div>
+        <label for="purchase-price">Original purchase price plus buying costs ($)</label>
+        <input type="number" id="purchase-price" min="0" step="1" placeholder="e.g. 500000">
+      </div>
+      <div>
+        <label for="improvements">Capital improvements ($)</label>
+        <input type="number" id="improvements" min="0" step="1" placeholder="e.g. 50000">
+      </div>
+      <div>
+        <label for="depreciation">Depreciation taken or allowable ($)</label>
+        <input type="number" id="depreciation" min="0" step="1" placeholder="e.g. 150000">
+      </div>
+    </div>
+    <p class="note">Adjusted basis = purchase price + improvements − depreciation. Depreciation is subtracted whether or not you claimed it.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The property you plan to buy</h2>
+    <div class="grid">
+      <div>
+        <label for="replacement-price">Replacement purchase price ($)</label>
+        <input type="number" id="replacement-price" min="0" step="1" placeholder="e.g. 1200000">
+      </div>
+      <div>
+        <label for="new-mortgage">New mortgage on it ($)</label>
+        <input type="number" id="new-mortgage" min="0" step="1" placeholder="e.g. 600000">
+      </div>
+      <div>
+        <label for="acquisition-costs">Closing costs you capitalize, incl. intermediary fee ($)</label>
+        <input type="number" id="acquisition-costs" min="0" step="1" placeholder="e.g. 10000">
+      </div>
+    </div>
+    <p class="note">Loan fees and prepaid items generally do not count as exchange costs. Title, recording and intermediary fees usually do.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Optional: rates and identification list</h2>
+    <div class="grid">
+      <div>
+        <label for="fed-rate">Federal long-term gain rate (%)</label>
+        <input type="number" id="fed-rate" value="20" min="0" step="0.1" placeholder="20">
+      </div>
+      <div>
+        <label for="recapture-rate">Unrecaptured section 1250 rate (%)</label>
+        <input type="number" id="recapture-rate" value="25" min="0" step="0.1" placeholder="25">
+      </div>
+      <div>
+        <label for="state-rate">State tax rate on the gain (%)</label>
+        <input type="number" id="state-rate" value="0" min="0" step="0.1" placeholder="0">
+      </div>
+      <div>
+        <label for="identified">Values of properties you will identify, comma separated ($)</label>
+        <input type="text" id="identified" placeholder="e.g. 1200000, 900000">
+      </div>
+      <div>
+        <label for="as-of">Today's date (for days remaining)</label>
+        <input type="date" id="as-of" placeholder="">
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="niit"><label for="niit">Include the 3.8% net investment income tax</label></div>
+    <p class="note">The rates are yours to choose; your bracket, state and situation decide them. They are not looked up for you.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter the sale and replacement numbers, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Whether your property qualifies.</strong> Since 2018 only real property held for investment or business use qualifies. It cannot decide for you.</li>
+      <li><strong>Reverse, improvement and partial-interest exchanges</strong>, related-party rules, and multi-property exchanges with different bases are not modelled.</li>
+      <li><strong>Personal property and section 1245 recapture</strong>, installment sales, passive-loss carryovers and state conformity are ignored.</li>
+      <li><strong>Federal rules only.</strong> Some states withhold or claw back at sale. Check yours.</li>
+      <li><strong>Rates and rules change.</strong> Confirm the current rules and your own rates before relying on any figure.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a 1031 exchange?</h3>
+    <p>A Section 1031 like-kind exchange lets you defer federal capital gains tax and depreciation recapture when you sell real property held for investment or business use and reinvest in other real property. The tax is deferred, not forgiven: the gain carries into the replacement property's basis.</p>
+    <h3>What are the 45-day and 180-day deadlines?</h3>
+    <p>You must identify replacement property in writing within 45 days of closing on the property you sold, and close on it within 180 days (or by your tax return due date for that year, if earlier, unless you file an extension). Neither deadline is extended for weekends or because a closing slips.</p>
+    <h3>What is boot in a 1031 exchange?</h3>
+    <p>Boot is anything you receive that is not like-kind property: cash you take out, or mortgage debt you are relieved of that is not replaced by new debt or added cash. Boot is taxable, up to the amount of your gain.</p>
+    <h3>How do I fully defer the tax?</h3>
+    <p>Buy replacement property that costs at least the net sale price, reinvest all of the net equity through a qualified intermediary, and take on at least as much debt as you paid off (or add cash to make up the difference).</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool does arithmetic on the numbers you enter with published rules, and the rates are yours to set. It cannot tell whether your property qualifies. Use a qualified intermediary and a CPA before you sell.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified intermediary, a CPA or an attorney. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>exchange_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling a rental and not exchanging? The <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> estimates the tax on the sale, and the <a href="../seller-net-sheet/">seller net sheet</a> shows what you walk away with.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Related tool: the <a href="../installment-sale-tax-calculator/">installment sale tax calculator</a> for gain spread over a seller-financed note.</p>
+  </footer>
+
+  <script type="module">
+    import { exchangeOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const IDS = ["sale-price","selling-costs","mortgage-payoff","close-date","purchase-price","improvements","depreciation","replacement-price","new-mortgage","acquisition-costs","identified","as-of"];
+    const RATES = { "fed-rate": "20", "recapture-rate": "25", "state-rate": "0" };
+    const els = {
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+    const num = (id) => Number($("#" + id).value) || 0;
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <p>${esc(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const today = $("#as-of").value || new Date().toISOString().slice(0, 10);
+      const identified = $("#identified").value.split(",").map((s) => Number(s.replace(/[$\s]/g, ""))).filter((n) => n > 0);
+      const r = exchangeOutcome({
+        salePrice: num("sale-price"), sellingCosts: num("selling-costs"), mortgagePayoff: num("mortgage-payoff"),
+        purchasePrice: num("purchase-price"), improvements: num("improvements"), depreciation: num("depreciation"),
+        replacementPrice: num("replacement-price"), newMortgage: num("new-mortgage"), acquisitionCosts: num("acquisition-costs"),
+        fedRate: num("fed-rate"), recaptureRate: num("recapture-rate"), stateRate: num("state-rate"),
+        niit: $("#niit").checked, closeDate: $("#close-date").value, asOf: today, identified,
+        acquiredIdentified: num("replacement-price") || null,
+      });
+
+      els.stats.innerHTML = r.fullyDeferred
+        ? `Fully deferred: <strong>${money(r.deferredGain)}</strong> of gain and about <strong>${money(r.taxDeferred)}</strong> of tax deferred.`
+        : `Boot of <strong>${money(r.boot)}</strong> is taxable now. You defer <strong>${money(r.deferredGain)}</strong> of gain (about <strong>${money(r.taxDeferred)}</strong> of tax).`;
+
+      const rows = [];
+      if (r.deadlines) {
+        const d = r.deadlines;
+        rows.push(`<tr><th scope="row">Identify replacement property by</th><td>${d.identifyBy} (${d.identifyByWeekday})${d.daysToIdentify !== null ? `, ${d.daysToIdentify} days from ${today}` : ""}</td></tr>`);
+        rows.push(`<tr><th scope="row">Close on the replacement by</th><td>${d.completeBy} (${d.completeByWeekday})${d.daysToComplete !== null ? `, ${d.daysToComplete} days from ${today}` : ""}${d.cutShort ? ` — but ${d.returnDue} if the return is not extended` : ""}</td></tr>`);
+      }
+      rows.push(
+        `<tr><th scope="row">Net sale price (amount realized)</th><td>${money(r.amountRealized)}</td></tr>`,
+        `<tr><th scope="row">Adjusted basis</th><td>${money(r.adjustedBasis)}</td></tr>`,
+        `<tr><th scope="row">Realized gain</th><td>${money(r.realizedGain)}</td></tr>`,
+        `<tr><th scope="row">Cash boot</th><td>${money(r.cashBoot)}</td></tr>`,
+        `<tr><th scope="row">Mortgage boot</th><td>${money(r.mortgageBoot)}</td></tr>`,
+        `<tr><th scope="row">Cash you must add to the replacement</th><td>${money(r.cashAdded)}</td></tr>`,
+        `<tr><th scope="row">Gain recognized now</th><td>${money(r.recognizedGain)}</td></tr>`,
+        `<tr><th scope="row"><strong>Gain deferred</strong></th><td><strong>${money(r.deferredGain)}</strong></td></tr>`,
+        `<tr><th scope="row">Basis of the replacement property</th><td>${money(r.newBasis)}</td></tr>`,
+        `<tr><th scope="row">Estimated tax if you sold outright</th><td>${money(r.taxWithoutExchange)}</td></tr>`,
+        `<tr><th scope="row">Estimated tax with this exchange</th><td>${money(r.taxWithExchange)}</td></tr>`,
+      );
+      if (r.identification) {
+        const i = r.identification;
+        rows.push(`<tr><th scope="row">Identification list (${i.count} properties, ${money(i.total)})</th><td>${i.ok ? "Passes" : "FAILS"}: three-property ${i.threeProperty ? "yes" : "no"}, 200% ${i.twoHundredPercent ? "yes" : "no"}, 95% ${i.ninetyFivePercent ? "yes" : "no"}</td></tr>`);
+      }
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, r.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("exchange_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "sale-price": "1000000", "selling-costs": "60000", "mortgage-payoff": "400000", "close-date": "2026-11-15",
+        "purchase-price": "500000", "improvements": "50000", "depreciation": "150000",
+        "replacement-price": "1200000", "new-mortgage": "600000", "acquisition-costs": "10000", "identified": "1200000, 900000", "as-of": "2026-11-20" };
+      for (const [k, v] of Object.entries(ex)) $("#" + k).value = v;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $1,000,000 sale, $400,000 mortgage, $400,000 adjusted basis, trading up to a $1,200,000 property with a $600,000 loan. Full deferral of $540,000 of gain, and because the sale closes in November the 180 days run past the April 15 return due date.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of IDS) $("#" + id).value = "";
+      for (const [id, v] of Object.entries(RATES)) $("#" + id).value = v;
+      $("#niit").checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Enter the sale and replacement numbers, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

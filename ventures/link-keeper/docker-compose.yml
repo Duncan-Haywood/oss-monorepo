@@ -1,0 +1,13 @@
+# docker compose up -d   (set ADMIN_KEY and BASE_URL in a .env file next to this one)
+services:
+  link-keeper:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY (16+ characters)}
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
+      STATE: /data/state.json
+    volumes: ["links:/data"]
+    restart: unless-stopped
+volumes:
+  links:

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK Late Payment Interest Calculator (statutory 8% plus base rate, £40/£70/£100 compensation)</title>
+  <meta name="description" content="Free UK late payment interest calculator: statutory interest at 8% over base rate, fixed compensation of £40, £70 or £100 and a ready-to-send demand letter for an overdue business invoice. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Late payment interest calculator: what can I charge on an overdue invoice? Free, private">
+  <meta property="og:description" content="Work out statutory interest and compensation on a late business invoice and copy a demand letter.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Late Payment Interest Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much interest can I charge on a late business invoice in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "Under the Late Payment of Commercial Debts (Interest) Act 1998 you can claim statutory interest at 8% a year over the Bank of England base rate. The base rate used is the one on 31 December for debts that fell due January to June, or on 30 June for debts due July to December. Interest is simple and runs from the day after the due date."}}, {"@type": "Question", "name": "What fixed compensation can I claim?", "acceptedAnswer": {"@type": "Answer", "text": "A fixed sum per late invoice: \u00a340 for debts under \u00a31,000, \u00a370 for \u00a31,000 to \u00a39,999.99, and \u00a3100 for \u00a310,000 or more. You can also claim reasonable debt recovery costs if the fixed sum does not cover them."}}, {"@type": "Question", "name": "When does a business invoice become late if no date was agreed?", "acceptedAnswer": {"@type": "Answer", "text": "Under the Act the default is 30 days after the later of the invoice being received and the goods or services being delivered. If you agreed a payment date or terms, that date applies."}}, {"@type": "Question", "name": "Does this apply to consumers?", "acceptedAnswer": {"@type": "Answer", "text": "No. The Act covers contracts where both sides are acting in the course of a business, or a public body is the buyer. It does not cover debts owed by private individuals."}}, {"@type": "Question", "name": "Can I write a different late fee into my terms?", "acceptedAnswer": {"@type": "Answer", "text": "Contract terms can set their own interest only if they provide a substantial remedy for late payment; otherwise the statutory rate applies. Check this with a solicitor if it matters."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK LATE PAYMENT INTEREST CALCULATOR · LATE PAYMENT ACT 1998 · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can I charge on a late business invoice?</h1>
+    <p>Enter the unpaid amount and the due date. You get the statutory interest (8% over the Bank of England base rate), the fixed compensation, the daily rate, where the total will be in 30, 60 and 90 days, and a demand letter with your figures filled in.</p>
+    <p class="note">For invoices between two businesses. Base rates are built in from 2023; check them on GOV.UK. Not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="amount">Unpaid invoice amount (&pound;)</label><input id="amount" type="number" min="0" step="0.01"></div>
+      <div><label for="dueMode">When was it due?</label><select id="dueMode"><option value="agreed">Agreed due date</option><option value="invoice30">No date agreed (30 days after invoice or delivery)</option></select></div>
+      <div><label for="dueDate">Due date, or invoice/delivery date (YYYY-MM-DD)</label><input id="dueDate" type="text" placeholder="2026-07-31"></div>
+      <div><label for="asOf">Work out the figure as at (YYYY-MM-DD)</label><input id="asOf" type="text" placeholder="2026-10-14"></div>
+      <div><label for="clientType">Who owes it?</label><select id="clientType"><option value="business">A business or public body</option><option value="consumer">A private individual</option></select></div>
+      <div><label for="baseOverride">Base rate % (leave blank to use the built-in one)</label><input id="baseOverride" type="number" min="0" step="0.01"></div>
+      <div><label for="recoveryCosts">Reasonable recovery costs so far (&pound;, optional)</label><input id="recoveryCosts" type="number" min="0" step="0.01"></div>
+      <div><label for="business">Your business name (for the letter)</label><input id="business" type="text"></div>
+      <div><label for="debtor">Customer name (for the letter)</label><input id="debtor" type="text"></div>
+      <div><label for="invoiceRef">Invoice reference (for the letter)</label><input id="invoiceRef" type="text"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out what I can claim</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Work out what I can claim.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>If it stays unpaid</h2>
+    <div class="scroll"><table><thead><tr><th>Date</th><th class="n">Interest</th><th class="n">Total due</th></tr></thead><tbody id="schedule"></tbody></table></div>
+    <h2>What to do</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <h2>Demand letter</h2>
+    <pre class="sum" id="letter"></pre>
+    <p><button type="button" id="copy-letter">Copy letter</button> <button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> one overdue invoice between two businesses (or a public body): statutory simple interest at 8% over base rate, the fixed compensation tier, optional recovery costs and a demand letter.</li>
+      <li><strong>Gives:</strong> the amount claimable today, the daily interest, a 30/60/90 day projection and a letter to adapt.</li>
+      <li><strong>Not decided:</strong> whether your contract displaces the statutory rate, disputed invoices, part payments, debts owed by individuals, court procedure and fees, and anything that changed after this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How much interest can I charge on a late business invoice in the UK?</h3>
+    <p>Under the Late Payment of Commercial Debts (Interest) Act 1998 you can claim statutory interest at 8% a year over the Bank of England base rate. The base rate used is the one on 31 December for debts that fell due January to June, or on 30 June for debts due July to December. Interest is simple and runs from the day after the due date.</p>
+<h3>What fixed compensation can I claim?</h3>
+    <p>A fixed sum per late invoice: £40 for debts under £1,000, £70 for £1,000 to £9,999.99, and £100 for £10,000 or more. You can also claim reasonable debt recovery costs if the fixed sum does not cover them.</p>
+<h3>When does a business invoice become late if no date was agreed?</h3>
+    <p>Under the Act the default is 30 days after the later of the invoice being received and the goods or services being delivered. If you agreed a payment date or terms, that date applies.</p>
+<h3>Does this apply to consumers?</h3>
+    <p>No. The Act covers contracts where both sides are acting in the course of a business, or a public body is the buyer. It does not cover debts owed by private individuals.</p>
+<h3>Can I write a different late fee into my terms?</h3>
+    <p>Contract terms can set their own interest only if they provide a substantial remedy for late payment; otherwise the statutory rate applies. Check this with a solicitor if it matters.</p>
+<h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your solicitor or GOV.UK before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-self-assessment-tax-calculator/">UK Self Assessment tax calculator</a>, the <a href="../uk-trading-allowance-calculator/">UK trading allowance calculator</a> and the <a href="../uk-money-tools-finder/">UK money tools finder</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { amount: "amount", dueMode: "dueMode", dueDate: "dueDate", asOf: "asOf", clientType: "clientType", baseOverride: "baseOverride", recoveryCosts: "recoveryCosts", business: "business", debtor: "debtor", invoiceRef: "invoiceRef" };
+    const IDLE = "Fill in the figures, then click Work out what I can claim.";
+    const DEFAULTS = { dueMode: "agreed", clientType: "business", asOf: new Date().toISOString().slice(0, 10) };
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.daysLate ? `You can claim ${gbp(r.claimable)} on top of the invoice: ${gbp(r.total)} in all, at ${r.rate}% (${gbp(r.perDay)} a day).` : "Not overdue on this date, so nothing extra is owed yet.";
+      $("#letter").textContent = r.letter;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#schedule").innerHTML = r.horizon.map((h) => `<tr><td>${esc(h.date)} (+${h.days} days)</td><td class="n">${gbp(h.interest)}</td><td class="n">${gbp(h.total)}</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify the base rate on GOV.UK before sending the letter.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#asOf").value = DEFAULTS.asOf;
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a £4,800 invoice due 31 July 2026, figure as at 14 October 2026.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#copy-letter").addEventListener("click", async () => { if (last) { try { await navigator.clipboard.writeText(last.letter); status.textContent = "Letter copied."; } catch { status.textContent = "Copy failed: select the letter text and copy it."; } } });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("late-payment-interest.txt", summaryText(last) + "\n\n" + last.letter, "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "focal-laziness"
+version = "0.1.0"
+description = "Peer prediction with a shared lazy default: multi-task agreement pays for coordinated laziness, effort is a coordination game with an always-present lazy equilibrium, and a gold-check rate closes it"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

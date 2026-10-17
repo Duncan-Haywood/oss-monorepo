@@ -1,0 +1,71 @@
+name: airbnb-payout-to-journal
+description: >-
+  Free browser tool that turns an Airbnb host Transaction history CSV into balanced accounting journals for
+  Xero, QuickBooks Online and QuickBooks Desktop (IIF). It splits every reservation into rental income,
+  cleaning-fee income and Airbnb's host service fee, books cancellations, resolution adjustments and co-host
+  payouts on their own lines, books Pass Through Tax as an occupancy tax liability, compares the rows with the
+  payouts stated in the file (timing differences are explained, not hidden), writes one journal per calendar
+  month on a cash (paid) or stay (check-in) basis balanced to an Airbnb clearing account, and journals anything
+  no rule explains to an uncategorised account rather than dropping it. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05. The commercial analogue is the short-term-rental accounting layer: A2X-style and Synder
+# marketplace syncs, Hostfully/Hospitable/Lodgify accounting exports and bookkeepers who charge per property to
+# re-key the Airbnb statement. Airbnb hosts are a very large self-employed population who keep their own books or
+# hand a CSV to a bookkeeper at tax time; the deposit hits the bank net of Airbnb's fee, so the usual mistake is
+# booking the deposit as income (fees, cancellations and the month a stay belongs to all disappear), and
+# Schedule E / bookkeeping cleanups are the expensive result. Sibling of gumroad-sales-to-journal,
+# shopify-payout-to-journal, stripe-payout-to-journal, paypal-activity-to-journal, amazon-settlement-to-journal,
+# etsy-statement-to-journal, square-sales-to-journal, ebay-payout-to-journal and payroll-register-to-journal:
+# same journal engine, different export. The portfolio had str-host-payout-calculator (what a stay nets) but no
+# journal an accountant posts.
+# Search phrases: "Airbnb to QuickBooks", "Airbnb to Xero", "Airbnb income journal entry", "how to record Airbnb
+# payouts in QuickBooks", "Airbnb transaction history bookkeeping", "Airbnb host service fee accounting".
+# Volume not measured with an external tool.
+#
+# Who: individual hosts with one to a few listings and the bookkeepers or property managers serving several of
+# them, who today book the net deposit as income (wrong) or pay per-property sync fees.
+#
+# Path to revenue (payment rails stay off): lead magnet for the host and bookkeeper audience, linked from the
+# host payout calculator. If usage appears, the paid version is what a browser page cannot do: batch many
+# properties and clients, split by listing/class, remember the account mapping per client, add VRBO and
+# Booking.com statements, and pull exports on a schedule (behind an env-var switch). Not built.
+#
+# Liability: it writes a journal from the user's own export, shows the checks it ran, states what it does not
+# check (tax treatment, occupancy-tax filing, currency conversion, the correctness of Airbnb's own figures), and
+# carries the no-warranty, independent-of-Airbnb and financial-data clauses.
+#
+# Unverified: the column names and type labels of the real Airbnb Transaction history CSV, whether occupancy
+# taxes appear inside or beside the Amount, how a cancellation or a resolution adjustment is signed, and the
+# Xero, QuickBooks Online and IIF import layouts are all from memory of public help documents; nothing ran
+# against a real Airbnb export or a live import. The first export this misreads, or a journal an importer
+# refuses, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An Airbnb host or their bookkeeper will paste a Transaction history CSV into a no-upload page to get a
+      month-split journal, because the alternatives are booking the net deposit (hiding fees, cancellations and
+      the month a stay belongs to) or paying a per-property sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a statement this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/airbnb-payout-to-journal/
+  analytics: null

@@ -1,0 +1,44 @@
+name: music-teacher-studio-profit-calculator
+description: >-
+  Free browser calculator for independent private music teachers: enter lesson prices, prep and travel time, cancellation policy, weeks taught against weeks billed, rent,
+  instruments and recital costs, and see the effective hourly rate, the price each kind of lesson needs for a target hourly, break-even students, what cancellations cost a year,
+  and what the same teaching nets privately, for a music school at a percentage split, or in a rented room. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. `ls ventures | grep -i -E 'music|piano|lesson'` finds music-lesson-break-even (a lesson-price and capacity model), music-distribution-fee-calculator
+# (streaming royalties) and driving-instructor-lesson-pricing-calculator; none compares teaching privately with a music school split and a rented room, or costs cancellation policy and
+# unbilled holiday weeks into an effective hourly rate. Not in screened-out.md. Sits beside music-lesson-break-even rather than replacing it.
+#
+# First visitor: independent piano, guitar and voice teachers searching "how much to charge for private music lessons", "music teacher hourly rate after prep and travel" and
+# "teach for a music school split vs private studio". Timing: peaks around the September start of term and January; volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Independent private music teachers will type a typical week's lessons, cancellation policy and studio costs into a no-signup calculator to learn their real hourly rate and to
+      decide between a private studio, a music school split and a rented room, because most price by copying the teacher down the road and never count prep, travel, cancellations or
+      the weeks they teach but do not bill.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/music-teacher-studio-profit-calculator/
+  analytics: null

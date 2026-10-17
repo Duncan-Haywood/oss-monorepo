@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-recalibration"
+version = "0.1.0"
+description = "How often, and how hard, to re-identify a digital twin of a drifting plant: closed-form recalibration schedule, equal-thirds cost law, and the price of not using operating data"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

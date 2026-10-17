@@ -1,0 +1,39 @@
+name: uk-vat-registration-checker
+description: >-
+  Free browser tool for UK sole traders and small firms: paste monthly taxable sales to see the month the rolling 12-month total passed the GBP 90,000 VAT threshold, the date to tell HMRC, the registration start date, the 30-day forward test, and whether the Flat Rate Scheme (including the 16.5% limited cost trader rate) saves money. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no UK VAT tool in ventures/ (siblings: uk-mtd-income-tax-checker, uk-sole-trader-vs-limited-company-calculator, which now link here).
+#
+# First visitor: UK freelancer, tradesperson, Etsy/eBay/Amazon seller or bookkeeper searching "do I need to register for VAT", "VAT threshold 90000 rolling 12 months", "VAT flat rate scheme worth it".
+# Millions of UK micro-businesses face a dated legal duty with a penalty; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a monthly threshold monitor / reminder pack behind an env-var switch.
+#
+# Liability: rules written from memory without network access; the page names GOV.UK as the source, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (exempt/mixed supplies, groups, overseas sellers, penalties). Ethical risk is false comfort from a "below" result, mitigated by the close-to-threshold warning and the month-end re-test note.
+hypotheses:
+  - claim: >-
+      UK micro-businesses near the VAT threshold will use a free checker to learn their trigger month, deadline and whether the Flat Rate Scheme is worth joining.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold, date or flat rate differs from HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-vat-registration-checker/
+  analytics: null

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ICS Calendar Checker — Find Why an .ics File Won't Import and Fix It</title>
+  <meta name="description" content="Free iCalendar (.ics) checker: finds the missing UID, DTSTAMP and VERSION, events that end before they start, bad recurrence rules, time zones without definitions, duplicate UIDs and long lines that make Google Calendar, Outlook and Apple Calendar reject a file, and writes it back fixed. Runs in your browser; the file is never uploaded.">
+  <meta property="og:title" content="ICS Calendar Check — free, private, in your browser">
+  <meta property="og:description" content="Find out why a calendar file will not import, with line numbers, and download a repaired copy. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ICS Calendar Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks an iCalendar (.ics) file for the problems that make Google Calendar, Outlook and Apple Calendar reject or mis-import it: missing UID, DTSTAMP, VERSION, PRODID, events ending before they start, bad recurrence rules, time zones without definitions, duplicate UIDs, unfolded long lines and wrong line endings, and writes it back with the provable fixes applied. Runs entirely in your browser; the file is never uploaded.", "featureList": "ICS validator, iCalendar fixer, RRULE checker, VTIMEZONE check"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my .ics file fail to import into Google Calendar or Outlook?", "acceptedAnswer": {"@type": "Answer", "text": "The usual causes are a missing UID, DTSTAMP, VERSION or PRODID, an event that ends before it starts, a recurrence rule with both COUNT and UNTIL, a time zone named without its VTIMEZONE definition, or a file whose lines were broken without the leading space that marks a continuation. This tool reports each one with its line number."}}, {"@type": "Question", "name": "What does a TZID without a VTIMEZONE do?", "acceptedAnswer": {"@type": "Answer", "text": "The file says the time is in, for example, America/New_York but does not define that zone. Some apps know the name already; others, Outlook in particular, are commonly reported to show the event at the wrong hour. Writing times in UTC (ending in Z) or including the VTIMEZONE block avoids the question. The tool warns about it but does not invent transition rules."}}, {"@type": "Question", "name": "Why is my all-day event not showing or one day short?", "acceptedAnswer": {"@type": "Answer", "text": "For all-day events (VALUE=DATE) the end date is exclusive: a one-day event on 10 February has DTEND of 11 February. A DTEND equal to DTSTART means zero length. The tool moves it forward one day when you apply the fixes."}}, {"@type": "Question", "name": "What does the fixed file change?", "acceptedAnswer": {"@type": "Answer", "text": "Only things it can prove: adds VERSION and PRODID when missing, adds a stable UID and a DTSTAMP to events that lack them, moves a zero-length all-day DTEND forward a day, refolds lines to 75 octets and writes CRLF line endings. Everything else is left exactly as it was and listed as a finding."}}, {"@type": "Question", "name": "Is my calendar uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the file in your browser and a test in the code asserts there are no network calls."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether a particular app will accept the file, free/busy and scheduling methods (iTIP), attachments, alarms in detail, or the correctness of VTIMEZONE rules. It reads the standard calendar and event properties."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ICS CALENDAR CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why won't this calendar file import?</h1>
+    <p>Paste or drop an <strong>.ics (iCalendar) file</strong> and get every problem <strong>with its line number</strong> before Google Calendar, Outlook or Apple Calendar rejects it or puts events in the wrong place: <strong>missing UID or DTSTAMP</strong>, <strong>events that end before they start</strong>, <strong>all-day events with zero length</strong>, <strong>broken recurrence rules</strong>, <strong>time zones with no definition</strong>, <strong>duplicate UIDs</strong> and <strong>unfolded long lines</strong>. Then download a copy with every provable fix applied.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. This checks the file against the iCalendar standard, not against any one app. Independent of every calendar product named.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your calendar file</h2>
+    <p class="note">An .ics export from any calendar, a booking system, an events plugin or a script.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".ics,.ical,.ifb,text/calendar,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="BEGIN:VCALENDAR&#10;VERSION:2.0&#10;PRODID:-//Example//EN&#10;BEGIN:VEVENT&#10;..."></textarea>
+    <p>
+      <button type="button" id="validate">Check calendar</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Check calendar.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="fix-box" hidden>
+      <h3>Fixed file</h3>
+      <p class="note" id="fix-note"></p>
+      <ul id="fix-list"></ul>
+      <label for="fixed-out">Preview</label>
+      <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-fixed">Download fixed file</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Required:</strong> VCALENDAR with VERSION:2.0 and PRODID; every VEVENT with UID, DTSTAMP and DTSTART (unless it is a scheduling message with METHOD).</li>
+      <li><strong>Times:</strong> dates must be real (no 30 February), DTEND not before DTSTART, DTSTART and DTEND the same type, never both DTEND and DURATION. For all-day events DTEND is the day after the last day.</li>
+      <li><strong>Recurrence:</strong> FREQ required, COUNT and UNTIL not together, UNTIL the same type as DTSTART and in UTC when DTSTART has a time zone.</li>
+      <li><strong>Time zones:</strong> a TZID with no VTIMEZONE is warned about. Floating times (no Z, no TZID) are noted, not condemned.</li>
+      <li><strong>Fixed automatically:</strong> missing VERSION and PRODID, a stable UID and a DTSTAMP for events without them, a zero-length all-day DTEND, lines refolded at 75 octets, CRLF line endings.</li>
+      <li><strong>Never guessed:</strong> which of two clashing end times is right, VTIMEZONE rules, which duplicate UID to keep.</li>
+      <li><strong>Not checked:</strong> whether a given app will accept the file, scheduling (iTIP) methods, attachments, alarms in detail. Read from memory of RFC 5545; confirm against the current standard.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my .ics file fail to import into Google Calendar or Outlook?</h3>
+    <p>The usual causes are a missing UID, DTSTAMP, VERSION or PRODID, an event that ends before it starts, a recurrence rule with both COUNT and UNTIL, a time zone named without its VTIMEZONE definition, or a file whose lines were broken without the leading space that marks a continuation. This tool reports each one with its line number.</p>
+    <h3>What does a TZID without a VTIMEZONE do?</h3>
+    <p>The file says the time is in, for example, America/New_York but does not define that zone. Some apps know the name already; others, Outlook in particular, are commonly reported to show the event at the wrong hour. Writing times in UTC (ending in Z) or including the VTIMEZONE block avoids the question. The tool warns about it but does not invent transition rules.</p>
+    <h3>Why is my all-day event not showing or one day short?</h3>
+    <p>For all-day events (VALUE=DATE) the end date is exclusive: a one-day event on 10 February has DTEND of 11 February. A DTEND equal to DTSTART means zero length. The tool moves it forward one day when you apply the fixes.</p>
+    <h3>What does the fixed file change?</h3>
+    <p>Only things it can prove: adds VERSION and PRODID when missing, adds a stable UID and a DTSTAMP to events that lack them, moves a zero-length all-day DTEND forward a day, refolds lines to 75 octets and writes CRLF line endings. Everything else is left exactly as it was and listed as a finding.</p>
+    <h3>Is my calendar uploaded anywhere?</h3>
+    <p>No. The page reads the file in your browser and a test in the code asserts there are no network calls.</p>
+    <h3>What does this not check?</h3>
+    <p>Whether a particular app will accept the file, free/busy and scheduling methods (iTIP), attachments, alarms in detail, or the correctness of VTIMEZONE rules. It reads the standard calendar and event properties.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace any calendar application's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking that repaired events show at the right time, and a clean result is not a promise that an app will accept the file.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Google, Microsoft, Apple or any other company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../gpx-track-check/">GPX track check</a> does the same for GPS track files, the <a href="../vcard-contacts-check/">vCard contacts check</a> does the same for contacts files, the <a href="../gtin-list-check/">GTIN list check</a>, the <a href="../email-list-csv-check/">email list CSV check</a> and the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> do the same job for other files you upload.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let lastResult = null, fixedText = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const options = () => ({});
+
+    function run(text) {
+      const o = options();
+      const r = validate(text, o);
+      lastResult = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.events} event${s.events === 1 ? "" : "s"} in ${s.calendars} calendar${s.calendars === 1 ? "" : "s"} · ${s.fixable} problem${s.fixable === 1 ? "" : "s"} fixable automatically`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      const fix = repair(text, { now: Date.now() });
+      fixedText = fix.text;
+      $("#fix-box").hidden = false;
+      $("#fixed-out").value = fix.text;
+      $("#fix-note").textContent = fix.changes.length ? `${fix.changes.length} change${fix.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left exactly as it was and named above.` : "No provable fixes: the file is written as it was.";
+      $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.events} event(s).` : `No errors in ${s.events} event(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("file_checked");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: one made-up weekly meeting."; }
+    });
+    $("#load-broken").addEventListener("click", () => {
+      $("#paste").value = sampleBrokenFile(); $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: no UID or DTSTAMP, an event ending before it starts, a bad recurrence rule, a missing time zone, a duplicate UID and an impossible date."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file"]) $(id).value = ""; report.hidden = true; lastResult = null; fixedText = null; status.textContent = "Choose a file or paste the text, then click Check list."; });
+    $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("calendar-fixed.ics", fixedText, "text/calendar"); } });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (lastResult) download("calendar-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Studio Class Slot Optimizer — which classes to cut, keep or add</title>
+  <meta name="description" content="Free class timetable optimizer for fitness, yoga, pilates and dance studios. Paste your attendance log to see which slots lose money, your break-even class size, and which classes are full enough to double. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Studio Class Slot Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Turn your attendance log into cut, keep and add-a-class verdicts per timetable slot, with honest ranges.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Studio Class Slot Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your class attendance log and see which timetable slots lose money, which are safe, and which are so full they need a second class, with empirical-Bayes adjusted attendance, bootstrap ranges and the money gained by cutting each slot after regulars switch. Runs entirely in your browser.", "featureList": "class timetable optimizer, fitness class break-even attendance, which classes to cut, studio schedule analysis, empirical Bayes shrinkage, bootstrap range, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which fitness classes should I cut?", "acceptedAnswer": {"@type": "Answer", "text": "The ones where cutting saves more than it loses. A class costs you an instructor and a room slot whether three people or eighteen show up, so the test is average attendance times what each attendee is worth, against what the class costs to run, after allowing for regulars who would simply switch to another class. This tool reads your own attendance log, shrinks small samples toward the studio average so three quiet Tuesdays do not condemn a slot, and only says cut when the bootstrap ranges agree."}}, {"@type": "Question", "name": "How do I find my break-even class size?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the cost of running one class (instructor pay plus any room or cleaning cost) by what each attendee contributes after their own variable costs. The tool prints it for you. A slot whose real average sits under that number loses money every time it runs, unless it feeds other classes you would lose."}}, {"@type": "Question", "name": "What if people who lose a class just go to another one?", "acceptedAnswer": {"@type": "Answer", "text": "Then cutting costs you little, which is why the tool asks for the share of a cut class's attendees who would switch, 40% by default. It also warns when the remaining classes do not have enough spare spots to absorb them, because a switch rate that needs seats that are not there is wishful."}}, {"@type": "Question", "name": "How many classes of history do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 20 classes in total, across at least 4 slots with 3 or more classes each. Fewer cannot separate a weak slot from a bad week. Slots with fewer than 3 classes get no verdict. A few months of a weekly timetable is usually enough."}}, {"@type": "Question", "name": "Why does a full class get its own verdict?", "acceptedAnswer": {"@type": "Answer", "text": "Attendance cannot exceed the room, so a class that is always full hides how many people wanted in. The tool flags slots averaging 90% or more of capacity, with a lower range still above 85%, as candidates for a second class or a waitlist, and says plainly that it cannot see the demand it cannot count."}}, {"@type": "Question", "name": "Does this know about memberships, seasons or instructors?", "acceptedAnswer": {"@type": "Answer", "text": "No. It treats each slot's attendance as the only signal. Class-pack and membership revenue that is paid whether or not people attend, seasonal swings, and instructor popularity are not modelled. Use the revenue-per-attendee box to reflect what an extra head is really worth to you."}}, {"@type": "Question", "name": "Is my attendance log uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your members' data. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STUDIO CLASS SLOT OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which classes on your timetable are losing you money?</h1>
+    <p>Paste or upload your attendance log: <strong>one row per class held, with the slot (like "Mon 6am"), how many attended, and optionally the room capacity</strong>. Tell it what an attendee is worth and what a class costs to run. The tool shows each slot's <strong>adjusted average attendance</strong>, your <strong>break-even class size</strong>, the <strong>money gained or lost by cutting each slot</strong> after regulars switch to another class, and which slots are <strong>so full they need a second class</strong>. It refuses when your log cannot answer.</p>
+    <p class="note">Your attendance log never leaves this browser tab. Statistical estimate from data you supply, not advice. It cannot see membership revenue, seasons or instructor draw.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your attendance log</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: slot, attended, capacity)</label>
+    <textarea id="rows" spellcheck="false" placeholder="slot,attended,capacity&#10;Mon 6am,7,20&#10;Mon 6pm,16,20&#10;Tue 12pm,4,20"></textarea>
+    <div class="row3">
+      <div><label for="revenue">Revenue per attendee per class ($)</label><input id="revenue" inputmode="decimal" placeholder="e.g. 18"></div>
+      <div><label for="varcost">Extra cost per attendee ($)</label><input id="varcost" inputmode="decimal" placeholder="e.g. 2 (towels, payment fees)"></div>
+      <div><label for="instr">Cost to run one class ($)</label><input id="instr" inputmode="decimal" placeholder="e.g. 70 (instructor + room)"></div>
+      <div><label for="cap">Default capacity (if no column)</label><input id="cap" inputmode="decimal" placeholder="e.g. 20"></div>
+      <div><label for="transfer">Share of a cut class who would switch (0 to 1)</label><input id="transfer" inputmode="decimal" placeholder="0.4"></div>
+    </div>
+    <p class="note">Revenue per attendee: use your average class-pack or drop-in yield. Each slot is assumed to run once a week. At least 20 classes, across at least 4 slots with 3+ classes each.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your log and fill in the money boxes, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div id="trust"></div>
+    <h3>Every slot, best cut candidate first</h3>
+    <p class="note">Gain from cutting is per class: the instructor and room cost you stop paying, minus the margin from attendees who would not switch. The range is the 10th to 90th percentile of 300 seeded bootstrap resamples.</p>
+    <div class="scroll"><table id="slots"><thead><tr><th>Slot</th><th class="n">Classes</th><th class="n">Adjusted avg</th><th class="n">Fill</th><th class="n">Earns per class</th><th class="n">Gain from cutting (range)</th><th>Verdict</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download slot CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> each slot's attendance is averaged, then shrunk toward the all-slot average by an empirical-Bayes weight (a slot seen 3 times is pulled in harder than one seen 30 times; the weight comes from how much slots really differ versus how noisy one slot is). Earns per class is adjusted average × (revenue − extra cost per attendee) − cost to run a class. Gain from cutting is cost to run − (1 − switch share) × adjusted average × margin. A slot is "cut or move" when that gain is positive in at least 80% of 300 seeded bootstrap resamples of its classes, "keep" when it is negative in at least 80%, otherwise "watch". "Full: add a class" needs an average of 90% of capacity or more, with the low end still above 85%.</p>
+    <p><strong>Not modelled:</strong> membership and class-pack revenue that does not depend on a given class, seasons and holidays, instructor popularity, classes that feed or cannibalise each other beyond the switch share, and demand hidden by a full room. <strong>Unverified:</strong> checked against simulated timetables with known slot means in unit tests, not against a real studio's data. Treat a cut verdict as a prompt to try moving or trialling the slot, not an instruction.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which fitness classes should I cut?</h3>
+    <p>The ones where cutting saves more than it loses. A class costs you an instructor and a room slot whether three people or eighteen show up, so the test is average attendance times what each attendee is worth, against what the class costs to run, after allowing for regulars who would simply switch to another class. This tool reads your own attendance log, shrinks small samples toward the studio average so three quiet Tuesdays do not condemn a slot, and only says cut when the bootstrap ranges agree.</p>
+    <h3>How do I find my break-even class size?</h3>
+    <p>Divide the cost of running one class (instructor pay plus any room or cleaning cost) by what each attendee contributes after their own variable costs. The tool prints it for you. A slot whose real average sits under that number loses money every time it runs, unless it feeds other classes you would lose.</p>
+    <h3>What if people who lose a class just go to another one?</h3>
+    <p>Then cutting costs you little, which is why the tool asks for the share of a cut class's attendees who would switch, 40% by default. It also warns when the remaining classes do not have enough spare spots to absorb them, because a switch rate that needs seats that are not there is wishful.</p>
+    <h3>How many classes of history do I need?</h3>
+    <p>At least 20 classes in total, across at least 4 slots with 3 or more classes each. Fewer cannot separate a weak slot from a bad week. Slots with fewer than 3 classes get no verdict. A few months of a weekly timetable is usually enough.</p>
+    <h3>Why does a full class get its own verdict?</h3>
+    <p>Attendance cannot exceed the room, so a class that is always full hides how many people wanted in. The tool flags slots averaging 90% or more of capacity, with a lower range still above 85%, as candidates for a second class or a waitlist, and says plainly that it cannot see the demand it cannot count.</p>
+    <h3>Does this know about memberships, seasons or instructors?</h3>
+    <p>No. It treats each slot's attendance as the only signal. Class-pack and membership revenue that is paid whether or not people attend, seasonal swings, and instructor popularity are not modelled. Use the revenue-per-attendee box to reflect what an extra head is really worth to you.</p>
+    <h3>Is my attendance log uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your members' data. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the attendance you supply; they do not guarantee what any class will draw in future.</p>
+    <p><strong>Independent.</strong> Not affiliated with any studio-management or booking-software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your attendance log is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../class-price-and-minimum-optimizer/">class price and minimum optimizer</a> for what to charge per seat, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>, the <a href="../ad-slot-sell-through-planner/">ad slot sell-through planner</a> for another fixed-inventory slot business, the <a href="../3d-print-price-calculator/">3D print price calculator</a> for another small maker pricing their own hours, the <a href="../boutique-fitness-studio-pricing-planner/">boutique fitness studio pricing planner</a> for what unlimited, packs and drop-ins each earn, the <a href="../personal-trainer-package-pricing-calculator/">personal trainer package pricing calculator</a> the <a href="../shift-cover-optimizer/">shift cover optimizer</a> and, for a multi-court racquet-sport facility, the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.rows, { revenue: val("#revenue"), varCost: val("#varcost"), instructorCost: val("#instr"), capacity: val("#cap"), transfer: val("#transfer") });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [r.breakEven.toFixed(1), "Break-even attendance per class (cost to run ÷ margin per attendee)"],
+        [String(r.flagged), `Slot(s) worth cutting or moving, of ${r.slots} judged`],
+        [money(r.totalCutGain), "Gain per week if every flagged slot is cut, at your switch share"],
+        [r.grand.toFixed(1), "Average attendance across every class"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const pill = r.verdict === "usable" ? ["good", "usable"] : ["medium", "weak evidence"];
+      $("#trust").innerHTML = `<div class="warn"><span class="pill ${pill[0]}">${pill[1]}</span>${r.verdict === "usable" ? "Every slot has at least 8 classes behind it. Still a description of the past: trial a move before you delete a class people attend." : "Some slots have fewer than 8 classes, so read their numbers as rough and log more weeks."}</div>`;
+      $("#slots tbody").innerHTML = r.rows.map((s) => `<tr><td>${esc(s.slot)}</td><td class="n">${s.classes}</td><td class="n">${s.adjMean.toFixed(1)}</td><td class="n">${pct(s.fill, 0)}</td><td class="n">${money(s.perClass)}</td><td class="n">${money(s.cutGain)} (${money(s.cutGainRange80[0])} to ${money(s.cutGainRange80[1])})</td><td><span class="pill ${s.verdict === "cut or move" ? "high" : s.verdict === "watch" ? "medium" : s.verdict === "keep" ? "good" : "info"}">${esc(s.verdict)}</span></td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#revenue").value = "18"; $("#varcost").value = "2"; $("#instr").value = "70"; $("#cap").value = "20"; $("#transfer").value = "0.4";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 80 invented classes, not a real studio."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Fill in the money boxes and click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your log and fill in the money boxes, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "class-slot-verdicts.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

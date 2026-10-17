@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "budget-twin"
+version = "0.1.0"
+description = "Splitting a fixed budget between real data and simulation length for a fitted digital twin: exact variance decomposition, optimal split, and coverage of simulation-only confidence intervals for an M/M/1 instrument twin"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

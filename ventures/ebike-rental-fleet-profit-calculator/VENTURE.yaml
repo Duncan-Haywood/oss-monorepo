@@ -1,0 +1,55 @@
+name: ebike-rental-fleet-profit-calculator
+description: >-
+  Free browser tool for people running or starting an e-bike rental counter (bike shop, hotel,
+  campground, tour desk): enter bikes, busy and quiet days and utilization, half-day and full-day
+  prices, add-ons, staff, rent, batteries, replacement and any loan and see season profit,
+  margin, payback, break-even utilization, the lowest half-day and full-day prices for break-even,
+  a target margin and a payback target, a sensitivity check at 10% and 20% fewer bookings, and a
+  two-scenario comparison (for example thirty bikes against twenty). Copy, CSV, save and load.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.29,
+# golf-simulator-bay-profit-calculator; no e-bike or bike-rental venture existed -- an earlier
+# draft of an EV-charger calculator was dropped in the same session because
+# ev-charging-site-roi-calculator already covered it, which duplicate_check had scored 0.29).
+# Why this niche: e-bike rental is a fast-growing add-on for tourist towns, resorts and bike shops,
+# and a fleet costs $2k+ a bike. The money question is utilization over a short season with staff
+# and rent paid on every open day, and whether the next ten bikes are rented as often as the first
+# ten. Bike-share and rental software vendors answer it only after a sales call. This is the lead
+# magnet for a later paid multi-location planner (payment rails stay off).
+#
+# First visitor: shop owners and property managers searching how much an e-bike rental business
+# makes. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. Not tax, legal, lending or financial
+# advice; does not model claims, permits or taxes; says so. Names no e-bike maker, rental software
+# or insurer. No data fetched, no accounts, nothing stored.
+
+hypotheses:
+  - claim: >-
+      E-bike rental operators and prospective ones will enter their fleet, season and costs into a
+      no-signup tool and use the break-even utilization, minimum prices and fleet-size comparison
+      to decide how many bikes to buy and what to charge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports lowest prices or a break-even utilization that does not reproduce zero profit (or their target) when typed back in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ebike-rental-fleet-profit-calculator/
+  analytics: null

@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/security-headers-check/</loc></url>
 <url><loc>https://example.invalid/security-headers-check/clickjacking-and-csp-frame-ancestors.html</loc></url>
 <url><loc>https://example.invalid/security-headers-check/vs-securityheaders.html</loc></url>
+<url><loc>https://example.invalid/security-headers-check/vs-checking-headers-by-eye-in-devtools.html</loc></url>
 </urlset>

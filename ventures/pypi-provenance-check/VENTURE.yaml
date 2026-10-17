@@ -1,0 +1,163 @@
+name: pypi-provenance-check
+description: Free, read-only checker that reports which packages in a pasted requirements.txt, PEP 621 pyproject.toml, or plain list were published with a PyPI provenance attestation (PEP 740 trusted publishing / OIDC) versus a classic, stealable API token. Browser page or zero-dependency CLI; two read-only GETs per package (metadata, then the PEP 740 integrity endpoint) to the public PyPI API, no upload, no account, no PyPI token needed.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-25. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.38 -- the closest match was
+# npm-provenance-check itself (0.38, same defense pattern, different
+# ecosystem/registry -- the intended sibling, not a duplicate).
+# dependency-confusion-check (pip --extra-index-url misconfiguration) and
+# slopsquatting-check (npm-only, hallucinated-name heuristic) are the other
+# Python/npm-supply-chain-adjacent ventures; neither reads PyPI's PEP 740
+# integrity API or reports publish-mechanism hardening. Not in
+# screened-out.md.
+#
+# Niche test (PRODUCT_PLAYBOOK.md 1):
+#   Who exactly: Python package maintainers and org security/platform
+#     teams migrating (or deciding whether to migrate) publishing onto
+#     PyPI trusted publishing, plus downstream consumers auditing which of
+#     their dependencies still carry upload-token-theft exposure -- the
+#     same audience as npm-provenance-check, one ecosystem over.
+#   What they search: "pypi trusted publishing", "pypi provenance check",
+#     "pep 740 attestation" -- WebSearch 2026-09-25 confirmed real, current
+#     discussion: PyPI's own blog announcing digital attestations
+#     (2024-11-14, "more than 20,000 attestations already published" within
+#     days), Trail of Bits' and Socket's own writeups on the mechanism,
+#     deps.dev serving PyPI attestations, and a dedicated 2026-dated
+#     writeup ("Valid Provenance, Malicious Package") analysing a May 2026
+#     worm that shipped malicious PyPI *and* npm packages carrying valid,
+#     verifiable attestations -- current, dated evidence that the exact
+#     "presence isn't a safety guarantee" nuance this tool's copy states is
+#     an active, live discussion, not a hypothetical.
+#   What it costs them: a maintainer who doesn't know which of their own
+#     packages (or an org's fleet) still publish via a stealable API token
+#     has no prioritized migration list; a consumer who can't see which
+#     dependencies lack provenance can't weigh that signal when auditing
+#     exposure after an incident like the May 2026 worm.
+#   Competitive honesty: `pypi-attestations verify` (PyPA's own tool) is the
+#     real, built-in answer to "does PyPI already do this" and this file
+#     does not overclaim past it -- it verifies the identical attestation,
+#     and does the full cryptographic check (Sigstore bundle, certificate
+#     chain) this tool deliberately does not attempt. Its gap, verified
+#     against the tool's own documented usage (2026-09-25): it checks one
+#     already-downloaded artifact (a URL or local path) at a time, with no
+#     bulk or CI-shaped report across a requirements file or several
+#     repositories -- the same paste-a-file/--json gap npm-provenance-check
+#     fills for npm audit signatures. No dedicated third-party bulk/paste
+#     PyPI provenance checker was found in the same search pass.
+#
+# Technical verification (2026-09-25, this session, against the live API
+# rather than assumed): `GET pypi.org/pypi/<name>/json` and
+# `GET pypi.org/pypi/<name>/<version>/json` are unauthenticated and public
+# (confirmed with curl: pip, six, urllib3). Provenance is NOT in that
+# response -- it lives on a separate per-file endpoint,
+# `GET pypi.org/integrity/<name>/<version>/<filename>/provenance`, PEP 740's
+# integrity API. Verified live: `pip` 26.2.1's wheel returns HTTP 200 with a
+# non-empty `attestation_bundles` array naming publisher
+# `{kind: GitHub, repository: pypa/pip, workflow: release.yml}`; `six`
+# 1.17.0's wheel returns HTTP 404 `{"message": "No provenance available for
+# ..."}`, confirming absence is a normal, common state for an unmigrated but
+# widely-used package -- the reason the tool's copy is careful never to
+# frame absence as a verdict, and, per the May 2026 worm finding above,
+# presence is not a safety guarantee either. This two-call shape (resolve
+# the file, then check its own provenance) is the one structural difference
+# from npm-provenance-check's single-call design, driven by PyPI modelling
+# attestations per-*file* (wheel/sdist can differ) rather than per-version.
+#
+# Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
+# bold must clear 5):
+#   ai_leverage: 1 (deterministic field lookup; no model involved)
+#   autonomous_ops: 10 (static page + CLI, no queue, no human step)
+#   time_to_revenue: 5 (donations-only today like the rest of this
+#     portfolio, same class as this portfolio's other dev-tool checkers)
+#   gross_margin: 10 (GitHub Pages hosting; the PyPI calls run in the
+#     visitor's own browser or their own CLI invocation, zero cost to us)
+#   defensibility: 3 (the integrity API is public and the lookup is
+#     trivial to reproduce -- typical for this portfolio's checker shape;
+#     the paste-and-go / bulk-JSON / two-ecosystem-sibling angle is the
+#     edge, not the mechanism)
+#   distribution: 4 (real, dated, recurring 2024-2026 discussion of PyPI
+#     trusted publishing and a concrete, current 2026 incident sharpening
+#     the "presence isn't safety" nuance, but no confirmed community hub
+#     with proven recurring-thread volume -- same evidence class as
+#     npm-provenance-check, whose sibling status is itself a distribution
+#     asset: linked from an already-shipped, thematically identical tool)
+#   **liability_containment: 8** (every input is a package name/version the
+#     user already has in their own requirements file or is about to add;
+#     output is a factual API field per package, never a security
+#     determination -- the page and CLI both state explicitly that absence
+#     of provenance is not evidence of compromise and presence is not a
+#     safety guarantee, citing the May 2026 worm finding, matching this
+#     portfolio's other read-only checkers)
+#   **ethical_robustness: 9** (purely informational; helps a maintainer or
+#     consumer see a real, PyPI-documented hardening signal more easily; no
+#     scraped or personal data, nothing adversarial, scales with zero
+#     externality -- one user's lookup does not affect another's)
+#   Composite: 5.5; floor 1 (ai_leverage, same floor class as this
+#     portfolio's other zero-marginal-cost checkers)
+#
+# Distribution channel evidence (DIRECTION.md North star point 2): the
+# active 2024-2026 supply-chain-hardening discourse around PyPI trusted
+# publishing, PEP 740, and the May 2026 cross-ecosystem worm is a distinct-
+# but-adjacent audience to npm-provenance-check's (Python vs. JS package
+# maintainers and org security teams), and from this portfolio's existing
+# npm-supply-chain siblings (dependency-confusion-check, slopsquatting-
+# check), which target a different attack class (index-URL confusion,
+# typosquatting) rather than publish-mechanism hardening. Reciprocal
+# footer links from npm-provenance-check and dependency-confusion-check
+# give this venture an inbound crawl path from day one rather than relying
+# solely on the sitemap.
+
+hypotheses:
+  - claim: >-
+      A maintainer or security engineer who has read about PyPI trusted
+      publishing, PEP 740, or the May 2026 cross-ecosystem attestation worm
+      will paste a requirements.txt (or run the CLI in CI) to see which of
+      their own or their dependencies' packages still lack a provenance
+      attestation, because pypi-attestations verify checks one downloaded
+      artifact at a time with no exportable, requirements-file-shaped
+      report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Resolving a package's version and file via PyPI's metadata API, then
+      reading attestation_bundles from its PEP 740 integrity endpoint,
+      correctly and consistently identifies trusted-publishing packages,
+      verified in-repo against real, currently published releases rather
+      than assumed from documentation alone.
+    status: supported
+    checked: 2026-09-25
+    evidence: in-repo
+  - claim: >-
+      A team wiring the CLI's --without-provenance-only --json output into
+      a script will use it to track migration progress across more than
+      one repository, the specific gap named as this tool's edge over
+      pypi-attestations verify.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage, organic referral traffic, or GitHub
+    stars/forks within 90 days of the 2026-09-25 launch.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within that same 90-day window.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pypi-provenance-check/
+  analytics: null

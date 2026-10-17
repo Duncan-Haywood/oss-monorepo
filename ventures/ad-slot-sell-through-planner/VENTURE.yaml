@@ -1,0 +1,63 @@
+name: ad-slot-sell-through-planner
+description: >-
+  Free browser tool for newsletter and podcast publishers. Paste past ad runs
+  to see sell-through and trend, unsold revenue, a fitted or assumed price
+  response, a raise/hold/lower recommendation, booking pace for the next run,
+  last-minute floor and multi-run package math. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07. duplicate_check.py "ad inventory sell-through yield
+# manager for podcasters and newsletter publishers": closest 0.18, no venture
+# manages inventory after the price is set. newsletter- and podcast-
+# sponsorship-rate-calculator price a first rate card from audience size; this
+# tool starts from what actually sold and tells a seller who already has a
+# rate card whether to move it. That is the recurring decision, and the
+# paid alternatives (ad-network dashboards, Paved, Swapstack) take a cut or
+# need a listing.
+#
+# First visitor: r/podcasting, r/newsletters, creator-economy Discords, and
+# searches like "newsletter ad sell through rate", "should I raise my
+# sponsorship price"; volume not measured.
+#
+# Liability: planning arithmetic on the user's own numbers; no personal data,
+# no filings, no third-party money. Output is a hypothesis to test, never a
+# forecast. Not reviewed by a lawyer.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; if
+# usage appears, a local-first multi-newsletter tracker with a saved booking
+# curve per slot is the natural next build.
+
+hypotheses:
+  - claim: >-
+      Publishers who already sell sponsorships will paste their own run history
+      into a private tool to decide whether to change price, because the
+      alternative is eyeballing a spreadsheet or trusting a marketplace that
+      takes a cut.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The "behind pace" alert for the next run is the part people come back
+      for each issue.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the price recommendation contradicts their own history without the page's stated assumptions explaining it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ad-slot-sell-through-planner/
+  analytics: null

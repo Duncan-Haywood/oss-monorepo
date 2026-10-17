@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/oidc-trust-policy-check/</loc></url>
 <url><loc>https://example.invalid/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html</loc></url>
 <url><loc>https://example.invalid/oidc-trust-policy-check/vs-wiz.html</loc></url>
+<url><loc>https://example.invalid/oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html</loc></url>
 </urlset>

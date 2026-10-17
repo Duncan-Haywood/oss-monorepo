@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "straggler-backup"
+version = "0.1.0"
+description = "Waiting for the fastest k of n workers in synchronous decentralised training: exact round-time laws, time-to-accuracy optimum, and the selection bias the speed filter creates"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

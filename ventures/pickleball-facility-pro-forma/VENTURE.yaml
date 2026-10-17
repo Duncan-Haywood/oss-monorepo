@@ -1,0 +1,73 @@
+name: pickleball-facility-pro-forma
+description: >-
+  Free browser pro-forma for people opening or running an indoor pickleball (or
+  padel) facility: enter courts, hours, rates and utilization by daypart,
+  memberships, other revenue, costs, debt service and ramp-up and see the monthly
+  P&L, revenue per court-hour, break-even utilization and members, a 24-month
+  cash curve with months to cash break-even and peak drawdown, build-out payback,
+  sensitivity tables and what raises profit most. No account; nothing leaves the
+  browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (session_gate.py: BUILD/PROCEED
+# per the brief). duplicate_check.py "pickleball facility pro forma indoor courts
+# business plan" top score 0.29 (dumpster-rental-margin-calculator, a margin
+# calculator for a different asset; no venture models court-hour businesses);
+# screened-out rows not hit. Nearest neighbours: music-lesson-break-even and
+# studio-class-slot-optimizer (small-venue unit economics, not multi-court
+# capacity with memberships and a ramp curve).
+#
+# Why this niche: indoor pickleball is among the fastest-growing US club
+# categories, and people converting warehouses and retail units into courts are
+# small-business owners and investors committing $300k-$2M+ against a plan that is
+# usually a spreadsheet. They pay for build-out consultants, booking/membership
+# software, lenders' feasibility work and court flooring/equipment -- willingness
+# to pay is demonstrated; this is the free lead-magnet end of that funnel
+# (referral or a hosted business-plan export is a later, rails-off path).
+#
+# First visitor: r/pickleball and facility-owner Facebook groups where operators
+# trade utilization and membership numbers; searches "pickleball facility business
+# plan", "how much does it cost to open an indoor pickleball facility", "pickleball
+# facility pro forma", "pickleball court business profit". Volume not measured with
+# an external tool.
+#
+# Liability boundary: arithmetic on user-typed figures; ships no rate, rent, wage,
+# utilization or cost data as fact (sample numbers are labelled invented); not
+# legal, tax, financial, lending or construction advice; says what it does not
+# model (taxes, depreciation, seasonality, churn, price response, overruns,
+# permitting and zoning). Any state-level liability (premises, injury, licensing,
+# sales tax on court time) is the operator's; the tool gives no guidance on it.
+# Not affiliated with any pickleball brand, league or software vendor.
+# Unverified: hand-calculated examples only.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural
+# front end for a hosted facility business-plan export or lender/equipment lead
+# hand-off.
+
+hypotheses:
+  - claim: >-
+      Prospective and early-stage pickleball facility owners will use a private,
+      no-signup pro-forma to test court count, pricing and membership mix, and
+      return to rerun it as quotes and lease terms change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the P&L, break-even or cash curve disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pickleball-facility-pro-forma/
+  analytics: null

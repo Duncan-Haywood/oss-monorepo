@@ -1,0 +1,24 @@
+== payback in copies: by imported mass (selfrep-recyclers) vs by assumed cost; base parameters, eol=0 ==
+printer                      shredder+extruder  by mass   99 | by cost  111 (machines cost  216.3, 94% vitamins; saves 1.956/copy)
+printer+cnc+laser            shredder+extruder  by mass  116 | by cost   98 (machines cost  191.5, 84% vitamins; saves 1.956/copy)
+printer+cnc+laser+casting    shredder+extruder  by mass  116 | by cost   98 (machines cost  191.5, 84% vitamins; saves 1.956/copy)
+printer+cnc+laser+casting    furnace            by mass   94 | by cost  203 (machines cost   84.0, 100% vitamins; saves 0.414/copy)
+
+== plastic pair, shop printer+cnc+laser: payback in copies by cost vs retired plastic (eol) and phi ==
+eol=0.0 phi=0.3: 98 copies
+eol=0.0 phi=0.8: 98 copies
+eol=1.0 phi=0.3: 26 copies
+eol=1.0 phi=0.8: 10 copies
+
+== filament price at which the plastic pair repays in N copies (eol=0, phi=0.3), shop printer+cnc+laser ==
+N= 50 copies: breakeven filament price    42.2 per kg (base assumption 20)
+N= 20 copies: breakeven filament price   138.2 per kg (base assumption 20)
+N= 10 copies: breakeven filament price   572.6 per kg (base assumption 20)
+
+== Monte Carlo: filament, sheet, aluminium price and the vitamin price scale each log-uniform in [0.5, 2]; 2000 draws, seed 0 ==
+printer+cnc+laser            eol=0 shredder+extruder  payback copies 5/50/95%: 45 / 99 / 235
+printer+cnc+laser            eol=1 shredder+extruder  payback copies 5/50/95%: 12 / 27 / 62
+printer+cnc+laser+casting    eol=0 shredder+extruder  payback copies 5/50/95%: 45 / 99 / 231
+printer+cnc+laser+casting    eol=0 furnace            payback copies 5/50/95%: 80 / 202 / 510
+printer+cnc+laser+casting    eol=1 shredder+extruder  payback copies 5/50/95%: 12 / 26 / 63
+printer+cnc+laser+casting    eol=1 furnace            payback copies 5/50/95%: 79 / 205 / 521

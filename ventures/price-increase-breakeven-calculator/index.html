@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Price Increase Break-Even Calculator — How Many Customers Can You Lose</title>
+  <meta name="description" content="Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="How many customers can you lose after a price increase?">
+  <meta property="og:description" content="Break-even volume loss for every item on your price list. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Price Increase Break-Even Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your items and a proposed price increase to see how many units you can lose before the raise stops paying, and the elasticity at which it breaks even. Free, runs in your browser, nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will this tell me how many customers I will lose?", "acceptedAnswer": {"@type": "Answer", "text": "No. How customers react is the one number nobody can read off past sales. The tool shows how many units you can lose before the raise stops paying, and the elasticity at which that happens, so you can judge whether your customers are that sensitive."}}, {"@type": "Question", "name": "What is elasticity here?", "acceptedAnswer": {"@type": "Answer", "text": "The percentage fall in units sold for each 1% rise in price. 1.0 means a 5% raise loses about 5% of units. Commodity goods with many substitutes are often above 1; specialised services with loyal clients are often below it. 1.0 is a placeholder, not a benchmark."}}, {"@type": "Question", "name": "How do I get the numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Export items from your POS, store or price list: price, what each unit costs you to supply (materials, labour, fees that scale with a sale), and units sold over a recent period. Fixed overhead is left out on purpose, because it does not change when units change."}}, {"@type": "Question", "name": "Does it account for competitors or other items?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each item stands alone and costs stay flat. If a raise on one item pushes customers to another item or a rival, that is outside this arithmetic: test on a few items first."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 14px; }
+    .inputs input[type=number] { width: 100%; box-sizing: border-box; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.best td { background: #eaf5ee; }
+    tr.safe td { background: #eef3fa; }
+  
+    tr.loss td { background: #fdf0f0; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PRICE INCREASE BREAK-EVEN CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>How many customers can you lose after a price increase?</h1>
+    <p>Paste your items — price, what each unit costs you, units sold — and set the increase. See <strong>how much volume you can lose before the raise stops paying</strong>, <strong>which items can take it</strong>, and <strong>the customer sensitivity at which it fails</strong>.</p>
+    <p class="note">Nothing is uploaded. The text box is analysed in this browser and never leaves your device. Customer reaction cannot be read from past sales, so you set it and the result shows how much it matters.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your items</h2>
+    <label for="items-input">One item per line: name, price, unit cost, units sold in the period</label>
+    <textarea id="items-input" spellcheck="false" placeholder="Cut and style,60,18,410"></textarea>
+    <div class="inputs">
+      <div><label for="in-increase">Price increase (%)</label><input type="number" id="in-increase" min="0.1" max="200" step="any" value="8"></div>
+      <div><label for="in-elasticity">Assumed elasticity</label><input type="number" id="in-elasticity" min="0" max="20" step="0.1" value="1"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Every item, safest raise first</h3>
+    <table id="cost-table" hidden>
+      <thead><tr><th>Item</th><th class="num">New price</th><th class="num">Can lose</th><th class="num">Stops paying at elasticity</th><th class="num">Profit change</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs analyze items.csv --increase 8
+cat items.csv | node cli.mjs analyze - --increase 5 --elasticity 1.5
+node cli.mjs analyze items.csv --increase 8 --json --fail-on warn</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="price-increase-guide.html">How much volume can you lose after a price increase?</a></p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Costs stay flat, items do not affect each other, and demand follows units × (1 + increase)^-elasticity. Fixed overhead is not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Will this tell me how many customers I will lose?</h3>
+    <p>No. How customers react is the one number nobody can read off past sales. The tool shows how many units you can lose before the raise stops paying, and the elasticity at which that happens, so you can judge whether your customers are that sensitive.</p>
+    <h3>What is elasticity here?</h3>
+    <p>The percentage fall in units sold for each 1% rise in price. 1.0 means a 5% raise loses about 5% of units. Commodity goods with many substitutes are often above 1; specialised services with loyal clients are often below it. 1.0 is a placeholder, not a benchmark.</p>
+    <h3>How do I get the numbers?</h3>
+    <p>Export items from your POS, store or price list: price, what each unit costs you to supply (materials, labour, fees that scale with a sale), and units sold over a recent period. Fixed overhead is left out on purpose, because it does not change when units change.</p>
+    <h3>Does it account for competitors or other items?</h3>
+    <p>No. Each item stands alone and costs stay flat. If a raise on one item pushes customers to another item or a rival, that is outside this arithmetic: test on a few items first.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on the rows you paste plus one behavioural assumption you set; it is not a measurement of your customers and not a forecast of what a price change will earn. Test a raise on a few items and compare units sold before rolling it out. Check any contract, price-lock or regulation that limits when you may raise prices.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: the <a href="../price-elasticity-estimator/">Price Elasticity Estimator</a>, the <a href="../freelance-rate-increase-calculator/">Freelance Rate Increase Calculator</a>, the <a href="../clearance-markdown-planner/">Clearance Markdown Planner</a> and the <a href="../bundle-discount-optimizer/">Bundle Discount Optimizer</a>.</p>
+    <p class="support">Free and open source. If this saved you some guesswork, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseItems, analyze, summarize, fmtE, INPUT_NOTES, MODEL_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#items-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), costT: $("#cost-table"), costR: $("#cost-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+      increase: $("#in-increase"), elasticity: $("#in-elasticity"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const signed = (n) => `${n < 0 ? "-" : "+"}${Math.abs(n).toFixed(2)}`;
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some item rows first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const inc = Number(els.increase.value), el = Number(els.elasticity.value);
+      const o = {};
+      if (inc > 0 && inc <= 200) o.increase = inc / 100;
+      if (el >= 0 && el <= 20) o.elasticity = el;
+      const report = analyze(parseItems(text), o);
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.costT.hidden = !report.count;
+      els.costR.innerHTML = report.count ? report.rows.map((r) => `<tr class="${r.delta < 0 ? "loss" : ""}"><td>${escapeHtml(r.name)}</td><td class="num">${r.newPrice.toFixed(2)}</td><td class="num">${(r.breakEvenLoss * 100).toFixed(1)}%</td><td class="num">${fmtE(r.neutralElasticity)}</td><td class="num">${signed(r.delta)}</td></tr>`).join("") : "";
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${MODEL_NOTE}. Test a raise on a few items and compare units sold before rolling it out.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,price,unit_cost,units
+Basic plan setup,49.00,31.00,220
+Premium hair color,95.00,38.00,140
+Cut and style,60.00,18.00,410
+Deep conditioning add-on,25.00,19.50,300
+Scalp treatment,40.00,14.00,90
+Retail shampoo,28.00,16.50,260`;
+    const EXAMPLE_SETTINGS = { increase: 8, elasticity: 1.5 };
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      els.increase.value = EXAMPLE_SETTINGS.increase;
+      els.elasticity.value = EXAMPLE_SETTINGS.elasticity;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

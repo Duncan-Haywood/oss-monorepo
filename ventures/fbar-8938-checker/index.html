@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FBAR and Form 8938 Checker: Do You Have to File? — Free</title>
+  <meta name="description" content="Free FBAR (FinCEN 114) and Form 8938 checker for US citizens, green card holders and expats with foreign accounts: add your accounts, convert currencies and see which filings the thresholds trigger. Nothing uploaded.">
+  <meta property="og:title" content="FBAR and Form 8938 checker">
+  <meta property="og:description" content="Do your foreign accounts trigger an FBAR, a Form 8938, or both? Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Ccircle cx='16' cy='16' r='8' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3Cpath d='M8 16h16M16 8c-4 4-4 12 0 16M16 8c4 4 4 12 0 16' stroke='%23fff' stroke-width='1.600' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "FBAR and Form 8938 Checker", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Check whether your foreign accounts require an FBAR (FinCEN 114) and a Form 8938. Converts currencies, applies the filing-status and residency thresholds, runs in your browser.", "featureList": "FBAR aggregate test, Form 8938 year-end and any-time tests, currency conversion, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to file an FBAR?", "acceptedAnswer": {"@type": "Answer", "text": "If you are a US citizen, green card holder or US resident and the combined highest balances of all your foreign financial accounts went above $10,000 at any point in the year, yes. The $10,000 is an aggregate across accounts, so five accounts of $2,500 each can trigger it. Balances are converted to dollars at the Treasury year-end rate."}}, {"@type": "Question", "name": "When is the FBAR due, and where do I file it?", "acceptedAnswer": {"@type": "Answer", "text": "April 15 following the calendar year, with an automatic extension to October 15 and no request needed. It is filed electronically with FinCEN through the BSA E-Filing system, not with your tax return."}}, {"@type": "Question", "name": "What is the difference between the FBAR and Form 8938?", "acceptedAnswer": {"@type": "Answer", "text": "They are separate filings with separate thresholds. The FBAR (FinCEN Form 114) goes to FinCEN and has a flat $10,000 aggregate threshold. Form 8938 goes to the IRS with your income tax return and has higher thresholds that depend on filing status and whether you live abroad. Many people with foreign accounts have to file both, and filing one never replaces the other."}}, {"@type": "Question", "name": "What are the Form 8938 thresholds?", "acceptedAnswer": {"@type": "Answer", "text": "Living in the US: single or married filing separately $50,000 on the last day of the year or $75,000 at any time; married filing jointly $100,000 and $150,000. Living abroad: single or separate $200,000 and $300,000; joint $400,000 and $600,000."}}, {"@type": "Question", "name": "Does foreign stock I own directly count?", "acceptedAnswer": {"@type": "Answer", "text": "For Form 8938, yes: foreign stock or securities held outside a financial account, and interests in foreign companies, partnerships or trusts, are specified foreign financial assets. They are not reported on the FBAR unless held in an account."}}, {"@type": "Question", "name": "What are the penalties for missing them?", "acceptedAnswer": {"@type": "Answer", "text": "A non-willful FBAR violation carries a civil penalty of several thousand dollars up to the low five figures, adjusted yearly; willful violations can reach the greater of about six figures or half the account balance. Form 8938 starts at $10,000 and can grow for continued failure. The IRS streamlined and delinquent submission procedures exist for people who missed filings non-willfully. Talk to a tax professional before filing late."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. Verify with the FinCEN FBAR instructions, the Form 8938 instructions and a qualified professional."}}]}</script>
+  <style>
+    :root{--bg:#fff;--fg:#14213d;--muted:#475569;--card:#f4f6fb;--line:#cbd5e1;--accent:#1e3a8a;--bad:#9a1c1c}
+    @media (prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e8edf7;--muted:#a8b4c8;--card:#1a2540;--line:#334162;--accent:#93b4ff;--bad:#ff9b9b}}
+    body{margin:0 auto;max-width:56rem;padding:0 16px 3rem;font:16px/1.55 system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.8rem}
+    label{display:block;font-weight:600;font-size:.9rem} input,select{width:100%;box-sizing:border-box;padding:.45rem;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:6px}
+    button{font:inherit;padding:.5rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);cursor:pointer;margin:.3rem .3rem .3rem 0}
+    button.secondary{background:transparent;color:var(--accent)} .note{color:var(--muted);font-size:.9rem}
+    a{color:var(--accent)} .scroll{overflow-x:auto} table{border-collapse:collapse;width:100%} th,td{border-bottom:1px solid var(--line);padding:.35rem .5rem;text-align:left} .n{text-align:right}
+    .finding{border-left:4px solid var(--accent);padding:.1rem .8rem;margin:.8rem 0} .finding.file{border-color:var(--bad)} .pill{background:var(--accent);color:var(--bg);border-radius:99px;padding:0 .5rem;font-size:.8rem}
+    .arow{display:grid;grid-template-columns:2fr 3fr repeat(3,1fr) auto;gap:.4rem;align-items:end;margin:.4rem 0} @media(max-width:700px){.arow{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FBAR + FORM 8938 CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do your foreign accounts trigger an FBAR or a Form 8938?</h1>
+    <p>List each foreign account or asset with its highest and year-end balance in the local currency and a USD exchange rate. The tool adds them up the way the rules do and tells you which filings the thresholds trigger, and why.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example accounts are placeholders, not yours. The FBAR needs the Treasury year-end exchange rate; Form 8938 allows a reasonable published rate.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. About you</h2>
+      <div class="grid">
+        <div><label for="filingStatus">Filing status</label><select id="filingStatus"><option value="single">Single / head of household</option><option value="mfj">Married filing jointly</option><option value="mfs">Married filing separately</option></select></div>
+        <div><label for="livesAbroad">Do you live abroad?</label><select id="livesAbroad"><option value="no">No, I live in the US</option><option value="yes">Yes: bona fide resident abroad or 330 days outside the US</option></select></div>
+        <div><label for="signatureOnly">Accounts you only sign on, highest combined balance ($)</label><input id="signatureOnly" type="number" step="any" min="0" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Foreign accounts and assets</h2>
+      <p class="note">Joint accounts: each owner counts the whole balance. Rate = US dollars per one unit of the local currency (for example 1.27 for GBP).</p>
+      <div id="rows"></div>
+      <button type="button" class="secondary" id="add">Add an account</button>
+      <button type="button" id="run">Check my filings</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Do I have to file an FBAR?</h3>
+      <p>If you are a US citizen, green card holder or US resident and the combined highest balances of all your foreign financial accounts went above $10,000 at any point in the year, yes. The $10,000 is an aggregate across accounts, so five accounts of $2,500 each can trigger it. Balances are converted to dollars at the Treasury year-end rate.</p>
+      <h3>When is the FBAR due, and where do I file it?</h3>
+      <p>April 15 following the calendar year, with an automatic extension to October 15 and no request needed. It is filed electronically with FinCEN through the BSA E-Filing system, not with your tax return.</p>
+      <h3>What is the difference between the FBAR and Form 8938?</h3>
+      <p>They are separate filings with separate thresholds. The FBAR (FinCEN Form 114) goes to FinCEN and has a flat $10,000 aggregate threshold. Form 8938 goes to the IRS with your income tax return and has higher thresholds that depend on filing status and whether you live abroad. Many people with foreign accounts have to file both, and filing one never replaces the other.</p>
+      <h3>What are the Form 8938 thresholds?</h3>
+      <p>Living in the US: single or married filing separately $50,000 on the last day of the year or $75,000 at any time; married filing jointly $100,000 and $150,000. Living abroad: single or separate $200,000 and $300,000; joint $400,000 and $600,000.</p>
+      <h3>Does foreign stock I own directly count?</h3>
+      <p>For Form 8938, yes: foreign stock or securities held outside a financial account, and interests in foreign companies, partnerships or trusts, are specified foreign financial assets. They are not reported on the FBAR unless held in an account.</p>
+      <h3>What are the penalties for missing them?</h3>
+      <p>A non-willful FBAR violation carries a civil penalty of several thousand dollars up to the low five figures, adjusted yearly; willful violations can reach the greater of about six figures or half the account balance. Form 8938 starts at $10,000 and can grow for continued failure. The IRS streamlined and delinquent submission procedures exist for people who missed filings non-willfully. Talk to a tax professional before filing late.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on the figures you type. Verify with the FinCEN FBAR instructions, the Form 8938 instructions and a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you are a US person for these purposes, accounts held through foreign entities or trusts you control, indirect interests, how to value an account with no statements, exchange-rate sources for each filing, reportable foreign assets on other forms (8621, 3520, 5471, 8865), state rules, and any penalty relief. Thresholds can change by law and are tied to the tax year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../feie-physical-presence-calculator/">foreign earned income exclusion day counter</a> and the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the FinCEN FBAR and IRS Form 8938 instructions and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { KINDS, EXAMPLE_ASSETS, num, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const kindOpts = Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join("");
+    let n = 0;
+    function addRow(a = { name: "", kind: "bank", maxLocal: 0, endLocal: 0, rate: 1 }) {
+      const i = ++n, d = document.createElement("div");
+      d.className = "arow";
+      d.innerHTML = `<div><label for="nm${i}">Name</label><input id="nm${i}" data-f="name" value="${esc(a.name)}"></div>
+        <div><label for="kd${i}">Kind</label><select id="kd${i}" data-f="kind">${kindOpts}</select></div>
+        <div><label for="mx${i}">Highest balance (local)</label><input id="mx${i}" data-f="maxLocal" type="number" step="any" min="0" value="${a.maxLocal}"></div>
+        <div><label for="en${i}">Year-end balance (local)</label><input id="en${i}" data-f="endLocal" type="number" step="any" min="0" value="${a.endLocal}"></div>
+        <div><label for="rt${i}">USD per unit</label><input id="rt${i}" data-f="rate" type="number" step="any" min="0" value="${a.rate}"></div>
+        <button type="button" class="secondary" aria-label="Remove this account">Remove</button>`;
+      d.querySelector("select").value = a.kind;
+      d.querySelector("button").addEventListener("click", () => d.remove());
+      $("rows").appendChild(d);
+    }
+    const assets = () => [...$("rows").children].map((d) => {
+      const g = (f) => d.querySelector(`[data-f="${f}"]`).value;
+      return { name: g("name"), kind: g("kind"), maxLocal: num(g("maxLocal")), endLocal: num(g("endLocal")), rate: num(g("rate")) };
+    });
+    const opts = () => ({ filingStatus: $("filingStatus").value, livesAbroad: $("livesAbroad").value, signatureOnly: Number.isFinite(num($("signatureOnly").value)) ? num($("signatureOnly").value) : 0 });
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function load(list) { $("rows").innerHTML = ""; list.forEach(addRow); }
+    function run() {
+      const a = analyze(assets(), opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, f = r.fbar, t = r.f8938;
+      h += `<div class="finding ${f.required ? "file" : ""}"><h4>FBAR (FinCEN 114): ${f.required ? "you must file" : "not required on these figures"}</h4><p>The highest balances add up to ${money(f.total)} against the ${money(f.threshold)} aggregate threshold${f.required ? ". Due April 15, automatically extended to October 15, filed electronically with FinCEN (not with your tax return)." : `, so you are ${money(f.headroom)} under it. Check again if a balance moves.`}</p></div>`;
+      h += `<div class="finding ${t.required ? "file" : ""}"><h4>Form 8938: ${t.required ? "you must attach it to your tax return" : "not required on these figures"}</h4><p>Year-end total ${money(t.endTotal)} against ${money(t.endLimit)}; sum of each asset's highest balance ${money(t.anyCeiling)} against ${money(t.anyLimit)} (${t.place === "abroad" ? "living abroad" : "living in the US"}, ${esc($("filingStatus").selectedOptions[0].text)}).${t.onlyByAnyTime ? " Only the any-time test is crossed, and the sum of individual peaks can overstate the true combined peak. If your accounts did not all peak together, work out the real combined high." : ""}</p></div>`;
+      if (r.f8938OnlyCount) h += `<div class="finding"><p>${r.f8938OnlyCount} asset${r.f8938OnlyCount > 1 ? "s count" : " counts"} for Form 8938 but not the FBAR (assets held outside a financial account).</p></div>`;
+      if (r.assets.length) h += `<div class="finding"><h4>How each asset was counted</h4>${table(["Asset", "Highest (USD)", "Year-end (USD)", "FBAR", "Form 8938"], r.assets.map((x) => [esc(x.name || KINDS[x.kind].label), money(x.maxUsd), money(x.endUsd), KINDS[x.kind].fbar ? "counts" : "—", KINDS[x.kind].f8938 ? "counts" : "—"]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "fbar-8938-check.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    load([{ name: "", kind: "bank", maxLocal: 0, endLocal: 0, rate: 1 }]);
+    $("add").addEventListener("click", () => addRow());
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { load(EXAMPLE_ASSETS); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

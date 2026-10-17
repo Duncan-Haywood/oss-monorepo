@@ -1,0 +1,53 @@
+name: scrap-metal-yard-payout-calculator
+description: >-
+  Free browser tool for scrappers, electricians, plumbers, HVAC techs and demolition crews: enter the lots you
+  are hauling (pounds, kilograms or tons) and what two scrap yards pay for each, plus miles, trip minutes, fees and
+  grading deductions, and see what the load nets at each yard after fuel and time, whether splitting it is worth a
+  second trip, how much the other yard must pay to catch up, a 10% and 20% price-drop check, and whether stripping
+  copper wire beats selling it insulated. Copy, CSV, save and load. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session with duplicate_check.py (nearest 0.27,
+# laser-cutting-engraving-job-price-calculator; scrap-gold-buy-price-calculator prices jewelry gold
+# against a buyer's offer, not a hauled load of mixed metals across two yards). Why this niche: a
+# scrapper or trade crew sells a few hundred to a few thousand pounds at a time, yard boards differ
+# by several percent per grade, and the far yard that pays more per pound loses money once the
+# truck, the hours and the handling fee are counted. Nobody prints that comparison on the board.
+# The same inputs answer the other weekly question: strip the copper wire or sell it insulated.
+# This is the lead magnet for a later paid multi-load scrap tracker (payment rails stay off).
+#
+# First visitor: people searching "scrap yard price comparison", "strip wire or sell insulated" and
+# "is stripping copper wire worth it", and the scrapping and trade-crew forums where those questions
+# are asked weekly. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic on user-typed numbers. No price feed, no scraping, names no yard or
+# price-reporting service. Not tax, legal or financial advice; says so. Nothing stored or uploaded.
+
+hypotheses:
+  - claim: >-
+      Scrappers and trade crews will type their yards' board prices and trip costs into a no-signup
+      tool and use the net-after-the-drive comparison and the strip-or-sell figure to choose where to
+      take a load.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a catch-up percentage that does not make the other yard tie the best single yard when typed back in as higher prices.
+  - A user reports a break-even recovery percentage that does not make stripping gain zero when typed back in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/scrap-metal-yard-payout-calculator/
+  analytics: null

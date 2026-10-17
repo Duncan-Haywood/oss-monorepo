@@ -1,0 +1,74 @@
+name: mechanics-lien-deadline-calculator
+description: >-
+  Free browser calculator for the two dates that decide whether an unpaid
+  subcontractor or supplier can still file a mechanics lien -- the
+  preliminary notice and the lien filing -- for California, Texas, Florida,
+  Arizona and Washington, from the user's first and last day on the job,
+  with weekend safe dates and days remaining. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED). duplicate_check.py scored the niche 0.25
+# at most (closest: final-paycheck-deadline-calculator, a different
+# jurisdictional deadline table; late-invoice-collections-kit, the
+# follow-up side of unpaid invoices, not lien timing).
+#
+# Distribution channel, named rather than assumed: subcontractors, trade
+# suppliers and their bookkeepers searching "preliminary notice deadline
+# [state]", "how long to file a mechanics lien [state]", "California 20 day
+# preliminary notice". Live WebSearch on 2026-09-30 showed lien-service and
+# law-firm pages (Levelset, Siteline, Sunray, mechanicslien.com and others)
+# ranking for exactly those phrases, so demand exists; magnitude not
+# measured with an external volume tool, per the pipeline's standing caveat.
+# The need recurs on every unpaid job, and the incumbents are mostly lead
+# generation for paid notice-filing services -- a free, private date lookup
+# is the part they gate.
+#
+# Liability: the one risk is a wrong date. Mitigations: five states only,
+# each verified against multiple agreeing sources; first-tier claimants
+# only; unsupported states throw rather than guess; completion-based rules
+# fall back to the cautious (earlier) date; weekend dates show the last
+# business day; the page states three times (intro, "what this does not
+# cover", footer) that it is not legal advice and that lien rights are lost
+# by missing a deadline. No fee, no filing, no document preparation -- it
+# prepares no notice and files nothing, so it is not practising law.
+
+hypotheses:
+  - claim: >-
+      An unpaid subcontractor or supplier will search "[state] preliminary
+      notice deadline" or "[state] lien deadline", and will use a free
+      no-signup tool that turns their own first and last day on the job
+      into both dates, rather than reading a state-by-state blog table and
+      counting days by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing a cautious date (last furnishing when completion is unknown,
+      last business day when a deadline lands on a weekend) is what makes a
+      trade user trust a free lookup with a legal-consequence date.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: fixed rules shipped with the page, nothing uploaded
+  # or fetched. One more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on a date from the tool to skip a notice or filing without confirming the statute, despite the disclaimer -- at that point the wording, or whether to keep a legal-deadline tool at all, needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mechanics-lien-deadline-calculator/
+  analytics: null

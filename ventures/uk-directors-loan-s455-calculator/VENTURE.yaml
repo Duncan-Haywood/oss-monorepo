@@ -1,0 +1,37 @@
+name: uk-directors-loan-s455-calculator
+description: >-
+  Free browser tool for UK limited-company directors with an overdrawn director's loan account: s455 tax, the nine-months-and-a-day due date and refund date, beneficial-loan benefit over £10,000, and the cost of clearing the loan by dividend, bonus or repayment. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no existing venture covers director's loan accounts or s455 (closest uk-dividend-tax-calculator and uk-sole-trader-vs-limited-company-calculator, which do not model loans).
+#
+# First visitor: a UK contractor or small-company director who drew more than they were owed and searches "director's loan s455 calculator", "overdrawn director's loan account tax", "s455 due date". Evergreen with a spike before each year end and the nine-month deadline. Rivals are accountant explainers and a few gated lead-gen calculators. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: multi-year loan account ledger with bed-and-breakfasting matching and a CT600A export behind an env-var switch.
+#
+# Liability: 2026/27 rates (s455 33.75% / 35.75%, dividend rates, Class 1A 15%, employer NIC 15%, official rate default 3.75%) were written from memory without network access and are flagged for GOV.UK verification on the page. Written-off loans, associates, bed-and-breakfasting matching detail and late interest are refused and named. The page states it is not tax advice and points to a qualified accountant.
+hypotheses:
+  - claim: >-
+      UK company directors with an overdrawn loan account will use a free calculator to see the s455 charge and the cheapest way to clear it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rate or date differs from GOV.UK guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-directors-loan-s455-calculator/
+  analytics: null

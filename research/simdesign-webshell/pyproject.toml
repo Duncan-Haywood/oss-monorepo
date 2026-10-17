@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simdesign-webshell"
+version = "0.1.0"
+description = "Do the closed-form lateral-torsional buckling factors of the laser-cut bracket arms agree with a 3D eigenbuckling model?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "scikit-fem"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

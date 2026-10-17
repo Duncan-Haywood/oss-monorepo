@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ghost Kitchen Brand Picker: Which Virtual Brands Should I Run? — Free</title>
+  <meta name="description" content="Free tool for ghost kitchens and delivery-only restaurants running several virtual brands with limited kitchen hours: get the exact most profitable set of brands after food cost, delivery-app fees, packaging and labour. Nothing uploaded.">
+  <meta property="og:title" content="Ghost kitchen brand picker">
+  <meta property="og:description" content="Several virtual brands, limited kitchen hours. Which brands to keep, checked exactly, from your own numbers. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 10h18M7 16h12M7 22h7' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ghost Kitchen Brand Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Choose which virtual brands to run out of one delivery-only kitchen when kitchen hours are limited: the exact most profitable set after food, platform fees, packaging and labour, compared with simple rules, break-even orders, the value of more kitchen hours and sensitivity to order volume. Runs in your browser.", "featureList": "Exact brand selection under a kitchen-hours limit, profit per order and per kitchen hour, break-even orders, comparison with rules of thumb, value of extra hours, order-volume sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I run more virtual brands out of one kitchen?", "acceptedAnswer": {"@type": "Answer", "text": "Often, but each brand adds prep hours, packaging and its own costs. Past the hours your line can actually staff, extra brands slow every ticket and hurt ratings on all of them. This tool finds the set of brands that earns the most inside the kitchen hours you really have."}}, {"@type": "Question", "name": "How is a brand's profit worked out here?", "acceptedAnswer": {"@type": "Answer", "text": "Per order: order value less food cost, less platform fees and promotions, less packaging, less the kitchen labour to make it. Multiply by orders a month, then subtract the brand's own monthly cost. Brands that lose money are never picked."}}, {"@type": "Question", "name": "Why not just rank brands by profit?", "acceptedAnswer": {"@type": "Answer", "text": "Profit per kitchen hour, biggest profit and best margin each miss some combinations. When the hours are tight, a brand that looks best can crowd out two others that earn more together. The tool tries every set of up to 14 brands and shows how far each rule falls short."}}, {"@type": "Question", "name": "What are break-even orders?", "acceptedAnswer": {"@type": "Answer", "text": "The weekly orders at which a brand covers its own monthly cost after food, fees, packaging and labour. Below it, the brand loses money no matter how busy the kitchen feels."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. It does not model brands taking sales from each other, ratings, delivery-app rule changes or ramp-up time."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">GHOST KITCHEN BRAND PICKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>I could run more virtual brands than my kitchen can handle. Which do I keep?</h1>
+    <p>Enter the kitchen hours a week you have for delivery orders and each brand's orders, order value, food cost, delivery-app fees, packaging, prep time and own monthly cost. The tool finds the set of brands that earns the most inside those hours, shows each one's profit per order, per kitchen hour and break-even orders, compares the exact answer with the rules of thumb, says what more kitchen hours would be worth, and tests the answer against orders 30% lower and higher.</p>
+    <p class="note">Arithmetic on figures you type. Brands do not take sales from each other here, and labour is charged at the hourly rate you enter. The example figures are placeholders, not any real brand's numbers.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your kitchen</h2>
+      <div class="grid">
+        <div><label for="kitchenHours">Kitchen hours a week for delivery orders</label><input id="kitchenHours" type="number" step="any" value="0"><p class="note">Hands-on cook and pack hours you can actually staff, not opening hours.</p></div>
+        <div><label for="labourRate">Kitchen labour cost ($ an hour)</label><input id="labourRate" type="number" step="any" value="18"><p class="note">Wages plus payroll costs for the people making the orders.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Brand 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Brand name</label><input id="t0_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t0_orders">Orders a week</label><input id="t0_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t0_aov">Average order value ($)</label><input id="t0_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t0_foodPct">Food cost (% of order)</label><input id="t0_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t0_platformPct">Platform fees and promotions (% of order)</label><input id="t0_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t0_packaging">Packaging per order ($)</label><input id="t0_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t0_prepMin">Kitchen minutes per order</label><input id="t0_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t0_fixed">Brand's own cost a month ($)</label><input id="t0_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Brand 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Brand name</label><input id="t1_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t1_orders">Orders a week</label><input id="t1_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t1_aov">Average order value ($)</label><input id="t1_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t1_foodPct">Food cost (% of order)</label><input id="t1_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t1_platformPct">Platform fees and promotions (% of order)</label><input id="t1_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t1_packaging">Packaging per order ($)</label><input id="t1_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t1_prepMin">Kitchen minutes per order</label><input id="t1_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t1_fixed">Brand's own cost a month ($)</label><input id="t1_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Brand 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Brand name</label><input id="t2_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t2_orders">Orders a week</label><input id="t2_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t2_aov">Average order value ($)</label><input id="t2_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t2_foodPct">Food cost (% of order)</label><input id="t2_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t2_platformPct">Platform fees and promotions (% of order)</label><input id="t2_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t2_packaging">Packaging per order ($)</label><input id="t2_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t2_prepMin">Kitchen minutes per order</label><input id="t2_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t2_fixed">Brand's own cost a month ($)</label><input id="t2_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Brand 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Brand name</label><input id="t3_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t3_orders">Orders a week</label><input id="t3_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t3_aov">Average order value ($)</label><input id="t3_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t3_foodPct">Food cost (% of order)</label><input id="t3_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t3_platformPct">Platform fees and promotions (% of order)</label><input id="t3_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t3_packaging">Packaging per order ($)</label><input id="t3_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t3_prepMin">Kitchen minutes per order</label><input id="t3_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t3_fixed">Brand's own cost a month ($)</label><input id="t3_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Brand 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Brand name</label><input id="t4_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t4_orders">Orders a week</label><input id="t4_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t4_aov">Average order value ($)</label><input id="t4_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t4_foodPct">Food cost (% of order)</label><input id="t4_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t4_platformPct">Platform fees and promotions (% of order)</label><input id="t4_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t4_packaging">Packaging per order ($)</label><input id="t4_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t4_prepMin">Kitchen minutes per order</label><input id="t4_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t4_fixed">Brand's own cost a month ($)</label><input id="t4_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Brand 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Brand name</label><input id="t5_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t5_orders">Orders a week</label><input id="t5_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t5_aov">Average order value ($)</label><input id="t5_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t5_foodPct">Food cost (% of order)</label><input id="t5_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t5_platformPct">Platform fees and promotions (% of order)</label><input id="t5_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t5_packaging">Packaging per order ($)</label><input id="t5_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t5_prepMin">Kitchen minutes per order</label><input id="t5_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t5_fixed">Brand's own cost a month ($)</label><input id="t5_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t6">
+      <h2 id="h-t6">Brand 7</h2>
+      <div class="grid">
+        <div><label for="t6_name">Brand name</label><input id="t6_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t6_orders">Orders a week</label><input id="t6_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t6_aov">Average order value ($)</label><input id="t6_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t6_foodPct">Food cost (% of order)</label><input id="t6_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t6_platformPct">Platform fees and promotions (% of order)</label><input id="t6_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t6_packaging">Packaging per order ($)</label><input id="t6_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t6_prepMin">Kitchen minutes per order</label><input id="t6_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t6_fixed">Brand's own cost a month ($)</label><input id="t6_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t7">
+      <h2 id="h-t7">Brand 8</h2>
+      <div class="grid">
+        <div><label for="t7_name">Brand name</label><input id="t7_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t7_orders">Orders a week</label><input id="t7_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t7_aov">Average order value ($)</label><input id="t7_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t7_foodPct">Food cost (% of order)</label><input id="t7_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t7_platformPct">Platform fees and promotions (% of order)</label><input id="t7_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t7_packaging">Packaging per order ($)</label><input id="t7_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t7_prepMin">Kitchen minutes per order</label><input id="t7_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t7_fixed">Brand's own cost a month ($)</label><input id="t7_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t8">
+      <h2 id="h-t8">Brand 9</h2>
+      <div class="grid">
+        <div><label for="t8_name">Brand name</label><input id="t8_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t8_orders">Orders a week</label><input id="t8_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t8_aov">Average order value ($)</label><input id="t8_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t8_foodPct">Food cost (% of order)</label><input id="t8_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t8_platformPct">Platform fees and promotions (% of order)</label><input id="t8_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t8_packaging">Packaging per order ($)</label><input id="t8_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t8_prepMin">Kitchen minutes per order</label><input id="t8_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t8_fixed">Brand's own cost a month ($)</label><input id="t8_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t9">
+      <h2 id="h-t9">Brand 10</h2>
+      <div class="grid">
+        <div><label for="t9_name">Brand name</label><input id="t9_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t9_orders">Orders a week</label><input id="t9_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t9_aov">Average order value ($)</label><input id="t9_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t9_foodPct">Food cost (% of order)</label><input id="t9_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t9_platformPct">Platform fees and promotions (% of order)</label><input id="t9_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t9_packaging">Packaging per order ($)</label><input id="t9_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t9_prepMin">Kitchen minutes per order</label><input id="t9_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t9_fixed">Brand's own cost a month ($)</label><input id="t9_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t10">
+      <h2 id="h-t10">Brand 11</h2>
+      <div class="grid">
+        <div><label for="t10_name">Brand name</label><input id="t10_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t10_orders">Orders a week</label><input id="t10_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t10_aov">Average order value ($)</label><input id="t10_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t10_foodPct">Food cost (% of order)</label><input id="t10_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t10_platformPct">Platform fees and promotions (% of order)</label><input id="t10_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t10_packaging">Packaging per order ($)</label><input id="t10_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t10_prepMin">Kitchen minutes per order</label><input id="t10_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t10_fixed">Brand's own cost a month ($)</label><input id="t10_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t11">
+      <h2 id="h-t11">Brand 12</h2>
+      <div class="grid">
+        <div><label for="t11_name">Brand name</label><input id="t11_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t11_orders">Orders a week</label><input id="t11_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t11_aov">Average order value ($)</label><input id="t11_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t11_foodPct">Food cost (% of order)</label><input id="t11_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t11_platformPct">Platform fees and promotions (% of order)</label><input id="t11_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t11_packaging">Packaging per order ($)</label><input id="t11_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t11_prepMin">Kitchen minutes per order</label><input id="t11_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t11_fixed">Brand's own cost a month ($)</label><input id="t11_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t12">
+      <h2 id="h-t12">Brand 13</h2>
+      <div class="grid">
+        <div><label for="t12_name">Brand name</label><input id="t12_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t12_orders">Orders a week</label><input id="t12_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t12_aov">Average order value ($)</label><input id="t12_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t12_foodPct">Food cost (% of order)</label><input id="t12_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t12_platformPct">Platform fees and promotions (% of order)</label><input id="t12_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t12_packaging">Packaging per order ($)</label><input id="t12_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t12_prepMin">Kitchen minutes per order</label><input id="t12_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t12_fixed">Brand's own cost a month ($)</label><input id="t12_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t13">
+      <h2 id="h-t13">Brand 14</h2>
+      <div class="grid">
+        <div><label for="t13_name">Brand name</label><input id="t13_name" type="text" value=""><p class="note">Your virtual brand, for example Wing brand.</p></div>
+        <div><label for="t13_orders">Orders a week</label><input id="t13_orders" type="number" step="any" value="0"><p class="note">Delivery orders you expect for this brand in a typical week.</p></div>
+        <div><label for="t13_aov">Average order value ($)</label><input id="t13_aov" type="number" step="any" value="0"><p class="note">What the customer pays for food, before tax and tip.</p></div>
+        <div><label for="t13_foodPct">Food cost (% of order)</label><input id="t13_foodPct" type="number" step="any" value=""><p class="note">Ingredients as a share of the order value.</p></div>
+        <div><label for="t13_platformPct">Platform fees and promotions (% of order)</label><input id="t13_platformPct" type="number" step="any" value=""><p class="note">Commission plus the discounts and ads you fund on the delivery apps.</p></div>
+        <div><label for="t13_packaging">Packaging per order ($)</label><input id="t13_packaging" type="number" step="any" value=""><p class="note">Containers, bags, utensils and labels. Blank means none.</p></div>
+        <div><label for="t13_prepMin">Kitchen minutes per order</label><input id="t13_prepMin" type="number" step="any" value=""><p class="note">Hands-on cook and pack minutes for one order.</p></div>
+        <div><label for="t13_fixed">Brand's own cost a month ($)</label><input id="t13_fixed" type="number" step="any" value=""><p class="note">Listing management, photos, ads or software that exist only for this brand. Blank means none.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Pick the brands to run</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">A brand needs orders a week, an order value, a food cost, a platform fee and prep minutes. Leave a brand blank to leave it out. Up to 14 brands.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions ghost kitchen operators ask</h2>
+      <h3>Can I run more virtual brands out of one kitchen?</h3>
+      <p>Often, but each brand adds prep hours, packaging and its own costs. Past the hours your line can actually staff, extra brands slow every ticket and hurt ratings on all of them. This tool finds the set of brands that earns the most inside the kitchen hours you really have.</p>
+      <h3>How is a brand's profit worked out here?</h3>
+      <p>Per order: order value less food cost, less platform fees and promotions, less packaging, less the kitchen labour to make it. Multiply by orders a month, then subtract the brand's own monthly cost. Brands that lose money are never picked.</p>
+      <h3>Why not just rank brands by profit?</h3>
+      <p>Profit per kitchen hour, biggest profit and best margin each miss some combinations. When the hours are tight, a brand that looks best can crowd out two others that earn more together. The tool tries every set of up to 14 brands and shows how far each rule falls short.</p>
+      <h3>What are break-even orders?</h3>
+      <p>The weekly orders at which a brand covers its own monthly cost after food, fees, packaging and labour. Below it, the brand loses money no matter how busy the kitchen feels.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on the figures you type. It does not model brands taking sales from each other, ratings, delivery-app rule changes or ramp-up time.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether brands cannibalise each other, ratings and ranking on the apps, ramp-up time for a new listing, shared ingredients that lower food cost across brands, equipment bottlenecks beyond total hours, delivery-app rule and fee changes, tax, and seasonality. Every brand is treated as independent and every hour as interchangeable.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../delivery-app-margin-calculator/">delivery app margin calculator</a>, for one menu item at a time, and the <a href="../food-truck-prep-mix-optimizer/">food truck prep mix optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, MAX_BRANDS, money, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = MAX_BRANDS, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const be = (b) => (Number.isFinite(b.breakEvenOrders) ? one(b.breakEvenOrders) : "never");
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      if (a.plan.length) {
+        h += `<div class="finding"><h4>Run these brands</h4><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${one(a.hoursUsed)} of your ${one(a.shared.kitchenHours)} kitchen hours a week and earns ${money(a.profit)} a month after food, fees, packaging, labour and each brand's own cost, on ${money(a.revenue)} of orders. ${one(a.hoursLeft)} hours are left over.</p></div>`;
+      } else {
+        h += `<div class="finding"><h4>Run none of them</h4><p>At these numbers no brand earns money inside your kitchen hours.</p></div>`;
+      }
+      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Monthly profit", "Brands run", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.profit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer earns " + money(a.ruleLoss) + " a month more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
+      if (a.skipped.length) h += `<div class="finding"><h4>Dropped</h4>${table(["Brand", "Monthly profit alone", "Why"], a.skipped.map((s) => [esc(s.name), money(s.profit), esc(s.reason)]))}</div>`;
+      h += `<div class="finding"><h4>What more kitchen hours would buy</h4><p>${a.extraLevels.map((e) => "With " + one(e.add) + " more hours a week you would earn " + money(e.gain) + " more a month (" + e.count + " brands).").join(" ")} Compare that with what the extra labour and equipment cost.</p></div>`;
+      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.volumeChecks.map((c) => "If every brand's orders were " + Math.round((c.scale - 1) * 100) + "% " + (c.scale < 1 ? "lower" : "higher") + " the best set " + (c.same ? "is the same" : "changes") + " (earns " + money(c.profit) + " a month).").join(" ")}</p></div>`;
+      h += `<div class="finding"><h4>The plan</h4>${table(["Brand", "Orders a week", "Profit per order", "Kitchen hours", "Monthly profit", "Per kitchen hour", "Break-even orders"], a.plan.map((p) => [esc(p.name), p.orders, money(p.perOrder), one(p.hoursPerWeek), money(p.profit), money(p.perHour), be(p)]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "ghost-kitchen-brand-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lead Response Time Analyzer — what slow replies cost you</title>
+  <meta name="description" content="Free tool for home-service and other lead-driven businesses. Paste your leads with minutes to first reply and won or lost to see win rate by response time and the jobs and revenue a faster reply would have won. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Lead Response Time Analyzer — free, private, in your browser">
+  <meta property="og:description" content="See how your win rate falls as your first reply gets slower, using your own lead log, and what answering faster would be worth.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lead Response Time Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload your inbound leads with minutes to first reply and whether each was won. Shows win rate by reply-time band, fits a curve, and estimates the extra jobs and revenue a faster reply would have won, with a range. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does answering a lead faster really win more jobs?", "acceptedAnswer": {"@type": "Answer", "text": "Often, but this tool measures it from your own log rather than asserting it. It groups your leads by how long the first reply took, shows the win rate in each group with an interval, and fits a curve. If your slope is flat or upward, the page says so and shows no gain."}}, {"@type": "Question", "name": "What reply time should I aim for?", "acceptedAnswer": {"@type": "Answer", "text": "Whatever the curve says is realistic for you. Enter a target in minutes and the tool estimates the extra wins if every slower lead had been answered at that target. Try 5, 15 and 60 minutes to see how much of the gain sits in the first few minutes and how much in the first hour."}}, {"@type": "Question", "name": "Is the extra revenue a promise?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an association in your past leads. Fast replies can go to easy leads, and slow replies to hard ones, which would make speed look more valuable than it is. The page gives a 90% range from a seeded bootstrap and labels the figure a ceiling when the trend is not clearly different from noise."}}, {"@type": "Question", "name": "What goes in the file?", "acceptedAnswer": {"@type": "Answer", "text": "One row per inbound lead: minutes until your first reply (blank or never if nobody answered), and whether you won it. Optional job value. A header row may name the columns in any order. Leads still open should be left out."}}, {"@type": "Question", "name": "How many leads do I need?", "acceptedAnswer": {"@type": "Answer", "text": "At least 40 answered leads with 8 won and 8 lost. With fewer, the tool refuses rather than draw a curve through luck. A few hundred leads across different reply times gives a much tighter range."}}, {"@type": "Question", "name": "Why are unanswered leads kept separate?", "acceptedAnswer": {"@type": "Answer", "text": "Never answering is a different event from answering slowly, so they do not enter the curve. They are listed on their own line so you can see how many you lost without a reply."}}, {"@type": "Question", "name": "Is my lead list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your leads. It works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LEAD RESPONSE TIME ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a slow first reply cost you?</h1>
+    <p>Paste or upload your inbound leads: <strong>minutes until you first replied, and whether you won the job</strong>. The tool shows your <strong>win rate by reply-time band</strong>, fits a curve through your own history, and estimates <strong>how many more jobs, and how much revenue, a faster reply would have won</strong>, with a range instead of a single number.</p>
+    <p class="note">Your lead list never leaves this browser tab. Arithmetic on numbers you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your leads</h2>
+    <label for="file">Upload a CSV export</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows (header optional: minutes to first reply, won, job value)</label>
+    <textarea id="rows" spellcheck="false" placeholder="minutes to first reply,won,job value&#10;4,won,1800&#10;95,lost,&#10;never,lost,"></textarea>
+    <h2 style="margin-top:18px">Your questions</h2>
+    <div class="row3">
+      <div><label for="target">Target first-reply time (minutes)</label><input id="target" inputmode="decimal" value="5"></div>
+      <div><label for="monthly">Leads you get per month (optional)</label><input id="monthly" inputmode="decimal" value="60"></div>
+      <div><label for="avgval">Average job value (optional, $)</label><input id="avgval" inputmode="decimal" placeholder="from won leads"></div>
+    </div>
+    <p class="note">Times can be minutes (<code>12</code>), <code>1h 30m</code>, <code>1:30</code> or <code>2 hours</code>; blank or <code>never</code> means nobody answered. Won can be won/lost, yes/no or 1/0. Leave out leads still open. At least 40 answered leads, 8 won and 8 lost.</p>
+    <button type="button" id="analyze">Analyse</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your leads, then click Analyse.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Win rate by how fast you replied</h3>
+    <div class="scroll"><table id="bands"><thead><tr><th>Reply time</th><th class="n">Leads</th><th class="n">Won</th><th class="n">Win rate</th><th>95% range</th><th></th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="never"></p>
+    <h3>What the fitted curve says</h3>
+    <p id="curve"></p>
+    <button type="button" id="download">Download band table CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Leads with a reply time are grouped into six bands and each band's win rate gets a Wilson 95% interval. A logistic regression of won on ln(1 + minutes) gives a smooth curve (fitted by Newton steps with a tiny ridge so perfectly separated data cannot run away). The what-if takes every answered lead slower than your target and replaces its fitted win chance with the chance at the target, summing the difference; it is scaled up for unanswered leads and never counts a negative gain. The 90% range comes from 300 seeded bootstrap refits that keep the same number of wins and losses, so a result is reproducible. Revenue per month = extra wins per lead × your leads per month × average job value (taken from won leads with a value when you do not enter one, and only with at least 3).</p>
+    <p><strong>Not modelled:</strong> why a lead was answered fast or slowly (easy leads may get quick replies), lead source and job size differences, time of day, whether you replied by phone or text, how many competitors the customer contacted, and capacity to actually answer faster. <strong>Unverified:</strong> the arithmetic is checked in unit tests against known curves and hand-computed intervals; the estimate is an association in past data and has not been validated against a change in how a business actually answers.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does answering a lead faster really win more jobs?</h3>
+    <p>Often, but this tool measures it from your own log rather than asserting it. It groups your leads by how long the first reply took, shows the win rate in each group with an interval, and fits a curve. If your slope is flat or upward, the page says so and shows no gain.</p>
+    <h3>What reply time should I aim for?</h3>
+    <p>Whatever the curve says is realistic for you. Enter a target in minutes and the tool estimates the extra wins if every slower lead had been answered at that target. Try 5, 15 and 60 minutes to see how much of the gain sits in the first few minutes and how much in the first hour.</p>
+    <h3>Is the extra revenue a promise?</h3>
+    <p>No. It is an association in your past leads. Fast replies can go to easy leads, and slow replies to hard ones, which would make speed look more valuable than it is. The page gives a 90% range from a seeded bootstrap and labels the figure a ceiling when the trend is not clearly different from noise.</p>
+    <h3>What goes in the file?</h3>
+    <p>One row per inbound lead: minutes until your first reply (blank or never if nobody answered), and whether you won it. Optional job value. A header row may name the columns in any order. Leads still open should be left out.</p>
+    <h3>How many leads do I need?</h3>
+    <p>At least 40 answered leads with 8 won and 8 lost. With fewer, the tool refuses rather than draw a curve through luck. A few hundred leads across different reply times gives a much tighter range.</p>
+    <h3>Why are unanswered leads kept separate?</h3>
+    <p>Never answering is a different event from answering slowly, so they do not enter the curve. They are listed on their own line so you can see how many you lost without a reply.</p>
+    <h3>Is my lead list uploaded anywhere?</h3>
+    <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your leads. It works offline once the page has loaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are arithmetic on the leads and assumptions you supply; they do not predict what would happen if you replied faster.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lead marketplace, CRM or answering-service vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your leads are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a> (which paid source books jobs), the <a href="../quote-follow-up-timing/">quote follow-up timing tool</a> and the <a href="../bid-win-rate-optimizer/">bid win rate optimizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseRows, analyze, reportCsv, sampleText, money, pct, num } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => ($(id).value.trim() === "" ? undefined : Number($(id).value));
+    let last = null;
+
+    function run() {
+      const parsed = parseRows($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.leads, { targetMin: val("#target"), leadsPerMonth: val("#monthly"), avgValue: val("#avgval") });
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [pct(r.overallRate, 0), `Overall win rate across ${r.n} leads (${r.wins} won)`],
+        [`${num(r.winsGained, 1)} more wins`, `If every slower lead had been answered in ${num(r.target, 0)} min (90% range ${num(r.winsLo, 1)} to ${num(r.winsHi, 1)}), over this log`],
+      ];
+      if (r.revenuePerMonth !== undefined) big.push([money(r.revenuePerMonth) + " a month", `Estimated (${money(r.revenueLo)} to ${money(r.revenueHi)}) at ${num(r.monthly, 0)} leads a month and ${money(r.avgValue)} a job`]);
+      big.push([pct(r.slowShare, 0), `Of answered leads waited longer than ${num(r.target, 0)} min; median wait ${num(r.medianMinutes, 0)} min`]);
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const top = Math.max(...r.bands.map((b) => b.rate || 0), 0.01);
+      $("#bands tbody").innerHTML = r.bands.map((b) => `<tr><td>${esc(b.label)}${b.thin ? " (few leads)" : ""}</td><td class="n">${b.n}</td><td class="n">${b.won}</td><td class="n">${b.n ? pct(b.rate, 0) : "—"}</td><td>${b.n ? pct(b.lo, 0) + " to " + pct(b.hi, 0) : "—"}</td><td>${b.n ? `<span class="bar ${b.rate < top / 2 ? "slow" : ""}" style="width:${Math.round(120 * b.rate / top)}px"></span>` : ""}</td></tr>`).join("");
+      $("#never").textContent = r.never.n ? `Never answered: ${r.never.n} leads, ${r.never.won} won${Number.isFinite(r.never.rate) ? " (" + pct(r.never.rate, 0) + ")" : ""}. Kept out of the curve.` : "";
+      $("#curve").textContent = `Each step up in ln(1 + minutes) changes the log-odds of winning by ${num(r.fit.b, 2)} (90% range ${num(r.slopeLo, 2)} to ${num(r.slopeHi, 2)}). At ${num(r.target, 0)} minutes the curve puts your win chance at ${pct(r.rateAtTarget, 0)}. ${r.slopeSignificant ? "The trend is clearly different from zero." : "The trend is not clearly different from zero, so read the gain as a ceiling."}`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = sampleText(); $("#target").value = "5"; $("#monthly").value = "60"; $("#avgval").value = "";
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 240 invented leads, not a real business."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Analyse.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your leads, then click Analyse."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "lead-response-bands.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

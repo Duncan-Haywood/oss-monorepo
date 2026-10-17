@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. manually checking each exports target by eye | package.json Exports Drift Check</title>
+  <meta name="description" content="Reading a package.json's exports map yourself works for one or two subpaths. A real map nests import/require/types conditions and fallback arrays across a dozen or more subpaths, and a missing target reads identically to a present one until something actually tries to resolve it. This tool flattens every literal target and checks each one against a file listing, in one paste, no install and no network call.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-manually-checking-exports-targets.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This checker vs. manually checking each exports target by eye">
+  <meta property="og:description" content="Eleven literal targets across five subpaths. Ten exist. One -- the require condition inside ./modal -- doesn't, because the file it names never shipped. Eyeballing the map, all eleven lines look the same.">
+  <meta property="og:url" content="./vs-manually-checking-exports-targets.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does eyeballing an exports map get wrong?","acceptedAnswer":{"@type":"Answer","text":"Every literal target in an exports map reads the same on the page: a quoted relative path next to a subpath and a condition name. Nothing about the text itself says whether the file at the end of that path actually exists — that's a fact about the filesystem, not about the JSON. A small map (one or two subpaths) is realistic to check by opening each file yourself. A real package's map nests import/require/types conditions and fallback arrays across a dozen or more subpaths, and reading all of them correctly, every time, is exactly the kind of bookkeeping that slips under time pressure — especially for a condition like require that a maintainer who only tests the import path never personally exercises."}},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A package.json declares five subpaths — \".\", \"./button\", \"./modal\", \"./theme\", \"./package.json\" — totalling eleven literal targets once every import/require/types condition is flattened. The files actually published are missing exactly one of them: cjs/modal.js, the require condition inside \"./modal\". Every other target exists. Pasted into this tool, the package.json and the file listing resolve to one finding: 10 export target(s) exist, 1 export target(s) named in package.json do not exist — and it names cjs/modal.js specifically. Eyeballing the same eleven lines, nothing distinguishes the missing one from the other ten; a maintainer who tests only through the ESM import path (the common case in a codebase and its own tests) would never notice modal's require target was broken until a CommonJS consumer's require() call failed."}},{"@type":"Question","name":"Is this tool just automating something obvious?","acceptedAnswer":{"@type":"Answer","text":"Reading whether one target file exists is obvious once you already know which line to check. What manual review gets wrong is coverage across the whole map: a deeply nested exports field mixes conditions a maintainer actively exercises (typically the one their own build and tests use) with ones they don't (often require, if the project itself only imports its own code with ESM). This tool doesn't know which condition matters more to any given consumer — it checks every literal target in the map, every subpath, every condition, every fallback-array position, the same way, so coverage doesn't depend on which paths a maintainer happens to run."}},{"@type":"Question","name":"Does this replace testing the package after publish?","acceptedAnswer":{"@type":"Answer","text":"No. It replaces the step of manually re-reading the exports map to decide whether every target it names is present on disk. A clean result means every literal target you pasted a file listing for exists at that path — it is not a guarantee the package installs or imports cleanly, and it does not resolve wildcard targets or bare-specifier re-exports at all. Verify with npm publish --dry-run and a real install, exactly as this tool's own front page and footer already say."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; overflow-wrap: anywhere; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; overflow-wrap: anywhere; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; overflow-wrap: anywhere; }
+    p, li { line-height: 1.55; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; package.json Exports Drift Check</a></p>
+  <h1>This checker vs. manually checking each exports target by eye</h1>
+  <p class="note">Names no specific product or company &mdash; the comparison is against reading an exports map yourself, a habit every package.json author already has. <strong>Manually checking</strong> needs no tool: open the exports map, and for each subpath and condition, confirm the file it names actually exists. It works for a map with one or two subpaths. It stops working at the scale a real package's exports field actually reaches, because a present target and a missing one read identically as JSON &mdash; nothing about the text says whether the file is there.</p>
+
+  <section class="card">
+    <h2>What each method is</h2>
+    <p>
+      <strong>Manually checking</strong> means opening <code>package.json</code>,
+      finding the <code>exports</code> field, and for every subpath and every
+      nested condition (<code>import</code>/<code>require</code>/<code>types</code>/&hellip;)
+      confirming the target file is really there &mdash; usually by clicking
+      through a file tree or running <code>ls</code> against each path in
+      turn. It costs nothing and needs no tool, and for a small map it is
+      completely reliable: a person who checks two files correctly checks
+      two files correctly, every time.
+    </p>
+    <p>
+      This tool does the same check mechanically, from two pasted text
+      blocks: a <code>package.json</code> and a listing of the files you
+      actually publish. It flattens every subpath, every nested condition,
+      and every position in a fallback array into one flat list of literal
+      targets, then reports the exact ones missing from the listing &mdash;
+      with no install, no publish, and no network call either way.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Subpath</th><th scope="col">Condition</th><th scope="col">Target</th><th scope="col">On disk?</th></tr></thead>
+        <tbody>
+          <tr><td><code>.</code></td><td>import</td><td><code>./esm/index.js</code></td><td>yes</td></tr>
+          <tr><td><code>.</code></td><td>require</td><td><code>./cjs/index.js</code></td><td>yes</td></tr>
+          <tr><td><code>.</code></td><td>types</td><td><code>./types/index.d.ts</code></td><td>yes</td></tr>
+          <tr><td><code>./button</code></td><td>import</td><td><code>./esm/button.js</code></td><td>yes</td></tr>
+          <tr><td><code>./button</code></td><td>require</td><td><code>./cjs/button.js</code></td><td>yes</td></tr>
+          <tr><td><code>./button</code></td><td>types</td><td><code>./types/button.d.ts</code></td><td>yes</td></tr>
+          <tr><td><code>./modal</code></td><td>import</td><td><code>./esm/modal.js</code></td><td>yes</td></tr>
+          <tr><td><code>./modal</code></td><td><strong>require</strong></td><td><code><strong>./cjs/modal.js</strong></code></td><td><strong>missing</strong></td></tr>
+          <tr><td><code>./modal</code></td><td>types</td><td><code>./types/modal.d.ts</code></td><td>yes</td></tr>
+          <tr><td><code>./theme</code></td><td>&mdash;</td><td><code>./cjs/theme.js</code></td><td>yes</td></tr>
+          <tr><td><code>./package.json</code></td><td>&mdash;</td><td><code>./package.json</code></td><td>yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Eleven literal targets across five subpaths. Ten exist. The one that
+      doesn't &mdash; the <code>require</code> condition inside
+      <code>./modal</code> &mdash; is where a maintainer who develops and
+      tests the package entirely through its own ESM import path would
+      never personally exercise the CommonJS fallback, so a rename that
+      left <code>cjs/modal.js</code> behind (or a build step that simply
+      never emitted it) passes every test the maintainer actually ran.
+      Eyeballing the same eleven rows, nothing on the page marks the ninth
+      one as different from the other ten &mdash; it is exactly as
+      well-formed a piece of JSON as any target that does exist. Pasted
+      into this tool, the same map and file listing resolve to one finding:
+      <code>1 export target(s) named in package.json do not exist</code>,
+      naming <code>cjs/modal.js</code> specifically.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>My exports map has one or two subpaths and I already know every file it points at.</td>
+            <td>Either &mdash; manually checking is completely reliable at this size, and costs nothing.</td>
+          </tr>
+          <tr>
+            <td>My exports map nests conditions across a dozen or more subpaths and I want to be sure every literal target still exists.</td>
+            <td>This checker &mdash; paste both, get the exact list of missing targets in one click, no signup.</td>
+          </tr>
+          <tr>
+            <td>I only test my package through its ESM import path and want to know if a require or types target quietly broke.</td>
+            <td>This checker &mdash; it checks every condition the same way, regardless of which one your own tests happen to exercise.</td>
+          </tr>
+          <tr>
+            <td>I want to wire this into CI as the last gate before <code>npm publish</code>, reading only local files.</td>
+            <td>Neither needs a tool per se, but only the checker's CLI (<code>cli.mjs</code>) is scriptable and deterministic enough to fail a build on.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">This tool needs no account, no install, and no network call: it is a static page that runs entirely in your browser, or a zero-dependency Node CLI that reads only local files.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does eyeballing an exports map get wrong?</h3>
+    <p>Every literal target in an exports map reads the same on the page: a quoted relative path next to a subpath and a condition name. Nothing about the text itself says whether the file at the end of that path actually exists &mdash; that's a fact about the filesystem, not about the JSON. A small map (one or two subpaths) is realistic to check by opening each file yourself. A real package's map nests import/require/types conditions and fallback arrays across a dozen or more subpaths, and reading all of them correctly, every time, is exactly the kind of bookkeeping that slips under time pressure &mdash; especially for a condition like require that a maintainer who only tests the import path never personally exercises.</p>
+    <h3>Can you give a concrete example?</h3>
+    <p>A package.json declares five subpaths &mdash; ".", "./button", "./modal", "./theme", "./package.json" &mdash; totalling eleven literal targets once every import/require/types condition is flattened. The files actually published are missing exactly one of them: cjs/modal.js, the require condition inside "./modal". Every other target exists. Pasted into this tool, the package.json and the file listing resolve to one finding: 10 export target(s) exist, 1 export target(s) named in package.json do not exist &mdash; and it names cjs/modal.js specifically. Eyeballing the same eleven lines, nothing distinguishes the missing one from the other ten; a maintainer who tests only through the ESM import path (the common case in a codebase and its own tests) would never notice modal's require target was broken until a CommonJS consumer's require() call failed.</p>
+    <h3>Is this tool just automating something obvious?</h3>
+    <p>Reading whether one target file exists is obvious once you already know which line to check. What manual review gets wrong is coverage across the whole map: a deeply nested exports field mixes conditions a maintainer actively exercises (typically the one their own build and tests use) with ones they don't (often require, if the project itself only imports its own code with ESM). This tool doesn't know which condition matters more to any given consumer &mdash; it checks every literal target in the map, every subpath, every condition, every fallback-array position, the same way, so coverage doesn't depend on which paths a maintainer happens to run.</p>
+    <h3>Does this replace testing the package after publish?</h3>
+    <p>No. It replaces the step of manually re-reading the exports map to decide whether every target it names is present on disk. A clean result means every literal target you pasted a file listing for exists at that path &mdash; it is not a guarantee the package installs or imports cleanly, and it does not resolve wildcard targets or bare-specifier re-exports at all. Verify with npm publish --dry-run and a real install, exactly as this tool's own front page and footer already say.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided &mdash; nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="note">More: <a href="./why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a> &middot; <a href="./vs-publint.html">this checker vs. publint</a>, for the broader publish-readiness audit.</p>
+    <p class="support">Free and open source. If this saved you a broken publish, the <a href="./LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

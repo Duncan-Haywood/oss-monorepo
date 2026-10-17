@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision-markets"
+version = "0.1.0"
+description = "Decision markets for routing between models: inverse-propensity scoring is proper even when the policy reads the report, the payment cost of exploration is exactly 1+(K-1)exp(w^2/2t^2), and stake asymmetry distorts decisions by a closed-form fixed point"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

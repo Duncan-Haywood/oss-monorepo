@@ -257,3 +257,7 @@ test('index links one hop to the crown-molding-bid-calculator sibling', () => {
     'index must link ../crown-molding-bid-calculator/ so crawlers reach the crown molding calculator in one hop',
   );
 });
+
+test("links to Trade Bid Studio, its sibling", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/trade-bid-studio\/"/);
+});

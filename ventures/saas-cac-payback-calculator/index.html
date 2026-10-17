@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SaaS CAC Payback Calculator — Churn-Adjusted Payback and LTV:CAC, Free</title>
+  <meta name="description" content="Free SaaS CAC payback calculator: churn-adjusted payback months, LTV, LTV:CAC and the most you can spend to acquire a customer for a target payback. Runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="SaaS CAC Payback Calculator — churn-adjusted payback and LTV:CAC, free">
+  <meta property="og:description" content="Simple and churn-adjusted CAC payback, LTV, LTV:CAC, max CAC for your target, and a CAC by churn table. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SaaS CAC Payback Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Computes CAC payback (simple and churn-adjusted), LTV, LTV:CAC, the maximum CAC for a payback target and a CAC by churn sensitivity table for a SaaS or subscription business. Entirely client-side; nothing is uploaded.", "featureList": "simple and churn-adjusted CAC payback, LTV and discounted LTV, LTV to CAC ratio, maximum affordable CAC for a target payback, CAC by churn sensitivity table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a good CAC payback period for SaaS?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on who you sell to. Twelve months or less is a commonly quoted target for SMB and self-serve products, and longer paybacks are more common in enterprise sales where contracts are multi-year and retention is higher. Treat any benchmark as a starting point and compare against your own cohorts and how much cash you can afford to tie up."}}, {"@type": "Question", "name": "How do you calculate CAC payback?", "acceptedAnswer": {"@type": "Answer", "text": "The simple formula is CAC divided by monthly gross profit per customer: monthly revenue x gross margin. This calculator also reports a churn-adjusted payback, the first month at which expected cumulative gross profit, after some customers have left, covers CAC. When churn is high the adjusted figure is materially longer."}}, {"@type": "Question", "name": "How is LTV calculated here?", "acceptedAnswer": {"@type": "Answer", "text": "LTV is expected gross profit over a customer's lifetime: monthly gross profit divided by monthly churn when there is no expansion. With expansion the divisor becomes 1 minus (1 - churn) x (1 + expansion). A second figure discounts cash at your cost of capital."}}, {"@type": "Question", "name": "What is a good LTV:CAC ratio?", "acceptedAnswer": {"@type": "Answer", "text": "3:1 is the most quoted rule of thumb. Much higher can mean you are under-investing in growth; under 1:1 means each customer loses money on expectation. It is a prompt to check your own cohorts, not a target to optimise blindly."}}, {"@type": "Question", "name": "What should CAC include?", "acceptedAnswer": {"@type": "Answer", "text": "Everything spent to win the customer in the period: paid media, sales and marketing salaries and commissions, tools, and agency fees, divided by new customers won. Leaving out salaries is the most common way payback is understated."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter and does not replace your own cohort data or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SAAS CAC PAYBACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How long does a customer take to pay back what you spent to win them?</h1>
+    <p>CAC divided by monthly gross profit is the number everyone quotes, and it quietly assumes nobody leaves. Enter your CAC, revenue, margin and churn to see
+    <strong>churn-adjusted payback</strong>, <strong>LTV and LTV:CAC</strong>, the <strong>most you can spend on a customer for your payback target</strong>, and how payback moves if CAC or churn are worse than you think.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your unit economics</h2>
+    <div class="grid">
+      <div>
+        <label for="cac">Fully-loaded CAC ($ per new customer)</label>
+        <input type="number" id="cac" min="0" step="1" placeholder="e.g. 800">
+      </div>
+      <div>
+        <label for="price">Monthly revenue per customer ($)</label>
+        <input type="number" id="price" min="0" step="1" placeholder="e.g. 100">
+      </div>
+      <div>
+        <label for="gross-margin">Gross margin (%)</label>
+        <input type="number" id="gross-margin" min="0" step="1" placeholder="e.g. 80">
+      </div>
+      <div>
+        <label for="monthly-churn">Monthly customer churn (%)</label>
+        <input type="number" id="monthly-churn" min="0" step="0.1" placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="expansion">Monthly net expansion of surviving customers (%, optional)</label>
+        <input type="number" id="expansion" min="0" step="0.1" placeholder="blank = none">
+      </div>
+      <div>
+        <label for="cost-of-capital">Annual cost of capital (%, optional)</label>
+        <input type="number" id="cost-of-capital" min="0" step="0.5" placeholder="e.g. 12">
+      </div>
+      <div>
+        <label for="target">Your payback target (months)</label>
+        <input type="number" id="target" min="0" step="1" placeholder="e.g. 12">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate payback</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Calculate payback.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>Churn-adjusted payback in months, by CAC and monthly churn</h3>
+    <p class="note">“never” means expected gross profit does not cover CAC within 120 months. Only CAC and churn change across the table.</p>
+    <table><thead id="sens-head"></thead><tbody id="sens-body"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Gross profit per month</strong> is revenue per customer x gross margin, collected at the start of each month from month 0.</li>
+      <li><strong>Churn</strong> is geometric: a customer is still paying in month t with probability (1 - churn)^t. Expansion scales surviving revenue by (1 + expansion) each month.</li>
+      <li><strong>Simple payback</strong> is CAC / monthly gross profit. <strong>Churn-adjusted payback</strong> is the first whole month at which expected cumulative gross profit reaches CAC, checked against the closed form m x (1 - r^n) / (1 - r).</li>
+      <li><strong>LTV</strong> is expected gross profit over the customer's lifetime, monthly gross profit / (1 - r) with r = (1 - churn)(1 + expansion); the discounted figure multiplies r by your monthly discount factor.</li>
+      <li><strong>Maximum CAC</strong> is the expected cumulative gross profit at your target month: spend more than this and payback slips past the target.</li>
+      <li><strong>Not modelled:</strong> churn that differs by tenure (early churn is usually higher), annual prepay cash timing, sales-cycle delay before revenue, discounts, taxes, and the difference between blended and channel CAC. Enter fully-loaded CAC: paid spend plus sales and marketing salaries, tools and commissions.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a good CAC payback period for SaaS?</h3>
+    <p>It depends on who you sell to. Twelve months or less is a commonly quoted target for SMB and self-serve products, and longer paybacks are more common in enterprise sales where contracts are multi-year and retention is higher. Treat any benchmark as a starting point and compare against your own cohorts and how much cash you can afford to tie up.</p>
+    <h3>How do you calculate CAC payback?</h3>
+    <p>The simple formula is CAC divided by monthly gross profit per customer: monthly revenue x gross margin. This calculator also reports a churn-adjusted payback, the first month at which expected cumulative gross profit, after some customers have left, covers CAC. When churn is high the adjusted figure is materially longer.</p>
+    <h3>How is LTV calculated here?</h3>
+    <p>LTV is expected gross profit over a customer's lifetime: monthly gross profit divided by monthly churn when there is no expansion. With expansion the divisor becomes 1 minus (1 - churn) x (1 + expansion). A second figure discounts cash at your cost of capital.</p>
+    <h3>What is a good LTV:CAC ratio?</h3>
+    <p>3:1 is the most quoted rule of thumb. Much higher can mean you are under-investing in growth; under 1:1 means each customer loses money on expectation. It is a prompt to check your own cohorts, not a target to optimise blindly.</p>
+    <h3>What should CAC include?</h3>
+    <p>Everything spent to win the customer in the period: paid media, sales and marketing salaries and commissions, tools, and agency fees, divided by new customers won. Leaving out salaries is the most common way payback is understated.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter and does not replace your own cohort data or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any spending decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payback_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running a subscription business? See the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a>, the <a href="../subscription-price-impact/">subscription price impact calculator</a> and the <a href="../mrr-waterfall-calculator/">MRR waterfall calculator</a> and the <a href="../saas-efficiency-metrics-calculator/">SaaS burn multiple, magic number and Rule of 40 calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { cacPaybackOutcome, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["cac", "price", "gross-margin", "monthly-churn", "expansion", "cost-of-capital", "target"];
+    const raw = (id) => $("#" + id).value.trim();
+    const p = (id) => (raw(id) === "" ? 0 : Number(raw(id)) / 100);
+    const status = $("#form-status"), report = $("#report");
+    const months = (n) => (n === null ? "never" : `${n} mo`);
+    const ratio = (x) => (Number.isFinite(x) ? `${x.toFixed(1)}:1` : "no limit");
+
+    function runCalculate() {
+      const r = cacPaybackOutcome({
+        cac: Number(raw("cac")) || 0, price: Number(raw("price")) || 0, grossMargin: p("gross-margin"),
+        monthlyChurn: p("monthly-churn"), expansion: p("expansion"), costOfCapital: p("cost-of-capital"),
+        targetPaybackMonths: raw("target") === "" ? 12 : Number(raw("target")),
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return; }
+      $("#report-stats").innerHTML = `Churn-adjusted payback: <strong>${r.adjustedPayback === null ? "never (within 120 months)" : r.adjustedPayback + " months"}</strong> (simple formula: ${r.simplePayback.toFixed(1)} months). LTV:CAC <strong>${ratio(r.ltvCac)}</strong>.`;
+      const rows = [
+        ["Monthly gross profit per customer", money(r.monthlyContribution)],
+        ["Simple payback (CAC / monthly gross profit)", `${r.simplePayback.toFixed(1)} months`],
+        ["Churn-adjusted payback", months(r.adjustedPayback)],
+        ["Expected customer lifetime", Number.isFinite(r.lifetimeMonths) ? `${r.lifetimeMonths.toFixed(1)} months` : "no churn entered"],
+        ["LTV (gross profit, undiscounted)", Number.isFinite(r.ltv) ? money(r.ltv) : "no limit"],
+        ["LTV (discounted at cost of capital)", Number.isFinite(r.ltvDiscounted) ? money(r.ltvDiscounted) : "no limit"],
+        ["LTV:CAC (undiscounted / discounted)", `${ratio(r.ltvCac)} / ${ratio(r.ltvCacDiscounted)}`],
+        [`Max CAC for ${r.input.targetPaybackMonths}-month payback`, money(r.maxCac)],
+      ];
+      $("#result-table").innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      $("#sens-head").innerHTML = `<tr><th scope="col">CAC</th>${r.sensitivity.churns.map((c) => `<th scope="col">${pct(c)} churn</th>`).join("")}</tr>`;
+      $("#sens-body").innerHTML = r.sensitivity.rows.map((row) => `<tr><th scope="row">${money(row.cac)}</th>${row.cells.map((c) => `<td>${months(c)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("payback_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "cac": 800, "price": 100, "gross-margin": 80, "monthly-churn": 3, "cost-of-capital": 12, "target": 12 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $800 CAC, $100/month, 80% margin, 3% monthly churn, 12% cost of capital, 12-month target.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Calculate payback.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

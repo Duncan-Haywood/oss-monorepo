@@ -1,0 +1,16 @@
+# Yosys 0.33 (git sha1 2584903a060); Icarus Verilog version 12.0 (stable) ()
+# float model held-out accuracy 0.965 (400 test points, 4 clusters in 8-D)
+
+WB  P  cycles  cells   ff  depth  cells*cycles  int_acc  rtl==numpy(40 vecs)
+ 4  1     110    861  143     37         94710  0.935    True
+ 4  2      56   1098  189     37         61488  0.935    True
+ 4  4      29   1674  275     36         48546  0.935    True
+ 4  8      20   2800  443     36         56000  0.935    True
+ 6  1     110   1366  227     45        150260  0.970    True
+ 6  2      56   1806  295     45        101136  0.970    True
+ 6  4      29   2900  433     45         84100  0.970    True
+ 6  8      20   4802  759     46         96040  0.970    True
+ 8  1     110   1812  334     54        199320  0.968    True
+ 8  2      56   2506  452     53        140336  0.968    True
+ 8  4      29   4098  670     52        118842  0.968    True
+ 8  8      20   7104 1235     53        142080  0.968    True

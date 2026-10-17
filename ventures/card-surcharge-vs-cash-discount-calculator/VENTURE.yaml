@@ -1,0 +1,61 @@
+name: card-surcharge-vs-cash-discount-calculator
+description: >-
+  Free browser calculator for small merchants that compares absorbing card
+  processing fees, adding a card surcharge and offering a cash discount:
+  monthly fee cost, profit under each option including customers who switch
+  to cash and customers who walk away, the surcharge that fully recovers the
+  fee, the break-even share of customers you can lose, and a surcharge by
+  customer-loss sensitivity table. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py top
+# score 0.31 (appointment-deposit-calculator, a different question);
+# card-processing-fee-audit audits statements after the fact and does not
+# compare surcharge and cash-discount programs.
+#
+# Distribution: "credit card surcharge calculator", "cash discount program"
+# and "how much to surcharge credit cards" are recurring small-merchant
+# queries; the audience has real margin at stake and earns more from the
+# answer. Search volume was not measured with an external tool, matching the
+# pipeline's standing caveat.
+#
+# Model is documented on the page and in the README; break-even customer loss
+# is exact because profit is linear in it, checked by test.
+#
+# Liability: arithmetic on the merchant's own inputs, never legal advice. The
+# page states surcharge caps, debit restrictions and state bans exist and
+# tells the merchant to confirm with their processor and state.
+
+hypotheses:
+  - claim: >-
+      Small merchants deciding how to pass on card fees will search for and
+      return to a free, no-signup calculator that shows surcharge versus cash
+      discount profit and the break-even customer loss on their own volume.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing how many customers can walk away before a surcharge stops
+      paying changes whether a merchant adopts one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from this tool's output despite the disclaimers, at which point the model or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/card-surcharge-vs-cash-discount-calculator/
+  analytics: null

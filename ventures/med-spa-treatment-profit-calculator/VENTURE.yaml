@@ -1,0 +1,55 @@
+name: med-spa-treatment-profit-calculator
+description: >-
+  Free browser calculator for med spas and aesthetics clinics: paste the treatment menu (price, product cost, minutes,
+  visits per month), add provider and room cost per hour, and get contribution per visit, margin, profit per room
+  hour, break-even and target-margin prices, plus monthly profit against fixed costs and room capacity. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. Grep of ventures/ found no med spa or aesthetics tool (nearest
+# are nail-tech-booth-rent-calculator, tattoo-piece-profit-calculator and service-hourly-yield-analyzer, which are
+# single-service). Med spas are a high-ticket, fast-growing small-business segment with product-heavy treatments
+# (neurotoxin, filler) where the retail price hides thin margin once provider and room time are counted. Real
+# analogues are practice-management suites (Zenoti, Boulevard, Aesthetic Record) that bundle reporting behind
+# sales-led contracts; the free, no-signup per-treatment margin check an owner can open mid-pricing-decision is the gap.
+#
+# First visitor: owners and managers in med spa and injector communities asking what to charge per unit or whether
+# a device treatment pays back; volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors only. If usage appears the paid layer is
+# what a browser page cannot do: saved menus, import from a booking-system export, per-provider commission plans,
+# membership and package modelling. Not built.
+#
+# Liability: arithmetic on typed numbers; the page lists what it omits, says margin is never a reason to recommend a
+# treatment, and is not accounting, tax, legal or medical advice.
+#
+# Unverified: the cost model (provider charged for treatment minutes, room charged for treatment plus turnover,
+# fees as a flat percentage of price) is a simple contribution model written without review by a med spa operator.
+# The first user report that it misses a cost they carry is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Med spa owners will use a no-signup per-treatment margin calculator to compare treatments by profit per room
+      hour and to set prices before looking at practice-management software.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage within 90 days of it being reachable from the published site.
+  - A user reports the model omits a cost every med spa carries, at which point the model needs review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/med-spa-treatment-profit-calculator/
+  analytics: null

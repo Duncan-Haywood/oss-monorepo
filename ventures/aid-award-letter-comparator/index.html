@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Financial Aid Award Letter Comparator — true cost of each college offer</title>
+  <meta name="description" content="Free financial aid award letter comparator. Type in each college's cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Compare college financial aid offers by what you will really pay">
+  <meta property="og:description" content="Grants cut the price, loans are a bill that comes later. See the real four-year cost of each award letter, including loan interest and first-year-only scholarships.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Financial Aid Award Letter Comparator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare college financial aid award letters side by side. Counts only grants and scholarships as a price cut, prices loans with interest, flags first-year-only scholarships and shows the extra grant that would make one offer match another. Runs entirely in your browser; nothing is uploaded.", "featureList": "financial aid award letter comparison, net price calculator, four-year college cost, student loan repayment estimate, first-year-only scholarship check, financial aid appeal gap, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I compare financial aid award letters?", "acceptedAnswer": {"@type": "Answer", "text": "Put the same four things from each letter side by side: the full cost of attendance, the grants and scholarships (money you never repay), the loans (money you repay with interest) and work-study (money you earn by working). Subtract only the grants from the cost to get the net price, then add what the loans will cost you over their repayment. This tool does that for every offer and ranks them by total cost to your family."}}, {"@type": "Question", "name": "Are loans and work-study financial aid I should subtract from the price?", "acceptedAnswer": {"@type": "Answer", "text": "Not as a price cut. Loans are borrowed money that you repay, usually with interest, so they move the bill into the future. Work-study is a job: the amount is the most you can earn, only if you find and work the hours. Only grants and scholarships reduce what the college costs you. The tool shows loans and work-study separately for that reason."}}, {"@type": "Question", "name": "What is a first-year-only scholarship and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "Some award letters include a grant that applies to the first year only, or one that renews only if you keep a minimum grade point average. Year 1 then looks cheap and years 2 to 4 cost much more. Enter a non-renewing grant on its own line (One-time first-year grant) and the tool shows how the net price steps up from year 2."}}, {"@type": "Question", "name": "How is the cost of the loans worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Each year's loans are assumed to be borrowed at the start of the year. Subsidized loans add no interest while you are in school; the other loans add simple interest until repayment starts, after a grace period you can set. The balance is then repaid in equal monthly payments over the term you choose, at the rate you enter. Origination fees are counted as cash you pay. Rates and fees start at 2025-26 federal values and you should replace them with the ones that apply to you."}}, {"@type": "Question", "name": "What does 'grant needed to match' mean, and can I use it to appeal an offer?", "acceptedAnswer": {"@type": "Answer", "text": "It is the extra gift aid per year that would bring that offer's total cost down to the cheapest offer, with any loan you no longer need dropped. It is a number to start a conversation: many financial aid offices will look at a written appeal that shows a competing offer or a change in your family's circumstances. The tool does not know whether any office will agree."}}, {"@type": "Question", "name": "Is this financial advice, and is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No to both. It is arithmetic on the numbers you type, not financial, tax or legal advice, and it is not affiliated with any college or with the U.S. Department of Education. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page."}}, {"@type": "Question", "name": "Why does the cheapest sticker price not always win?", "acceptedAnswer": {"@type": "Answer", "text": "Because the sticker price is before aid. A college with a high published price and a large renewing grant can cost less than a cheaper-looking college that offers loans instead of grants. The comparison that matters is the total you will pay, in cash during school and in loan payments afterwards."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2a3a; background: #f3f6fa; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d5fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #123a66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123a66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d3deea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123a6612; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #62748a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 300px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfe9f4; color: #123a66; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+    .big div { background: #eaf1f9; border-radius: 10px; padding: 10px 12px; font-size: .86rem; }
+    .big strong { display: block; font-size: 1.35rem; color: #123a66; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d3deea; }
+    table.t th { color: #123a66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .best { border: 2px solid #2f8f5b; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    details { margin-top: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3deea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FINANCIAL AID AWARD LETTER COMPARATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which college offer will really cost less?</h1>
+    <p>Type in what each award letter says and see the <strong>true four-year cost</strong> of every offer. Only <strong>grants and scholarships</strong> cut the price. <strong>Loans</strong> are a bill that arrives later with interest, and <strong>work-study</strong> is a job. The tool adds up what your family pays in cash and in loan payments, catches <strong>first-year-only scholarships</strong> that make year 2 jump, and works out the <strong>extra grant that would make a dearer offer match the cheapest one</strong>.</p>
+    <p class="note">The example below is made-up numbers, not a real letter. New to this? Read <a href="./how-to-compare-financial-aid-offers.html">how to compare financial aid offers, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. Your offers</h2>
+    <p class="note">One block per college, a blank line between blocks. Use <code>label: amount</code> lines. Known labels: <em>College, Tuition and fees, Housing and food, Books and other</em> (or one <em>Cost of attendance</em> total), <em>Grants and scholarships, One-time first-year grant, Work-study, Subsidized loan, Unsubsidized loan, Parent PLUS, Private loan</em>. Lines starting with # are ignored.</p>
+    <label for="offers">Award letters</label>
+    <textarea id="offers" spellcheck="false"></textarea>
+    <div id="parse-notes" class="note" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Assumptions (edit these)</h2>
+    <div class="row">
+      <div><label for="years">Years to graduate</label><input id="years" type="number" min="1" max="6" step="1"></div>
+      <div><label for="inflation">Yearly cost increase %</label><input id="inflation" type="number" min="0" max="15" step="0.5"></div>
+      <div><label for="termYears">Repayment term (years)</label><input id="termYears" type="number" min="1" max="30" step="1"></div>
+      <div><label for="salary">Expected first salary $ (optional)</label><input id="salary" type="number" min="0" step="1000" placeholder="e.g. 60000"></div>
+    </div>
+    <div class="row">
+      <div><label for="rateSub">Subsidized rate %</label><input id="rateSub" type="number" min="0" max="25" step="0.01"></div>
+      <div><label for="rateUnsub">Unsubsidized rate %</label><input id="rateUnsub" type="number" min="0" max="25" step="0.01"></div>
+      <div><label for="ratePlus">Parent PLUS rate %</label><input id="ratePlus" type="number" min="0" max="25" step="0.01"></div>
+      <div><label for="ratePriv">Private loan rate %</label><input id="ratePriv" type="number" min="0" max="25" step="0.01"></div>
+    </div>
+    <div class="row">
+      <div><label for="feeUnsub">Direct loan fee %</label><input id="feeUnsub" type="number" min="0" max="10" step="0.001"></div>
+      <div><label for="feePlus">Parent PLUS fee %</label><input id="feePlus" type="number" min="0" max="10" step="0.001"></div>
+      <div><label for="wage">Work-study $ per hour</label><input id="wage" type="number" min="1" step="0.5"></div>
+    </div>
+    <label class="check"><input id="repeat" type="checkbox"> Assume loans and work-study repeat every year at the amounts written</label>
+    <p class="note">Rates and fees start at 2025-26 federal figures. Replace them with the rates for the year you borrow (studentaid.gov); private loan terms are on your lender's offer.</p>
+    <button type="button" id="compare">Compare offers</button>
+    <button type="button" class="secondary" id="example">Load the example</button>
+    <button type="button" class="secondary" id="download" disabled>Download year-by-year CSV</button>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="results" hidden aria-live="polite">
+    <h2>3. What each offer really costs</h2>
+    <div id="out"></div>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How do I compare financial aid award letters?</h3>
+    <p>Put the same four things from each letter side by side: the full cost of attendance, the grants and scholarships (money you never repay), the loans (money you repay with interest) and work-study (money you earn by working). Subtract only the grants from the cost to get the net price, then add what the loans will cost you over their repayment. This tool does that for every offer and ranks them by total cost to your family.</p>
+    <h3>Are loans and work-study financial aid I should subtract from the price?</h3>
+    <p>Not as a price cut. Loans are borrowed money that you repay, usually with interest, so they move the bill into the future. Work-study is a job: the amount is the most you can earn, only if you find and work the hours. Only grants and scholarships reduce what the college costs you. The tool shows loans and work-study separately for that reason.</p>
+    <h3>What is a first-year-only scholarship and why does it matter?</h3>
+    <p>Some award letters include a grant that applies to the first year only, or one that renews only if you keep a minimum grade point average. Year 1 then looks cheap and years 2 to 4 cost much more. Enter a non-renewing grant on its own line (One-time first-year grant) and the tool shows how the net price steps up from year 2.</p>
+    <h3>How is the cost of the loans worked out?</h3>
+    <p>Each year's loans are assumed to be borrowed at the start of the year. Subsidized loans add no interest while you are in school; the other loans add simple interest until repayment starts, after a grace period you can set. The balance is then repaid in equal monthly payments over the term you choose, at the rate you enter. Origination fees are counted as cash you pay. Rates and fees start at 2025-26 federal values and you should replace them with the ones that apply to you.</p>
+    <h3>What does 'grant needed to match' mean, and can I use it to appeal an offer?</h3>
+    <p>It is the extra gift aid per year that would bring that offer's total cost down to the cheapest offer, with any loan you no longer need dropped. It is a number to start a conversation: many financial aid offices will look at a written appeal that shows a competing offer or a change in your family's circumstances. The tool does not know whether any office will agree.</p>
+    <h3>Is this financial advice, and is my information uploaded?</h3>
+    <p>No to both. It is arithmetic on the numbers you type, not financial, tax or legal advice, and it is not affiliated with any college or with the U.S. Department of Education. Everything runs in your browser, nothing is sent to a server, there are no accounts, and nothing is saved when you close the page.</p>
+    <h3>Why does the cheapest sticker price not always win?</h3>
+    <p>Because the sticker price is before aid. A college with a high published price and a large renewing grant can cost less than a cheaper-looking college that offers loans instead of grants. The comparison that matters is the total you will pay, in cash during school and in loan payments afterwards.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or educational advice, and it is not a substitute for a college financial aid office or a qualified adviser. The result is only as good as the numbers you type. Interest is simple interest on the rates you enter, loans are assumed taken at the start of each year, and real lender terms, rate changes, capitalization, taxes and repayment plans can differ. Verify with each college and your loan servicer before you decide.</p>
+    <p><strong>Independent.</strong> Not affiliated with any college, lender, loan servicer or the U.S. Department of Education. The example colleges and amounts are made up for illustration.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your award letters are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../private-school-tuition-discount-calculator/">private school tuition discount calculator</a>, the <a href="../student-loan-rap-ibr-standard-calculator/">student loan repayment calculator</a> and the <a href="../529-to-roth-rollover-calculator/">529 to Roth rollover calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseColleges, compareColleges, normaliseSettings, yearlyCsv, money, SAMPLE, DEFAULT_SETTINGS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const FIELDS = ["years", "inflation", "termYears", "salary", "rateSub", "rateUnsub", "ratePlus", "ratePriv", "feeUnsub", "feePlus", "wage"];
+    let last = null;
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+    function fillSettings() {
+      for (const k of FIELDS) $("#" + k).value = DEFAULT_SETTINGS[k] || "";
+      $("#repeat").checked = DEFAULT_SETTINGS.repeat;
+    }
+
+    function readSettings() {
+      const raw = {};
+      for (const k of FIELDS) raw[k] = $("#" + k).value;
+      raw.repeat = $("#repeat").checked;
+      // The Direct loan fee applies to both subsidized and unsubsidized loans.
+      raw.feeSub = raw.feeUnsub;
+      return normaliseSettings(raw);
+    }
+
+    function render(results, settings) {
+      const best = results[0];
+      const cards = results.map((r) => {
+        const flags = r.flags.map((f) => `<div class="warn">${esc(f)}</div>`).join("");
+        const rows = r.rows.map((y) => `<tr><td>${y.year}</td><td class="n">${money(y.coa)}</td><td class="n">${money(y.gift)}</td><td class="n">${money(y.netPrice)}</td><td class="n">${money(y.loans)}</td><td class="n">${money(y.workStudy)}</td><td class="n">${money(y.cash)}</td></tr>`).join("");
+        const match = r.rank > 1 ? `<div class="warn"><strong>Grant needed to match ${esc(best.name)}:</strong> about ${money(r.matchGrant)} more in grants each year (loans you would no longer need dropped). That is the number to bring to a financial aid appeal, with this offer and the cheaper one in hand.</div>` : "";
+        return `<div class="card ${r.rank === 1 ? "best" : ""}">
+          <h3>${r.rank}. ${esc(r.name)}${r.rank === 1 ? " — lowest total cost" : ` — ${money(r.gap)} more than #1 over ${settings.years} years`}</h3>
+          <div class="big">
+            <div><strong>${money(r.totalCost)}</strong>total cost to your family (cash + loan payments)</div>
+            <div><strong>${money(r.perYearCost)}</strong>per year, averaged</div>
+            <div><strong>${money(r.sticker)}</strong>sticker price over ${settings.years} years</div>
+            <div><strong>${(r.giftShare * 100).toFixed(0)}%</strong>of the sticker price covered by grants</div>
+            <div><strong>${money(r.borrowed)}</strong>borrowed → ${money(r.balance)} owed at graduation</div>
+            <div><strong>${money(r.studentMonthly)}${r.parentMonthly > 0 ? " + " + money(r.parentMonthly) : ""}</strong>a month for ${settings.termYears} years${r.parentMonthly > 0 ? " (student + parent)" : ""}</div>
+          </div>
+          <p class="note">Net price after grants: ${money(r.year1Net)} in year 1${r.rows.length > 1 ? `, about ${money(r.laterNet)} a year after` : ""}. Loan interest paid over ${settings.termYears} years: ${money(r.interest)}. Cash paid during school: ${money(r.cash)}.${r.workStudyTotal > 0 ? ` Work-study to earn: ${money(r.workStudyTotal)} (about ${r.workHours.toFixed(1)} hours a week).` : ""}</p>
+          ${flags}${match}
+          <details><summary>Year by year</summary><div class="scroll"><table class="t"><thead><tr><th>Year</th><th class="n">Cost of attendance</th><th class="n">Grants</th><th class="n">Net price</th><th class="n">Loans</th><th class="n">Work-study</th><th class="n">Cash due</th></tr></thead><tbody>${rows}</tbody></table></div></details>
+        </div>`;
+      }).join("");
+      const head = `<div class="scroll"><table class="t"><thead><tr><th>#</th><th>College</th><th class="n">Sticker</th><th class="n">Net price (yr 1)</th><th class="n">Borrowed</th><th class="n">Total cost to family</th><th class="n">vs #1</th></tr></thead><tbody>${results.map((r) => `<tr><td>${r.rank}</td><td>${esc(r.name)}</td><td class="n">${money(r.sticker)}</td><td class="n">${money(r.year1Net)}</td><td class="n">${money(r.borrowed)}</td><td class="n">${money(r.totalCost)}</td><td class="n">${r.rank === 1 ? "—" : "+" + money(r.gap)}</td></tr>`).join("")}</tbody></table></div>`;
+      $("#out").innerHTML = head + cards;
+      $("#results").hidden = false;
+    }
+
+    function run() {
+      const { colleges, warnings } = parseColleges($("#offers").value);
+      $("#parse-notes").innerHTML = warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      if (!colleges.length) {
+        $("#results").hidden = true;
+        $("#download").disabled = true;
+        status.textContent = "No offers found. Each block needs a College line and a cost of attendance.";
+        return false;
+      }
+      const settings = readSettings();
+      last = compareColleges(colleges, settings);
+      render(last, settings);
+      $("#download").disabled = false;
+      status.textContent = `Compared ${last.length} offer${last.length === 1 ? "" : "s"}. Cheapest: ${last[0].name}.`;
+      return true;
+    }
+
+    fillSettings();
+    $("#offers").value = SAMPLE;
+    $("#compare").addEventListener("click", () => { if (run()) record("compare_run"); });
+    $("#example").addEventListener("click", () => {
+      $("#offers").value = SAMPLE;
+      fillSettings();
+      if (run()) { record("example_loaded"); status.textContent = "Example loaded: made-up numbers. Replace them with your letters."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([yearlyCsv(last)], { type: "text/csv" }));
+      a.download = "aid-comparison.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

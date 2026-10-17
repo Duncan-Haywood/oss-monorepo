@@ -89,3 +89,7 @@ test('index links one hop to the chargeback-evidence-packet sibling', () => {
   );
   assert.match(html, /chargeback evidence packet builder/i);
 });
+
+test('index links one hop to the card-surcharge-vs-cash-discount-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/card-surcharge-vs-cash-discount-calculator\/"/);
+});

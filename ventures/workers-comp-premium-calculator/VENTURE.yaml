@@ -1,0 +1,67 @@
+name: workers-comp-premium-calculator
+description: >-
+  Free browser calculator that rebuilds a small employer's workers'
+  compensation premium line by line from the class-code rates on their own
+  quote: payroll per $100, overtime exclusion, experience mod, schedule
+  credit or debit, premium discount, expense constant, what each 0.10 of mod
+  is worth, the premium impact of a different class, and the final-audit
+  true-up on actual payroll. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED). duplicate_check.py scored the niche 0.54
+# at most (closest: staffing-markup-calculator, which prices a staffing
+# agency's bill rate, not an employer's insurance premium).
+#
+# Distribution channel, named rather than assumed: contractors, landscapers,
+# restaurants and other small employers searching "how is workers comp
+# premium calculated", "workers comp audit additional premium", "what is an
+# experience mod worth". The need recurs every renewal and every final audit,
+# and a missed audit true-up is a five-figure surprise for a small firm.
+# Incumbents are carriers and brokers whose calculators gate a quote behind
+# a lead form; this one takes the rates you already hold and never asks for
+# contact details. Volume not measured with an external tool.
+#
+# Liability: the one risk is a wrong number. Mitigations: no rate table is
+# shipped at all (the user types rates from their own quote, so nothing can
+# go stale), all arithmetic is fixed-order and unit tested with hand-counted
+# figures, out-of-range inputs throw instead of being clamped, and the page
+# states three times that it is not insurance, legal or financial advice and
+# that the carrier's figures control. It sells and binds nothing.
+
+hypotheses:
+  - claim: >-
+      A small employer facing a renewal quote or an audit bill will use a
+      free no-signup tool that decomposes the premium (mod, debit, constant,
+      audit true-up) rather than accept one opaque number from a broker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing what 0.10 of experience mod and a schedule debit are worth in
+      dollars is what makes an owner ask the carrier the right question at
+      renewal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: fixed arithmetic shipped with the page, nothing
+  # uploaded or fetched. One more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's figure instead of their carrier's quote or audit, despite the disclaimer -- at that point the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/workers-comp-premium-calculator/
+  analytics: null

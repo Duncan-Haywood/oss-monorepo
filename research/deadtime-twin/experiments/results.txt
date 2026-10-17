@@ -1,0 +1,39 @@
+Deadtime twin: real = SPAD with dead time tau (flux n, x = n tau); twin = ideal linear counter (observed rate = n)
+
+== 1. Observed rate m*tau against true flux x = n*tau ==
+  x        twin     non-paralyzable   undercount    paralyzable   undercount
+  0.01     0.01     0.0099            0.010         0.0099        0.010
+  0.1      0.1      0.0909            0.091         0.0905        0.095
+  0.5      0.5      0.3333            0.333         0.3033        0.393
+  1        1        0.5000            0.500         0.3679        0.632
+  2        2        0.6667            0.667         0.2707        0.865
+  5        5        0.8333            0.833         0.0337        0.993
+  10       10       0.9091            0.909         0.0005        1.000
+
+== 2. Paralyzable detector: one observed rate, two fluxes (y = m*tau; maximum y = 1/e = 0.3679) ==
+  y       low flux x   high flux x   ratio    twin-inverted flux (=y) vs high flux
+  0.05    0.0527       4.4998        85.37    twin reads 0.05, 90.0x too low
+  0.1     0.1118       3.5772        31.99    twin reads 0.1, 35.8x too low
+  0.2     0.2592       2.5426        9.81     twin reads 0.2, 12.7x too low
+  0.3     0.4894       1.7813        3.64     twin reads 0.3, 5.9x too low
+  0.36    0.8061       1.2228        1.52     twin reads 0.36, 3.4x too low
+  non-paralyzable exact inverse for comparison: y = 0.5 -> x = 1.000; y = 0.9 -> x = 9.000
+
+== 3. First-photon timing, Gaussian pulse (sigma = 1) with N expected photons per pulse; twin: unbiased, std sigma ==
+  range bias in cm uses sigma = 1 ns (c*sigma/2 = 14.99 cm)
+  N        P(detect)   mean bias    mode bias    std       mean bias (cm)   -N/(2 sqrt(pi))
+  0.01     0.0100      -0.0028      -0.0040      1.0000      -0.04          -0.0028
+  0.1      0.0952      -0.0282      -0.0399      0.9998      -0.42          -0.0282
+  0.5      0.3935      -0.1405      -0.1957      0.9958      -2.11          -0.1410
+  1        0.6321      -0.2781      -0.3722      0.9837      -4.17          -0.2821
+  2        0.8647      -0.5340      -0.6471      0.9403      -8.00          -0.5642
+  3        0.9502      -0.7541      -0.8406      0.8826     -11.30          -0.8463
+  5        0.9933      -1.0816      -1.0951      0.7704     -16.21          -1.4105
+  10       1.0000      -1.5045      -1.4317      0.6243     -22.55          -2.8209
+  30       1.0000      -2.0344      -1.9146      0.5038     -30.50          -8.4628
+
+== 4. Monte Carlo check and Coates correction (200000 pulses, seed 11) ==
+  N      quadrature mean   MC mean    MC P(detect)   Coates-corrected mean
+  1      -0.2781           -0.2744    0.6326         +0.0038
+  3      -0.7541           -0.7512    0.9509         +0.0052
+  10     -1.5045           -1.5043    1.0000         -0.0182

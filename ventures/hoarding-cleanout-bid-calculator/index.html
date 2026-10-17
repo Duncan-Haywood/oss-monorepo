@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hoarding Cleanout Bid Calculator — Price, Containers and Change-Order Rate</title>
+  <meta name="description" content="Free hoarding and heavy-clutter cleanout bid calculator: enter floor area, how full the space is, crew, containers and dump fees, and get a price, the days and containers needed, a change-order rate per cubic yard and how far the volume can overrun. Runs in your browser.">
+  <meta property="og:title" content="Hoarding Cleanout Bid Calculator — free, private">
+  <meta property="og:description" content="Bid a cleanout from the volume, the crew days and the containers it really needs, and know your overrun limit.">
+  <link rel="canonical" href="./index.html">
+      <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Hoarding Cleanout Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free hoarding and heavy-clutter cleanout bid calculator: turn floor area, fill level, crew, containers and dump fees into a price, the days and containers needed, a change-order rate per cubic yard and the volume overrun the price can absorb."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a hoarding cleanout?", "acceptedAnswer": {"@type": "Answer", "text": "Estimate the cubic yards of debris from the floor area, ceiling height and how full the space is, less what the client keeps. Then cost the person-hours to sort and carry it out, the sanitising, protective gear, containers, dump fees and a risk allowance, and divide by one minus your margin. This tool does that and shows the price per cubic yard and per square foot."}}, {"@type": "Question", "name": "Why does the price jump when the volume goes up a little?", "acceptedAnswer": {"@type": "Answer", "text": "Days and containers come in whole units. A job that needs 8.1 days is billed as 9, and the 31st yard needs a second container. The volume table shows where those steps fall so you can see which overruns are cheap and which are not."}}, {"@type": "Question", "name": "What should the change-order clause say?", "acceptedAnswer": {"@type": "Answer", "text": "That any debris beyond the walkthrough estimate is billed per cubic yard. The tool gives a number: the cost of the next yard, loaded with your margin, averaged over a 25 percent overrun."}}, {"@type": "Question", "name": "How far over the estimate can I go before I lose money?", "acceptedAnswer": {"@type": "Answer", "text": "The result shows the break-even volume: the largest amount of debris at which your quoted price still covers cost. Walkthroughs of heavily cluttered homes are easy to underestimate because floors and shelves hide depth."}}, {"@type": "Question", "name": "Does it cover biohazard cleanup?", "acceptedAnswer": {"@type": "Answer", "text": "Only as arithmetic: a risk allowance percentage and sanitising minutes per 100 square feet that you set. It does not say what is hazardous, what protective equipment or disposal your jurisdiction requires, or what licences you need."}}, {"@type": "Question", "name": "What does this leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Sales tax, permits, licences and insurance, hazardous-waste disposal, pest or mould treatment, recycling credits, items of value found in the home, client financing and the time spent with the client and family. It is a bidding aid, not a quote."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOARDING CLEANOUT BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What should you charge to clear this house?</h1>
+    <p>Enter the space, the work rate and your costs. You get <strong>a price, the crew days and containers the job needs, a per-cubic-yard rate for the change-order clause, and how far the real pile can exceed your walkthrough estimate before the price stops covering cost</strong>. Flat per-square-foot specials hide that a house 50% fuller than it looked can turn a good job into a loss.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a quote.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The space</h2>
+    <div class="grid">
+      <div><label for="floorSqft">Floor area to clear (sq ft)</label><input type="number" id="floorSqft" min="0" step="any" value="1100"></div>
+      <div><label for="ceilingFt">Ceiling height (ft)</label><input type="number" id="ceilingFt" min="0" step="any" value="8"></div>
+      <div><label for="fillPct">How full the space is (% of its volume)</label><input type="number" id="fillPct" min="0" step="any" value="30"></div>
+      <div><label for="keepPct">Contents the client keeps (%)</label><input type="number" id="keepPct" min="0" step="any" value="10"></div>
+      <div><label for="sanitizeSqft">Area needing deep clean or sanitising (sq ft)</label><input type="number" id="sanitizeSqft" min="0" step="any" value="400"></div>
+    </div>
+    <h2 style="margin-top:22px">2. The work</h2>
+    <div class="grid">
+      <div><label for="personHrPerYd">Person-hours to sort and carry out 1 cubic yard</label><input type="number" id="personHrPerYd" min="0" step="any" value="1.2"></div>
+      <div><label for="sanitizeMinPer100">Sanitising minutes per 100 sq ft (person-minutes)</label><input type="number" id="sanitizeMinPer100" min="0" step="any" value="90"></div>
+      <div><label for="crew">People on the crew</label><input type="number" id="crew" min="0" step="any" value="3"></div>
+      <div><label for="workdayHours">Paid hours in a day</label><input type="number" id="workdayHours" min="0" step="any" value="8"></div>
+      <div><label for="driveMin">Driving to and from the site per day (minutes)</label><input type="number" id="driveMin" min="0" step="any" value="60"></div>
+      <div><label for="setupMin">Suiting up, containment and cleanup per day (minutes)</label><input type="number" id="setupMin" min="0" step="any" value="45"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Costs and margin</h2>
+    <div class="grid">
+      <div><label for="laborRate">Labour ($/hour per person)</label><input type="number" id="laborRate" min="0" step="any" value="28"></div>
+      <div><label for="ppePerPersonDay">Protective gear per person per day ($)</label><input type="number" id="ppePerPersonDay" min="0" step="any" value="18"></div>
+      <div><label for="mobilizationPerDay">Truck and equipment per day ($)</label><input type="number" id="mobilizationPerDay" min="0" step="any" value="40"></div>
+      <div><label for="dumpsterYd">Container size (cubic yards)</label><input type="number" id="dumpsterYd" min="0" step="any" value="30"></div>
+      <div><label for="loadPct">How full each container gets (%)</label><input type="number" id="loadPct" min="0" step="any" value="85"></div>
+      <div><label for="haulCost">Cost per container, delivered and hauled ($)</label><input type="number" id="haulCost" min="0" step="any" value="550"></div>
+      <div><label for="tonsPerYd">Tons per cubic yard of this debris</label><input type="number" id="tonsPerYd" min="0" step="any" value="0.2"></div>
+      <div><label for="dumpFeePerTon">Dump fee ($ per ton)</label><input type="number" id="dumpFeePerTon" min="0" step="any" value="75"></div>
+      <div><label for="riskPct">Risk allowance for pests, sharps and surprises (% of cost)</label><input type="number" id="riskPct" min="0" step="any" value="10"></div>
+      <div><label for="marginPct">Margin wanted (% of the price)</label><input type="number" id="marginPct" min="0" step="any" value="30"></div>
+      <div><label for="minCharge">Minimum charge ($)</label><input type="number" id="minCharge" min="0" step="any" value="1500"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Price this job</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter the space and your costs, or load the example, then click Price this job.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>If the real volume is not what the walkthrough showed</h3>
+    <p class="note">Your quoted price held fixed against the cost of the job at each volume. Days and containers come in whole units, so cost moves in steps.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume vs. estimate</th><th scope="col">Cubic yards</th><th scope="col">Days</th><th scope="col">Containers</th><th scope="col">Your cost</th><th scope="col">Profit at your quote</th><th scope="col">Margin at your quote</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Debris is floor area times ceiling height times how full the space is, less what the client keeps, divided by 27 to give cubic yards.</li>
+      <li>Work is cubic yards times the person-hours per yard, plus the sanitising minutes for the area you list. Days are the person-hours divided by the crew and by the productive hours left after the drive and setup each day, rounded up.</li>
+      <li>Containers are the debris divided by the container size times how full you load it, rounded up. Dump fees are tons times the fee per ton.</li>
+      <li>Cost is labour for the paid days, gear, truck and equipment, container hauls and dump fees, plus the risk allowance. Price is cost divided by one minus your margin, never below your minimum charge.</li>
+      <li>The overrun limit solves for the volume at which cost equals your quoted price. The change-order rate is the extra cost of a 25 percent larger pile, per extra yard, divided by one minus your margin.</li>
+      <li><strong>Not modelled:</strong> sales tax, permits, licences and insurance, hazardous-waste rules and disposal, pest or mould treatment, recycling credits, valuables found in the home, client financing, and time with the client and family. What counts as hazardous and what you must wear or dispose of is set by your own regulators; check them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a hoarding cleanout?</h3>
+    <p>Estimate the cubic yards of debris from the floor area, ceiling height and how full the space is, less what the client keeps. Then cost the person-hours to sort and carry it out, the sanitising, protective gear, containers, dump fees and a risk allowance, and divide by one minus your margin. This tool does that and shows the price per cubic yard and per square foot.</p>
+    <h3>Why does the price jump when the volume goes up a little?</h3>
+    <p>Days and containers come in whole units. A job that needs 8.1 days is billed as 9, and the 31st yard needs a second container. The volume table shows where those steps fall so you can see which overruns are cheap and which are not.</p>
+    <h3>What should the change-order clause say?</h3>
+    <p>That any debris beyond the walkthrough estimate is billed per cubic yard. The tool gives a number: the cost of the next yard, loaded with your margin, averaged over a 25 percent overrun.</p>
+    <h3>How far over the estimate can I go before I lose money?</h3>
+    <p>The result shows the break-even volume: the largest amount of debris at which your quoted price still covers cost. Walkthroughs of heavily cluttered homes are easy to underestimate because floors and shelves hide depth.</p>
+    <h3>Does it cover biohazard cleanup?</h3>
+    <p>Only as arithmetic: a risk allowance percentage and sanitising minutes per 100 square feet that you set. It does not say what is hazardous, what protective equipment or disposal your jurisdiction requires, or what licences you need.</p>
+    <h3>What does this leave out?</h3>
+    <p>Sales tax, permits, licences and insurance, hazardous-waste disposal, pest or mould treatment, recycling credits, items of value found in the home, client financing and the time spent with the client and family. It is a bidding aid, not a quote.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own costing, a written quote, your regulators' rules or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you quote.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>job_priced</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../junk-removal-bid-calculator/">junk removal bid</a>, <a href="../dumpster-rental-margin-calculator/">dumpster rental margin</a>, <a href="../house-cleaning-quote-calculator/">house cleaning quote</a>, <a href="../shop-rate-calculator/">shop rate</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["floorSqft", "ceilingFt", "fillPct", "keepPct", "sanitizeSqft", "personHrPerYd", "sanitizeMinPer100", "crew", "workdayHours", "driveMin", "setupMin", "laborRate", "ppePerPersonDay", "mobilizationPerDay", "dumpsterYd", "loadPct", "haulCost", "tonsPerYd", "dumpFeePerTon", "riskPct", "marginPct", "minCharge"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.sensitivity.map((x) => `<tr class="${x.multiplier === 1 ? "drive" : x.profitAtQuote < 0 ? "off" : ""}"><th scope="row">${x.multiplier === 1 ? "As estimated" : Math.round(x.multiplier * 100) + "%"}</th><td>${x.yards}</td><td>${x.days}</td><td>${x.containers}</td><td>${usd(x.cost)}</td><td>${usd(x.profitAtQuote)}</td><td>${x.marginAtQuotePct}%</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Quote ${usd(r.job.price)}.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("job_priced"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "hoarding-cleanout-bid.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

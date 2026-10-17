@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01XawUqAou1NNZdr2zWAvVkq",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "i want more work on review and critique and solutions on the actual development process. there are 16 agents that run every hour on the repo and use prompt.md as the entry point. that won't change. but I want the process to iteratively be improved without over handicapping the agent's intelligence and intiiative. it's suggestive direction setting I think as rough idea. work on the processes based on this.",
+  "input_sha256": "5fa88e08514e66bc01d56baee52f37def8addefd989472d38c0c77b7a325169f",
+  "follow_up_inputs": [
+    "giving more to the agent's intelligence and discretion rather than enforcing hard and fast rules makes sense.",
+    "some of the guardrails potentially can be overstated.",
+    "guardrails are directions that get followed overly so; ~16 runs/hour vs a few owner-hours a week; it over-corrects on instructions and on past built-up work.",
+    "aside from legal and financial liability and immoral stuff, owner instructions are a collaborator, not gospel; income without liability welcome; value trumps revenue; an X account or email marketing might make sense without spending or breaking ToS."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Process: steering by judgment (steering.md, deviations), process backlog and prompt-1, process to 10%, CLAUDE.md history out (P003), goals.md hard limits vs defaults (G1 accepted), X/email channels in the distribution spec.",
+  "projects": [
+    "prompts",
+    "CLAUDE.md",
+    "portfolio/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7021",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A first concatenation of CLAUDE.md left a stray line ('in the PR what they said:') above the checklist fence",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "gitops/tests/test_manifests.py",
+      "issue": "mirrored-tool count red on clean main (1232 vs 1233) after a concurrent merge; sync_tree_counts.py fixed it at the merge as CLAUDE.md says"
+    },
+    {
+      "file": "prompts/review/prompt-0.md",
+      "issue": "edited it, then found #7020 had made review/prompt-1 champion mid-session; ported the change. A parallel owner-directed session on the same theme was invisible until the merge"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/README.md",
+      "instruction": "a new sub-prompt version goes in as a candidate at ~20% and is A/B tested",
+      "did": "made process/prompt-1 champion directly",
+      "why": "owner-directed; prompt-0's single-study claim collided on day one and cannot absorb ~1.6 process runs an hour",
+      "result": "unknown until next review"
+    }
+  ],
+  "goal": null,
+  "notes": "Backlog items touched: P003 done (this PR); P001-P011 filed. Owner-directed process changes. Model from session config.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 7021 shows merged=true via REST API (review 2026-10-15 third)"
+    }
+  ],
+  "redteam": null
+}

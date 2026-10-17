@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/firebase-rules-check/</loc></url>
 <url><loc>https://example.invalid/firebase-rules-check/why-does-firebase-test-mode-expose-my-data.html</loc></url>
+<url><loc>https://example.invalid/firebase-rules-check/vs-requesting-the-url-by-hand.html</loc></url>
 </urlset>

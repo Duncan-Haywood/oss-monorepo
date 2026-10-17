@@ -1,0 +1,49 @@
+name: severance-package-calculator
+description: >-
+  Free browser tool for people holding a severance offer: compares the weeks to the usual one-to-two weeks per
+  year of service, shows the net as a lump sum now, a lump sum in January or salary continuation, prices the
+  COBRA gap, flags unemployment at risk, shows runway and lists what to negotiate. Optional dates give the 21/45-day review and 7-day revocation deadlines at 40+, a vest-gap and WARN check, and an .ics calendar. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. ventures/ had no severance tool (grep for severance,
+# layoff, supplemental found only bonus-take-home-gross-up-calculator, cobra-vs-marketplace-calculator and
+# final-paycheck-deadline-calculator, each one slice of the problem).
+#
+# Why this niche: "severance package calculator" and "is my severance offer fair" are searched by people with a
+# few days to sign and real money at stake. Incumbents are law-firm lead-gen pages (a blog and a contact form) and
+# generic tax calculators. A private what-if with the negotiation checklist is the gap. Free tool is a lead magnet;
+# a paid negotiation-letter pack or an employment-lawyer referral are the later revenue paths (not built; any
+# referral arrangement needs a disclosure and owner approval).
+#
+# First visitor: someone searching "severance package calculator", "how much severance should I get" or
+# "lump sum vs salary continuation severance". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions and a generic checklist; not legal advice; rates editable;
+# no filing, no payments; the page points to a lawyer before signing a broad release.
+
+hypotheses:
+  - claim: >-
+      People holding a severance offer will use a private tool that benchmarks the weeks, shows the net by payout
+      shape and lists specific asks, because the alternatives are law-firm lead forms and a single tax calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/severance-package-calculator/
+  analytics: null

@@ -1,4 +1,52 @@
 {
+  "auto-glass-bid-calculator": {
+    "jobTitle": "Auto glass replacement — {positionLabel}",
+    "jobTitleFallback": "Auto glass replacement",
+    "priceField": "price",
+    "fields": {
+      "positionLabel": {
+        "select": "position"
+      },
+      "sourceLabel": {
+        "select": "glassSource"
+      },
+      "calibrationLabel": {
+        "select": "calibration",
+        "map": {
+          "none": "",
+          "dynamic": "Dynamic ADAS calibration (supervised road test)",
+          "static": "Static ADAS calibration (target boards, in-shop)",
+          "dual": "Static and dynamic ADAS calibration (both required)"
+        }
+      },
+      "serviceLabel": {
+        "select": "service",
+        "map": {
+          "in-shop": "",
+          "mobile": "Mobile service at the vehicle"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install {sourceLabel} for the {positionLabel}",
+      {
+        "line": "{calibrationLabel}",
+        "when": "calibrationLabel"
+      },
+      {
+        "line": "{serviceLabel}",
+        "when": "serviceLabel"
+      },
+      "Confirm a clean, leak-free urethane seal and correct fit before hand-back"
+    ],
+    "placeholders": {
+      "companyName": "Clearview Mobile Auto Glass LLC",
+      "scope": "Supply and install OEM-equivalent aftermarket glass for the Windshield\nDynamic ADAS calibration (supervised road test)",
+      "exclusions": "Paintless dent repair or body panel work\nPre-existing chips or cracks outside the replaced glass",
+      "notes": "Old glass and trim removed and disposed of the same day."
+    },
+    "disclaimerTail": "It is not a determination that any ADAS or safety system is functioning correctly after the work, and it is not a substitute for the vehicle manufacturer's own calibration procedure."
+  },
   "appliance-repair-quote-calculator": {
     "priceField": "target",
     "screenPriceSelector": "#target",
@@ -218,6 +266,27 @@
       "notes": "Safety edges and photo-eyes tested on handover."
     },
     "disclaimerTail": "Automated gates carry entrapment risk; installation is quoted to the manufacturer\u2019s instructions and applicable safety standards, and this is not a safety certification."
+  },
+  "biohazard-cleanup-bid-calculator": {
+    "jobTitle": "Biohazard / trauma-scene cleanup \u2014 {technicianCount} tech{technicianCount+s}, {hoursOnSitePerTechnician~1} hr each",
+    "scope": [
+      "{technicianCount} technician{technicianCount+s} on site for {hoursOnSitePerTechnician~1} hour{hoursOnSitePerTechnician+s} each",
+      "{ppeSets} full PPE set{ppeSets+s} across {deconCyclesPerTechnician} decon cycle{deconCyclesPerTechnician+s} per technician",
+      {
+        "line": "Regulated-waste disposal: {containersNeeded} container{containersNeeded+s}",
+        "when": "containersNeeded"
+      },
+      "Supplies: enzymatic cleaner, sealant, odor treatment and absorbents",
+      "Equipment: ozone generator / air scrubber as needed for the scene",
+      "Site travel"
+    ],
+    "placeholders": {
+      "companyName": "Baseline Biohazard Remediation LLC",
+      "scope": "2 technicians on site for 5 hours each\n2 PPE sets, 1 decon cycle per technician\nRegulated-waste disposal: 2 containers",
+      "exclusions": "Structural repair, demolition rebuild, or odor-source removal beyond the affected surfaces\nInsurance-claim adjudication or a formal biohazard exposure determination",
+      "notes": "Regulated waste manifested and disposed of at a licensed facility; manifest available on request."
+    },
+    "disclaimerTail": "Cleanup addresses the biohazard/trauma-scene surfaces described; it is not a hauler contract, an OSHA bloodborne-pathogen exposure determination, or an insurance-claim adjudication."
   },
   "boiler-replacement-bid-calculator": {
     "jobTitle": "Boiler replacement \u2014 {inputMbh} MBH",
@@ -4041,5 +4110,34 @@
       "notes": "Work is scheduled around required air-clearance results before re-occupancy."
     },
     "disclaimerTail": "It is not an asbestos inspection or a substitute for the contractor\u2019s own certification and regulatory compliance."
+  },
+  "window-tinting-bid-calculator": {
+    "jobTitle": "Window tint \u2014 {totalPanes} pane{totalPanes+s}, {filmTierLabel} film",
+    "priceField": "finalPrice",
+    "fields": {
+      "filmTierLabel": {
+        "select": "filmTier"
+      }
+    },
+    "scope": [
+      "Tint {totalPanes} window pane{totalPanes+s} in {filmTierLabel} film ({totalSqFt~0} sq ft with waste)",
+      "Front door windows: {counts.frontDoor}, rear door windows: {counts.rearDoor}, rear quarter windows: {counts.quarter}",
+      {
+        "line": "Includes rear windshield",
+        "when": "counts.rearWindshield"
+      },
+      {
+        "line": "Strip existing film before the new film goes on ({removalMinutes~0} min)",
+        "when": "removeOldTint"
+      },
+      "Waste factor of {wasteFactorPercent~0}% built into the film cut"
+    ],
+    "placeholders": {
+      "companyName": "Clearview Tint & Detail",
+      "scope": "Tint 7 window panes in ceramic film (23 sq ft with waste)\nFront door windows: 2, rear door windows: 2, rear quarter windows: 2\nIncludes rear windshield",
+      "exclusions": "Paint correction or detailing\nWindshield-front tint (where restricted by state law)",
+      "notes": "Avoid rolling windows down for 3-5 days while the film cures."
+    },
+    "disclaimerTail": "This price does not check your state's window tint darkness (VLT%) law, medical-exemption rules, reflectivity limits, or any other film-legality requirement \u2014 confirm legality before installing."
   }
 }

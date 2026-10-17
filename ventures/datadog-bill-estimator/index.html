@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Datadog Bill Estimator — Estimate Your Monthly Bill and the Levers That Cut It</title>
+  <meta name="description" content="Estimate a monthly Datadog bill from your own usage (hosts, containers, custom metrics, logs, APM, synthetics) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What will your Datadog bill be, and what cuts it most?">
+  <meta property="og:description" content="Type your usage, get an estimated monthly bill and a ranked list of savings levers with dollar figures. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Datadog Bill Estimator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate a monthly Datadog bill from your own usage numbers at editable list prices, and see a ranked list of the changes that cut it most (log exclusion filters, shorter retention, flex or archive, custom-metric tags, rightsizing, annual billing) with a dollar saving each. Runs in the browser or as a zero-dependency Node CLI with a --budget CI gate."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my Datadog account or invoice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the usage numbers you type or paste and multiplies them by list prices you can edit. It cannot see your contract, committed-use discounts, how Datadog measures your hosts across the month, or your real invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public list prices from Datadog's pricing page as best known in early 2025, shown with an as-of date, and every one is editable. Datadog changes prices and packaging, so check datadoghq.com/pricing and your own contract before relying on a number."}}, {"@type": "Question", "name": "How is the saving for each lever calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, an exclusion filter that drops 30% of indexed log events) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DATADOG BILL ESTIMATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will your Datadog bill be, and what cuts it most?</h1>
+    <p>Enter your usage and get an <strong>estimated monthly bill by product</strong> and a <strong>ranked list of levers</strong> (log exclusion filters, shorter retention, flex or archive, custom-metric tags, rightsizing, annual billing) with a dollar saving for each.</p>
+    <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your contract or your invoice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your monthly usage</h2>
+    <div class="grid">
+      <div><label for="f-infra_pro_hosts">Infrastructure Pro hosts <span class="note">(hosts)</span></label><input type="number" id="f-infra_pro_hosts" min="0" value="0"></div>
+      <div><label for="f-infra_enterprise_hosts">Infrastructure Enterprise hosts <span class="note">(hosts)</span></label><input type="number" id="f-infra_enterprise_hosts" min="0" value="0"></div>
+      <div><label for="f-containers">Containers (average) <span class="note">(containers)</span></label><input type="number" id="f-containers" min="0" value="0"></div>
+      <div><label for="f-custom_metrics">Custom metrics (average) <span class="note">(metrics)</span></label><input type="number" id="f-custom_metrics" min="0" value="0"></div>
+      <div><label for="f-logs_ingested_gb">Logs ingested per month <span class="note">(GB)</span></label><input type="number" id="f-logs_ingested_gb" min="0" value="0"></div>
+      <div><label for="f-logs_indexed_million">Log events indexed per month <span class="note">(million events)</span></label><input type="number" id="f-logs_indexed_million" min="0" value="0"></div>
+      <div><label for="f-logs_retention_days">Log index retention <span class="note">(days)</span></label><select id="f-logs_retention_days"><option>3</option><option>7</option><option selected>15</option><option>30</option></select></div>
+      <div><label for="f-apm_hosts">APM hosts <span class="note">(hosts)</span></label><input type="number" id="f-apm_hosts" min="0" value="0"></div>
+      <div><label for="f-synthetics_api_runs">Synthetic API runs per month <span class="note">(runs)</span></label><input type="number" id="f-synthetics_api_runs" min="0" value="0"></div>
+      <div><label for="f-synthetics_browser_runs">Synthetic browser runs per month <span class="note">(runs)</span></label><input type="number" id="f-synthetics_browser_runs" min="0" value="0"></div>
+      <div><label for="f-billing">Billing <span class="note">(annual or month-to-month)</span></label><select id="f-billing"><option value="annual">annual</option><option value="monthly">monthly</option></select></div>
+    </div>
+    <label for="budget">Monthly budget in USD (optional)</label>
+    <input type="number" id="budget" min="0" placeholder="e.g. 4000">
+    <label for="csv">Or paste a <code>product,usage</code> CSV (see the CLI template)</label>
+    <textarea id="csv" spellcheck="false" placeholder="product,usage&#10;infra_pro_hosts,50&#10;logs_indexed_million,800"></textarea>
+    <p>
+      <button type="button" id="calc">Estimate</button>
+      <button type="button" class="secondary" id="load-csv">Fill form from CSV</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Estimate</h2>
+    <p id="summary"></p>
+    <table id="items-table"><thead><tr><th>Product</th><th>Billable</th><th>Per month</th></tr></thead><tbody id="items-rows"></tbody></table>
+    <h3>Levers that cut the bill most</h3>
+    <table id="levers-table" hidden><thead><tr><th>Change</th><th>Assumption</th><th>Saves per month</th></tr></thead><tbody id="levers-rows"></tbody></table>
+    <p class="note">Each lever is computed alone under the assumption shown. Levers overlap, so the savings are not additive.</p>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prices and assumptions (editable)</h2>
+    <p class="note" id="prices-note"></p>
+    <table><thead><tr><th>Item</th><th>Annual</th><th>Month-to-month</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <p class="note">Change a price here and press Estimate. Defaults are approximate list prices; check <a href="https://www.datadoghq.com/pricing/" rel="noopener">datadoghq.com/pricing</a> and your contract.</p>
+    <div class="row" id="assume-row"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a budget gate in CI?</h2>
+    <pre class="cmd">node cli.mjs template &gt; usage.csv
+node cli.mjs estimate usage.csv
+node cli.mjs estimate usage.csv --budget 4000      # exit 1 over budget
+node cli.mjs estimate usage.csv --set logs_indexed_million=500 --json
+node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-reduce-your-datadog-bill.html">how to reduce your Datadog bill</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this read my Datadog account or invoice?</h3>
+    <p>No. It reads only the usage numbers you type or paste and multiplies them by list prices you can edit. It cannot see your contract, committed-use discounts, how Datadog measures your hosts across the month, or your real invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
+    <h3>Where do the prices come from?</h3>
+    <p>They are approximate public list prices from Datadog's pricing page as best known in early 2025, shown with an as-of date, and every one is editable. Datadog changes prices and packaging, so check datadoghq.com/pricing and your own contract before relying on a number.</p>
+    <h3>How is the saving for each lever calculated?</h3>
+    <p>Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, an exclusion filter that drops 30% of indexed log events) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive.</p>
+    <h3>Is my usage data uploaded anywhere?</h3>
+    <p>No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies usage numbers you enter by list prices that may be out of date and ignores contracts, discounts and Datadog's own metering rules; it is not a guarantee of what Datadog will charge, and it is not a bill reader. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Datadog is a trademark of its owner; this project is not affiliated with or endorsed by Datadog, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../prometheus-cardinality-cost/">Prometheus Cardinality Cost</a> finds the labels inflating a metrics bill from one scrape, and <a href="../llm-call-cost-scan/">LLM Call Cost Scan</a> finds the LLM API calls quietly costing money.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { USAGE_FIELDS, DEFAULT_PRICES, DEFAULT_ASSUMPTIONS, PRICES_AS_OF, parseUsageCsv, estimateBill, rankLevers, summarize, fmt } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+    const assumptions = { ...DEFAULT_ASSUMPTIONS };
+    $("#prices-note").textContent = "Defaults: " + PRICES_AS_OF + ".";
+
+    const priceRows = [];
+    for (const [key, p] of Object.entries(prices)) {
+      if (p.byRetention) {
+        for (const d of Object.keys(p.byRetention)) priceRows.push(`<tr><td>${escapeHtml(p.label)}: ${d} days</td><td colspan="2"><input type="number" step="0.01" min="0" data-ret="${d}" value="${p.byRetention[d]}"></td></tr>`);
+      } else {
+        priceRows.push(`<tr><td>${escapeHtml(p.label)}</td><td><input type="number" step="0.01" min="0" data-price="${key}" data-col="annual" value="${p.annual}"></td><td><input type="number" step="0.01" min="0" data-price="${key}" data-col="monthly" value="${p.monthly}"></td></tr>`);
+      }
+    }
+    $("#prices-rows").innerHTML = priceRows.join("");
+    $("#assume-row").innerHTML = Object.entries(assumptions).map(([k, v]) => `<div><label for="a-${k}">${escapeHtml(k)}</label><input type="number" min="0" step="any" id="a-${k}" value="${v}"></div>`).join("");
+
+    function readPrices() {
+      for (const el of document.querySelectorAll("[data-price]")) prices[el.dataset.price][el.dataset.col] = Math.max(0, Number(el.value) || 0);
+      for (const el of document.querySelectorAll("[data-ret]")) prices.logIndexPerMillion.byRetention[el.dataset.ret] = Math.max(0, Number(el.value) || 0);
+      for (const k of Object.keys(assumptions)) assumptions[k] = Math.max(0, Number($("#a-" + k).value) || 0);
+    }
+    function readUsage() {
+      const u = {};
+      for (const f of USAGE_FIELDS) {
+        const v = $("#f-" + f.key).value;
+        u[f.key] = f.key === "billing" ? v : Number(v) || 0;
+      }
+      u.logs_retention_days = Number(u.logs_retention_days);
+      return u;
+    }
+    function fillForm(u) {
+      for (const [k, v] of Object.entries(u)) if ($("#f-" + k)) $("#f-" + k).value = v;
+    }
+
+    function render() {
+      readPrices();
+      const est = estimateBill(readUsage(), prices);
+      if (est.total === 0) {
+        $("#status").innerHTML = `<span class="error">Enter at least one usage number first (or load the worked example).</span>`;
+        return;
+      }
+      $("#status").textContent = "";
+      const levers = rankLevers(est.usage, prices, assumptions);
+      const b = $("#budget").value === "" ? null : Math.max(0, Number($("#budget").value) || 0);
+      const s = summarize(est, levers, { budget: b });
+      $("#summary").innerHTML = `<span class="${s.overBudget ? "changed" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#items-rows").innerHTML = est.items.filter((i) => i.monthly > 0).map((i) => `<tr><td>${escapeHtml(i.label)}${i.note ? ` <span class="note">(${escapeHtml(i.note)})</span>` : ""}</td><td>${i.billable} ${escapeHtml(i.unit)}</td><td>${fmt(i.monthly)}</td></tr>`).join("") + `<tr><th>Total</th><th></th><th>${fmt(est.total)}</th></tr>`;
+      $("#levers-table").hidden = levers.length === 0;
+      $("#levers-rows").innerHTML = levers.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${escapeHtml(l.assumption)}</td><td>${fmt(l.saving)} (${l.pctOfBill}%)</td></tr>`).join("");
+      $("#estimate").textContent = `${PRICES_AS_OF}. Your usage numbers and editable prices; not a measurement of any invoice.`;
+      $("#report-card").hidden = false;
+      record("estimate_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    $("#calc").addEventListener("click", render);
+    $("#load-csv").addEventListener("click", () => {
+      const { usage, errors } = parseUsageCsv($("#csv").value);
+      if (errors.length) { $("#status").innerHTML = `<span class="error">${escapeHtml(errors.join("; "))}</span>`; return; }
+      fillForm(usage);
+      render();
+    });
+
+    const EXAMPLE = { infra_pro_hosts: 50, infra_enterprise_hosts: 0, containers: 900, custom_metrics: 12000, logs_ingested_gb: 2000, logs_indexed_million: 800, logs_retention_days: 15, apm_hosts: 20, synthetics_api_runs: 200000, synthetics_browser_runs: 20000, billing: "monthly" };
+    $("#load-example").addEventListener("click", () => {
+      fillForm(EXAMPLE);
+      render();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const f of USAGE_FIELDS) if (f.key !== "billing" && f.key !== "logs_retention_days") $("#f-" + f.key).value = 0;
+      $("#csv").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

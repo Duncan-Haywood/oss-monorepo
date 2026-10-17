@@ -1,0 +1,48 @@
+name: k8s-requests-rightsizer
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads kubectl top pod --containers output, kubectl get pods -o json and/or CSV and reports per-container over- and under-provisioned CPU and memory requests, a recommended request (usage p95 plus editable headroom), estimated monthly savings at editable $/vCPU-hr and $/GiB-hr list prices, out-of-memory risk where memory is above 85% of the request or limit, and ready-to-paste YAML patches; usable as a CI check (--fail-on warn). A recommendation from a snapshot, not a bill: usage must be sampled over a representative period.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md "archetype itself").
+# Sibling of lambda-memory-rightsizer (same engine/CLI/page shape, Kubernetes
+# instead of Lambda). Nothing else in the catalogue touches Kubernetes requests.
+#
+# Where the first real visitor would come from: the search phrases "kubernetes
+# resource requests too high", "right size kubernetes requests", "kubectl top
+# requests vs usage", "kubernetes overprovisioned pods cost"; r/kubernetes,
+# r/devops and platform-team threads about a node bill that kept growing. The
+# reader is a platform engineer or FinOps owner with a five- or six-figure
+# monthly compute bill. Adjacent tools (Goldilocks/VPA, Kubecost, cloud cost
+# views) need cluster access, an in-cluster install or a paid vendor; this works
+# on pasted text with no access -- the wedge. A hosted multi-cluster right-sizing
+# monitor with PR comments is the natural paid upgrade.
+hypotheses:
+  - claim: A platform engineer with an over-sized cluster will search for how to right-size requests, paste kubectl output, and find the containers worth patching first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --fail-on warn so a manifest or snapshot with wasteful or near-OOM requests is flagged before the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/k8s-requests-rightsizer/
+  analytics: null

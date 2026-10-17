@@ -1,0 +1,68 @@
+name: freelance-contract-maker
+description: >-
+  Free freelance service agreement generator that runs in the browser with no
+  account: scope and deliverables, fixed fee with deposit and milestones, hourly
+  or retainer, included revisions, ownership, kill fee, late fee, liability cap
+  and governing law, as a plain-language agreement to print, copy or download.
+  Answers stay on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the front of the
+# contract -> estimate-maker -> time-tracker -> invoice-maker loop. The portfolio
+# could check a contract a client sends (freelance-contract-checker) but could
+# not produce one for a freelancer who has to send theirs first.
+#
+# Paid market is real: Bonsai, HoneyBook, Dubsado and And.co charge roughly
+# $10-40 a month, and standalone contract templates sell for $20-100. The wedge
+# is private, no signup, no watermark, and the payment schedule, kill fee and
+# late fee are computed to the cent from the same numbers the freelancer already
+# has, rather than left as blanks in a Word file.
+#
+# First visitor: freelancers (designers, developers, writers, consultants)
+# searching "freelance contract template", "freelance service agreement
+# generator", "web design contract" and asking in r/freelance. Volume not
+# measured with an external tool.
+#
+# Honest limits, stated on the page: a template built from the answers, not
+# legal advice; no non-compete, data-protection, subcontractor or insurance
+# terms; no e-signature; single-browser storage (backup prompt).
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for the freelancer
+# suite; donations via GitHub Sponsors. Natural next steps if it earns repeat
+# visitors: niche variants (web design, photography, ghostwriting), a statement of
+# work for change orders feeding scope-creep-change-order-calculator, and a
+# hand-off that drops the signed fee into Estimate Maker.
+
+hypotheses:
+  - claim: >-
+      Freelancers who have no contract will use a free, private generator that
+      computes the payment schedule and kill fee for them, because the blank
+      Word template is what they never fill in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors to the contract maker continue to Estimate Maker or Invoice Maker
+      on the same device rather than leaving after the first download.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a generated clause that is materially wrong or misleading about their rights, at which point the template wording needs legal review.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-contract-maker/
+  analytics: null

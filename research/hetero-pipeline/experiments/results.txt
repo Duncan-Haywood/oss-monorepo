@@ -1,0 +1,32 @@
+E1 price of heterogeneity, L=240 equal layers, m=8 (seed 1, 200 draws per sigma_v)
+  sigma_v=0.00  aware/LB 1.000   equal-split/LB 1.000   predicted vmean/vmin 1.000
+  sigma_v=0.25  aware/LB 1.015   equal-split/LB 1.450   predicted vmean/vmin 1.450
+  sigma_v=0.50  aware/LB 1.014   equal-split/LB 2.402   predicted vmean/vmin 2.402
+  sigma_v=0.75  aware/LB 1.015   equal-split/LB 4.596   predicted vmean/vmin 4.596
+  sigma_v=1.00  aware/LB 1.014   equal-split/LB 8.251   predicted vmean/vmin 8.251
+E2 granularity: aware bottleneck / (W/V) vs layer count, m=8, sigma_v=0.5, sigma_w=0.5 (100 draws)
+  L=   8  mean ratio 1.674  max 2.551   worst-case bound ratio 2.869
+  L=  16  mean ratio 1.285  max 1.661   worst-case bound ratio 2.077
+  L=  32  mean ratio 1.148  max 1.383   worst-case bound ratio 1.660
+  L=  64  mean ratio 1.069  max 1.148   worst-case bound ratio 1.352
+  L= 128  mean ratio 1.037  max 1.067   worst-case bound ratio 1.203
+  L= 512  mean ratio 1.009  max 1.019   worst-case bound ratio 1.064
+E3 device order, L=14, m=6, sigma_v=0.8, sigma_w=0.6, exact best over 720 orders (100 draws); ratio to best
+  given   mean 1.160  worst 1.357  optimal in 0/100
+  desc    mean 1.160  worst 1.449  optimal in 0/100
+  asc     mean 1.161  worst 1.476  optimal in 1/100
+  valley  mean 1.212  worst 1.602  optimal in 1/100
+  local   mean 1.011  worst 1.094  optimal in 66/100
+  worst order / best order: mean 1.343 max 1.610
+E4 memory caps, L=64 layers (mem 1 each), m=8, sigma_v=0.5, cap_j = kappa*L/m*(v_j/vmean)^gamma (200 draws)
+  gamma=+0 kappa=1.05: infeasible in every heuristic order 0/200; bottleneck inflation 2.239 (max 7.127)
+  gamma=+0 kappa=1.30: infeasible in every heuristic order 0/200; bottleneck inflation 1.228 (max 1.901)
+  gamma=+1 kappa=1.05: infeasible in every heuristic order 119/200; bottleneck inflation 1.000 (max 1.000)
+  gamma=+1 kappa=1.30: infeasible in every heuristic order 0/200; bottleneck inflation 1.000 (max 1.000)
+  gamma=-1 kappa=1.30: infeasible in every heuristic order 0/200; bottleneck inflation 1.675 (max 2.837)
+E5 order stops mattering with granularity: m=6, sigma_v=0.8, sigma_w=0.6, 100 random orders each (30 draws); worst/best over sampled orders
+  L=  14  worst/best sampled order: mean 1.289  max 1.540
+  L=  28  worst/best sampled order: mean 1.196  max 1.381
+  L=  56  worst/best sampled order: mean 1.103  max 1.165
+  L= 112  worst/best sampled order: mean 1.053  max 1.076
+  L= 224  worst/best sampled order: mean 1.027  max 1.039

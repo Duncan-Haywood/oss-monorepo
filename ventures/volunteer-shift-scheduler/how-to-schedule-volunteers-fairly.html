@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Schedule Volunteers Fairly: A Worked Example</title>
+  <meta name="description" content="How to build a fair volunteer schedule: collect availability and limits, fill the hardest shifts first, balance the load, and report what is left uncovered. A worked ten-volunteer food pantry example, then build your own for free.">
+  <meta property="og:title" content="How To Schedule Volunteers Fairly: A Worked Example">
+  <meta property="og:description" content="Availability, max shifts, roles, hardest shifts first and a fairness check, worked through for a food pantry. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-schedule-volunteers-fairly.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What makes a volunteer schedule fair?", "acceptedAnswer": {"@type": "Answer", "text": "Nobody is asked for more than they agreed to, nobody is double-booked, and the work is spread so that no one carries two or more shifts above anyone else who could have taken them. Fair does not mean identical: someone who can only do one shift a month is not under-used by getting one."}}, {"@type": "Question", "name": "Which shifts should I fill first?", "acceptedAnswer": {"@type": "Answer", "text": "The ones with the fewest available people for each place. If you fill the easy shifts first, your flexible volunteers get used up and the awkward early-morning or specialist shift is left empty at the end."}}, {"@type": "Question", "name": "How many shifts should I ask each volunteer for?", "acceptedAnswer": {"@type": "Answer", "text": "Ask each person for their own maximum rather than setting one number for everybody, then plan for most people to get fewer than their maximum. Volunteers who are asked for less than they offered tend to come back; those asked for more tend to drift away."}}, {"@type": "Question", "name": "What do I do about places that cannot be filled?", "acceptedAnswer": {"@type": "Answer", "text": "Look at why. If nobody is available, widen the ask or change the slot. If everyone available is already at their maximum, ask a few of them for one more shift, starting with the people the fairness report shows as under-loaded."}}, {"@type": "Question", "name": "Should volunteers swap shifts themselves?", "acceptedAnswer": {"@type": "Answer", "text": "Allow it, but ask them to tell you. The reminder message includes who else is on each shift so people can arrange a swap with someone who can do the same role, and you can rebuild the roster with the change."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f4f4ef; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f4f8a; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d8dae0; }
+    pre { background: #eef1f6; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .88rem; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f4f8a; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a4f5a; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Volunteer shift scheduler</a></p>
+  <h1>How to schedule volunteers fairly, with a worked example</h1>
+  <p>A volunteer schedule is a small puzzle with people in it. Each person can do some days, will do only so many shifts, and may not want certain jobs. Each shift needs a set number of people. Done by hand, the early volunteers get the best slots, the reliable ones get everything, and the last Saturday is left empty. The fix is a short method, applied the same way every time.</p>
+  <p><a class="cta" href="./">Open the free volunteer shift scheduler</a></p>
+  <h2>The method in five steps</h2>
+  <ol>
+    <li><strong>Collect three things from each person:</strong> when they can do, the most shifts they will take, and any role they cannot do.</li>
+    <li><strong>List the shifts</strong> as date, slot, role and headcount. Give slots times so overlapping ones are caught.</li>
+    <li><strong>Fill the hardest shifts first:</strong> the ones with the fewest available people per place.</li>
+    <li><strong>For each place, pick the person with the fewest shifts so far.</strong> Ties go to the person with fewer other options, so flexible people stay free for later.</li>
+    <li><strong>Check what is left:</strong> repair gaps by moving one shift from a candidate to someone else, then even out anyone two or more shifts above a colleague.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>A small food pantry opens on three Saturdays, 10, 17 and 24 October 2026. Mornings need two greeters and three packers, afternoons need a driver, and on the 17th an afternoon setup person. Ten invented volunteers have each given days, a maximum and, for some, a role they cannot do. The scheduler gives:</p>
+  <table>
+    <thead><tr><th>Date</th><th>Slot</th><th>Role</th><th>Volunteers</th></tr></thead>
+    <tbody>
+      <tr><td>10 Oct</td><td>AM</td><td>Greeter</td><td>Ana Ruiz, Frank Lee</td></tr>
+      <tr><td>10 Oct</td><td>AM</td><td>Packer</td><td>Ben Okafor, Carla Meyer, Hugo Silva</td></tr>
+      <tr><td>10 Oct</td><td>PM</td><td>Driver</td><td>Jonas Weber</td></tr>
+      <tr><td>17 Oct</td><td>AM</td><td>Greeter</td><td>Grace Kim, Ines Costa</td></tr>
+      <tr><td>17 Oct</td><td>AM</td><td>Packer</td><td>Ben Okafor, Dev Patel, Elena Rossi</td></tr>
+      <tr><td>17 Oct</td><td>PM</td><td>Driver</td><td>Jonas Weber</td></tr>
+      <tr><td>17 Oct</td><td>PM</td><td>Setup</td><td>Dev Patel</td></tr>
+      <tr><td>24 Oct</td><td>AM</td><td>Greeter</td><td>Elena Rossi, Ines Costa</td></tr>
+      <tr><td>24 Oct</td><td>AM</td><td>Packer</td><td>Ana Ruiz, Frank Lee, Grace Kim</td></tr>
+      <tr><td>24 Oct</td><td>PM</td><td>Driver</td><td>Carla Meyer</td></tr>
+    </tbody>
+  </table>
+  <p>All 19 places are filled. Nobody is on two shifts at the same time, nobody is over their maximum, nobody is in a role they excluded, and everyone has two shifts except Hugo, whose maximum is one. Jonas covers two of the three driver shifts because he is free only on Saturday afternoons, so the mornings could not use him. The scheduler checks all of that with a separate validator before it shows you the roster.</p>
+  <p><a class="cta" href="./">Make your own roster</a></p>
+  <h2>Questions</h2>
+  <h3>What makes a volunteer schedule fair?</h3>
+  <p>Nobody is asked for more than they agreed to, nobody is double-booked, and the work is spread so that no one carries two or more shifts above anyone else who could have taken them. Fair does not mean identical: someone who can only do one shift a month is not under-used by getting one.</p>
+  <h3>Which shifts should I fill first?</h3>
+  <p>The ones with the fewest available people for each place. If you fill the easy shifts first, your flexible volunteers get used up and the awkward early-morning or specialist shift is left empty at the end.</p>
+  <h3>How many shifts should I ask each volunteer for?</h3>
+  <p>Ask each person for their own maximum rather than setting one number for everybody, then plan for most people to get fewer than their maximum. Volunteers who are asked for less than they offered tend to come back; those asked for more tend to drift away.</p>
+  <h3>What do I do about places that cannot be filled?</h3>
+  <p>Look at why. If nobody is available, widen the ask or change the slot. If everyone available is already at their maximum, ask a few of them for one more shift, starting with the people the fairness report shows as under-loaded.</p>
+  <h3>Should volunteers swap shifts themselves?</h3>
+  <p>Allow it, but ask them to tell you. The reminder message includes who else is on each shift so people can arrange a swap with someone who can do the same role, and you can rebuild the roster with the change.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice, and it does not replace your organisation's own rules or safeguarding and background-check requirements. Check every name, date and role before you send a roster to anyone. The example volunteers are invented.</p>
+    <p>Everything the scheduler does runs in your browser; names and availability are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

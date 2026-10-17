@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bonus Depreciation vs. Section 179 Calculator — 2025-2026, Free</title>
+  <meta name="description" content="Free calculator comparing 100% bonus depreciation, a Section 179 election, and plain MACRS depreciation for a new equipment or asset purchase — with the 2025/2026 OBBBA dollar limits and phase-out, the net-operating-loss vs. carryforward distinction, and cash tax savings for each path. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Bonus Depreciation vs. Section 179 Calculator — free, 2025-2026">
+  <meta property="og:description" content="Compare 100% bonus depreciation, a Section 179 election, and plain MACRS for one equipment purchase: cash tax savings, the Section 179 phase-out, and whether an over-large deduction creates an NOL or a 179 carryforward. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bonus Depreciation vs. Section 179 Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares three ways to write off a new equipment or asset purchase: 100% bonus depreciation (permanent under the One Big Beautiful Bill Act for property acquired and placed in service after January 19, 2025), a Section 179 election (with the 2025/2026 dollar limit and phase-out threshold), and plain MACRS depreciation with no election. Computes each path's current-year cash tax saving, flags whether an over-large deduction creates a net operating loss (bonus/MACRS) or a Section 179 carryforward, and shows the Section 179 phase-out and the MACRS remaining basis. Entirely client-side; nothing is uploaded.","featureList":"100% bonus depreciation vs. Section 179 vs. plain MACRS comparison, 2025 and 2026 Section 179 dollar limit and phase-out, current-year cash tax savings per path, NOL vs. Section 179 carryforward distinction, 50%-business-use disqualification flag"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is 100% bonus depreciation, and is it really permanent now?","acceptedAnswer":{"@type":"Answer","text":"The One Big Beautiful Bill Act (OBBBA), signed July 4, 2025, made 100% bonus depreciation permanent for qualifying tangible property (20-year class life or less, including used property) both acquired and placed in service after January 19, 2025. Before OBBBA, bonus depreciation was scheduled to fall to 40% for 2025 acquisitions under the prior TCJA phase-down."}},{"@type":"Question","name":"What is the difference between bonus depreciation and a Section 179 election?","acceptedAnswer":{"@type":"Answer","text":"Bonus depreciation is all-or-nothing at 100% for an entire class of property, is not limited by taxable income, and can create or increase a net operating loss (NOL). Section 179 lets you elect a specific dollar amount, asset by asset, up to an annual limit that phases out once total qualifying purchases exceed a threshold — but it is capped at your business's taxable income and cannot create a loss; any amount you can't use carries forward as a Section 179 deduction, still income-limited every future year."}},{"@type":"Question","name":"What are the 2025 and 2026 Section 179 limits?","acceptedAnswer":{"@type":"Answer","text":"For 2025: a $2,500,000 limit, phasing out dollar-for-dollar once total qualifying purchases for the year exceed $4,000,000. For 2026 (inflation-adjusted): a $2,560,000 limit and a $4,090,000 phase-out threshold."}},{"@type":"Question","name":"What happens if my deduction is bigger than my taxable income?","acceptedAnswer":{"@type":"Answer","text":"It depends which path. A bonus-depreciation or MACRS deduction that exceeds taxable income can create or increase a net operating loss (NOL), which carries forward and can offset up to 80% of a future year's taxable income under current law, with no carryback for most businesses. A Section 179 election that exceeds taxable income is different: the excess is simply not usable this year and carries forward as a SECTION 179 deduction, still limited by taxable income in every future year you claim it — not an NOL."}},{"@type":"Question","name":"Does this work for a vehicle or a mixed-use asset?","acceptedAnswer":{"@type":"Answer","text":"Only if business use is above 50%. Property used 50% or less for business does not qualify for bonus depreciation or Section 179 at all — it must use the slower, straight-line Alternative Depreciation System instead, which this calculator does not model; it only flags the condition. This tool also does not apply the separate luxury-auto depreciation caps that limit passenger vehicles regardless of these elections."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal bonus-depreciation, Section 179, and MACRS rules to the numbers you enter. It estimates federal income tax only — state conformity to bonus depreciation varies widely and is not modeled — and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you elect any option on a filed return."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .pathcard h3 { margin-top: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BONUS DEPRECIATION VS. SECTION 179 CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Bonus depreciation, Section 179, or plain MACRS? Compare all three.</h1>
+    <p>The One Big Beautiful Bill Act made <strong>100% bonus
+    depreciation</strong> permanent for equipment acquired and placed in
+    service after January 19, 2025. That is not the only way to write off a
+    purchase, though — <strong>Section 179</strong> lets you elect a specific
+    dollar amount instead, up to a limit that phases out at a threshold, and
+    the two are capped differently when a deduction is bigger than your
+    income. This tool runs all three paths — bonus, Section 179, and no
+    election at all (plain MACRS) — on the same purchase, side by side.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. The purchase</h2>
+    <div class="grid">
+      <div>
+        <label for="asset-cost">Asset cost ($)</label>
+        <input type="number" id="asset-cost" min="0" step="1000" placeholder="e.g. 150000">
+      </div>
+      <div>
+        <label for="business-use">Business use (%)</label>
+        <input type="number" id="business-use" min="0" max="100" step="1" value="100">
+      </div>
+      <div>
+        <label for="recovery-years">Property class (recovery period)</label>
+        <select id="recovery-years">
+          <option value="3">3-year</option>
+          <option value="5" selected>5-year (most equipment, computers)</option>
+          <option value="7">7-year (office furniture, most machinery)</option>
+          <option value="10">10-year</option>
+          <option value="15">15-year (land improvements)</option>
+          <option value="20">20-year</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">Business use of 50% or less disqualifies bonus
+    depreciation and Section 179 entirely — see the flag below if it
+    applies. The recovery period only affects the plain-MACRS column.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Section 179 phase-out inputs</h2>
+    <div class="grid">
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025" selected>2025 ($2,500,000 limit / $4,000,000 phase-out)</option>
+          <option value="2026">2026 ($2,560,000 limit / $4,090,000 phase-out)</option>
+        </select>
+      </div>
+      <div>
+        <label for="other-purchases">Other Section 179-eligible purchases this year ($)</label>
+        <input type="number" id="other-purchases" min="0" step="1000" value="0" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">The phase-out is based on your TOTAL qualifying
+    purchases for the year, not just this one asset — enter everything else
+    you bought that would also qualify.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Income and rate</h2>
+    <div class="grid">
+      <div>
+        <label for="taxable-income">Taxable income before this deduction ($)</label>
+        <input type="number" id="taxable-income" step="1000" placeholder="e.g. 400000">
+      </div>
+      <div>
+        <label for="rate">Marginal / effective tax rate (%)</label>
+        <input type="number" id="rate" min="0" max="100" step="0.1" placeholder="e.g. 21">
+      </div>
+    </div>
+    <p class="note">Income can be negative — enter a negative number for an
+    expected loss year. This is what decides whether bonus depreciation
+    creates an NOL and whether a Section 179 election carries forward.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in the purchase, income, and rate, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Comparison</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="grid3">
+      <div class="card pathcard" id="bonus-card">
+        <h3>100% bonus depreciation</h3>
+        <table><tbody id="bonus-table"></tbody></table>
+      </div>
+      <div class="card pathcard" id="section179-card">
+        <h3>Section 179 election</h3>
+        <table><tbody id="section179-table"></tbody></table>
+      </div>
+      <div class="card pathcard" id="macrs-card">
+        <h3>Plain MACRS (no election)</h3>
+        <table><tbody id="macrs-table"></tbody></table>
+      </div>
+    </div>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates the cash
+      tax effect of one asset's deduction only — not total tax liability,
+      other deductions or credits, self-employment or payroll tax, AMT, or
+      state tax (state conformity to bonus depreciation varies widely).</li>
+      <li><strong>No Alternative Depreciation System (ADS) modeling.</strong>
+      At 50% or less business use, neither bonus depreciation nor Section
+      179 is available — this calculator flags that but does not compute
+      the slower straight-line ADS figures.</li>
+      <li><strong>No luxury-auto caps.</strong> Passenger vehicles are
+      subject to separate depreciation dollar caps regardless of these
+      elections; this calculator does not apply them.</li>
+      <li><strong>No net operating loss (NOL) or Section 179 carryforward
+      valuation.</strong> Both are flagged when they occur, but their value
+      in a future year — including the 80%-of-taxable-income limit on a
+      post-2017 NOL — is left to a tax professional.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is 100% bonus depreciation, and is it really permanent now?</h3>
+    <p>The One Big Beautiful Bill Act (OBBBA), signed July 4, 2025, made 100% bonus depreciation permanent for qualifying tangible property (20-year class life or less, including used property) both acquired and placed in service after January 19, 2025. Before OBBBA, bonus depreciation was scheduled to fall to 40% for 2025 acquisitions under the prior TCJA phase-down.</p>
+    <h3>What is the difference between bonus depreciation and a Section 179 election?</h3>
+    <p>Bonus depreciation is all-or-nothing at 100% for an entire class of property, is not limited by taxable income, and can create or increase a net operating loss (NOL). Section 179 lets you elect a specific dollar amount, asset by asset, up to an annual limit that phases out once total qualifying purchases exceed a threshold — but it is capped at your business's taxable income and cannot create a loss; any amount you can't use carries forward as a Section 179 deduction, still income-limited every future year.</p>
+    <h3>What are the 2025 and 2026 Section 179 limits?</h3>
+    <p>For 2025: a $2,500,000 limit, phasing out dollar-for-dollar once total qualifying purchases for the year exceed $4,000,000. For 2026 (inflation-adjusted): a $2,560,000 limit and a $4,090,000 phase-out threshold.</p>
+    <h3>What happens if my deduction is bigger than my taxable income?</h3>
+    <p>It depends which path. A bonus-depreciation or MACRS deduction that exceeds taxable income can create or increase a net operating loss (NOL), which carries forward and can offset up to 80% of a future year's taxable income under current law, with no carryback for most businesses. A Section 179 election that exceeds taxable income is different: the excess is simply not usable this year and carries forward as a SECTION 179 deduction, still limited by taxable income in every future year you claim it — not an NOL.</p>
+    <h3>Does this work for a vehicle or a mixed-use asset?</h3>
+    <p>Only if business use is above 50%. Property used 50% or less for business does not qualify for bonus depreciation or Section 179 at all — it must use the slower, straight-line Alternative Depreciation System instead, which this calculator does not model; it only flags the condition. This tool also does not apply the separate luxury-auto depreciation caps that limit passenger vehicles regardless of these elections.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published federal bonus-depreciation, Section 179, and MACRS rules to the numbers you enter. It estimates federal income tax only — state conformity to bonus depreciation varies widely and is not modeled — and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you elect any option on a filed return.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers and elections before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Selling depreciated property instead of buying? See the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> — the other end of the same depreciation lifecycle.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of bonus vs. Section 179 usually goes wrong</a>.</p>
+    <p>Buying a vehicle for the business? The <a href="../business-vehicle-depreciation-calculator/">business vehicle depreciation calculator</a> applies the luxury-auto and SUV caps.</p>
+    <p>Buying rental property? The <a href="../cost-segregation-study-calculator/">cost segregation study calculator</a> tests whether a study pays after its fee and recapture.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareDepreciationPaths, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      cost: $("#asset-cost"), businessUse: $("#business-use"), recoveryYears: $("#recovery-years"),
+      taxYear: $("#tax-year"), otherPurchases: $("#other-purchases"),
+      income: $("#taxable-income"), rate: $("#rate"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      bonusTable: $("#bonus-table"), section179Table: $("#section179-table"), macrsTable: $("#macrs-table"),
+      findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = compareDepreciationPaths({
+        assetCost: Number(els.cost.value) || 0,
+        businessUsePercent: els.businessUse.value === "" ? 100 : Number(els.businessUse.value),
+        otherQualifyingPurchases: Number(els.otherPurchases.value) || 0,
+        taxYear: Number(els.taxYear.value),
+        taxableIncomeBeforeDeduction: Number(els.income.value) || 0,
+        ratePercent: Number(els.rate.value) || 0,
+        recoveryYears: Number(els.recoveryYears.value),
+      });
+
+      els.stats.innerHTML = `Eligible basis: <strong>${money(result.eligibleBasis)}</strong> (asset cost &times; business-use %). Cash tax savings this year — bonus: <strong>${money(result.bonus.cashSavings)}</strong>, Section 179: <strong>${money(result.section179.cashSavings)}</strong>, plain MACRS: <strong>${money(result.macrs.cashSavings)}</strong>.`;
+
+      els.bonusTable.innerHTML = `
+        <tr><th scope="row">Deduction</th><td>${money(result.bonus.deduction)}</td></tr>
+        <tr><th scope="row">Usable this year</th><td>${money(result.bonus.usable)}${result.bonus.createsOrIncreasesNol ? " ⚠ NOL" : ""}</td></tr>
+        <tr><th scope="row"><strong>Cash tax saving</strong></th><td><strong>${money(result.bonus.cashSavings)}</strong></td></tr>`;
+
+      els.section179Table.innerHTML = `
+        <tr><th scope="row">Limit after phase-out</th><td>${money(result.section179.limitAfterPhaseout)}</td></tr>
+        <tr><th scope="row">Elected</th><td>${money(result.section179.elected)}</td></tr>
+        <tr><th scope="row">Usable this year</th><td>${money(result.section179.usable)}${result.section179.incomeLimited ? " ⚠ carryforward" : ""}</td></tr>
+        <tr><th scope="row"><strong>Cash tax saving</strong></th><td><strong>${money(result.section179.cashSavings)}</strong></td></tr>`;
+
+      els.macrsTable.innerHTML = `
+        <tr><th scope="row">Year-1 deduction</th><td>${money(result.macrs.year1Deduction)}</td></tr>
+        <tr><th scope="row">Usable this year</th><td>${money(result.macrs.usable)}${result.macrs.createsOrIncreasesNol ? " ⚠ NOL" : ""}</td></tr>
+        <tr><th scope="row">Remaining basis</th><td>${money(result.macrs.remainingBasis)}</td></tr>
+        <tr><th scope="row"><strong>Cash tax saving</strong></th><td><strong>${money(result.macrs.cashSavings)}</strong></td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.cost.value = "150000";
+      els.businessUse.value = "100";
+      els.recoveryYears.value = "5";
+      els.taxYear.value = "2025";
+      els.otherPurchases.value = "0";
+      els.income.value = "400000";
+      els.rate.value = "21";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a $150,000 piece of 5-year equipment, 100% business use, $400,000 of 2025 taxable income before this deduction, at a 21% rate.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.cost.value = "";
+      els.businessUse.value = "100";
+      els.recoveryYears.value = "5";
+      els.taxYear.value = "2025";
+      els.otherPurchases.value = "0";
+      els.income.value = "";
+      els.rate.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in the purchase, income, and rate, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

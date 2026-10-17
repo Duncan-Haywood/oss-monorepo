@@ -1,0 +1,41 @@
+name: business-vehicle-depreciation-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that compares regular MACRS, 100% bonus depreciation and Section 179 for a business vehicle (car, over-6,000-lb SUV, work truck), applying the 280F luxury-auto caps and the heavy-SUV 179 cap from editable 2025 limits, with year-by-year schedules, tax saved, the income limit and the standard-mileage alternative. A deterministic calculator over the user''s inputs, not tax advice.'
+stage: prototype
+
+owner: duncan
+
+# Tax-calculator archetype, sibling of bonus-depreciation-calculator (generic equipment) and
+# mileage-deduction-method-calculator (mileage only). Neither models the per-year 280F caps or the
+# 6,000 lb SUV rule, which is where the money is for the self-employed buying a vehicle. First real
+# visitor: "section 179 SUV deduction", "heavy SUV tax deduction 2025", "bonus depreciation vs 179 vehicle".
+# Reader is a self-employed owner or small-business buyer in a high bracket. Hosted paid path later: a
+# saved-scenario / CPA-handoff export.
+hypotheses:
+  - claim: A self-employed buyer searching for a vehicle Section 179 or bonus deduction will enter price, class and business use and use the side-by-side first-year numbers to decide how to buy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A CPA or bookkeeper will share the link with clients considering a vehicle purchase.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No evidence within 90 days that a CPA, bookkeeper or buyer shared the link or reported using it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/business-vehicle-depreciation-calculator/
+  analytics: null

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fair Workweek Schedule Checker — free predictive scheduling premium pay check</title>
+  <meta name="description" content="Free fair workweek and predictive scheduling checker for restaurants and retail. Paste your posted schedule and later changes, see late postings, short-notice change premiums, cancellation pay and clopening rest violations. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Fair Workweek Schedule Checker — free, private, in your browser">
+  <meta property="og:description" content="Find the premium pay your schedule changes trigger under Seattle, Chicago or your own city's predictive scheduling numbers.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fair Workweek Schedule Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free predictive scheduling checker for restaurants and retail. Paste a posted schedule and the changes made to it, and see late postings, short-notice change and cancellation premium pay, and clopening rest violations for Seattle, Chicago or your own city numbers. Runs in your browser; nothing is uploaded.", "featureList": "fair workweek compliance, predictive scheduling premium pay calculator, schedule change premium, shift cancellation pay, clopening rest period check, advance notice check, csv export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a fair workweek or predictive scheduling law?", "acceptedAnswer": {"@type": "Answer", "text": "A city or state rule that makes larger retail, restaurant and hospitality employers post work schedules in advance, usually 14 days, and pay the worker extra when the employer then adds hours, moves a shift or cancels one at short notice. Seattle, Chicago, New York City, Philadelphia, San Francisco, Los Angeles and Oregon each have their own version with different thresholds and different premiums."}}, {"@type": "Question", "name": "How do I check a schedule for predictive scheduling violations?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the posted schedule and the date it was posted, paste each later change with the time the worker was told, pick the city preset or type your own numbers, and the page lists every shift that was posted too late, every change made inside the notice window with the premium pay it triggers, and every closing-then-opening pair that breaks the rest rule."}}, {"@type": "Question", "name": "How is predictability pay calculated?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the city. Under the Seattle and Chicago presets a change that adds hours or moves a shift inside 14 days costs one hour of pay at the worker's regular rate, and a cancellation or cut inside the window costs half the pay for the hours not worked. The page applies the numbers in the boxes, which you can overwrite to match the current text of your own ordinance."}}, {"@type": "Question", "name": "Are these city numbers current and complete?", "acceptedAnswer": {"@type": "Answer", "text": "No promise. The presets are a starting point written from the public ordinance summaries, ordinances are amended, thresholds depend on employer size and industry, and there are exceptions such as worker-requested swaps and emergencies. Check the figures against your city's official page or your attorney before you rely on them, and edit any box that is out of date."}}, {"@type": "Question", "name": "Does it handle worker-requested changes and emergencies?", "acceptedAnswer": {"@type": "Answer", "text": "Mark a change line with a final field of requested and the page counts no premium for it and reminds you to keep the written request. Emergency and other statutory exceptions are not modelled; leave those lines out and keep your own record."}}, {"@type": "Question", "name": "Is my staff schedule uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Names stay on your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d3f8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46506a; }
+    .card { background: #fff; border: 1px solid #d3d9e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a4a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6784; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d3f8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2e7f2; color: #1b2a4a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e2e7f2; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46506a; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td select { width: auto; min-width: 140px; }
+    tr.wd td { color: #6b7388; text-decoration: line-through; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.tie { background: #fdf0d5; color: #5c4508; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eaeef7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1b2a4a; }
+    footer { margin-top: 28px; border-top: 1px solid #d3d9e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .check[hidden] { display: none; }
+    .sum { font-size: 1.3rem; font-weight: 800; color: #1b2a4a; background: #e8f3e6; border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+    .win { font-weight: 700; }
+    pre { background: #eaeef7; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FAIR WORKWEEK SCHEDULE CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What did that schedule change just cost you?</h1>
+    <p>Paste the <strong>posted schedule</strong> and every <strong>change made afterwards</strong> with the time the worker was told. The page finds shifts <strong>posted too late</strong>, shifts <strong>added, moved or cut inside the notice window</strong> with the <strong>premium pay</strong> each one triggers, and <strong>closing-then-opening shifts</strong> that break the rest rule. Export the result as a CSV for payroll.</p>
+    <p class="note">A fair workweek or predictive scheduling check for restaurant, retail and hospitality managers. New to the rules? Read <a href="./what-is-predictive-scheduling-pay.html">what predictive scheduling pay is, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Rules</h2>
+    <div class="row4">
+      <div><label for="preset">City preset</label><select id="preset"><option value="seattle">Seattle</option><option value="chicago">Chicago</option><option value="custom">Custom numbers</option></select></div>
+      <div><label for="posted">Schedule posted at (YYYY-MM-DD HH:MM)</label><input id="posted" placeholder="2026-10-05 09:00"></div>
+      <div><label for="rate">Default hourly rate ($)</label><input id="rate" inputmode="decimal" value="16"></div>
+    </div>
+    <details style="margin-top:12px"><summary>The numbers behind the preset (edit any of them)</summary>
+    <div class="row4">
+      <div><label for="f-noticeDays">Schedule must be posted this many days ahead</label><input id="f-noticeDays" inputmode="decimal"></div>
+      <div><label for="f-addMoveWindowHours">Add/move premium applies if told within (hours)</label><input id="f-addMoveWindowHours" inputmode="decimal"></div>
+      <div><label for="f-addMoveHoursOfPay">Add/move premium: hours of pay</label><input id="f-addMoveHoursOfPay" inputmode="decimal"></div>
+      <div><label for="f-addMoveFlat">Add/move premium: flat dollars</label><input id="f-addMoveFlat" inputmode="decimal"></div>
+      <div><label for="f-cancelWindowHours">Cut/cancel premium applies if told within (hours)</label><input id="f-cancelWindowHours" inputmode="decimal"></div>
+      <div><label for="f-cancelFractionOfLost">Cut/cancel premium: share of pay for hours lost (0.5 = half)</label><input id="f-cancelFractionOfLost" inputmode="decimal"></div>
+      <div><label for="f-cancelFlat">Cut/cancel premium: flat dollars</label><input id="f-cancelFlat" inputmode="decimal"></div>
+      <div><label for="f-restHours">Minimum rest between shifts (hours)</label><input id="f-restHours" inputmode="decimal"></div>
+      <div><label for="f-restMultiplier">Pay multiplier for work inside the rest window</label><input id="f-restMultiplier" inputmode="decimal"></div>
+    </div></details>
+    <p class="note">Presets are a starting point, not a legal reading. Cities amend these rules and apply them by employer size and industry. Check each number against your city's official guidance.</p>
+
+    <h2 style="margin-top:18px">2. Posted schedule</h2>
+    <label for="schedule">One shift per line: <code>Name, date, start-end, hourly rate</code> (rate optional; an end before the start means the next day)</label>
+    <textarea id="schedule" rows="7" placeholder="Ana Reyes, 2026-10-20, 09:00-17:00, 20&#10;Ben Okoye, 2026-10-20, 10:00-18:00, 15"></textarea>
+
+    <h2 style="margin-top:18px">3. Changes after posting</h2>
+    <label for="changes">One per line: <code>Name | add / cancel / change | shift [-&gt; new shift] | notified YYYY-MM-DD HH:MM [| requested]</code></label>
+    <textarea id="changes" rows="6" placeholder="Ana Reyes | cancel | 2026-10-20 09:00-17:00 | notified 2026-10-19 09:00"></textarea>
+
+    <button type="button" id="run">Check the schedule</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste a schedule and a posting time, then click Check.</p>
+  </section>
+
+  <section id="out" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="findings"><thead><tr><th>Employee</th><th>Shift starts</th><th>Issue</th><th class="n">Notice (h)</th><th class="n">Premium</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="dl-text">Download text</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Late posting:</strong> a shift that starts less than the required number of days after the posting time is flagged. No dollar figure is added because the remedy differs by city.</p>
+    <p><strong>Changes:</strong> adding hours or moving a shift without losing hours is measured against the add/move window, and cancelling or cutting a shift against the cut/cancel window. Notice is the time from when the worker was told to the earlier of the old and new start. The premium is the flat dollars plus the hours of pay, or the share of pay for the hours lost, from the boxes above.</p>
+    <p><strong>Rest:</strong> after all changes are applied, any two shifts for the same person closer together than the minimum rest are flagged, and the hours that fall inside the rest window are priced at the multiplier. The worker's written consent is required to schedule it at all.</p>
+    <p><strong>Not modelled:</strong> employer-size and industry coverage, emergency exceptions, daylight-saving shifts, and any city rule other than the numbers you can see. Worker-requested changes can be marked <code>requested</code> to exclude them.</p>
+    <p>Related tools: the <a href="../shift-roster-builder/">shift roster builder</a> to build the schedule in the first place, and the <a href="../overtime-pay-calculator/">overtime pay calculator</a> for the hours that spill past 40.</p>
+    <p><strong>Checked:</strong> the test suite recomputes hand-worked Seattle and Chicago cases, including the exact boundary at 14 days and 24 hours.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a fair workweek or predictive scheduling law?</h3>
+    <p>A city or state rule that makes larger retail, restaurant and hospitality employers post work schedules in advance, usually 14 days, and pay the worker extra when the employer then adds hours, moves a shift or cancels one at short notice. Seattle, Chicago, New York City, Philadelphia, San Francisco, Los Angeles and Oregon each have their own version with different thresholds and different premiums.</p>
+    <h3>How do I check a schedule for predictive scheduling violations?</h3>
+    <p>Paste the posted schedule and the date it was posted, paste each later change with the time the worker was told, pick the city preset or type your own numbers, and the page lists every shift that was posted too late, every change made inside the notice window with the premium pay it triggers, and every closing-then-opening pair that breaks the rest rule.</p>
+    <h3>How is predictability pay calculated?</h3>
+    <p>It depends on the city. Under the Seattle and Chicago presets a change that adds hours or moves a shift inside 14 days costs one hour of pay at the worker's regular rate, and a cancellation or cut inside the window costs half the pay for the hours not worked. The page applies the numbers in the boxes, which you can overwrite to match the current text of your own ordinance.</p>
+    <h3>Are these city numbers current and complete?</h3>
+    <p>No promise. The presets are a starting point written from the public ordinance summaries, ordinances are amended, thresholds depend on employer size and industry, and there are exceptions such as worker-requested swaps and emergencies. Check the figures against your city's official page or your attorney before you rely on them, and edit any box that is out of date.</p>
+    <h3>Does it handle worker-requested changes and emergencies?</h3>
+    <p>Mark a change line with a final field of requested and the page counts no premium for it and reminds you to keep the written request. Emergency and other statutory exceptions are not modelled; leave those lines out and keep your own record.</p>
+    <h3>Is my staff schedule uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts. Names stay on your device.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice and does not replace your city's ordinance, your payroll provider or an employment attorney. <strong>You are responsible for verifying every figure and every rule</strong> before you pay, withhold or document anything. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. The presets summarise public ordinances and may be wrong, incomplete or out of date.</p>
+    <p><strong>Independent.</strong> Not affiliated with any city, labour agency, payroll or scheduling software company, and none is named or ranked here. The example employees are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your schedules and names are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { RULE_PRESETS, fieldsToRules, parseDateTime, analyze, toCsv, toText } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["noticeDays", "addMoveWindowHours", "addMoveHoursOfPay", "addMoveFlat", "cancelWindowHours", "cancelFractionOfLost", "cancelFlat", "restHours", "restMultiplier"];
+    let last = null;
+
+    function loadPreset() {
+      const f = RULE_PRESETS[$("#preset").value].fields;
+      for (const k of KEYS) $("#f-" + k).value = f[k];
+    }
+    const fieldValues = () => Object.fromEntries(KEYS.map((k) => [k, $("#f-" + k).value]));
+
+    function run() {
+      const postedAt = parseDateTime($("#posted").value);
+      if (postedAt == null) { status.textContent = "Enter the posting time like 2026-10-05 09:00."; return false; }
+      if (!$("#schedule").value.trim()) { status.textContent = "Paste at least one scheduled shift."; return false; }
+      last = analyze({ postedAt, scheduleText: $("#schedule").value, changesText: $("#changes").value, rules: fieldsToRules(fieldValues()), defaultRate: $("#rate").value });
+      $("#out").hidden = false;
+      $("#notices").innerHTML = last.errors.map((e) => `<div class="warn">${esc(e)}</div>`).join("");
+      $("#big").innerHTML = [[last.shiftCount, "shifts after changes"], [last.count, "issues found"], ["$" + last.total.toFixed(2), "premium pay to review"]].map(([x, y]) => `<div><strong>${esc(x)}</strong>${esc(y)}</div>`).join("");
+      const label = { "late-posting": "Posted late", "add-move": "Added / moved", cancel: "Cut / cancelled", rest: "Rest period", exempt: "Requested" };
+      $("#findings tbody").innerHTML = last.findings.length ? last.findings.map((f) => `<tr><td>${esc(f.name)}</td><td>${esc(f.when)}</td><td><span class="pill ${f.type === "exempt" ? "good" : "tie"}">${label[f.type]}</span></td><td class="n">${f.noticeHours ?? ""}</td><td class="n">${f.premium ? "$" + f.premium.toFixed(2) : ""}</td><td>${esc(f.text)}</td></tr>`).join("") : '<tr><td colspan="6">No issues found under these numbers.</td></tr>';
+      status.textContent = "Checked. Scroll down for the result.";
+      return true;
+    }
+
+    function download(fileName, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#preset").addEventListener("change", loadPreset);
+    $("#run").addEventListener("click", () => { if (run()) record("check_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#preset").value = "seattle"; loadPreset();
+      $("#posted").value = "2026-10-05 09:00";
+      $("#schedule").value = "Ana Reyes, 2026-10-20, 09:00-17:00, 20\nBen Okoye, 2026-10-20, 10:00-18:00, 15\nCy Dahl, 2026-10-20, 18:00-23:00, 14\nCy Dahl, 2026-10-21, 06:00-12:00, 14\nDee Park, 2026-10-22, 11:00-19:00, 16";
+      $("#changes").value = "Ana Reyes | cancel | 2026-10-20 09:00-17:00 | notified 2026-10-19 09:00\nBen Okoye | add | 2026-10-22 10:00-14:00 | notified 2026-10-20 10:00\nDee Park | change | 2026-10-22 11:00-19:00 -> 2026-10-22 11:00-15:00 | notified 2026-10-22 08:00\nDee Park | add | 2026-10-24 12:00-16:00 | notified 2026-10-23 09:00 | requested";
+      status.textContent = "Example loaded. Click Check the schedule.";
+      record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#schedule").value = ""; $("#changes").value = ""; $("#posted").value = ""; $("#out").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("schedule-check.csv", toCsv(last), "text/csv"); record("csv_downloaded"); });
+    $("#dl-text").addEventListener("click", () => { if (!last) return; download("schedule-check.txt", toText(last), "text/plain"); record("text_shared"); });
+    $("#copy-text").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(toText(last)); status.textContent = "Copied."; record("text_shared"); }
+      catch { status.textContent = "Your browser blocked copying. Use Download text instead."; }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    loadPreset();
+  </script>
+</body>
+</html>

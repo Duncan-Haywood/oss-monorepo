@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Should I Rent or Buy a GPU?</title>
+  <meta name="description" content="When owning an RTX 4090, A100 or H100 beats renting from RunPod, Lambda, AWS or Vast.ai, why idle time breaks hourly price comparisons, and what to check before moving a workload.">
+  <link rel="canonical" href="./should-i-rent-or-buy-a-gpu.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When is it cheaper to buy a GPU than to rent one?", "acceptedAnswer": {"@type": "Answer", "text": "When your busy hours a month stay above a breakeven that is usually well under half of a month for consumer cards. Divide the card and host cost, less resale value, by the months you will keep it, then divide by what each busy hour saves against the cheapest rental after electricity. A 24 GB RTX 4090 against a roughly $0.69 an hour rental breaks even at around 70 busy hours a month with the calculator's defaults; an H100 needs far more because rental prices are lower relative to the card. Below breakeven rent; above it, own."}}, {"@type": "Question", "name": "Why is the cheap hourly rate often not the cheap bill?", "acceptedAnswer": {"@type": "Answer", "text": "Instances bill while they are up, not while the GPU is busy. If you launch a pod, run for an hour, and leave it up for two, you paid for two. Enter your real utilisation: at 50% every hourly rate effectively doubles, and a per-second serverless provider with a higher rate can win. Interruptible marketplace capacity adds re-run hours when work is reclaimed."}}, {"@type": "Question", "name": "What should I check before moving a workload?", "acceptedAnswer": {"@type": "Answer", "text": "Whether the GPU you need is offered where you can get capacity, how fast an instance starts and whether your data and checkpoints sit on persistent storage that is billed even when the GPU is off, and whether egress or minimum commitments apply. Run the calculator with your own hours, utilisation and storage, then confirm against each provider's pricing page."}}]}</script>
+  <style>:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; } body { max-width: 760px; margin: auto; padding: 28px; line-height: 1.55; } h1,h2 { color: #17324a; } .note,footer { font-size: .86rem; color: #55606f; }</style>
+</head>
+<body>
+  <p><a href="./">← GPU Training Pricing Calculator</a></p>
+  <h1>Should I rent or buy a GPU?</h1>
+  <p>Put your GPU, busy hours a month and utilisation into the <a href="./">calculator</a> to price RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal side by side and see the buy-versus-rent breakeven. These are the questions to settle before you trust the answer.</p>
+  <h2>When is it cheaper to buy a GPU than to rent one?</h2>
+  <p>When your busy hours a month stay above a breakeven that is usually well under half of a month for consumer cards. Divide the card and host cost, less resale value, by the months you will keep it, then divide by what each busy hour saves against the cheapest rental after electricity. A 24 GB RTX 4090 against a roughly $0.69 an hour rental breaks even at around 70 busy hours a month with the calculator's defaults; an H100 needs far more because rental prices are lower relative to the card. Below breakeven rent; above it, own.</p>
+  <h2>Why is the cheap hourly rate often not the cheap bill?</h2>
+  <p>Instances bill while they are up, not while the GPU is busy. If you launch a pod, run for an hour, and leave it up for two, you paid for two. Enter your real utilisation: at 50% every hourly rate effectively doubles, and a per-second serverless provider with a higher rate can win. Interruptible marketplace capacity adds re-run hours when work is reclaimed.</p>
+  <h2>What should I check before moving a workload?</h2>
+  <p>Whether the GPU you need is offered where you can get capacity, how fast an instance starts and whether your data and checkpoints sit on persistent storage that is billed even when the GPU is off, and whether egress or minimum commitments apply. Run the calculator with your own hours, utilisation and storage, then confirm against each provider's pricing page.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind. It is not financial or engineering advice; verify prices at each vendor. <strong>Best-effort hosting, no SLA.</strong></p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support is optional.</a></p>
+  </footer>
+</body>
+</html>

@@ -203,3 +203,8 @@ test('an edit updates the figure on screen rather than leaving the last one stan
   // figure that is already up.
   assert.doesNotMatch(listener[0], /showProblems/);
 });
+
+test('links to the craft brewery batch margin calculator', async () => {
+  const { readFileSync } = await import('node:fs');
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/craft-brewery-batch-margin-calculator\/"/);
+});

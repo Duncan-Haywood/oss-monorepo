@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Water Well Drilling Bid Calculator: Price a Well With Dry-Hole Risk — Free</title>
+  <meta name="description" content="Free water well drilling bid calculator: depth by formation, casing, grout, pump and tank, trench, mobilization and rig hours, plus a dry-hole allowance, priced to your margin with break-even and price per foot. Nothing uploaded.">
+  <meta property="og:title" content="Water well drilling bid calculator">
+  <meta property="og:description" content="What should this well cost? Drilling by formation, casing, pump system, trench, rig hours and the chance of a dry hole, priced to your margin. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Water Well Drilling Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Bid a water well from drilling by formation, casing, grout, pump and tank, trench, mobilization, rig hours and a dry-hole allowance to your target margin. Runs in your browser.","featureList":"Bid price for a target margin, break-even, effective price per foot, cost of a dry hole, depth and dry-risk tables, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price a water well drilling job?","acceptedAnswer":{"@type":"Answer","text":"Add drilling by formation, the rig hours the hole takes, casing, grout, the pitless adapter, pump and tank, the trench and electric run, the permit and the move. Add overhead and an allowance for the chance of a dry hole, then divide by one minus your target margin."}},{"@type":"Question","name":"Why include an allowance for a dry hole?","acceptedAnswer":{"@type":"Answer","text":"A hole that does not make usable water still costs the drilling, casing, move and sealing. Spread across the wells that do produce, the expected loss is the chance of a dry hole times that cost. The tool shows that cost and how many good wells it takes to pay for one."}},{"@type":"Question","name":"Should I quote by the foot or a flat price?","acceptedAnswer":{"@type":"Answer","text":"A per-foot rate alone ignores the fixed items: the move, the pump system and the trench. The depth table shows the effective price per foot falling as the fixed items spread over more depth, so a single rate under-charges shallow wells."}},{"@type":"Question","name":"How do I shift dry-hole risk to the customer?","acceptedAnswer":{"@type":"Answer","text":"Many drillers bill drilling by the foot whether or not the hole produces. Enter the share of a dry hole that your contract bills and the allowance falls with it."}},{"@type":"Question","name":"Is this pricing or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Check local well-construction rules, licensing, insurance and contract terms with a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">WATER WELL DRILLING BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should this water well cost?</h1>
+    <p>Type the depth and formation, your drilling and rig costs, the casing, seal and pump system, the trench and the move, and the chance of a dry hole. The tool shows the bid that earns your margin, your break-even, the effective price per foot, and what one dry hole costs you.</p>
+    <p class="note">Arithmetic on figures you type. Not financial, tax or business advice. The example figures are placeholders, not your rate card or your suppliers' prices.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The hole</h2>
+      <div class="grid">
+        <div><label for="depthFt">Planned total depth (feet)</label><input id="depthFt" type="number" step="any" value="0"></div>
+        <div><label for="overburdenFt">Overburden above rock (feet)</label><input id="overburdenFt" type="number" step="any" value="0"><p class="note">Soil, clay and gravel you case through.</p></div>
+        <div><label for="casingFt">Casing set (feet)</label><input id="casingFt" type="number" step="any" value="0"></div>
+        <div><label for="groutFt">Grouted seal (feet)</label><input id="groutFt" type="number" step="any" value="0"><p class="note">Sealed annulus.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Drilling by formation</h2>
+      <div class="grid">
+        <div><label for="overburdenCostFt">Overburden consumables ($ per foot)</label><input id="overburdenCostFt" type="number" step="any" value="0"><p class="note">Bits, fuel and consumables.</p></div>
+        <div><label for="rockCostFt">Rock consumables ($ per foot)</label><input id="rockCostFt" type="number" step="any" value="0"><p class="note">Bits, hammer wear, fuel.</p></div>
+        <div><label for="overburdenFtPerHour">Overburden feet per rig hour</label><input id="overburdenFtPerHour" type="number" step="any" value="0"></div>
+        <div><label for="rockFtPerHour">Rock feet per rig hour</label><input id="rockFtPerHour" type="number" step="any" value="0"></div>
+        <div><label for="setupHours">Setup, development and cleanup (rig hours)</label><input id="setupHours" type="number" step="any" value="0"></div>
+        <div><label for="rigRate">Rig, compressor and crew ($ per rig hour)</label><input id="rigRate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Casing, seal and pump system</h2>
+      <div class="grid">
+        <div><label for="casingCostFt">Casing and shoe ($ per foot)</label><input id="casingCostFt" type="number" step="any" value="0"></div>
+        <div><label for="groutCostFt">Grout or bentonite ($ per foot)</label><input id="groutCostFt" type="number" step="any" value="0"></div>
+        <div><label for="pitlessCost">Pitless adapter and cap ($)</label><input id="pitlessCost" type="number" step="any" value="0"></div>
+        <div><label for="pumpCost">Pump, motor, wire and drop pipe ($)</label><input id="pumpCost" type="number" step="any" value="0"></div>
+        <div><label for="tankCost">Pressure tank, switch and fittings ($)</label><input id="tankCost" type="number" step="any" value="0"></div>
+        <div><label for="pumpInstallHours">Pump and tank install (hours)</label><input id="pumpInstallHours" type="number" step="any" value="0"></div>
+        <div><label for="installRate">Install crew ($ per hour)</label><input id="installRate" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-3">
+      <h2 id="h-3">4. Trench, permit and move</h2>
+      <div class="grid">
+        <div><label for="trenchFt">Trench and electric run (feet)</label><input id="trenchFt" type="number" step="any" value="0"><p class="note">Well to house.</p></div>
+        <div><label for="trenchCostFt">Trench, water line and wire ($ per foot)</label><input id="trenchCostFt" type="number" step="any" value="0"></div>
+        <div><label for="permitTest">Permit, well log and water test ($)</label><input id="permitTest" type="number" step="any" value="0"></div>
+        <div><label for="mobilization">Mobilization ($)</label><input id="mobilization" type="number" step="any" value="0"><p class="note">Move the rig on and off.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-4">
+      <h2 id="h-4">5. Risk, overhead and margin</h2>
+      <div class="grid">
+        <div><label for="dryHolePct">Chance of a dry hole (%)</label><input id="dryHolePct" type="number" step="any" value="0"><p class="note">Use your area's record, not luck.</p></div>
+        <div><label for="dryRecoverPct">Dry-hole cost the customer pays (%)</label><input id="dryRecoverPct" type="number" step="any" value="0"><p class="note">Your contract terms; zero if you eat it.</p></div>
+        <div><label for="abandonCost">Seal and abandon a dry hole ($)</label><input id="abandonCost" type="number" step="any" value="0"></div>
+        <div><label for="overheadPct">Overhead (% of direct cost)</label><input id="overheadPct" type="number" step="any" value="0"><p class="note">Insurance, truck, office, licence.</p></div>
+        <div><label for="marginPct">Margin you want on the price (%)</label><input id="marginPct" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Price this well</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions well drillers ask</h2>
+      <h3>How do you price a water well drilling job?</h3>
+      <p>Add drilling by formation, the rig hours the hole takes, casing, grout, the pitless adapter, pump and tank, the trench and electric run, the permit and the move. Add overhead and an allowance for the chance of a dry hole, then divide by one minus your target margin.</p>
+      <h3>Why include an allowance for a dry hole?</h3>
+      <p>A hole that does not make usable water still costs the drilling, casing, move and sealing. Spread across the wells that do produce, the expected loss is the chance of a dry hole times that cost. The tool shows that cost and how many good wells it takes to pay for one.</p>
+      <h3>Should I quote by the foot or a flat price?</h3>
+      <p>A per-foot rate alone ignores the fixed items: the move, the pump system and the trench. The depth table shows the effective price per foot falling as the fixed items spread over more depth, so a single rate under-charges shallow wells.</p>
+      <h3>How do I shift dry-hole risk to the customer?</h3>
+      <p>Many drillers bill drilling by the foot whether or not the hole produces. Enter the share of a dry hole that your contract bills and the allowance falls with it.</p>
+      <h3>Is this pricing or business advice?</h3>
+      <p>No. It is arithmetic on figures you type. Check local well-construction rules, licensing, insurance and contract terms with a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether a site will produce water, yield and flow-rate guarantees, local well-construction and licensing rules, hydrofracturing, water treatment, sales tax, seasonal rig downtime, financing, and whether a customer will pay the price. Formation is a two-layer split (overburden and rock) and every figure is a straight rate you enter.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../well-pump-bid-calculator/">well pump bid calculator</a>, the <a href="../septic-pumping-bid-calculator/">septic pumping bid calculator</a> and the <a href="../sump-pump-bid-calculator/">sump pump bid calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you quote or buy anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, c = r.cost, p = r.atPrice, o = a.opts, d = c.drilling;
+      h += `<div class="finding"><h4>Bid ${money(r.price)} (${money2(p.perFoot)} per foot)</h4><p>A ${o.depthFt} ft well. That leaves ${money(p.profit)} profit, ${pct(p.margin)} of the price, after the dry-hole allowance. Your break-even is ${money(r.breakEven)}, or ${money(r.breakEvenIfGood)} if you count only the wells that produce.</p></div>`;
+      h += `<div class="finding"><h4>What one dry hole costs</h4><p>A dry hole costs ${money(c.dryHoleCost)} in drilling, casing, the move, the permit and sealing, and ${money(c.dryHoleLoss)} after what your contract bills. A good well at this bid earns ${money(p.profitIfGood)} before the allowance, so it takes ${Number.isFinite(r.wellsToCoverDry) ? r.wellsToCoverDry.toFixed(1) : "more than any number of"} good wells to pay for one dry hole.</p></div>`;
+      h += `<div class="finding"><h4>Where the cost goes</h4>${table(["Item", "Cost"], [["Drilling (consumables and rig hours)", money(d.cost)], ["Casing", money(c.casing)], ["Grout seal", money(c.grout)], ["Pump system and install", money(c.pumpSystem)], ["Trench and electric run", money(c.trench)], ["Permit, test and mobilization", money(o.permitTest + o.mobilization)], ["Overhead", money(c.overhead)], ["Dry-hole allowance", money(c.allowance)], ["Total cost", money(c.cost)]])}<p>The hole takes ${d.rigHours.toFixed(1)} rig hours: ${d.driveHours.toFixed(1)} drilling ${d.over.toFixed(0)} ft of overburden and ${d.rock.toFixed(0)} ft of rock, plus ${o.setupHours} for setup and development.</p></div>`;
+      h += `<div class="finding"><h4>If the depth changes</h4>${table(["Depth (ft)", "Bid", "Per foot", "Dry-hole cost"], a.depth.map((x) => [x.depthFt, money(x.price), money2(x.perFoot), money(x.dryHoleCost)]))}</div>`;
+      h += `<div class="finding"><h4>If the dry-hole chance changes</h4>${table(["Chance", "Bid", "Per foot", "Allowance"], a.risk.map((x) => [x.dryHolePct + "%", money(x.price), money2(x.perFoot), money(x.allowance)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const csvBtn = $("csv");
+      if (csvBtn) csvBtn.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "water-well-bid.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

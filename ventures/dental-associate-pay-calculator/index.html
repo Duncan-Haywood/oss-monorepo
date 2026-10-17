@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dental Associate Pay Calculator — Compare Two Offers</title>
+  <meta name="description" content="Free dental associate pay calculator. Enter two offers, percent of production or collections, daily guarantee and lab fee share, to see what each pays at your expected production, your effective percentage, and where they cross. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Dental Associate Pay Calculator — free, private, in your browser">
+  <meta property="og:description" content="Percent of collections vs production, daily guarantee and lab fees: yearly value, effective percentage and crossover for two associate offers.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Dental Associate Pay Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares two dental associate offers, a percentage of production or collections net of lab fees with a daily guarantee: yearly value at your expected production, your effective percentage, where the guarantee stops mattering, and where the offers cross. Runs in your browser.", "featureList": "percent of collections, percent of production, daily guarantee, lab fee share, effective percentage, offer comparison, crossover, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do dental associates usually get paid?", "acceptedAnswer": {"@type": "Answer", "text": "Most associate contracts pay the greater of a daily or hourly guarantee and a percentage, often 25 to 35 percent, of production or collections, sometimes after subtracting lab fees. This tool applies exactly that formula to the numbers in your offer; it states no market percentage."}}, {"@type": "Question", "name": "What is the difference between production and collections?", "acceptedAnswer": {"@type": "Answer", "text": "Production is the value of the dentistry you performed after write-offs; collections are the money the practice actually receives. Being paid on collections usually costs a little each year because not everything billed is collected, and it pays later. The tool shows the dollar gap at the collection rate you enter."}}, {"@type": "Question", "name": "Why do lab fees change my real percentage?", "acceptedAnswer": {"@type": "Answer", "text": "If the contract charges you a share of the lab bill, that amount comes off the base before your percentage is applied, so your effective percentage of production is lower than the headline. The tool shows the yearly dollar cost and the effective percentage."}}, {"@type": "Question", "name": "What does a daily guarantee do?", "acceptedAnswer": {"@type": "Answer", "text": "The guarantee is a floor. You are paid the larger of the guarantee and the percentage. The tool shows the production at which the percentage overtakes the guarantee. It does not model contracts that later claw the guarantee back against future production; read that clause and ask a contract attorney."}}, {"@type": "Question", "name": "Can I compare a percentage-only offer against a guarantee offer?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Leave the guarantee at zero on the percentage-only offer. The tool shows where the two pay the same and how each moves if production comes in low or high."}}, {"@type": "Question", "name": "What is not modelled?", "acceptedAnswer": {"@type": "Answer", "text": "Benefits, continuing education allowances, malpractice, non-compete and non-solicit terms, ownership buy-in, taxes, hygiene or specialty splits, and any clawback of a guarantee or sign-on bonus."}}, {"@type": "Question", "name": "Is my offer uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #e3f1e6; font-weight: 600; }
+    td.hot { background: #e3f1e6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DENTAL ASSOCIATE PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is this associate offer actually worth, next to the other one?</h1>
+    <p>Enter two offers and the net production you expect. You get the <strong>yearly value of each</strong>, your <strong>effective percentage</strong> after lab fees and collections, the <strong>production where the guarantee stops mattering</strong>, and what each pays if your schedule comes in thin.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your expected work</h2>
+    <div class="grid">
+      <div><label for="prod">Net production you expect in a year, dollars (after write-offs)</label><input type="text" id="prod" inputmode="decimal" placeholder="700000" autocomplete="off"></div>
+      <div><label for="days">Days you work a year</label><input type="text" id="days" inputmode="decimal" placeholder="200" autocomplete="off"></div>
+      <div><label for="collectRate">Collections as a percent of net production</label><input type="text" id="collectRate" inputmode="decimal" placeholder="98" autocomplete="off"></div>
+      <div><label for="labRate">Lab fees as a percent of production</label><input type="text" id="labRate" inputmode="decimal" placeholder="7" autocomplete="off"></div>
+      <div><label for="stayYears">Years you expect to stay (spreads the sign-on bonus)</label><input type="text" id="stayYears" inputmode="decimal" placeholder="3" autocomplete="off"></div>
+      <div><label for="target">Cash pay you want, dollars a year (optional)</label><input type="text" id="target" inputmode="decimal" placeholder="200000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer A</h2>
+    <div class="grid">
+      <div><label for="pctA">Pay percentage (for example 30)</label><input type="text" id="pctA" inputmode="decimal" placeholder="30" autocomplete="off"></div>
+      <div><label for="basisA">Percentage is applied to</label><select id="basisA"><option value="production">Net production</option><option value="collections">Collections</option></select></div>
+      <div><label for="guaranteeDayA">Daily guarantee, dollars (blank if none)</label><input type="text" id="guaranteeDayA" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="labShareA">Share of lab fees you pay, percent (blank if none)</label><input type="text" id="labShareA" inputmode="decimal" placeholder="50" autocomplete="off"></div>
+      <div><label for="signOnA">Sign-on bonus, dollars</label><input type="text" id="signOnA" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="otherA">Other yearly pay (retirement match, CE allowance), dollars</label><input type="text" id="otherA" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Offer B</h2>
+    <div class="grid">
+      <div><label for="pctB">Pay percentage (for example 30)</label><input type="text" id="pctB" inputmode="decimal" placeholder="30" autocomplete="off"></div>
+      <div><label for="basisB">Percentage is applied to</label><select id="basisB"><option value="production">Net production</option><option value="collections">Collections</option></select></div>
+      <div><label for="guaranteeDayB">Daily guarantee, dollars (blank if none)</label><input type="text" id="guaranteeDayB" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="labShareB">Share of lab fees you pay, percent (blank if none)</label><input type="text" id="labShareB" inputmode="decimal" placeholder="50" autocomplete="off"></div>
+      <div><label for="signOnB">Sign-on bonus, dollars</label><input type="text" id="signOnB" inputmode="decimal" placeholder="10000" autocomplete="off"></div>
+      <div><label for="otherB">Other yearly pay (retirement match, CE allowance), dollars</label><input type="text" id="otherB" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+    </div>
+    <p class="note">For a percentage-only offer, leave the guarantee blank. Net production is after PPO write-offs.</p>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in your expected production and both offers, then click Compare.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>If your production is different</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Scenario</th><th class="n">Net production</th><th class="n">Offer A</th><th class="n">Offer B</th><th class="n">A minus B</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Commission = your percentage x (net production, or net production times the collection rate, minus the share of lab fees you pay). Cash pay = the greater of the commission and the daily guarantee times your days worked. Yearly value = cash pay + other yearly pay + the sign-on bonus divided by the years you expect to stay. The effective percentage is cash pay divided by net production. The crossover is the production where the two yearly values are equal.</p>
+    <p><strong>Not modelled:</strong> benefits, continuing education, malpractice, non-compete and non-solicit terms, ownership buy-in, hygiene splits, taxes, clawback of a guarantee or sign-on bonus, and the delay between doing the work and collecting for it. <strong>Unverified:</strong> checked by hand calculation and unit tests only. Have a healthcare contract attorney review the actual agreement.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do dental associates usually get paid?</h3>
+    <p>Most associate contracts pay the greater of a daily or hourly guarantee and a percentage, often 25 to 35 percent, of production or collections, sometimes after subtracting lab fees. This tool applies exactly that formula to the numbers in your offer; it states no market percentage.</p>
+    <h3>What is the difference between production and collections?</h3>
+    <p>Production is the value of the dentistry you performed after write-offs; collections are the money the practice actually receives. Being paid on collections usually costs a little each year because not everything billed is collected, and it pays later. The tool shows the dollar gap at the collection rate you enter.</p>
+    <h3>Why do lab fees change my real percentage?</h3>
+    <p>If the contract charges you a share of the lab bill, that amount comes off the base before your percentage is applied, so your effective percentage of production is lower than the headline. The tool shows the yearly dollar cost and the effective percentage.</p>
+    <h3>What does a daily guarantee do?</h3>
+    <p>The guarantee is a floor. You are paid the larger of the guarantee and the percentage. The tool shows the production at which the percentage overtakes the guarantee. It does not model contracts that later claw the guarantee back against future production; read that clause and ask a contract attorney.</p>
+    <h3>Can I compare a percentage-only offer against a guarantee offer?</h3>
+    <p>Yes. Leave the guarantee at zero on the percentage-only offer. The tool shows where the two pay the same and how each moves if production comes in low or high.</p>
+    <h3>What is not modelled?</h3>
+    <p>Benefits, continuing education allowances, malpractice, non-compete and non-solicit terms, ownership buy-in, taxes, hygiene or specialty splits, and any clawback of a guarantee or sign-on bonus.</p>
+    <h3>Is my offer uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are illustrative estimates that depend on the numbers you enter; real pay depends on the written contract, your production and how the practice defines it. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any dental practice, dental service organization, recruiter or practice management software vendor, and no company is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Owner-dentist checking what each payer really reimburses? The <a href="../dental-ppo-writeoff-calculator/">dental PPO write-off calculator</a> is the sibling tool. Physician instead? See the <a href="../physician-wrvu-contract-calculator/">physician wRVU contract calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const KEYS = ["pctA", "basisA", "guaranteeDayA", "labShareA", "signOnA", "otherA", "pctB", "basisB", "guaranteeDayB", "labShareB", "signOnB", "otherB", "prod", "days", "collectRate", "labRate", "stayYears", "target"];
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { const el = $("#" + k); el.value = x[k] ?? (el.tagName === "SELECT" ? "production" : ""); }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const [da, db] = a.detail;
+      const tiles = [[usd(da.total), "Offer A yearly value"], [usd(db.total), "Offer B yearly value"], [(da.effectivePct * 100).toFixed(1) + "%", "A cash pay as % of net production"], [(db.effectivePct * 100).toFixed(1) + "%", "B cash pay as % of net production"], [usd(da.perDay), "A pay per day worked"], [usd(db.perDay), "B pay per day worked"]];
+      if (a.crossovers.length) tiles.push([usd(a.crossovers[0]), "net production where A and B pay the same"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Your expected production" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.prod)}</td><td class="n">${usd(s.a)}</td><td class="n">${usd(s.b)}</td><td class="n">${usd(s.diff)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("comparison_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: two invented offers, not a real contract."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in your expected production and both offers, then click Compare."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "dental-associate-offer-comparison.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EU Whistleblower Channel Checker — Do You Need a Reporting Channel and Is It Compliant?</title>
+  <meta name="description" content="Free EU Whistleblower Directive checker for employers: whether you must run an internal reporting channel at your headcount, which requirements are still open, and the 7-day and 3-month clocks for a report. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="EU Whistleblower Directive checker: do you need a channel, what is missing, when is the reply due. Free, private">
+  <meta property="og:description" content="Headcount and a checklist in; obligation, open requirements and report deadlines out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "EU Whistleblower Channel Checker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does my company need a whistleblower reporting channel?", "acceptedAnswer": {"@type": "Answer", "text": "If you employ 50 or more workers, yes: the EU Whistleblower Directive requires an internal reporting channel. Companies with 250 or more had to comply from 17 December 2021 and those with 50 to 249 from 17 December 2023. Regulated financial-services firms need one whatever their size. Your national law may set a lower threshold."}}, {"@type": "Question", "name": "How fast must I respond to a whistleblower report?", "acceptedAnswer": {"@type": "Answer", "text": "Acknowledge receipt within 7 days and give feedback within 3 months of the acknowledgement. Feedback means telling the reporter what is being done or has been done in response."}}, {"@type": "Question", "name": "Can small companies share one reporting channel?", "acceptedAnswer": {"@type": "Answer", "text": "Employers with 50 to 249 workers may share one channel and its resources. Each employer keeps its own duties to keep reports confidential, follow up and give feedback."}}, {"@type": "Question", "name": "What must an internal reporting channel offer?", "acceptedAnswer": {"@type": "Answer", "text": "Reporting in writing, orally by phone or voice message, and by a physical meeting on request, with the reporter's identity kept confidential and an impartial person or department designated to follow up."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls. Do not type a real whistleblower's name or the details of a real report into any tool; the clocks only need dates."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WHISTLEBLOWER CHANNEL CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does your company need a whistleblower channel, and does yours pass?</h1>
+    <p>Enter your headcount, mark what your reporting channel already does and, if you have a live report, the date it arrived. You get the <strong>obligation</strong>, the <strong>requirements still open</strong>, and the <strong>7-day and 3-month deadlines</strong>.</p>
+    <p class="note">A first read of Directive (EU) 2019/1937. National laws differ. It is not legal advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="headcount">Number of workers</label><input id="headcount" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 120"></div>
+      <div><label for="sector">Type of organisation</label><select id="sector"><option value="private">Private-sector employer</option><option value="public">Public-sector body</option><option value="financial">Regulated financial services</option></select></div>
+      <div><label for="shared">Do you share a channel with other employers?</label><select id="shared"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="written">Reports can be made in writing (online form, email or post)</label><select id="written"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="oral">Reports can be made orally by phone or voice message</label><select id="oral"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="meeting">A physical meeting is offered within a reasonable time on request</label><select id="meeting"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="confidential">Reporter identity and named third parties stay confidential; access limited to authorised staff</label><select id="confidential"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="ack">Every report is acknowledged within 7 days</label><select id="ack"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="designated">An impartial person or department is designated to receive and follow up reports</label><select id="designated"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="followup">Diligent follow-up of each report is done and documented</label><select id="followup"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="feedback">Reporter gets feedback within 3 months of the acknowledgement</label><select id="feedback"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="external">Information on external reporting to authorities is published and easy to find</label><select id="external"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="records">Every report is recorded and kept only as long as necessary, confidentially</label><select id="records"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="retaliation">A written no-retaliation rule exists and managers know it</label><select id="retaliation"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="dataProtection">Reports are handled under GDPR with a privacy notice</label><select id="dataProtection"><option value="">Not yet or not sure</option><option value="1">Done</option></select></div>
+      <div><label for="received">A report arrived on (optional)</label><input id="received" type="date"></div>
+      <div><label for="acknowledged">You acknowledged it on (optional)</label><input id="acknowledged" type="date"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my channel</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Enter your number of workers, then click Check my channel.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download checklist (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Who needs a channel:</strong> private employers with 50 or more workers (from 17 December 2021 at 250+, from 17 December 2023 at 50 to 249), public bodies, and regulated financial firms of any size (Article 8).</li>
+      <li><strong>What it must do:</strong> accept written and oral reports and a meeting on request, keep identities confidential, designate an impartial handler, acknowledge within 7 days, and give feedback within 3 months (Article 9).</li>
+      <li><strong>Records and retaliation:</strong> keep a confidential record of each report and ban retaliation (Articles 18 and 19).</li>
+      <li><strong>Not decided:</strong> your national threshold, penalties, whether anonymous reports must be accepted, whether a matter falls inside the material scope, and whether a reporter is protected.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Does my company need a whistleblower reporting channel?</h3>
+    <p>If you employ 50 or more workers, yes: the EU Whistleblower Directive requires an internal reporting channel. Companies with 250 or more had to comply from 17 December 2021 and those with 50 to 249 from 17 December 2023. Regulated financial-services firms need one whatever their size. Your national law may set a lower threshold.</p>
+    <h3>How fast must I respond to a whistleblower report?</h3>
+    <p>Acknowledge receipt within 7 days and give feedback within 3 months of the acknowledgement. Feedback means telling the reporter what is being done or has been done in response.</p>
+    <h3>Can small companies share one reporting channel?</h3>
+    <p>Employers with 50 to 249 workers may share one channel and its resources. Each employer keeps its own duties to keep reports confidential, follow up and give feedback.</p>
+    <h3>What must an internal reporting channel offer?</h3>
+    <p>Reporting in writing, orally by phone or voice message, and by a physical meeting on request, with the reporter's identity kept confidential and an impartial person or department designated to follow up.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls. Do not type a real whistleblower's name or the details of a real report into any tool; the clocks only need dates.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your national authority or counsel before relying on it.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device. Never enter a reporter's name or the content of a real report here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../pay-transparency-directive-checker/">Pay Transparency Directive checker</a>, the <a href="../eaa-accessibility-act-checker/">European Accessibility Act checker</a>, the <a href="../nis2-scope-checker/">NIS2 scope checker</a> and the <a href="../eu-ai-act-risk-checker/">EU AI Act risk checker</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, requirementsCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const ids = ["headcount", "sector", "shared", "written", "oral", "meeting", "confidential", "ack", "designated", "followup", "feedback", "external", "records", "retaliation", "dataProtection", "received", "acknowledged"];
+    const DEFAULTS = { sector: "private", shared: "no" };
+    const IDLE = "Enter your number of workers, then click Check my channel.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const id of ids) o[id] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors?.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.required ? "An internal reporting channel is required (" + r.obligation.article + ")" : "No internal channel duty under the Directive at this size";
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Check your national law before relying on this.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = SAMPLE[id];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a 120-person company. Illustrative, not a real employer.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ids) $("#" + id).value = DEFAULTS[id] || ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("whistleblower-channel-check.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("whistleblower-channel-checklist.csv", requirementsCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

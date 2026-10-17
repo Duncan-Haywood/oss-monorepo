@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Estate Tax Exemption Calculator — 2026 $15M OBBBA Exclusion, Free</title>
+  <meta name="description" content="Free calculator for the 2026 OBBBA federal estate, gift, and GST tax exclusion -- $15,000,000 per person, up to $30,000,000 married with portability. Projects taxable estate and the flat 40% federal tax. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Estate Tax Exemption Calculator — free, 2026">
+  <meta property="og:description" content="Project federal estate tax exposure under OBBBA's permanent $15,000,000 basic exclusion amount, with portability, prior taxable gifts, and the GST non-portability trap. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Estate Tax Exemption Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Projects federal estate tax exposure under the One Big Beautiful Bill Act's permanent 2026 basic exclusion amount of $15,000,000 per person ($30,000,000 married with portability of a deceased spouse's unused exclusion). Subtracts prior taxable lifetime gifts and any DSUE already received, applies the flat 40% federal rate to the resulting taxable estate, and flags that the GST exemption is never portable between spouses. Entirely client-side; nothing is uploaded.","featureList":"2026 $15,000,000 basic exclusion amount, spousal portability (DSUE), prior taxable gift offset, flat 40% federal estate tax rate, GST non-portability flag, state estate tax out-of-scope flag"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 federal estate tax exemption?","acceptedAnswer":{"@type":"Answer","text":"The One Big Beautiful Bill Act permanently set the federal estate, gift, and generation-skipping transfer tax basic exclusion amount at $15,000,000 per person starting January 1, 2026, with no scheduled expiration. A married couple can shield up to $30,000,000 combined if the surviving spouse elects portability of the first spouse's unused exclusion."}},{"@type":"Question","name":"What is portability (DSUE)?","acceptedAnswer":{"@type":"Answer","text":"Portability lets a surviving spouse add a deceased spouse's unused exclusion (DSUE) to their own $15,000,000 exclusion, by timely filing Form 706 for the deceased spouse's estate and electing it — even if no estate tax was owed at that death. It is not automatic; the election has to be made."}},{"@type":"Question","name":"Is the GST exemption portable too?","acceptedAnswer":{"@type":"Answer","text":"No. The generation-skipping transfer (GST) exemption was also raised to $15,000,000, but unlike the estate/gift exclusion, the GST exemption has never been portable between spouses. A deceased spouse's unused GST exemption cannot be added to a survivor's own."}},{"@type":"Question","name":"Do lifetime gifts reduce my exemption at death?","acceptedAnswer":{"@type":"Answer","text":"Yes. Estate tax and gift tax share one unified lifetime exclusion. Taxable gifts made during life (amounts above the $19,000-per-recipient annual exclusion, reported on Form 709) reduce the exclusion that remains to shield your estate when you die."}},{"@type":"Question","name":"Does this calculator include state estate tax?","acceptedAnswer":{"@type":"Answer","text":"No. This tool projects federal tax only. Several states impose their own estate or inheritance tax with thresholds far below $15,000,000, depending on the decedent's state of domicile — flagged as out of scope, not computed, since this tool has no reliable way to know your domicile."}},{"@type":"Question","name":"Is this estate planning advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal exclusion, portability, and tax-rate rules to the numbers you enter. It does not model the marital deduction, charitable deduction, valuation discounts, or state tax, and it is not a substitute for consulting a qualified estate planning attorney or CPA before you act."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    #dsue-field { display: none; }
+    #dsue-field.show { display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ESTATE TAX EXEMPTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Project your 2026 federal estate tax under the permanent $15M exclusion.</h1>
+    <p>The One Big Beautiful Bill Act permanently set the federal estate,
+    gift, and generation-skipping transfer (GST) tax basic exclusion at
+    <strong>$15,000,000 per person</strong> for 2026 — up to
+    <strong>$30,000,000 for a married couple</strong> who elects
+    portability. This tool applies that exclusion, any prior taxable
+    gifts, and the flat 40% rate to your own numbers.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing situation</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single" selected>Single (or not using portability)</option>
+          <option value="married">Married, with a deceased spouse's unused exclusion (DSUE)</option>
+        </select>
+      </div>
+      <div id="dsue-field">
+        <label for="dsue">Deceased spouse's unused exclusion (DSUE) already elected ($)</label>
+        <input type="number" id="dsue" min="0" step="100000" placeholder="e.g. 15000000">
+      </div>
+    </div>
+    <p class="note">Choose "married" only if a Form 706 portability
+    election was actually filed for a deceased spouse's estate. Being
+    married alone does not add a second exclusion automatically.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="gross-estate">Gross estate value ($)</label>
+        <input type="number" id="gross-estate" min="0" step="100000" placeholder="e.g. 18000000">
+      </div>
+      <div>
+        <label for="prior-gifts">Prior taxable lifetime gifts, Form 709 total ($)</label>
+        <input type="number" id="prior-gifts" min="0" step="100000" placeholder="e.g. 2000000">
+      </div>
+    </div>
+    <p class="note">Prior taxable gifts means amounts reported on Form 709
+    that exceeded the annual per-recipient exclusion ($19,000 in 2026) —
+    not routine gifts within the annual exclusion, which never use up your
+    lifetime exemption.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in your filing situation and numbers, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Projection</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="report-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Federal tax only.</strong> Several states impose their
+      own estate or inheritance tax with thresholds far below
+      $15,000,000, depending on the decedent's state of domicile — not
+      modeled here.</li>
+      <li><strong>No marital or charitable deduction.</strong> Property
+      passing outright to a surviving spouse or to charity can reduce or
+      defer estate tax beyond what this calculator shows — this tool
+      projects exposure against the gross estate figure you supply, not a
+      fully planned estate.</li>
+      <li><strong>No valuation discounts.</strong> Discounts for
+      minority interests or lack of marketability in closely held
+      businesses or family entities are not modeled.</li>
+      <li><strong>Not a Form 706 or Form 709.</strong> This is a
+      planning estimate, not a filed return.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 federal estate tax exemption?</h3>
+    <p>The One Big Beautiful Bill Act permanently set the federal estate, gift, and generation-skipping transfer tax basic exclusion amount at $15,000,000 per person starting January 1, 2026, with no scheduled expiration. A married couple can shield up to $30,000,000 combined if the surviving spouse elects portability of the first spouse's unused exclusion.</p>
+    <h3>What is portability (DSUE)?</h3>
+    <p>Portability lets a surviving spouse add a deceased spouse's unused exclusion (DSUE) to their own $15,000,000 exclusion, by timely filing Form 706 for the deceased spouse's estate and electing it — even if no estate tax was owed at that death. It is not automatic; the election has to be made.</p>
+    <h3>Is the GST exemption portable too?</h3>
+    <p>No. The generation-skipping transfer (GST) exemption was also raised to $15,000,000, but unlike the estate/gift exclusion, the GST exemption has never been portable between spouses. A deceased spouse's unused GST exemption cannot be added to a survivor's own.</p>
+    <h3>Do lifetime gifts reduce my exemption at death?</h3>
+    <p>Yes. Estate tax and gift tax share one unified lifetime exclusion. Taxable gifts made during life (amounts above the $19,000-per-recipient annual exclusion, reported on Form 709) reduce the exclusion that remains to shield your estate when you die.</p>
+    <h3>Does this calculator include state estate tax?</h3>
+    <p>No. This tool projects federal tax only. Several states impose their own estate or inheritance tax with thresholds far below $15,000,000, depending on the decedent's state of domicile — flagged as out of scope, not computed, since this tool has no reliable way to know your domicile.</p>
+    <h3>Is this estate planning advice?</h3>
+    <p>No. This calculator applies the published federal exclusion, portability, and tax-rate rules to the numbers you enter. It does not model the marital deduction, charitable deduction, valuation discounts, or state tax, and it is not a substitute for consulting a qualified estate planning attorney or CPA before you act.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified estate planning attorney or CPA. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing Form 706 or Form 709. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Setting up a child's savings account too? See the <a href="../trump-account-calculator/">Trump Account calculator</a> — another new federal wealth-transfer provision, this one a $1,000 federal seed deposit for a newborn rather than the lifetime estate and gift exclusion.</p>
+    <p>Deciding whether to gift a house or shares now or let them pass at death? The <a href="../gift-vs-inherit-basis-calculator/">gift vs inherit basis calculator</a> prices the lost step-up in basis against the estate tax a gift can avoid.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of the 2026 estate tax exclusion usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { estateTaxOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), dsueField: $("#dsue-field"), dsue: $("#dsue"),
+      grossEstate: $("#gross-estate"), priorGifts: $("#prior-gifts"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      table: $("#report-table"), findings: $("#report-findings"),
+    };
+
+    function syncDsueVisibility() {
+      els.dsueField.classList.toggle("show", els.filingStatus.value === "married");
+    }
+    els.filingStatus.addEventListener("change", syncDsueVisibility);
+    syncDsueVisibility();
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = estateTaxOutcome({
+        filingStatus: els.filingStatus.value,
+        grossEstate: Number(els.grossEstate.value) || 0,
+        priorTaxableGifts: Number(els.priorGifts.value) || 0,
+        dsue: Number(els.dsue.value) || 0,
+      });
+
+      els.stats.innerHTML = `Total exclusion available: <strong>${money(result.totalExclusion)}</strong>. Estimated federal estate tax: <strong>${money(result.estateTax)}</strong>.`;
+
+      els.table.innerHTML = `
+        <tr><th scope="row">Your own exclusion</th><td>${money(result.ownExclusion)}</td></tr>
+        <tr><th scope="row">Plus DSUE from a deceased spouse</th><td>${money(result.dsue)}</td></tr>
+        <tr><th scope="row">Total exclusion</th><td>${money(result.totalExclusion)}</td></tr>
+        <tr><th scope="row">Used by prior taxable gifts</th><td>${money(result.exclusionUsedByGifts)}</td></tr>
+        <tr><th scope="row">Remaining exclusion</th><td>${money(result.remainingExclusion)}</td></tr>
+        <tr><th scope="row">Taxable estate</th><td>${money(result.taxableEstate)}</td></tr>
+        <tr><th scope="row"><strong>Estimated federal estate tax (40%)</strong></th><td><strong>${money(result.estateTax)}</strong></td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "married";
+      syncDsueVisibility();
+      els.dsue.value = "15000000";
+      els.grossEstate.value = "28000000";
+      els.priorGifts.value = "2000000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a married couple with a full $15,000,000 DSUE elected, a $28,000,000 gross estate, and $2,000,000 of prior taxable gifts.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      syncDsueVisibility();
+      els.dsue.value = "";
+      els.grossEstate.value = "";
+      els.priorGifts.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in your filing situation and numbers, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

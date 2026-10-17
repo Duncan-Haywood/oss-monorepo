@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Which rental items pay for themselves: a worked example</title>
+  <meta name="description" content="How a party rental company can tell which chairs, tables, linens and floors pay back fastest: handling, card fees, breakage, storage and wear, with a worked example, break-even rentals per unit and the price that pays an item back in two years.">
+  <meta property="og:title" content="Which rental items pay for themselves: a worked example">
+  <meta property="og:description" content="How a party rental company can tell which chairs, tables, linens and floors pay back fastest: handling, card fees, breakage, storage and wear, with a worked example, break-even rentals per unit and the price that pays an item back in two years.">
+  <link rel="canonical" href="./which-rental-items-pay-for-themselves.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which rental item should I buy next?","acceptedAnswer":{"@type":"Answer","text":"Rank every item by what a year of rentals returns on the money tied up in it: rentals times price, minus handling, card fees, losses and storage, divided by what the units cost. The item at the top returns the most on each dollar. This assumes the extra units rent as often as the ones you own, so check how often you are already sold out before you add stock."}},{"@type":"Question","name":"How do I know if a rental item has paid for itself?","acceptedAnswer":{"@type":"Answer","text":"Divide what the units cost by the cash they bring in a year after handling, card fees, breakage and storage. That is the payback in years. Compare it with the useful life: an item that pays back in three years but wears out in three has returned nothing."}},{"@type":"Question","name":"What should I charge to rent an item so it pays back in two years?","acceptedAnswer":{"@type":"Answer","text":"Work backwards: the yearly share of the purchase cost needed for the payback you want, plus storage and expected losses, spread over the rentals each unit gets, plus the handling cost of each rental, divided by one minus your card fee. The calculator shows that lowest price for every item."}},{"@type":"Question","name":"How many times a year does a rental item have to go out to break even?","acceptedAnswer":{"@type":"Answer","text":"Add the item's yearly wear (cost divided by useful life), storage and expected losses per unit, then divide by what one rental earns after handling and card fees. Below that number of rentals per unit the item loses money even if it is always in use for a customer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+      input.cell { padding: 6px 7px; min-width: 70px; }
+    td.name input { min-width: 150px; }
+  </style></head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">← Event Rental Inventory Payback Calculator</a></p>
+    <h1>Which rental items pay for themselves?</h1>
+    <p>Chairs and dance floors both look busy on a Saturday. Per dollar tied up, one of them returns almost six times what the other does.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>The worked example</h2>
+    <p>A rental company owns 150 Chiavari chairs at $48 each, <strong>$7,200</strong> in total. Each chair goes out 14 times a year at $6.50 a rental, so the chairs bring in <strong>$13,650</strong>. Washing and loading costs $0.60 a chair a rental (<strong>$1,260</strong> a year), card fees at 3% take <strong>$410</strong>, 2% of the chairs break or go missing (<strong>$144</strong> to replace) and storage is $1.10 a chair (<strong>$165</strong>).</p>
+    <table><thead><tr><th>Line</th><th>Per year</th></tr></thead><tbody>
+<tr><td>Cash after handling, fees, losses and storage</td><td><strong>$11,672</strong></td></tr>
+<tr><td>Wear (cost over 8 years)</td><td>$900</td></tr>
+<tr><td>Profit after wear</td><td><strong>$10,772</strong></td></tr>
+<tr><td>Return on the money tied up</td><td><strong>162.1%</strong></td></tr>
+<tr><td>Payback</td><td>0.6 years</td></tr>
+    </tbody></table>
+    <p>Each chair has to go out <strong>1.4</strong> times a year before it covers its wear, storage and losses. It goes out 14 times.</p>
+  </section>
+  <section class="card">
+    <h2>The item that looks as busy but is not as good</h2>
+    <p>The dance floor panels cost $210 each and rent for $14, but they go out only 6 times a year and cost $8 a panel to store. They return <strong>28.3%</strong> a year against <strong>162.1%</strong> for the chairs and take <strong>3.5</strong> years to pay back.</p>
+    <p>To pay back in two years the panels would have to rent for <strong>$21.84</strong>, which is $7.84 more than $14.00. Folding chairs, by comparison, return 160.4% and pay back in 0.6 years at $1.50 a rental.</p>
+    <p>Run your own items: <a href="./index.html">open the calculator</a>.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Which rental item should I buy next?</h3>
+    <p>Rank every item by what a year of rentals returns on the money tied up in it: rentals times price, minus handling, card fees, losses and storage, divided by what the units cost. The item at the top returns the most on each dollar. This assumes the extra units rent as often as the ones you own, so check how often you are already sold out before you add stock.</p>
+    <h3>How do I know if a rental item has paid for itself?</h3>
+    <p>Divide what the units cost by the cash they bring in a year after handling, card fees, breakage and storage. That is the payback in years. Compare it with the useful life: an item that pays back in three years but wears out in three has returned nothing.</p>
+    <h3>What should I charge to rent an item so it pays back in two years?</h3>
+    <p>Work backwards: the yearly share of the purchase cost needed for the payback you want, plus storage and expected losses, spread over the rentals each unit gets, plus the handling cost of each rental, divided by one minus your card fee. The calculator shows that lowest price for every item.</p>
+    <h3>How many times a year does a rental item have to go out to break even?</h3>
+    <p>Add the item's yearly wear (cost divided by useful life), storage and expected losses per unit, then divide by what one rental earns after handling and card fees. Below that number of rentals per unit the item loses money even if it is always in use for a customer.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Arithmetic on the numbers you type, not tax, legal, insurance or financial advice. Not affiliated with any rental software or equipment maker. Best-effort hosting, no SLA. Everything runs in your browser.</p>
+  </footer>
+</body>
+</html>

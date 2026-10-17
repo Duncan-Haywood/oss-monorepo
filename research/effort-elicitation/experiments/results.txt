@@ -1,0 +1,47 @@
+== 1. Implementable efforts (vertices of concave envelope of V), n<=300
+uniform Beta(1,1)          brier     non-implementable n in 1..60:  0  first: []
+uniform Beta(1,1)          log       non-implementable n in 1..60:  0  first: []
+uniform Beta(1,1)          spherical non-implementable n in 1..60:  0  first: []
+rare-fault Beta(0.2,5)     brier     non-implementable n in 1..60:  0  first: []
+rare-fault Beta(0.2,5)     log       non-implementable n in 1..60:  0  first: []
+rare-fault Beta(0.2,5)     spherical non-implementable n in 1..60:  0  first: []
+U-shaped Beta(0.3,0.3)     brier     non-implementable n in 1..60:  0  first: []
+U-shaped Beta(0.3,0.3)     log       non-implementable n in 1..60:  0  first: []
+U-shaped Beta(0.3,0.3)     spherical non-implementable n in 1..60:  0  first: []
+
+== 2. Cheapest scale alpha implementing n*=20 (c=0.001), rent, payout spread
+prior                      rule          alpha  rent/cost    spread  spread/cost
+uniform Beta(1,1)          brier        2.7720      9.500    2.5200        126.0
+uniform Beta(1,1)          log          1.0104      7.665    3.0761        153.8
+uniform Beta(1,1)          spherical    2.4245     10.625    2.3064        115.3
+rare-fault Beta(0.2,5)     brier       19.6612      3.654   19.3492        967.5
+rare-fault Beta(0.2,5)     log          2.1321      3.051   10.2946        514.7
+rare-fault Beta(0.2,5)     spherical   25.0349      3.234   24.8339       1241.7
+U-shaped Beta(0.3,0.3)     brier        4.3068     31.667    4.1813        209.1
+U-shaped Beta(0.3,0.3)     log          1.0723     19.278    4.5193        226.0
+U-shaped Beta(0.3,0.3)     spherical    4.0978     36.588    4.0368        201.8
+
+== 3. Effort chosen under a MIS-scaled rule: rules calibrated for n*=20 on Beta(1,1), deployed on rare-fault Beta(0.2,5)
+brier     alpha=2.7720 -> effort on rare-fault prior: 4
+log       alpha=1.0104 -> effort on rare-fault prior: 11
+spherical alpha=2.4245 -> effort on rare-fault prior: 2
+
+== 4. Brier: V(n)=Var(p) n/(a+b+n); n*(alpha) closed form check (Beta(1,1))
+alpha=  0.5 exact n*=  7  sqrt-law=   7.1
+alpha=  2.0 exact n*= 16  sqrt-law=  16.3
+alpha=  8.0 exact n*= 35  sqrt-law=  34.5
+alpha= 32.0 exact n*= 71  sqrt-law=  71.0
+
+== 5. Brier information rent: rent/cost = (n*-1)/(a+b) (exact, proved in paper) vs exact discrete design
+Beta(1,1) n*=10 rent/cost exact= 4.500  (n-1)/(a+b)= 4.500
+Beta(1,1) n*=20 rent/cost exact= 9.500  (n-1)/(a+b)= 9.500
+Beta(1,1) n*=40 rent/cost exact=19.500  (n-1)/(a+b)=19.500
+Beta(0.2,5) n*=10 rent/cost exact= 1.731  (n-1)/(a+b)= 1.731
+Beta(0.2,5) n*=20 rent/cost exact= 3.654  (n-1)/(a+b)= 3.654
+Beta(0.2,5) n*=40 rent/cost exact= 7.500  (n-1)/(a+b)= 7.500
+Beta(0.3,0.3) n*=10 rent/cost exact=15.000  (n-1)/(a+b)=15.000
+Beta(0.3,0.3) n*=20 rent/cost exact=31.667  (n-1)/(a+b)=31.667
+Beta(0.3,0.3) n*=40 rent/cost exact=65.000  (n-1)/(a+b)=65.000
+Beta(2,8) n*=10 rent/cost exact= 0.900  (n-1)/(a+b)= 0.900
+Beta(2,8) n*=20 rent/cost exact= 1.900  (n-1)/(a+b)= 1.900
+Beta(2,8) n*=40 rent/cost exact= 3.900  (n-1)/(a+b)= 3.900

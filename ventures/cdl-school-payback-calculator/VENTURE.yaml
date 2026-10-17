@@ -1,0 +1,44 @@
+name: cdl-school-payback-calculator
+description: >-
+  Free browser tool for people considering a commercial driver's license: enter tuition, fees, weeks out of work,
+  expected miles per week and pay per mile, and see the cost to get in, the monthly gain over your current job, the
+  months to pay it back, payback at different weekly miles, and whether a company-paid school beats paying yourself.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py found no CDL-school tool in ventures/ and no
+# row in screened-out.md (nearest: owner-operator-cpm-calculator, which costs a running truck, not the decision to
+# enter the trade). Schools cost $3k-$10k plus weeks without pay, and the decision turns on guaranteed miles.
+# First visitor: someone searching "is CDL school worth it", "CDL school cost calculator", "company paid CDL training
+# vs paying yourself", "how long to pay back CDL school".
+#
+# Who: career changers, warehouse and delivery workers weighing a CDL, and the schools and recruiters who field the
+# question.
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. A school or carrier comparison
+# sheet is the possible paid version, not built.
+# Liability: arithmetic on the user's own figures with visible rules; not career, tax or financial advice; carries the
+# no-warranty clause and lists what is not decided (guaranteed miles, taxes, sponsored-contract terms, job availability).
+# Unverified: no market pay rate is claimed; sample figures are illustrative only.
+
+hypotheses:
+  - claim: >-
+      People weighing CDL school will enter tuition and expected miles to see a payback period, because recruiters
+      quote earnings and schools quote tuition and neither quotes the time to break even.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A report that the payback arithmetic differs from the stated rules on the same inputs.

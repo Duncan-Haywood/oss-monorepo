@@ -50,6 +50,14 @@ test('index links one hop to the mcp-supply-chain-watch sibling', async () => {
   );
 });
 
+test('index links one hop to the llm-api-pricing-calculator sibling', async () => {
+  assert.match(
+    await read('index.html'),
+    /href="\.\.\/llm-api-pricing-calculator\/"/,
+    'index must link ../llm-api-pricing-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 test('every named trademark is disclaimed as not affiliated', async () => {
   for (const file of PAGES) {
     const page = await read(file);

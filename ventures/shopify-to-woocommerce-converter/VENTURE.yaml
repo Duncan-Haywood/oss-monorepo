@@ -1,0 +1,72 @@
+name: shopify-to-woocommerce-converter
+description: >-
+  Free browser tool that converts a Shopify product export CSV into a WooCommerce product
+  import CSV: variants become variable products with variations, Compare At Price becomes
+  Regular and Sale price, inventory, weight, images, tags and categories are mapped, missing
+  or repeated SKUs are generated and noted, and every field that cannot be carried across is
+  listed. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session, after discovering that another session had
+# shipped woocommerce-product-csv-check minutes earlier (a pure checker); this is the migration
+# tool that sits between that and shopify-product-csv-check, not a third checker.
+# duplicate_check.py: top score 0.46, only because of the two checker siblings; nothing converts
+# between the two platforms in ventures/. Migrating Shopify to WooCommerce is a recurring,
+# paid-for pain: stores leaving Shopify's subscription and app fees, agencies quoting a fixed
+# price per migration, and "Shopify to WooCommerce CSV" plugins and services that charge. The
+# hard part is the product model difference (Shopify's Handle-grouped variant rows versus
+# WooCommerce's variable parent plus variation rows with Parent SKUs), the price semantics
+# (Compare At Price), and unique SKUs, none of which a spreadsheet does for you.
+#
+# First visitor: store owners searching "migrate Shopify to WooCommerce CSV", "Shopify product
+# export to WooCommerce import", "Shopify variants to WooCommerce variations", agencies doing
+# migrations, r/woocommerce and r/shopify. Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for the migration audience, with the
+# two checkers as the verify step either side of it. A paid version, if usage appears, is
+# bigger catalogues, saved mappings, and orders/customers converters behind an env-var switch;
+# not built. Reverse direction (WooCommerce to Shopify) is the obvious second tool.
+#
+# Liability: format conversion on the user's own file, mappings stated as read from memory, no
+# warranty, independent-of-Shopify/WooCommerce clause, trademarks used nominatively; the file
+# never leaves the browser (a test asserts no network calls). The output is labelled a first
+# draft to import on staging first.
+#
+# Unverified: every column name and mapping is from memory of public documentation; the
+# `GTIN, UPC, EAN, or ISBN` column name, comma-separated attribute values with `\,` escape,
+# whether variation rows need Published and Name set as written, and the weight assumption
+# (store weight unit is kilograms). The first user report of an import that fails or
+# mismaps is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A store owner or agency migrating from Shopify will convert the product export in a no-login
+      page, because the alternative is rebuilding variants and prices by hand in a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A converted file that imports cleanly on staging leads the same person to run the
+      checkers on the converted file and to come back for the next catalogue or client.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports WooCommerce rejecting or mismapping a file this tool produced, at which point the mapping needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-to-woocommerce-converter/
+  analytics: null

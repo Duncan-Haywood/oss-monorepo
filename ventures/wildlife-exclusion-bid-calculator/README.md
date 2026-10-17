@@ -6,6 +6,8 @@ job the way the flat "removal fee" this trade is shopped against never does —
 from the visits it actually takes, the height the seal is at, the attic that
 has to be cleaned, and the warranty that was sold with it.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/
+
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.
 

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AWS Commitment Break-Even Calculator — Savings Plan vs Reserved Instance vs On-Demand</title>
+  <meta name="description" content="Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option's discount to find the commitment that saves the most, its break-even utilization, upfront payback and what happens if usage falls. Nothing is uploaded.">
+  <meta property="og:title" content="AWS Commitment Break-Even Calculator — how much to commit, not just whether">
+  <meta property="og:description" content="Savings Plan vs Reserved Instance vs on-demand, computed from your own usage curve with a downside stress test.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AWS Commitment Break-Even Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste hourly or daily cloud usage and the discount of each Savings Plan or Reserved Instance option. Get the commitment level that saves the most, break-even utilization, upfront payback and a stress test if usage falls. Runs in your browser.", "featureList": "Savings Plan vs Reserved Instance calculator, optimal commitment level from usage, break-even utilization, upfront payment payback, cost of capital adjustment, usage-drop stress test, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I buy a Savings Plan or Reserved Instances?", "acceptedAnswer": {"@type": "Answer", "text": "Both trade a fixed hourly commitment for a discount, and the arithmetic is the same: you pay the commitment every hour whether you use it or not. Savings Plans are broader, applying across instance sizes, and in some cases families and services, while Reserved Instances are tied to an instance type and give up flexibility for a sometimes larger discount. Enter the effective discount from your own quote for each and this tool shows which saves more on your actual usage pattern."}}, {"@type": "Question", "name": "How much should I commit to?", "acceptedAnswer": {"@type": "Answer", "text": "Less than your peak and usually less than your average. Each dollar of commitment is used only in the hours when usage is at least that high, and it pays off only if that happens more often than one minus the discount. With a 30% discount, cover the level your usage exceeds 70% of the time, which is the 30th percentile of hourly usage. The tool finds that level from your own data and shows the savings curve around it."}}, {"@type": "Question", "name": "What is the break-even utilization of a commitment?", "acceptedAnswer": {"@type": "Answer", "text": "It equals one minus the discount. A commitment with a 30% discount breaks even if the committed capacity is used 70% of the time, and loses money below that. A 3-year commitment at a 50% discount breaks even at 50% utilization, but it locks that spend in for three years, so the risk is that usage falls, not the discount."}}, {"@type": "Question", "name": "Is a 3-year commitment worth it?", "acceptedAnswer": {"@type": "Answer", "text": "It has the highest headline discount and the highest downside. The stress table shows your savings if usage were 50%, 70%, 85%, 115% or 130% of what you pasted. If savings turn negative at 70%, a 3-year term is a bet that your workload will not shrink. Committing to the always-on base and leaving the peaks on demand keeps most of the saving with much less regret."}}, {"@type": "Question", "name": "Does paying upfront beat no upfront?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the extra discount exceeds what the money could earn elsewhere. Enter your cost of capital and the tool converts each option to a present-value discount, so an all-upfront option with a slightly higher headline discount can lose to no-upfront when money is expensive. It also shows how many months of running the commitment it takes to recover the upfront payment."}}, {"@type": "Question", "name": "Where do I get the hourly usage numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Export hourly or daily on-demand-equivalent cost for the service from your cloud billing tool, one value per line, or a two-column CSV with the date first. Four or more weeks is better than one, and include a month-end if you have one. Daily totals work too; choose per-day in the dropdown."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is computed in this browser tab. There are no accounts, cookies or analytics vendors, and no prices are looked up, so you type in the discounts from your own quote."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  
+    table input { min-width: 90px; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AWS COMMITMENT BREAK-EVEN CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much should you commit to?</h1>
+    <p>Most calculators tell you a Savings Plan is cheaper than on-demand. The expensive question is <strong>how much to commit</strong>, because every committed hour is paid whether you use it or not. Paste your hourly or daily usage, enter the discount of each option from your own quote, and get the <strong>commitment level that saves the most</strong>, the <strong>savings curve around it</strong>, the <strong>upfront payback</strong>, and a <strong>stress test if usage drops</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab, and no prices are looked up: you supply the discounts. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your usage</h2>
+    <label for="usage">On-demand-equivalent spend, one value per line (or a CSV with the date first)</label>
+    <textarea id="usage" placeholder="4.10&#10;3.95&#10;9.80&#10;..."></textarea>
+    <div class="grid">
+      <div><label for="unit">Each value is</label><select id="unit"><option value="hour" selected>dollars per hour</option><option value="day">dollars per day</option></select></div>
+      <div><label for="steady-rate">No usage export? A steady workload: on-demand $/hour</label><input id="steady-rate" inputmode="decimal" placeholder="0.40"></div>
+      <div><label for="steady-share">…that runs this % of hours</label><input id="steady-share" inputmode="decimal" placeholder="85"></div>
+    </div>
+    <p class="note">Use the on-demand price of what you ran, not what you were billed after existing discounts. Values are treated as equally spaced samples of a typical month. If you fill in the steady workload instead, the pasted usage is ignored.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The options you are choosing between</h2>
+    <p class="note">The example discounts are round numbers for illustration, not current prices. Replace them with the effective discount versus on-demand from your own AWS quote or Cost Explorer recommendation.</p>
+    <div class="scroll"><table id="options">
+      <thead><tr><th>Option</th><th>Term (months)</th><th>Discount vs on-demand (%)</th><th>Paid upfront (% of total)</th></tr></thead>
+      <tbody>
+      <tr>
+        <td><input id="o1n" aria-label="Option 1 name" value="1-year, no upfront"></td>
+        <td><input id="o1t" aria-label="Option 1 term in months" inputmode="numeric" value="12"></td>
+        <td><input id="o1d" aria-label="Option 1 discount percent versus on-demand" inputmode="decimal" value="25"></td>
+        <td><input id="o1u" aria-label="Option 1 percent of the total paid upfront" inputmode="decimal" value="0"></td>
+      </tr>
+      <tr>
+        <td><input id="o2n" aria-label="Option 2 name" value="1-year, all upfront"></td>
+        <td><input id="o2t" aria-label="Option 2 term in months" inputmode="numeric" value="12"></td>
+        <td><input id="o2d" aria-label="Option 2 discount percent versus on-demand" inputmode="decimal" value="30"></td>
+        <td><input id="o2u" aria-label="Option 2 percent of the total paid upfront" inputmode="decimal" value="100"></td>
+      </tr>
+      <tr>
+        <td><input id="o3n" aria-label="Option 3 name" value="3-year, no upfront"></td>
+        <td><input id="o3t" aria-label="Option 3 term in months" inputmode="numeric" value="36"></td>
+        <td><input id="o3d" aria-label="Option 3 discount percent versus on-demand" inputmode="decimal" value="42"></td>
+        <td><input id="o3u" aria-label="Option 3 percent of the total paid upfront" inputmode="decimal" value="0"></td>
+      </tr>
+      <tr>
+        <td><input id="o4n" aria-label="Option 4 name" value="3-year, all upfront"></td>
+        <td><input id="o4t" aria-label="Option 4 term in months" inputmode="numeric" value="36"></td>
+        <td><input id="o4d" aria-label="Option 4 discount percent versus on-demand" inputmode="decimal" value="52"></td>
+        <td><input id="o4u" aria-label="Option 4 percent of the total paid upfront" inputmode="decimal" value="100"></td>
+      </tr>
+      </tbody>
+    </table></div>
+    <div class="grid">
+      <div><label for="rate">Your cost of capital (% per year)</label><input id="rate" inputmode="decimal" value="0"></div>
+    </div>
+    <p class="note">Leave it at 0 to compare nominal dollars. A positive rate discounts money paid upfront, which is what makes an all-upfront option less attractive than its headline discount.</p>
+    <button type="button" id="analyze">Find the best commitment</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your usage, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <div class="scroll"><table id="methods"><thead><tr><th>Option</th><th class="n">Commit / hour</th><th class="n">Covers</th><th class="n">Used</th><th class="n">Saves / month</th><th class="n">Saves</th><th class="n">Upfront payback</th><th class="n">If usage −30%</th></tr></thead><tbody></tbody></table></div>
+    <h3>Savings against how much you commit (best option)</h3>
+    <div id="chart" role="img" aria-label="Line chart of percentage savings against on-demand as the committed level rises"></div>
+    <p class="note" id="chart-note"></p>
+    <h3>Stress test: what if usage changes after you commit? (best option)</h3>
+    <div class="scroll"><table id="stress"><thead><tr><th>Usage vs what you pasted</th><th class="n">Savings vs on-demand</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Commitment model:</strong> a commitment of C dollars per hour is paid every hour. Usage priced at on-demand U costs U×(1−d) while covered, so C covers x = C/(1−d) of usage each hour and the rest is billed on demand: hourly cost = C + max(0, U − x). That cost is convex in x, and its minimum is where usage exceeds x exactly (1−d) of the time, so the optimum is the d-quantile of your usage. The tool evaluates every breakpoint in your data rather than assuming a shape. <strong>Cost of capital:</strong> a share f paid upfront over T months is converted to a present-value discount, 1 − (1−d)×(f×T/A + 1 − f), where A is the sum of monthly discount factors; at 0% it changes nothing. <strong>Payback:</strong> upfront paid divided by the monthly benefit of running the commitment. <strong>Stress:</strong> the chosen commitment is held fixed while every usage value is scaled.</p>
+    <p><strong>Not modelled:</strong> Spot pricing, instance-size and region flexibility rules of a particular product, Reserved Instance marketplace resale or exchange, service-specific eligibility, taxes and credits, and prices changing during your term. <strong>Unverified:</strong> the maths is unit-tested against closed forms and brute-force search only; it has not been compared with any cloud provider's own recommendation engine, and AWS pricing is not fetched.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I buy a Savings Plan or Reserved Instances?</h3>
+    <p>Both trade a fixed hourly commitment for a discount, and the arithmetic is the same: you pay the commitment every hour whether you use it or not. Savings Plans are broader, applying across instance sizes, and in some cases families and services, while Reserved Instances are tied to an instance type and give up flexibility for a sometimes larger discount. Enter the effective discount from your own quote for each and this tool shows which saves more on your actual usage pattern.</p>
+    <h3>How much should I commit to?</h3>
+    <p>Less than your peak and usually less than your average. Each dollar of commitment is used only in the hours when usage is at least that high, and it pays off only if that happens more often than one minus the discount. With a 30% discount, cover the level your usage exceeds 70% of the time, which is the 30th percentile of hourly usage. The tool finds that level from your own data and shows the savings curve around it.</p>
+    <h3>What is the break-even utilization of a commitment?</h3>
+    <p>It equals one minus the discount. A commitment with a 30% discount breaks even if the committed capacity is used 70% of the time, and loses money below that. A 3-year commitment at a 50% discount breaks even at 50% utilization, but it locks that spend in for three years, so the risk is that usage falls, not the discount.</p>
+    <h3>Is a 3-year commitment worth it?</h3>
+    <p>It has the highest headline discount and the highest downside. The stress table shows your savings if usage were 50%, 70%, 85%, 115% or 130% of what you pasted. If savings turn negative at 70%, a 3-year term is a bet that your workload will not shrink. Committing to the always-on base and leaving the peaks on demand keeps most of the saving with much less regret.</p>
+    <h3>Does paying upfront beat no upfront?</h3>
+    <p>Only if the extra discount exceeds what the money could earn elsewhere. Enter your cost of capital and the tool converts each option to a present-value discount, so an all-upfront option with a slightly higher headline discount can lose to no-upfront when money is expensive. It also shows how many months of running the commitment it takes to recover the upfront payment.</p>
+    <h3>Where do I get the hourly usage numbers?</h3>
+    <p>Export hourly or daily on-demand-equivalent cost for the service from your cloud billing tool, one value per line, or a two-column CSV with the date first. Four or more weeks is better than one, and include a month-end if you have one. Daily totals work too; choose per-day in the dropdown.</p>
+    <h3>Is my usage data uploaded anywhere?</h3>
+    <p>No. Everything is computed in this browser tab. There are no accounts, cookies or analytics vendors, and no prices are looked up, so you type in the discounts from your own quote.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a review of your own bill or a qualified FinOps practitioner. Results are estimates from the numbers you enter; they do not guarantee what you will pay. A commitment is generally non-cancellable, so check the terms of your own agreement before buying. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Amazon Web Services, Inc. or any cloud provider. AWS, Savings Plans and Reserved Instances are trademarks of their owners and are named only to describe what this tool models.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your usage data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Before committing spend, trim it: <a href="../lambda-memory-rightsizer/">Lambda Memory Rightsizer</a> finds the cheapest memory size for a Lambda function from its CloudWatch REPORT lines. <a href="../dynamodb-capacity-mode-advisor/">DynamoDB Capacity Mode Advisor</a> prices a table on-demand vs provisioned from its consumed capacity. <a href="../s3-storage-class-savings/">S3 Storage Class Savings</a> estimates the net saving of S3 lifecycle transitions from an inventory report.</p>
+    <p>Also see the <a href="../actions-minutes-estimator/">GitHub Actions minutes estimator</a>, the <a href="../llm-api-pricing-calculator/">LLM API pricing calculator</a> and the <a href="../usage-based-pricing-simulator/">usage-based pricing simulator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, parseProfile, steadyProfile, curve, sampleText, defaultOptions, reportCsv, pct, signedPct, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (id) => { const v = $("#" + id).value.trim().replace(/,/g, ""); return v === "" ? NaN : Number(v); };
+    let last = null;
+
+    function readOptions() {
+      const out = [];
+      for (let i = 1; i <= 4; i++) {
+        const label = $("#o" + i + "n").value.trim() || "Option " + i;
+        const d = num("o" + i + "d");
+        if (!Number.isFinite(d)) continue;
+        out.push({ label, termMonths: num("o" + i + "t"), discount: d / 100, upfrontShare: (num("o" + i + "u") || 0) / 100 });
+      }
+      return out;
+    }
+
+    function chart(best, values) {
+      const pts = curve(values, best.dEff, 60);
+      const W = 640, H = 260, L = 48, R = 12, T = 12, B = 34;
+      const xs = pts.map((p) => p.x), ys = pts.map((p) => p.savingsPct);
+      const xMax = Math.max(...xs) || 1;
+      const yMin = Math.min(0, ...ys), yMax = Math.max(0.01, ...ys);
+      const px = (x) => L + (x / xMax) * (W - L - R);
+      const py = (y) => T + (1 - (y - yMin) / (yMax - yMin)) * (H - T - B);
+      const path = pts.map((p, i) => (i ? "L" : "M") + px(p.x).toFixed(1) + " " + py(p.savingsPct).toFixed(1)).join(" ");
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => `<text x="${px(f * xMax).toFixed(1)}" y="${H - 12}" font-size="11" text-anchor="middle" fill="#4c5a68">${money(f * xMax)}</text>`).join("");
+      const yt = [yMin, (yMin + yMax) / 2, yMax].map((y) => `<text x="${L - 6}" y="${(py(y) + 4).toFixed(1)}" font-size="11" text-anchor="end" fill="#4c5a68">${pct(y, 0)}</text>`).join("");
+      const zero = `<line x1="${L}" x2="${W - R}" y1="${py(0).toFixed(1)}" y2="${py(0).toFixed(1)}" stroke="#9aa8b4" stroke-dasharray="4 3"/>`;
+      const mark = `<circle cx="${px(best.x).toFixed(1)}" cy="${py(best.savingsPct).toFixed(1)}" r="5" fill="#1f5f86"/>`;
+      return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${zero}<path d="${path}" fill="none" stroke="#1f5f86" stroke-width="2"/>${mark}${ticks}${yt}<text x="${(L + W - R) / 2}" y="${H - 0}" font-size="11" text-anchor="middle" fill="#4c5a68">on-demand-equivalent dollars per hour covered</text></svg>`;
+    }
+
+    function run() {
+      let values;
+      const rate = num("steady-rate"), share = num("steady-share");
+      if (Number.isFinite(rate) && Number.isFinite(share)) {
+        if (!(rate > 0) || share < 0 || share > 100) { status.textContent = "Steady workload: enter a positive hourly rate and a share of hours between 0 and 100."; report.hidden = true; return false; }
+        values = steadyProfile(rate, share / 100);
+      } else {
+        const p = parseProfile($("#usage").value, $("#unit").value);
+        values = p.values;
+      }
+      const a = analyze({ values, options: readOptions(), annualRate: (num("rate") || 0) / 100 });
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const b = a.best;
+      $("#big").innerHTML = [
+        [money(Math.max(0, b.savingsPerMonth)), "Saved per month, best option"],
+        [money(b.commitPerHour) + "/hr", "Commitment to buy"],
+        [pct(b.coverage, 0), "Of your usage it covers"],
+        [b.paybackMonths == null ? "n/a" : b.paybackMonths === 0 ? "None due" : b.paybackMonths.toFixed(1) + " mo", "Upfront payback"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#methods tbody").innerHTML = a.ranked.map((r) => `<tr><td>${esc(r.label)}${r === b ? " (best)" : ""}</td><td class="n">${money(r.commitPerHour)}</td><td class="n">${pct(r.coverage, 0)}</td><td class="n">${pct(r.utilization, 0)}</td><td class="n">${money(r.savingsPerMonth)}</td><td class="n">${pct(r.savingsPct)}</td><td class="n">${r.paybackMonths == null ? "n/a" : r.paybackMonths === 0 ? "none" : r.paybackMonths.toFixed(1) + " mo"}</td><td class="n">${signedPct(r.downside30.savingsPct)}</td></tr>`).join("");
+      $("#chart").innerHTML = chart(b, values);
+      $("#chart-note").textContent = `Savings peak at ${money(b.x)}/hour of on-demand-equivalent usage covered (commitment ${money(b.commitPerHour)}/hour). Committing beyond that pays for idle hours; committing less leaves discount unused.`;
+      $("#stress tbody").innerHTML = b.stress.map((s) => `<tr><td>${Math.round(s.scale * 100)}%${s.scale === 1 ? " (as pasted)" : ""}</td><td class="n">${signedPct(s.savingsPct)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#usage").value = sampleText();
+      $("#steady-rate").value = ""; $("#steady-share").value = "";
+      defaultOptions().forEach((o, i) => {
+        $("#o" + (i + 1) + "n").value = o.label; $("#o" + (i + 1) + "t").value = o.termMonths;
+        $("#o" + (i + 1) + "d").value = o.discount * 100; $("#o" + (i + 1) + "u").value = o.upfrontShare * 100;
+      });
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented month of usage and round-number discounts, not real prices."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#usage").value = ""; $("#steady-rate").value = ""; $("#steady-share").value = ""; report.hidden = true; last = null; status.textContent = "Paste your usage, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "commitment-breakeven.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

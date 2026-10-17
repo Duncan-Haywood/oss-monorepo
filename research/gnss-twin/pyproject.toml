@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnss-twin"
+version = "0.1.0"
+description = "Satellite-positioning twin with white range noise vs a real receiver with correlated multipath: exact HDOP and bias-to-position maps, the temporal-averaging floor, the coverage of a calibrated error radius, and the false-alarm rate of a residual integrity test"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

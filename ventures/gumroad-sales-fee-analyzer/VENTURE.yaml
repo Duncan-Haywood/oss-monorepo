@@ -1,0 +1,66 @@
+name: gumroad-sales-fee-analyzer
+description: >-
+  Free browser tool that turns a Gumroad seller sales CSV into the
+  service fee actually observed, take-home per order, net revenue per product and
+  buyer, repeat-buyer share, refunds, withdrawal costs, funds still clearing and
+  the price needed for a target take-home. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Closest siblings:
+# fiverr-earnings-fee-analyzer and upwork-earnings-fee-analyzer (same archetype on
+# other platforms; nothing reads a Gumroad seller's sales file), patreon-fee-calculator
+# (prices a hypothetical, reads no history). Digital-product sellers (ebooks,
+# templates, courses, presets) get a payout that is less than sales and no per-product view.
+#
+# First visitor: Gumroad creators asking "how much did Gumroad really take", "why is my
+# payout lower than my sales"; phrases "gumroad fee calculator", "gumroad payout
+# calculator". Volume not measured with an external tool.
+#
+# What makes it more than a sum: fee observed from the file, not assumed; refunds,
+# chargebacks and payout costs separated; net per product and per buyer, repeat buyers;
+# break-even price for a target take-home. The file never leaves the browser (a test
+# asserts no network calls), so the portfolio holds no seller data.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Nothing paid.
+#
+# Liability: arithmetic on the user's file and typed costs; default fee percentage is an
+# assumption stated on the page; no tax or financial advice; independent-of-Gumroad clause.
+#
+# Unverified: column names are guesses matched by alias; no real Gumroad export was
+# available. First user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Gumroad sellers will run a no-signup analysis of an earnings export they
+      already hold to see their real take-home and what to charge, before building
+      a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing net per product, repeat-buyer share and the price needed for a target
+      take-home changes at least one product price or product priority, which is the
+      reason to come back with each new export.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong take-home figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gumroad-sales-fee-analyzer/
+  analytics: null

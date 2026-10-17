@@ -1,0 +1,59 @@
+name: section-83b-election-calculator
+description: >-
+  Free browser tool for founders and startup employees with vesting restricted
+  stock: compares tax with and without a Section 83(b) election (tax at grant,
+  tax at each monthly vest, break-even sale value, tax wasted if the holder
+  leaves before vesting) and shows the 30-day filing deadline. No valuation or
+  tax-table data is embedded. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "83(b) election startup founder stock tax": top match 0.24
+# (bonus-depreciation-calculator, unrelated). Adjacent ventures cover ISO/AMT,
+# QSBS, RSU withholding and SAFE dilution, none the restricted-stock election.
+# Buyers have money and a hard deadline: a founder or early employee decides
+# once, within 30 days, on equity that may later be worth six or seven figures,
+# and law-firm or equity-platform tools are the paid alternative.
+#
+# First visitor: r/startups, r/ycombinator and founder-forum threads on
+# "should I file an 83(b)", Hacker News equity threads, searches "83(b) election
+# calculator" and "83(b) election deadline"; volume not measured with an
+# external tool.
+#
+# Privacy is the liability boundary: grants never leave the browser (tests
+# assert no network calls). No company, platform or law firm is named and no
+# valuation is asserted: the visitor supplies every number.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: illustrative estimates, not advice; omissions stated on the page;
+# points the reader to a tax professional. The deadline is stated as 30 calendar
+# days and not extendable, with the weekend/holiday roll flagged as unreliable.
+# Unverified: hand calculation and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Founders and early startup employees will use a no-signup tool that shows
+      the tax at grant, the break-even and the forfeiture risk of an 83(b)
+      election, and will come back for the deadline date.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the result contradicts their own arithmetic on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/section-83b-election-calculator/
+  analytics: null

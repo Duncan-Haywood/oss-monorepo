@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nanny Tax Calculator: True Cost of a Household Employee — Free</title>
+  <meta name="description" content="Free nanny tax calculator: the real yearly and hourly cost of a household employee with Social Security, Medicare, FUTA and state unemployment, plus a take-home-to-gross converter. Nothing uploaded.">
+  <meta property="og:title" content="Nanny tax calculator">
+  <meta property="og:description" content="What a nanny really costs once payroll taxes are added, and the gross rate behind a take-home number. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23166534'/%3E%3Cpath d='M6 16 16 7l10 9v9H6z' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Nanny Tax Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Household employer tax calculator: the true yearly and hourly cost of a nanny, Social Security and Medicare both sides, FUTA, state unemployment, take-home pay and a net-to-gross converter. Runs in your browser.", "featureList": "True cost per hour, Schedule H amount, net-to-gross converter, hours sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to pay nanny taxes?", "acceptedAnswer": {"@type": "Answer", "text": "If you pay a household employee (nanny, housekeeper, home health aide) cash wages at or above the yearly IRS threshold, you owe Social Security and Medicare tax on those wages, and you may owe federal unemployment (FUTA) tax once wages reach $1,000 in a calendar quarter. A nanny you hire directly is usually your employee, not an independent contractor, even if you pay them in cash or they ask for it."}}, {"@type": "Question", "name": "How much does it really cost to employ a nanny?", "acceptedAnswer": {"@type": "Answer", "text": "Wages plus the employer half of Social Security and Medicare (7.65%), FUTA (as little as $42 a year with the state credit), state unemployment tax and workers' compensation where required. This tool adds them up for your hours and shows the true cost per hour. If you also pay the nanny's half of FICA the cost rises by another 7.65%."}}, {"@type": "Question", "name": "What is a nanny's take-home pay if I agree to a net hourly rate?", "acceptedAnswer": {"@type": "Answer", "text": "Families often agree to a take-home number. Switch the rate to 'take-home' and the tool grosses it up: at $25 an hour net with only FICA withheld the gross is about $27.07, and the extra 7.65% employer share and other taxes sit on top of that."}}, {"@type": "Question", "name": "How do I file household employment taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Report them on Schedule H with your Form 1040, withhold the employee's share from pay, and give the nanny a Form W-2 by January 31. You can avoid a separate quarterly deposit by raising your own W-4 withholding or estimated tax payments. Payroll services do the same work for a fee; this tool only does the arithmetic."}}, {"@type": "Question", "name": "Does the nanny tax apply if I pay under the threshold?", "acceptedAnswer": {"@type": "Answer", "text": "Below the yearly household-employee threshold no Social Security or Medicare tax is due, but FUTA can still apply if you pay $1,000 or more in any quarter. Check the current-year thresholds in IRS Publication 926 and type them in; they change every year."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type, and state rules (unemployment tax, paid leave, disability, minimum wage, overtime) vary. Confirm the figures with the IRS and your state, or a qualified professional."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">NANNY TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a nanny really cost once the payroll taxes are in?</h1>
+    <p>Type the hourly rate, hours and your state's unemployment figures. The tool adds Social Security and Medicare on both sides, federal and state unemployment and workers' compensation, shows what the nanny takes home, and can turn a take-home number into the gross rate that produces it.</p>
+    <p class="note">Arithmetic on assumptions you type. Not tax, legal or financial advice. The example figures are placeholders, not a quote for any state or year; check the tax-year figures against IRS Publication 926.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The pay</h2>
+      <div class="grid">
+        <div><label for="hourlyRate">Hourly rate ($)</label><input id="hourlyRate" type="number" step="any" value="0"></div>
+        <div><label for="rateIsNet">That rate is</label><select id="rateIsNet"><option value="0">Gross pay (before the nanny&#x27;s taxes)</option><option value="1">Take-home pay (I&#x27;ll gross it up)</option></select></div>
+        <div><label for="hoursPerWeek">Hours per week</label><input id="hoursPerWeek" type="number" step="any" value="0"></div>
+        <div><label for="weeksPaid">Weeks paid per year</label><input id="weeksPaid" type="number" step="any" value="0"></div>
+        <div><label for="annualBonus">Bonus and other cash pay ($ a year)</label><input id="annualBonus" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Federal tax choices</h2>
+      <div class="grid">
+        <div><label for="ficaApplies">Social Security and Medicare apply</label><select id="ficaApplies"><option value="1">Yes (the usual case)</option><option value="0">No (an exempt worker)</option></select></div>
+        <div><label for="employerPaysEmployeeShare">The nanny's 7.65% share is</label><select id="employerPaysEmployeeShare"><option value="0">Withheld from their pay</option><option value="1">Paid by me on top</option></select></div>
+        <div><label for="fedWithholdingPct">Income tax withheld, if the nanny asks (%)</label><input id="fedWithholdingPct" type="number" step="any" value="0"></div>
+        <div><label for="futaCreditApplies">State unemployment tax paid on time (FUTA credit)</label><select id="futaCreditApplies"><option value="1">Yes</option><option value="0">No</option></select></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. State costs and tax-year figures</h2>
+      <div class="grid">
+        <div><label for="stateUiRatePct">State unemployment rate (%)</label><input id="stateUiRatePct" type="number" step="any" value="0"></div>
+        <div><label for="stateUiWageBase">State unemployment wage base ($)</label><input id="stateUiWageBase" type="number" step="any" value="0"></div>
+        <div><label for="workersCompYear">Workers' compensation premium ($ a year)</label><input id="workersCompYear" type="number" step="any" value="0"></div>
+        <div><label for="ssWageBase">Social Security wage base ($)</label><input id="ssWageBase" type="number" step="any" value="0"></div>
+        <div><label for="householdThreshold">Household employee coverage threshold ($)</label><input id="householdThreshold" type="number" step="any" value="0"></div>
+        <div><label for="futaWageBase">FUTA wage base ($)</label><input id="futaWageBase" type="number" step="any" value="0"></div>
+      </div>
+      <button type="button" id="run">Work out the real cost</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Do I have to pay nanny taxes?</h3>
+      <p>If you pay a household employee (nanny, housekeeper, home health aide) cash wages at or above the yearly IRS threshold, you owe Social Security and Medicare tax on those wages, and you may owe federal unemployment (FUTA) tax once wages reach $1,000 in a calendar quarter. A nanny you hire directly is usually your employee, not an independent contractor, even if you pay them in cash or they ask for it.</p>
+      <h3>How much does it really cost to employ a nanny?</h3>
+      <p>Wages plus the employer half of Social Security and Medicare (7.65%), FUTA (as little as $42 a year with the state credit), state unemployment tax and workers&#x27; compensation where required. This tool adds them up for your hours and shows the true cost per hour. If you also pay the nanny&#x27;s half of FICA the cost rises by another 7.65%.</p>
+      <h3>What is a nanny&#x27;s take-home pay if I agree to a net hourly rate?</h3>
+      <p>Families often agree to a take-home number. Switch the rate to &#x27;take-home&#x27; and the tool grosses it up: at $25 an hour net with only FICA withheld the gross is about $27.07, and the extra 7.65% employer share and other taxes sit on top of that.</p>
+      <h3>How do I file household employment taxes?</h3>
+      <p>Report them on Schedule H with your Form 1040, withhold the employee&#x27;s share from pay, and give the nanny a Form W-2 by January 31. You can avoid a separate quarterly deposit by raising your own W-4 withholding or estimated tax payments. Payroll services do the same work for a fee; this tool only does the arithmetic.</p>
+      <h3>Does the nanny tax apply if I pay under the threshold?</h3>
+      <p>Below the yearly household-employee threshold no Social Security or Medicare tax is due, but FUTA can still apply if you pay $1,000 or more in any quarter. Check the current-year thresholds in IRS Publication 926 and type them in; they change every year.</p>
+      <h3>Is this tax advice?</h3>
+      <p>No. It is arithmetic on figures you type, and state rules (unemployment tax, paid leave, disability, minimum wage, overtime) vary. Confirm the figures with the IRS and your state, or a qualified professional.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your nanny is an employee (usually yes), your state's paid-leave, disability, minimum-wage and overtime rules, local payroll taxes, the child and dependent care credit or dependent care FSA you may claim for these wages, Medicare surtax on high earners, and whether a payroll service is worth its fee. Rates and thresholds change every year.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../dependent-care-fsa-vs-credit-calculator/">dependent care FSA vs credit calculator</a> and the <a href="../estimated-tax-penalty-calculator/">estimated tax penalty calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with the IRS, your state agency and a qualified professional before you file or pay anyone.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result;
+      h += `<div class="finding"><h4>Employing this nanny costs you ${money(r.employerCost)} a year</h4><p>That is ${money2(r.loadedHourly)} for every hour worked, ${pct(a.overheadPct)} above the ${money(r.wages)} of wages. Gross rate ${money2(a.grossHourly)} an hour; ${money(a.weeklyGross)} gross a week.</p></div>`;
+      h += `<div class="finding"><h4>The nanny takes home ${money(r.takeHome)} a year (${money2(r.takeHomeHourly)} an hour)</h4><p>${r.employeeShare ? (a.opts.employerPaysEmployeeShare === 1 ? "You pay their " + money(r.employeeShare) + " Social Security and Medicare share on top, so it is not taken from their pay." : money(r.employeeShare) + " of Social Security and Medicare is withheld from their pay.") : "No Social Security or Medicare is due on this pay."}</p></div>`;
+      h += `<div class="finding"><h4>Where the cost above wages goes</h4>${table(["Item", "Per year"], [["Employer Social Security and Medicare", money(r.employerShare)], ["Nanny's share you pay on top", money(a.opts.employerPaysEmployeeShare === 1 ? r.employeeShare : 0)], ["Federal unemployment (FUTA)", money(r.futa)], ["State unemployment", money(r.stateUi)], ["Workers' compensation", money(r.workersComp)]])}<p>Amount that lands on Schedule H for Social Security, Medicare and FUTA: ${money(a.scheduleHLine)} (${money(a.quarterlyEmployerShare)} a quarter of the FICA part if you prefer to set money aside by quarter).</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h4>What the hours do to the cost</h4>${table(["Hours a week", "Wages", "Total cost", "Cost per hour"], a.hoursGrid.map((g) => [g.hours, money(g.wages), money(g.employerCost), money2(g.loadedHourly)]))}</div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "nanny-tax.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

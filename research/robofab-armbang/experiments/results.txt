@@ -1,0 +1,94 @@
+# robofab-armbang: min-jerk vs time-optimal carry (pick -> lift above place), six free parts
+# shoulder 0.1 m, links l1=l2=L, link mass 1.0 kg/m, gripper 0.1 kg, mu 0.5, density 1240.0; all assumed
+# robofab-reach minimum link on this grid: 0.08 m
+
+## L=0.08 m, torque limit 2.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.047    0.036    23%   0.238    0.282    1.18          1.001
+rail_r      0.036    0.027    26%   0.380    0.640    1.68          1.002
+finger_a    0.044    0.033    25%   0.171    0.262    1.53          1.001
+finger_b    0.050    0.032    35%   0.325    0.628    1.93          1.005
+link        0.042    0.028    33%   0.082    0.168    2.05          1.005
+cover       0.053    0.038    28%   1.317    3.030    2.30          1.007
+total       0.272    0.195    28%
+
+## L=0.08 m, torque limit 5.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.029    0.023    21%   0.591    0.700    1.19          1.001
+rail_r      0.022    0.017    23%   0.996    1.609    1.61          1.002
+finger_a    0.027    0.021    24%   0.427    0.654    1.53          1.001
+finger_b    0.032    0.021    36%   0.806    1.533    1.90          1.005
+link        0.027    0.018    35%   0.202    0.426    2.11          1.005
+cover       0.034    0.024    30%   3.242    7.799    2.41          1.007
+total       0.171    0.122    28%
+
+## L=0.08 m, torque limit 10.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.021    0.016    23%   1.107    1.398    1.26          1.001
+rail_r      0.016    0.012    25%   1.902    3.222    1.69          1.002
+finger_a    0.019    0.015    23%   0.847    1.305    1.54          1.001
+finger_b    0.023    0.015    37%   1.568    3.042    1.94          1.005
+link        0.019    0.012    34%   0.409    0.854    2.09          1.005
+cover       0.024    0.017    30%   6.538   15.720    2.40          1.007
+total       0.122    0.086    29%
+
+## L=0.12 m, torque limit 2.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.088    0.071    19%   0.276    0.387    1.40          1.005
+rail_r      0.081    0.068    16%   0.285    0.387    1.36          1.004
+finger_a    0.119    0.090    24%   0.164    0.263    1.60          1.007
+finger_b    0.104    0.083    20%   0.165    0.265    1.60          1.006
+link        0.129    0.096    25%   0.034    0.057    1.69          1.008
+cover       0.152    0.109    28%   0.569    1.033    1.81          1.008
+total       0.673    0.518    23%
+
+## L=0.12 m, torque limit 5.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.056    0.046    18%   0.684    0.963    1.41          1.005
+rail_r      0.053    0.043    19%   0.675    0.976    1.45          1.005
+finger_a    0.077    0.058    25%   0.372    0.657    1.77          1.007
+finger_b    0.064    0.053    17%   0.449    0.676    1.50          1.006
+link        0.078    0.062    21%   0.086    0.144    1.68          1.007
+cover       0.091    0.070    23%   1.493    2.664    1.78          1.008
+total       0.419    0.332    21%
+
+## L=0.12 m, torque limit 10.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.041    0.033    20%   1.279    1.921    1.50          1.005
+rail_r      0.038    0.031    19%   1.324    1.955    1.48          1.004
+finger_a    0.056    0.041    26%   0.692    1.311    1.89          1.007
+finger_b    0.045    0.038    16%   0.918    1.359    1.48          1.006
+link        0.056    0.044    21%   0.163    0.290    1.78          1.007
+cover       0.063    0.050    21%   3.059    5.361    1.75          1.008
+total       0.299    0.236    21%
+
+## L=0.2 m, torque limit 2.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.127    0.098    23%   0.150    0.198    1.32          1.003
+rail_r      0.116    0.092    21%   0.143    0.208    1.46          1.003
+finger_a    0.142    0.110    22%   0.102    0.138    1.36          1.004
+finger_b    0.134    0.107    20%   0.096    0.139    1.45          1.004
+link        0.145    0.115    21%   0.022    0.032    1.46          1.005
+cover       0.151    0.122    19%   0.357    0.532    1.49          1.005
+total       0.815    0.645    21%
+
+## L=0.2 m, torque limit 5.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.080    0.062    22%   0.380    0.530    1.39          1.004
+rail_r      0.073    0.059    19%   0.357    0.512    1.43          1.000
+finger_a    0.091    0.071    22%   0.244    0.365    1.50          1.005
+finger_b    0.085    0.069    19%   0.239    0.347    1.45          1.004
+link        0.093    0.073    21%   0.054    0.081    1.51          1.005
+cover       0.097    0.078    20%   0.870    1.331    1.53          1.005
+total       0.519    0.412    21%
+
+## L=0.2 m, torque limit 10.0 N m
+part       T_mj s  T_opt s  saved  F_mj N  F_opt N F ratio peak tau/limit
+rail_l      0.057    0.045    22%   0.753    1.082    1.44          1.004
+rail_r      0.052    0.042    19%   0.703    1.005    1.43          1.000
+finger_a    0.067    0.051    24%   0.453    0.743    1.64          1.005
+finger_b    0.061    0.049    20%   0.466    0.693    1.49          1.004
+link        0.066    0.052    21%   0.107    0.162    1.52          1.005
+cover       0.069    0.055    20%   1.729    2.655    1.54          1.005
+total       0.372    0.294    21%
+

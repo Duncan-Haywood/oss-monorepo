@@ -9,6 +9,8 @@ that rate. **After using this, you can quote a defensible per-stay price and
 know the minimum occupancy your facility needs to break even, which used to
 take a spreadsheet and a guess about what other local kennels charge.**
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/
+
 Open `index.html` directly, or serve this directory with `python3 -m
 http.server`. The deterministic calculation works with no account, API key,
 upload, or paid dependency.

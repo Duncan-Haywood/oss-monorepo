@@ -1,0 +1,68 @@
+name: exemption-certificate-audit-check
+description: >-
+  Free browser tool for wholesalers, distributors and contractors that invoice customers without sales tax: paste the
+  exempt sales and the exemption or resale certificates on file. It matches each sale to a certificate for that
+  customer, state and reason, flags the ones with none, a certificate for another state, an expired one, one signed
+  after the sale, or one for a different reason, totals the tax at stake at the user's state rates, ranks the customers
+  to chase, and writes a certificate request letter for each. Also lists certificates about to lapse. Downloads a
+  chase list, letters, a per-sale result file and a renewals list. The lists are read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py scored the niche 0.24 at most (against
+# equipment-auction-buyer-premium-calculator and economic-nexus-threshold-tracker, which answer other questions);
+# economic-nexus-threshold-tracker says where to collect tax, nothing here checks the paperwork behind a sale made
+# without it.
+# Search phrases: "resale certificate audit", "sales tax exemption certificate missing audit", "how to prepare for
+# a sales tax audit exempt sales", "exemption certificate tracker", "expired resale certificate".
+# Volume not measured with an external tool. The pain is concrete: in a state sales tax audit the seller owes the tax
+# on an exempt sale it cannot support with a valid certificate, and exempt-sale testing is a standard audit step.
+#
+# Who: the controller, bookkeeper or owner of a small distributor, wholesaler, fabricator or contractor with a few
+# hundred exempt-customer accounts and certificates in a folder or ERP notes. Existing answers are a spreadsheet,
+# the certificate module of paid tax software (Avalara CertCapture, Sovos and similar, priced for larger firms), or
+# nothing until the audit letter arrives. First visitors: r/accounting, r/smallbusiness, r/Bookkeeping, and anyone
+# searching the phrases above after an audit notice.
+#
+# What makes it more than a lookup: sale-to-certificate matching on customer, state, reason and date, a distinct
+# result for each way a certificate fails (a late certificate is not a missing one), exposure in whole cents by
+# customer and by state, a ranked chase list with the exact ask per customer, and name-mismatch warnings.
+#
+# Path to revenue (payment rails stay off): lead magnet for small-business accounting and sales-tax-compliance
+# audiences. A paid version, if usage appears, is a saved certificate register with expiry reminders and a
+# customer-facing upload link behind an env-var switch; not built.
+#
+# Liability: it reads the user's own lists, shows the result per sale, states what it does not decide (state
+# acceptance of late certificates, validity periods, buyer eligibility, look-back periods, whether tax is owed at all),
+# applies only dates and rates the user enters, and carries the no-warranty, independent-of-any-tax-authority and
+# customer-data clauses.
+#
+# Unverified: column names are alias-matched and were not run against a real ERP export; rates default to a
+# placeholder the user must replace; no state rules are encoded on purpose.
+
+hypotheses:
+  - claim: >-
+      A controller or bookkeeper at a small wholesaler will paste an exempt-sales export and a certificate list into
+      a no-upload page to see unsupported sales before an audit, because the alternative is a manual lookup of each
+      invoice against a folder of PDFs, and paid certificate management is priced for larger firms.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-03-01.
+  - A user reports a sale marked covered that a certificate does not support, or one marked unsupported that a certificate covers, on a normal export.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/exemption-certificate-audit-check/
+  analytics: null

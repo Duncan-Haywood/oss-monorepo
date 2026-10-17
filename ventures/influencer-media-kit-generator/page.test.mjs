@@ -153,3 +153,31 @@ test("the Kitly comparison page FAQPage JSON-LD matches the visible copy verbati
     assert.ok(vsKitly.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
+
+test('index links the generic-method comparison page and the sitemap lists it too', async () => {
+  const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.match(index, /vs-assembling-one-by-hand\.html/);
+  assert.match(sitemap, /vs-assembling-one-by-hand\.html/);
+});
+
+test("the by-hand comparison page links back, names no specific product, and carries the standard clauses", async () => {
+  const vsByHand = await readFile(new URL("./vs-assembling-one-by-hand.html", import.meta.url), "utf8");
+  assert.match(vsByHand, /<a href="\.\/">/);
+  assert.match(vsByHand, /names no specific document editor, product, or company/i);
+  assert.match(vsByHand, /No warranty/i);
+  assert.match(vsByHand, /Best-effort hosting, no SLA/i);
+  assert.match(vsByHand, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the by-hand comparison page FAQPage JSON-LD matches the visible copy verbatim", async () => {
+  const vsByHand = await readFile(new URL("./vs-assembling-one-by-hand.html", import.meta.url), "utf8");
+  const match = vsByHand.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, "no FAQPage schema found on vs-assembling-one-by-hand.html");
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length > 0);
+  for (const { name, acceptedAnswer } of schema.mainEntity) {
+    assert.ok(vsByHand.includes(`<h3>${name}</h3>`), `FAQ question "${name}" has no matching <h3>`);
+    assert.ok(vsByHand.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});

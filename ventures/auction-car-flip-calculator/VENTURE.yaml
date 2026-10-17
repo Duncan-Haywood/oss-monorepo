@@ -1,0 +1,56 @@
+name: auction-car-flip-calculator
+description: >-
+  Free browser tool for people who buy cars at auction to repair and resell:
+  enter resale price, repair lines, the auction's buyer fee tiers, transport, tax,
+  holding and financing costs and a profit target, and get the max bid, the
+  break-even bid, profit across a ladder of bids, and a stress table of the max
+  bid under repair overruns and a lower resale price. No data leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). No vehicle-flip venture exists among the existing
+# ventures (equipment-auction-buyer-premium-calculator and
+# storage-auction-max-bid-calculator are the nearest, for other asset types).
+#
+# Why this niche: tens of thousands of small dealers and part-time flippers buy
+# repairable cars at online auctions. They bid against a clock, the buyer fee
+# depends on the bid, and repair cost is the largest unknown. A reverse solver that
+# shows how far the max bid moves under a repair overrun is the question they
+# actually ask, and the one auction sites do not answer.
+#
+# First visitor: people searching "salvage car flip calculator", "how much should I
+# bid on a copart car", "max bid calculator for car auction". Volume not measured.
+#
+# Liability boundary: arithmetic on user-typed figures; no auction fee schedules,
+# tax rates or vehicle values asserted; says what it does not model (title status,
+# hidden damage, licensing). No customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# lead magnet for a future hosted multi-vehicle inventory and P&L tracker.
+
+hypotheses:
+  - claim: >-
+      Auction car flippers will use a private, no-signup max-bid solver with tiered
+      buyer fees and a repair-overrun stress table before they bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auction-car-flip-calculator/
+  analytics: null

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Class Price and Minimum Optimizer: What to Charge Per Seat — Free</title>
+  <meta name="description" content="Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs, and get the per-seat price with the highest expected profit. Nothing uploaded.">
+  <meta property="og:title" content="Class price and minimum optimizer">
+  <meta property="og:description" content="What should I charge per seat when a class only runs if enough people sign up? Expected-profit price from your own past terms. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Class Price and Minimum Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the class price with the highest expected profit when a class only runs above a minimum enrolment, from your own past price and sign-up figures. Runs in your browser.", "featureList": "Profit-maximising class price, chance the class runs, fitted price elasticity, break-even seats, price sensitivity table, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What price should I charge for a class that only runs if enough people sign up?", "acceptedAnswer": {"@type": "Answer", "text": "Charge the price where the expected profit per class offered is highest. Raising the price lowers sign-ups, which raises the chance the class is cancelled for missing the minimum. The tool fits how sign-ups responded to the prices you tried, then sums the exact chance of every enrolment from zero to capacity and picks the best price."}}, {"@type": "Question", "name": "How does the tool turn past terms into a demand curve?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the price and average sign-ups from each past term. It fits a constant-elasticity curve to those points by least squares on their logarithms. A term that filled the room is marked with a plus and left out of the fit, because the true demand was higher than the seats."}}, {"@type": "Question", "name": "What does the minimum to run change?", "acceptedAnswer": {"@type": "Answer", "text": "A class below the minimum is cancelled, so you earn nothing but also pay no fixed cost. Raising the minimum protects you from running at a loss but cancels more classes. The result shows the chance the class runs at the best price."}}, {"@type": "Question", "name": "Can I trust the fitted elasticity?", "acceptedAnswer": {"@type": "Answer", "text": "Only as far as the data allows. Two prices fit any line exactly, and sign-ups also move with season, teacher and marketing. The tool warns on two-point fits and scattered data, and flags a best price outside the range you have tried."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Check refund, cancellation and consumer rules where you operate with a qualified advisor."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CLASS PRICE AND MINIMUM OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should I charge per seat when a class only runs if enough people sign up?</h1>
+    <p>Enter the price and average sign-ups from your past terms, plus seats, minimum to run and what a class costs you. The tool fits how sign-ups responded to price, sums the exact chance of every enrolment, and shows the price with the highest expected profit per class offered, the chance the class runs, and what it gains over your current price.</p>
+    <p class="note">Arithmetic on figures you type. Not business, accounting or financial advice. The example figures are placeholders, not any school's prices, costs or sign-ups.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Your class</h2>
+      <div class="grid">
+        <div><label for="capacity">Seats per class</label><input id="capacity" type="number" step="any" value="0"><p class="note">Room or teacher limit. Extra sign-ups go on a wait-list.</p></div>
+        <div><label for="minToRun">Minimum sign-ups to run the class</label><input id="minToRun" type="number" step="any" value="0"><p class="note">Below this you cancel. Zero means you always run.</p></div>
+        <div><label for="fixedCost">Cost of running one class ($)</label><input id="fixedCost" type="number" step="any" value="0"><p class="note">Instructor pay, room and anything paid whether 3 or 12 students show.</p></div>
+        <div><label for="varCost">Extra cost per student ($)</label><input id="varCost" type="number" step="any" value="0"><p class="note">Materials, books or payment fees for each enrolled student.</p></div>
+        <div><label for="currentPrice">Your current price per student ($)</label><input id="currentPrice" type="number" step="any" value="0"><p class="note">Optional. Shows what the best price gains over it.</p></div>
+        <div><label for="elasticity">Price elasticity, if you know it</label><input id="elasticity" type="number" step="any" value="0"><p class="note">Leave at 0 to fit it from the past terms below. 1.5 means a 10% price rise loses about 15% of sign-ups.</p></div>
+        <div><label for="classesPerMonth">Classes you offer per month</label><input id="classesPerMonth" type="number" step="any" value="0"><p class="note">Used only to turn a per-class gain into a monthly one.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-p">
+      <h2 id="h-p">Past terms</h2>
+      <div class="grid">
+        <div><label for="points">Price and average sign-ups, one pair per term</label><input id="points" type="text" value=""><p class="note">Write price:signups separated by spaces, like 140:10 170:7.5. Put + after a term that filled the room and had a wait-list, like 110:13+, because real demand was higher.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best price</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">Needs at least two different prices that did not fill the room, or an elasticity you enter above.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions owners ask</h2>
+      <h3>What price should I charge for a class that only runs if enough people sign up?</h3>
+      <p>Charge the price where the expected profit per class offered is highest. Raising the price lowers sign-ups, which raises the chance the class is cancelled for missing the minimum. The tool fits how sign-ups responded to the prices you tried, then sums the exact chance of every enrolment from zero to capacity and picks the best price.</p>
+      <h3>How does the tool turn past terms into a demand curve?</h3>
+      <p>Enter the price and average sign-ups from each past term. It fits a constant-elasticity curve to those points by least squares on their logarithms. A term that filled the room is marked with a plus and left out of the fit, because the true demand was higher than the seats.</p>
+      <h3>What does the minimum to run change?</h3>
+      <p>A class below the minimum is cancelled, so you earn nothing but also pay no fixed cost. Raising the minimum protects you from running at a loss but cancels more classes. The result shows the chance the class runs at the best price.</p>
+      <h3>Can I trust the fitted elasticity?</h3>
+      <p>Only as far as the data allows. Two prices fit any line exactly, and sign-ups also move with season, teacher and marketing. The tool warns on two-point fits and scattered data, and flags a best price outside the range you have tried.</p>
+      <h3>Is this business or financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Check refund, cancellation and consumer rules where you operate with a qualified advisor.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Season and weekday effects, teacher reputation, marketing spend, repeat students who enrol again regardless of price, bundle and sibling discounts, refund and cancellation rules, and whether a lower price today trains customers to wait for discounts. Sign-ups are treated as independent draws whose average depends only on price.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a>, the <a href="../tutor-package-pricing-calculator/">tutor package pricing calculator</a> and the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_PRICES, money, money2, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; $("points").value = EXAMPLE_PRICES; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
+    const pct = (n) => Math.round(n * 100) + "%";
+    let last = null;
+    function run() {
+      const shared = {}; for (const k of KEYS) shared[k] = $(k).value;
+      const a = analyze($("points").value, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const b = a.best;
+      h += `<div class="finding"><h4>Best price: ${money2(b.price)} per seat, ${money(b.profit)} expected profit per class offered</h4><p>At that price you expect about ${one(b.lambda)} sign-ups on average. The class runs ${pct(b.pRun)} of the time, fills the room ${pct(b.pFull)} of the time, and needs ${Number.isFinite(b.breakEvenSeats) ? one(b.breakEvenSeats) : "more than any"} paying seats to cover its cost. About ${money(a.monthProfit)} a month at ${one(a.shared.classesPerMonth)} classes.</p></div>`;
+      if (a.current) {
+        const c = a.current;
+        h += `<div class="finding"><h4>Against your current ${money2(c.price)}</h4><p>Expected profit per class is ${money(c.profit)} (runs ${pct(c.pRun)} of the time). The best price is ${a.gain > 0.5 ? money(a.gain) + " better per class, about " + money(a.monthGain) + " a month" : "no better"}.</p></div>`;
+      }
+      h += `<div class="finding"><h4>Fitted demand</h4><p>Elasticity ${a.model.elasticity.toFixed(2)}${a.model.assumed ? " (the one you entered)" : " over " + a.model.n + " unfilled terms, R-squared " + a.model.r2.toFixed(2)}: a 10% price rise loses about ${one(a.model.elasticity * 10)}% of sign-ups.</p></div>`;
+      h += `<div class="finding"><h4>Around the best price</h4>${table(["Price", "Mean sign-ups", "Class runs", "Fills room", "Expected profit"], a.table.map((r) => [money2(r.price), one(r.lambda), pct(r.pRun), pct(r.pFull), money(r.profit)]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "class-price.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

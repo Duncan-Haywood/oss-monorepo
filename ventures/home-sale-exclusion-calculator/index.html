@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Sale Exclusion Calculator — How Much Tax Will You Owe Selling Your House?</title>
+  <meta name="description" content="Free home sale tax calculator. Enter your sale price, purchase price and improvements to see how much gain the $250,000 or $500,000 exclusion covers, the tax on the rest, and what waiting to reach two years would save. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Home Sale Exclusion Calculator — free, private, in your browser">
+  <meta property="og:description" content="Section 121 exclusion, tax on the rest, and the break-even sale price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Sale Exclusion Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimates the federal tax on selling your main home after the section 121 exclusion, and shows what waiting to meet the two-year test would save. Runs in your browser.", "featureList": "Section 121 exclusion, partial exclusion, nonqualified use, depreciation recapture, net investment income tax, break-even sale price, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my home sale profit is tax-free?", "acceptedAnswer": {"@type": "Answer", "text": "If you owned and lived in the home as your main home for at least two of the last five years, up to $250,000 of gain is tax-free, or $500,000 for married couples filing jointly where both spouses meet the use test. Gain above that is long-term capital gain."}}, {"@type": "Question", "name": "What is the two-out-of-five-year rule?", "acceptedAnswer": {"@type": "Answer", "text": "You must have owned the home for at least 24 months and used it as your main home for at least 24 months in the five years before the sale. The months do not need to be consecutive, and the two tests can be met at different times."}}, {"@type": "Question", "name": "Can I get part of the exclusion if I sell before two years?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you sell because of a work move, a health reason or certain unforeseen events. The exclusion is prorated by the months you met the tests out of 24. Without one of those reasons, selling early means no exclusion at all."}}, {"@type": "Question", "name": "Is depreciation from a home office or rental taxed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Depreciation claimed after May 6, 1997 is never covered by the exclusion. It is taxed at your ordinary rate, capped at 25%, even when the rest of your gain is tax-free."}}, {"@type": "Question", "name": "What if the home was a rental before I moved in?", "acceptedAnswer": {"@type": "Answer", "text": "Time after 2008 when the home was not your main home, before it became one, is allocated out of the exclusion by months. That share of the gain is taxable even if you meet the two-year tests."}}, {"@type": "Question", "name": "Do selling costs and improvements reduce the gain?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Gain is the sale price minus selling costs such as commissions and closing fees, minus your purchase price and documented capital improvements like a new roof or an addition. Ordinary repairs do not count."}}, {"@type": "Question", "name": "Is the 3.8% net investment income tax owed on a home sale?", "acceptedAnswer": {"@type": "Answer", "text": "Only on taxable gain above the exclusion, and only when your income including that gain passes $200,000 single or $250,000 married filing jointly. The tax-free part is not subject to it."}}, {"@type": "Question", "name": "What does this tool leave out?", "acceptedAnswer": {"@type": "Answer", "text": "State tax, the once-every-two-years rule for anything beyond a yes-or-no answer, military and other suspensions of the five-year window, homes with a business use area other than depreciation, divorce and death special cases beyond the surviving-spouse option, and years other than 2026. Check the 2026 parameters against IRS Publication 523."}}, {"@type": "Question", "name": "Is my information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME SALE EXCLUSION CALCULATOR · 2026 TAX YEAR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much tax will you owe when you sell your home?</h1>
+    <p>Selling your main home usually lets you keep <strong>$250,000 of profit tax-free</strong> ($500,000 for couples) if you lived there two of the last five years. Enter the numbers to see the <strong>taxable gain</strong>, the <strong>tax</strong>, and whether <strong>waiting a few months</strong> would save money.</p>
+    <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your year</h2>
+    <div class="grid">
+      <div><label for="status">Filing status</label><select id="status"><option value="">Choose</option><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option><option value="widow">Surviving spouse (sale within 2 years of spouse's death)</option></select></div>
+      <div><label for="income">Other 2026 income (wages, etc.), before this sale</label><input type="text" id="income" inputmode="decimal" placeholder="120000" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. The home</h2>
+    <div class="grid">
+      <div><label for="price">Sale price</label><input type="text" id="price" inputmode="decimal" placeholder="850000" autocomplete="off"></div>
+      <div><label for="sellingCosts">Selling costs (commission, closing)</label><input type="text" id="sellingCosts" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="basis">What you paid, including buying costs</label><input type="text" id="basis" inputmode="decimal" placeholder="300000" autocomplete="off"></div>
+      <div><label for="improvements">Capital improvements</label><input type="text" id="improvements" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="depreciation">Depreciation claimed (home office or rental)</label><input type="text" id="depreciation" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Ownership and use</h2>
+    <div class="grid">
+      <div><label for="ownMonths">Months you owned it</label><input type="text" id="ownMonths" inputmode="decimal" placeholder="180" autocomplete="off"></div>
+      <div><label for="useMonths">Months you lived in it as your main home (last 5 years)</label><input type="text" id="useMonths" inputmode="decimal" placeholder="180" autocomplete="off"></div>
+      <div><label for="nonqualMonths">Months after 2008 it was not your main home (rental, second home)</label><input type="text" id="nonqualMonths" inputmode="decimal" placeholder="optional" autocomplete="off"></div>
+      <div><label for="partial">Selling because of a job move, health or an unforeseen event?</label><select id="partial"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="prior">Did you sell another home and use the exclusion in the last 2 years?</label><select id="prior"><option value="no">No</option><option value="yes">Yes</option></select></div>
+    </div>
+    <button type="button" id="analyze">Calculate my tax</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the boxes above, then click Calculate my tax.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>The numbers</h3>
+    <div class="scroll"><table id="size-table"><thead><tr><th>Line</th><th class="n">Amount</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Tax year 2026, federal only. Gain is the sale price minus selling costs, purchase price and capital improvements, plus any depreciation claimed (which lowered your basis). The exclusion is $250,000 ($500,000 married filing jointly or surviving spouse) when you owned and used the home for at least 24 months and did not use the exclusion on another home in the last two years; a partial exclusion, prorated by the shorter of months owned and months used out of 24, applies with a qualifying reason. Depreciation is never excludable and is taxed at your ordinary rate capped at 25%. Time after 2008 as a non-main home is allocated out of the exclusion by months. The taxable rest is long-term capital gain stacked on your other income after the standard deduction (single $16,100, married $32,200, head of household $24,150), at 0% up to taxable income of $49,450 single, $98,900 married, $66,200 head of household, then 15% up to $545,500, $613,700 and $579,600, then 20%, plus the 3.8% net investment income tax above $200,000 single or $250,000 married of income. The break-even price and the wait-and-save figure are found by search and re-running the same model.</p>
+    <p><strong>Not modelled:</strong> state tax, other gains and losses, suspensions of the five-year window (military, foreign service), homes with business use beyond depreciation, divorce and death special cases, other years. <strong>Unverified:</strong> checked by hand calculation and unit tests, not against IRS Publication 523 worksheets. Check the 2026 parameters against the IRS's own publications before relying on them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much of my home sale profit is tax-free?</h3>
+    <p>If you owned and lived in the home as your main home for at least two of the last five years, up to $250,000 of gain is tax-free, or $500,000 for married couples filing jointly where both spouses meet the use test. Gain above that is long-term capital gain.</p>
+    <h3>What is the two-out-of-five-year rule?</h3>
+    <p>You must have owned the home for at least 24 months and used it as your main home for at least 24 months in the five years before the sale. The months do not need to be consecutive, and the two tests can be met at different times.</p>
+    <h3>Can I get part of the exclusion if I sell before two years?</h3>
+    <p>Yes, if you sell because of a work move, a health reason or certain unforeseen events. The exclusion is prorated by the months you met the tests out of 24. Without one of those reasons, selling early means no exclusion at all.</p>
+    <h3>Is depreciation from a home office or rental taxed?</h3>
+    <p>Yes. Depreciation claimed after May 6, 1997 is never covered by the exclusion. It is taxed at your ordinary rate, capped at 25%, even when the rest of your gain is tax-free.</p>
+    <h3>What if the home was a rental before I moved in?</h3>
+    <p>Time after 2008 when the home was not your main home, before it became one, is allocated out of the exclusion by months. That share of the gain is taxable even if you meet the two-year tests.</p>
+    <h3>Do selling costs and improvements reduce the gain?</h3>
+    <p>Yes. Gain is the sale price minus selling costs such as commissions and closing fees, minus your purchase price and documented capital improvements like a new roof or an addition. Ordinary repairs do not count.</p>
+    <h3>Is the 3.8% net investment income tax owed on a home sale?</h3>
+    <p>Only on taxable gain above the exclusion, and only when your income including that gain passes $200,000 single or $250,000 married filing jointly. The tax-free part is not subject to it.</p>
+    <h3>What does this tool leave out?</h3>
+    <p>State tax, the once-every-two-years rule for anything beyond a yes-or-no answer, military and other suspensions of the five-year window, homes with a business use area other than depreciation, divorce and death special cases beyond the surviving-spouse option, and years other than 2026. Check the 2026 parameters against IRS Publication 523.</p>
+    <h3>Is my information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. Results are illustrative estimates that depend on the values you enter and on tax rules that change. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and before deciding when to sell a home, which cannot be undone.</p>
+    <p><strong>Independent.</strong> Not affiliated with the Internal Revenue Service, any brokerage, or any real estate company.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your income and home details are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>sale_analyzed</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a> and the <a href="../home-office-deduction-calculator/">home office deduction calculator</a>.</p>
+    <p>Selling and wondering what actually lands in your account? The <a href="../home-sale-net-proceeds-calculator/">home sale net proceeds calculator</a> takes the price through commission, closing costs and payoff.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const FIELDS = ["status", "income", "price", "sellingCosts", "basis", "improvements", "depreciation", "ownMonths", "useMonths", "nonqualMonths", "partial", "prior"];
+    const DEFAULTS = { partial: "no", prior: "no" };
+    let last = null;
+
+    function read() { const o = {}; for (const f of FIELDS) o[f] = $("#" + f).value; return o; }
+    function fill(x) { for (const f of FIELDS) $("#" + f).value = x[f] ?? DEFAULTS[f] ?? ""; }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const r = a.r;
+      const tiles = [[usd(r.gain), "total gain"], [usd(r.used), "excluded from tax"], [usd(r.tax.total), "estimated federal tax"], [usd(a.savedByExclusion), "tax the exclusion saves you"]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const rows = [["Sale price", r.price], ["Total gain (after costs, basis, improvements, depreciation)", r.gain], ["Exclusion allowed", r.used], ["Taxable gain", r.taxableGain], ["Depreciation recapture tax", r.tax.recapTax], ["Long-term capital gain tax", r.tax.ltcgTax], ["Net investment income tax", r.tax.niit], ["Estimated federal tax", r.tax.total]];
+      $("#size-table tbody").innerHTML = rows.map(([n, v]) => `<tr><td>${esc(n)}</td><td class="n">${usd(v)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("sale_analyzed"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented seller, not a real person."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the boxes above, then click Calculate my tax."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "home-sale-tax.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

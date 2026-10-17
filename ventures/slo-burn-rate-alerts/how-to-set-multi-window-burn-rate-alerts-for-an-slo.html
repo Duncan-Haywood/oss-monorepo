@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Set Multi-Window Burn-Rate Alerts for an SLO</title>
+  <meta name="description" content="Why alerting on a fixed error rate fails, what a burn rate is, how to derive the 14.4x, 6x, 3x and 1x thresholds for any SLO and period, and why a 90% SLO can never fire the page alert.">
+  <link rel="canonical" href="./how-to-set-multi-window-burn-rate-alerts-for-an-slo.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where does 14.4 come from?","acceptedAnswer":{"@type":"Answer","text":"It is the burn rate at which 2% of a 30-day error budget is spent in one hour: 0.02 x 720 hours / 1 hour = 14.4. For a 28-day period the same policy gives 13.44."}},{"@type":"Question","name":"Why two windows?","acceptedAnswer":{"@type":"Answer","text":"The long window filters out blips and the short window makes the alert stop firing soon after the problem is fixed. Requiring both gives fast detection with few false pages."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./">SLO Burn-Rate Alerts</a> · GUIDE</p>
+    <h1>How to set multi-window burn-rate alerts for an SLO</h1>
+    <p>A fixed "error rate above 1%" alert pages you for blips and misses slow leaks. Alerting on how fast the <strong>error budget</strong> is being spent fixes both. This is the method, with the arithmetic, so you can check any generated rule by hand.</p>
+  </header>
+  <section class="card">
+    <h2>1. The budget</h2>
+    <p>A 99.9% SLO over 30 days allows 0.1% bad requests. Under a full outage that is 30 x 24 x 60 x 0.001 = 43.2 minutes. That number is the budget; everything else is how fast you spend it.</p>
+    <h2>2. The burn rate</h2>
+    <p>A burn rate of 1 spends exactly the whole budget by the end of the period. A burn rate of 14.4 spends it 14.4 times faster, so 2% of the budget goes in one hour. The general formula is <code>burn = fraction x period / window</code>.</p>
+    <table>
+      <thead><tr><th>Severity</th><th>Budget spent</th><th>Long / short window</th><th>Burn rate (30 days)</th><th>Error ratio at 99.9%</th></tr></thead>
+      <tbody>
+        <tr><td>page</td><td>2%</td><td>1h / 5m</td><td>14.4</td><td>1.44%</td></tr>
+        <tr><td>page</td><td>5%</td><td>6h / 30m</td><td>6</td><td>0.6%</td></tr>
+        <tr><td>ticket</td><td>10%</td><td>1d / 2h</td><td>3</td><td>0.3%</td></tr>
+        <tr><td>ticket</td><td>10%</td><td>3d / 6h</td><td>1</td><td>0.1%</td></tr>
+      </tbody>
+    </table>
+    <h2>3. Why both windows must agree</h2>
+    <p>The alert fires only while the long window <em>and</em> the short window are above the threshold. The long window keeps a brief spike from paging; the short window lets the alert clear within minutes of the fix instead of an hour later.</p>
+    <h2>4. Check it can fire at all</h2>
+    <p>The threshold is <code>burn x (1 - SLO)</code>. At a 90% SLO the page threshold is 14.4 x 10% = 144%, and no error ratio exceeds 100%, so that alert can never fire. Low-traffic services have the opposite problem: if the short window expects under one failing request at the threshold, a single error flips it. <a href="./">The generator</a> flags both.</p>
+    <h2>5. Recording rules keep it cheap</h2>
+    <p>Compute <code>sum(rate(errors[W])) / sum(rate(total[W]))</code> once per window as a recording rule, then compare the recorded series to the threshold in the alert. The generator emits seven recordings and four alerts.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Where does 14.4 come from?</h3>
+    <p>It is the burn rate at which 2% of a 30-day error budget is spent in one hour: 0.02 x 720 hours / 1 hour = 14.4. For a 28-day period the same policy gives 13.44.</p>
+    <h3>Why two windows?</h3>
+    <p>The long window filters out blips and the short window makes the alert stop firing soon after the problem is fixed. Requiring both gives fast detection with few false pages.</p>
+  </section>
+  <footer>
+        <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, reliability, legal or financial advice. It generates alert rules and downtime figures from the numbers you type, using the windows described in a published method; it cannot know your traffic shape, your SLI definition or your on-call setup, and generated rules can be wrong for your system. <strong>You are responsible for reviewing, testing and verifying every rule before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Prometheus and Google are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p><a href="./">Back to the generator</a>. Based on the method in the Google SRE Workbook chapter "Alerting on SLOs"; this project is not affiliated with Google.</p>
+  </footer>
+</body>
+</html>

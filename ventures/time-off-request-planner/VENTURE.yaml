@@ -1,0 +1,61 @@
+name: time-off-request-planner
+description: >-
+  Free browser tool for small teams: paste your people with roles and the
+  vacation or PTO requests you have, set the minimum on duty per role, and get
+  the set of requests to approve that never drops a role below its minimum on
+  any working day (exact search, priority-weighted), with the reason, who is
+  already off and the nearest alternative dates for each request it cannot
+  approve, a comparison with first come first served and a day-by-day cover
+  calendar. CSV export. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture session. duplicate_check.py found no
+# time-off planner; the closest hits (final-paycheck-deadline-calculator 0.42,
+# employee-cost-calculator 0.23) are keyword overlap on "employee", not the same
+# job. Neighbours: shift-roster-builder and shift-cover-optimizer plan a week's
+# shifts; this one decides leave across weeks against the same minimum-cover
+# idea, and the three link to each other. Paid alternatives are HR suites that
+# charge per employee per month for leave tracking; the gap is a private,
+# signup-free "which of these requests can all be approved" solve.
+#
+# First visitor: searches "vacation request conflict", "how to approve time off
+# requests fairly", "PTO approval spreadsheet", "minimum staffing vacation
+# calendar", "summer holiday requests too many people"; r/smallbusiness,
+# r/restaurateur, r/managers. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic and search on user-typed names, roles and
+# dates; never asserts a plan complies with leave law, contract or notice rules
+# (not modelled and said so); team lists never leave the browser (tests assert no
+# network calls); no vendor named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# paid tier could be saved yearly leave calendars, request links for staff and
+# multi-location plans; not built.
+
+hypotheses:
+  - claim: >-
+      Owners and managers of small teams who approve vacation by email, one
+      request at a time, will use a private, no-signup tool that checks all the
+      requests against minimum cover at once, and will come back each season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an approved plan that drops a role below a minimum they typed in.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/time-off-request-planner/
+  analytics: null

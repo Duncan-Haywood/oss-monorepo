@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn't Exist?</title>
+  <meta name="description" content="Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents. Get the free CLI for the live check: does this name exist on the registry at all, and if it does, was it published suspiciously recently? No account, no upload.">
+  <meta property="og:title" content="Did an AI assistant just suggest a package that doesn't exist?">
+  <meta property="og:description" content="LLM code generators regularly suggest npm package names that were never published. Attackers pre-register those exact names -- slopsquatting -- so the next developer who copies the AI's suggestion installs their package instead. Free offline browser check plus a CLI that verifies against the live registry.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Slopsquatting Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flags npm dependency names that look like a hallucinated or typosquatted variant of a well-known package. The browser page runs a fully offline heuristic with no network call of any kind; the companion CLI makes one read-only request per dependency to the public npm registry to check whether the name exists at all and, if so, whether it was published suspiciously recently."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is slopsquatting?","acceptedAnswer":{"@type":"Answer","text":"Registering a package name that a large language model hallucinates in generated code. A May 2025 USENIX Security study found 19.7% of packages recommended by 16 code-generating models did not exist at all. If a developer copies an AI's install suggestion without checking, and an attacker has already registered that exact hallucinated name, the install silently succeeds against the attacker's package instead of failing."}},{"@type":"Question","name":"Does this page check the live npm registry?","acceptedAnswer":{"@type":"Answer","text":"No, and deliberately so. This page never sends anything anywhere -- it only compares the names you paste against a short built-in list of about 130 extremely well-known packages, entirely in your browser. For the real question -- does this exact name exist right now, and if so how new and untrusted does it look -- use the companion CLI, which is the only part of this tool that touches the network, making one read-only request per dependency to registry.npmjs.org."}},{"@type":"Question","name":"Is a flagged name proof of anything?","acceptedAnswer":{"@type":"Answer","text":"No. A near-miss of a famous package name can be a coincidence, an unrelated real package, or a genuine typosquat -- this tool cannot tell those apart, on the browser page or in the CLI. A flag means \"read this one before you trust it\", the same framing this portfolio's other supply-chain checkers use, never a verdict."}},{"@type":"Question","name":"Is my dependency data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the package.json you paste entirely in your own browser and never sends it anywhere -- there is no fetch call in this page at all. The CLI reads your local file and sends only each dependency's name (never the whole file, never your code) to the public npm registry, one request per name."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 3px 1px 0; }
+    .pill.flag { background: #fde8e8; color: #7f1d1d; }
+    .pill.skip { background: #e6eaf0; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .flagged { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SLOPSQUATTING CHECK · RUNS ENTIRELY IN YOUR BROWSER, NO NETWORK CALL</p>
+    <h1>Did an AI assistant just suggest a package that doesn't exist?</h1>
+    <p>LLM code generators regularly suggest <code>npm install</code> commands for packages that were never published. A May 2025 USENIX Security study found <strong>19.7% of packages recommended by 16 code-generating models did not exist at all</strong>. Attackers know this: they pre-register the exact names models are likely to hallucinate, so the next developer who copies the suggestion installs the attacker's package instead of getting an install error &mdash; a technique now called <strong>slopsquatting</strong>.</p>
+    <p class="note">Paste your <code>package.json</code> below. Nothing is uploaded -- this page has no network call of any kind, on purpose. It flags names that look like a typo of a famous package; it cannot check whether a name actually exists on the registry right now. Get the free CLI below for that.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your package.json</h2>
+    <label for="pkg-input">package.json</label>
+    <textarea id="pkg-input" spellcheck="false" placeholder='{"dependencies":{"chalk":"^5.0.0","reqeusts":"^1.0.0"}}'></textarea>
+    <p>
+      <button type="button" id="check">Check offline</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What looks like a near-miss of a famous package</h2>
+    <p id="summary"></p>
+    <div id="flagged-block" hidden>
+      <table>
+        <thead><tr><th>Dependency</th><th>Field</th><th>Close to</th><th>Edit distance</th></tr></thead>
+        <tbody id="flagged-rows"></tbody>
+      </table>
+    </div>
+    <div id="skipped-block" hidden>
+      <h3>Not checked (not a registry-backed specifier)</h3>
+      <table>
+        <thead><tr><th>Dependency</th><th>Specifier</th></tr></thead>
+        <tbody id="skipped-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Want the real answer, not a guess from a name list?</h2>
+    <p>This page compares names against roughly 130 well-known packages hard-coded into it -- it has no way to know whether a name that <em>isn't</em> on that list actually exists. The CLI answers the question that actually matters: is this name registered at all, and if it is, does it look freshly squatted? Same zero-dependency shape as this portfolio's other supply-chain checkers.</p>
+    <pre class="cmd">node cli.mjs                     # scan ./package.json against the live registry
+node cli.mjs path/to/package.json
+node cli.mjs --json
+node cli.mjs --strict            # also fail CI on a suspiciously new (but real) name</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> -- Node 18+, nothing to install. It sends only each dependency's <em>name</em> to <code>registry.npmjs.org</code>, one read-only request per name -- the only network call anywhere in this tool.</p>
+  </section>
+
+  <section class="card">
+    <h2>Real, dated incidents that used exactly this mechanism</h2>
+    <table>
+      <thead><tr><th>Case</th><th>Date</th><th>Mechanism</th><th>What happened</th></tr></thead>
+      <tbody id="incidents-rows"></tbody>
+    </table>
+    <p class="note" id="research-note"></p>
+    <p class="note">More: <a href="what-is-slopsquatting.html">what is slopsquatting, and why doesn't a lockfile already protect you</a>. See also <a href="vs-socket.html">how this compares to Socket</a>, an ongoing registry-aware scanning service, and <a href="vs-checking-package-names-by-eye.html">how this compares to just reading package.json by hand</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is slopsquatting?</h3>
+    <p>Registering a package name that a large language model hallucinates in generated code. A May 2025 USENIX Security study found 19.7% of packages recommended by 16 code-generating models did not exist at all. If a developer copies an AI's install suggestion without checking, and an attacker has already registered that exact hallucinated name, the install silently succeeds against the attacker's package instead of failing.</p>
+    <h3>Does this page check the live npm registry?</h3>
+    <p>No, and deliberately so. This page never sends anything anywhere -- it only compares the names you paste against a short built-in list of about 130 extremely well-known packages, entirely in your browser. For the real question -- does this exact name exist right now, and if so how new and untrusted does it look -- use the companion CLI, which is the only part of this tool that touches the network, making one read-only request per dependency to registry.npmjs.org.</p>
+    <h3>Is a flagged name proof of anything?</h3>
+    <p>No. A near-miss of a famous package name can be a coincidence, an unrelated real package, or a genuine typosquat -- this tool cannot tell those apart, on the browser page or in the CLI. A flag means "read this one before you trust it", the same framing this portfolio's other supply-chain checkers use, never a verdict.</p>
+    <h3>Is my dependency data uploaded anywhere?</h3>
+    <p>No. The browser page parses the package.json you paste entirely in your own browser and never sends it anywhere -- there is no fetch call in this page at all. The CLI reads your local file and sends only each dependency's name (never the whole file, never your code) to the public npm registry, one request per name.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It flags npm dependency names that resemble a hallucinated or typosquatted variant of a well-known package, or that fail a live registry existence/freshness check in the CLI -- it is not a malware scanner, not a security audit, and not a guarantee that an unflagged name is safe or a flagged one is malicious. It does not replace verifying a package yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>This page runs entirely in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your dependency tree: <a href="../dependency-confusion-check/">Dependency Confusion Check</a> flags <code>--extra-index-url</code> and unscoped-private-registry configuration mistakes behind the 2021 dependency-confusion attacks. And <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a> diffs two lockfile snapshots to name exactly which package just started running code at install time -- the mechanism behind Shai-Hulud.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { extractDependencies, findNearMisses, KNOWN_INCIDENTS, RESEARCH_NOTE } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#pkg-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      flaggedBlock: $("#flagged-block"), flaggedRows: $("#flagged-rows"),
+      skippedBlock: $("#skipped-block"), skippedRows: $("#skipped-rows"),
+      incidentsRows: $("#incidents-rows"), researchNote: $("#research-note"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.incidentsRows.innerHTML = KNOWN_INCIDENTS.map((e) => `<tr>
+      <td><strong>${escapeHtml(e.project)}</strong></td>
+      <td>${escapeHtml(e.date)}</td>
+      <td><code>${escapeHtml(e.mechanism)}</code></td>
+      <td>${escapeHtml(e.note)}</td>
+    </tr>`).join("");
+    els.researchNote.textContent = RESEARCH_NOTE;
+
+    function renderReport() {
+      let deps;
+      try {
+        deps = extractDependencies(els.input.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!deps.length) {
+        els.status.innerHTML = `<span class="error">Paste a package.json with at least one dependency first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const flagged = [];
+      const skipped = [];
+      for (const dep of deps) {
+        if (dep.skip) { skipped.push(dep); continue; }
+        const hits = findNearMisses(dep.registryName);
+        for (const hit of hits) flagged.push({ dep, hit });
+      }
+
+      els.summary.innerHTML = flagged.length
+        ? `<span class="flagged">${flagged.length} name(s) look like a near-miss of a well-known package.</span>`
+        : `<span class="ok">Nothing looks like a near-miss of the ~130 well-known packages this page knows about.</span> That is not proof the rest are real -- see the CLI for a live check.`;
+
+      els.flaggedBlock.hidden = flagged.length === 0;
+      els.flaggedRows.innerHTML = flagged.map(({ dep, hit }) => `<tr>
+        <td><strong>${escapeHtml(dep.name)}</strong></td>
+        <td>${escapeHtml(dep.field)}</td>
+        <td><span class="pill flag">${escapeHtml(hit.known)}</span></td>
+        <td>${hit.distance}</td>
+      </tr>`).join("");
+
+      els.skippedBlock.hidden = skipped.length === 0;
+      els.skippedRows.innerHTML = skipped.map((dep) => `<tr>
+        <td><strong>${escapeHtml(dep.name)}</strong></td>
+        <td>${escapeHtml(dep.specifier)} <span class="pill skip">${escapeHtml(dep.skipReason || "skipped")}</span></td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE = JSON.stringify({
+      dependencies: {
+        chalk: "^5.0.0",
+        reqeusts: "^1.0.0",
+        expres: "^4.0.0",
+        "left-pad": "^1.3.0",
+      },
+      devDependencies: {
+        "from-git-repo": "git+https://example.com/example/repo.git",
+      },
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made, rather than a button that
+    // still says "turn counting off" after they already turned it off.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

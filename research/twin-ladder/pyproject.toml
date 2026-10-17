@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-ladder"
+version = "0.1.0"
+description = "Which rungs of a multi-fidelity ladder of digital twins are worth running: exact multifidelity control-variate variance, a closed-form rung-pays condition rho_2/rho_1 > rho*(c_2/c_1), and a timestep-ladder experiment"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "position-rent"
+version = "0.1.0"
+description = "Position rent in a sequential LMSR verification market: each trader's expected profit is a conditional mutual information, rents telescope to the market maker's expected loss, and entry costs pin down how many verifiers a subsidy buys"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

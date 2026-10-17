@@ -1,0 +1,32 @@
+assumed mid-span load per rod P = 5.0 N; rods (length m, count) = ((0.35, 2), (0.405, 2), (0.42, 2))
+== deflection at the standard 8 mm diameter (longest rod, 420 mm)
+steel           0.192 mm   x  1.0 steel   stress  10.4 MPa (allowable 250)   rod-set mass    927 g
+aluminium       0.556 mm   x  2.9 steel   stress  10.4 MPa (allowable 200)   rod-set mass    319 g
+hardwood        3.838 mm   x 20.0 steel   stress  10.4 MPa (allowable 50)   rod-set mass     83 g
+printed-PLA    15.353 mm   x 80.0 steel   stress  10.4 MPa (allowable 25)   rod-set mass    148 g
+
+== minimum diameter (mm) to hold a mid-span deflection spec, longest rod; '*' = above 12 mm standard-holder limit
+spec mm         steel    aluminium     hardwood  printed-PLA
+  0.05          11.2         14.6*        23.7*        33.5*
+  0.10           9.4         12.3*        19.9*        28.2*
+  0.20           7.9         10.3         16.7*        23.7*
+  0.50           6.3          8.2         13.3*        18.8*
+  1.00           5.3          6.9         11.2         15.8*
+  2.00           4.5          5.8          9.4         13.3*
+
+== hardwood rod: sensitivity of the diameter needed to match the 8 mm steel rod's deflection, to E
+E =    6 GPa -> d =  19.2 mm
+E =    8 GPa -> d =  17.9 mm
+E =   10 GPa -> d =  16.9 mm
+E =   12 GPa -> d =  16.2 mm
+E =   14 GPa -> d =  15.6 mm
+
+== mass closure of the all-substitutions redesign with wooden rods sized for a deflection spec (printer+cnc+laser shop; the assumed 30 g/rod of selfrep-redesign for comparison)
+selfrep-redesign as published (8 mm, 30 g/rod): mass closure 35.8%
+spec 0.05 mm: dowel  23.7 mm,  120.7 g/rod, mass closure 41.4%
+spec 0.10 mm: dowel  19.9 mm,   85.4 g/rod, mass closure 39.3%
+spec 0.20 mm: dowel  16.7 mm,   60.4 g/rod, mass closure 37.8%
+spec 0.50 mm: dowel  13.3 mm,   38.2 g/rod, mass closure 36.3%
+spec 1.00 mm: dowel  11.2 mm,   27.0 g/rod, mass closure 35.5%
+spec 2.00 mm: dowel   9.4 mm,   19.1 g/rod, mass closure 35.0%
+8 mm hardwood from geometry: 13.8 g/rod, mass closure 34.6%

@@ -1,0 +1,42 @@
+name: commercial-property-cap-rate-calculator
+description: >-
+  Free browser tool for small commercial and multifamily investors, brokers and lenders' borrowers: enter rent, vacancy and expenses to get NOI, income-approach value at a cap rate, DSCR, cash-on-cash return, break-even occupancy, a 1.25x-coverage loan size and a cap-rate by vacancy sensitivity grid. Nothing is uploaded. Not an appraisal.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session. Gap: rental-dscr-calculator covers one-to-four-unit rentals and mobile-home-park-valuation-calculator one asset
+# class; nothing in ventures/ answers "NOI to value at a cap rate with a sensitivity grid" for a generic commercial or multifamily building. CoStar, LoopNet, Crexi and
+# Roofstock publish cap-rate calculators as lead magnets for paid listings and data; this is the free private version with the lender-coverage test built in.
+#
+# First visitor: small-balance commercial investor or broker pricing a 5-50 unit building or a strip centre, searching "cap rate calculator", "NOI calculator",
+# "commercial property value from NOI", "DSCR calculator commercial". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into the rental and lending tools; GitHub Sponsors. Paid version, not built: multi-year proforma with rent
+# growth and exit, a rent-roll CSV import, and a lender-ready PDF package.
+#
+# Liability: no market data is shipped; every figure is typed by the reader and the page says the example is illustrative. Risk is overpaying from an optimistic
+# NOI; mitigated by findings that flag thin expense ratios, low vacancy and missing reserves, a verify-with-lender line, and no-warranty and not-an-appraisal clauses.
+hypotheses:
+  - claim: >-
+      Small commercial investors will use a free private NOI-to-value calculator that shows the cap-rate sensitivity grid and the lender DSCR test together, and return for each deal they screen.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a formula (NOI, cap-rate value, DSCR, loan payment) gives a wrong figure for stated inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/commercial-property-cap-rate-calculator/
+  analytics: null

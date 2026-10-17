@@ -1,0 +1,49 @@
+name: upstash-redis-bill-estimator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that estimates a monthly Upstash Redis pay-as-you-go bill from the user''s own console usage numbers (million commands, storage GB, bandwidth GB) at editable approximate list prices and free allowances, compares it with the fixed plans and finds the command volume where pay-as-you-go and fixed cross over, and ranks the changes that cut it most (pipelining, hot-key caching, polling, TTLs, payload size) with a dollar saving each; accepts a product,usage CSV and a --budget CI gate. A deterministic calculator over the user''s inputs, not a bill reader and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of neon-bill-estimator, cloudflare-bill-estimator,
+# vercel-bill-estimator and supabase-bill-estimator, not a trade-bid calculator. No existing venture
+# prices Upstash Redis or compares its pay-as-you-go and fixed plans
+# (ls ventures | grep -i upstash is empty).
+#
+# Where the first real visitor would come from: the search phrases "upstash
+# redis pricing calculator", "upstash pay as you go vs fixed", "reduce upstash
+# redis cost"; r/nextjs, r/serverless and Hacker News threads about a polling
+# loop or chatty client quietly running up commands. The reader is a
+# founder or lead dev on Upstash pay-as-you-go whose command count
+# surprised them. Upstash's own pricing page is a rate card and the console shows
+# usage after the fact; this takes the usage numbers, ranks what to change first
+# and fits a CI budget gate -- that is the wedge. A hosted usage-trend monitor
+# is the natural paid upgrade path later.
+hypotheses:
+  - claim: A developer whose Upstash Redis invoice just jumped will search for how to cut it, enter their usage, and learn which lever saves the most dollars and whether a fixed plan is cheaper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so a usage change that pushes the estimate over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/upstash-redis-bill-estimator/
+  analytics: null

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Driving Instructor Lesson Pricing Calculator — Profit per Lesson, Free</title>
+  <meta name="description" content="Free calculator for independent driving instructors: profit per lesson, break-even price, the price that reaches your take-home target and the cost of a block discount, after fuel, car wear, fixed costs, gaps and cancellations. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Driving Instructor Lesson Pricing Calculator — what a lesson really earns, free">
+  <meta property="og:description" content="Cancellations and car costs quietly cut what each paid lesson earns. Find your break-even price and the price that reaches your target.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Driving Instructor Lesson Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for independent driving instructors: profit per lesson, break-even price, the price that reaches a take-home target, and the effect of a block-booking discount, after fuel, car wear, fixed costs, unpaid gaps and cancellations. Entirely client-side; nothing is uploaded.","featureList":"Profit per lesson and per diary hour, break-even price, price for a profit target, cancellation cost, block discount check, copy a plain-text summary"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should a driving instructor charge per lesson?","acceptedAnswer":{"@type":"Answer","text":"It depends on your own costs, not on the next instructor's rate. Enter your fuel, miles per lesson, car costs and the pay you want, and the calculator shows the break-even price and the price that reaches your target with the bookings you actually get."}},{"@type":"Question","name":"Why do cancellations matter so much?","acceptedAnswer":{"@type":"Answer","text":"Your car costs the same whether the lesson happens or not. Spread over only the lessons that are paid for, fixed costs per lesson rise with every unpaid cancellation, on top of the lost fee."}},{"@type":"Question","name":"What counts as fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Typically insurance, dual controls, licence and registration fees, depreciation and the yearly share of servicing you do regardless of mileage. Enter your own yearly total. Franchise or desk fees paid weekly have their own box."}},{"@type":"Question","name":"Is a block discount worth it?","acceptedAnswer":{"@type":"Answer","text":"Enter a block size and price to see the discount, the profit on each discounted lesson and what the year looks like if every lesson sold at that rate. It reports arithmetic; you decide what keeps pupils booking."}},{"@type":"Question","name":"Is this tax or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. Profit shown is before income tax and self-employment tax, from the numbers you type. It is not tax, legal, or financial advice."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #5b3a8e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5b3a8e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #e0d6ec; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5b3a8e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c5b8dc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c5b8dc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3a8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8f7; color: #5b3a8e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .negative { color: #9a3412; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d6ec; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DRIVING INSTRUCTOR LESSON PRICING CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a driving lesson really earn after the car?</h1>
+    <p>Fuel and wear for the miles you drive to collect pupils, a car whose fixed
+    costs are paid whether the lesson happens or not, unpaid gaps between pupils
+    and cancellations all come out of the fee. Enter your numbers to see profit per
+    lesson, your break-even price, the price that reaches the profit you want, and
+    what a block-booking discount does to the year.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Price your lessons</h2>
+    <div class="grid">
+      <div>
+        <label for="lesson-price">Lesson price ($)</label>
+        <input type="number" id="lesson-price" min="0" step="0.01" placeholder="e.g. 50">
+      </div>
+      <div>
+        <label for="lesson-minutes">Lesson length (minutes)</label>
+        <input type="number" id="lesson-minutes" min="5" step="5" value="60">
+      </div>
+      <div>
+        <label for="gap-minutes">Unpaid gap per lesson (minutes)</label>
+        <input type="number" id="gap-minutes" min="0" step="5" value="15">
+      </div>
+      <div>
+        <label for="slots-per-week">Lesson slots per week</label>
+        <input type="number" id="slots-per-week" min="1" step="1" placeholder="e.g. 25">
+      </div>
+      <div>
+        <label for="weeks-per-year">Working weeks per year</label>
+        <input type="number" id="weeks-per-year" min="1" max="52" step="1" value="46">
+      </div>
+      <div>
+        <label for="cancel-rate">Unpaid cancellation rate (%)</label>
+        <input type="number" id="cancel-rate" min="0" max="99" step="1" value="8">
+      </div>
+      <div>
+        <label for="miles-per-lesson">Miles driven per lesson</label>
+        <input type="number" id="miles-per-lesson" min="0" step="1" placeholder="e.g. 12">
+      </div>
+      <div>
+        <label for="mpg">Car miles per gallon</label>
+        <input type="number" id="mpg" min="1" step="1" placeholder="e.g. 40">
+      </div>
+      <div>
+        <label for="fuel-price">Fuel price ($ per gallon)</label>
+        <input type="number" id="fuel-price" min="0" step="0.01" placeholder="e.g. 4">
+      </div>
+      <div>
+        <label for="wear-per-mile">Tyres, servicing and wear ($ per mile)</label>
+        <input type="number" id="wear-per-mile" min="0" step="0.01" value="0.10">
+      </div>
+      <div>
+        <label for="fixed-costs">Fixed car costs per year ($)</label>
+        <input type="number" id="fixed-costs" min="0" step="1" placeholder="insurance, dual controls, licence, depreciation">
+      </div>
+      <div>
+        <label for="weekly-fees">Weekly franchise or desk fee ($)</label>
+        <input type="number" id="weekly-fees" min="0" step="1" value="0">
+      </div>
+      <div>
+        <label for="target-profit">Annual profit you want before tax ($)</label>
+        <input type="number" id="target-profit" min="0" step="100" value="30000">
+      </div>
+      <div>
+        <label for="block-lessons">Block size (optional)</label>
+        <input type="number" id="block-lessons" min="1" step="1" placeholder="e.g. 10">
+      </div>
+      <div>
+        <label for="block-price">Block price ($, optional)</label>
+        <input type="number" id="block-price" min="0" step="0.01" placeholder="e.g. 450">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter a lesson price, slots per week, miles per lesson, mpg and fuel price, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="headline"></p>
+    <table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table>
+    <div id="findings"></div>
+    <button type="button" id="copy-summary">Copy summary</button>
+    <p class="note" id="copy-status">Copies the figures and the disclaimer as plain text.</p>
+    <div id="copy-fallback" hidden>
+      <label class="note" for="copy-text">Select and copy the summary:</label>
+      <textarea id="copy-text" rows="10" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies the numbers you enter to one working year. Profit is before income tax and self-employment tax. It does not
+    know your pupils, your area's market rate or your local rules, and it does not tell you what to charge.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What should a driving instructor charge per lesson?</h3>
+    <p>It depends on your own costs, not on the next instructor's rate. Enter your fuel, miles per lesson, car costs and the pay you want, and the calculator shows the break-even price and the price that reaches your target with the bookings you actually get.</p>
+    <h3>Why do cancellations matter so much?</h3>
+    <p>Your car costs the same whether the lesson happens or not. Spread over only the lessons that are paid for, fixed costs per lesson rise with every unpaid cancellation, on top of the lost fee.</p>
+    <h3>What counts as fixed costs?</h3>
+    <p>Typically insurance, dual controls, licence and registration fees, depreciation and the yearly share of servicing you do regardless of mileage. Enter your own yearly total. Franchise or desk fees paid weekly have their own box.</p>
+    <h3>Is a block discount worth it?</h3>
+    <p>Enter a block size and price to see the discount, the profit on each discounted lesson and what the year looks like if every lesson sold at that rate. It reports arithmetic; you decide what keeps pupils booking.</p>
+    <h3>Is this tax or business advice?</h3>
+    <p>No. Profit shown is before income tax and self-employment tax, from the numbers you type. It is not tax, legal, or financial advice.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for your own pricing decisions. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pricing_calculated</code>, <code>summary_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the summary puts it on your clipboard and nowhere else. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing music lessons instead of driving lessons? The <a href="../music-lesson-break-even/">music lesson break-even calculator</a> finds the minimum per-lesson price that clears your target pay after cancellations, prep and travel.</p>
+    <p>Choosing between the standard mileage rate and actual car expenses for your tax return? The <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a> compares the two methods.</p>
+    <p>Related tools: the <a href="../tutor-effective-hourly-rate-calculator/">private tutor effective hourly rate calculator</a>, the same per-lesson pricing question for a tutor. Learning to fly instead? The <a href="../private-pilot-training-cost-calculator/">private pilot training cost calculator</a> totals aircraft and instructor time for a pilot certificate. Teaching swimming? The <a href="../swim-lesson-pool-rental-profit-calculator/">swim lesson pool rental profit calculator</a> costs private and group lessons against an hourly pool rental.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { priceLessons, formatPricingSummary } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const value = Number(n) || 0;
+      const text = `$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    const ids = ["lesson-price","lesson-minutes","gap-minutes","slots-per-week","weeks-per-year","cancel-rate","miles-per-lesson","mpg","fuel-price","wear-per-mile","fixed-costs","weekly-fees","target-profit","block-lessons","block-price"];
+    const defaults = { "lesson-minutes": "60", "gap-minutes": "15", "weeks-per-year": "46", "cancel-rate": "8", "wear-per-mile": "0.10", "weekly-fees": "0", "target-profit": "30000" };
+    const example = { "lesson-price": "50", "lesson-minutes": "60", "gap-minutes": "15", "slots-per-week": "25", "weeks-per-year": "46", "cancel-rate": "8", "miles-per-lesson": "12", "mpg": "40", "fuel-price": "4", "wear-per-mile": "0.10", "fixed-costs": "4600", "weekly-fees": "0", "target-profit": "30000", "block-lessons": "10", "block-price": "450" };
+    const els = {
+      status: $("#status"), report: $("#report"), headline: $("#headline"), body: $("#report-body"), findings: $("#findings"),
+      copyStatus: $("#copy-status"), fallback: $("#copy-fallback"), textarea: $("#copy-text"),
+    };
+    const val = (id) => $("#" + id).value;
+
+    // Held from the last calculate so the copy button can never hand out a
+    // summary that disagrees with the table above it.
+    let lastResult = null;
+
+    const COPY_HINT = "Copies the figures and the disclaimer as plain text.";
+
+    function readInputs() {
+      return {
+        lessonPrice: Number(val("lesson-price")),
+        lessonMinutes: Number(val("lesson-minutes")) || 60,
+        gapMinutes: Number(val("gap-minutes")) || 0,
+        slotsPerWeek: Number(val("slots-per-week")),
+        weeksPerYear: Number(val("weeks-per-year")) || 46,
+        cancelRate: Number(val("cancel-rate")) || 0,
+        milesPerLesson: Number(val("miles-per-lesson")) || 0,
+        mpg: Number(val("mpg")),
+        fuelPrice: Number(val("fuel-price")) || 0,
+        wearPerMile: Number(val("wear-per-mile")) || 0,
+        annualFixedCosts: Number(val("fixed-costs")) || 0,
+        weeklyFees: Number(val("weekly-fees")) || 0,
+        targetAnnualProfit: Number(val("target-profit")) || 0,
+        blockLessons: Number(val("block-lessons")) || 0,
+        blockPrice: Number(val("block-price")) || 0,
+      };
+    }
+
+    function runCalculate() {
+      let result;
+      try {
+        result = priceLessons(readInputs());
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${err.message}</span>`;
+        return;
+      }
+      const cls = result.annualProfit < 0 ? "negative" : "";
+      els.headline.innerHTML = `Each paid lesson earns <strong class="${cls}">${money(result.profitPerLesson)}</strong> after costs; the year ends at <strong class="${cls}">${money(result.annualProfit)}</strong> before tax.`;
+      const rows = [
+        ["Paid lessons per year", String(result.paidLessons)],
+        ["Revenue", money(result.revenue)],
+        ["Running cost per lesson (fuel and wear)", money(result.runningCostPerLesson)],
+        ["Fixed cost per paid lesson", money(result.fixedPerPaidLesson)],
+        ["Profit per paid lesson", money(result.profitPerLesson)],
+        ["Profit per diary hour", money(result.profitPerDiaryHour)],
+        ["Break-even lesson price", money(result.breakEvenPrice)],
+        ["Price that reaches your profit target", money(result.minPriceForTarget)],
+      ];
+      if (result.block) rows.push([`Block of ${result.block.lessons} at ${money(result.block.price)}`, `${money(result.block.perLesson)} a lesson, ${result.block.discountPercent}% off, profit ${money(result.block.profitPerLesson)} a lesson`]);
+      els.body.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td class="price">${v}</td></tr>`).join("");
+      renderFindings(els.findings, result.findings);
+      lastResult = result;
+      els.fallback.hidden = true;
+      els.copyStatus.textContent = COPY_HINT;
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("pricing_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!val("lesson-price") || !val("slots-per-week") || !val("mpg")) {
+        els.status.innerHTML = `<span class="error">Enter a lesson price, slots per week and miles per gallon first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = example[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $50 lessons, 25 slots a week, 8% unpaid cancellations, 12 miles a lesson, 40 mpg, $4.60k fixed costs, block of 10 for $450.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = defaults[id] ?? "";
+      els.report.hidden = true;
+      // Drop the held result with the inputs that produced it.
+      lastResult = null;
+      els.fallback.hidden = true;
+      els.textarea.value = "";
+      els.copyStatus.textContent = COPY_HINT;
+      els.status.textContent = "Enter a lesson price, slots per week, miles per lesson, mpg and fuel price, then click Calculate.";
+    });
+
+    $("#copy-summary").addEventListener("click", async () => {
+      if (!lastResult) {
+        els.copyStatus.innerHTML = `<span class="error">Calculate first, then copy the summary.</span>`;
+        return;
+      }
+      const text = formatPricingSummary(lastResult);
+      els.textarea.value = text;
+      try {
+        await navigator.clipboard.writeText(text);
+        els.fallback.hidden = true;
+        els.copyStatus.textContent = "Summary copied. Paste it into a note to yourself — read it once before relying on it.";
+      } catch {
+        els.fallback.hidden = false;
+        els.copyStatus.textContent = "This browser blocked the clipboard. The summary is in the box below — select it and copy.";
+        els.textarea.focus();
+        els.textarea.select();
+      }
+      record("summary_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

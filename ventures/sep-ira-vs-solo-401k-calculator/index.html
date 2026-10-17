@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SEP-IRA vs Solo 401(k) Calculator — 2026, Free</title>
+  <meta name="description" content="Free 2026 calculator comparing a SEP-IRA and a Solo 401(k) for a sole proprietor or single-member LLC: how much each lets you contribute, the dollar gap, the tax it is worth at your marginal rate, and the profit at which each plan maxes out. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="SEP-IRA vs Solo 401(k) Calculator — free, 2026">
+  <meta property="og:description" content="Compare what a SEP-IRA and a Solo 401(k) let you contribute in 2026, what the difference is worth in tax, and the profit each needs to max out. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SEP-IRA vs Solo 401(k) Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free 2026 calculator comparing a SEP-IRA and a Solo 401(k) for a sole proprietor or single-member LLC: how much each lets you contribute, the dollar gap, the tax it is worth at your marginal rate, and the profit at which each plan maxes out. Entirely client-side, nothing uploaded.", "featureList": "SEP-IRA and Solo 401(k) 2026 contribution compared, catch-up by age, shared 401(k) deferral room, estimated tax saving, profit needed to max out each plan, profit sweep table"}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "SEP-IRA or Solo 401(k): which lets a self-employed person save more in 2026?", "acceptedAnswer": {"@type": "Answer", "text": "The Solo 401(k), at every income level. A SEP-IRA is employer money only: 20% of net self-employment earnings, up to $72,000, with no catch-up. A Solo 401(k) adds an employee deferral of up to $24,500 ($32,500 at 50, $35,750 at 60-63) on top of the same 20% employer share, so the gap is largest at low and middle profits and closes only when both plans reach the $72,000 ceiling."}}, {"@type": "Question", "name": "At what income does a SEP-IRA stop being worse than a Solo 401(k)?", "acceptedAnswer": {"@type": "Answer", "text": "Only at very high profit. Because the SEP-IRA contributes just 20% of net earnings, it needs roughly $376,000 of net profit to reach $72,000, while a Solo 401(k) reaches the same ceiling at roughly $252,000 (younger than 50). Below that the Solo 401(k) always allows more, though a SEP-IRA is simpler to set up and run."}}, {"@type": "Question", "name": "Does a day-job 401(k) deferral affect a SEP-IRA?", "acceptedAnswer": {"@type": "Answer", "text": "No. The elective-deferral limit is shared across every 401(k) you contribute to, so deferrals at a W-2 job reduce your Solo 401(k) room. A SEP-IRA is an employer contribution and is not reduced by them, which can make it the better fit when a day job already uses most of your deferral limit."}}, {"@type": "Question", "name": "Do I get a catch-up contribution with a SEP-IRA?", "acceptedAnswer": {"@type": "Answer", "text": "No. Catch-up contributions apply to an elective deferral, and a SEP-IRA has none. At 50 or older a Solo 401(k) adds $8,000 ($11,250 at ages 60-63 if the plan allows it) that a SEP-IRA cannot."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC with no employees. It does not replace IRS Publication 560 or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SEP-IRA VS SOLO 401(K) CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>SEP-IRA or Solo 401(k): how much more can you save in 2026?</h1>
+    <p>For a sole proprietor or single-member LLC. A SEP-IRA is employer money only —
+    <strong>20%</strong> of net earnings, no catch-up. A Solo 401(k) adds an employee deferral of up to
+    <strong>$24,500</strong> (more with a catch-up), so it allows more at almost every income. This shows
+    how much more, what it is worth in tax, and the profit each plan needs to reach the
+    <strong>$72,000</strong> ceiling.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device — see the privacy note in the footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your business and age</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net profit from your business in 2026 ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 90000">
+      </div>
+      <div>
+        <label for="age">Your age at the end of 2026</label>
+        <input type="number" id="age" min="0" max="120" step="1" placeholder="e.g. 45">
+      </div>
+      <div>
+        <label for="marginal-rate">Your marginal tax rate (%), optional</label>
+        <input type="number" id="marginal-rate" min="0" max="60" step="1" placeholder="e.g. 24">
+      </div>
+      <div>
+        <label for="deferral-elsewhere">Deferred to another 401(k) this year ($), optional</label>
+        <input type="number" id="deferral-elsewhere" min="0" step="1" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">Net profit is your Schedule C net profit before this contribution — not gross revenue.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your net profit and age, then click Compare.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h2 style="margin-top:22px">The same comparison at other profits</h2>
+    <table>
+      <thead><tr><th scope="col">Net profit</th><th scope="col">SEP-IRA</th><th scope="col">Solo 401(k)</th><th scope="col">Solo advantage</th></tr></thead>
+      <tbody id="sweep-table"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Sole proprietor / single-member LLC with no employees only.</strong> A SEP-IRA must cover eligible employees at the same percentage as the owner, and a Solo 401(k) is only available while you have no employees other than a spouse. S-corps and partnerships use W-2 wages or a K-1 allocation.</li>
+      <li><strong>Contribution room, not investment or plan terms.</strong> Fees, Roth options, loans, investment choices, plan documents and the deadlines to open each plan are not modelled; confirm them with the provider.</li>
+      <li><strong>The tax figure is an estimate.</strong> It multiplies the extra deduction by the single marginal rate you enter; it ignores phase-outs, the QBI deduction interaction and state rules.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> These limits are re-indexed annually; confirm the current year's figures before relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>SEP-IRA or Solo 401(k): which lets a self-employed person save more in 2026?</h3>
+    <p>The Solo 401(k), at every income level. A SEP-IRA is employer money only: 20% of net self-employment earnings, up to $72,000, with no catch-up. A Solo 401(k) adds an employee deferral of up to $24,500 ($32,500 at 50, $35,750 at 60-63) on top of the same 20% employer share, so the gap is largest at low and middle profits and closes only when both plans reach the $72,000 ceiling.</p>
+    <h3>At what income does a SEP-IRA stop being worse than a Solo 401(k)?</h3>
+    <p>Only at very high profit. Because the SEP-IRA contributes just 20% of net earnings, it needs roughly $376,000 of net profit to reach $72,000, while a Solo 401(k) reaches the same ceiling at roughly $252,000 (younger than 50). Below that the Solo 401(k) always allows more, though a SEP-IRA is simpler to set up and run.</p>
+    <h3>Does a day-job 401(k) deferral affect a SEP-IRA?</h3>
+    <p>No. The elective-deferral limit is shared across every 401(k) you contribute to, so deferrals at a W-2 job reduce your Solo 401(k) room. A SEP-IRA is an employer contribution and is not reduced by them, which can make it the better fit when a day job already uses most of your deferral limit.</p>
+    <h3>Do I get a catch-up contribution with a SEP-IRA?</h3>
+    <p>No. Catch-up contributions apply to an elective deferral, and a SEP-IRA has none. At 50 or older a Solo 401(k) adds $8,000 ($11,250 at ages 60-63 if the plan allows it) that a SEP-IRA cannot.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC with no employees. It does not replace IRS Publication 560 or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own plan's terms before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Already know you want the Solo 401(k)? The <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> adds a custom deferral and the full worksheet.</p>
+    <p>Deciding how much S-corp salary to pay yourself? The <a href="../s-corp-reasonable-compensation-calculator/">S corp reasonable compensation calculator</a> covers that.</p>
+    <p>Want the tax side of self-employment? The <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> shows what you owe on the same profit.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { comparePlans, profitSweep, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      netProfit: $("#net-profit"), age: $("#age"), rate: $("#marginal-rate"), elsewhere: $("#deferral-elsewhere"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      table: $("#result-table"), findings: $("#report-findings"), sweep: $("#sweep-table"),
+    };
+    const dollars = (n) => {
+        if (n == null) return "never below $2,000,000";
+        const text = `$${Math.abs(n).toLocaleString()}`;
+        return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+      };
+
+    function runCalculate() {
+      const age = Number(els.age.value) || 0;
+      const deferralUsedElsewhere = Number(els.elsewhere.value) || 0;
+      const r = comparePlans({
+        netProfit: Number(els.netProfit.value) || 0, age, deferralUsedElsewhere,
+        marginalRate: (Number(els.rate.value) || 0) / 100,
+      });
+      els.stats.innerHTML = `Solo 401(k): <strong>${money(r.solo.total)}</strong> · SEP-IRA: <strong>${money(r.sep)}</strong> · difference: <strong>${money(r.gap)}</strong>.`;
+      const rows = [
+        `<tr><th scope="row">Net self-employment earnings</th><td>${money(r.earnings)}</td></tr>`,
+        `<tr><th scope="row">SEP-IRA contribution (employer 20% only)</th><td>${money(r.sep)}</td></tr>`,
+        `<tr><th scope="row">Solo 401(k) employee deferral</th><td>${money(r.solo.deferral)}</td></tr>`,
+        `<tr><th scope="row">Solo 401(k) employer contribution</th><td>${money(r.solo.employer)}</td></tr>`,
+        `<tr><th scope="row"><strong>Solo 401(k) total</strong></th><td><strong>${money(r.solo.total)}</strong></td></tr>`,
+      ];
+      if (r.rate > 0) rows.push(`<tr><th scope="row">Estimated extra tax saved by the Solo 401(k)</th><td>${money(r.taxSavedExtra)}</td></tr>`);
+      rows.push(`<tr><th scope="row">Profit needed to max out the SEP-IRA ($72,000)</th><td>${dollars(r.profitToMaxSep)}</td></tr>`);
+      rows.push(`<tr><th scope="row">Profit needed to max out the Solo 401(k)</th><td>${dollars(r.profitToMaxSolo)}</td></tr>`);
+      els.table.innerHTML = rows.join("");
+      els.findings.innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      els.sweep.innerHTML = profitSweep({ age, deferralUsedElsewhere }).map((s) =>
+        `<tr><td>${money(s.profit)}</td><td>${money(s.sep)}</td><td>${money(s.solo)}</td><td>${money(s.gap)}</td></tr>`).join("");
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("comparison_run");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+    $("#load-example").addEventListener("click", () => {
+      els.netProfit.value = "90000";
+      els.age.value = "45";
+      els.rate.value = "24";
+      els.elsewhere.value = "";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $90,000 net profit, age 45, 24% marginal rate.";
+    });
+    $("#clear-all").addEventListener("click", () => {
+      for (const el of [els.netProfit, els.age, els.rate, els.elsewhere]) el.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter your net profit and age, then click Compare.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

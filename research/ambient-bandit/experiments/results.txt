@@ -1,0 +1,37 @@
+world: prevalence 0.03, d'=2.0, benefit 3.0, false cost 1 (x2.0 if others talk)
+offline oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.002] (fitted on 2000 labelled hours)
+20 seeds, 100 h streams, refit every 10 min, labels only from windows where it spoke
+
+== 1. Utility per hour in hour windows, and total dismissals (stationary world)
+prior       policy                h0-5            h5-20          h20-100   dismiss/h 20-100   (oracle h20-100)
+uninformed  greedy      -15.82 +-  18.79    -1.17 +-   3.88    -0.07 +-   2.01        4.1            12.71
+uninformed  eps         -25.02 +-  17.43    -8.31 +-   7.22    -1.97 +-   1.24        5.8            12.71
+uninformed  thompson    -24.13 +-  22.90    -3.88 +-   5.68    -1.36 +-   2.85        5.1            12.71
+informed    greedy        7.84 +-   2.35    10.46 +-   1.84    10.39 +-   0.83        9.4            12.71
+informed    eps           5.98 +-   2.59     8.71 +-   2.00     8.50 +-   0.90       10.6            12.71
+informed    thompson      3.73 +-   2.91     9.64 +-   1.91    10.32 +-   0.86        9.3            12.71
+
+== 2. Cumulative regret vs offline oracle (utility units) and dismissals spent
+prior       policy         regret@5h     regret@20h    regret@100h  dismissals@20h
+uninformed  greedy             140.1          350.4         1372.2           166.0
+uninformed  eps                186.1          503.4         1677.7           299.4
+uninformed  thompson           181.6          432.6         1557.9           236.5
+informed    greedy              21.8           57.6          243.2           184.6
+informed    eps                 31.1           93.2          429.6           208.2
+informed    thompson            42.3           90.5          281.8           200.2
+
+== 3. Hours until the trailing 10 h utility rate first reaches 90% of the oracle's (median over seeds; 'never' = share of seeds that did not within 100 h)
+uninformed  greedy    median    nan h; never: 100%
+uninformed  eps       median    nan h; never: 100%
+uninformed  thompson  median    nan h; never: 100%
+informed    greedy    median   22.5 h; never: 0%
+informed    eps       median   31.0 h; never: 55%
+informed    thompson  median   32.5 h; never: 0%
+
+== 4. Drift: at hour 50 the intent classifier degrades (d' 2.0 -> 1.0). Utility per hour, hours 50-100
+stale offline (pre-drift weights)        4.38 +-   0.66
+post-drift oracle                        5.63 +-   0.69
+bandit, no forgetting                    0.31 +-   0.65
+bandit, forget>20 h                      0.62 +-   0.68
+
+runtime 71 s

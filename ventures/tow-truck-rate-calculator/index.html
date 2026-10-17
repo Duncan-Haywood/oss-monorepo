@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tow Truck Rate Calculator</title>
+  <meta name="description" content="Price a tow job from your own costs: margin, break-even, ranked levers. Runs in your browser.">
+  <meta property="og:title" content="Tow truck rate calculator, free">
+  <meta property="og:description" content="Price a tow job from your own costs: margin, break-even and what to change first. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tow Truck Rate Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Prices a tow job from the operator's own costs: hook-up fee, loaded per-mile rate, deadhead, after-hours, weather and winch surcharges, storage, truck hourly cost. Shows margin, break-even and ranked levers. Entirely client-side; nothing is uploaded.", "featureList": "price per tow job, true cost, margin, break-even, target price, ranked levers"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I price a tow job?", "acceptedAnswer": {"@type": "Answer", "text": "Add up what the job really costs you: truck time at your hourly cost (payment, insurance and driver spread over billable hours), fuel and wear on every mile including the empty deadhead, and any storage cost. Then price above that by the margin you need. This tool does the arithmetic from your own figures."}}, {"@type": "Question", "name": "What is deadhead in towing?", "acceptedAnswer": {"@type": "Answer", "text": "Deadhead miles are the miles you drive empty to reach the pickup. They cost fuel, wear and truck time like any other mile but are often not billed separately, so they are folded into the true cost of the job here."}}, {"@type": "Question", "name": "What is my break-even per tow?", "acceptedAnswer": {"@type": "Answer", "text": "The break-even price is the job's true cost: truck time at your hourly cost, per-mile fuel and wear for loaded and deadhead miles, and any storage cost. Below it every job loses money."}}, {"@type": "Question", "name": "Can I charge whatever this calculator suggests?", "acceptedAnswer": {"@type": "Answer", "text": "Not necessarily. Many states and cities regulate or cap towing rates, rotation-list contracts and private-property tows set their own schedules, and storage fees are often limited. This tool does not know your local rules. Check them before you publish a rate."}}, {"@type": "Question", "name": "Is this legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter. Results are estimates and do not replace a qualified adviser or the rules that apply to you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TOW TRUCK RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should this tow actually cost?</h1>
+    <p>Enter your truck costs and the job, and see the <strong>true cost</strong> of the tow including the empty drive out, your <strong>margin</strong> at the price you charge, the <strong>break-even</strong> price, the price for your <strong>target margin</strong>, and which <strong>levers</strong> add the most profit.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device. Estimates only: towing rates are regulated in many places, see the notes at the bottom.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your truck costs</h2>
+    <div class="grid">
+      <div>
+        <label for="truck-payment">Truck payment per month ($)</label>
+        <input type="number" id="truck-payment" step="any" min="0" placeholder="e.g. 1500">
+      </div>
+      <div>
+        <label for="insurance">Insurance per month ($)</label>
+        <input type="number" id="insurance" step="any" min="0" placeholder="e.g. 600">
+      </div>
+      <div>
+        <label for="driver-hourly">Driver cost per hour, wages plus payroll costs ($)</label>
+        <input type="number" id="driver-hourly" step="any" min="0" placeholder="e.g. 25">
+      </div>
+      <div>
+        <label for="billable-hours">Billable hours per month (hours the truck is on jobs)</label>
+        <input type="number" id="billable-hours" step="any" min="0" placeholder="e.g. 150">
+      </div>
+      <div>
+        <label for="fuel-price">Fuel price per gallon ($)</label>
+        <input type="number" id="fuel-price" step="any" min="0" placeholder="e.g. 4">
+      </div>
+      <div>
+        <label for="mpg">Miles per gallon</label>
+        <input type="number" id="mpg" step="any" min="0" placeholder="e.g. 8">
+      </div>
+      <div>
+        <label for="maint-per-mile">Tires, maintenance and wear per mile ($)</label>
+        <input type="number" id="maint-per-mile" step="any" min="0" placeholder="e.g. 0.25">
+      </div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. This job</h2>
+    <div class="grid">
+      <div>
+        <label for="loaded-miles">Loaded miles (with the vehicle on the hook)</label>
+        <input type="number" id="loaded-miles" step="any" min="0" placeholder="e.g. 20">
+      </div>
+      <div>
+        <label for="deadhead-miles">Deadhead miles (empty, to the pickup)</label>
+        <input type="number" id="deadhead-miles" step="any" min="0" placeholder="e.g. 10">
+      </div>
+      <div>
+        <label for="avg-mph">Average driving speed (mph)</label>
+        <input type="number" id="avg-mph" step="any" min="0" placeholder="e.g. 30">
+      </div>
+      <div>
+        <label for="on-scene-minutes">Minutes on scene for hook-up and drop-off</label>
+        <input type="number" id="on-scene-minutes" step="any" min="0" placeholder="e.g. 30">
+      </div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>3. Your charges</h2>
+    <div class="grid">
+      <div>
+        <label for="hookup">Hook-up fee ($)</label>
+        <input type="number" id="hookup" step="any" min="0" placeholder="e.g. 125">
+      </div>
+      <div>
+        <label for="included-miles">Loaded miles included in the hook-up fee</label>
+        <input type="number" id="included-miles" step="any" min="0" placeholder="e.g. 5">
+      </div>
+      <div>
+        <label for="rate-per-mile">Loaded rate per mile beyond that ($)</label>
+        <input type="number" id="rate-per-mile" step="any" min="0" placeholder="e.g. 4">
+      </div>
+      <div>
+        <label for="after-hours-fee">After-hours surcharge ($, 0 if none)</label>
+        <input type="number" id="after-hours-fee" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="weather-fee">Weather surcharge ($, 0 if none)</label>
+        <input type="number" id="weather-fee" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="winch-fee">Winch or recovery surcharge ($, 0 if none)</label>
+        <input type="number" id="winch-fee" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="winch-minutes">Extra minutes the recovery adds</label>
+        <input type="number" id="winch-minutes" step="any" min="0" placeholder="e.g. 0">
+      </div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>4. Storage and target</h2>
+    <div class="grid">
+      <div>
+        <label for="storage-days">Storage days billed</label>
+        <input type="number" id="storage-days" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="storage-fee">Daily storage fee ($)</label>
+        <input type="number" id="storage-fee" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="storage-cost">Your cost per storage day ($, lot, insurance)</label>
+        <input type="number" id="storage-cost" step="any" min="0" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="target-margin">Target margin (% of the price)</label>
+        <input type="number" id="target-margin" step="any" min="0" placeholder="e.g. 30">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate price</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Calculate price. Blank fields use the example values.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead><tbody id="result-table"></tbody></table>
+    <h3>Levers, ranked by profit added per job</h3>
+    <ol id="levers"></ol>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Truck hourly cost</strong> = (truck payment + insurance) / billable hours per month + driver cost per hour. <strong>Per-mile cost</strong> = fuel price / mpg + wear per mile.</li>
+      <li><strong>True cost</strong> = job hours x truck hourly cost + (deadhead + loaded miles) x per-mile cost + storage days x your storage cost. Job hours are driving time plus on-scene and recovery minutes.</li>
+      <li><strong>Price</strong> = hook-up + loaded miles beyond the included distance x rate + surcharges + storage days x daily fee. <strong>Break-even</strong> = true cost. <strong>Target price</strong> = true cost / (1 - target margin).</li>
+      <li><strong>Levers</strong> are fixed-size steps (hook-up +$10, rate +$0.50 per mile, 25% less deadhead, 10 minutes saved, storage +$5 a day) so they can be compared; the sizes are illustrative, not recommendations.</li>
+      <li><strong>Not modelled:</strong> idle time between jobs beyond your billable-hours figure, tolls, impound lot and gate fees, labour for dollies or special equipment, motor-club and rotation-list payout schedules, taxes, and any rate cap that applies to you.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I price a tow job?</h3>
+    <p>Add up what the job really costs you: truck time at your hourly cost (payment, insurance and driver spread over billable hours), fuel and wear on every mile including the empty deadhead, and any storage cost. Then price above that by the margin you need. This tool does the arithmetic from your own figures.</p>
+    <h3>What is deadhead in towing?</h3>
+    <p>Deadhead miles are the miles you drive empty to reach the pickup. They cost fuel, wear and truck time like any other mile but are often not billed separately, so they are folded into the true cost of the job here.</p>
+    <h3>What is my break-even per tow?</h3>
+    <p>The break-even price is the job's true cost: truck time at your hourly cost, per-mile fuel and wear for loaded and deadhead miles, and any storage cost. Below it every job loses money.</p>
+    <h3>Can I charge whatever this calculator suggests?</h3>
+    <p>Not necessarily. Many states and cities regulate or cap towing rates, rotation-list contracts and private-property tows set their own schedules, and storage fees are often limited. This tool does not know your local rules. Check them before you publish a rate.</p>
+    <h3>Is this legal or financial advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter. Results are estimates and do not replace a qualified adviser or the rules that apply to you.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for the prices you charge.</p>
+    <p><strong>Check your local rules.</strong> Towing rates, storage fees, rotation-list contracts and private-property tows are regulated in many states and municipalities, and the limits differ. This calculator does not know them and does not tell you what you may lawfully charge. Check your state, county and city tow rate regulation, your rotation-list agreement and the private-property-tow rules that apply to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>price_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also see the <a href="../tow-motor-club-call-calculator/">tow motor club call calculator</a>, the <a href="../mobile-tire-van-job-picker/">mobile tire van job picker</a>, the <a href="../pilot-car-escort-run-profit-calculator/">pilot car escort run profit calculator</a> and the <a href="../fleet-repair-or-replace-planner/">fleet repair or replace planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { rateOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const map = { "truck-payment": "truckPayment", "insurance": "insurance", "driver-hourly": "driverHourly", "billable-hours": "billableHours", "fuel-price": "fuelPrice", "mpg": "mpg", "maint-per-mile": "maintPerMile", "loaded-miles": "loadedMiles", "deadhead-miles": "deadheadMiles", "avg-mph": "avgMph", "on-scene-minutes": "onSceneMinutes", "hookup": "hookup", "included-miles": "includedMiles", "rate-per-mile": "ratePerMile", "after-hours-fee": "afterHoursFee", "weather-fee": "weatherFee", "winch-fee": "winchFee", "winch-minutes": "winchMinutes", "storage-days": "storageDays", "storage-fee": "storageFeePerDay", "storage-cost": "storageCostPerDay", "target-margin": "targetMarginPct" };
+    const ids = Object.keys(map);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+    function runCalculate() {
+      const input = {};
+      for (const id of ids) {
+        const t = $("#" + id).value.trim();
+        input[map[id]] = t === "" ? null : Number(t);
+      }
+      const r = rateOutcome(input);
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return; }
+      $("#report-stats").innerHTML = `True cost <strong>${money(r.trueCost)}</strong> against a price of <strong>${money(r.revenue)}</strong>: profit <strong>${money(r.profit)}</strong>${r.margin === null ? "" : ` (${(r.margin * 100).toFixed(1)}% margin)`}.`;
+      const rows = [
+        ["Price as entered", money(r.revenue)],
+        ["True cost of the job", money(r.trueCost)],
+        ["Profit", money(r.profit)],
+        ["Margin", r.margin === null ? "n/a" : `${(r.margin * 100).toFixed(1)}%`],
+        ["Break-even price", money(r.breakEven)],
+        [`Price for a ${r.input.targetMarginPct}% margin`, money(r.targetPrice)],
+        ["Loaded rate per mile that breaks even", r.breakEvenRate === null ? "no billable loaded miles" : r.breakEvenRate === 0 ? "covered by the other charges" : money(r.breakEvenRate)],
+        ["Truck hourly cost", money(r.rates.hourlyCost)],
+        ["Cost per mile (fuel and wear)", money(r.rates.perMileCost)],
+        ["Job time", `${r.hours.toFixed(2)} hours`],
+      ];
+      $("#result-table").innerHTML = rows.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join("");
+      $("#levers").innerHTML = r.levers.length ? r.levers.map((l) => `<li>${esc(l.label)}: <strong>+${money(l.gain)}</strong> per job</li>`).join("") : "<li>No lever applies to these inputs.</li>";
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("price_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "after-hours-fee": 0 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? $("#" + id).placeholder.replace("e.g. ", "");
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: 20 loaded and 10 deadhead miles, 30 minutes on scene, $125 hook-up with 5 miles included then $4 per mile. True cost $81.00, price $185.00.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Calculate price. Blank fields use the example values.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

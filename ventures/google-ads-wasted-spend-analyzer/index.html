@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Google Ads Wasted Spend Analyzer — Free Search Terms Report Tool</title>
+  <meta name="description" content="Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Google Ads Wasted Spend Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Wasted spend, negative keyword candidates and exact-match winners from a search terms report. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Google Ads Wasted Spend Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Google Ads search terms report into a wasted-spend report: spend on terms that never converted, proven versus unproven waste, negative keyword candidates that never appear in a converting term, and converting terms worth promoting to exact match. Runs entirely in your browser; the file is never uploaded.", "featureList": "Wasted spend by evidence tier, negative keyword candidates, exact-match promotion list, match type and campaign breakdown, downloadable negative keyword list"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find wasted spend in my Google Ads search terms report?", "acceptedAnswer": {"@type": "Answer", "text": "Download the Search terms report from Google Ads (Insights and reports, Search terms, Download as CSV) with the Cost, Clicks and Conversions columns, and drop it here. The tool separates spend on terms that converted from spend on terms that did not, then splits the second group by how strong the evidence is: terms with enough clicks that a zero is unlikely to be luck, terms that spent more than a conversion is worth, and terms with too little data to judge. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How does it decide a search term is wasted?", "acceptedAnswer": {"@type": "Answer", "text": "A term is wasted spend if it converted zero times. It is proven waste if it had enough clicks that, at your account's own conversion rate, seeing no conversion would happen by chance less than 5% of the time. That click count is worked out from your file and shown on the page. A term that spent more than your target cost per conversion (or your average, if you leave the target blank) with none is flagged as overspent. Everything else with zero conversions is a watch list, because a few clicks prove nothing."}}, {"@type": "Question", "name": "Which words does it suggest as negative keywords?", "acceptedAnswer": {"@type": "Answer", "text": "Only words that appear in at least two search terms, in no term anywhere in the file that converted, and that are not a large share of your traffic, which usually means they are part of your core keywords. You can also list your core words to protect them. Negative keywords do not match close variants, so add plurals and misspellings yourself."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Your keywords, bids, ad copy, landing pages, conversion values beyond what the export contains, and future queries. A word with no conversions this month may convert next month, and conversion tracking that counts soft actions makes waste look smaller than it is. Treat the output as a list of leads to review, not a list to paste in blindly."}}, {"@type": "Question", "name": "Is this advertising or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Google and is not affiliated with or endorsed by it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">GOOGLE ADS WASTED SPEND ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your Google Ads budget goes to searches that never convert?</h1>
+    <p>Drop in the <strong>search terms report</strong> you downloaded from Google Ads and get the <strong>spend on terms that never converted</strong>, how sure you can be about each one, a ready-to-paste <strong>negative keyword list</strong> that never blocks a term that converted, and the winners worth promoting to <strong>exact match</strong>, without giving a third-party tool access to your ad account.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Google: not affiliated with or endorsed by Google or Google Ads.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your search terms report</h2>
+    <p class="note">Google Ads → Insights and reports → Search terms → Download (CSV). Needs Search term, Cost, Clicks and Conversions; Match type, Campaign, Added/Excluded, Impr. and Conv. value are used when present. Google's title, date-range and Total rows are handled. Comma, tab and semicolon files, including the older UTF-16 export, are read.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the report text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Search term,Match type,Clicks,Impr.,Cost,Conversions"></textarea>
+    <div class="grid">
+      <div><label for="target">Target cost per conversion (optional)</label><input type="number" id="target" min="0" step="any" placeholder="blank = your average"></div>
+      <div><label for="minclicks">Clicks before zero conversions counts as proven (optional)</label><input type="number" id="minclicks" min="1" step="1" placeholder="blank = worked out from your data"></div>
+    </div>
+    <label for="core">Your core words, never suggested as negatives (optional, comma separated)</label>
+    <input type="text" id="core" placeholder="plumber, plumbing">
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste report text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money went</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Bucket</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Share of spend</th></tr></thead><tbody id="buckets"></tbody></table></div>
+    <h3>Negative keyword candidates</h3>
+    <p class="note">Words first (broad negative: blocks any query containing the word), then whole search terms as exact negatives. Review before adding; none of these appeared in a converting term in this file.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Negative keyword</th><th scope="col">Type</th><th class="n" scope="col">Wasted</th><th scope="col">Why</th></tr></thead><tbody id="negatives"></tbody></table></div>
+    <h3>Converting terms worth adding as exact match</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Search term</th><th scope="col">Reached via</th><th class="n" scope="col">Conversions</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Cost / conv.</th></tr></thead><tbody id="promote"></tbody></table></div>
+    <h3>By match type</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Match type</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Conversions</th><th class="n" scope="col">Cost / conv.</th><th class="n" scope="col">Zero-conversion cost</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-match"></tbody></table></div>
+    <h3>By campaign</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Campaign</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Conversions</th><th class="n" scope="col">Cost / conv.</th><th class="n" scope="col">Zero-conversion cost</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-campaign"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="copy">Copy negative keywords</button><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Wasted spend</strong> is the cost of search terms with zero conversions. Terms are combined across match types and ad groups before they are judged.</li>
+      <li><strong>Reconciles.</strong> Converting, proven, overspent, watch and already-excluded spend add up to your total cost, and the three waste tiers add up to the headline figure.</li>
+      <li><strong>Proven</strong> means enough clicks that a term converting at your account's own rate would show nothing less than 5% of the time, the fewest clicks n with (1 − rate)^n under 0.05. You can override the click count.</li>
+      <li><strong>Overspent</strong> means the term spent more than your target cost per conversion (or your average) with none. <strong>Watch</strong> is everything else, too little data to judge.</li>
+      <li><strong>Word negatives</strong> only come from words that appear in two or more terms, in no converting term, and in under a quarter of your clicks. Words you list as core are never suggested. Negatives do not match close variants.</li>
+      <li><strong>Not modelled:</strong> future queries, keyword bids and quality, ad copy, landing pages, assisted conversions and conversion value differences between terms. Soft conversion actions make waste look smaller than it is.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find wasted spend in my Google Ads search terms report?</h3>
+    <p>Download the Search terms report from Google Ads (Insights and reports, Search terms, Download as CSV) with the Cost, Clicks and Conversions columns, and drop it here. The tool separates spend on terms that converted from spend on terms that did not, then splits the second group by how strong the evidence is: terms with enough clicks that a zero is unlikely to be luck, terms that spent more than a conversion is worth, and terms with too little data to judge. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>How does it decide a search term is wasted?</h3>
+    <p>A term is wasted spend if it converted zero times. It is proven waste if it had enough clicks that, at your account's own conversion rate, seeing no conversion would happen by chance less than 5% of the time. That click count is worked out from your file and shown on the page. A term that spent more than your target cost per conversion (or your average, if you leave the target blank) with none is flagged as overspent. Everything else with zero conversions is a watch list, because a few clicks prove nothing.</p>
+    <h3>Which words does it suggest as negative keywords?</h3>
+    <p>Only words that appear in at least two search terms, in no term anywhere in the file that converted, and that are not a large share of your traffic, which usually means they are part of your core keywords. You can also list your core words to protect them. Negative keywords do not match close variants, so add plurals and misspellings yourself.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Your keywords, bids, ad copy, landing pages, conversion values beyond what the export contains, and future queries. A word with no conversions this month may convert next month, and conversion tracking that counts soft actions makes waste look smaller than it is. Treat the output as a list of leads to review, not a list to paste in blindly.</p>
+    <h3>Is this advertising or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Google and is not affiliated with or endorsed by it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make, including any negative keyword you add. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Google.</strong> Google and Google Ads are trademarks of Google LLC. This tool is independent and is not sponsored, endorsed or connected to Google in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Building campaigns in a spreadsheet? Check the file before you import it with the <a href="../google-ads-editor-csv-check/">Google Ads Editor CSV check</a> &mdash; headline limits, responsive search ad counts and keyword errors, nothing uploaded.</p>
+    <p>Running paid social too? Drop an Ads Manager export into the <a href="../meta-ads-fatigue-analyzer/">Meta Ads fatigue analyzer</a> to see fatigued creatives and spend with no results &mdash; nothing uploaded.</p>
+    <p>Also running the numbers on a business? See the <a href="../merchant-feed-check/">Merchant Center feed check</a>, the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a> and the <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Running Amazon ads? Drop a search term report into the <a href="../amazon-ppc-search-term-analyzer/">Amazon PPC search term analyzer</a> to see wasted spend, negatives and harvest terms &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, negativesList, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const target = Number($("#target").value) || null;
+      const minClicks = Number($("#minclicks").value) || null;
+      const coreWords = $("#core").value.split(",").map((w) => w.trim()).filter(Boolean);
+      const r = analyze(n.rows, { targetCpa: target, minClicks, coreWords });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary;
+      const cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.terms} search terms, ${cur}${money(s.cost)} spent, ${s.conv % 1 ? s.conv.toFixed(1) : s.conv} conversions (${pct(s.convRate)} of clicks, ${cur}${money(s.cpa)} each). <strong>${cur}${money(s.zeroCost)} (${pct(s.wasteShare)}) went to terms that never converted</strong>, of which ${cur}${money(s.buckets.proven)} is proven with at least ${s.needed} clicks each. The negative list below covers ${pct(s.coveredShare)} of it.`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const names = { converting: "Terms that converted", proven: "Proven waste (enough clicks, none converted)", overspent: "Overspent (cost above one conversion, none converted)", watch: "Watch (too little data)", excluded: "Already excluded" };
+      $("#buckets").innerHTML = Object.entries(r.buckets).map(([k, v]) => `<tr><th scope="row">${names[k]}</th><td class="n">${money(v)}</td><td class="n">${pct(v / s.cost)}</td></tr>`).join("");
+      $("#negatives").innerHTML = r.negatives.length ? r.negatives.map((x) => `<tr><th scope="row">${esc(x.text)}</th><td>${x.type}</td><td class="n">${money(x.cost)}</td><td>${esc(x.reason)}</td></tr>`).join("") : '<tr><td colspan="4">Nothing in this file clears the evidence bar.</td></tr>';
+      $("#promote").innerHTML = r.promote.length ? r.promote.map((p) => `<tr><th scope="row">${esc(p.term)}</th><td>${esc(p.matches)}</td><td class="n">${p.conv}</td><td class="n">${money(p.cost)}</td><td class="n">${money(p.cpa)}</td></tr>`).join("") : '<tr><td colspan="5">None: every term with two or more conversions is already reached as exact match, or the file has no match type column.</td></tr>';
+      const grp = (b) => `<tr><th scope="row">${esc(b.key)}</th><td class="n">${money(b.cost)}</td><td class="n">${b.conv}</td><td class="n">${b.cpa === null ? "–" : money(b.cpa)}</td><td class="n">${money(b.zeroCost)}</td><td class="n">${pct(b.wasteShare)}</td></tr>`;
+      $("#by-match").innerHTML = r.byMatch.length ? r.byMatch.map(grp).join("") : '<tr><td colspan="6">No match type column in this file.</td></tr>';
+      $("#by-campaign").innerHTML = r.byCampaign.length ? r.byCampaign.map(grp).join("") : '<tr><td colspan="6">No campaign column in this file.</td></tr>';
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.totalsRows) notes.push(`${n.totalsRows} Total row(s) were ignored.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.rows.length} rows.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste report text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a local plumbing campaign. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste report text, then click Analyze."; });
+    $("#copy").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(negativesList(last)); status.textContent = "Negative keywords copied."; }
+      catch { status.textContent = "Copy was blocked by the browser; use Download instead."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const rows = ["negative_keyword,type,wasted_cost,reason"].concat(last.negatives.map((x) => [q(x.text), x.type, x.cost.toFixed(2), q(x.reason)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "negative-keyword-candidates.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+name: iso-exercise-amt-calculator
+description: >-
+  Free browser tool for employees holding incentive stock options that finds the
+  AMT crossover, the number of ISOs that can be exercised this year before the
+  alternative minimum tax starts, and shows the AMT and total cash needed at
+  larger exercise sizes. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.13 (unrelated). Chosen after a first draft of an RSU tool was dropped
+# because rsu-withholding-gap-calculator merged minutes earlier (#6047); ISO/AMT
+# is its natural equity-comp sibling and nothing in ventures/ covers it.
+# Startup employees holding ISOs make one expensive, irreversible decision (how
+# many to exercise, before expiry or a liquidity event), and the standard advice
+# "talk to a CPA" is what a free crossover number replaces for the first pass.
+#
+# First visitor: r/startups, r/cscareerquestions, Blind and Bogleheads threads on
+# "how many ISOs to exercise", "ISO AMT crossover"; volume not measured.
+#
+# What makes it more than a calculator: it finds the crossover by search rather
+# than asking for a guess, shows marginal AMT rate and total cash at each size,
+# and handles itemizers' SALT add-back and the exemption phase-out.
+#
+# Privacy is the liability boundary: income and option details never leave the
+# browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for equity-comp tools
+# (ESPP and NSO planning are natural siblings). A paid tier, if usage appears,
+# is a saved multi-year exercise plan, local only; not built.
+#
+# Liability: illustrative estimates, not advice; 2026 AMT parameters and the
+# omissions are stated on the page. Unverified: hand calculation and unit tests
+# only, not Form 6251. The first return that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      ISO holders will use a no-signup tool that names the number of options to
+      exercise for zero AMT rather than reading a generic AMT explainer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing the cash needed (exercise cost plus AMT) at each size is what
+      moves people from "exercise everything" to a staged exercise.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a Form 6251 figure the tool contradicts on a point of arithmetic, at which point the AMT handling needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/
+  analytics: null

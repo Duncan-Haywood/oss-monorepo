@@ -1,0 +1,46 @@
+name: 529-to-roth-rollover-calculator
+description: >-
+  Free browser tool for families with leftover 529 college savings: applies the SECURE 2.0 Roth rollover rules (15-year
+  account, five-year contribution lock, $35,000 lifetime cap, annual Roth limit, earned income) and lays out a year-by-year
+  rollover plan with the value at retirement and the non-qualified withdrawal cost. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. The tree had no 529 tool (grep of ventures/ for 529, college,
+# fafsa found none).
+#
+# Why this niche: the 529-to-Roth rollover became possible in 2024 and parents with leftover balances search "529 to Roth
+# rollover rules", "529 to Roth calculator". The rules have five interacting limits that make a hand calculation error-prone,
+# and incumbents are articles from brokers plus plan-company pages, not calculators. Lead magnet now; a paid household-finance
+# worksheet pack is the possible revenue path (not built).
+#
+# First visitor: a parent or grandparent searching "529 to roth ira rollover calculator". Volume not measured.
+#
+# Liability boundary: arithmetic on typed assumptions; no account access, no transfers; limits are editable inputs and the page
+# points to current IRS guidance. Not tax advice.
+
+hypotheses:
+  - claim: >-
+      Families with leftover 529 money will use a private year-by-year planner for the Roth rollover because the five-year lock
+      and annual limits make a one-line answer from an article misleading.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/529-to-roth-rollover-calculator/
+  analytics: null

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backdoor Roth Pro-Rata Calculator — Form 8606, Free</title>
+  <meta name="description" content="Free calculator for the backdoor Roth pro-rata rule: how much of your Roth conversion is taxable given your after-tax basis and your December 31 traditional, SEP and SIMPLE IRA balance, plus the tax you could avoid by rolling pre-tax money into a 401(k). Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Backdoor Roth Pro-Rata Calculator — free, Form 8606">
+  <meta property="og:description" content="Computes the taxable part of a Roth conversion under the Form 8606 pro-rata rule and what a 401(k) roll-in before year-end would save. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Backdoor Roth Pro-Rata Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the taxable part of a Roth IRA conversion under the Form 8606 pro-rata rule from your after-tax basis, your December 31 traditional, SEP and SIMPLE IRA balance, and your conversion amount, and shows the tax you could avoid by rolling pre-tax IRA money into a 401(k) before year-end. Entirely client-side; nothing is uploaded.","featureList":"Form 8606 Part I pro-rata ratio, taxable and nontaxable conversion, basis carried forward, tax at your marginal rate, 401(k) roll-in what-if, 2026 IRA contribution limit check"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the pro-rata rule for a backdoor Roth IRA?","acceptedAnswer":{"@type":"Answer","text":"The IRS treats all of your traditional, SEP, and SIMPLE IRAs as one pot, measured on December 31. When you convert to Roth, the tax-free share of the conversion is your total after-tax basis divided by the total value of that pot plus the amount converted. You cannot pick only the after-tax dollars to convert."}},{"@type":"Question","name":"How do I avoid the pro-rata rule?","acceptedAnswer":{"@type":"Answer","text":"Move your pre-tax traditional, SEP, and SIMPLE IRA money into an employer 401(k) or a Solo 401(k) that accepts roll-ins before December 31. Money in a 401(k) is not counted on Form 8606, so the ratio goes to 100% and the backdoor conversion is tax-free. Only pre-tax money can be rolled in; the plan must accept it."}},{"@type":"Question","name":"Does the pro-rata rule count my 401(k) or my Roth IRA?","acceptedAnswer":{"@type":"Answer","text":"No. Only traditional, SEP, and SIMPLE IRAs are counted, on December 31 of the conversion year. Balances in an employer 401(k), 403(b), or any Roth account are not part of the calculation."}},{"@type":"Question","name":"Which line of Form 8606 is the taxable amount?","acceptedAnswer":{"@type":"Answer","text":"Part I of Form 8606 divides your total basis by your year-end IRA value plus distributions plus the conversion. Multiplying the conversion by that ratio gives the nontaxable part; the rest is taxable and flows to your return."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies the published Form 8606 formula and the 2026 IRA limits to the numbers you enter. It does not replace the form's instructions or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BACKDOOR ROTH PRO-RATA CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your backdoor Roth conversion is taxable?</h1>
+    <p>If you hold pre-tax money in any traditional, SEP or SIMPLE IRA, the IRS
+    will not let you convert only your after-tax dollars. This works the
+    <strong>Form 8606 pro-rata</strong> formula for you, and shows what
+    rolling that pre-tax money into a 401(k) before December 31 would save.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Roth conversion</h2>
+    <div class="grid">
+      <div>
+        <label for="conversion">Amount converted to Roth in 2026 ($)</label>
+        <input type="number" id="conversion" min="0" step="1" placeholder="e.g. 7500">
+      </div>
+      <div>
+        <label for="contribution">Nondeductible IRA contribution for 2026 ($)</label>
+        <input type="number" id="contribution" min="0" step="1" placeholder="e.g. 7500">
+      </div>
+      <div>
+        <label for="prior-basis">Basis carried from prior Form 8606 ($)</label>
+        <input type="number" id="prior-basis" min="0" step="1" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">Prior basis is line 14 of last year's Form 8606. Enter 0 if you have never made a nondeductible contribution.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your IRAs on December 31</h2>
+    <div class="grid">
+      <div>
+        <label for="year-end-value">Total value of all traditional, SEP and SIMPLE IRAs on Dec 31, after the conversion ($)</label>
+        <input type="number" id="year-end-value" min="0" step="1" placeholder="e.g. 92500">
+      </div>
+      <div>
+        <label for="other-distributions">Other IRA distributions in 2026, not conversions ($)</label>
+        <input type="number" id="other-distributions" min="0" step="1" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">Add every account you own across every custodian. Roth IRAs and employer 401(k)/403(b) balances are not counted.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Optional</h2>
+    <div class="grid">
+      <div>
+        <label for="rate">Your marginal federal tax rate (%)</label>
+        <input type="number" id="rate" min="0" max="100" step="1" placeholder="e.g. 24">
+      </div>
+      <div>
+        <label for="age">Your age at the end of 2026</label>
+        <input type="number" id="age" min="0" max="120" step="1" placeholder="e.g. 40">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your conversion and IRA balances, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Federal tax only.</strong> State treatment of conversions varies and is not modelled.</li>
+      <li><strong>Simplified Form 8606.</strong> Line 4 (contributions made after year-end and counted for the prior year), inherited IRAs, and prior-year distributions of basis are not modelled.</li>
+      <li><strong>Tax is estimated at one flat marginal rate.</strong> A large conversion can push part of your income into a higher bracket and affect credits, Medicare premiums and the taxable share of Social Security.</li>
+      <li><strong>Roth income limits and the 5-year rule.</strong> This assumes the contribution and conversion were made correctly under the rules for your situation.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> Limits are re-indexed annually; confirm the current year's figures before relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the pro-rata rule for a backdoor Roth IRA?</h3>
+    <p>The IRS treats all of your traditional, SEP, and SIMPLE IRAs as one pot, measured on December 31. When you convert to Roth, the tax-free share of the conversion is your total after-tax basis divided by the total value of that pot plus the amount converted. You cannot pick only the after-tax dollars to convert.</p>
+    <h3>How do I avoid the pro-rata rule?</h3>
+    <p>Move your pre-tax traditional, SEP, and SIMPLE IRA money into an employer 401(k) or a Solo 401(k) that accepts roll-ins before December 31. Money in a 401(k) is not counted on Form 8606, so the ratio goes to 100% and the backdoor conversion is tax-free. Only pre-tax money can be rolled in; the plan must accept it.</p>
+    <h3>Does the pro-rata rule count my 401(k) or my Roth IRA?</h3>
+    <p>No. Only traditional, SEP, and SIMPLE IRAs are counted, on December 31 of the conversion year. Balances in an employer 401(k), 403(b), or any Roth account are not part of the calculation.</p>
+    <h3>Which line of Form 8606 is the taxable amount?</h3>
+    <p>Part I of Form 8606 divides your total basis by your year-end IRA value plus distributions plus the conversion. Multiplying the conversion by that ratio gives the nontaxable part; the rest is taxable and flows to your return.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies the published Form 8606 formula and the 2026 IRA limits to the numbers you enter. It does not replace the form's instructions or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own facts before converting. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>conversion_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Already have a pre-tax IRA to move? The <a href="../roth-conversion-bracket-fill-calculator/">Roth conversion bracket-fill calculator</a> shows how much to convert to fill a tax bracket, including the 65+ senior-deduction and IRMAA traps.</p>
+    <p>Self-employed and maximizing your own plan? The <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> shows your limit, and a Solo 401(k) that accepts roll-ins is one way to clear pre-tax IRA money before year-end. Working at a large employer with an after-tax 401(k)? See the <a href="../mega-backdoor-roth-calculator/">mega backdoor Roth calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { backdoorRothOutcome, money, percent } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      conversion: $("#conversion"), contribution: $("#contribution"), priorBasis: $("#prior-basis"),
+      yearEnd: $("#year-end-value"), otherDist: $("#other-distributions"),
+      rate: $("#rate"), age: $("#age"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = backdoorRothOutcome({
+        conversion: Number(els.conversion.value) || 0,
+        nondeductibleContribution: Number(els.contribution.value) || 0,
+        priorBasis: Number(els.priorBasis.value) || 0,
+        yearEndIraValue: Number(els.yearEnd.value) || 0,
+        otherDistributions: Number(els.otherDist.value) || 0,
+        marginalRate: Number(els.rate.value) || 0,
+        age: Number(els.age.value) || 0,
+      });
+
+      els.stats.innerHTML = `Taxable part of your 2026 Roth conversion: <strong>${money(result.taxableConversion)}</strong>.`;
+
+      const rows = [
+        `<tr><th scope="row">Tax-free share (Form 8606 ratio)</th><td>${percent(result.ratio)}</td></tr>`,
+        `<tr><th scope="row">Nontaxable part of the conversion</th><td>${money(result.nontaxableConversion)}</td></tr>`,
+        `<tr><th scope="row"><strong>Taxable part of the conversion</strong></th><td><strong>${money(result.taxableConversion)}</strong></td></tr>`,
+        `<tr><th scope="row">Basis carried to next year's Form 8606</th><td>${money(result.basisCarriedForward)}</td></tr>`,
+      ];
+      if (result.marginalRate > 0) {
+        rows.push(`<tr><th scope="row">Estimated federal tax on the conversion</th><td>${money(result.estimatedTax)}</td></tr>`);
+        rows.push(`<tr><th scope="row">Of that, avoidable with a 401(k) roll-in before Dec 31</th><td>${money(result.proRataTaxCost)}</td></tr>`);
+      }
+
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("conversion_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.conversion.value = "7500";
+      els.contribution.value = "7500";
+      els.priorBasis.value = "";
+      els.yearEnd.value = "92500";
+      els.otherDist.value = "";
+      els.rate.value = "24";
+      els.age.value = "40";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a $7,500 nondeductible contribution converted to Roth with $92,500 of pre-tax IRA money left on Dec 31 — only 7.50% is tax-free, so $6,937.50 is taxable, about $1,665.00 of tax at 24%.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const el of [els.conversion, els.contribution, els.priorBasis, els.yearEnd, els.otherDist, els.rate, els.age]) el.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter your conversion and IRA balances, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

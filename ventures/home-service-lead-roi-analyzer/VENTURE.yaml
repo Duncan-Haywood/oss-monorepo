@@ -1,0 +1,83 @@
+name: home-service-lead-roi-analyzer
+description: >-
+  Free browser tool that turns a home-service lead log (Thumbtack, Angi,
+  HomeAdvisor, Google Local Services, Yelp, ads, referrals) into cost per lead,
+  close rate, cost per booked job, job value, break-even close rate and profit
+  per source, service and month, and names the paid sources that lose money and
+  the bad and duplicate leads that were charged. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Trades owners (plumbing,
+# HVAC, electrical, roofing, cleaning, landscaping) spend real money on pay-per-lead
+# platforms -- commonly $25-$100 per lead, thousands a month -- and the only
+# per-source truth they hold is a set of billing pages and their own job notes.
+# Platform dashboards report leads received, never which ones became jobs, and the
+# platforms are conflicted reporters of their own value. Existing answers are
+# spreadsheets, CRM add-ons (ServiceTitan, Jobber, Housecall Pro marketing ROI
+# modules, which need the whole CRM) and agency reports. Nothing here is
+# yet a no-signup file-in, answer-out tool. Money is the audience's, and the
+# result is a decision (drop a source, dispute charged leads, renegotiate).
+#
+# First visitor: r/HVAC, r/plumbing, r/Construction and trade Facebook groups
+# complaining about Thumbtack/Angi lead quality; search phrases "thumbtack roi",
+# "is angi worth it", "cost per booked job", "lead source roi contractor". Volume
+# not measured.
+#
+# What makes it more than a total: cost per booked job counts the leads that went
+# nowhere; break-even close rate shows the bar a source must clear; a source is
+# named a loser only with five leads and a job-value margin the owner sets; sources
+# with mostly open outcomes are not called failures; charged spam / wrong-number /
+# duplicate leads are listed for the owner to dispute, without claiming any
+# platform will credit them.
+#
+# Privacy is the liability boundary: the file, which may hold customer names and
+# phone numbers, never leaves the browser (a test asserts no network calls), so
+# the portfolio holds no customer data.
+#
+# Path to revenue (payment rails stay off): lead magnet into the shop-rate and bid
+# calculators, whose audience is the same owner. A paid version, if usage
+# appears, is a saved multi-month history and call-tracking import behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and a typed margin, model and
+# omissions stated on the page, no financial advice, no warranty,
+# independent-of-every-platform clause.
+#
+# Unverified: column names are matched by alias and no real platform export was
+# available; the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Home-service owners will run a no-signup analysis of a lead log they
+      already keep to see which paid source books jobs before they renew or cancel
+      a lead platform.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a source below its break-even close rate, or charged bad leads to
+      dispute, leads at least one owner to change spend, which is the reason to
+      return with each new month.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-service-lead-roi-analyzer/
+  analytics: null

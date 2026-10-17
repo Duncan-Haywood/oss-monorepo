@@ -1,0 +1,45 @@
+name: csa-share-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool and CLI for small vegetable farms and market gardens that sell CSA shares: list the items in the weekly box (quantity, retail value, cost, labour minutes, weeks in season) and see the retail value a member receives, the season profit before and after paying yourself, the price that pays a target hourly wage, shares needed to break even, and a price sweep under a stated sign-up elasticity. Numbers are the ones the user supplies, not a forecast.'
+stage: prototype
+
+owner: duncan
+
+# Calculator/CLI archetype, earn-more: raises what a small farm nets per hour from a CSA season.
+# Checked 2026-10-02: ventures/ has market-garden-bed-planner (what to plant), market-event-picker
+# (which markets to work) and custom-farm-rate-calculator (per-acre contract work); none prices a
+# CSA share from box contents, hours and fixed costs. Not in screened-out.md.
+#
+# First visitor: searches "how to price a CSA share", "CSA share price calculator", "how much should a
+# CSA cost"; r/farming, r/homestead, small-farm Facebook groups, extension-service CSA guides.
+# Volume not measured with an external tool. Farmers price by copying the neighbour and discover in
+# August that the season paid them little per hour. A hosted version that tracks weekly box value from
+# harvest logs is the natural paid upgrade.
+hypotheses:
+  - claim: A small farmer pricing next season's CSA will search for how to price a share, paste their box, and leave with a price that pays a target wage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A farmer will reuse the CLI each winter when planning the season, so the page earns repeat visits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool analyses only pasted text in the
+  # visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No farmer reports changing a share price or box because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/csa-share-pricing-calculator/
+  analytics: null

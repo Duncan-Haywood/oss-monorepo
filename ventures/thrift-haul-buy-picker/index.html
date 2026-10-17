@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Thrift Haul Buy Picker — What to Buy and the Most to Pay for Resale</title>
+  <meta name="description" content="Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What should you buy to resell, and what's the most to pay for each?">
+  <meta property="og:description" content="Expected profit per item after fees, shipping, your time and your cash, the walk-away price, and the best set under a budget. Your estimates, not a price guide. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Thrift Haul Buy Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded. Browser or zero-dependency Node CLI. Your estimates, not a price guide."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a price guide or a sales forecast?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every resale value, sell-through chance, fee and time figure in the answer is a number you typed. It does not look up sold listings or predict what anything will sell for. It does the arithmetic on your own estimates and shows which items need a better estimate or a lower price."}}, {"@type": "Question", "name": "Does it upload my list?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "What is the most I should pay for an item?", "acceptedAnswer": {"@type": "Answer", "text": "The walk-away price: the ask at which your expected profit, after marketplace fees, shipping, supplies, the value of your time and the cost of tying up cash, equals the minimum return you set. It is solved exactly, not searched for. Above it, you are paying for the privilege of working."}}, {"@type": "Question", "name": "How does it choose between items when cash or time is limited?", "acceptedAnswer": {"@type": "Answer", "text": "With a cash, item or hands-on-hours cap it searches subsets exactly (branch and bound) instead of ranking and cutting off. One big-ticket item can crowd out two smaller ones that together earn more; ranking misses that."}}, {"@type": "Question", "name": "Which marketplaces and sources does it cover?", "acceptedAnswer": {"@type": "Answer", "text": "Any: eBay, Poshmark, Mercari, Etsy, Depop, Facebook Marketplace, your own store. Enter that marketplace's fee percent and fixed fee. Sources can be thrift stores, estate sales, garage sales, auctions or liquidation lots."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    select { padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">THRIFT HAUL BUY PICKER · RUNS IN YOUR BROWSER</p>
+    <h1>Which of these finds should you buy to resell, and what's the most to pay for each?</h1>
+    <p>A $15 price tag is a bargain or a loser depending on fees, shipping, how likely it is to sell, how long your cash sits, and the hour you spend listing it. Paste what you found with <strong>what you expect each to resell for and your own chance it sells</strong>, and get <strong>the expected profit after all of that</strong>, <strong>the walk-away price for each item</strong>, the sell chance each needs to break even, and <strong>the exact best set to buy</strong> when your cash, your item count or your hands-on hours are limited.</p>
+    <p class="note"><strong>Your estimates, not a price guide and not a forecast.</strong> This page knows no resale prices and predicts no sales: every value, chance, fee and time is a number you type. For eBay, Poshmark, Mercari, Etsy, Depop and Marketplace resellers buying at thrift stores, estate sales, auctions and liquidation. Nothing is uploaded: the text boxes are analysed in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste what you found</h2>
+    <label for="ev-input">One row per item: name, ask (what you'd pay), expected resale price, your chance it sells at that price (0 to 1 or a percent), then optional shipping, hands-on minutes, days to sell, note. Up to 120 items.</label>
+    <textarea id="ev-input" spellcheck="false" placeholder="Patagonia fleece,12,70,0.85,7,15,14&#10;Cookbook set,15,22,0.6"></textarea>
+    <h2>2. Your fees, time and money</h2>
+    <p>
+      <label for="fee">Marketplace fee (%)</label><input type="number" id="fee" value="13" min="0" max="99" step="0.25">
+      <label for="fixed">Fixed fee per sale ($)</label><input type="number" id="fixed" value="0.3" min="0" step="0.05">
+      <label for="ship">Default shipping per item ($)</label><input type="number" id="ship" value="6" min="0" step="0.5">
+      <label for="supplies">Supplies per item ($)</label><input type="number" id="supplies" value="0.5" min="0" step="0.25">
+    </p>
+    <p>
+      <label for="minutes">Default hands-on minutes per item</label><input type="number" id="minutes" value="20" min="0" step="1">
+      <label for="hourly">What an hour of your time is worth ($)</label><input type="number" id="hourly" value="15" min="0" step="1">
+      <label for="days">Default days to sell</label><input type="number" id="days" value="30" min="0" step="1">
+      <label for="rate">Annual cost of cash (%)</label><input type="number" id="rate" value="20" min="0" step="1">
+    </p>
+    <p>
+      <label for="unsold">Share of resale recovered if it doesn't sell (%)</label><input type="number" id="unsold" value="30" min="0" max="100" step="5">
+      <label for="minreturn">Minimum return on cash (%)</label><input type="number" id="minreturn" value="0" min="0" step="10">
+    </p>
+    <p>
+      <label for="budget">Cash to spend ($, blank for none)</label><input type="number" id="budget" value="" min="0" step="5">
+      <label for="maxitems">Max items (blank for none)</label><input type="number" id="maxitems" value="" min="1" step="1">
+      <label for="maxhours">Max hands-on hours (blank for none)</label><input type="number" id="maxhours" value="" min="0" step="0.5">
+    </p>
+    <p>
+      <button type="button" id="analyze">Pick what to buy</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>3. The shopping list</h2>
+    <p id="summary"></p>
+    <h3>Buy (best first)</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Item</th><th>Asking</th><th>Pay up to</th><th>Expected profit</th><th>Return on cash</th><th>Breaks even at sell chance</th><th>You said</th><th>Chance of a loss</th><th>Worst case</th></tr></thead>
+      <tbody id="buy-rows"></tbody>
+    </table></div>
+    <h3>Pass</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Item</th><th>Asking</th><th>Why</th><th>Worth paying at most</th></tr></thead>
+      <tbody id="pass-rows"></tbody>
+    </table></div>
+    <h3>Against simple rules</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Items</th><th>Cash</th><th>Expected profit</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <ul id="findings"></ul>
+    <p class="note">Nothing here is a prediction. Expected profit is your own numbers multiplied out; any single item can sell for less, or not at all.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs pick haul.csv --budget 80 --max-hours 2
+cat haul.csv | node cli.mjs pick - --fee 13 --hourly 20 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-much-to-pay-at-a-thrift-store-to-resell.html">How much to pay for a thrift find you want to resell</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The answer is exact for the numbers you type (closed-form walk-away price and break-even chance; exact best-set search under your caps). It does not know resale prices, sold-listing history, seasonality, returns, a marketplace's rules for an item, or whether an item is authentic or safe to sell.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is this a price guide or a sales forecast?</h3>
+    <p>No. Every resale value, sell-through chance, fee and time figure in the answer is a number you typed. It does not look up sold listings or predict what anything will sell for. It does the arithmetic on your own estimates and shows which items need a better estimate or a lower price.</p>
+    <h3>Does it upload my list?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>What is the most I should pay for an item?</h3>
+    <p>The walk-away price: the ask at which your expected profit, after marketplace fees, shipping, supplies, the value of your time and the cost of tying up cash, equals the minimum return you set. It is solved exactly, not searched for. Above it, you are paying for the privilege of working.</p>
+    <h3>How does it choose between items when cash or time is limited?</h3>
+    <p>With a cash, item or hands-on-hours cap it searches subsets exactly (branch and bound) instead of ranking and cutting off. One big-ticket item can crowd out two smaller ones that together earn more; ranking misses that.</p>
+    <h3>Which marketplaces and sources does it cover?</h3>
+    <p>Any: eBay, Poshmark, Mercari, Etsy, Depop, Facebook Marketplace, your own store. Enter that marketplace's fee percent and fixed fee. Sources can be thrift stores, estate sales, garage sales, auctions or liquidation lots.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, investment or authentication advice, it is not a price guide or a sales forecast, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the resale values, sell-through chances, fees and times you type, for a marketplace's current terms and fee schedule, and for what you buy, including checking that an item is genuine, safe and legal to resell (recalls, counterfeits, restricted goods). Resale prices move and items often sell for less or not at all. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen to an item.</p>
+    <p>Not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Etsy, Depop, Goodwill or any thrift chain, estate-sale company or marketplace; their names are used only to say which fees and venues the tool can be fed numbers for.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pick_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../ebay-fee-calculator/">eBay Fee Calculator</a>, <a href="../poshmark-fee-calculator/">Poshmark Fee Calculator</a>, <a href="../mercari-fee-calculator/">Mercari Fee Calculator</a>, <a href="../lot-split-calculator/">Lot Split Calculator</a>, <a href="../marketplace-fee-compare/">Marketplace Fee Compare</a> and <a href="../where-to-sell-calculator/">Where to Sell Calculator</a>.</p>
+    <p class="support">Free and open source. If this saved you a bad buy, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseItems, plan, summarize, money, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    const beText = (e) => (e.breakEven.status === "always" ? "any chance" : e.breakEven.status === "never" ? "not reachable" : pct(e.breakEven.p));
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#ev-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseItems(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      if (!parsed.items.length) {
+        status.innerHTML = `<span class="error">No item rows found.</span>`;
+        return;
+      }
+      let p;
+      try {
+        p = plan(parsed, { feePct: $("#fee").value, fixedFee: $("#fixed").value, shipDefault: $("#ship").value, suppliesPerItem: $("#supplies").value, minutesDefault: $("#minutes").value, hourlyValue: $("#hourly").value, daysDefault: $("#days").value, annualRate: $("#rate").value, unsoldRecoveryPct: $("#unsold").value, minReturnPct: $("#minreturn").value, budget: $("#budget").value, maxItems: $("#maxitems").value, maxHours: $("#maxhours").value });
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : "error"}">${escapeHtml(s.text)}</span>`;
+      $("#buy-rows").innerHTML = p.buy.map((e, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(e.name)}</td><td>${money(e.ask)}</td><td>${money(e.maxAsk)}</td><td>${money(e.profit)}</td><td>${pct(e.ret, 0)}</td><td>${beText(e)}</td><td>${pct(e.p)}</td><td>${pct(e.pLoss, 0)}</td><td>${money(e.worst)}</td></tr>`).join("") || `<tr><td colspan="10">Nothing on this list clears your bar.</td></tr>`;
+      $("#pass-rows").innerHTML = p.pass.map((h) => `<tr><td>${escapeHtml(h.name)}</td><td>${money(h.ask)}</td><td>${escapeHtml(h.reason)}</td><td>${money(h.maxAsk)}</td></tr>`).join("") || `<tr><td colspan="4">Every item is a buy.</td></tr>`;
+      $("#compare-rows").innerHTML = [["Best set (this tool)", p.buy.length, p.spend, p.profit], ...p.baselines.map((b) => [b.label, b.items, b.spend, b.profit])]
+        .map(([l, n, sp, v]) => `<tr><td>${escapeHtml(l)}</td><td>${n}</td><td>${money(sp)}</td><td>${money(v)}</td></tr>`).join("");
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("pick_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `name,ask,resale,sell_chance,ship,minutes,days,note
+Vintage Pyrex casserole set,18,95,0.80,14,25,21,glass - heavy to ship
+Patagonia fleece jacket,12,70,0.85,7,15,14,clothing
+Le Creuset 3.5qt dutch oven,25,120,0.75,15,20,28,cookware
+Nintendo Game Boy lot,30,140,0.70,8,35,25,tested working
+Hardcover cookbook set,15,22,0.60,10,20,40,low value
+Levi's 501 jeans,6,34,0.80,6,12,14,clothing
+Coach leather purse,22,85,0.55,9,18,30,authenticity risk
+Fiestaware pitcher,9,32,0.65,12,18,35,fragile
+Carhartt work jacket,14,65,0.80,9,12,18,clothing
+Sony Walkman cassette player,20,60,0.45,8,30,45,untested
+Cast iron skillet,10,42,0.85,12,22,20,heavy
+Bag of random mugs,8,15,0.50,12,30,50,not worth it
+Lego minifigure lot,16,75,0.75,5,45,22,sorting time
+Brass candlesticks pair,7,30,0.60,9,15,30,
+`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#ev-input").value = EXAMPLE_SOURCE;
+      $("#fee").value = 13; $("#fixed").value = 0.3; $("#ship").value = 6; $("#supplies").value = 0.5;
+      $("#minutes").value = 20; $("#hourly").value = 15; $("#days").value = 30; $("#rate").value = 20;
+      $("#unsold").value = 30; $("#minreturn").value = 0;
+      $("#budget").value = 80; $("#maxitems").value = ""; $("#maxhours").value = 2;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#ev-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

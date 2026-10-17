@@ -1,0 +1,79 @@
+name: str-tax-loophole-calculator
+description: >-
+  Free browser calculator for short-term-rental owners: tests whether a
+  rental escapes "rental activity" status (average guest stay of 7 days or
+  less, or 30 days with significant personal services), whether hours meet
+  the material participation tests so losses can offset other income,
+  otherwise applies the $25,000 passive allowance and its $100,000-$150,000
+  MAGI phase-out, and estimates first-year cost segregation depreciation
+  with 100% bonus, the resulting loss, and tax saved on each path, with
+  at-risk and excess business loss limits. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29. duplicate_check.py scored every venture, screened-out
+# row and pipeline candidate at 0.17 or below against the final description,
+# under the 0.45 review bar. The nearest are str-occupancy-tax-calculator and
+# str-host-payout-calculator (host fees and lodging tax, not income tax) and
+# bonus-depreciation-calculator (equipment purchases, no passive-activity
+# logic). Linked as siblings: excess-business-loss-calculator,
+# depreciation-recapture-calculator, bonus-depreciation-calculator.
+#
+# Why now: the STR loophole is a high-intent, high-dollar search among
+# W-2 earners buying Airbnb properties, and the 2025 tax law made 100% bonus
+# depreciation permanent, which is what a cost segregation study monetises.
+# Audience has money and a real problem. No search-volume tool was queried,
+# matching the pipeline's standing caveat at graduation.
+#
+# Figures verified 2026-09-29 via WebSearch/WebFetch: IRS Pub 925 (7/30-day
+# exceptions, average-stay computation, $25,000 allowance limited to rental
+# real estate, phase-out, MFS amounts), Treas. Reg. 1.469-5T (seven tests,
+# spouse participation, investor-type work excluded), Pub 527 (27.5 year,
+# mid-month, transient lodging 39 year, 14 day/10% rule, under 15 days),
+# IRS bonus depreciation release (100% after Jan 19, 2025; Notice 2026-11
+# interim), Rev. Proc. 2025-32 sec. 4.31 ($256,000 / $512,000). No mid-year
+# 2026 change to any of these was found; web coverage stated the 7-day rule
+# is unchanged for 2026. Not modelled: pre-2025 acquisitions (40%/20% bonus),
+# tests 4-6, real estate professional status, state conformity.
+#
+# Liability: output applies published rules to the user's own numbers and is
+# never a filed return. The page states audit exposure (time logs), that the
+# 27.5 vs 39 year question for transient lodging needs a preparer, recapture
+# at sale, state decoupling, and the at-risk and excess business loss limits
+# on every relevant result.
+
+hypotheses:
+  - claim: >-
+      High-income W-2 earners buying or running a short-term rental will
+      search "short term rental tax loophole calculator" and return to a
+      free, no-signup tool that shows which path their hours and average
+      stay put them on and what a cost segregation study is worth.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Owners will be surprised that failing material participation on a
+      7-day-average rental loses the $25,000 allowance, and will use the
+      side-by-side paths to plan their hours before year end.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong tax position from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/str-tax-loophole-calculator/
+  analytics: null

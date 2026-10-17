@@ -1,0 +1,29 @@
+E1 exact price of balance (soft routing, B=400, N=8, capacity c = 1.25/N):  tau, utility unconstrained, constrained, loss%, max price, AGD iters
+   1.00   1084.12   1071.70   1.15%  pmax 0.691  iters     81  cert gap 4.23e-05
+   0.50    802.96    774.13   3.59%  pmax 0.859  iters    135  cert gap 8.57e-07
+   0.25    719.22    680.76   5.35%  pmax 0.934  iters    210  cert gap 3.50e-06
+   0.10    695.08    653.25   6.02%  pmax 0.965  iters    447  cert gap 6.23e-05
+E2 certificate gap of a sloppy solver (tau=0.5, c=0.2): gap after k dual steps vs true suboptimality
+  k=    1  D-D*=    5.5558  certified gap=  112.1751  (gap >= D-D*: True)
+  k=   10  D-D*=    0.2223  certified gap=   13.9256  (gap >= D-D*: True)
+  k=  100  D-D*=   -0.0000  certified gap=    0.0000  (gap >= D-D*: True)
+  k= 1000  D-D*=   -0.0000  certified gap=   -0.0000  (gap >= D-D*: True)
+  k= 2000  D-D*=   -0.0000  certified gap=   -0.0000  (gap >= D-D*: True)
+E3 sign-update balancing (aux-loss-free), tau=0.5, c=1/N: mean |load error| over last half vs gamma and batch size B
+  B=   64  g=0.1: 39.69%  g=0.03: 33.69%  g=0.01: 32.07%  g=0.003: 31.80%   1/sqrt(B)=12.50%
+  B=  256  g=0.1: 23.19%  g=0.03: 17.68%  g=0.01: 16.31%  g=0.003: 15.92%   1/sqrt(B)=6.25%
+  B= 1024  g=0.1: 14.80%  g=0.03:  9.63%  g=0.01:  8.11%  g=0.003:  7.57%   1/sqrt(B)=3.12%
+  B= 4096  g=0.1: 12.55%  g=0.03:  6.08%  g=0.01:  4.49%  g=0.003:  4.01%   1/sqrt(B)=1.56%
+E4 convergence of sign update on a FIXED batch (B=400): price drift and imbalance vs gamma, and steps to first reach 5% imbalance
+  gamma= 0.20  steps to 5%: None  tail max-overload mean 22.59%  worst 27.42%
+  gamma= 0.05  steps to 5%: 15  tail max-overload mean  4.49%  worst  4.60%
+  gamma= 0.01  steps to 5%: 71  tail max-overload mean  1.19%  worst  1.27%
+E5 two-expert Gaussian closed form: hard-routing utility loss of forcing balance (q=1/2), sigma=1
+  mu=0.00  loss=0.0000 (MC 0.0000)  price shift t=0.000  frac to expert 1 unconstrained=0.500
+  mu=0.25  loss=0.0124 (MC 0.0124)  price shift t=0.250  frac to expert 1 unconstrained=0.599
+  mu=0.50  loss=0.0489 (MC 0.0489)  price shift t=0.500  frac to expert 1 unconstrained=0.691
+  mu=1.00  loss=0.1844 (MC 0.1846)  price shift t=1.000  frac to expert 1 unconstrained=0.841
+  mu=2.00  loss=0.6095 (MC 0.6098)  price shift t=2.000  frac to expert 1 unconstrained=0.977
+E6 verifier audit: tokens needed and empirical coverage (eps=0.02 load-fraction, delta=0.05, N=8)
+  m=7211  violations 0/400  worst deviation 0.0103
+  shaved price on expert 0: true load 0.147 vs cheated 0.201 (cap 0.156); detectable with m>= 5811 samples

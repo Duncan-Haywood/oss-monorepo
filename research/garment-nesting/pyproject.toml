@@ -1,0 +1,13 @@
+[project]
+name = "garment-nesting"
+version = "0.1.0"
+description = "Marker making for garment pattern pieces: greedy, simulated annealing and exact strip packing"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01GPz7E7W9jv1ZCzRdGa5L8k",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "model": "claude-sonnet-5-5",
+  "task": "new-project",
+  "projects": [
+    "swe-prflow"
+  ],
+  "pr": null,
+  "merged": null,
+  "build_ok": true,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "notes": "PR timestamps hand-transcribed from API output; disclosed in README. Token usage not read.",
+  "track": "research",
+  "doc_friction": [],
+  "goal": null,
+  "corrections": [],
+  "source": "oss-research-monorepo prompts/runs.jsonl"
+}

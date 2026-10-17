@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { computeJobBid, DEFAULTS } from './calc.mjs';
+import { calculateJobBid, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -11,8 +11,8 @@ test('every DEFAULTS field has a matching input on the page', () => {
   }
 });
 
-test('the page imports computeJobBid from calc.mjs', () => {
-  assert.match(html, /import \{ computeJobBid \} from '\.\/calc\.mjs'/);
+test('the page imports calculateJobBid from calc.mjs', () => {
+  assert.match(html, /import \{ calculateJobBid \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the quote and the price check', () => {
@@ -22,7 +22,7 @@ test('the page wires usage counting for both the quote and the price check', () 
 });
 
 test('the default inputs on the page match calc.mjs DEFAULTS and produce a profitable quote', () => {
-  const result = computeJobBid(DEFAULTS);
+  const result = calculateJobBid(DEFAULTS);
   assert.match(html, new RegExp(`id="technicianCount" type="number" min="1" step="1" value="${DEFAULTS.technicianCount}"`));
   assert.match(html, new RegExp(`id="costPerContainer" type="number" min="0" step="1" value="${DEFAULTS.costPerContainer}"`));
   assert.ok(result.profit > 0);
@@ -129,7 +129,10 @@ test('the page ships save, forget, and copy-link controls, matching sibling calc
 });
 
 test('the page imports share.mjs rather than restating its own encode/decode logic', () => {
-  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS \} from '\.\/share\.mjs'/);
+  assert.match(
+    html,
+    /import \{\s*encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS, TERM_NUMBER_FIELD_IDS, TERM_TEXT_FIELD_IDS,\s*\} from '\.\/share\.mjs'/,
+  );
 });
 
 // The exact bug this portfolio has shipped before: a share link that carries
@@ -137,8 +140,19 @@ test('the page imports share.mjs rather than restating its own encode/decode log
 // checking" field, so a co-worker opening the link sees no price-check panel
 // at all with nothing on screen to say why it vanished.
 test('the copied link and the shared-link restore both carry proposedPrice, not just the DEFAULTS fields', () => {
-  assert.match(html, /encodeInputs\(\{ \.\.\.fieldInputs\(\), proposedPrice: el\('proposedPrice'\)\.value \}\)/);
+  assert.match(html, /encodeInputs\(\{ \.\.\.readInput\(\), proposedPrice: el\('proposedPrice'\)\.value, \.\.\.readShareTerms\(\) \}\)/);
   assert.match(html, /el\('proposedPrice'\)\.value = shared\.proposedPrice/);
+});
+
+// The same silent-divergence defect, one layer over: the proposal panel's
+// deposit and terms (`platform/proposal/adopt.mjs`) must ride the same
+// save/link mechanism as the bid itself, or a shared link opens the sender's
+// price under the recipient's own default deposit -- see
+// `platform/proposal/term-ids.test.mjs`.
+test('the proposal terms ride the saved draft and the shared link too', () => {
+  assert.match(html, /\.\.\.readInput\(\), \.\.\.readShareTerms\(\)/);
+  assert.match(html, /writeInputs\(saved\); writeShareTerms\(saved\);/);
+  assert.match(html, /writeShareTerms\(shared\);/);
 });
 
 // The exact silent-divergence defect this portfolio has shipped before: a

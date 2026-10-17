@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01TL75f7XX81bd1auHTPSfwk",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "have some percent of work study the process of the software development in the repo and analyze it ... small percent maybe 5%",
+  "input_sha256": "a23c37f68bb8b1484bcfe639f6ba9015744e050a7e58c4bf238d636154a3e769",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Add a process track (~5% of routed runs) that studies the development process and recommends improvements",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/6988",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "no track fits an owner-requested change to the prompt system itself; recording it as `review` would reset the review-due counter, so it was filed under `process`"
+    }
+  ],
+  "goal": null,
+  "notes": "Owner-requested configuration change; no study run yet.",
+  "corrections": [
+    {
+      "date": "2026-10-15",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 6988 is merged on main (git log and PR read)"
+    }
+  ]
+}

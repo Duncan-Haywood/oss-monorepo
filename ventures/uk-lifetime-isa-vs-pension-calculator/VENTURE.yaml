@@ -1,0 +1,37 @@
+name: uk-lifetime-isa-vs-pension-calculator
+description: >-
+  Free browser tool for UK savers aged 18 to 39 choosing between a Lifetime ISA and a pension: per £1 of take-home pay, which pot is worth more at 60, for a first home or after an early withdrawal, and the retirement tax rate or employer match at which the answer flips. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; no existing venture models the LISA bonus, its withdrawal charge or the LISA-vs-pension break-even. Closest: uk-salary-sacrifice-calculator and uk-pension-annual-allowance-calculator (pension side only).
+#
+# First visitor: a UK 25-39 year old searching "lifetime isa vs pension", "should I use a LISA or workplace pension", "lifetime isa vs workplace pension higher rate". Volume not measured. Rivals are money-blog and provider explainers with one worked example, and generic compound-interest calculators.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a year-by-year plan across ISA allowance, LISA, pension and employer match behind an env-var switch.
+#
+# Liability: 2025/26 rates and LISA rules were written from memory without network access and are flagged for GOV.UK verification on the page. Scottish rates, state pension, benefits, the lump sum allowance, inflation and fees are refused and named. The page states it is not tax or financial advice and recommends nothing.
+hypotheses:
+  - claim: >-
+      UK savers will use a free calculator to compare a Lifetime ISA with a pension on their own income and employer match, because provider explainers give one generic example and never show where the answer flips.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No usage events or organic referral traffic within 90 days of the next UK tax-year start (6 April).
+  - Fewer than three unsolicited signals (star, fork, referral or feedback) within 90 days of launch.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-lifetime-isa-vs-pension-calculator/
+  analytics: null

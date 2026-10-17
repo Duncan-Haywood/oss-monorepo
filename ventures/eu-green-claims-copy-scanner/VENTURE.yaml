@@ -1,0 +1,39 @@
+name: eu-green-claims-copy-scanner
+description: >-
+  Free browser tool that scans product-page, ad and packaging copy for wording targeted by the EU Empowering Consumers for the Green Transition Directive (2024/825), in application since 27 September 2026: product-level carbon or climate neutral claims, generic claims such as eco-friendly or sustainable, self-made sustainability labels, future net-zero promises, whole-product claims and legal-minimum claims. Marks up the text, names the rule, gives the fix. English, German, French, Spanish, Italian, Dutch. Nothing is uploaded. Not legal advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check top hit 0.12 (late-invoice-collections-kit), no greenwashing tool in ventures/. Not in screened-out.md.
+#
+# First visitor: an EU ecommerce or brand marketer who just heard the ban started on 27 September 2026; search phrases
+# "greenwashing ban EU 2026", "eco-friendly claim illegal EU", "carbon neutral claim ban", "Directive 2024/825 checklist", "green claims checker".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: bulk scan of a sitemap or product feed CSV and a
+# claim-evidence register, behind an env-var switch.
+#
+# Liability: lexical scan only, says it cannot clear copy, rejects bad input, carries no-warranty and not-legal-advice clauses. Annex I point numbers
+# and the wording of each rule were written from memory of the published text (no EUR-Lex access in the building session) and must be verified.
+# Ethical risk is false comfort from a "no findings" result; the verdict text says so.
+
+hypotheses:
+  - claim: >-
+      EU sellers and marketers facing the 27 September 2026 greenwashing ban will paste live copy into a private scanner and change the lines it flags.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a rule point or banned/allowed classification differs from the Directive's text or Commission guidance on the same wording.

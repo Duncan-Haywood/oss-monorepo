@@ -5,6 +5,8 @@ timestamped, source-linked, word-level diff when the text changes. Fetch
 failures are labeled **inconclusive** — they never overwrite a good snapshot
 and are never reported as "no change."
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/vendor-watch/
+
 This is an evidence feed, not legal, compliance, or contract-review advice.
 Only monitor pages you are authorized to monitor. Only public `http`/`https`
 pages are supported. Private, loopback, and link-local addresses are refused.
@@ -92,6 +94,23 @@ CHANGED         https://vendor.example/terms  (2026-09-16T14:02:10.994Z, HTTP 20
 - may
 + will
 ```
+
+## Scheduled monitoring in your own fork (no server)
+
+`deploy/scheduled-watch.yml` is a GitHub Actions workflow that runs the CLI
+daily in *your* copy of this repository, on your Actions minutes, with no
+secrets and nothing of ours in between:
+
+1. Fork the repository.
+2. Copy `deploy/scheduled-watch.yml` to `.github/workflows/vendor-watch.yml`.
+3. List the public pages you are authorized to monitor in `deploy/watchlist.txt`.
+4. Enable Actions.
+
+Each run commits updated baselines to your repo (`deploy/baselines.json`, so
+the history is a change record you own) and opens or updates a single issue,
+"Vendor Watch: pages changed", when a page changed (exit `1`) or a check was
+inconclusive (exit `3`). A usage error (exit `2`, e.g. an empty watchlist)
+fails the run so it is not mistaken for a quiet week.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or compliance

@@ -1,0 +1,57 @@
+name: mushroom-fruiting-room-planner
+description: >-
+  Free browser tool for small gourmet-mushroom farms (oyster, lion's mane and similar grown on supplemented sawdust
+  blocks): enter block cost, yield per flush, price, contamination and fruiting-room slots. It gives profit per block
+  and per slot-week, the best number of flushes to run, the most blocks the room can carry per week, the lowest cash
+  point before the first sale, and the contamination rate and price that break even. Downloads a week-by-week CSV.
+  Your numbers never leave the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "mushroom grower": no lexical overlap with
+# anything in ventures/, screened-out.md, ai-first-markets or candidates.yaml. Nearest shapes are microgreens-tray-planner
+# and greenhouse-bench-planner (slot scheduling for other crops); neither models flush decay, contamination or cash.
+# Search phrases: "mushroom farm profit calculator", "oyster mushroom business plan spreadsheet", "how many flushes per
+# block", "fruiting room capacity", "mushroom contamination rate break even".
+# Visitor sources named, volume not measured with an external tool: r/mycology and r/MushroomGrowers business threads,
+# small-farm Facebook groups and the how-to-start-a-mushroom-farm search results.
+#
+# Who: part-time and early full-time growers (roughly 50 to 1,000 blocks a week) selling to chefs and farmers
+# markets, who plan on a spreadsheet and learn their contamination and slot economics the expensive way.
+#
+# What makes it more than a calculator: it treats the fruiting room as slot capacity over time, so the right number of
+# flushes changes with how full the room is, and it simulates cash week by week to show the pre-revenue gap.
+#
+# Path to revenue (payment rails stay off): lead magnet for the grower audience. A paid version, if usage appears, is
+# saved farm profiles, several species and rooms, and wholesale-versus-retail channel mix behind an env-var switch; not
+# built.
+#
+# Liability: arithmetic on the user's own numbers. It gives no growing, sterilisation, food-safety or licensing advice,
+# stores nothing, carries the no-warranty and not-advice clauses.
+#
+# Unverified: only synthetic farms tested. Yields, weeks and prices are the user's; none are built in beyond a
+# made-up example. Flush timing is whole weeks, and income arrives the week of harvest (no payment delay).
+
+hypotheses:
+  - claim: >-
+      A small mushroom grower will enter their block numbers into a no-upload page to see how many flushes to run and
+      how much cash the first weeks take, because a spreadsheet does not show slot limits or the pre-revenue gap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers for "mushroom farm profit calculator" and "how many flushes per block" prefer a tool that models
+      contamination and room capacity to a generic cost-per-pound sheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

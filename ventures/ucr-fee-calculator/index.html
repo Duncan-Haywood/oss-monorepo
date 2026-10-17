@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UCR Fee Calculator — Unified Carrier Registration Fee by Fleet Size</title>
+  <meta name="description" content="Free UCR fee calculator for owner-operators, brokers, freight forwarders and small fleets: fee bracket by vehicle count, what one more truck costs, cost per vehicle and per mile. Editable fee table. Runs in your browser.">
+  <meta property="og:title" content="UCR Fee Calculator — free, private">
+  <meta property="og:description" content="Unified Carrier Registration fee by fleet size, with the cost of the next bracket.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UCR Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free Unified Carrier Registration fee calculator for truckers, brokers and fleets: fee bracket by vehicle count, what the next bracket costs, and cost per vehicle and per mile."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is the UCR fee?", "acceptedAnswer": {"@type": "Answer", "text": "The Unified Carrier Registration fee depends on fleet size: six brackets from 0-2 vehicles up to 1,001 or more. Each year's amounts are set by the UCR Board and published at ucr.gov. This tool defaults to the 2025 schedule and lets you edit the table."}}, {"@type": "Question", "name": "Who has to pay UCR?", "acceptedAnswer": {"@type": "Answer", "text": "Motor carriers, motor private carriers, brokers, freight forwarders and leasing companies that operate in interstate or international commerce, and are based in a participating state. Check the UCR Plan rules for your operation."}}, {"@type": "Question", "name": "Do brokers and freight forwarders pay by fleet size?", "acceptedAnswer": {"@type": "Answer", "text": "No. Brokers, freight forwarders and leasing companies pay the lowest bracket regardless of how much freight or how many vehicles they handle."}}, {"@type": "Question", "name": "Which vehicles count toward the bracket?", "acceptedAnswer": {"@type": "Answer", "text": "Self-propelled commercial motor vehicles used in interstate commerce. Trailers do not count on their own. Confirm the definition with your state UCR office."}}, {"@type": "Question", "name": "When is UCR due?", "acceptedAnswer": {"@type": "Answer", "text": "Registration for a year opens in the fall and the fee is due by December 31 so you are covered when enforcement starts on January 1. Your base state may add a processing fee and its own deadline."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts."}}, {"@type": "Question", "name": "Is this legal or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a planning estimate from numbers you enter. Verify the fee and your obligation at ucr.gov or with your state UCR office. It does not file or pay anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UCR FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>How much is your UCR fee, and what does one more truck cost?</h1>
+    <p>List each registrant (a carrier, a broker, a leasing company) with its number of commercial motor vehicles. You get <strong>the UCR fee bracket, the fee, how many more trucks fit before the fee jumps, and the cost per vehicle and per mile</strong>, so you can budget before December 31 and think twice before a 21st truck costs you the 6-to-20 discount.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. A planning estimate, not a registration.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your registrants</h2>
+    <p class="note">One per line: <code>name, number of vehicles, type</code>. Type is motor-carrier, private-carrier, broker, freight-forwarder or leasing (default motor-carrier).</p>
+    <label for="entities">Registrants</label>
+    <textarea id="entities" rows="4" spellcheck="false">My Trucking LLC, 3, motor-carrier</textarea>
+    <label for="fees">Fee table (edit if ucr.gov lists different amounts)</label>
+    <textarea id="fees" rows="6" spellcheck="false">0-2: 46
+3-5: 138
+6-20: 276
+21-100: 963
+101-1000: 4588
+1001+: 44797</textarea>
+    <p class="note">Default: 2025 registration year schedule. Fees change by year; verify against ucr.gov for the year you are filing.</p>
+    <div class="grid">
+      <div><label for="annualMiles">Fleet miles per year (optional, for cost per mile)</label><input type="number" id="annualMiles" min="0" step="1000" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate the fee</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+    </p>
+    <p class="note" id="form-status">Enter your registrants, or load the example, then click Calculate the fee.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Fee by registrant</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Registrant</th><th scope="col">Type</th><th scope="col">Vehicles</th><th scope="col">Bracket</th><th scope="col">Fee</th><th scope="col">Per vehicle</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules this applies, and what it leaves out</h2>
+    <ul>
+      <li>The fee depends on the number of <strong>commercial motor vehicles</strong> in six brackets (0-2, 3-5, 6-20, 21-100, 101-1,000, 1,001+), set each year by the UCR Board (49 U.S.C. 14504a).</li>
+      <li><strong>Brokers, freight forwarders and leasing companies pay the lowest bracket</strong> whatever their size.</li>
+      <li>Due by December 31 for operations starting January 1; your base state may add a processing fee.</li>
+      <li><strong>Not modelled:</strong> state processing fees, whether you are required to register at all, penalties for late or missing registration, and the actual filing. The default fee table may be out of date: check ucr.gov.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the UCR fee?</h3>
+    <p>The Unified Carrier Registration fee depends on fleet size: six brackets from 0-2 vehicles up to 1,001 or more. Each year's amounts are set by the UCR Board and published at ucr.gov. This tool defaults to the 2025 schedule and lets you edit the table.</p>
+    <h3>Who has to pay UCR?</h3>
+    <p>Motor carriers, motor private carriers, brokers, freight forwarders and leasing companies that operate in interstate or international commerce, and are based in a participating state. Check the UCR Plan rules for your operation.</p>
+    <h3>Do brokers and freight forwarders pay by fleet size?</h3>
+    <p>No. Brokers, freight forwarders and leasing companies pay the lowest bracket regardless of how much freight or how many vehicles they handle.</p>
+    <h3>Which vehicles count toward the bracket?</h3>
+    <p>Self-propelled commercial motor vehicles used in interstate commerce. Trailers do not count on their own. Confirm the definition with your state UCR office.</p>
+    <h3>When is UCR due?</h3>
+    <p>Registration for a year opens in the fall and the fee is due by December 31 so you are covered when enforcement starts on January 1. Your base state may add a processing fee and its own deadline.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts.</p>
+    <h3>Is this legal or tax advice?</h3>
+    <p>No. It is a planning estimate from numbers you enter. Verify the fee and your obligation at ucr.gov or with your state UCR office. It does not file or pay anything.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace the UCR Plan, your state UCR office or your advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for registering and paying what you owe.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>fee_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../form-2290-hvut-calculator/">Form 2290 heavy vehicle use tax</a>, <a href="../ifta-quarterly-fuel-tax-calculator/">IFTA quarterly fuel tax</a>, <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["entities", "fees", "annualMiles"];
+    const usd = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run() {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.name)}</th><td>${esc(x.type)}</td><td>${x.n}</td><td>${x.bracket.min}${x.bracket.max === Infinity ? "+" : "–" + x.bracket.max}</td><td>${usd(x.fee)}</td><td>${x.perVehicle === null ? "—" : usd(x.perVehicle)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Estimated UCR fee ${usd(r.total)}.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("fee_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleInput();
+      for (const k of keys) $("#" + k).value = s[k];
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "ucr-fee.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+name: boat-rental-fleet-profit-calculator
+description: >-
+  Free browser calculator for owners who rent out a boat, pontoon, jet ski or paddleboards: enter hourly, half-day and full-day prices, hours on the water, fuel and wear per engine hour, dock and
+  insurance, the boat's cost, the weeks you can rent and a weather cancellation rate, and see profit per rental and per boat hour, the price each offer needs for a target margin, break-even rentals
+  per week, what weather cancellations cost, and what the same boat nets rented direct, listed on a rental marketplace for a commission, or run as a captained charter. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. No venture models a boat or watercraft rental (checked ventures/ by name: `ls ventures | grep -iE "boat|kayak|jet|pontoon|watercraft"` finds nothing; nearest
+# are rv-rental-host-profit-calculator and campground-site-profit-calculator, which are land assets). Not in screened-out.md. The distinctive economics are a very short earning season carrying a year of dock
+# and insurance, weather cancellations, and the recurring decision between renting direct, listing on a marketplace (commission against extra bookings) and running captained charters (premium against a captain's pay).
+#
+# First visitor: owners searching "how much to charge to rent my boat", "is boat rental profitable", "pontoon rental business profit", "jet ski rental break even".
+# Timing: pre-season (spring) peak. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled (captain licensing, charter permits, damage, taxes);
+# carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Boat and watercraft rental owners will type a typical week's bookings, fuel, dock and insurance into a no-signup calculator to set prices and to choose between renting direct, listing on a
+      marketplace and chartering with a captain, because most price off the neighbouring marina and never spread a year of dock and insurance over a twenty-week season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/boat-rental-fleet-profit-calculator/
+  analytics: null

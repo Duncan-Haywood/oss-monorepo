@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>E-Bike Rental Fleet Profit Calculator — season profit, payback and break-even for a bike rental shop</title>
+  <meta name="description" content="Free e-bike rental business calculator: enter your bikes, busy and quiet days, utilization, half-day and full-day prices, staff, rent, batteries and any loan, and see season profit, payback, break-even utilization and the lowest rental prices. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="E-Bike Rental Fleet Profit Calculator — free, private, in your browser">
+  <meta property="og:description" content="Will an e-bike rental shop pay? Season profit, payback, break-even utilization, minimum prices and a bigger-fleet scenario. No sign-up.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"E-Bike Rental Fleet Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Enter your e-bike fleet, busy and quiet days, utilization, half-day and full-day prices, staff, rent and batteries to see season profit, payback, break-even utilization and the lowest rental prices. Runs in your browser; nothing is uploaded.","featureList":"e-bike rental business calculator, bike rental profit, fleet size comparison, break-even utilization, minimum rental price, payback period, battery and replacement cost"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does an e-bike rental business make?","acceptedAnswer":{"@type":"Answer","text":"It depends on the size of the fleet, how many days you are open and how many of your bikes are out on those days. The calculator turns your bikes, busy and quiet days, utilization, prices, staff, rent and other costs into profit for a season, so you can see which assumption the answer depends on."}},{"@type":"Question","name":"What utilization does an e-bike rental shop need to break even?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves it exactly from your own costs: the share of half-day slots that must be rented, over the whole season, for profit after any loan payments to reach zero. Staff and rent do not fall when fewer bikes go out, so break-even is often higher than owners expect."}},{"@type":"Question","name":"How many e-bikes should I buy?","acceptedAnswer":{"@type":"Answer","text":"Add bikes in scenario B and enter the utilization you honestly expect with the bigger fleet. Each added bike costs money but is rented fewer days than the first ones, so compare total profit, profit per bike and payback side by side before you buy."}},{"@type":"Question","name":"How much should I charge for an e-bike rental?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves the lowest half-day and full-day prices, keeping your price ratio, that break even, reach your target margin and meet your payback target at the utilization you entered. Compare them with what other local renters charge before you set prices."}},{"@type":"Question","name":"Does this include the cost of replacing the bikes?","acceptedAnswer":{"@type":"Answer","text":"Yes, as a yearly fleet replacement reserve: the bike cost less what you expect to sell it for, spread over the seasons you keep it. Batteries are charged per rental, and tires, brakes and charging per rented slot."}},{"@type":"Question","name":"Does this include insurance claims, permits or sales tax?","acceptedAnswer":{"@type":"Answer","text":"Only the yearly insurance and other costs you type. It does not model liability claims, deductibles, permits, licences, sales or income tax. Check those with your insurer, your city and a tax professional."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and you can save the analysis to a file on your own device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2a1f; background: #f3f7ef; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #28661f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a1a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a1a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475546; }
+    .card { background: #fff; border: 1px solid #d3dfcc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a1a12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5d6f5a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type=file] { display: none; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #28661f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ecdd; color: #1f4a1a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e3ecdd; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #475546; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e8f1e3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1f4a1a; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfcc; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">E-BIKE RENTAL FLEET PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will an e-bike rental fleet pay for itself?</h1>
+    <p>Enter your <strong>bikes</strong>, how many <strong>busy and quiet days</strong> you open and how full the fleet gets, your <strong>half-day and full-day prices</strong>, and your staff, rent, batteries and loan. See <strong>season profit</strong>, <strong>payback</strong>, the <strong>utilization you need to break even</strong>, the <strong>lowest prices</strong> that hit your margin, and what a <strong>bigger fleet</strong> would change.</p>
+    <p class="note">For bike shops, hotels, campgrounds and tour desks adding or growing an e-bike rental counter. No sign-up. New to this? Read <a href="./how-much-does-an-ebike-rental-business-make.html">how much an e-bike rental business makes, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. The fleet</h2>
+    <div class="row3">
+      <div><label for="f_bikes">Number of bikes</label><input id="f_bikes" inputmode="numeric" value="20"></div>
+      <div><label for="f_bikeCost">Cost per bike, $</label><input id="f_bikeCost" inputmode="decimal" value="2200"></div>
+      <div><label for="f_resalePct">Resale value when you retire a bike, % of cost</label><input id="f_resalePct" inputmode="decimal" value="35"></div>
+      <div><label for="f_lifeSeasons">Seasons before you replace a bike</label><input id="f_lifeSeasons" inputmode="decimal" value="3"></div>
+      <div><label for="f_startupCapex">Other start-up spending, $ (racks, trailer, locks, chargers, signage, helmets)</label><input id="f_startupCapex" inputmode="decimal" value="12000"></div>
+    </div>
+    <h2 style="margin-top:18px">2. The season and how busy it is</h2>
+    <div class="row3">
+      <div><label for="f_peakDays">Busy days open a year</label><input id="f_peakDays" inputmode="numeric" value="100"></div>
+      <div><label for="f_peakUtil">Busy-day utilization, % of half-day slots rented</label><input id="f_peakUtil" inputmode="decimal" value="70"></div>
+      <div><label for="f_offDays">Quiet days open a year</label><input id="f_offDays" inputmode="numeric" value="80"></div>
+      <div><label for="f_offPeakUtil">Quiet-day utilization, % of half-day slots rented</label><input id="f_offPeakUtil" inputmode="decimal" value="25"></div>
+    </div>
+    <h2 style="margin-top:18px">3. Prices</h2>
+    <div class="row3">
+      <div><label for="f_halfPrice">Half-day price, $</label><input id="f_halfPrice" inputmode="decimal" value="40"></div>
+      <div><label for="f_fullPrice">Full-day price, $</label><input id="f_fullPrice" inputmode="decimal" value="65"></div>
+      <div><label for="f_fullShare">Share of rented slots that are full days, %</label><input id="f_fullShare" inputmode="decimal" value="45"></div>
+      <div><label for="f_addOn">Add-on revenue per rental (locks, baskets, delivery, guided tour), $</label><input id="f_addOn" inputmode="decimal" value="6"></div>
+    </div>
+    <h2 style="margin-top:18px">4. Running costs</h2>
+    <div class="row3">
+      <div><label for="f_lossPct">Damage and theft, % of revenue</label><input id="f_lossPct" inputmode="decimal" value="3"></div>
+      <div><label for="f_cardPct">Card fees, % of revenue</label><input id="f_cardPct" inputmode="decimal" value="3"></div>
+      <div><label for="f_staff">Staff on duty</label><input id="f_staff" inputmode="decimal" value="2"></div>
+      <div><label for="f_hoursOpen">Hours open per day</label><input id="f_hoursOpen" inputmode="decimal" value="9"></div>
+      <div><label for="f_wage">Hourly wage, $</label><input id="f_wage" inputmode="decimal" value="17"></div>
+      <div><label for="f_burdenPct">Payroll taxes and extras, %</label><input id="f_burdenPct" inputmode="decimal" value="12"></div>
+      <div><label for="f_rentMonthly">Shop or counter rent, $ per month</label><input id="f_rentMonthly" inputmode="decimal" value="2500"></div>
+      <div><label for="f_rentMonths">Months of rent a year</label><input id="f_rentMonths" inputmode="numeric" value="8"></div>
+      <div><label for="f_insurance">Insurance, $ a year</label><input id="f_insurance" inputmode="decimal" value="4000"></div>
+      <div><label for="f_marketing">Marketing and website, $ a year</label><input id="f_marketing" inputmode="decimal" value="3000"></div>
+      <div><label for="f_otherAnnual">Other yearly costs, $</label><input id="f_otherAnnual" inputmode="decimal" value="1500"></div>
+      <div><label for="f_wearPerSlot">Tires, brakes and charging, $ per rented slot</label><input id="f_wearPerSlot" inputmode="decimal" value="1.8"></div>
+      <div><label for="f_batteryCost">Replacement battery, $</label><input id="f_batteryCost" inputmode="decimal" value="650"></div>
+      <div><label for="f_batteryLife">Rentals one battery lasts</label><input id="f_batteryLife" inputmode="decimal" value="700"></div>
+    </div>
+    <h2 style="margin-top:18px">5. Financing and targets</h2>
+    <div class="row3">
+      <div><label for="f_financedPct">Share of start-up cost you borrow, %</label><input id="f_financedPct" inputmode="decimal" value="0"></div>
+      <div><label for="f_aprPct">Loan APR, %</label><input id="f_aprPct" inputmode="decimal" value="9"></div>
+      <div><label for="f_termMonths">Loan term, months</label><input id="f_termMonths" inputmode="numeric" value="48"></div>
+      <div><label for="f_targetPaybackYears">Payback target, years</label><input id="f_targetPaybackYears" inputmode="decimal" value="2"></div>
+      <div><label for="f_targetMarginPct">Target profit margin, %</label><input id="f_targetMarginPct" inputmode="decimal" value="20"></div>
+    </div>
+    <button type="button" id="solve">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="save-file">Save to a file</button>
+    <button type="button" class="secondary" id="load-file-btn">Load a saved file</button>
+    <input type="file" id="load-file" accept="application/json,.json" aria-label="Load a saved analysis file">
+    <p id="form-status" role="status" class="note">Enter your numbers, then click Calculate.</p>
+  </section>
+
+  <section id="result" class="card" hidden>
+    <h2>Your result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Amount</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:22px">If bookings fall short</h2>
+    <div class="scroll"><table id="sens"><thead><tr><th>Bookings vs. your estimate</th><th class="num">Utilization</th><th class="num">Profit a season</th><th class="num">Payback (years)</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text" class="secondary">Copy summary</button>
+    <button type="button" id="dl-csv" class="secondary">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>Compare a second scenario (B)</h2>
+    <p class="note">Scenario A is the numbers above. Change only what differs: for example a bigger fleet with the lower utilization you expect, or different prices.</p>
+    <div class="row3">
+      <div><label for="b_bikes">Number of bikes</label><input id="b_bikes" inputmode="decimal" value="30"></div>
+      <div><label for="b_peakUtil">Busy-day utilization, %</label><input id="b_peakUtil" inputmode="decimal" value="62"></div>
+      <div><label for="b_offPeakUtil">Quiet-day utilization, %</label><input id="b_offPeakUtil" inputmode="decimal" value="22"></div>
+      <div><label for="b_halfPrice">Half-day price, $</label><input id="b_halfPrice" inputmode="decimal" value="40"></div>
+      <div><label for="b_fullPrice">Full-day price, $</label><input id="b_fullPrice" inputmode="decimal" value="65"></div>
+    </div>
+    <button type="button" id="compare">Compare A and B</button>
+    <div id="compare-out"></div>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>Slots.</strong> Each bike has two half-day slots a day. A full-day rental uses both. Utilization is the share of slots rented, set separately for busy and quiet days. <strong>Revenue</strong> is rented slots times the blended price per slot, plus add-ons per rental.</p>
+    <p><strong>Costs</strong> are damage and theft and card fees as a share of revenue, staff for every open day, rent, insurance, marketing, wear and charging per rented slot, batteries per rental, and a <strong>fleet replacement reserve</strong>: bike cost less resale, spread over the seasons you keep it. <strong>Payback</strong> is start-up cost divided by yearly operating profit after that reserve, before the loan.</p>
+    <p><strong>Break-even and the lowest prices</strong> are solved exactly, because operating profit is a straight line in utilization and in the price level, then checked by typing them back in. <strong>Not included:</strong> taxes, claims and deductibles, weather risk beyond the utilization you choose, and growth in later seasons.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does an e-bike rental business make?</h3>
+    <p>It depends on the size of the fleet, how many days you are open and how many of your bikes are out on those days. The calculator turns your bikes, busy and quiet days, utilization, prices, staff, rent and other costs into profit for a season, so you can see which assumption the answer depends on.</p>
+    <h3>What utilization does an e-bike rental shop need to break even?</h3>
+    <p>The calculator solves it exactly from your own costs: the share of half-day slots that must be rented, over the whole season, for profit after any loan payments to reach zero. Staff and rent do not fall when fewer bikes go out, so break-even is often higher than owners expect.</p>
+    <h3>How many e-bikes should I buy?</h3>
+    <p>Add bikes in scenario B and enter the utilization you honestly expect with the bigger fleet. Each added bike costs money but is rented fewer days than the first ones, so compare total profit, profit per bike and payback side by side before you buy.</p>
+    <h3>How much should I charge for an e-bike rental?</h3>
+    <p>The calculator solves the lowest half-day and full-day prices, keeping your price ratio, that break even, reach your target margin and meet your payback target at the utilization you entered. Compare them with what other local renters charge before you set prices.</p>
+    <h3>Does this include the cost of replacing the bikes?</h3>
+    <p>Yes, as a yearly fleet replacement reserve: the bike cost less what you expect to sell it for, spread over the seasons you keep it. Batteries are charged per rental, and tires, brakes and charging per rented slot.</p>
+    <h3>Does this include insurance claims, permits or sales tax?</h3>
+    <p>Only the yearly insurance and other costs you type. It does not model liability claims, deductibles, permits, licences, sales or income tax. Check those with your insurer, your city and a tax professional.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser from what you type, nothing is sent to a server, there are no accounts, and you can save the analysis to a file on your own device.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice, and it does not model insurance claims, permits, licences or taxes. Prices, costs and local rules change; confirm them with your insurer, your city and your advisors before you commit money.</p>
+    <p><strong>Independent.</strong> Not affiliated with any e-bike maker, rental software or insurer, and none is named or ranked here. The example shop is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that any result is fit for a particular purpose.</p>
+    <p>Everything runs in your browser. Your shop numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>scenarios_compared</code>, <code>csv_downloaded</code>, <code>text_copied</code>, <code>file_saved</code>) are counted in this browser's local storage only, never with any of your data, and you can switch them off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../boat-rental-fleet-profit-calculator/">boat rental fleet profit calculator</a>, the <a href="../rental-fleet-size-optimizer/">rental fleet size optimizer</a>, the <a href="../waterfront-rental-season-planner/">waterfront rental season planner</a> and the <a href="../bike-shop-repair-profit-calculator/">bike shop repair profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { solve, compareScenarios, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleScenario } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"bikes":"f_bikes","bikeCost":"f_bikeCost","resalePct":"f_resalePct","lifeSeasons":"f_lifeSeasons","startupCapex":"f_startupCapex","peakDays":"f_peakDays","peakUtil":"f_peakUtil","offDays":"f_offDays","offPeakUtil":"f_offPeakUtil","halfPrice":"f_halfPrice","fullPrice":"f_fullPrice","fullShare":"f_fullShare","addOn":"f_addOn","lossPct":"f_lossPct","cardPct":"f_cardPct","staff":"f_staff","hoursOpen":"f_hoursOpen","wage":"f_wage","burdenPct":"f_burdenPct","rentMonthly":"f_rentMonthly","rentMonths":"f_rentMonths","insurance":"f_insurance","marketing":"f_marketing","otherAnnual":"f_otherAnnual","wearPerSlot":"f_wearPerSlot","batteryCost":"f_batteryCost","batteryLife":"f_batteryLife","financedPct":"f_financedPct","aprPct":"f_aprPct","termMonths":"f_termMonths","targetPaybackYears":"f_targetPaybackYears","targetMarginPct":"f_targetMarginPct"};
+    const B = {"bikes":"b_bikes","peakUtil":"b_peakUtil","offPeakUtil":"b_offPeakUtil","halfPrice":"b_halfPrice","fullPrice":"b_fullPrice"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, $("#" + id).value.trim() === "" ? NaN : Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+    const never = (v, f) => (v === null ? "never" : f(v));
+    const pr = (p) => (p ? cents(p.half) + " / " + cents(p.full) : "n/a");
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [
+        [money(R.profit), "profit a season, before tax"], [R.margin === null ? "n/a" : pct(R.margin), "margin"],
+        [never(R.paybackYears, (v) => v.toFixed(1)), "years to pay back"], [R.breakevenUtil === null ? "n/a" : pct(R.breakevenUtil), "utilization to break even"],
+        [money(R.profitPerBike), "profit per bike"],
+      ].map(([a, b]) => "<div><strong>" + esc(a) + "</strong>" + esc(b) + "</div>").join("");
+      $("#out tbody").innerHTML = [
+        row("Half-day slots available", R.available.toFixed(0)), row("Slots rented", R.rented.toFixed(0) + " (" + pct(R.utilization) + ")"), row("Rentals (customers served)", R.rentals.toFixed(0)),
+        row("Blended revenue per rented slot", cents(R.revSlot)), row("Rental revenue", money(R.rentalRevenue)), row("Add-on revenue", money(R.addOnRevenue)), row("<strong>Revenue</strong>", "<strong>" + money(R.revenue) + "</strong>"),
+        row("Staff", money(R.staffCost)), row("Rent, insurance, marketing, other", money(R.fixed)), row("Damage and theft", money(R.lossCost)), row("Card fees", money(R.cardFees)),
+        row("Tires, brakes and charging", money(R.wear)), row("Batteries", money(R.battery)), row("Fleet replacement reserve", money(R.reserve)), row("<strong>Total costs</strong>", "<strong>" + money(R.costs) + "</strong>"),
+        row("<strong>Operating profit a season</strong>", "<strong>" + money(R.operating) + "</strong>"), row("Loan payments", money(R.loanPayment)), row("<strong>Profit a season</strong>", "<strong>" + money(R.profit) + "</strong>"),
+        row("Start-up cost", money(R.capex)), row("Utilization needed for your payback target", R.paybackUtil === null ? "n/a" : pct(R.paybackUtil)),
+        row("Lowest half-day / full-day price to break even", pr(R.breakevenPrices)), row("Prices for your target margin", pr(R.marginPrices)), row("Prices for your payback target", pr(R.paybackPrices)),
+      ].join("");
+      $("#sens tbody").innerHTML = R.sensitivity.map((s) => "<tr><td>" + s.change + '%</td><td class="num">' + pct(s.utilization) + '</td><td class="num">' + money(s.profit) + '</td><td class="num">' + never(s.paybackYears, (v) => v.toFixed(1)) + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareScenarios(readMap(A), { ...readMap(A), ...readMap(B) });
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => '<td class="num">' + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per season</th><th class="num">Scenario A</th><th class="num">Scenario B</th></tr></thead><tbody>' +
+        line("Bikes", (x) => String(x.input.bikes)) + line("Utilization", (x) => pct(x.utilization)) + line("Revenue", (x) => money(x.revenue)) + line("Total costs", (x) => money(x.costs)) + line("Profit", (x) => money(x.profit)) + line("Profit per bike", (x) => money(x.profitPerBike)) +
+        line("Start-up cost", (x) => money(x.capex)) + line("Payback (years)", (x) => never(x.paybackYears, (v) => v.toFixed(1))) + "</tbody></table></div>" +
+        "<p>Higher season profit: <strong>" + c.winnerProfit + "</strong>. Faster payback: <strong>" + c.winnerPayback + "</strong>.</p>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("analysis_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleScenario()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a twenty-bike resort-town shop. Invented numbers, not a real business."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("scenarios_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("ebike-rental-fleet.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("ebike-rental-shop.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.input); fillMap(B, out.scenario); setTimeout(run, 0); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

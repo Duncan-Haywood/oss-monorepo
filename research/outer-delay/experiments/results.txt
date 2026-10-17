@@ -1,0 +1,59 @@
+E1 stability threshold on alpha*s for a delayed plain outer step: closed form 2 sin(pi/(4 tau+2)) vs spectral radius
+ tau=  0 closed 2.000000 numeric 2.000000 pi/(2tau+1) 3.141593
+ tau=  1 closed 1.000000 numeric 1.000000 pi/(2tau+1) 1.047198
+ tau=  2 closed 0.618034 numeric 0.618034 pi/(2tau+1) 0.628319
+ tau=  4 closed 0.347296 numeric 0.347296 pi/(2tau+1) 0.349066
+ tau=  8 closed 0.184537 numeric 0.184537 pi/(2tau+1) 0.184800
+ tau= 16 closed 0.095164 numeric 0.095164 pi/(2tau+1) 0.095200
+ tau= 32 closed 0.048327 numeric 0.048327 pi/(2tau+1) 0.048332
+
+E2 tuned outer optimiser under delay, kappa_H=100: rate, rounds to 1e-6 (beta searched on a 0.02 grid)
+ tau=  0 plain: alpha 1.9802 rate 0.98020 rounds    690.8 | heavy ball: beta* 0.67 rate 0.81818 rounds     68.8
+ tau=  1 plain: alpha 0.9803 rate 0.99010 rounds   1388.4 | heavy ball: beta* 0.00 rate 0.99010 rounds   1388.4
+ tau=  2 plain: alpha 0.6051 rate 0.99387 rounds   2248.5 | heavy ball: beta* 0.00 rate 0.99387 rounds   2248.5
+ tau=  4 plain: alpha 0.3398 rate 0.99655 rounds   4002.7 | heavy ball: beta* 0.00 rate 0.99655 rounds   4002.7
+ tau=  8 plain: alpha 0.1805 rate 0.99817 rounds   7533.8 | heavy ball: beta* 0.00 rate 0.99817 rounds   7533.8
+ tau= 16 plain: alpha 0.0931 rate 0.99905 rounds  14609.7 | heavy ball: beta* 0.00 rate 0.99905 rounds  14609.7
+ exact tau=1 plain rate kappa/(kappa+1) = 0.99010
+
+E3 asymptotic rate 1-theta_tau/kappa_H at kappa_H=1000 (theta = (1-rate) kappa_H) vs 2 sin(pi/(4tau+2))
+ tau=  1 alpha/alpha_max 0.9980 theta 0.9990 2sin 1.0000 rounds/kappa_H   13.82  overlap_gain_bound 1.000
+ tau=  2 alpha/alpha_max 0.9979 theta 0.6175 2sin 0.6180 rounds/kappa_H   22.37  overlap_gain_bound 0.927
+ tau=  4 alpha/alpha_max 0.9978 theta 0.3470 2sin 0.3473 rounds/kappa_H   39.80  overlap_gain_bound 0.868
+ tau=  8 alpha/alpha_max 0.9978 theta 0.1844 2sin 0.1845 rounds/kappa_H   74.91  overlap_gain_bound 0.830
+ tau= 16 alpha/alpha_max 0.9978 theta 0.0951 2sin 0.0952 rounds/kappa_H  145.27  overlap_gain_bound 0.809
+
+E4 literal simulation vs exact rate (kappa=100 log-grid of 8 modes, window of 500 rounds)
+ tau=1 alpha=0.9 beta=0.0 H= 1 exact 0.99092 simulated 0.99092
+ tau=1 alpha=0.9 beta=0.0 H=10 exact 0.94868 simulated 0.95024
+ tau=3 alpha=0.4 beta=0.0 H= 1 exact 0.99595 simulated 0.99595
+ tau=3 alpha=0.4 beta=0.0 H=10 exact 0.97838 simulated 0.97790
+ tau=2 alpha=0.3 beta=0.3 H= 1 exact 0.99567 simulated 0.99567
+ tau=2 alpha=0.3 beta=0.3 H=10 exact 0.95403 simulated 0.95403
+
+E5 wallclock to 1e-6: best blocking (tau=0, tuned heavy ball) vs best overlapped (tau>=1, sync hidden behind tau rounds) vs blocking plain averaging
+ kappa     C | blocking HB (H,time) | blocking plain (H,time) | overlapped (H,tau,time) | overlapped/blocking-HB  overlapped/blocking-plain
+   1000    10 |     8      1389 |   128      7892 |    16   1     14030 | x 10.10  x 1.78
+   1000   100 |   128      4354 |   512      9955 |   128   1     15579 | x  3.58  x 1.56
+   1000  1000 |  2048     12505 |  4096     14720 |  1024   1     28561 | x  2.28  x 1.94
+   1000 10000 |  4096     35563 |  4096     40717 |  4096   3    198948 | x  5.59  x 4.89
+  10000    10 |     8      4396 |   512     72181 |    16   1    138369 | x 31.48  x 1.92
+  10000   100 |   128     13906 |  2048     79194 |   128   1    139917 | x 10.06  x 1.77
+  10000  1000 |  1024     43320 |  4096    100667 |  1024   1    152306 | x  3.52  x 1.51
+  10000 10000 |  4096    147072 |  4096    278454 |  4096   3    452562 | x  3.08  x 1.63
+
+E6 eager outer step with fresh fraction w (g = s(w x_t + (1-w) x_{t-tau})), kappa_H=200: stable alpha*s and rounds/kappa_H (best plain step)
+   tau      w   stable  alpha*  rounds/kappa_H
+     1   0.00    1.000   0.990      13.85
+     1   0.25    1.333   1.316      10.41
+     1   0.50    2.000   1.961       6.98
+     1   0.75    4.000   3.847       3.54
+     4   0.00    0.347   0.344      39.90
+     4   0.25    0.551   0.540      25.33
+     4   0.50    2.000   1.651       8.19
+     4   0.75    2.000   1.970       6.91
+    16   0.00    0.095   0.094     145.64
+    16   0.25    0.160   0.157      87.28
+    16   0.50    2.000   0.707      18.93
+    16   0.75    2.000   1.907       6.91
+ (no delay, plain step: 6.91 rounds/kappa_H)

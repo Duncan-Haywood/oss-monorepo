@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Grain Store or Sell Calculator — break-even price for storing corn and soybeans</title>
+  <meta name="description" content="Free store-or-sell calculator for grain farmers. Enter harvest moisture, drying, storage and interest costs and later bids; it shows what each later price nets versus selling at harvest and the break-even price. Private, in your browser.">
+  <meta property="og:title" content="Grain Store or Sell Calculator — break-even price for storing corn and soybeans">
+  <meta property="og:description" content="Free store-or-sell calculator for grain farmers. Enter harvest moisture, drying, storage and interest costs and later bids; it shows what each later price nets versus selling at harvest and the break-even price. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grain Store or Sell Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for farmers deciding whether to sell corn, soybeans, wheat or sorghum at harvest or store it. Includes water shrink, drying, storage, interest and bin loss, and finds the break-even price. Runs in your browser; nothing is uploaded.","featureList":"store or sell grain calculator, grain storage break-even price, corn drying shrink calculator, carry return on stored grain, harvest vs deferred price"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I sell my corn at harvest or store it?","acceptedAnswer":{"@type":"Answer","text":"Compare what you net today against what you net at a later price after every cost of waiting: drying, shrink, storage, interest on the money you do not receive, and quality loss in the bin. Storing wins only when the later price beats the break-even price this tool computes, not merely when it is higher than the harvest price."}},{"@type":"Question","name":"How much does water shrink cost when drying corn?","acceptedAnswer":{"@type":"Answer","text":"Corn dried from 20% to 15% moisture loses (20 - 15) / (100 - 15) = 5.88% of its weight, about 1.18% per point. Drying also costs fuel and electricity, commonly around 3 to 5 cents per bushel per point. Enter your own rate."}},{"@type":"Question","name":"What is the break-even price for storing grain?","acceptedAnswer":{"@type":"Answer","text":"It is the later cash price at which storing and selling at harvest net the same money. Take what you would clear selling today, add drying, storage and interest costs, and divide by the bushels you will actually have left to sell. Any later price above it makes storage profitable."}},{"@type":"Question","name":"Does this include basis and futures?","acceptedAnswer":{"@type":"Answer","text":"You enter the later cash price you could lock in, from a forward contract, a basis contract or your own forecast of futures plus basis. The tool does not fetch market data or predict prices."}},{"@type":"Question","name":"Is my farm data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file."}},{"@type":"Question","name":"Is this marketing or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type. Grain prices move, and storing carries price, quality and counterparty risk that a break-even cannot remove. Talk to your marketing adviser, lender or tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GRAIN STORE OR SELL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is storing your grain worth it? Find the break-even price</h1>
+    <p>Enter what you could sell for at harvest and what later bids are offering. The tool takes out <strong>water shrink, drying, handling shrink, storage, interest and bin loss</strong> and shows what each later price really nets versus selling now, and the <strong>price you need</strong> for storage to pay.</p>
+    <p class="note">The method with a worked example: <a href="./corn-store-or-sell-at-harvest.html">store corn or sell at harvest</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The grain</h2>
+    <div class="row3">
+      <div><label for="crop">Crop</label><select id="crop"><option value="corn">Corn</option><option value="soybeans">Soybeans</option><option value="wheat">Wheat</option><option value="sorghum">Sorghum</option></select></div>
+      <div><label for="bushels">Bushels harvested (wet)</label><input type="number" id="bushels" min="1" step="1" max="100000000" value="50000"></div>
+      <div><label for="hm">Harvest moisture (%)</label><input type="number" id="hm" min="5" step="0.1" max="39" value="18"></div>
+      <div><label for="sm">Moisture you dry to for storage (%)</label><input type="number" id="sm" min="5" step="0.1" max="39" value="15"></div>
+      <div><label for="hp">Cash price at harvest ($/bu, at sale moisture)</label><input type="number" id="hp" min="0.01" step="0.01" max="1000" value="3.85"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Costs of waiting</h2>
+    <div class="row3">
+      <div><label for="dry">Drying cost ($ per bu per point)</label><input type="number" id="dry" min="0" step="0.005" max="1" value="0.04"></div>
+      <div><label for="hs">Handling shrink (%)</label><input type="number" id="hs" min="0" step="0.05" max="20" value="0.25"></div>
+      <div><label for="bl">Bin loss (% per month)</label><input type="number" id="bl" min="0" step="0.05" max="20" value="0.1"></div>
+      <div><label for="sc">Storage ($ per bu per month)</label><input type="number" id="sc" min="0" step="0.005" max="5" value="0.03"></div>
+      <div><label for="oc">Other cost: insurance, fan power, etc. ($/bu in total)</label><input type="number" id="oc" min="0" step="0.005" max="5" value="0"></div>
+      <div><label for="ir">Interest on money not received (% a year)</label><input type="number" id="ir" min="0" step="0.1" max="40" value="7.5"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Later prices to compare</h2>
+    <p class="note">Each row is a later cash price you could lock in: a forward contract, a deferred bid, or your own forecast. Up to six.</p>
+    <div class="scroll"><table id="bids"><thead><tr><th>Label</th><th>Months stored</th><th>Cash price ($/bu)</th><th></th></tr></thead><tbody></tbody></table></div>
+    <button type="button" class="secondary" id="add-bid">Add a later price</button>
+    <button type="button" id="solve">Compare</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Compare.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Option</th><th class="num">Price</th><th class="num">Bushels sold</th><th class="num">Costs of waiting</th><th class="num">Net</th><th class="num">vs selling now</th><th class="num">Break-even price</th><th class="num">Annual return</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Shrink:</strong> grain dried from moisture M to target T keeps (100 - M) / (100 - T) of its weight. Handling shrink and monthly bin loss come off the bushels you can sell.</p>
+    <p><strong>Costs:</strong> drying points times your rate, storage per bushel per month on the bushels in the bin, and interest at your rate on what selling at harvest would have paid you, for as long as you wait.</p>
+    <p><strong>Break-even:</strong> the later price at which storing nets exactly what selling now nets. The test suite recomputes it for hundreds of random farms and checks that paying that price ties to the cent.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I sell my corn at harvest or store it?</h3>
+    <p>Compare what you net today against what you net at a later price after every cost of waiting: drying, shrink, storage, interest on the money you do not receive, and quality loss in the bin. Storing wins only when the later price beats the break-even price this tool computes, not merely when it is higher than the harvest price.</p>
+    <h3>How much does water shrink cost when drying corn?</h3>
+    <p>Corn dried from 20% to 15% moisture loses (20 - 15) / (100 - 15) = 5.88% of its weight, about 1.18% per point. Drying also costs fuel and electricity, commonly around 3 to 5 cents per bushel per point. Enter your own rate.</p>
+    <h3>What is the break-even price for storing grain?</h3>
+    <p>It is the later cash price at which storing and selling at harvest net the same money. Take what you would clear selling today, add drying, storage and interest costs, and divide by the bushels you will actually have left to sell. Any later price above it makes storage profitable.</p>
+    <h3>Does this include basis and futures?</h3>
+    <p>You enter the later cash price you could lock in, from a forward contract, a basis contract or your own forecast of futures plus basis. The tool does not fetch market data or predict prices.</p>
+    <h3>Is my farm data uploaded?</h3>
+    <p>No. Everything is calculated in your browser, there are no accounts, and nothing is sent to a server. Use Save to download a scenario file.</p>
+    <h3>Is this marketing or financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Grain prices move, and storing carries price, quality and counterparty risk that a break-even cannot remove. Talk to your marketing adviser, lender or tax professional.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not marketing, financial, tax or agronomic advice. <strong>Use at your own risk.</strong> Grain prices can move against you and stored grain can lose quality; check any decision with your marketing adviser, lender or tax professional.</p>
+    <p><strong>Independent.</strong> Not affiliated with any elevator, broker, exchange, bank or grain-marketing service, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scenario_run</code>, <code>example_loaded</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a> the <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> and the <a href="../ag-spray-drone-quote-calculator/">ag spray drone quote calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, money, cents, resultText, resultCsv, serializeState, parseState, sampleInput, MAX_BIDS, CROPS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let R = null;
+    function bidRow(b) {
+      return '<tr><td><input type="text" class="bl" value="' + esc(b.label) + '" aria-label="Label for this later price"></td><td><input type="number" class="bm" min="0.5" max="24" step="0.5" value="' + esc(b.months) + '" aria-label="Months stored"></td><td><input type="number" class="bp" min="0.01" step="0.01" value="' + esc(b.price) + '" aria-label="Later cash price per bushel"></td><td><button type="button" class="secondary rm" aria-label="Remove this later price">Remove</button></td></tr>';
+    }
+    function setBids(bids) { $("#bids tbody").innerHTML = bids.map(bidRow).join(""); }
+    function read() {
+      return {
+        crop: $("#crop").value, bushels: Number($("#bushels").value), harvestMoisture: Number($("#hm").value), storeMoisture: Number($("#sm").value),
+        harvestPrice: Number($("#hp").value), dryRate: Number($("#dry").value), handlingShrinkPct: Number($("#hs").value), binLossPctPerMonth: Number($("#bl").value),
+        storageCostPerMonth: Number($("#sc").value), otherCostPerBu: Number($("#oc").value), interestPct: Number($("#ir").value),
+        bids: [...document.querySelectorAll("#bids tbody tr")].map((r) => ({ label: r.querySelector(".bl").value.trim(), months: Number(r.querySelector(".bm").value), price: Number(r.querySelector(".bp").value) })),
+      };
+    }
+    function fill(s) {
+      $("#crop").value = s.crop; $("#bushels").value = s.bushels; $("#hm").value = s.harvestMoisture; $("#sm").value = s.storeMoisture; $("#hp").value = s.harvestPrice;
+      $("#dry").value = s.dryRate; $("#hs").value = s.handlingShrinkPct; $("#bl").value = s.binLossPctPerMonth; $("#sc").value = s.storageCostPerMonth; $("#oc").value = s.otherCostPerBu; $("#ir").value = s.interestPct;
+      setBids(s.bids);
+    }
+    function run() {
+      const res = solve(read());
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      const best = R.options[R.bestIndex - 1];
+      $("#big").innerHTML = [[money(R.sell.net), "net selling at harvest"], [R.verdict === "store" ? "Store" : "Sell now", "what the numbers favour"], [R.verdict === "store" ? esc(best.label) + ": " + money(best.advantage) : "none beat it", "best later price vs selling now"], [cents(Math.min(...R.options.map((o) => o.breakEven))), "lowest break-even price"]].map((x) => "<div><strong>" + x[0] + "</strong>" + x[1] + "</div>").join("");
+      const sellRow = '<tr><td>Sell at harvest</td><td class="num">' + cents(R.input.harvestPrice) + '</td><td class="num">' + Math.round(R.sell.bushels).toLocaleString("en-US") + '</td><td class="num">' + money(R.sell.dryingCost) + '</td><td class="num">' + money(R.sell.net) + '</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>';
+      $("#out tbody").innerHTML = sellRow + R.options.map((o) => "<tr><td>Store to " + esc(o.label) + " (" + o.months + ' mo)</td><td class="num">' + cents(o.price) + '</td><td class="num">' + Math.round(o.sellBu).toLocaleString("en-US") + '</td><td class="num">' + money(o.dryingCost + o.storageCost + o.interestCost) + '</td><td class="num">' + money(o.net) + '</td><td class="num">' + (o.advantage >= 0 ? "+" : "") + money(o.advantage) + '</td><td class="num">' + cents(o.breakEven) + '</td><td class="num">' + (o.annualReturn * 100).toFixed(1) + "%</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    setBids(sampleInput().bids);
+    $("#crop").addEventListener("change", () => { const c = CROPS[$("#crop").value]; $("#sm").value = c.storeMoisture; $("#hm").value = c.saleMoisture; $("#dry").value = c.dryRate; });
+    $("#add-bid").addEventListener("click", () => { const n = document.querySelectorAll("#bids tbody tr").length; if (n >= MAX_BIDS) { status.textContent = "Up to " + MAX_BIDS + " later prices."; return; } $("#bids tbody").insertAdjacentHTML("beforeend", bidRow({ label: "", months: 6, price: "" })); });
+    $("#bids").addEventListener("click", (e) => { if (e.target.classList.contains("rm")) e.target.closest("tr").remove(); });
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("scenario_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fill(sampleInput()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: 50,000 bushels of corn, invented numbers. Enter yours above."; } }, 0); });
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("store-or-sell.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("store-or-sell.json", serializeState(R.input), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fill(out.state); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

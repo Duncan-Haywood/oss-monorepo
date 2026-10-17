@@ -1,0 +1,37 @@
+name: 'Workflow Audit'
+description: 'Scan .github/workflows for twelve documented GitHub Actions risks (injection, poisoning, secrets, permissions, timeouts, unpinned action refs). Read-only, no network, no dependencies.'
+author: 'Duncan Haywood'
+branding:
+  icon: shield
+  color: orange
+inputs:
+  path:
+    description: 'Checkout directory to scan'
+    default: '.'
+  fail-on:
+    description: 'Fail the step when a finding is at least this severe: high, medium, low or none'
+    default: 'none'
+  sarif-file:
+    description: 'If set, also write a SARIF 2.1.0 report here for github/codeql-action/upload-sarif'
+    default: ''
+outputs:
+  findings:
+    description: 'Total number of findings'
+    value: ${{ steps.run.outputs.findings }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        AUDIT_PATH: ${{ inputs.path }}
+        AUDIT_FAIL_ON: ${{ inputs.fail-on }}
+        AUDIT_SARIF: ${{ inputs.sarif-file }}
+        ACTION_DIR: ${{ github.action_path }}
+      run: |
+        python3 "$ACTION_DIR/audit.py" "$AUDIT_PATH" --format markdown --output "$RUNNER_TEMP/audit.md"
+        cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
+        python3 "$ACTION_DIR/audit.py" "$AUDIT_PATH" --format json --output "$RUNNER_TEMP/audit.json"
+        if [ -n "$AUDIT_SARIF" ]; then python3 "$ACTION_DIR/audit.py" "$AUDIT_PATH" --format sarif --output "$AUDIT_SARIF"; fi
+        echo "findings=$(python3 -c "import json,sys;print(len(json.load(open(sys.argv[1]))['findings']))" "$RUNNER_TEMP/audit.json")" >> "$GITHUB_OUTPUT"
+        python3 "$ACTION_DIR/audit.py" "$AUDIT_PATH" --fail-on "$AUDIT_FAIL_ON"

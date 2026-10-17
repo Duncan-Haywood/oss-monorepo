@@ -1,0 +1,45 @@
+name: yoga-pilates-studio-class-profit-calculator
+description: >-
+  Free browser calculator for boutique yoga, pilates and barre studio owners: enter classes per week, reservations per class, how those reservations pay (drop-in, class pack or
+  membership), late-cancel rate and fees, room rent and other fixed costs, and three teacher pay models, and see profit per class and per room hour, break-even attendance, the
+  drop-in price for a target margin, what late cancels cost, and what the same timetable nets with the owner teaching, with hired teachers, or in a room rented by the hour. Nothing
+  leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. Not in screened-out.md. Sibling ventures cover adjacent questions and are not duplicated: boutique-fitness-studio-pricing-planner prices
+# unlimited vs packs vs drop-ins for a member, fitness-studio-membership-calculator is member LTV and churn, studio-class-slot-optimizer reads an attendance log slot by slot. None of them
+# costs a single class or room hour, compares teacher pay models, or asks whether to teach, hire or rent the room, which is the recurring decision for a solo studio owner.
+#
+# First visitor: studio owners searching "yoga studio profit per class", "how much to pay yoga teachers per class vs per head" and "rent a room vs lease a yoga studio".
+# Timing: year-round, with January and September peaks. Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not an estimate of record; says what is not modelled; does not decide whether a teacher may be
+# treated as a contractor (it says so on the page); carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Boutique studio owners will type a typical week's timetable, price mix and fixed costs into a no-signup calculator to see what a class and a room hour really earn and to choose
+      between teaching, hiring and renting a room, because most price by feel and pay teachers a flat fee without seeing how attendance changes the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/yoga-pilates-studio-class-profit-calculator/
+  analytics: null

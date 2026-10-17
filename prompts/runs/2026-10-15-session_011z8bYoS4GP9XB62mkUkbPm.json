@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_011z8bYoS4GP9XB62mkUkbPm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7170,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes exceeded 550s and was killed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Local checklist includes run_workflow_locally.py --for-changes, which does not finish inside the 10 min tool limit; no advice on running it in background."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added Fly.io download-only provider for server apps in platform/deploy. Candidate list from allocate.py was calculator-heavy so deepened the self-deploy platform instead. create_pull_request returned a 502 but the PR was created.",
+  "corrections": [],
+  "redteam": null
+}

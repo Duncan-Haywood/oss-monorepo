@@ -1,0 +1,33 @@
+== machine masses (ASSUMED part lists), kg: vitamins / made in shop, by shop ==
+shredder  total 6.75 kg | printer: 6.45/0.30 | printer+cnc+laser: 3.45/3.30 | printer+cnc+laser+casting: 3.45/3.30
+extruder  total 2.82 kg | printer: 2.52/0.30 | printer+cnc+laser: 1.52/1.30 | printer+cnc+laser+casting: 1.52/1.30
+furnace   total 6.50 kg | printer: 6.50/0.00 | printer+cnc+laser: 6.50/0.00 | printer+cnc+laser+casting: 6.50/0.00
+
+== copies needed to repay the recyclers' own imports (base parameters; own scrap only, eol=0) ==
+printer                      shredder+extruder  imports  9.63 kg, saves 0.098 kg/copy -> payback 99 copies
+printer+cnc+laser            shredder+extruder  imports 11.35 kg, saves 0.098 kg/copy -> payback 116 copies
+printer+cnc+laser+casting    shredder+extruder  imports 11.35 kg, saves 0.098 kg/copy -> payback 116 copies
+printer+cnc+laser+casting    furnace            imports  6.50 kg, saves 0.069 kg/copy -> payback 94 copies
+
+== plastic pair payback vs retired plastic per copy (eol), shop printer+cnc+laser ==
+eol=0.0 phi=0.3: saves 0.098 kg/copy -> payback 116 copies
+eol=0.0 phi=0.8: saves 0.098 kg/copy -> payback 116 copies
+eol=0.5 phi=0.3: saves 0.367 kg/copy -> payback 31 copies
+eol=0.5 phi=0.8: saves 0.538 kg/copy -> payback 21 copies
+eol=1.0 phi=0.3: saves 0.367 kg/copy -> payback 31 copies
+eol=1.0 phi=0.8: saves 0.978 kg/copy -> payback 12 copies
+eol=2.0 phi=0.3: saves 0.367 kg/copy -> payback 31 copies
+eol=2.0 phi=0.8: saves 0.978 kg/copy -> payback 12 copies
+
+== Monte Carlo: machine part masses scaled by independent log-uniform factors in [0.5, 2]; 2000 draws, seed 0 ==
+printer+cnc+laser            eol=0.0 shredder+extruder  payback copies 5/50/95%: 91 / 123 / 164
+printer+cnc+laser            eol=1.0 shredder+extruder  payback copies 5/50/95%: 24 / 33 / 44
+printer+cnc+laser+casting    eol=0.0 shredder+extruder  payback copies 5/50/95%: 92 / 123 / 164
+printer+cnc+laser+casting    eol=0.0 furnace            payback copies 5/50/95%: 67 / 100 / 144
+printer+cnc+laser+casting    eol=1.0 shredder+extruder  payback copies 5/50/95%: 25 / 33 / 44
+printer+cnc+laser+casting    eol=1.0 furnace            payback copies 5/50/95%: 67 / 101 / 144
+
+== one more copy of the shop's own machines (printer + recyclers): imported mass share that is vitamins ==
+printer                      recyclers shredder, extruder: 8.97 kg vitamins, 0.60 kg made (94% vitamin)
+printer+cnc+laser            recyclers shredder, extruder: 4.97 kg vitamins, 4.60 kg made (52% vitamin)
+printer+cnc+laser+casting    recyclers shredder, extruder, furnace: 11.47 kg vitamins, 4.60 kg made (71% vitamin)

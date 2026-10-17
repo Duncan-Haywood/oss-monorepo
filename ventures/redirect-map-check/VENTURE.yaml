@@ -1,0 +1,44 @@
+name: redirect-map-check
+description: >-
+  Free browser tool that checks a site-migration redirect map (CSV, TSV or one old-new pair per line)
+  before launch: redirect loops and self-redirects, chains that should be one hop, the same old URL sent
+  to two places, a large share of rows redirected to the homepage (a soft-404 pattern), spaces,
+  #fragments, missing leading slashes, wildcards and other-host sources, temporary status codes, and --
+  if the new site's URL list is pasted -- redirects that end on a 404, plus old URLs with no rule at all,
+  each with its line number. It then writes the map flattened, so every old URL points straight at its
+  final destination, as a Shopify CSV, Netlify or Cloudflare Pages _redirects, Apache Redirect lines or
+  an nginx map. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session (build-now pipeline empty, 735 ventures, the
+# bid-calculator shape saturated). Archetype: the paste-your-file pre-flight checker, but with an
+# algorithmic core the sibling checkers lack -- a linear-time resolution of the whole redirect graph
+# (memoised, 20,000-row chain map in well under a second) -- rather than per-cell format rules.
+#
+# Not a duplicate: `redirect-chain-check` follows ONE live URL's real HTTP hops from the CLI; this reads
+# the whole planned map offline, before anything is deployed, which is the moment a migration's loops and
+# chains are cheapest to fix and the only moment a tool can check every row against the new site's URL
+# list. `canonical-tag-check`, `sitemap-lastmod-freshness-check` and the CSV checkers read other files.
+# screened-out.md rejects `multi-location-listing-guard` (Yext/BrightLocal own it through agencies) and
+# GEO monitoring; neither is this. Agency-sold SEO migration suites (Screaming Frog, Sitebulb) crawl
+# live sites for a paid licence; they do not take a pasted map and fix it, and neither is aimed at a
+# Shopify merchant who has one export and one afternoon.
+#
+# First visitor: the person doing a replatform (to Shopify, Webflow, WordPress, Netlify) or a URL
+# restructure and searching the literal symptoms ("Shopify redirect CSV import error", "redirect chain
+# after migration", "too many redirects after migration", "301 redirect map template", "htaccess
+# redirect loop"). Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the map never leaves the browser (a test asserts no network
+# calls). Import formats and platform limits are stated as read from memory of public help pages, with an
+# explicit not-checked list; behaviour on the live server, regex rules and ranking outcomes are out of
+# scope and said so.
+#
+# Path to revenue (payment rails stay off): lead magnet for the migration and technical-SEO audience.
+# A paid version, if usage appears, is a live-crawl mode that diffs the map against the real old and new
+# sites (needs a server process and a crawl budget), saved per-client rule sets, and a monitor that
+# re-checks the live redirects after launch behind an env-var switch; none built.
+#
+# Liability: format checks on the user's own file, no warranty, independent-of-every-platform clause,
+# trademarks used nominatively, no ranking or traffic promise.

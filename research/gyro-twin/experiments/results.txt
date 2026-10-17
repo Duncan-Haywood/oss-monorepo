@@ -1,0 +1,49 @@
+Gyro twin: real = white noise N=0.005 deg/sqrt(s) plus bias random walk K=0.0001 deg/s/sqrt(s); twin = white noise only (K=0).
+crossover t* = sqrt(3) N / K = 86.6 s (also the Allan-variance minimum)
+
+== 1. Heading std: Monte Carlo (dt=0.5 s, 2000 paths) vs exact discrete vs continuous closed form vs white-only twin ==
+(ratio real/twin variance = 1 + (t/t*)^2)
+     t   MC std    exact discrete   continuous   twin (K=0)   var ratio real/twin   1+(t/t*)^2
+     1   0.0051           0.0050       0.0050       0.0050                 1.000        1.000
+    10   0.0159           0.0159       0.0159       0.0158                 1.013        1.013
+   100   0.0769           0.0762       0.0764       0.0500                 2.333        2.333
+   300   0.3169           0.3119       0.3122       0.0866                13.000       13.000
+  1000   1.8920           1.8319       1.8326       0.1581               134.333      134.333
+
+== 2. Allan deviation from one simulated record (dt=0.1 s, 20000 s, overlapping) vs N^2/tau + K^2 tau/3 ==
+   tau (s)   Allan dev (sim)   closed form   white-only twin N/sqrt(tau)
+      0.1           0.01581       0.01581        0.01581
+      1.0           0.00497       0.00500        0.00500
+     10.0           0.00160       0.00159        0.00158
+     86.6           0.00071       0.00076        0.00054
+    100.0           0.00071       0.00076        0.00050
+   1000.0           0.00123       0.00183        0.00016
+smallest simulated Allan deviation at tau = 100.0 s (closed form t* = 86.6 s)
+
+== 3. Re-alignment interval so that 2 sigma of heading stays within 1 deg ==
+twin calibrated how                      N_fit (deg/sqrt(s))   interval (s)   real P(|heading error| > 1 deg) at that interval
+real (truth)                                       0.00500          415.8       0.0455
+white-only twin (N, K=0)                           0.00500        10000.0       0.9862
+Allan fit at tau0=1 s, K=0                         0.00500         9998.7       0.9862
+Allan fit at tau0=10 s, K=0                        0.00503         9868.4       0.9859
+Allan fit at tau0=100 s, K=0                       0.00764         4285.7       0.9508
+Allan fit at tau0=1000 s, K=0                      0.05795           74.4       0.0000
+
+== 4. Single-point Allan fit at tau0 = 100 s: twin/real heading-variance ratio (N_fit^2 + 0)/(N^2 + K^2 t^2/3) over t ==
+N_fit = 0.00764 (true N = 0.005)
+     t   twin var / real var   (var_twin = N_fit^2 t, var_real = N^2 t + K^2 t^3/3)
+     1                2.333
+    10                2.303
+    50                1.750
+   100                1.000
+   300                0.179
+  1000                0.017
+  3000                0.002
+the fit is exact only at t = tau0 (N_fit^2 = N^2 + K^2 tau0^2/3): ratio at t = 100 is 1.000
+
+== 5. Dead reckoning at v = 1 and 5 m/s: distance until 2 sigma cross-track error reaches 1 m ==
+var y = v^2 (N^2 t^3/3 + K^2 t^5/20), N and K in rad units; solved for var <= (1 m / 2)^2
+v = 1 m/s: real 2-sigma 1 m reached at t = 265.9 s (266 m);  twin t = 461.8 s (462 m);  twin overstates the usable distance by 1.74x
+v = 5 m/s: real 2-sigma 1 m reached at t = 126.3 s (631 m);  twin t = 157.9 s (790 m);  twin overstates the usable distance by 1.25x
+MC check at v = 1 m/s, t = real-solution time (dt = 0.5 s, 3000 paths): std of y vs closed form
+t = 266.0 s: MC std y = 0.505 m, closed form = 0.501 m (target 0.5 m), twin std at same t = 0.219 m

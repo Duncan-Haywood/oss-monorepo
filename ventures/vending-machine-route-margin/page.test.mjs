@@ -127,3 +127,11 @@ test('index links one hop to the atm-route-margin sibling', () => {
   );
   assert.match(html, /ATM route margin calculator/i);
 });
+
+// Inbound link for `laundromat-machine-payback-calculator`: the same
+// unattended coin/card-operated machine economics (cycles or vends per day
+// against a per-machine cost), for an owner of washers and dryers.
+test('index links one hop to the laundromat-machine-payback-calculator sibling', () => {
+  assert.match(html, /href="\.\.\/laundromat-machine-payback-calculator\/"/);
+  assert.match(html, /laundromat machine payback calculator/i);
+});

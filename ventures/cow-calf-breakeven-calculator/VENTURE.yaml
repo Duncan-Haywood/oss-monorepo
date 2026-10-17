@@ -1,0 +1,41 @@
+name: cow-calf-breakeven-calculator
+description: 'Free, zero-network browser calculator for cow-calf producers: enter hay, supplement, pasture, health, bull, labor, other costs and the net cost of replacing culled cows, plus calves weaned, weaning weight and calf price, and get cost per cow, margin per cow and per herd, the breakeven calf price per cwt, the weaning weight and weaning rate that would break even, and scenarios for calf price, hay price and weaning rate. Arithmetic on the numbers the user types, not financial advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: producers sell calves at a price set at the sale barn and rarely divide a year of costs by hundredweight weaned.
+# Checked 2026-10-03: no cattle, ranch or livestock venture under ventures/ (custom-farm-rate-calculator prices contract field work, not herd margin); not in screened-out.md.
+#
+# First visitor: searches "cow calf breakeven calculator", "cost to keep a cow per year",
+# "breakeven calf price per cwt"; r/cattle, r/farming, extension-service budget worksheets users.
+# Volume not measured with an external tool. A hosted version that imports a herd record sheet and
+# tracks cost per cow over years is the natural paid upgrade.
+hypotheses:
+  - claim: A cow-calf producer will enter their own hay and weaning numbers, see hay price or weaning rate matter more than they assumed, and change what they feed or cull.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for the breakeven price per cwt more often than for the margin per cow.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No producer reports changing feed, culling or marketing because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cow-calf-breakeven-calculator/
+  analytics: null

@@ -1,0 +1,25 @@
+E1  payments (p=0.3, G=1.0): honest 2Gpq vs lazy 2Gd(1-d)
+  d=0.5: honest 0.4200  lazy 0.5000  ratio 1.190  a*=0.652
+  d=0.3: honest 0.4200  lazy 0.4200  ratio 1.000  a*=0.619
+  d=0.1: honest 0.4200  lazy 0.1800  ratio 0.429  a*=0.467
+  d=0.0: honest 0.4200  lazy 0.0000  ratio 0.000  a*=0.238
+
+E2  Monte Carlo of the payment (400000 tasks)
+  a=(1,1) d=0.5: sim 0.4196  exact 0.4200
+  a=(0,0) d=0.5: sim 0.4998  exact 0.5000
+  a=(0.5,0.8) d=0.4: sim 0.2173  exact 0.2160
+  a=(0.2,0.3) d=0.5: sim 0.3056  exact 0.3052
+
+E3  best-response dynamics from a0 (d=0.5, k=0.1): basin boundary is a*
+  a0=0.200 -> a_final 0.000
+  a0=0.632 -> a_final 0.000
+  a0=0.672 -> a_final 1.000
+  a0=0.600 -> a_final 0.000
+
+E4  gold-check payment mass g*R (fraction g of tasks, reward R for matching truth) making effort dominant
+  d=0.5 k=0.05: g*R=1.100  gain at a_j=0 with g*: 0.00e+00
+  d=0.5 k=0.1: g*R=1.200  gain at a_j=0 with g*: 0.00e+00
+  d=0.3 k=0.05: g*R=1.119  gain at a_j=0 with g*: 0.00e+00
+  d=0.3 k=0.1: g*R=1.238  gain at a_j=0 with g*: 0.00e+00
+  d=0.1 k=0.05: g*R=0.676  gain at a_j=0 with g*: 0.00e+00
+  d=0.1 k=0.1: g*R=0.824  gain at a_j=0 with g*: 0.00e+00

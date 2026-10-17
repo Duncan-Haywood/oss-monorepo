@@ -2,6 +2,8 @@
 
 **Track which contractors need a 1099-NEC under the 2026 reporting threshold, without a paid e-filing subscription.** Add each vendor's entity type, payment category, and year-to-date total, and get a sorted review queue: who crosses the threshold, who is exempt as a corporation, and whose W-9 is still missing. The app runs entirely in the browser; vendor data never leaves your device.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/
+
 After using this, you can now see exactly which vendors need a 1099-NEC and which W-9s are still missing, which used to take re-deriving the threshold rule by hand every January.
 
 ## Why this exists now
@@ -12,7 +14,7 @@ The One Big Beautiful Bill Act (OBBBA) raised the Form 1099-NEC / 1099-MISC none
 
 Open `index.html` in a browser. Set the tax year (the year payments were made — this decides which threshold applies) and, if a later year's inflation-adjusted figure has been published and this page has not been updated to match, type it into the threshold override. Add one row per vendor: name, entity type, payment category, total paid this year, and whether a W-9 is on file. Select **Review vendors** to see the sorted queue, and **Export CSV** to hand the list to your preparer or e-filing service.
 
-See [when-do-i-need-to-send-a-1099.html](when-do-i-need-to-send-a-1099.html) for a worked example of the 2026 threshold change, or [vs-track1099.html](vs-track1099.html) for how this free, private tracker differs from Track1099's paid e-filing service.
+See [when-do-i-need-to-send-a-1099.html](when-do-i-need-to-send-a-1099.html) for a worked example of the 2026 threshold change, [vs-track1099.html](vs-track1099.html) for how this free, private tracker differs from Track1099's paid e-filing service, or [vs-tracking-vendors-in-a-spreadsheet.html](vs-tracking-vendors-in-a-spreadsheet.html) for what a hand-kept spreadsheet formula tends to get wrong across a threshold change.
 
 ## What this does not cover
 

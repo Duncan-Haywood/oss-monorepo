@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Reduce Your Vercel Bill: Levers Ranked by Dollar Impact</title>
+  <meta name="description" content="Where a Vercel Pro bill comes from and the changes that usually cut it most: caching, bot blocking, smaller assets, image optimization, skipped builds, a seat audit and function memory, with the arithmetic for each.">
+  <link rel="canonical" href="./how-to-reduce-your-vercel-bill.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which Vercel costs usually dominate?", "acceptedAnswer": {"@type": "Answer", "text": "For most Pro teams it is bandwidth (Fast Data Transfer), edge requests and function compute, in roughly that order of surprise, plus seats on larger teams. Estimate your own mix with the estimator rather than assuming, because a mostly static marketing site and a server-rendered app have different top levers."}}, {"@type": "Question", "name": "Does the Pro usage credit cover everything?", "acceptedAnswer": {"@type": "Answer", "text": "The credit offsets usage charges such as bandwidth and function time, not seats, and it only goes as far as your usage overage. The estimator lets you edit the credit and every included allowance."}}, {"@type": "Question", "name": "Do the savings add up?", "acceptedAnswer": {"@type": "Answer", "text": "No. Caching and bot blocking act on the same requests, so each lever is calculated alone and the list is a ranking, not a plan total."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Vercel Bill Estimator</a></p>
+  <h1>How to reduce your Vercel bill: levers ranked by dollar impact</h1>
+  <p>A Vercel Pro invoice is seats plus separately metered usage: Fast Data Transfer, Edge Requests, function invocations, Active CPU and provisioned memory, Fast Origin Transfer, image transformations and build minutes. The useful question is not "how do I spend less" but "which line, changed by how much, saves the most". That is arithmetic you can do before the invoice, from the numbers on your dashboard's Usage page.</p>
+
+  <h2>1. Cache so fewer requests run a function</h2>
+  <p>Every uncached dynamic request pays for an invocation, CPU time, memory time and often origin transfer. Static generation, incremental static regeneration and <code>Cache-Control</code> headers move requests to the cache. If 40% of 60 million invocations become cache hits, you stop paying for 24 million of them and the compute behind them.</p>
+
+  <h2>2. Block bots and scrapers</h2>
+  <p>Crawlers and scrapers pay no attention to your bill. Firewall rules and rate limits remove their edge requests, bandwidth and function runs at once, which is why this often ranks first on public sites.</p>
+
+  <h2>3. Send fewer bytes</h2>
+  <p>Fast Data Transfer beyond the included terabyte is billed per GB. Compression, modern image and video formats, lazy loading and dropping autoplay video cut it directly: 25% of 3,000 GB is 750 GB, about $112 a month at $0.15.</p>
+
+  <h2>4. Cut image transformations</h2>
+  <p>Each distinct source, width and format is a transformation. Serve right-sized sources, limit device widths, and raise <code>minimumCacheTTL</code> so results are reused.</p>
+
+  <h2>5. Skip builds that change nothing</h2>
+  <p>An ignored build step for docs-only commits and a warm build cache cut build minutes, which are billed per minute with no allowance.</p>
+
+  <h2>6. Audit seats and function memory</h2>
+  <p>Paid seats are the one line with no allowance: move read-only teammates to Viewer seats and remove leavers. Provisioned memory is billed per GB-hour, so a function set to 3 GB that uses 400 MB is paying for memory it never touches.</p>
+
+  <h2>Run it on your numbers</h2>
+  <p>Enter your usage in the <a href="./">estimator</a> or from the CLI, and gate a budget in CI:</p>
+  <pre>node cli.mjs estimate usage.csv --budget 500</pre>
+
+  <h2>What this cannot see</h2>
+  <p>Plans, regions, spend management, enterprise contracts and price changes are outside it. Prices here are approximate Pro-plan list prices and editable. The estimate is arithmetic on your inputs, never a bill reader.</p>
+
+  <h2>Common questions</h2>
+  <h3>Which Vercel costs usually dominate?</h3>
+  <p>For most Pro teams it is bandwidth (Fast Data Transfer), edge requests and function compute, in roughly that order of surprise, plus seats on larger teams. Estimate your own mix with the estimator rather than assuming, because a mostly static marketing site and a server-rendered app have different top levers.</p>
+  <h3>Does the Pro usage credit cover everything?</h3>
+  <p>The credit offsets usage charges such as bandwidth and function time, not seats, and it only goes as far as your usage overage. The estimator lets you edit the credit and every included allowance.</p>
+  <h3>Do the savings add up?</h3>
+  <p>No. Caching and bot blocking act on the same requests, so each lever is calculated alone and the list is a ranking, not a plan total.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not financial, engineering or operational advice, and you are responsible for verifying its output. Vercel is a trademark of its owner; this project is not affiliated with or endorsed by Vercel Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,43 @@
+name: dac7-seller-reporting-checker
+description: >-
+  Free browser tool for online sellers and hosts in the EU: enter activity type, transactions and total paid on one platform this year to see whether DAC7 means the platform reports you to the tax authority, headroom under the 30 sales / EUR 2,000 goods exemption, what is sent, and the tax-number deadline. Nothing is uploaded. Not legal or tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no DAC7 seller-side tool in ventures/ (1099-k-threshold-checker is the US equivalent; the eu-* checkers cover
+# other regulations; not in screened-out.md).
+#
+# First visitor: Vinted/Etsy/eBay/Airbnb seller who just got a "provide your tax ID or we close your account" email. Search phrases "DAC7 Vinted", "DAC7 Etsy 30 sales",
+# "DAC7 threshold 2000 euro", "DAC7 Airbnb tax ID". Demand recurs every January when platforms send reports. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet into etsy-profit-calculator and freelancer-tax-pack; GitHub Sponsors. Paid version, not built: a seller
+# ledger that tracks per-platform counts and totals across the year with a threshold alert, behind an env-var switch.
+#
+# Liability: first read of an EU directive with national variation; rejects bad input, names a verify source on every result, says plainly that reported is not taxable,
+# carries no-warranty and not-legal-advice clauses. Rules were written from memory without network access and must be verified; ethical risk is false comfort from a
+# near-threshold reading, mitigated by the verify line.
+
+hypotheses:
+  - claim: >-
+      Online sellers who receive a DAC7 notice from a platform will use a free checker to learn whether they are reportable and what to prepare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold or deadline differs from the cited law on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dac7-seller-reporting-checker/
+  analytics: null

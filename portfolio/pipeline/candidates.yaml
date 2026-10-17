@@ -1682,6 +1682,44 @@ candidates:
       need its own liability read rather than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: dotenv-exposure-check
+    name: Dotenv exposure checker
+    doc: candidates/dotenv-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/dotenv-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Five well-known dotenv filenames are requested, each capped at 1MB of
+      body read, and the tool draws a hard line no sibling checker needed:
+      a response body is parsed only to check whether its overall shape
+      looks like a real dotenv file and to extract each line's KEY name --
+      the VALUE half of every line is discarded immediately and never
+      appears in any return value, report, JSON output, or rendered page,
+      not even truncated or hashed. Classification requires the body to
+      match the real KEY=VALUE line shape, not just a 200 status,
+      specifically to avoid a false positive against a server that answers
+      every path with a 200-status "soft 404" page -- pinned by a
+      dedicated test case, alongside a test that greps the full report
+      object for a literal secret value used in a worked example to prove
+      it never leaks through. Measure real user reports before expanding
+      the probe set past these five files, which would raise both the
+      liability and the implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: source-map-leak-check
     name: Source map leak checker
     doc: candidates/source-map-leak-check.md
@@ -1715,5 +1753,229 @@ candidates:
       "could not confirm." Explicit "only test a site you own or are
       authorised to test" caution on every page and in the README, the same
       posture as every sibling checker in this family.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: subdomain-takeover-check
+    name: Subdomain takeover checker
+    doc: candidates/subdomain-takeover-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      A finding is only ever reported "confirmed" when both the DNS CNAME
+      target matches a known takeover-prone provider AND a live GET request
+      to the hostname returns that specific provider's own "nothing is
+      claimed at this name" fingerprint text -- a DNS-only match is reported
+      separately as "unconfirmed, worth a manual look" and never escalated,
+      pinned by a dedicated test ("classify never confirms a takeover from
+      DNS alone"), since a CNAME pointing at a takeover-prone provider is
+      not proof of anything on its own and most such CNAMEs are legitimate.
+      Every request is a plain DNS lookup or GET; the tool never attempts to
+      claim, register, or configure anything at any provider. It only
+      checks the exact hostnames given to it -- no DNS-zone enumeration, no
+      crawling. Explicit "only run this against a hostname you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table, which would raise both
+      the liability surface (more fingerprints to keep accurate) and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: cloud-bucket-exposure-check
+    name: Cloud bucket exposure checker
+    doc: candidates/cloud-bucket-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only one request is ever sent per check -- the bucket's own anonymous
+      listing endpoint -- capped at 16KB of body read, and the tool never
+      requests any individual object's content: finding out a bucket allows
+      public listing is the exposure it checks, downloading what is inside
+      it is a different, higher-liability action a real authorised
+      penetration test would take. Up to 5 example object names are shown
+      as evidence (never content), out of however many the single response
+      reports. Classification requires the response BODY to match a
+      provider's own documented listing-or-error XML shape, not just a
+      status code, since a public and a private bucket can each answer 200
+      or 403 depending on provider and misconfiguration -- pinned by
+      fixture tests built from each provider's own documented shape and
+      cross-checked live, read-only, against three real endpoints during
+      development. Explicit "only run this against a bucket you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table or attempting to confirm
+      public object-read access, either of which would raise the liability
+      surface past what this read covers.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: str-occupancy-tax-calculator
+    name: STR occupancy tax calculator
+    doc: candidates/str-occupancy-tax-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/str-occupancy-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      No rate table ships -- every tax rate and every "platform collects"
+      percentage is a host-supplied input, so nothing here can be a stale
+      claim about a real jurisdiction's rate or a real platform's current
+      collection agreement. The output is arithmetic on those inputs,
+      never a determination about which authorities tax a specific
+      listing or what a platform's agreements cover; the page and footer
+      repeatedly direct the host to each taxing authority's own guidance,
+      the platform's own tax pages for that exact address, and a qualified
+      tax professional before relying on it. Nothing entered leaves the
+      browser.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: auto-loan-interest-deduction-calculator
+    name: Auto loan interest deduction calculator
+    doc: candidates/auto-loan-interest-deduction-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/auto-loan-interest-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Both ai_leverage and defensibility are structural to the product
+      shape, not gaps. ai_leverage is low because the product is
+      deliberately deterministic -- a tax-adjacent calculator is exactly
+      where a model has no business guessing. defensibility is mitigated
+      the same way this portfolio's other calculators of this shape are:
+      the moat is being first with the specific framing (the
+      MFS-and-cap-doubling correction against the sibling
+      no-tax-on-tips-overtime-calculator, and the full 8-item eligibility
+      checklist rather than cap/phase-out arithmetic alone) and the
+      free/private/no-upsell posture against ad-supported finance-blog
+      competitors, not a technical barrier to reimplementation.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: caa-record-check
+    name: CAA record checker
+    doc: candidates/caa-record-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/caa-record-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+      liability_containment: 9
+      ethical_robustness: 9
+    composite: 6.75
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      ai_leverage sits at the deliberate floor every deterministic checker
+      in this family carries -- which certificate authorities are
+      authorized is decided by applying RFC 8659's own published
+      processing rules to a real DNS answer, a factual application of a
+      standard rather than a model judgment, so there is no accuracy claim
+      that needs a model behind it. defensibility (3) is a real, named
+      weakness rather than one masked by the composite: the RFC 8659
+      tree-walk and the issuewild/critical-flag fallback rules are a
+      genuine, if narrow, correctness surface, but a determined competitor
+      could still reimplement the whole thing from the same published
+      RFCs -- mitigated the same way the sibling checkers are, by shipping
+      the free-and-correct version first with the RFC 8657
+      multi-parameter-value edge case already covered, rather than by a
+      technical barrier to copying.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: s3-bucket-exposure-check
+    name: S3 bucket exposure checker
+    doc: candidates/s3-bucket-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/s3-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep both checks strictly unsigned and read-only -- every request is
+      a plain GET (ListBucket capped to 10 keys, GetBucketAcl), and the
+      tool never attempts a PUT/POST/DELETE even as a secondary
+      "is this also writable" test, which would materially raise both the
+      liability and the implementation surface. Never fetch an object's
+      file content anywhere in the tool; show only the key (file) names
+      S3's own capped listing response already returns and ACL grant
+      metadata (group URI + permission), never a stored file's bytes. A
+      response this tool cannot classify (a network error, an unexpected
+      status) is reported as an error, never silently folded into either
+      "exposed" or "blocked" -- guessing in either direction would be
+      worse than an honest "could not confirm." Measure real user reports
+      before expanding scope into bucket-policy parsing or object-level
+      ACL checks, each of which would need its own liability read rather
+      than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0

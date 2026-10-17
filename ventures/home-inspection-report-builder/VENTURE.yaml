@@ -1,0 +1,52 @@
+name: home-inspection-report-builder
+description: >-
+  Free browser tool for working home inspectors: add findings from a library of editable
+  plain-language comments grouped by system, set severity, add notes and your own repair cost
+  ranges, and print a report sorted safety-first. Save and load as a file on your own device.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled session. duplicate_check.py "home inspector report writer
+# comment library and pricing" scored 0.20 against the nearest venture (home-elevator-bid-calculator).
+#
+# Why this niche: roughly 30,000 US home inspectors write a report per inspection and pay monthly
+# for report software (Spectora, HomeGauge, ISN and similar). New and part-time inspectors, and
+# those in small markets, want a free way to turn findings into a clean, severity-sorted report.
+#
+# First visitor: new inspectors asking about free or cheap report software in r/HomeInspections,
+# InterNACHI forums and Facebook inspector groups, and searches like "free home inspection report
+# template". Volume not measured.
+#
+# Liability boundary: a writing aid only. The library is generic wording citing no code or standard
+# of practice; costs are the inspector's own figures; the inspector owns every statement in the
+# report; no data is stored or uploaded.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a hosted version with
+# photos, templates per inspector and agreements (not built).
+
+hypotheses:
+  - claim: >-
+      New and small-market home inspectors will use a free, private report builder with an editable
+      comment library, because paid report platforms are a monthly cost they want to avoid early on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a shared report) engage with the tool within 90 days of it being reachable from the published site.
+  - An inspector reports that library wording misstates a condition in a way that could mislead a client.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-inspection-report-builder/
+  analytics: null

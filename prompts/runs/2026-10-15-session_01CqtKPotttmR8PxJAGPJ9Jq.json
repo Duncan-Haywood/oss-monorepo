@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01CqtKPotttmR8PxJAGPJ9Jq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "mirror-sync",
+  "projects": [],
+  "pr": 7066,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "mirror-sync step 2 says port each adapted file; none changed this time, check passed without ack."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "record step says outcome free text implied; validator requires success|partial|failed and doc_friction {file,issue} objects."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Synced research/ with oss-research-monorepo main (919825b -> df6ec01); mirror.py check, homepage build ok. Merge commit. Added upstream repo via add_repo to read its head; mirror.py sync fetches itself.",
+  "corrections": [],
+  "redteam": null
+}

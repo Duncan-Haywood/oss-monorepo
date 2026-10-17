@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sheep and Goat Profit Calculator — Flock Planner for Lambs, Kids and Breeding Stock, Free</title>
+  <meta name="description" content="Free sheep and goat farm profit calculator. Project your flock, lambs or kids sold, hay cost and profit year by year; see what weaning rate, hay price and market price do, plus break-even flock size. Nothing uploaded.">
+  <meta property="og:title" content="Is raising sheep or goats profitable? Free flock profit planner">
+  <meta property="og:description" content="Your ewes or does, prices and hay in; year-by-year flock size, profit, break-even and payback out. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233f6212'/%3E%3Cpath d='M16 6l8 5v10l-8 5-8-5V11z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sheep and Goat Flock Profit Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Project a small sheep or meat goat flock year by year: lambs or kids weaned and sold, breeding stock, hay and feed cost, profit, break-even flock size and payback. Runs in your browser; nothing is uploaded.","featureList":"Multi-year flock projection, weaning-rate sensitivity, hay price sensitivity, market price sensitivity, selling-route comparison, break-even flock size"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many sheep or goats do I need to make a profit?","acceptedAnswer":{"@type":"Answer","text":"It depends on how many young you wean per female, your hay cost and what you sell for, because fixed costs (fencing, handling gear, insurance, rams or bucks) are spread across the females you keep. The planner shows the break-even number of breeding females for your inputs."}},{"@type":"Question","name":"Is raising sheep or goats profitable?","acceptedAnswer":{"@type":"Answer","text":"For many small flocks the answer turns on hay and on weaning rate, not on the sale price. The planner re-runs your plan at different weaning rates, hay prices and market prices so you can see which of them your profit depends on."}},{"@type":"Question","name":"Should I sell lambs or kids at weaning or finish them?","acceptedAnswer":{"@type":"Answer","text":"Finishing adds weight but also feed, time and risk. The selling-route table compares selling everything at weaning, finishing, and selling surplus females as breeding stock, using your own prices."}},{"@type":"Question","name":"Is this farming or veterinary advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in. Animal health, parasite control, nutrition, predator loss, regulations, scrapie and traceability rules, and slaughter or sales licensing are out of scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f7faf0; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #3f6212; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #365314; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #365314; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5268; }
+    .card { background: #fff; border: 1px solid #d5e3b5; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #36531410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8c27a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3f6212; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3efc8; color: #365314; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6efd2; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
+    .finding { border-bottom: 1px solid #e6efd2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3efc8; color: #365314; }
+    .stats { font-size: 1rem; color: #2f3348; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e3b5; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+      </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHEEP AND GOAT FLOCK PROFIT PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your flock pay for its hay?</h1>
+    <p>Enter your ewes or does, weaning rate, prices and feed costs. The planner projects the flock and its profit year by year, re-runs your plan at different weaning rates, hay prices and market prices, compares selling at weaning against finishing and selling breeding stock, and finds the flock size where the farm covers its fixed costs.</p>
+    <p class="note">Planning arithmetic on your own numbers and stated assumptions.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-flock">
+      <h2 id="h-flock">1. Your flock</h2>
+      <label for="species">Kind of flock</label><select id="species"><option value="sheep">Wool sheep (meat lambs plus wool)</option><option value="hair">Hair sheep (no wool, no shearing)</option><option value="goat">Meat goats</option></select>
+      <div class="grid">
+        <div><label for="startFemales">Breeding ewes or does you start with</label><input id="startFemales" type="number" step="any" value="25"></div>
+        <div><label for="cap">Most breeding females your pasture can carry</label><input id="cap" type="number" step="any" value="60"></div>
+        <div><label for="years">Years to project (1-15)</label><input id="years" type="number" step="any" value="5"></div>
+        <div><label for="deathPct">Adult deaths per year (%)</label><input id="deathPct" type="number" step="any" value="5"></div>
+        <div><label for="cullPct">Adults culled per year (%)</label><input id="cullPct" type="number" step="any" value="15"></div>
+        <div><label for="weanedPerFemale">Young weaned per breeding female per year</label><input id="weanedPerFemale" type="number" step="any" value="1.4"></div>
+        <div><label for="femaleSharePct">Share of young that are female (%)</label><input id="femaleSharePct" type="number" step="any" value="50"></div>
+      </div>
+      <p class="note">Young kept as replacements fill the flock up to your pasture limit; the rest are sold. New females are assumed to breed from their first full year. Fractions of an animal are averages, not a count you could stand in front of.</p>
+    </section>
+    <section class="card" aria-labelledby="h-sales">
+      <h2 id="h-sales">2. What you sell</h2>
+      <div class="grid">
+        <div><label for="weanWeight">Weight at weaning sale (lb)</label><input id="weanWeight" type="number" step="any" value="85"></div>
+        <div><label for="weanPrice">Price per lb at weaning ($)</label><input id="weanPrice" type="number" step="any" value="2"></div>
+        <div><label for="finishSharePct">Share finished to market weight (%)</label><input id="finishSharePct" type="number" step="any" value="0"></div>
+        <div><label for="finishWeight">Finished weight (lb)</label><input id="finishWeight" type="number" step="any" value="120"></div>
+        <div><label for="finishPrice">Price per lb finished ($)</label><input id="finishPrice" type="number" step="any" value="1.7"></div>
+        <div><label for="finishFeedCost">Extra feed to finish one animal ($)</label><input id="finishFeedCost" type="number" step="any" value="45"></div>
+        <div><label for="breedingSharePct">Surplus females sold as breeding stock (%)</label><input id="breedingSharePct" type="number" step="any" value="0"></div>
+        <div><label for="breedingPrice">Price per breeding female ($)</label><input id="breedingPrice" type="number" step="any" value="275"></div>
+        <div><label for="cullPrice">Price per cull adult ($)</label><input id="cullPrice" type="number" step="any" value="120"></div>
+        <div><label for="woolPerHead">Wool income per breeding female ($)</label><input id="woolPerHead" type="number" step="any" value="5"></div>
+        <div><label for="marketingPerHead">Hauling and commission per head sold ($)</label><input id="marketingPerHead" type="number" step="any" value="8"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-costs">
+      <h2 id="h-costs">3. What it costs</h2>
+      <div class="grid">
+        <div><label for="hayLbPerDay">Hay per female per day (lb)</label><input id="hayLbPerDay" type="number" step="any" value="4.5"></div>
+        <div><label for="hayDays">Days you feed hay</label><input id="hayDays" type="number" step="any" value="150"></div>
+        <div><label for="hayPrice">Hay price per ton ($)</label><input id="hayPrice" type="number" step="any" value="200"></div>
+        <div><label for="grainPerFemale">Grain per breeding female per year ($)</label><input id="grainPerFemale" type="number" step="any" value="25"></div>
+        <div><label for="vetPerFemale">Vet, wormer, vaccines, minerals per female ($)</label><input id="vetPerFemale" type="number" step="any" value="22"></div>
+        <div><label for="creepPerYoung">Creep feed per young weaned ($)</label><input id="creepPerYoung" type="number" step="any" value="12"></div>
+        <div><label for="ramCost">Ram or buck price ($)</label><input id="ramCost" type="number" step="any" value="600"></div>
+        <div><label for="femalesPerRam">Females per ram or buck</label><input id="femalesPerRam" type="number" step="any" value="30"></div>
+        <div><label for="ramLifeYears">Years a ram or buck lasts</label><input id="ramLifeYears" type="number" step="any" value="4"></div>
+        <div><label for="buyPerFemale">Cost of a breeding female ($)</label><input id="buyPerFemale" type="number" step="any" value="250"></div>
+        <div><label for="setupCost">Fencing, shelter, handling gear ($)</label><input id="setupCost" type="number" step="any" value="4000"></div>
+        <div><label for="setupLifeYears">Life of that setup (years)</label><input id="setupLifeYears" type="number" step="any" value="15"></div>
+        <div><label for="fixedYear">Insurance, tags, pasture, other fixed ($/yr)</label><input id="fixedYear" type="number" step="any" value="600"></div>
+        <div><label for="hoursPerFemale">Hours per breeding female per year</label><input id="hoursPerFemale" type="number" step="any" value="7"></div>
+        <div><label for="valueOfHour">What an hour of your time is worth ($)</label><input id="valueOfHour" type="number" step="any" value="20"></div>
+      </div>
+      <p class="note">Hay is charged on every breeding female for the days you feed it. One ram or buck is bought per group of females and its price spread over its working life.</p>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Project my flock</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>How many sheep or goats do I need to make a profit?</h3>
+      <p>It depends on how many young you wean per female, your hay cost and what you sell for, because fixed costs (fencing, handling gear, insurance, rams or bucks) are spread across the females you keep. The planner shows the break-even number of breeding females for your inputs.</p>
+      <h3>Is raising sheep or goats profitable?</h3>
+      <p>For many small flocks the answer turns on hay and on weaning rate, not on the sale price. The planner re-runs your plan at different weaning rates, hay prices and market prices so you can see which of them your profit depends on.</p>
+      <h3>Should I sell lambs or kids at weaning or finish them?</h3>
+      <p>Finishing adds weight but also feed, time and risk. The selling-route table compares selling everything at weaning, finishing, and selling surplus females as breeding stock, using your own prices.</p>
+      <h3>Is this farming or veterinary advice?</h3>
+      <p>No. It is arithmetic on the numbers you type in. Animal health, parasite control, nutrition, predator loss, regulations, scrapie and traceability rules, and slaughter or sales licensing are out of scope.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Animal health and parasite control, nutrition and body condition, predators, breeding and genetics, lambing and kidding losses beyond the weaning rate you enter, local rules on animal identification, slaughter and direct sales, insurance, and tax. Weaning rates, prices and hay costs vary hugely by region and year; the defaults are placeholders, not forecasts.</p>
+    </section>
+    <section class="card">
+      <p>Also running a small farm business? See the <a href="../apiary-profit-planner/">apiary profit planner</a>, the <a href="../horse-boarding-stall-profit-calculator/">horse boarding profit calculator</a>, the <a href="../u-pick-farm-profit-planner/">u-pick farm profit planner</a> and the <a href="../farmers-market-booth-calculator/">farmers market booth calculator</a>.</p>
+    </section>
+    <section class="card"><p>Raising meat birds too? The <a href="../pastured-poultry-profit-planner/">pastured poultry profit planner</a> prices a batch of chickens, your hourly return and the break-even price per pound.</p></section>
+    <section class="card"><p>Feeding cattle? The <a href="../beef-cattle-ration-optimizer/">beef cattle ration optimizer</a> finds the least-cost ration per head per day from your own feed prices.</p></section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any registration, animal-health, food-safety or insurance obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this saved you a bad year, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { project, weanedSensitivity, hayPriceSensitivity, pricePerLbSensitivity, scenarios, holdSteadyWeaned, breakEvenWeaned, breakEvenFemales, DEFAULTS, PRESETS, num, money, money2 } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } o.cap = Math.max(1, o.cap); o.setupLifeYears = Math.max(1, o.setupLifeYears); o.ramLifeYears = Math.max(1, o.ramLifeYears); o.femalesPerRam = Math.max(1, o.femalesPerRam); return o; };
+    const fill = () => { const v = { ...DEFAULTS, ...PRESETS[$("species").value].values }; for (const k of KEYS) $(k).value = v[k]; };
+    const n1 = (x) => (Math.round(x * 10) / 10).toString();
+    const pb = (y) => (y ? "year " + y : "not within the window");
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    function run() {
+      const o = opts();
+      const p = project(o);
+      const be = breakEvenFemales(o);
+      const bw = breakEvenWeaned(o);
+      let h = `<div class="finding"><h4>Year by year</h4><p class="stats">Up-front outlay ${money(p.invest)} · ${p.paybackYear ? "pays back in year " + p.paybackYear : "does not pay back in cash within " + p.rows.length + " years"} · ${money(p.totalProfit)} total profit after depreciation · ${n1(p.finalFemales)} breeding females at the end, worth about ${money(p.flockValue)} at your purchase price</p>`
+        + table(["Year", "Start", "Weaned", "Sold", "End", "Revenue", "Costs", "Profit", "Per hour", "Cash position"], p.rows.map((r) => [r.year, n1(r.start), n1(r.weaned), n1(r.marketYoung + r.breedingSold + r.culls), n1(r.end), money(r.revenue), money(r.cash), money(r.profit), money2(r.profitPerHour), money(r.cumulative)]))
+        + `<p class="note">Profit is after depreciation of the setup. Cash position is cumulative cash profit less the up-front outlay; it leaves out the value of the animals you raised, shown above. Sold counts young, breeding stock and culls.</p></div>`;
+      h += `<div class="finding"><h4>Break-even</h4><p>${be === null ? '<span class="pill high">Loses money per female</span> At these prices and costs every breeding female costs more than she earns, so a bigger flock makes it worse.' : "Each breeding female earns enough that about <strong>" + be + " females</strong> cover your fixed costs and depreciation."} ${bw === null ? "No weaning rate up to five per female would cover a flock your size, so the problem is price or cost, not lambing." : "A flock held at its starting size breaks even at about <strong>" + bw + " young weaned per female</strong> a year."} Just to refill deaths and culls with home-raised females you need about <strong>${holdSteadyWeaned(o)}</strong> weaned per female.</p></div>`;
+      h += `<div class="finding"><h4>Weaning rate sensitivity</h4>` + table(["Young weaned per female", "Females at end", "Total profit", "Payback"], weanedSensitivity(o).map((s) => [s.value, n1(s.finalFemales), money(s.totalProfit), pb(s.paybackYear)])) + `</div>`;
+      h += `<div class="finding"><h4>Hay price sensitivity</h4>` + table(["Hay per ton", "Females at end", "Total profit", "Payback"], hayPriceSensitivity(o).map((s) => [money(s.value), n1(s.finalFemales), money(s.totalProfit), pb(s.paybackYear)])) + `</div>`;
+      h += `<div class="finding"><h4>Market price sensitivity</h4>` + table(["Price vs. yours", "Weaning price per lb", "Total profit", "Payback"], pricePerLbSensitivity(o).map((s) => [Math.round(s.mult * 100) + "%", money2(s.weanPrice), money(s.totalProfit), pb(s.paybackYear)])) + `</div>`;
+      h += `<div class="finding"><h4>Ways to sell the crop</h4>` + table(["Route", "Total profit", "Females at end", "Payback"], scenarios(o).map((s) => [s.label, money(s.totalProfit), n1(s.finalFemales), pb(s.paybackYear)])) + `<p class="note">Each route replaces the finishing and breeding-stock shares you entered. Breeding-stock sales assume buyers exist at your price, which is the least certain number on this page.</p></div>`;
+      const r1 = p.rows[0];
+      h += `<div class="finding"><h4>Year one, with your time priced</h4><p>${Math.round(r1.hours)} hours of work at ${money2(o.valueOfHour)} an hour is ${money(r1.hours * o.valueOfHour)}, which leaves ${money(r1.profitAfterLabour)} after paying yourself. ${r1.profitAfterLabour < 0 ? "A hobby today, not a wage." : "It already clears a wage."}</p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("plan_run");
+    }
+    fill();
+    $("species").addEventListener("change", fill);
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

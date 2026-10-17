@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Freelancer Schedule C Categorizer — Sort Your Bank CSV Into Schedule C Lines</title>
+  <meta name="description" content="Free tool for freelancers and sole proprietors: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated tax, equipment, health insurance and transfers held out, meals at 50%, a payment-platform payout warning and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Freelancer Schedule C Categorizer — free, private, in your browser">
+  <meta property="og:description" content="Bank CSV to Schedule C lines: receipts, advertising, contract labor, office, meals, with owner draws, estimated tax and equipment held out. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Freelancer Schedule C Categorizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a bank or card CSV and sorts every transaction into an IRS Schedule C line for freelancers and sole proprietors, holding owner draws, transfers, estimated-tax payments, equipment and health insurance out of the expenses. Runs entirely in your browser; the file is never uploaded.", "featureList": "Schedule C line totals, built-in and custom keyword rules, meals at 50%, payment-platform payout warning, equipment flags, estimated tax payments found, duplicate detection, transfer pairing, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I get my freelance income and expenses onto Schedule C from a bank statement?", "acceptedAnswer": {"@type": "Answer", "text": "Export the year's transactions as CSV from each bank or card account you use for the business, drop them in here, and add a \u201ckeyword => category\u201d rule for anything the built-in rules do not know. The tool sorts every transaction into a Schedule C line (gross receipts on line 1, advertising line 8, contract labor line 11, office expense line 18, and so on), holds out what is not an expense, and lists what it could not categorise. It is an estimate for you and your preparer to check, not tax advice."}}, {"@type": "Question", "name": "What is not a Schedule C expense?", "acceptedAnswer": {"@type": "Answer", "text": "Your own pay and transfers between your accounts, estimated tax payments, sales tax you collected for a state, the principal part of a loan or card payment, self-employed health insurance and retirement contributions (those go on Schedule 1), and equipment that has to be depreciated or expensed by election. The tool holds all of these out of your expenses instead of quietly deducting them."}}, {"@type": "Question", "name": "Why are my Stripe, PayPal or Etsy deposits lower than my sales?", "acceptedAnswer": {"@type": "Answer", "text": "Payment platforms pay out after taking their fee and any refunds. Schedule C line 1 asks for gross receipts, so the fees are a separate expense on line 10 and the deposits alone understate income. The tool flags deposits that look like platform payouts; use the platform's own annual gross-sales report for line 1 and compare it with any Form 1099-K or 1099-NEC."}}, {"@type": "Question", "name": "Are business meals fully deductible?", "acceptedAnswer": {"@type": "Answer", "text": "Generally 50%. The tool counts half of each meal on line 24b and shows what was actually spent. Only meals with a business purpose belong there, and you keep the who and why with your records."}}, {"@type": "Question", "name": "Should I deduct a new laptop or camera as supplies?", "acceptedAnswer": {"@type": "Answer", "text": "Often not directly. Equipment is usually depreciated, or deducted in full through a de minimis safe-harbor or Section 179 election. The tool holds obvious equipment out of the totals and flags anything over your threshold, and your preparer decides how each purchase is treated."}}, {"@type": "Question", "name": "Is my bank data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors, and no bank login is asked for."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+        .sev-high{color:#9a3412}
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FREELANCER SCHEDULE C CATEGORIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a year of bank transactions into Schedule C lines.</h1>
+    <p>Drop in the <strong>CSV from your bank or card</strong>. Every transaction is sorted into a <strong>Schedule C line</strong> (gross receipts, advertising, contract labor, office expense, meals…) or held out as something that is <strong>not a business expense</strong>: your own pay, transfers, estimated tax payments, health insurance, loan principal, equipment. You get the line totals, the rows it could <strong>not</strong> categorise, the deposits that are <strong>net of platform fees</strong>, and a CSV with every row and the rule that decided it, to hand to your preparer.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of every bank, card issuer, payment platform and of the IRS. Figures are estimates from your file and your rules; this is not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your transactions and your rules</h2>
+    <p class="note">Needs a <strong>date</strong>, a <strong>description</strong> and an <strong>amount</strong> (or debit and credit) column; a <strong>business</strong> column is used when present. <strong>Column names are matched by alias and are unverified against real bank exports</strong>: if a file is not read, the page says which rows were skipped and why. Money in should be positive; tick the box below for card exports that list charges as positive.</p>
+    <label for="file">Bank or card CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Description,Amount"></textarea>
+    <label for="props">Business rules, optional: one “keyword => business name” per line, only if you run more than one Schedule C business</label>
+    <textarea id="props" spellcheck="false" placeholder="acme => Acme Design&#10;zed => Zed Photo"></textarea>
+    <label for="rules">Category rules, optional: one “keyword => category” per line (yours win over the built-in ones)</label>
+    <textarea id="rules" spellcheck="false" placeholder="sq *mystery vendor => supplies&#10;brightline => line 1"></textarea>
+    <div class="grid">
+      <div><label for="year">Tax year, optional (other years are left out)</label><input type="number" id="year" value="" min="2000" max="2100" step="1"></div>
+      <div><label for="safe">Flag purchases above, $ per item</label><input type="number" id="safe" value="2500" min="0" step="100"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="invert"><label for="invert">Card export: charges are listed as positive numbers</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="dayfirst"><label for="dayfirst">Dates are day/month/year</label></div>
+    <p>
+      <button type="button" id="analyze">Categorize</button>
+      <button type="button" class="secondary" id="load-example">Load sample data</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the export file or paste it, then click Categorize.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By business, by Schedule C line</h3>
+    <div id="by-business"></div>
+    <h3>Not categorised</h3>
+    <p class="note">Add a “keyword => category” rule for each and click Categorize again. Category names you can use: <span id="cat-names"></span>.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="uncat"></tbody></table></div>
+    <h3>Purchases that may be equipment</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th class="n" scope="col">Amount</th><th scope="col">Why flagged</th></tr></thead><tbody id="capex"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download every transaction with its category as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Lines:</strong> receipts are line 1; expenses use lines 8 to 27a of Schedule C, Part II as printed on the form (check the form for your year). Built-in keyword rules are conservative: a description that could fit two lines is left uncategorised rather than guessed.</li>
+      <li><strong>Held out, on purpose:</strong> owner draws and personal spending, transfers between your own accounts (also paired automatically when an equal and opposite row appears within three days), estimated tax payments, sales tax, loan and card principal, health insurance and retirement contributions (Schedule 1), bank interest (Schedule B) and equipment.</li>
+      <li><strong>Meals:</strong> counted at 50% on line 24b, with the amount spent shown beside it.</li>
+      <li><strong>Payouts:</strong> deposits that look like they come from Stripe, PayPal, Square, Etsy, Shopify and similar are flagged, because they are net of fees and refunds while line 1 is gross.</li>
+      <li><strong>Equipment:</strong> the tool flags items over your threshold and items worded like equipment. It does not decide; whether an item is depreciated, expensed by election, or a plain supply is for you and your preparer.</li>
+      <li><strong>Reconciles.</strong> Line items add to each business's expenses, businesses add to the totals at the top, and the full transaction CSV lists every row with the rule that decided it.</li>
+      <li><strong>Not modelled:</strong> depreciation and Section 179 (line 13), the home office (line 30), the standard mileage rate, business-use percentages for phone, internet and car, cost of goods sold, inventory, employees and payroll, cash and expenses paid from another account, income that differs on a 1099, self-employment tax, the qualified business income deduction, and state rules.</li>
+      <li><strong>Unverified:</strong> column names are matched by alias and no real bank export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I get my freelance income and expenses onto Schedule C from a bank statement?</h3>
+    <p>Export the year's transactions as CSV from each bank or card account you use for the business, drop them in here, and add a “keyword => category” rule for anything the built-in rules do not know. The tool sorts every transaction into a Schedule C line (gross receipts on line 1, advertising line 8, contract labor line 11, office expense line 18, and so on), holds out what is not an expense, and lists what it could not categorise. It is an estimate for you and your preparer to check, not tax advice.</p>
+    <h3>What is not a Schedule C expense?</h3>
+    <p>Your own pay and transfers between your accounts, estimated tax payments, sales tax you collected for a state, the principal part of a loan or card payment, self-employed health insurance and retirement contributions (those go on Schedule 1), and equipment that has to be depreciated or expensed by election. The tool holds all of these out of your expenses instead of quietly deducting them.</p>
+    <h3>Why are my Stripe, PayPal or Etsy deposits lower than my sales?</h3>
+    <p>Payment platforms pay out after taking their fee and any refunds. Schedule C line 1 asks for gross receipts, so the fees are a separate expense on line 10 and the deposits alone understate income. The tool flags deposits that look like platform payouts; use the platform's own annual gross-sales report for line 1 and compare it with any Form 1099-K or 1099-NEC.</p>
+    <h3>Are business meals fully deductible?</h3>
+    <p>Generally 50%. The tool counts half of each meal on line 24b and shows what was actually spent. Only meals with a business purpose belong there, and you keep the who and why with your records.</p>
+    <h3>Should I deduct a new laptop or camera as supplies?</h3>
+    <p>Often not directly. Equipment is usually depreciated, or deducted in full through a de minimis safe-harbor or Section 179 election. The tool holds obvious equipment out of the totals and flags anything over your threshold, and your preparer decides how each purchase is treated.</p>
+    <h3>Is my bank data uploaded?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors, and no bank login is asked for.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the rules you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before you file a return.</p>
+    <p><strong>Not affiliated with any bank or the IRS.</strong> Schedule C, Schedule 1, Form 1040, Form 1099-K and Form 1099-NEC are U.S. tax forms; bank, card, Stripe, PayPal, Square, Etsy, Upwork and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Forms and rules change; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_categorized</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../self-employment-tax-calculator/">self-employment tax calculator</a>, <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, <a href="../home-office-deduction-calculator/">home office deduction calculator</a>, <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a>, <a href="../1099k-reconciliation-worksheet/">1099-K reconciliation worksheet</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parseBusinessRules, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    $("#cat-names").textContent = Object.entries(CATEGORIES).filter(([k]) => k !== "uncategorised").map(([k]) => k).join(", ");
+
+    function run(text) {
+      const d = detectDelimiter(text);
+      const b = normalizeBank(parseCsv(text, d), { decimalComma: d === ";", invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+      if (b.error) { status.textContent = b.error; report.hidden = true; return false; }
+      const rules = parseRules($("#rules").value), props = parseBusinessRules($("#props").value);
+      const a = analyze(b.txns, { userRules: rules.rules, businessRules: props.rules, safeHarbor: num("#safe", 2500), year: num("#year", NaN) });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      const t = a.totals;
+      $("#report-stats").innerHTML = `${t.txns} transaction(s) from ${t.from} to ${t.to}, <strong>${t.categorisedPct}%</strong> categorised. Income <strong>${usd(t.income)}</strong>, expenses <strong>${usd(t.expenses)}</strong>, net <strong>${usd(t.net)}</strong> before depreciation.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#by-business").innerHTML = a.businesses.map((p) => `<h4>${esc(p.business)}</h4><div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Item</th><th class="n" scope="col">Amount</th></tr></thead><tbody><tr><td>1, 6</td><th scope="row">Gross receipts and other business income</th><td class="n">${money(p.income)}</td></tr>${p.lines.filter((l) => l.amount).map((l) => `<tr><td>${l.line}</td><th scope="row">${esc(l.label)}${l.spent !== null ? ` (of ${usd(l.spent)} spent)` : ""}</th><td class="n">${money(l.amount)}</td></tr>`).join("")}<tr><td></td><th scope="row">Total expenses</th><td class="n">${money(p.expenses)}</td></tr><tr><td></td><th scope="row">Net profit before home office, depreciation and self-employment tax</th><td class="n">${money(p.net)}</td></tr></tbody></table></div><p class="note">${[p.estTaxPaid ? `Estimated tax payments ${usd(p.estTaxPaid)} (not an expense).` : "", p.equipmentHeldOut ? `Equipment and big purchases ${usd(p.equipmentHeldOut)} held out (depreciate or elect to expense).` : "", p.healthInsurance ? `Health insurance ${usd(p.healthInsurance)} goes on Schedule 1.` : "", p.retirement ? `Retirement contributions ${usd(p.retirement)} go on Schedule 1.` : ""].filter(Boolean).join(" ")}</p>`).join("");
+      $("#uncat").innerHTML = a.uncategorised.length ? a.uncategorised.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3">Every transaction was categorised.</td></tr>`;
+      $("#capex").innerHTML = a.capexCandidates.length ? a.capexCandidates.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td><td>${esc(r.flags.join("; "))}</td></tr>`).join("") : `<tr><td colspan="4">None.</td></tr>`;
+      const notes = [], skipped = b.skipped.concat(rules.skipped, props.skipped);
+      if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") + ".");
+      notes.push("Columns read: " + Object.entries(b.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = `Read ${b.txns.length} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the export file or paste it first."; return; }
+      if (run(text)) record("csv_categorized");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleCsv();
+      $("#paste").value = s.bank; $("#props").value = s.businesses; $("#rules").value = s.rules; $("#file").value = "";
+      if (run(s.bank)) { record("example_loaded"); status.textContent = "Sample data: an invented freelancer, not a real person."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#props", "#rules", "#file", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the export file or paste it, then click Categorize."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "schedule-c-categorized.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

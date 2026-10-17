@@ -41,7 +41,13 @@ now issue, a client they can now keep.
 
 ## 2. Choose a shape that costs us nothing per user
 
-In rough order of preference:
+In rough order of preference. **This order is about cost, not about what to
+build next** (2026-10-16): read as a recipe, it produced 121 near-identical
+`<trade>-bid-calculator` ventures
+([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
+A CLI, library, desktop app or extension (shape 2) costs nothing to serve
+either, and the owner wants that track run alongside web tools. Before adding
+a product in an existing template family, extend or consolidate the family.
 
 1. **Static site / browser app.** All computation client-side, state in
    `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero
@@ -63,6 +69,74 @@ the product is useless without one (and if you need one, prefer "bring your own
 GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
 the way a new product goes live — GitHub Pages and the existing Hetzner
 boxes are the host.
+
+### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+Build every app so that a stranger can run their own copy of it, in their own
+cloud account, without us. That lets other people set up businesses from
+this repo. The flow is: pick an app, pick a cloud provider, paste in
+credentials, click **Deploy**. This is a direction for future work, not a
+feature that exists yet.
+
+The model here is that we don't host anything. Each app is an open-source
+business that anyone can host in one click. The code is already MIT, at the
+root and in all 1,236 ventures. MIT lets anyone copy, modify, host and sell
+it, so no license change is needed. The deployer keeps the copyright notice,
+and the license's no-warranty clause protects us. Whoever clicks Deploy
+becomes the operator of their copy. They are responsible for its domain,
+terms, privacy policy and users, and for any changes they make. The deploy
+page must say so before the button. The §5b disclaimers ship in the deployed
+copy, but they are the operator's to keep accurate, not ours.
+
+When someone builds it, these rules apply:
+
+- **All IaC, no backend of ours.** The deploy page is a static page like
+  every other one. The page creates a small deploy repo in the visitor's
+  GitHub account using their own GitHub token, then stores their cloud
+  credentials there as Actions secrets. The page encrypts the credentials in
+  the browser with the repo's public key (a libsodium sealed box) before
+  sending them. It then dispatches a workflow that runs OpenTofu. Keep the
+  OpenTofu state encrypted (OpenTofu's native state encryption) and in the
+  visitor's own repo. Also offer "download the IaC" so a visitor can run
+  `tofu apply` locally and never give GitHub a credential.
+- **OpenTofu is the IaC tool, and it is set up the same way everywhere.**
+  Write modules for OpenTofu (`tofu`), not Terraform. The two have different
+  licenses, and state encryption is OpenTofu-only. Set it up like this:
+  - Pin the version: `required_version` in each module, and the same version
+    in the workflow's `opentofu/setup-opentofu` step.
+  - Pin every provider in `required_providers` and commit
+    `.terraform.lock.hcl`.
+  - Configure state encryption from an Actions secret (a passphrase the
+    deploy page generates in the browser). A plain-text state file is never
+    committed.
+  - Use `tofu apply` for deploys and `tofu destroy` in a separate workflow.
+    Teardown is one click too.
+  - Write each module's outputs (the live URL) to the job summary.
+  - Our own CI runs `tofu fmt -check` and `tofu validate` on every module, so
+    a broken module fails here and not in a stranger's account.
+  - Each module's README gives the local commands (`tofu init`, then
+    `tofu apply -var-file=...`) for the download path.
+- **Several providers, chosen by the visitor.** Static apps can go to GitHub
+  Pages, AWS (S3 + CloudFront), Google Cloud Storage, Azure Storage static
+  websites or DigitalOcean Spaces. Apps that need a running process get a
+  cloud-init VM on Hetzner, DigitalOcean or AWS. "Not Cloudflare, not Vercel"
+  is about where *we* host. It does not limit where a visitor deploys their
+  own copy.
+- **One platform feature, not 1,200 per-venture ones.** Build it once under
+  `platform/deploy/`. Derive the list of apps from `discoverSurfaces()` in
+  `platform/pages/build.mjs`. Do not keep a second list. Giving each venture
+  its own deploy button is the fleet-parity trap.
+- **Credentials never touch anything of ours.** Nothing we run or log ever
+  sees them. The page states exactly where they go: GitHub, encrypted, and
+  then the visitor's cloud provider. The visitor pays their own cloud bill,
+  and the no-SLA clause in §5b applies to their copy too.
+- **Money stays donations.** The only ask is a Buy Me a Coffee link, beside
+  the existing GitHub Sponsors link, as a plain link with no embedded
+  widget (a third-party script would break the privacy line in §5c). This
+  is an owner-approved exception to
+  §6's "no third-party donation links", for Buy Me a Coffee only. The owner
+  gave the handle on 2026-10-15. The URL is exactly
+  `https://buymeacoffee.com/duncanhaywood`; use no other handle or spelling.
 
 ## 3. The API-key switch
 
@@ -96,6 +170,11 @@ holds the key — no rewrite.
 Never commit a key. Never embed one of ours in a client. Never make a paid API
 a hard dependency of the main flow.
 
+Use the shared client rather than writing another:
+[`platform/llm/byok.mjs`](platform/llm/README.md) talks to Anthropic, OpenAI,
+Gemini or any `/chat/completions` endpoint with the user's own key, and its
+`withFallback` is the shape above.
+
 ## 4. Build the thing
 
 One session should produce something usable. Concretely:
@@ -109,6 +188,33 @@ One session should produce something usable. Concretely:
 - **Run the product itself**, not just its tests. Open the page, run the CLI,
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
+
+### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
+
+Venture code stays build-free `.mjs`, served as committed. TypeScript is used
+only as a checker, never as a build step:
+
+- **Start every new `.mjs` file with `// @ts-check`.** Add JSDoc types only
+  where tsc asks for them (`/** @type {HTMLFormElement} */` on a
+  `querySelector`, a `@typedef` for an object that is built up after its
+  literal). Keep the JSDoc true: a `@param {number}` the form actually passes
+  as `''` misleads the next session.
+- **A file you edit gets the pragma too, if it already passes.**
+  `node platform/pages/typecheck.mjs --candidates <slug>` lists which of the
+  venture's files pass today. Do not retrofit files that fail, and do not add
+  `--checkJs` across the tree.
+- **CI keeps opted-in files clean.** `node platform/pages/typecheck.mjs <slug>`
+  runs in `ventures-tests` on every venture a PR touches. It exits 1 on any
+  diagnostic in an opted-in file.
+
+Why opt-in and not everywhere: across all 3,410 venture product files,
+`--checkJs` reported 3,911 diagnostics and one user-visible bug. That bug was
+a duplicate object key that blanked a transaction count. With the two
+privacy-signal globals declared, 80% of files (two thirds of `calc.mjs`)
+already pass with no other edit. Opting a file in costs nothing, and it
+catches the renamed field, duplicate key or misspelled method in the edit
+that introduces it. Measurement:
+[`portfolio/research/js-typecheck/`](portfolio/research/js-typecheck/README.md).
 
 ## 5. Every product ships these five things
 
@@ -221,6 +327,11 @@ This is a build task and it ships with v0, not later:
       here anyway (`portfolio/pipeline/channel-inventory.md`). Build the
       artifact, queue the one-line ask, ship the product regardless: search and
       AI discovery do not need anyone's permission.
+- [ ] Where the product fits a natural distribution channel (registry, store,
+      directory, feed), build its publish pipeline off by default with a dry
+      run, per [`portfolio/distribution/`](portfolio/distribution/README.md)
+      (owner goal, 2026-10-15). Automated and unpaid, and never against a
+      platform's terms.
 
 ### f. If the page names a competitor
 
@@ -255,15 +366,24 @@ not just the disclaimer in §5b.
    rather than a fact sheet is a defamation and false-advertising exposure
    for a page that costs nothing to make safe instead.
 
-## 6. Money: donations only, and most of it already ships
+## 6. Money: the deployer's keys, never the owner's
 
-No checkout, no card fields, no billing code, no merchant of record, not even
-disabled. That is on the owner-only list in
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
-account and a tax identity. `python3 platform/ci/check_no_payment_code.py`
-enforces this fleet-wide in CI — see "Legal guardrails" in `DIRECTION.md` for
-the two pre-existing exceptions it currently allows and why adding a third
-needs a decision-queue row first, not a code review comment.
+Payment code is allowed (the owner, 2026-10-15: "I think payment is okay I just
+don't want mine. if other people want to fork and put their payment in it's
+okay with me"). Build it so that:
+
+- it is **off by default**: with no keys set, the product works and says
+  payments are not configured;
+- it reads every key, price id and link from **environment variables the
+  deployer sets**, and names them in the README and the deploy page;
+- it never carries a real account: no live keys, no Payment Link or
+  hosted-button ids. `python3 platform/ci/check_payment_keys.py` catches
+  those in CI;
+- the README says plainly that whoever turns payments on is the merchant,
+  with that role's tax, refund and dispute duties.
+
+The owner's own instances (the GitHub Pages site) take donations only: the
+GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 
 **Two separate things exist here — do not conflate them:**
 
@@ -309,7 +429,8 @@ yet *counted for us*. Reading the aggregate back is the same open problem
 `portfolio/usage/README.md` already describes for the rest of the fleet, not
 something a venture's own PR can close.
 
-No third-party donation links, and never in front of a feature — a donation
+No third-party donation links (one owner-approved exception: a plain link to
+`https://buymeacoffee.com/duncanhaywood`; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
@@ -322,6 +443,11 @@ Ship when every line is true:
 
 - [ ] A stranger in the niche can go from landing page to a completed task
       alone.
+- [ ] It has a home/marketing page on the GitHub Pages site, linked from the
+      portfolio homepage — CLIs, servers and apps included, not only browser
+      tools (`prompts/goals.md`, web presence). The page says what it does and
+      for whom, shows it (a screenshot or a demo), and links to try it and to
+      the code.
 - [ ] It runs with no key, no account, and no paid dependency of ours.
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.

@@ -1,0 +1,40 @@
+name: backyard-egg-profit-calculator
+description: 'Free, zero-network browser calculator for backyard egg sellers: enter hens, lay rate, feed, bedding, replacement pullets, cartons, hours and your wage, and get cost per dozen, profit per hour, the price per dozen you need to earn a wage, and what feed cost and a winter drop in laying do to it. Arithmetic on the numbers the user types, not accounting, tax or food-safety advice.'
+stage: prototype
+
+owner: duncan
+
+# Calculator archetype, earn-more: hobby egg sellers price by feel and never count feed, replacement hens or their own hours.
+# Checked 2026-10-03: no egg or poultry venture exists in ventures/; not in screened-out.md; closest are farmers-market-booth-calculator and cow-calf-breakeven-calculator.
+#
+# First visitor: searches "how much to charge for a dozen eggs", "is selling eggs profitable", "cost to raise backyard chickens";
+# r/BackyardChickens, r/homestead, Facebook groups and farm-stand sellers. Volume not measured with an external tool.
+# A hosted version that logs daily egg counts and customer orders is the natural paid upgrade.
+hypotheses:
+  - claim: A backyard egg seller will enter their own feed, hens and hours, see profit per hour far below the wage they wanted, and raise the price or change the flock.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Visitors arrive for what to charge per dozen at least as often as for profit per hour.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the page computes only typed values in the visitor's own browser; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - No seller reports changing a price or delivery radius because of what the tool showed within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/backyard-egg-profit-calculator/
+  analytics: null

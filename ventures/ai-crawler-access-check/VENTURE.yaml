@@ -1,5 +1,5 @@
 name: ai-crawler-access-check
-description: Free tool that checks a robots.txt against 15 named AI-crawler user-agents (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more) and reports allowed/blocked/partially-blocked per crawler, plus a structural check of llms.txt, with a matching zero-dependency Node CLI that can fetch a live domain or run as a CI gate.
+description: Free tool that checks a robots.txt against 20 named AI-crawler user-agents (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more) and reports allowed/blocked/partially-blocked per crawler, plus a structural check of llms.txt, with a matching zero-dependency Node CLI that can fetch a live domain or run as a CI gate.
 stage: prototype
 
 owner: duncan
@@ -29,6 +29,33 @@ owner: duncan
 # current search-volume number, so that channel claim is reasoned from known,
 # stable webmaster/SEO community behavior, not a verified traffic figure; the
 # next session that can browse should confirm before this is over-relied on.
+#
+# Confirmed 2026-09-24, with live web search: the underlying problem is real
+# and current, not just reasoned from prior knowledge. AI crawler visibility
+# is an active 2026 topic (Reddit itself blocked AI crawlers domain-wide in
+# August 2026 and dropped out of ChatGPT Search citations within days;
+# independent reporting puts accidental AI-crawler blocking at roughly 27% of
+# B2B sites via CDN-level rules, separate from any deliberate robots.txt
+# choice). That is a channel confirmation, not a competitive one: at least
+# nine other free tools already do the same robots.txt/llms.txt-vs-named-bots
+# audit (LLM Pulse, Rank Prompt, NetworkCheckr, robots-txt-checker.com, LLM
+# Submitter, robots.txt Tester, plus three Apify-hosted checkers), so this
+# venture is entering a validated-demand, already-crowded niche rather than a
+# blue-ocean one -- differentiation has to come from the zero-dependency
+# local CLI (most competitors are hosted-only) and CI-gate use case
+# (`cli.mjs` in the user's own pipeline), not from being first.
+#
+# Also found, and deliberately NOT acted on: xAI's Grok crawler is a real gap
+# in KNOWN_BOTS below -- third-party sources disagree on its literal
+# user-agent token (variously reported as "GrokBot", "GrokAgent", or
+# "xAI-Grok"), and the two candidate first-party sources (x.ai/bot,
+# radar.cloudflare.com/bots/directory/grok-bot) both return HTTP 403 to this
+# session's fetch tool. Per this module's own rule -- "confirm anything
+# load-bearing directly with the operator" -- adding a guessed token to a
+# tool whose entire value is exact-match precision would be a correctness
+# regression dressed as a feature. Leave it out until a session can read one
+# of those two pages directly (or `curl` them from a host without this
+# session's egress restrictions) and confirm the exact string.
 hypotheses:
   - claim: A site owner or SEO practitioner deciding whether to block AI training crawlers, or checking they haven't accidentally blocked an AI-search crawler they want, will search for a tool that reads their robots.txt directly instead of manually cross-referencing 15 different operators' docs pages.
     status: untested

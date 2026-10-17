@@ -1,0 +1,37 @@
+name: au-redundancy-pay-calculator
+description: >-
+  Free browser tool for Australian employers, HR staff and employees: enter weekly pay, dates, age and employer size to see National Employment Standards redundancy weeks, minimum notice, unworked notice payout and accrued leave. Nothing is uploaded. Not legal or employment advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; no Australian tool existed in ventures/ (checked by name).
+#
+# First visitor: Australian HR manager, small-business owner or redundant employee searching "redundancy pay calculator Australia", "how much redundancy pay NES", "redundancy notice period 45 years old". Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Not built: award-specific tables, long service leave by state, tax-free genuine redundancy limit, multi-employee batch, behind an env-var switch.
+#
+# Liability: rules written from memory without network access (NES table 4-16 weeks, 12 weeks from 10 years, small business under 15 employees, notice 1-4 weeks plus 1 at age 45); every result names the Fair Work Ombudsman as the source to verify and carries no-warranty and not-employment-advice clauses, and says what it does not decide (awards, long service leave, tax). Ethical risk is underpaying an employee; mitigated by the verify line.
+hypotheses:
+  - claim: >-
+      Australian employers and employees facing a redundancy will use a free private calculator and download the result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: AUD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that an entitlement differs from Fair Work guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/au-redundancy-pay-calculator/
+  analytics: null

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hard Money Loan Cost Calculator: Compare Two Lenders on a Flip — Free</title>
+  <meta name="description" content="Free hard money loan calculator for house flippers: compare two lenders on interest, points, draw fees, minimum interest and extension fees, see the effective annual rate, your profit, and the hold length where the cheaper lender changes. Nothing uploaded.">
+  <meta property="og:title" content="Hard money loan cost calculator for fix-and-flip">
+  <meta property="og:description" content="What does a hard money loan really cost? Compare two lenders on the whole deal. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e40af'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Hard Money Loan Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare two hard money lenders on a fix-and-flip: interest on drawn balances, points, draw fees, minimum interest, extension fees, effective annual rate and deal profit. Runs in your browser.", "featureList": "Effective annual rate, draw-based interest, minimum-interest floor, extension fees, lender crossover month, hold-length sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a hard money loan really cost?", "acceptedAnswer": {"@type": "Answer", "text": "Add the interest, the points, the flat fees, the fee on every draw and any extension fees, then divide by the money you actually had outstanding. A 10% loan with 2 points and draw fees on a six-month flip can cost a rate well above 15% a year, because the points are paid on money that is only outstanding for months. This tool shows that effective rate for each lender."}}, {"@type": "Question", "name": "Are points charged on the rehab money too?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes: points are quoted on the whole loan commitment, purchase plus rehab, even though the rehab part is released in draws and earns interest only once drawn. Check your term sheet. Enter the lender's own definition in the points and advance fields."}}, {"@type": "Question", "name": "When does the lower rate lose?", "acceptedAnswer": {"@type": "Answer", "text": "When the lender with the lower rate charges more points, draw fees or a minimum-interest period. On a short flip the upfront cost dominates; on a long one the rate does. The tool finds the hold length at which the two lenders cost the same."}}, {"@type": "Question", "name": "What happens if my flip runs late?", "acceptedAnswer": {"@type": "Answer", "text": "Interest keeps running, holding costs keep running, and past the loan term extension fees apply. The sensitivity table shows the finance cost and profit at 3 to 15 months so you can see what a delay costs before you sign."}}, {"@type": "Question", "name": "Is this lending, legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the terms you type, with simplifications listed under Not decided. Read the lender's actual term sheet and loan documents, and ask a lawyer or accountant before you borrow."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">HARD MONEY LOAN COST CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does your hard money loan really cost?</h1>
+    <p>Type the deal and the term sheets from two lenders. The tool charges interest only on money already drawn, adds points, flat fees, draw fees, any minimum-interest period and extension fees, and shows each lender's effective annual rate, your profit and cash in, how the answer moves if the flip runs late, and the hold length where the cheaper lender changes.</p>
+    <p class="note">Arithmetic on terms you type. Not lending, legal, tax or financial advice. The example figures are placeholders, not market quotes or your situation.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. The deal</h2>
+      <div class="grid">
+        <div><label for="purchase">Purchase price ($)</label><input id="purchase" type="number" step="any" value="0"></div>
+        <div><label for="rehab">Rehab budget ($)</label><input id="rehab" type="number" step="any" value="0"></div>
+        <div><label for="arv">After-repair value ($)</label><input id="arv" type="number" step="any" value="0"><p class="note">What you expect it to sell for. Use sold comparables, not a hope.</p></div>
+        <div><label for="sellPct">Selling costs (%)</label><input id="sellPct" type="number" step="any" value="0"><p class="note">Agent fees, closing, transfer tax, as a share of the sale price.</p></div>
+        <div><label for="holdingMonthly">Holding costs per month ($)</label><input id="holdingMonthly" type="number" step="any" value="0"><p class="note">Taxes, insurance, utilities.</p></div>
+        <div><label for="holdMonths">Months from closing to sale</label><input id="holdMonths" type="number" step="any" value="0"></div>
+        <div><label for="rehabMonths">Months the rehab draws are released over</label><input id="rehabMonths" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Lender A</h2>
+      <div class="grid">
+        <div><label for="aAdvancePct">A: purchase advance (%)</label><input id="aAdvancePct" type="number" step="any" value="0"><p class="note">Share of the purchase price the lender funds.</p></div>
+        <div><label for="aRehabPct">A: rehab advance (%)</label><input id="aRehabPct" type="number" step="any" value="0"><p class="note">Share of the rehab budget, released in draws.</p></div>
+        <div><label for="aRate">A: interest rate (% a year)</label><input id="aRate" type="number" step="any" value="0"><p class="note">Interest only.</p></div>
+        <div><label for="aPoints">A: points (%)</label><input id="aPoints" type="number" step="any" value="0"><p class="note">Of the whole commitment, purchase plus rehab.</p></div>
+        <div><label for="aFlat">A: flat fees ($)</label><input id="aFlat" type="number" step="any" value="0"><p class="note">Underwriting, processing, documents.</p></div>
+        <div><label for="aDraws">A: number of rehab draws</label><input id="aDraws" type="number" step="any" value="0"></div>
+        <div><label for="aDrawFee">A: fee per draw ($)</label><input id="aDrawFee" type="number" step="any" value="0"><p class="note">Inspection or wire.</p></div>
+        <div><label for="aMinMonths">A: minimum months of interest</label><input id="aMinMonths" type="number" step="any" value="0"><p class="note">0 if none. Charged on the full commitment even if you sell sooner.</p></div>
+        <div><label for="aTerm">A: term (months)</label><input id="aTerm" type="number" step="any" value="0"></div>
+        <div><label for="aExtPct">A: extension fee (%)</label><input id="aExtPct" type="number" step="any" value="0"><p class="note">Per extension, of the commitment.</p></div>
+        <div><label for="aExtMonths">A: months per extension</label><input id="aExtMonths" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-2">
+      <h2 id="h-2">3. Lender B</h2>
+      <div class="grid">
+        <div><label for="bAdvancePct">B: purchase advance (%)</label><input id="bAdvancePct" type="number" step="any" value="0"><p class="note">Share of the purchase price the lender funds.</p></div>
+        <div><label for="bRehabPct">B: rehab advance (%)</label><input id="bRehabPct" type="number" step="any" value="0"><p class="note">Share of the rehab budget, released in draws.</p></div>
+        <div><label for="bRate">B: interest rate (% a year)</label><input id="bRate" type="number" step="any" value="0"><p class="note">Interest only.</p></div>
+        <div><label for="bPoints">B: points (%)</label><input id="bPoints" type="number" step="any" value="0"><p class="note">Of the whole commitment, purchase plus rehab.</p></div>
+        <div><label for="bFlat">B: flat fees ($)</label><input id="bFlat" type="number" step="any" value="0"><p class="note">Underwriting, processing, documents.</p></div>
+        <div><label for="bDraws">B: number of rehab draws</label><input id="bDraws" type="number" step="any" value="0"></div>
+        <div><label for="bDrawFee">B: fee per draw ($)</label><input id="bDrawFee" type="number" step="any" value="0"><p class="note">Inspection or wire.</p></div>
+        <div><label for="bMinMonths">B: minimum months of interest</label><input id="bMinMonths" type="number" step="any" value="0"><p class="note">0 if none. Charged on the full commitment even if you sell sooner.</p></div>
+        <div><label for="bTerm">B: term (months)</label><input id="bTerm" type="number" step="any" value="0"></div>
+        <div><label for="bExtPct">B: extension fee (%)</label><input id="bExtPct" type="number" step="any" value="0"><p class="note">Per extension, of the commitment.</p></div>
+        <div><label for="bExtMonths">B: months per extension</label><input id="bExtMonths" type="number" step="any" value="0"></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Compare the lenders</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions flippers ask</h2>
+      <h3>What does a hard money loan really cost?</h3>
+      <p>Add the interest, the points, the flat fees, the fee on every draw and any extension fees, then divide by the money you actually had outstanding. A 10% loan with 2 points and draw fees on a six-month flip can cost a rate well above 15% a year, because the points are paid on money that is only outstanding for months. This tool shows that effective rate for each lender.</p>
+      <h3>Are points charged on the rehab money too?</h3>
+      <p>Usually yes: points are quoted on the whole loan commitment, purchase plus rehab, even though the rehab part is released in draws and earns interest only once drawn. Check your term sheet. Enter the lender's own definition in the points and advance fields.</p>
+      <h3>When does the lower rate lose?</h3>
+      <p>When the lender with the lower rate charges more points, draw fees or a minimum-interest period. On a short flip the upfront cost dominates; on a long one the rate does. The tool finds the hold length at which the two lenders cost the same.</p>
+      <h3>What happens if my flip runs late?</h3>
+      <p>Interest keeps running, holding costs keep running, and past the loan term extension fees apply. The sensitivity table shows the finance cost and profit at 3 to 15 months so you can see what a delay costs before you sign.</p>
+      <h3>Is this lending, legal or financial advice?</h3>
+      <p>No. It is arithmetic on the terms you type, with simplifications listed under Not decided. Read the lender's actual term sheet and loan documents, and ask a lawyer or accountant before you borrow.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether you will qualify, the lender's ARV cap and appraisal, interest compounding or per-diem conventions, rate bumps on extension, prepayment penalties beyond a minimum-interest period, closing costs on the sale, taxes on the profit, and the time value of your own cash. Rehab draws are assumed to be released in equal steps over the rehab period. Term sheets and law differ by lender and state.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../fix-and-flip-deal-analyzer/">fix-and-flip deal analyzer</a>, the <a href="../rental-dscr-calculator/">rental DSCR calculator</a> and the <a href="../like-kind-exchange-1031-calculator/">1031 exchange calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you borrow or sign anything.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { DEFAULTS, num, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(DEFAULTS);
+    const opts = () => { const o = {}; for (const k of KEYS) o[k] = Number.isFinite(num($(k).value)) ? num($(k).value) : DEFAULTS[k]; return o; };
+    const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    let last = null;
+    function run() {
+      const a = analyze(opts());
+      last = a;
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      const r = a.result, A = r.a, B = r.b, o = a.opts;
+      h += `<div class="finding"><h4>Lender ${r.better} leaves you ${money(r.profitGap)} more profit on this deal</h4><p>Over ${o.holdMonths} months, A costs ${money(A.total)} in finance charges (${pct(A.effectiveApr)} a year effective) and B costs ${money(B.total)} (${pct(B.effectiveApr)} a year effective).</p></div>`;
+      h += `<div class="finding"><h4>Where each lender's money goes</h4>${table(["Line", "Lender A", "Lender B"], [["Total loan commitment", money(A.commitment), money(B.commitment)], ["Interest" + (A.floorApplied || B.floorApplied ? " (minimum applied where it bites)" : ""), money(A.interest), money(B.interest)], ["Points", money(A.pointsCost), money(B.pointsCost)], ["Flat fees", money(A.flat), money(B.flat)], ["Draw fees", money(A.drawFees), money(B.drawFees)], ["Extension fees", money(A.extensionFees), money(B.extensionFees)], ["Total finance cost", money(A.total), money(B.total)], ["Effective annual rate", pct(A.effectiveApr), pct(B.effectiveApr)], ["Your cash in", money(A.cash), money(B.cash)], ["Profit after selling and holding costs", money(A.profit), money(B.profit)], ["Return on cash in", pct(A.roi), pct(B.roi)], ["Loan as share of after-repair value", pct(A.ltarv), pct(B.ltarv)]])}</div>`;
+      h += `<div class="finding"><h4>Where the cheaper lender changes</h4><p>${r.crossover ? `Past ${r.crossover.month - 1} months, lender ${r.crossover.cheaperAfter} becomes the cheaper loan. If you expect to sell before then, the other one wins.` : "One lender is cheaper at every hold length from 1 to 36 months."}</p></div>`;
+      h += `<div class="finding"><h4>If the flip runs late</h4>${table(["Months held", "A finance cost", "B finance cost", "A profit", "B profit", "Cheaper"], a.rows.map((x) => [x.months, money(x.aCost), money(x.bCost), money(x.aProfit), money(x.bProfit), x.cheaper]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      const c = $("csv");
+      if (c) c.addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "hard-money-lender-comparison.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

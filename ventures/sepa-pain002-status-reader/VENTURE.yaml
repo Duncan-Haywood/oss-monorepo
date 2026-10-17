@@ -1,0 +1,81 @@
+name: sepa-pain002-status-reader
+description: >-
+  Free browser tool that reads the SEPA payment status report (pain.002) a bank returns after
+  a pain.001 credit transfer or pain.008 direct debit upload: the status of the file, each
+  payment block and each payment, every rejection reason code (AC04, AM04, MD01, AM10 and
+  about forty more) in plain language with the action to take, rejected payments grouped by
+  reason and by kind of fix with exact-decimal totals, count checks against the original
+  file, and a downloadable list of the rejected payments. The file is read locally and never
+  uploaded; IBANs are masked in the report and the CSVs.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session as the receiving end of
+# sepa-pain001-validator: a bookkeeper or ERP integrator uploads a SEPA file, the bank answers
+# with a pain.002 whose per-payment "RJCT / AC04" lines are opaque XML, and the next step is
+# working out which of 40 payments to fix. Existing answers are the bank's own portal (which
+# only shows its own file), developer libraries that need code, and paid reconciliation
+# suites; nothing is a free page that reads the XML, explains each reason and lists what to
+# resend. No near-duplicate in the tree (duplicate_check is expected to be well below the 0.45
+# bar; the closest are the pain.001 validator and the camt.053 statement reader, which read
+# different messages).
+#
+# First visitor: bookkeepers, treasurers and ERP integrators searching "pain.002 rejected",
+# "SEPA XML RJCT AC04", "what does AM04 mean SEPA", "SEPA status report explained". Volume not
+# measured with an external tool.
+#
+# What makes it more than a code list: it reads the whole report, per payment, and answers
+# "what do I do next": rejected payments grouped by kind of fix with exact-decimal totals, an
+# honest lower bound when the bank does not repeat amounts, a count check that treats a shorter
+# list as normal and a longer one as a wrong-file warning, and a CSV of exactly the rejected
+# payments with the reason and action. Unknown codes are shown as unknown rather than guessed.
+#
+# Privacy is the liability boundary: status reports carry IBANs and names, so the file never
+# leaves the browser (a test asserts no network calls), IBANs are masked in output, a DTD is
+# refused and never expanded, and the page says it is not banking advice. It never edits or
+# re-sends a payment.
+#
+# Path to revenue (payment rails stay off): lead magnet for accounting-software and payment
+# automation audiences, paired with the pain.001 validator. A paid version, if usage appears,
+# is matching a report to the sent file by EndToEndId, per-bank code tables and bulk
+# processing behind an env-var switch; not built.
+#
+# Liability: reads the user's own file, model and omissions stated on the page, no banking or
+# compliance advice, no warranty, independent-of-the-EPC-and-banks clause, payment-data note.
+#
+# Unverified (all from memory of public sources; no bank documentation was available): the
+# meanings of the reason codes, the status code semantics, and the element names across
+# pain.002.001.03 and later versions. The first user report of a bank code this tool
+# misdescribes, or a report it cannot read, is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper whose bank returned a pain.002 with rejections will paste it into a no-login
+      page, because the alternative is reading raw XML against a code list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the rejected payments with reasons and actions leads the same person to use the
+      pain.001 validator on the next file, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sepa-pain002-status-reader/
+  analytics: null

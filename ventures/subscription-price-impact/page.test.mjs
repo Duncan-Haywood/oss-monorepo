@@ -141,3 +141,10 @@ test('index links one hop to the self-storage-rate-increase-calculator sibling',
     'index must link ../self-storage-rate-increase-calculator/ so a crawler reaches that tool in one hop',
   );
 });
+
+// `subscription-audit-from-statement` graduated 2026-09-29: the buyer's side of
+// the same subscription, reading a bank statement instead of testing a price.
+test('index links one hop to the subscription-audit-from-statement sibling', () => {
+  const html = readIndexForSiblingCheck(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /href="\.\.\/subscription-audit-from-statement\/"/);
+});

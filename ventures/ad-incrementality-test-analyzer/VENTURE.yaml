@@ -1,0 +1,64 @@
+name: ad-incrementality-test-analyzer
+description: >-
+  Free browser tool for advertisers and e-commerce sellers: paste daily or weekly
+  sales by store or region from a geo holdout test, name the test regions and the
+  campaign start date, and get the incremental lift from ads with an interval built
+  from placebo windows on your own history, incremental ROAS, profit after ad spend,
+  cost per incremental order, a difference-in-differences second opinion and the
+  smallest lift the test could detect. Says so when comparison regions do not track
+  the test regions. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "customer acquisition channel attribution incrementality geo holdout test
+# calculator": closest is customer-lifetime-value-predictor at 0.25, below the
+# read-this-first bar; ab-test-significance-calculator covers randomised
+# conversion tests on web pages, not geo or store holdouts on sales series.
+# Alternatives are platform-reported ROAS (counts buyers who would have bought
+# anyway), Meta Conversion Lift and Google geo experiments (locked to one
+# platform, need spend thresholds), open-source GeoLift and CausalImpact (need R),
+# and paid measurement vendors (Measured, Haus, Recast) that want contracts.
+#
+# First visitor: searches "geo holdout test calculator", "incrementality test
+# analysis", "how to measure incremental ROAS", "did my ads work matched market
+# test"; r/PPC, r/FacebookAds, r/ecommerce, r/marketing threads on true ROAS.
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: sales files never leave the browser (tests
+# assert no network calls). No vendor is named.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only. A
+# later paid tier could be a test-design planner (region matching and power);
+# not built.
+# Liability: statistical estimate of supplied data, not advice; the page says
+# "unclear" or "unreliable" when the data cannot support a conclusion.
+# Unverified: tested on simulated panels with known lifts, not on a published
+# marketing experiment.
+
+hypotheses:
+  - claim: >-
+      Small advertisers and agencies will use a private, no-signup geo holdout
+      analyzer that shows an honest interval and refuses to overclaim, and will
+      come back after each campaign test.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the lift disagrees with a standard synthetic-control or difference-in-differences read of the same panel.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ad-incrementality-test-analyzer/
+  analytics: null

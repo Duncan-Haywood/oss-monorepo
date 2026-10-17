@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Read a Postgres EXPLAIN ANALYZE Plan and Fix a Slow Query</title>
+  <meta name="description" content="Read an EXPLAIN ANALYZE plan from the inside out: self time per node, loops, Rows Removed by Filter, row misestimates, sort and hash spills, and the fixes that usually follow.">
+  <link rel="canonical" href="./how-to-read-a-postgres-explain-analyze-plan-and-fix-a-slow-query.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is my Postgres query using a sequential scan?", "acceptedAnswer": {"@type": "Answer", "text": "Either no usable index exists for the filter, the planner expects to read most of the table anyway, or its row estimate is wrong. A Seq Scan with a large 'Rows Removed by Filter' is the sign of a missing index; a Seq Scan that keeps most rows is usually correct."}}, {"@type": "Question", "name": "What does a big gap between rows= estimates and actual rows mean?", "acceptedAnswer": {"@type": "Answer", "text": "The planner's statistics are stale or cannot model the predicate, usually correlated columns. Run ANALYZE, then consider CREATE STATISTICS on the columns used together. Wrong estimates are the root cause of most bad join choices."}}, {"@type": "Question", "name": "How do I stop a sort from spilling to disk?", "acceptedAnswer": {"@type": "Answer", "text": "Raise work_mem for that query with SET LOCAL, or add an index that already returns rows in the ORDER BY order. Sort Method: external merge Disk means it spilled."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Postgres EXPLAIN Analyzer</a></p>
+  <h1>How to read a Postgres EXPLAIN ANALYZE plan and fix a slow query</h1>
+  <p>A plan is a tree. Postgres runs the leaves first and feeds rows upward, so read it from the most indented line outward and ask one question at each node: <em>how much time was spent here, and why?</em></p>
+
+  <h2>1. Get a real plan</h2>
+  <pre>EXPLAIN (ANALYZE, BUFFERS) SELECT ...;</pre>
+  <p>Plain <code>EXPLAIN</code> shows estimates only. <code>ANALYZE</code> executes the statement, so wrap writes in <code>BEGIN ... ROLLBACK</code>. <code>BUFFERS</code> adds I/O per node.</p>
+
+  <h2>2. Find self time, not the biggest number</h2>
+  <p>A node's <code>actual time</code> includes its children, and it is a <strong>per-loop</strong> figure. Self time is <code>time &times; loops</code> minus the children's. A node that reads <code>0.15 ms</code> but runs <code>loops=4800</code> is 720 ms. The analyzer does this arithmetic for every node and lists the top three.</p>
+
+  <h2>3. Rows Removed by Filter</h2>
+  <p>A scan that reads 100,000 rows and keeps 5 is doing 99,995 rows of wasted work. On a Seq Scan the fix is usually an index on the filtered columns, equality columns first and range columns last. On an Index Scan it means the index covers only part of the predicate.</p>
+
+  <h2>4. Estimates versus actuals</h2>
+  <p>Compare <code>rows=</code> in the cost bracket with <code>rows=</code> in the actual bracket. A gap of 10&times; or more means the planner chose join order and method on bad information. Run <code>ANALYZE</code>, and use <code>CREATE STATISTICS</code> for correlated columns.</p>
+
+  <h2>5. Spills</h2>
+  <p><code>Sort Method: external merge Disk: 4096kB</code> and <code>Batches: 8</code> on a Hash node both mean the work did not fit in <code>work_mem</code>. Raise it for the one query with <code>SET LOCAL work_mem</code>, rather than globally.</p>
+
+  <h2>6. Nested loops over sequential scans</h2>
+  <p>A Nested Loop whose inner side is a Seq Scan with thousands of loops re-reads the table once per outer row. Index the join column or let the planner pick a hash join.</p>
+
+  <pre>psql -At -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT ..." | node cli.mjs analyze -</pre>
+
+  <h2>Common questions</h2>
+  <h3>Why is my Postgres query using a sequential scan?</h3>
+  <p>Either no usable index exists for the filter, the planner expects to read most of the table anyway, or its row estimate is wrong. A Seq Scan with a large 'Rows Removed by Filter' is the sign of a missing index; a Seq Scan that keeps most rows is usually correct.</p>
+  <h3>What does a big gap between rows= estimates and actual rows mean?</h3>
+  <p>The planner's statistics are stale or cannot model the predicate, usually correlated columns. Run ANALYZE, then consider CREATE STATISTICS on the columns used together. Wrong estimates are the root cause of most bad join choices.</p>
+  <h3>How do I stop a sort from spilling to disk?</h3>
+  <p>Raise work_mem for that query with SET LOCAL, or add an index that already returns rows in the ORDER BY order. Sort Method: external merge Disk means it spilled.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not engineering or database-administration advice, and you are responsible for testing any index or setting on your own data. PostgreSQL is a trademark of its owner; this project is not affiliated with or endorsed by it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p class="support">Free and open source (MIT). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

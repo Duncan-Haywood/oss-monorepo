@@ -1,0 +1,29 @@
+name: uk-gift-aid-higher-rate-relief-calculator
+description: >-
+  Free browser tool for UK higher and additional rate taxpayers who give to charity: enter a donation and your income to see what the charity receives, the Gift Aid relief you can reclaim, whether carrying the gift back to the previous tax year pays more, and the gift that wins back a tapered personal allowance. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; duplicate_check.py found nothing above 0.18 (closest: uk-take-home-pay-calculator). The portfolio has a US charitable-deduction calculator and a bunching planner, neither of which models UK Gift Aid, the carry-back election or the personal allowance taper.
+#
+# First visitor: a UK higher rate taxpayer searching "Gift Aid higher rate relief calculator", "carry back Gift Aid previous tax year", "how much can I claim back on a charity donation", most active in January (Self Assessment) and December (giving season). Volume not measured. Rivals are charity and accountancy explainers with a single worked example, and HMRC's own guidance.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a year-round giving planner across several donations, tax years and carry-back elections behind an env-var switch.
+#
+# Liability: 2025/26 England, Wales and Northern Ireland bands were written from memory without network access and are flagged for GOV.UK verification on the page. Scottish rates, savings and dividend income, pension contributions, gifts of shares or land, payroll giving and declaration validity are refused and named. The page states it is not tax advice.
+hypotheses:
+  - claim: >-
+      UK higher rate taxpayers will use a free calculator to see what a Gift Aid donation really costs them and whether to carry it back a year, because charities show only the 25% top-up and never the relief the donor must claim themselves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true

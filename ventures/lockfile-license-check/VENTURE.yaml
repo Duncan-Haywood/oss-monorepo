@@ -1,0 +1,51 @@
+name: lockfile-license-check
+description: 'Free tool that audits the licence of every package in an npm package-lock.json -- flags strong-copyleft (GPL/AGPL), unlicensed and unknown packages, resolves SPDX OR/AND expressions, supports a deny list -- in the browser (paste the lockfile) or as a zero-dependency Node CLI that can fail CI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. duplicate_check.py's closest matches were
+# npm-provenance-check (0.44) and npm-lifecycle-script-check (0.38), which
+# share the npm vocabulary but check supply-chain provenance and install
+# scripts, not licences. The paid category this undercuts is software
+# composition analysis (FOSSA, Snyk, Black Duck); the free alternatives
+# (license-checker, license-report) are CLIs that need an installed
+# node_modules, not a pasteable page. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# medium-high. It reads a file the user already holds and sends nothing off
+# the device. The risk is being read as legal advice, so the page and guide
+# say it is a heuristic over declared metadata, not legal advice.
+#
+# First visitor channel: search for "npm license checker", "check licenses
+# package-lock.json", "is my npm package GPL", and engineering threads
+# (r/node, r/webdev, Hacker News) where the answer today is a paid platform
+# or a CLI needing a full install.
+hypotheses:
+  - claim: 'A developer preparing a release or a customer security questionnaire will paste a lockfile and find a copyleft or unlicensed package they had not noticed.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will add license-check.mjs --fail-on copyleft to CI so a new dependency cannot add one silently.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using license-check.mjs or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/
+  analytics: null

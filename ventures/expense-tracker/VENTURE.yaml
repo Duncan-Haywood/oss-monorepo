@@ -1,0 +1,67 @@
+name: expense-tracker
+description: >-
+  Free expense tracker for freelancers and the self-employed that runs in the
+  browser with no account: log expenses by Schedule C category, import a bank or
+  card CSV with suggested categories and duplicate detection, meals at 50% and a
+  business-use percentage per entry, receipt-kept flags for expenses of $75 or
+  more, deductible totals by Schedule C line, by month and by estimated-tax
+  payment period, an estimate of tax saved, a printable worksheet, and CSV
+  export. Data stays on the device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session, as the fourth piece of the
+# freelancer loop: estimate-maker -> time-tracker -> invoice-maker ->
+# expense-tracker. self-employed-schedule-c-categorizer sorts a statement once;
+# mileage-log and the home-office calculator cover single deductions; nothing
+# kept a running, per-entry log with receipt flags and totals per Schedule C line.
+#
+# Paid market is real: QuickBooks Self-Employed (about $20 a month), Expensify
+# and Wave charge for receipt capture, tax categories and exports. The wedge is
+# private, no signup, no entry limit, bank-CSV import that never uploads, and
+# totals shaped like the form the user will actually fill in.
+#
+# First visitor: freelancers and sole proprietors searching "expense tracker for
+# freelancers", "schedule c expense tracker", "track business expenses free".
+# Volume not measured with an external tool.
+#
+# Honest limits, stated on the page: single browser storage (backup prompt), one
+# user, no receipt photos, no bank connection, no depreciation, home office or
+# vehicle method, no state rules.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet; donations via
+# GitHub Sponsors. Natural next steps if it earns repeat visitors: receipt photos
+# in IndexedDB, a PWA/Android wrapper with camera capture, OFX/QIF import,
+# year-end accountant export, and per-client expense pass-through to Invoice Maker.
+
+hypotheses:
+  - claim: >-
+      Freelancers will keep a log here instead of a spreadsheet when a bank CSV
+      can be imported once and the totals already match Schedule C lines.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The missing-receipt flag and the per-period deductible totals bring users
+      back before quarterly estimated-tax dates.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong deductible total, a miscategorised import applied without review, or lost entries to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/expense-tracker/
+  analytics: null

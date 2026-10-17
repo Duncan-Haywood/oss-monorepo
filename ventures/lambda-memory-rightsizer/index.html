@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lambda Memory Rightsizer — Is Your Lambda Memory Setting Costing You Money</title>
+  <meta name="description" content="Paste AWS Lambda CloudWatch REPORT lines and see peak memory against what you configured, duration percentiles, cold-start share, and the memory size that minimises cost without a latency regression. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your Lambda memory setting costing you money?">
+  <meta property="og:description" content="Paste REPORT log lines, get the cost-minimising memory size within a latency cap. No account, no AWS access, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lambda Memory Rightsizer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste AWS Lambda CloudWatch REPORT log lines and see peak memory against configured memory, duration percentiles, cold-start share and the memory size that minimises cost within a latency cap, with the answer shown for I/O-bound and CPU-bound functions. Runs in the browser or as a zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this connect to my AWS account?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the REPORT lines you paste and never contacts AWS. It cannot see your real invoice, free tier, tiered pricing, provisioned concurrency or other functions, so every dollar figure is lines you pasted times list prices you can edit."}}, {"@type": "Question", "name": "How can it know the duration at a different memory size?", "acceptedAnswer": {"@type": "Answer", "text": "It cannot measure it; it models it. Lambda gives CPU in proportion to memory, about one vCPU at 1,769 MB. A CPU-bound function speeds up as memory rises and an I/O-bound one does not, so the tool shows the cheapest size at 0%, your guess, and 100% CPU-bound. If those disagree, the real answer depends on your code: run AWS Lambda Power Tuning to measure it."}}, {"@type": "Question", "name": "Why does it limit how much slower the new size may be?", "acceptedAnswer": {"@type": "Answer", "text": "Cost is memory times billed time, so shrinking memory on a CPU-bound function can look cheaper on paper while making every request several times slower. The tool only recommends sizes whose modelled median stays within a latency cap (1.25x by default, editable)."}}, {"@type": "Question", "name": "Is my log text uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.error { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+      .pill.info { background: #e3e9ef; color: #17324a; }
+    input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    .row { display: flex; gap: 18px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LAMBDA MEMORY RIGHTSIZER · RUNS IN YOUR BROWSER</p>
+    <h1>Is your Lambda memory setting costing you money?</h1>
+    <p>Paste the <code>REPORT</code> lines from CloudWatch Logs and get <strong>peak memory against what you configured</strong>, <strong>duration percentiles</strong>, the <strong>cold-start share</strong>, and the <strong>memory size that minimises cost</strong> without making requests noticeably slower — shown for I/O-bound and CPU-bound code.</p>
+    <p class="note">Nothing is uploaded and AWS is never contacted. The text box is analysed in this browser and never leaves your device. Duration at another memory size is modelled, not measured.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste REPORT lines</h2>
+    <label for="logs-input">CloudWatch Logs for one function (other lines are ignored)</label>
+    <textarea id="logs-input" spellcheck="false" placeholder="REPORT RequestId: abc Duration: 102.25 ms Billed Duration: 103 ms Memory Size: 512 MB Max Memory Used: 82 MB"></textarea>
+    <div class="row">
+      <div><label for="inv">Invocations per month</label><input type="number" id="inv" min="0" value="1000000"></div>
+      <div><label for="cpu">CPU-bound share, 0 to 1</label><input type="number" id="cpu" min="0" max="1" step="0.1" value="0.5"></div>
+      <div><label for="slow">Max slowdown (x p50)</label><input type="number" id="slow" min="1" step="0.05" value="1.25"></div>
+      <div><label for="arch">Architecture</label><select id="arch"><option value="x86">x86_64</option><option value="arm">arm64</option></select></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What it found</h2>
+    <p id="summary"></p>
+    <h3>Cheapest size by how CPU-bound the function is</h3>
+    <table id="scen-table" hidden>
+      <thead><tr><th>If the function is</th><th>Cheapest size</th><th>Modelled p50</th><th>Per million invocations</th></tr></thead>
+      <tbody id="scen-rows"></tbody>
+    </table>
+    <h3>Findings</h3>
+    <table id="results-table" hidden>
+      <thead><tr><th>Rule</th><th>Level</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+    <p id="estimate" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want a CI check?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">aws logs tail /aws/lambda/my-fn --since 1d | node cli.mjs analyze - --invocations 5000000
+node cli.mjs analyze logs.txt --cpu-bound 0.8 --arch arm
+node cli.mjs analyze logs.txt --fail-on warn          # exit 1 when over-provisioned or near the limit
+node cli.mjs analyze logs.txt --json --prices my-prices.json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="how-to-choose-aws-lambda-memory-size-to-cut-cost.html">how to choose a Lambda memory size to cut cost</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table>
+    <p class="note">Prices are illustrative and dated; edit them with <code>--prices</code> in the CLI. Free tier, volume tiers, provisioned concurrency and other regions are not modelled.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this connect to my AWS account?</h3>
+    <p>No. It reads the REPORT lines you paste and never contacts AWS. It cannot see your real invoice, free tier, tiered pricing, provisioned concurrency or other functions, so every dollar figure is lines you pasted times list prices you can edit.</p>
+    <h3>How can it know the duration at a different memory size?</h3>
+    <p>It cannot measure it; it models it. Lambda gives CPU in proportion to memory, about one vCPU at 1,769 MB. A CPU-bound function speeds up as memory rises and an I/O-bound one does not, so the tool shows the cheapest size at 0%, your guess, and 100% CPU-bound. If those disagree, the real answer depends on your code: run AWS Lambda Power Tuning to measure it.</p>
+    <h3>Why does it limit how much slower the new size may be?</h3>
+    <p>Cost is memory times billed time, so shrinking memory on a CPU-bound function can look cheaper on paper while making every request several times slower. The tool only recommends sizes whose modelled median stays within a latency cap (1.25x by default, editable).</p>
+    <h3>Is my log text uploaded anywhere?</h3>
+    <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It reads log lines you paste and models how duration changes with memory; it is not a measurement, not a guarantee of what AWS will charge, and a size it suggests can be slower or fail where your real workload differs. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and product names (Prometheus, Grafana, Datadog) are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks on the same repo: <a href="../k8s-requests-rightsizer/">Kubernetes Requests Rightsizer</a> does the same for pod CPU and memory requests, <a href="../rds-instance-rightsizer/">RDS Instance Rightsizer</a> does it for database instance classes, <a href="../lambda-vs-fargate-cost-breakeven/">Lambda vs Fargate Cost Break-Even</a> finds the volume where containers beat Lambda, <a href="../aws-commitment-breakeven-calculator/">AWS Commitment Break-Even Calculator</a> prices Savings Plans and reserved capacity, and <a href="../cloud-egress-calculator/">Cloud Egress Calculator</a> prices the data-transfer side of the bill.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  
+  <script type="module">
+    import { parseReports, analyze, summarize, INPUT_NOTES, PRICES_AS_OF } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#logs-input"), status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"), scenT: $("#scen-table"), scenR: $("#scen-rows"), estimate: $("#estimate"), patterns: $("#patterns-rows"),
+    };
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    els.patterns.innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+
+    function renderReport() {
+      const text = els.input.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste some REPORT lines first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+      const cpu = Math.min(1, Math.max(0, Number($("#cpu").value)));
+      const report = analyze(parseReports(text), { invocations: Math.max(0, Number($("#inv").value) || 0), cpuBound: Number.isFinite(cpu) ? cpu : 0.5, maxSlowdown: Math.max(1, Number($("#slow").value) || 1.25), arch: $("#arch").value });
+      const { status, text: summaryText } = summarize(report);
+      els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
+      els.scenT.hidden = !report.count;
+      els.scenR.innerHTML = report.count ? [["ioBound", "I/O-bound (0% CPU-bound)"], ["yours", `Your guess (${Math.round(cpu * 100)}%)`], ["cpuBound", "CPU-bound (100%)"]].map(([k, l]) => { const b = report.scenarios[k].best; return `<tr><td>${l}</td><td>${b.mb} MB</td><td>~${b.p50Ms} ms</td><td>$${b.costPerMillion.toFixed(2)}</td></tr>`; }).join("") : "";
+      els.table.hidden = report.findings.length === 0;
+      els.rows.innerHTML = report.findings.map((f) => `<tr><td><code>${escapeHtml(f.rule)}</code></td><td><span class="pill ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.message)}</td></tr>`).join("");
+      els.estimate.textContent = report.count ? `${PRICES_AS_OF}. Duration at another size is modelled from the CPU-bound share you set, not measured; confirm with a real test.` : "";
+      els.reportCard.hidden = false;
+      record("analyze_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `2026-09-30T12:00:00Z START RequestId: x Version: $LATEST
+REPORT RequestId: 7f3a0000-1c2d-4e5f-9a8b-0123456789ab	Duration: 1084.65 ms	Billed Duration: 1085 ms	Memory Size: 1024 MB	Max Memory Used: 120 MB Init Duration: 471.13 ms
+REPORT RequestId: 7f3a0001-1c2d-4e5f-9a8b-0123456789ab	Duration: 866.03 ms	Billed Duration: 867 ms	Memory Size: 1024 MB	Max Memory Used: 135 MB
+REPORT RequestId: 7f3a0002-1c2d-4e5f-9a8b-0123456789ab	Duration: 918.79 ms	Billed Duration: 919 ms	Memory Size: 1024 MB	Max Memory Used: 134 MB
+REPORT RequestId: 7f3a0003-1c2d-4e5f-9a8b-0123456789ab	Duration: 886.35 ms	Billed Duration: 887 ms	Memory Size: 1024 MB	Max Memory Used: 124 MB
+REPORT RequestId: 7f3a0004-1c2d-4e5f-9a8b-0123456789ab	Duration: 913.32 ms	Billed Duration: 914 ms	Memory Size: 1024 MB	Max Memory Used: 120 MB
+REPORT RequestId: 7f3a0005-1c2d-4e5f-9a8b-0123456789ab	Duration: 842.40 ms	Billed Duration: 843 ms	Memory Size: 1024 MB	Max Memory Used: 125 MB
+REPORT RequestId: 7f3a0006-1c2d-4e5f-9a8b-0123456789ab	Duration: 899.66 ms	Billed Duration: 900 ms	Memory Size: 1024 MB	Max Memory Used: 136 MB
+REPORT RequestId: 7f3a0007-1c2d-4e5f-9a8b-0123456789ab	Duration: 871.05 ms	Billed Duration: 872 ms	Memory Size: 1024 MB	Max Memory Used: 121 MB
+REPORT RequestId: 7f3a0008-1c2d-4e5f-9a8b-0123456789ab	Duration: 940.16 ms	Billed Duration: 941 ms	Memory Size: 1024 MB	Max Memory Used: 136 MB
+REPORT RequestId: 7f3a0009-1c2d-4e5f-9a8b-0123456789ab	Duration: 778.82 ms	Billed Duration: 779 ms	Memory Size: 1024 MB	Max Memory Used: 119 MB
+REPORT RequestId: 7f3a000a-1c2d-4e5f-9a8b-0123456789ab	Duration: 739.93 ms	Billed Duration: 740 ms	Memory Size: 1024 MB	Max Memory Used: 125 MB
+REPORT RequestId: 7f3a000b-1c2d-4e5f-9a8b-0123456789ab	Duration: 777.86 ms	Billed Duration: 778 ms	Memory Size: 1024 MB	Max Memory Used: 119 MB
+REPORT RequestId: 7f3a000c-1c2d-4e5f-9a8b-0123456789ab	Duration: 774.90 ms	Billed Duration: 775 ms	Memory Size: 1024 MB	Max Memory Used: 131 MB
+REPORT RequestId: 7f3a000d-1c2d-4e5f-9a8b-0123456789ab	Duration: 803.23 ms	Billed Duration: 804 ms	Memory Size: 1024 MB	Max Memory Used: 122 MB
+REPORT RequestId: 7f3a000e-1c2d-4e5f-9a8b-0123456789ab	Duration: 706.73 ms	Billed Duration: 707 ms	Memory Size: 1024 MB	Max Memory Used: 135 MB
+REPORT RequestId: 7f3a000f-1c2d-4e5f-9a8b-0123456789ab	Duration: 1080.26 ms	Billed Duration: 1081 ms	Memory Size: 1024 MB	Max Memory Used: 123 MB Init Duration: 494.26 ms
+REPORT RequestId: 7f3a0010-1c2d-4e5f-9a8b-0123456789ab	Duration: 913.42 ms	Billed Duration: 914 ms	Memory Size: 1024 MB	Max Memory Used: 124 MB
+REPORT RequestId: 7f3a0011-1c2d-4e5f-9a8b-0123456789ab	Duration: 890.65 ms	Billed Duration: 891 ms	Memory Size: 1024 MB	Max Memory Used: 129 MB
+REPORT RequestId: 7f3a0012-1c2d-4e5f-9a8b-0123456789ab	Duration: 936.24 ms	Billed Duration: 937 ms	Memory Size: 1024 MB	Max Memory Used: 136 MB
+REPORT RequestId: 7f3a0013-1c2d-4e5f-9a8b-0123456789ab	Duration: 901.62 ms	Billed Duration: 902 ms	Memory Size: 1024 MB	Max Memory Used: 119 MB
+REPORT RequestId: 7f3a0014-1c2d-4e5f-9a8b-0123456789ab	Duration: 742.71 ms	Billed Duration: 743 ms	Memory Size: 1024 MB	Max Memory Used: 135 MB
+REPORT RequestId: 7f3a0015-1c2d-4e5f-9a8b-0123456789ab	Duration: 748.32 ms	Billed Duration: 749 ms	Memory Size: 1024 MB	Max Memory Used: 131 MB
+REPORT RequestId: 7f3a0016-1c2d-4e5f-9a8b-0123456789ab	Duration: 837.15 ms	Billed Duration: 838 ms	Memory Size: 1024 MB	Max Memory Used: 132 MB
+REPORT RequestId: 7f3a0017-1c2d-4e5f-9a8b-0123456789ab	Duration: 720.72 ms	Billed Duration: 721 ms	Memory Size: 1024 MB	Max Memory Used: 129 MB
+REPORT RequestId: 7f3a0018-1c2d-4e5f-9a8b-0123456789ab	Duration: 770.76 ms	Billed Duration: 771 ms	Memory Size: 1024 MB	Max Memory Used: 140 MB
+REPORT RequestId: 7f3a0019-1c2d-4e5f-9a8b-0123456789ab	Duration: 972.31 ms	Billed Duration: 973 ms	Memory Size: 1024 MB	Max Memory Used: 142 MB
+REPORT RequestId: 7f3a001a-1c2d-4e5f-9a8b-0123456789ab	Duration: 824.36 ms	Billed Duration: 825 ms	Memory Size: 1024 MB	Max Memory Used: 134 MB
+REPORT RequestId: 7f3a001b-1c2d-4e5f-9a8b-0123456789ab	Duration: 937.56 ms	Billed Duration: 938 ms	Memory Size: 1024 MB	Max Memory Used: 133 MB
+REPORT RequestId: 7f3a001c-1c2d-4e5f-9a8b-0123456789ab	Duration: 922.99 ms	Billed Duration: 923 ms	Memory Size: 1024 MB	Max Memory Used: 127 MB
+REPORT RequestId: 7f3a001d-1c2d-4e5f-9a8b-0123456789ab	Duration: 717.19 ms	Billed Duration: 718 ms	Memory Size: 1024 MB	Max Memory Used: 137 MB
+REPORT RequestId: 7f3a001e-1c2d-4e5f-9a8b-0123456789ab	Duration: 1129.84 ms	Billed Duration: 1130 ms	Memory Size: 1024 MB	Max Memory Used: 142 MB Init Duration: 438.54 ms
+REPORT RequestId: 7f3a001f-1c2d-4e5f-9a8b-0123456789ab	Duration: 814.39 ms	Billed Duration: 815 ms	Memory Size: 1024 MB	Max Memory Used: 128 MB
+REPORT RequestId: 7f3a0020-1c2d-4e5f-9a8b-0123456789ab	Duration: 880.24 ms	Billed Duration: 881 ms	Memory Size: 1024 MB	Max Memory Used: 119 MB
+REPORT RequestId: 7f3a0021-1c2d-4e5f-9a8b-0123456789ab	Duration: 905.13 ms	Billed Duration: 906 ms	Memory Size: 1024 MB	Max Memory Used: 139 MB
+REPORT RequestId: 7f3a0022-1c2d-4e5f-9a8b-0123456789ab	Duration: 921.61 ms	Billed Duration: 922 ms	Memory Size: 1024 MB	Max Memory Used: 128 MB
+REPORT RequestId: 7f3a0023-1c2d-4e5f-9a8b-0123456789ab	Duration: 873.90 ms	Billed Duration: 874 ms	Memory Size: 1024 MB	Max Memory Used: 128 MB
+REPORT RequestId: 7f3a0024-1c2d-4e5f-9a8b-0123456789ab	Duration: 779.26 ms	Billed Duration: 780 ms	Memory Size: 1024 MB	Max Memory Used: 136 MB
+REPORT RequestId: 7f3a0025-1c2d-4e5f-9a8b-0123456789ab	Duration: 706.17 ms	Billed Duration: 707 ms	Memory Size: 1024 MB	Max Memory Used: 132 MB
+REPORT RequestId: 7f3a0026-1c2d-4e5f-9a8b-0123456789ab	Duration: 856.23 ms	Billed Duration: 857 ms	Memory Size: 1024 MB	Max Memory Used: 126 MB
+REPORT RequestId: 7f3a0027-1c2d-4e5f-9a8b-0123456789ab	Duration: 836.71 ms	Billed Duration: 837 ms	Memory Size: 1024 MB	Max Memory Used: 133 MB
+REPORT RequestId: 7f3a0028-1c2d-4e5f-9a8b-0123456789ab	Duration: 809.22 ms	Billed Duration: 810 ms	Memory Size: 1024 MB	Max Memory Used: 141 MB
+REPORT RequestId: 7f3a0029-1c2d-4e5f-9a8b-0123456789ab	Duration: 788.81 ms	Billed Duration: 789 ms	Memory Size: 1024 MB	Max Memory Used: 140 MB
+REPORT RequestId: 7f3a002a-1c2d-4e5f-9a8b-0123456789ab	Duration: 776.75 ms	Billed Duration: 777 ms	Memory Size: 1024 MB	Max Memory Used: 139 MB
+REPORT RequestId: 7f3a002b-1c2d-4e5f-9a8b-0123456789ab	Duration: 930.02 ms	Billed Duration: 931 ms	Memory Size: 1024 MB	Max Memory Used: 132 MB
+REPORT RequestId: 7f3a002c-1c2d-4e5f-9a8b-0123456789ab	Duration: 800.84 ms	Billed Duration: 801 ms	Memory Size: 1024 MB	Max Memory Used: 139 MB
+REPORT RequestId: 7f3a002d-1c2d-4e5f-9a8b-0123456789ab	Duration: 1157.85 ms	Billed Duration: 1158 ms	Memory Size: 1024 MB	Max Memory Used: 132 MB Init Duration: 428.58 ms
+REPORT RequestId: 7f3a002e-1c2d-4e5f-9a8b-0123456789ab	Duration: 743.92 ms	Billed Duration: 744 ms	Memory Size: 1024 MB	Max Memory Used: 133 MB
+REPORT RequestId: 7f3a002f-1c2d-4e5f-9a8b-0123456789ab	Duration: 917.49 ms	Billed Duration: 918 ms	Memory Size: 1024 MB	Max Memory Used: 119 MB
+REPORT RequestId: 7f3a0030-1c2d-4e5f-9a8b-0123456789ab	Duration: 834.70 ms	Billed Duration: 835 ms	Memory Size: 1024 MB	Max Memory Used: 141 MB
+REPORT RequestId: 7f3a0031-1c2d-4e5f-9a8b-0123456789ab	Duration: 892.62 ms	Billed Duration: 893 ms	Memory Size: 1024 MB	Max Memory Used: 125 MB
+REPORT RequestId: 7f3a0032-1c2d-4e5f-9a8b-0123456789ab	Duration: 659.19 ms	Billed Duration: 660 ms	Memory Size: 1024 MB	Max Memory Used: 133 MB
+REPORT RequestId: 7f3a0033-1c2d-4e5f-9a8b-0123456789ab	Duration: 940.11 ms	Billed Duration: 941 ms	Memory Size: 1024 MB	Max Memory Used: 120 MB
+REPORT RequestId: 7f3a0034-1c2d-4e5f-9a8b-0123456789ab	Duration: 865.76 ms	Billed Duration: 866 ms	Memory Size: 1024 MB	Max Memory Used: 126 MB
+REPORT RequestId: 7f3a0035-1c2d-4e5f-9a8b-0123456789ab	Duration: 898.91 ms	Billed Duration: 899 ms	Memory Size: 1024 MB	Max Memory Used: 122 MB
+REPORT RequestId: 7f3a0036-1c2d-4e5f-9a8b-0123456789ab	Duration: 895.81 ms	Billed Duration: 896 ms	Memory Size: 1024 MB	Max Memory Used: 126 MB
+REPORT RequestId: 7f3a0037-1c2d-4e5f-9a8b-0123456789ab	Duration: 656.99 ms	Billed Duration: 657 ms	Memory Size: 1024 MB	Max Memory Used: 140 MB
+REPORT RequestId: 7f3a0038-1c2d-4e5f-9a8b-0123456789ab	Duration: 746.89 ms	Billed Duration: 747 ms	Memory Size: 1024 MB	Max Memory Used: 130 MB
+REPORT RequestId: 7f3a0039-1c2d-4e5f-9a8b-0123456789ab	Duration: 863.05 ms	Billed Duration: 864 ms	Memory Size: 1024 MB	Max Memory Used: 125 MB
+REPORT RequestId: 7f3a003a-1c2d-4e5f-9a8b-0123456789ab	Duration: 852.68 ms	Billed Duration: 853 ms	Memory Size: 1024 MB	Max Memory Used: 125 MB
+REPORT RequestId: 7f3a003b-1c2d-4e5f-9a8b-0123456789ab	Duration: 865.53 ms	Billed Duration: 866 ms	Memory Size: 1024 MB	Max Memory Used: 139 MB`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_SOURCE;
+      $("#inv").value = 5000000;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

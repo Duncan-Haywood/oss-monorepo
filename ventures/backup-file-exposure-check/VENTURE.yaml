@@ -1,0 +1,77 @@
+name: backup-file-exposure-check
+description: >-
+  A free browser tool + CLI: sends one GET request to each of eight
+  well-known backup-file paths (backup.zip, backup.tar.gz, backup.sql,
+  backup.sql.gz, db.sql, database.sql, dump.sql, site.zip) at a site's root
+  and names which ones are publicly readable -- verifying the response
+  against a real archive's magic bytes (ZIP/gzip/bzip2/7-Zip/tar) or a real
+  SQL dump's line shape (a dump-tool header comment, or the structural
+  ratio of CREATE/INSERT-style statements), not just an HTTP status, so a
+  soft-404 catch-all page is never misread as an exposure. Never extracts,
+  lists, or reads a file from inside a matched archive. Never quotes a SQL
+  dump's row-data statements (INSERT/REPLACE/COPY ... FROM stdin) anywhere
+  -- only schema statements (table/column structure) are ever shown as
+  evidence. Never writes, submits, or modifies anything; read-only GET
+  requests only, capped at 8KB per path.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, DevOps engineer, or bug-bounty researcher auditing a
+      production deployment will search a variant of "check for exposed
+      backup file", "is my backup.sql public", or "backup file exposure
+      checker" and find this tool, since it needs no login and no upload --
+      it runs the same kind of request the searcher's own browser address
+      bar already makes when they type the URL in by hand, just scripted,
+      repeatable across all eight relevant filenames, and verified against
+      real archive/dump evidence rather than eyeballed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, evergreen deployment footgun rather than
+      a one-off incident: OWASP's Web Security Testing Guide names "Review
+      Old Backup and Unreferenced Files" as a standard reconnaissance step,
+      SecLists' own wordlists carry this exact short set of backup
+      filenames, and "found an exposed backup.zip / database dump" is a
+      recurring HackerOne/Bugcrowd report category and dorking search term
+      -- the same class of evergreen-footgun check this portfolio already
+      ships for git directories, dotenv files, source maps, and CORS.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets a backup-exposure finding will wire the CLI into
+      their own deploy pipeline as a regression gate, so a new backup
+      script, a one-off manual save left in place, or a server config
+      change is caught the same day rather than discovered by an outsider
+      running the same kind of check -- producing return usage with no
+      action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Hosting platforms and deploy tooling converge on never writing a backup
+    artifact anywhere under a web-served document root by default (several
+    already push toward managed, off-box backup services instead), at which
+    point this check would be validating a misconfiguration that can no
+    longer happen by default on those platforms rather than one many
+    self-managed deployments still ship.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/
+  analytics: null

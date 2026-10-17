@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Card Surcharge vs Cash Discount Calculator — Free, Runs in Your Browser</title>
+  <meta name="description" content="Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.">
+  <meta property="og:title" content="Card Surcharge vs Cash Discount Calculator — free">
+  <meta property="og:description" content="Absorb the fee, surcharge cards or discount cash: profit for each, the full-recovery surcharge and the break-even customer loss.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Card Surcharge vs Cash Discount Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares absorbing card processing fees, adding a card surcharge and offering a cash discount for a small merchant, including customers who switch to cash and customers who walk away. Entirely client-side; nothing is uploaded.", "featureList": "monthly card fee cost, surcharge vs cash discount vs absorb profit, full-recovery surcharge, break-even customer loss, surcharge by customer loss sensitivity table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I add a credit card surcharge or offer a cash discount?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how customers react. A surcharge brings in extra money on every card sale that stays on card, but some customers switch to cash or leave. A cash discount gives up revenue on every sale that moves to cash. This calculator puts both next to absorbing the fee, on your own numbers, and shows how many customers you can lose before each stops paying off."}}, {"@type": "Question", "name": "What surcharge covers my card processing fees?", "acceptedAnswer": {"@type": "Answer", "text": "With no change in customer behaviour, the surcharge that repays the fee is (rate + per-transaction fee / average ticket) / (1 - rate), because the processor also takes its rate on the surcharge itself. At 2.9% plus 30 cents on a $50 ticket that is about 3.6%, which is above the 3% cap card brand rules are commonly reported to set, so check the current rules."}}, {"@type": "Question", "name": "Is surcharging credit cards legal?", "acceptedAnswer": {"@type": "Answer", "text": "It is restricted. Card brand rules commonly cap surcharges near 3%, generally disallow them on debit cards and require disclosure, and some states cap or ban them. A cash discount or dual pricing is treated differently. Confirm current rules with your processor and state regulator before charging anything."}}, {"@type": "Question", "name": "Is this financial or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter and does not replace your processor's rules, your state's law or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CARD SURCHARGE VS CASH DISCOUNT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Should you surcharge cards, discount cash, or eat the fee?</h1>
+    <p>Card processing quietly takes 2-4% of sales. Enter your volume, rate and how customers would react and see <strong>monthly profit under each option</strong>,
+    the <strong>surcharge that fully recovers your fees</strong>, and <strong>how many card customers you can lose</strong> before a surcharge or cash discount costs more than it saves.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device. Surcharging is restricted in many places; see the notes below.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your sales and fees</h2>
+    <div class="grid">
+      <div>
+        <label for="monthly-sales">Total monthly sales, all payment types ($)</label>
+        <input type="number" id="monthly-sales" min="0" step="100" placeholder="e.g. 100000">
+      </div>
+      <div>
+        <label for="card-share">Share of sales paid by card (%)</label>
+        <input type="number" id="card-share" min="0" max="100" step="1" placeholder="e.g. 80">
+      </div>
+      <div>
+        <label for="avg-ticket">Average ticket ($)</label>
+        <input type="number" id="avg-ticket" min="0" step="1" placeholder="e.g. 50">
+      </div>
+      <div>
+        <label for="rate">Processing rate per card sale (%)</label>
+        <input type="number" id="rate" min="0" step="0.05" placeholder="e.g. 2.9">
+      </div>
+      <div>
+        <label for="fee">Per-transaction fee ($)</label>
+        <input type="number" id="fee" min="0" step="0.01" placeholder="e.g. 0.30">
+      </div>
+      <div>
+        <label for="margin">Contribution margin on a sale (%)</label>
+        <input type="number" id="margin" min="0" max="100" step="1" placeholder="e.g. 40">
+      </div>
+      <div>
+        <label for="surcharge">Card surcharge you are considering (%)</label>
+        <input type="number" id="surcharge" min="0" step="0.1" placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="cash-discount">Cash discount you are considering (%)</label>
+        <input type="number" id="cash-discount" min="0" step="0.1" placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="shift">Card customers who would switch to cash or debit (%)</label>
+        <input type="number" id="shift" min="0" max="100" step="1" placeholder="e.g. 20">
+      </div>
+      <div>
+        <label for="lost">Card customers who would walk away (%)</label>
+        <input type="number" id="lost" min="0" max="100" step="1" placeholder="e.g. 2">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare options</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Compare options.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><thead><tr><th scope="col">Per month</th><th scope="col">Absorb the fee</th><th scope="col">Surcharge</th><th scope="col">Cash discount</th></tr></thead><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+    <h3>Surcharge minus absorbing, per month, by surcharge and customers lost</h3>
+    <p class="note">Negative means the surcharge earns less than absorbing the fee. The share who switch to cash is held at your input; only walk-aways change across columns.</p>
+    <table><thead id="sens-head"></thead><tbody id="sens-body"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Fee cost.</strong> Card sales x processing rate, plus card transactions (card sales / average ticket) x the per-transaction fee.</li>
+      <li><strong>Surcharge.</strong> Card customers who stay pay the sale plus the surcharge; the processor also takes its rate on the surcharge. Some switch to cash or debit (no card fee, no surcharge) and some walk away (their margin is lost).</li>
+      <li><strong>Cash discount.</strong> Card price stays the list price; cash pays less. Customers who switch to cash pay the discount, so it costs revenue but saves the fee. Walk-aways lose their margin.</li>
+      <li><strong>Break-even customer loss.</strong> Profit is linear in the share who walk away, so the largest tolerable share is solved exactly from two points.</li>
+      <li><strong>Rules matter.</strong> Card brand rules are commonly reported to cap surcharges near 3%, generally disallow them on debit cards and require disclosure; some states cap or ban them. Confirm current rules with your processor and state.</li>
+      <li><strong>Not modelled:</strong> interchange tiers by card type, chargebacks, sales tax on the surcharge, tips, lost repeat business, effects on ticket size, and the cost of changing your point-of-sale set-up.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I add a credit card surcharge or offer a cash discount?</h3>
+    <p>It depends on how customers react. A surcharge brings in extra money on every card sale that stays on card, but some customers switch to cash or leave. A cash discount gives up revenue on every sale that moves to cash. This calculator puts both next to absorbing the fee, on your own numbers, and shows how many customers you can lose before each stops paying off.</p>
+    <h3>What surcharge covers my card processing fees?</h3>
+    <p>With no change in customer behaviour, the surcharge that repays the fee is (rate + per-transaction fee / average ticket) / (1 - rate), because the processor also takes its rate on the surcharge itself. At 2.9% plus 30 cents on a $50 ticket that is about 3.6%, which is above the 3% cap card brand rules are commonly reported to set, so check the current rules.</p>
+    <h3>Is surcharging credit cards legal?</h3>
+    <p>It is restricted. Card brand rules commonly cap surcharges near 3%, generally disallow them on debit cards and require disclosure, and some states cap or ban them. A cash discount or dual pricing is treated differently. Confirm current rules with your processor and state regulator before charging anything.</p>
+    <h3>Is this financial or legal advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter and does not replace your processor's rules, your state's law or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any pricing or surcharge decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also see the <a href="../card-processing-fee-audit/">card processing fee audit</a>, <a href="../payment-processor-fee-comparison-calculator/">payment processor fee comparison</a>, the <a href="../shopify-fee-calculator/">Shopify fee calculator</a> and the <a href="../appointment-deposit-calculator/">appointment deposit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p>Related tool: the <a href="../convenience-store-gas-station-profit-calculator/">convenience store and gas station profit calculator</a> shows what card fees do to fuel margin in cents a gallon.</p>
+</footer>
+
+  <script type="module">
+    import { outcome, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["monthly-sales", "card-share", "avg-ticket", "rate", "fee", "margin", "surcharge", "cash-discount", "shift", "lost"];
+    const raw = (id) => $("#" + id).value.trim();
+    const num = (id) => Number(raw(id)) || 0;
+    const p = (id) => num(id) / 100;
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const r = outcome({
+        monthlySales: num("monthly-sales"), cardShare: p("card-share"), avgTicket: num("avg-ticket"),
+        rate: p("rate"), fee: num("fee"), margin: p("margin"), surcharge: p("surcharge"),
+        cashDiscount: p("cash-discount"), shift: p("shift"), lost: p("lost"),
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return; }
+      const be = (b) => b.reason === "never" ? "never" : b.reason === "always" ? "any share" : pct(b.lost);
+      $("#report-stats").innerHTML = `You pay <strong>${money(r.monthlyFees)}</strong> a month (${pct(r.monthlyFees / r.input.monthlySales, 2)} of sales) in card fees. A surcharge of <strong>${pct(r.fullRecoverySurcharge, 2)}</strong> would fully recover that if no customer changed behaviour.`;
+      const d = (x) => (x >= 0 ? "+" : "") + money(x);
+      $("#result-table").innerHTML = [
+        `<tr><th scope="row">Profit contribution</th><td>${money(r.baseProfit)}</td><td>${money(r.surchargeProfit)}</td><td>${money(r.cashProfit)}</td></tr>`,
+        `<tr><th scope="row">Versus absorbing</th><td>-</td><td>${d(r.surchargeDelta)}</td><td>${d(r.cashDelta)}</td></tr>`,
+        `<tr><th scope="row">Most card customers you can lose and still break even</th><td>-</td><td>${be(r.breakEvenLostSurcharge)}</td><td>${be(r.breakEvenLostCash)}</td></tr>`,
+      ].join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      $("#sens-head").innerHTML = `<tr><th scope="col">Surcharge</th>${r.sensitivity.losts.map((l) => `<th scope="col">${pct(l, 0)} lost</th>`).join("")}</tr>`;
+      $("#sens-body").innerHTML = r.sensitivity.rows.map((row) => `<tr><th scope="row">${pct(row.surcharge, 0)}</th>${row.cells.map((c) => `<td>${d(c)}</td>`).join("")}</tr>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("comparison_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "monthly-sales": 100000, "card-share": 80, "avg-ticket": 50, "rate": 2.9, "fee": 0.3, "margin": 40, "surcharge": 3, "cash-discount": 3, "shift": 20, "lost": 2 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $100k a month, 80% card, $50 ticket, 2.9% + $0.30, 40% margin, 3% surcharge or cash discount, 20% switch to cash, 2% walk away.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Compare options.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

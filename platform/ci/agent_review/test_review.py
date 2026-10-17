@@ -10,7 +10,9 @@ from review import (
     load_config,
     mergeable_state_ok,
     path_touches_ventures,
+    pr_from_same_repo,
     reviewer_already_approved,
+    untrusted_reason,
 )
 
 
@@ -212,6 +214,59 @@ class MergeableStateTest(unittest.TestCase):
         # head; a merge must wait rather than proceed on a stale/absent verdict.
         self.assertFalse(mergeable_state_ok({"mergeable_state": None})[0])
         self.assertFalse(mergeable_state_ok({})[0])
+
+
+def _pr(head="o/r", base="o/r", association="OWNER", login="someone"):
+    return {
+        "head": {"repo": {"full_name": head} if head else None},
+        "base": {"repo": {"full_name": base}},
+        "author_association": association,
+        "user": {"login": login},
+    }
+
+
+class UntrustedReasonTest(unittest.TestCase):
+    def test_same_repo_collaborator_is_trusted(self):
+        self.assertIsNone(untrusted_reason(_pr(association="COLLABORATOR")))
+
+    def test_same_repo_bot_is_trusted(self):
+        self.assertIsNone(untrusted_reason(_pr(association="NONE", login="cursor[bot]")))
+
+    def test_fork_is_untrusted_even_from_owner(self):
+        self.assertIn("human-gated", untrusted_reason(_pr(head="stranger/r")))
+
+    def test_deleted_fork_is_untrusted(self):
+        self.assertIn("deleted fork", untrusted_reason(_pr(head=None)))
+
+    def test_outside_human_author_is_untrusted(self):
+        reason = untrusted_reason(_pr(association="CONTRIBUTOR"))
+        self.assertIn("author_association=CONTRIBUTOR", reason)
+
+
+def _same_repo_pr(head_repo, base_repo="owner/repo"):
+    return {
+        "head": {"repo": {"full_name": head_repo} if head_repo else None},
+        "base": {"repo": {"full_name": base_repo}},
+    }
+
+
+class SameRepoTest(unittest.TestCase):
+    def test_same_repo_branch_passes(self):
+        ok, _ = pr_from_same_repo(_same_repo_pr("owner/repo"))
+        self.assertTrue(ok)
+
+    def test_fork_blocked(self):
+        ok, reason = pr_from_same_repo(_same_repo_pr("stranger/repo"))
+        self.assertFalse(ok)
+        self.assertIn("fork", reason)
+
+    def test_deleted_fork_fails_closed(self):
+        ok, _ = pr_from_same_repo(_same_repo_pr(None))
+        self.assertFalse(ok)
+
+    def test_missing_fields_fail_closed(self):
+        ok, _ = pr_from_same_repo({})
+        self.assertFalse(ok)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Real Estate Photographer Shoot Profit Calculator — Hourly Earnings by Package</title>
+  <meta name="description" content="Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.">
+  <meta property="og:title" content="Real Estate Photographer Shoot Profit Calculator — free, private">
+  <meta property="og:description" content="True hourly earnings per listing package, add-on profit and edit-vs-outsource break-even.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Real Estate Photographer Shoot Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "True hourly earnings for each real estate photography package after drive, shoot, editing and admin time, with the fee that reaches a target hourly rate and an edit-or-outsource comparison. Runs in your browser.", "featureList": "Hourly earnings by package tier, fee for target hourly, add-on profit, edit vs outsource break-even, monthly profit and shoots to cover overhead"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Real Estate Photographer Shoot Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "True hourly earnings for each real estate photography package after drive, shoot, editing and admin time, with the fee that reaches a target hourly rate and an edit-or-outsource comparison. Runs in your browser.", "featureList": "Hourly earnings by package tier, fee for target hourly, add-on profit, edit vs outsource break-even, monthly profit and shoots to cover overhead"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #3f4c59; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8fa7b2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #8a2f0c; }
+    .pill.medium { background: #fdf0d5; color: #6b500c; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">REAL ESTATE PHOTOGRAPHY PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a $175 listing shoot really pay you per hour?</h1>
+    <p>Enter your package fees and how long a shoot really takes. See the <strong>true hourly earnings of each package tier</strong> after drive, shoot, editing and admin time, the fee that reaches your hourly target, what drone, twilight and floor-plan add-ons add, and whether outsourcing your editing frees time worth more than it costs.</p>
+    <p class="note">Nothing you type leaves this tab. The numbers shown first are an example, not a benchmark: replace them with your own.</p>
+  </header>
+  <section class="card">
+    <h2>1. Your price list and shoot times</h2>
+    <div class="grid">
+      <div><label for="t1Fee">Tier 1 package fee (Small condo or apartment)</label><input type="number" id="t1Fee" min="0" step="any"></div>
+      <div><label for="t1Photos">Tier 1: photos delivered</label><input type="number" id="t1Photos" min="0" step="any"></div>
+      <div><label for="t1ShootMin">Tier 1: minutes on site</label><input type="number" id="t1ShootMin" min="0" step="any"></div>
+      <div><label for="t2Fee">Tier 2 package fee (Typical house)</label><input type="number" id="t2Fee" min="0" step="any"></div>
+      <div><label for="t2Photos">Tier 2: photos delivered</label><input type="number" id="t2Photos" min="0" step="any"></div>
+      <div><label for="t2ShootMin">Tier 2: minutes on site</label><input type="number" id="t2ShootMin" min="0" step="any"></div>
+      <div><label for="t3Fee">Tier 3 package fee (Large house)</label><input type="number" id="t3Fee" min="0" step="any"></div>
+      <div><label for="t3Photos">Tier 3: photos delivered</label><input type="number" id="t3Photos" min="0" step="any"></div>
+      <div><label for="t3ShootMin">Tier 3: minutes on site</label><input type="number" id="t3ShootMin" min="0" step="any"></div>
+      <div><label for="t4Fee">Tier 4 package fee (Luxury or estate)</label><input type="number" id="t4Fee" min="0" step="any"></div>
+      <div><label for="t4Photos">Tier 4: photos delivered</label><input type="number" id="t4Photos" min="0" step="any"></div>
+      <div><label for="t4ShootMin">Tier 4: minutes on site</label><input type="number" id="t4ShootMin" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>2. Travel, editing and costs</h2>
+    <div class="grid">
+      <div><label for="driveMinutes">Drive minutes, one way (average)</label><input type="number" id="driveMinutes" min="0" step="any"></div>
+      <div><label for="adminMinutes">Admin minutes per shoot (booking, upload, delivery, invoice)</label><input type="number" id="adminMinutes" min="0" step="any"></div>
+      <div><label for="editMinutesPerPhoto">Your editing minutes per delivered photo</label><input type="number" id="editMinutesPerPhoto" min="0" step="any"></div>
+      <div><label for="outsourceCostPerPhoto">Editing service price per photo</label><input type="number" id="outsourceCostPerPhoto" min="0" step="any"></div>
+      <div><label for="editInHouse">Who edits? 1 = you, 0 = a service</label><input type="number" id="editInHouse" min="0" step="any"></div>
+      <div><label for="milesOneWay">Miles one way (average)</label><input type="number" id="milesOneWay" min="0" step="any"></div>
+      <div><label for="mileageCost">Cost per mile (fuel + wear)</label><input type="number" id="mileageCost" min="0" step="any"></div>
+      <div><label for="gearCostPerShoot">Gear wear, cards and software per shoot</label><input type="number" id="gearCostPerShoot" min="0" step="any"></div>
+      <div><label for="paymentFeePct">Card fee on the invoice (%)</label><input type="number" id="paymentFeePct" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>3. Add-ons</h2>
+    <div class="grid">
+      <div><label for="droneFee">Drone: fee</label><input type="number" id="droneFee" min="0" step="any"></div>
+      <div><label for="droneMin">Drone: extra minutes on site</label><input type="number" id="droneMin" min="0" step="any"></div>
+      <div><label for="droneEditMin">Drone: extra editing minutes</label><input type="number" id="droneEditMin" min="0" step="any"></div>
+      <div><label for="droneCost">Drone: direct cost per use</label><input type="number" id="droneCost" min="0" step="any"></div>
+      <div><label for="droneTakePct">Drone: % of shoots that buy it</label><input type="number" id="droneTakePct" min="0" step="any"></div>
+      <div><label for="twilightFee">Twilight: fee</label><input type="number" id="twilightFee" min="0" step="any"></div>
+      <div><label for="twilightMin">Twilight: extra minutes on site</label><input type="number" id="twilightMin" min="0" step="any"></div>
+      <div><label for="twilightEditMin">Twilight: extra editing minutes</label><input type="number" id="twilightEditMin" min="0" step="any"></div>
+      <div><label for="twilightCost">Twilight: direct cost per use</label><input type="number" id="twilightCost" min="0" step="any"></div>
+      <div><label for="twilightTakePct">Twilight: % of shoots that buy it</label><input type="number" id="twilightTakePct" min="0" step="any"></div>
+      <div><label for="floorplanFee">Floor plan: fee</label><input type="number" id="floorplanFee" min="0" step="any"></div>
+      <div><label for="floorplanMin">Floor plan: extra minutes on site</label><input type="number" id="floorplanMin" min="0" step="any"></div>
+      <div><label for="floorplanEditMin">Floor plan: extra editing minutes</label><input type="number" id="floorplanEditMin" min="0" step="any"></div>
+      <div><label for="floorplanCost">Floor plan: direct cost per use</label><input type="number" id="floorplanCost" min="0" step="any"></div>
+      <div><label for="floorplanTakePct">Floor plan: % of shoots that buy it</label><input type="number" id="floorplanTakePct" min="0" step="any"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>4. Goals and mix</h2>
+    <div class="grid">
+      <div><label for="targetHourly">Target earnings per hour of total time</label><input type="number" id="targetHourly" min="0" step="any"></div>
+      <div><label for="shootsPerMonth">Shoots per month</label><input type="number" id="shootsPerMonth" min="0" step="any"></div>
+      <div><label for="monthlyOverhead">Monthly overhead (insurance, software, hosting, marketing)</label><input type="number" id="monthlyOverhead" min="0" step="any"></div>
+      <div><label for="mix1">Mix: % of shoots at tier 1</label><input type="number" id="mix1" min="0" step="any"></div>
+      <div><label for="mix2">Mix: % at tier 2</label><input type="number" id="mix2" min="0" step="any"></div>
+      <div><label for="mix3">Mix: % at tier 3</label><input type="number" id="mix3" min="0" step="any"></div>
+      <div><label for="mix4">Mix: % at tier 4</label><input type="number" id="mix4" min="0" step="any"></div>
+    </div>
+    <p><button type="button" id="go">Calculate</button><button type="button" class="secondary" id="reset">Reset to example</button></p>
+    <p class="note" id="status">Edit any number and click Calculate. The page starts with an example.</p>
+  </section>
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="findings"></div>
+    <div class="scroll"><table><thead><tr><th scope="col">Tier</th><th class="n" scope="col">Hours worked</th><th class="n" scope="col">Revenue</th><th class="n" scope="col">Cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Per hour</th><th class="n" scope="col">Fee for target</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Your month at this mix</h3>
+    <p class="stats" id="month"></p>
+  </section>
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Hours worked</strong> = round-trip drive + on-site time + editing time + admin, plus the expected extra time from add-ons at your take rates.</li>
+      <li><strong>Profit</strong> = package fee + expected add-on fees − mileage − gear wear − editing service cost (if outsourced) − add-on direct costs − card fees.</li>
+      <li><strong>Per hour</strong> = profit ÷ all hours worked, not just the hours on site.</li>
+      <li><strong>Fee for target</strong> = the package fee that earns your target per hour for that tier, holding add-ons and costs fixed.</li>
+      <li><strong>Edit vs outsource</strong> = your editing minutes per photo priced at your target rate, against the service price per photo.</li>
+      <li><strong>Not modelled:</strong> income tax and self-employment tax, rush fees, reshoots, MLS licensing terms, travel surcharges, second-shooter pay and seasonality.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should a real estate photographer charge?</h3>
+    <p>That depends on your market, but the useful number is what each package earns per hour of total time, not per shoot. A cheap small-condo package that needs a 40-minute drive can pay less per hour than a large house at triple the fee. Enter your own prices and times above.</p>
+    <h3>Is it worth outsourcing real estate photo editing?</h3>
+    <p>When your editing time, priced at the hourly rate you want to earn, costs more than the service charges per photo, outsourcing frees hours. It only pays if you resell those hours as shoots. The calculator shows the per-photo comparison and the monthly value.</p>
+    <h3>Which add-ons are worth selling?</h3>
+    <p>Each add-on earns its fee minus extra on-site time, extra editing time and direct cost. Raise the percentage of shoots that buy it and watch the average profit per shoot change.</p>
+    <h3>How many shoots a month do I need?</h3>
+    <p>The month summary shows profit after overhead and the number of shoots at which pay above your target hourly covers your fixed monthly costs.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It is arithmetic on the numbers you type. Prices and business decisions are yours.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Nothing you type is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculated</code>, <code>reset</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Running a photo business? See the <a href="../wedding-photographer-profit-calculator/">wedding photographer profit calculator</a> and the <a href="../photo-addon-pricing-calculator/">photo add-on pricing calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { estimate, money, DEFAULTS } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = Object.keys(DEFAULTS);
+    const fill = () => keys.forEach((k) => ($("#" + k).value = DEFAULTS[k]));
+    const read = () => Object.fromEntries(keys.map((k) => [k, $("#" + k).value]));
+    function run() {
+      const e = estimate(read());
+      if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
+      $("#rows").innerHTML = e.cases.map((c) => `<tr><th scope="row">Tier ${c.tier}</th><td class="n">${c.hours}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.cost)}</td><td class="n">${money(c.profit)}</td><td class="n">${money(c.hourly)}</td><td class="n">${money(c.feeForTarget)}</td></tr>`).join("");
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const m = e.month;
+      $("#month").textContent = `At ${e.o.shootsPerMonth} shoots a month you work about ${m.hours} hours and keep ${money(m.profit)} after overhead: ${money(m.effectiveHourly)} an hour. ` + (m.shootsToCoverOverhead === null ? "At this mix each shoot earns less than your target hourly, so more shoots never cover overhead." : `Pay above your target covers monthly overhead from about ${m.shootsToCoverOverhead} shoots.`);
+      $("#report").hidden = false; $("#status").textContent = "Updated."; return true;
+    }
+    $("#go").addEventListener("click", () => { if (run()) record("calculated"); });
+    $("#reset").addEventListener("click", () => { fill(); if (run()) record("reset"); });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    fill(); run();
+  </script>
+</body>
+</html>

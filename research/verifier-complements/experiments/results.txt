@@ -1,0 +1,43 @@
+Setup: prior fault rate pi=0.05, slash-a-good-job cost c=1.0, identical verifiers accuracy q=0.7
+E1. value V(n) of n identical verifiers: zero until n0 (unanimous flags must flip the default), then concave
+  closed-form n0 = 4
+  n= 0 V=0.00000 marginal=+0.00000 | mutual-info 0.00000 marginal=+0.00000
+  n= 1 V=0.00000 marginal=+0.00000 | mutual-info 0.01601 marginal=+0.01601
+  n= 2 V=0.00000 marginal=+0.00000 | mutual-info 0.03140 marginal=+0.01540
+  n= 3 V=0.00000 marginal=+0.00000 | mutual-info 0.04596 marginal=+0.01455
+  n= 4 V=0.00431 marginal=+0.00431 | mutual-info 0.05950 marginal=+0.01354
+  n= 5 V=0.00610 marginal=+0.00179 | mutual-info 0.07200 marginal=+0.01250
+  n= 6 V=0.01062 marginal=+0.00453 | mutual-info 0.08346 marginal=+0.01147
+  n= 7 V=0.01287 marginal=+0.00225 | mutual-info 0.09395 marginal=+0.01048
+  n= 8 V=0.01686 marginal=+0.00399 | mutual-info 0.10351 marginal=+0.00956
+  n= 9 V=0.01907 marginal=+0.00220 | mutual-info 0.11222 marginal=+0.00871
+  n=10 V=0.02242 marginal=+0.00335 | mutual-info 0.12014 marginal=+0.00792
+E2. submodularity check over all (S,i,j) in a pool of 8 verifiers with q in {.6,.65,.7,.75,.8,.85,.9,.95}
+  pi=0.05: decision value violates diminishing returns in 601/1792 triples (33.5%), worst excess 0.03800
+  pi=0.2: decision value violates diminishing returns in 436/1792 triples (24.3%), worst excess 0.08000
+  pi=0.5: decision value violates diminishing returns in 562/1792 triples (31.4%), worst excess 0.04750
+E3. hiring under a budget: myopic marginal-value greedy vs exhaustive optimum (pool: 6 cheap q=.7 @1, one q=.9 @4; pi=.05)
+  budget 2: greedy V=0.00000 () | optimal V=0.00000 () | ratio nan
+  budget 3: greedy V=0.00000 () | optimal V=0.00000 () | ratio nan
+  budget 4: greedy V=0.00000 () | optimal V=0.00431 (0, 1, 2, 3) | ratio 0.000
+  budget 5: greedy V=0.00000 () | optimal V=0.00610 (0, 1, 2, 3, 4) | ratio 0.000
+  budget 6: greedy V=0.00000 () | optimal V=0.01350 (0, 1, 6) | ratio 0.000
+  budget 7: greedy V=0.00000 () | optimal V=0.01476 (0, 1, 2, 6) | ratio 0.000
+E4. leave-one-out (marginal-contribution) pay per verifier, identical q=.7, n up to 40: zero below n0, then a parity sawtooth, decaying only slowly
+  n= 1 LOO pay 0.00000
+  n= 2 LOO pay 0.00000
+  n= 3 LOO pay 0.00000
+  n= 4 LOO pay 0.00431
+  n= 5 LOO pay 0.00178
+  n= 6 LOO pay 0.00453
+  n= 7 LOO pay 0.00225
+  n= 8 LOO pay 0.00399
+  n= 9 LOO pay 0.00220
+  n=10 LOO pay 0.00335
+  n=15 LOO pay 0.00146
+  n=16 LOO pay 0.00185
+  n=25 LOO pay 0.00058
+  n=26 LOO pay 0.00067
+  n=39 LOO pay 0.00015
+  n=40 LOO pay 0.00017
+  V(40) = 0.04845 of prior risk 0.050; mean LOO over n=31..40 = 0.00025; V(n)/n per verifier at 40 = 0.00121

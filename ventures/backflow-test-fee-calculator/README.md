@@ -7,6 +7,8 @@ the first on the same visit, a per-device municipal report-filing fee, a
 one-time travel fee, and a retest fee for devices that fail. Entirely
 client-side; nothing is uploaded.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/backflow-test-fee-calculator/
+
 After using this, you can now **turn a list of devices on one property
 visit into a correct, itemized job quote in seconds — with the multi-device
 discount, the per-device filing fee, and any retest fee applied correctly —
@@ -86,7 +88,7 @@ Control are honoured, and a button on the page turns counting off entirely.
 ## Development
 
 ```sh
-node --test calc.test.mjs usage.test.mjs page.test.mjs content-pages.test.mjs
+node --test calc.test.mjs usage.test.mjs page.test.mjs content-pages.test.mjs how-to-price-a-multi-device-backflow-test-visit.test.mjs
 ```
 
 ## Status

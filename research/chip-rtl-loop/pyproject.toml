@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-rtl-loop"
+version = "0.1.0"
+description = "Feedback loop for RTL generation: lint, simulation and formal checks on a small task suite"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

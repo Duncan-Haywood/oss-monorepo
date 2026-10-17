@@ -1,0 +1,1 @@
+Module `edge_det`: ports `input clk, input rst, input d, output pulse`. Synchronous, rising edge of `clk`. `pulse` is 1 during exactly the cycle after `d` was sampled 1 following a sample of 0 (a registered rising-edge detect: `pulse` is a flop output). `rst` (synchronous, active high) clears the stored previous sample to 0 and `pulse` to 0.

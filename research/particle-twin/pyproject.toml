@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "particle-twin"
+version = "0.1.0"
+description = "Particle twin: a Gaussian-sensor twin sizes a bootstrap particle filter for a healthy effective sample size; with outlier-contaminated real measurements the weights collapse, and the particle count needed grows exponentially in the squared outlier size and in the state dimension"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

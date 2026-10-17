@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_0194byF3HSoKwLn9381HdGGH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T11:47:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7370,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "regen.mjs takes >2 min and a stale merge needs its outputs regenerated; no note that conflicts in gitops/prod/front-door-tools are just regen output"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Landed stalled PR #7370 (status-keeper TLS/domain watchers) instead of starting new work; merged main, regenerated mirror, 46 venture tests pass, regen --verify clean"
+    }
+  ],
+  "goal": null,
+  "notes": "Merge of #7370 pending CI at record time.",
+  "corrections": [],
+  "redteam": null
+}

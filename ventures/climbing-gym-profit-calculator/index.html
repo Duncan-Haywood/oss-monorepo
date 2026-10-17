@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Climbing Gym Profit Calculator — monthly profit, payback and break-even members</title>
+  <meta name="description" content="Free calculator for climbing and bouldering gyms. Enter day passes, memberships, youth programs, parties, staff, route setting, rent and the build; it shows monthly profit, margin, payback, break-even members and the lowest day pass and membership fee for your target margin. Private, in your browser.">
+  <meta property="og:title" content="Climbing Gym Profit Calculator — monthly profit, payback and break-even members">
+  <meta property="og:description" content="Free calculator for climbing and bouldering gyms. Enter day passes, memberships, youth programs, parties, staff, route setting, rent and the build; it shows monthly profit, margin, payback, break-even members and the lowest day pass and membership fee for your target margin. Private, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Climbing Gym Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free calculator for climbing and bouldering gyms: monthly profit, margin, payback on the build, break-even members, the lowest day pass and membership fee for a target margin, and a two-scenario comparison. Runs in your browser; nothing is uploaded.","featureList":"climbing gym business calculator, bouldering gym profit, climbing gym membership pricing, break-even members, build payback"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does it cost to open a climbing gym?","acceptedAnswer":{"@type":"Answer","text":"Plan on roughly $400,000 to $1.5 million for walls, flooring, auto-belays and equipment in a 10,000 to 25,000 square foot building, plus a fit-out for the front desk, lockers, party rooms and a small cafe. Enter your own quotes for both and the calculator adds them into one build cost and divides it by monthly operating profit to give a payback."}},{"@type":"Question","name":"How many members does a climbing gym need to break even?","acceptedAnswer":{"@type":"Answer","text":"It depends on rent, staff and pricing, so the calculator solves it: it scales members and day passes together until monthly profit is exactly zero and reports the member and day-pass counts at that point. Youth programs and parties pay for some fixed costs first, so the break-even is lower than a membership-only plan suggests."}},{"@type":"Question","name":"How much of a climbing gym's income comes from memberships?","acceptedAnswer":{"@type":"Answer","text":"Often half or more of revenue, and the steadiest part because it bills monthly. The calculator counts memberships at the fee you enter, and warns when they are over 60% of revenue, because one price change or a competitor opening nearby then moves the whole business."}},{"@type":"Question","name":"What day pass and membership price do I need for my target margin?","acceptedAnswer":{"@type":"Answer","text":"The calculator solves for the day pass price and, separately, the membership fee that make margin equal your target, and shows the day pass price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random gyms."}},{"@type":"Question","name":"Is my data uploaded, and is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"Nothing is uploaded: it runs in your browser with no accounts. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. Lease terms, licences, waivers, insurance and safety rules depend on where you operate."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2230; background: #f5f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a4aa6; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1b2a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1b2a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #444d63; }
+    .card { background: #fff; border: 1px solid #d5daea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1b2a5c12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=number], input[type=text], select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5a6485; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a4aa6; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4e8f5; color: #1b2a5c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e4e8f5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #444d63; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #e9eefb; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.45rem; color: #1b2a5c; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .scroll { overflow-x: auto; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CLIMBING GYM PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will a climbing gym make money? Monthly profit, payback and break-even members</h1>
+    <p>For anyone planning or running a climbing or bouldering gym. Type your day passes, members, youth programs and costs. The tool counts <strong>day passes, memberships, youth tuition, birthday parties, rentals and shop sales, front desk staff, route setting, rent, insurance and a hold and rope replacement reserve</strong>, then shows monthly profit, <strong>how many months the build takes to pay back</strong>, the <strong>members you need to break even</strong>, and the <strong>lowest day pass and membership fee</strong> that reach your margin target.</p>
+    <p class="note">The method with a worked example: <a href="./how-much-does-a-climbing-gym-make.html">how much does a climbing gym make</a>.</p>
+  </header>
+  <main>
+  <section class="card" id="setup">
+    <h2 style="margin-top:0px">1. Gym, day passes and memberships</h2>
+    <div class="row3">
+      <div><label for="cp">Comfortable capacity (climbers at once)</label><input type="number" id="cp" min="0" step="1" max="3000" value="120"></div>
+      <div><label for="oh">Open hours per week</label><input type="number" id="oh" min="0" step="1" max="168" value="80"></div>
+      <div><label for="vh">Average visit length (hours)</label><input type="number" id="vh" min="0" step="0.25" max="12" value="2"></div>
+      <div><label for="dp">Day passes sold a month</label><input type="number" id="dp" min="0" step="10" max="200000" value="1300"></div>
+      <div><label for="dpp">Day pass price ($)</label><input type="number" id="dpp" min="0" step="0.5" max="500" value="22"></div>
+      <div><label for="me">Members</label><input type="number" id="me" min="0" step="5" max="50000" value="430"></div>
+      <div><label for="mf">Monthly membership fee ($)</label><input type="number" id="mf" min="0" step="1" max="1000" value="72"></div>
+      <div><label for="mv">Visits per member a month</label><input type="number" id="mv" min="0" step="1" max="100" value="6"></div>
+      <div><label for="sh">Rentals, shop and cafe spend per visit ($)</label><input type="number" id="sh" min="0" step="0.5" max="200" value="4"></div>
+      <div><label for="sc">Shop and cafe cost (%)</label><input type="number" id="sc" min="0" step="1" max="100" value="45"></div>
+    </div>
+    <h2 style="margin-top:20px">2. Youth programs and parties</h2>
+    <div class="row3">
+      <div><label for="yk">Kids in youth programs and camps</label><input type="number" id="yk" min="0" step="1" max="20000" value="60"></div>
+      <div><label for="yt">Monthly youth tuition ($)</label><input type="number" id="yt" min="0" step="5" max="2000" value="160"></div>
+      <div><label for="yc">Coaching cost (% of tuition)</label><input type="number" id="yc" min="0" step="1" max="100" value="40"></div>
+      <div><label for="pa">Birthday parties a month</label><input type="number" id="pa" min="0" step="1" max="2000" value="25"></div>
+      <div><label for="pp">Party package price ($)</label><input type="number" id="pp" min="0" step="10" max="10000" value="350"></div>
+      <div><label for="pk">Cost per party: host, food, supplies ($)</label><input type="number" id="pk" min="0" step="5" max="10000" value="90"></div>
+    </div>
+    <h2 style="margin-top:20px">3. Monthly costs</h2>
+    <div class="row3">
+      <div><label for="sf">Front desk and floor staff on duty while open</label><input type="number" id="sf" min="0" step="1" max="200" value="3"></div>
+      <div><label for="wg">Staff hourly wage ($)</label><input type="number" id="wg" min="0" step="0.5" max="500" value="17"></div>
+      <div><label for="bd">Payroll tax and workers comp (%)</label><input type="number" id="bd" min="0" step="1" max="100" value="12"></div>
+      <div><label for="st">Route setting: setters, holds and supplies a month ($)</label><input type="number" id="st" min="0" step="100" max="1000000" value="7000"></div>
+      <div><label for="rt">Monthly rent ($)</label><input type="number" id="rt" min="0" step="100" max="1000000" value="21000"></div>
+      <div><label for="ut">Monthly utilities ($)</label><input type="number" id="ut" min="0" step="50" max="1000000" value="3500"></div>
+      <div><label for="in">Monthly insurance ($)</label><input type="number" id="in" min="0" step="50" max="1000000" value="2500"></div>
+      <div><label for="of">Software, marketing and other fixed costs a month ($)</label><input type="number" id="of" min="0" step="50" max="1000000" value="3500"></div>
+      <div><label for="pc">Card and billing fees (%)</label><input type="number" id="pc" min="0" step="0.1" max="15" value="3"></div>
+      <div><label for="rs">Hold, rope and auto-belay replacement reserve (% of revenue)</label><input type="number" id="rs" min="0" step="0.5" max="30" value="3"></div>
+    </div>
+    <h2 style="margin-top:20px">4. The build and any loan</h2>
+    <div class="row3">
+      <div><label for="bc">Walls, flooring and equipment ($)</label><input type="number" id="bc" min="0" step="5000" max="50000000" value="550000"></div>
+      <div><label for="fo">Fit-out: desk, locker rooms, party rooms, cafe ($)</label><input type="number" id="fo" min="0" step="5000" max="50000000" value="250000"></div>
+      <div><label for="tm">Margin you want (%)</label><input type="number" id="tm" min="0" step="1" max="90" value="20"></div>
+      <div><label for="fp">Share of the build financed (%)</label><input type="number" id="fp" min="0" step="5" max="100" value="0"></div>
+      <div><label for="ap">Loan interest rate (% a year)</label><input type="number" id="ap" min="0" step="0.25" max="60" value="9"></div>
+      <div><label for="tl">Loan term (months)</label><input type="number" id="tl" min="0" step="6" max="360" value="84"></div>
+      <div><label for="tp">Payback you want (months)</label><input type="number" id="tp" min="0" step="1" max="240" value="36"></div>
+    </div>
+    <button type="button" id="solve">Check this gym</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="load-file-btn">Load saved scenario</button>
+    <input type="file" id="load-file" accept=".json,application/json" hidden aria-label="Saved scenario file">
+    <p id="form-status" role="status" class="note">Fill in the numbers, then click Check this gym.</p>
+  </section>
+  <section id="result" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="out"><thead><tr><th>Line</th><th class="num">Per month</th></tr></thead><tbody></tbody></table></div>
+    <h2 style="margin-top:20px">If demand comes in under plan</h2>
+    <div class="scroll"><table id="sens"><thead><tr><th>Demand</th><th class="num">Members and day passes</th><th class="num">Profit a month</th><th class="num">Profit a year</th><th class="num">Payback (months)</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="copy-text">Copy as text</button>
+    <button type="button" class="secondary" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="save-file">Save scenario</button>
+  </section>
+  <section class="card" id="compare-card">
+    <h2>5. Compare with a second scenario</h2>
+    <p class="note">Scenario A is everything above. Scenario B keeps your hours, staff, rent and costs, and changes only the day passes, prices, members, youth program and parties below. The build cost stays the same, so compare scenarios that fit the same building.</p>
+    <div class="row3">
+      <div><label for="sdp">Scenario B: day passes a month</label><input type="number" id="sdp" min="0" step="10" max="200000" value="1300"></div>
+      <div><label for="sdpp">Scenario B: day pass price ($)</label><input type="number" id="sdpp" min="0" step="0.5" max="500" value="22"></div>
+      <div><label for="sme">Scenario B: members</label><input type="number" id="sme" min="0" step="5" max="50000" value="500"></div>
+      <div><label for="smf">Scenario B: monthly membership fee ($)</label><input type="number" id="smf" min="0" step="1" max="1000" value="64"></div>
+      <div><label for="syk">Scenario B: youth program kids</label><input type="number" id="syk" min="0" step="1" max="20000" value="60"></div>
+      <div><label for="syt">Scenario B: monthly youth tuition ($)</label><input type="number" id="syt" min="0" step="5" max="2000" value="160"></div>
+      <div><label for="spa">Scenario B: parties a month</label><input type="number" id="spa" min="0" step="1" max="2000" value="25"></div>
+    </div>
+    <button type="button" id="compare">Compare the two scenarios</button>
+    <div id="compare-out"></div>
+  </section>
+  <section class="card">
+    <h2>How it is built</h2>
+    <p><strong>Visits:</strong> day passes + members × visits per member. <strong>Revenue:</strong> day passes × price, plus members × monthly fee, plus kids × tuition, plus parties × package price, plus visits × rentals, shop and cafe spend. <strong>Costs:</strong> shop cost, youth coaching, party cost, card fees and the replacement reserve as a share of revenue, front desk staff for every open hour, route setting, rent, utilities, insurance and other fixed costs, and any loan payment.</p>
+    <p><strong>Payback:</strong> build cost ÷ monthly profit before the loan payment. <strong>Lowest prices:</strong> the day pass price, and separately the membership fee, at which margin equals your target, and the day pass price at which payback equals your target; typing any back reproduces the target. <strong>Sensitivity:</strong> the same gym with day passes and members cut by 10% and 20% (youth and parties held). <strong>Break-even:</strong> profit is exactly linear in demand, so the break-even share of planned demand is solved exactly. <strong>Crowding check:</strong> climber-hours against comfortable capacity and open hours.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does it cost to open a climbing gym?</h3>
+    <p>Plan on roughly $400,000 to $1.5 million for walls, flooring, auto-belays and equipment in a 10,000 to 25,000 square foot building, plus a fit-out for the front desk, lockers, party rooms and a small cafe. Enter your own quotes for both and the calculator adds them into one build cost and divides it by monthly operating profit to give a payback.</p>
+    <h3>How many members does a climbing gym need to break even?</h3>
+    <p>It depends on rent, staff and pricing, so the calculator solves it: it scales members and day passes together until monthly profit is exactly zero and reports the member and day-pass counts at that point. Youth programs and parties pay for some fixed costs first, so the break-even is lower than a membership-only plan suggests.</p>
+    <h3>How much of a climbing gym's income comes from memberships?</h3>
+    <p>Often half or more of revenue, and the steadiest part because it bills monthly. The calculator counts memberships at the fee you enter, and warns when they are over 60% of revenue, because one price change or a competitor opening nearby then moves the whole business.</p>
+    <h3>What day pass and membership price do I need for my target margin?</h3>
+    <p>The calculator solves for the day pass price and, separately, the membership fee that make margin equal your target, and shows the day pass price that reaches your payback target. The test suite checks that charging exactly those prices earns the target for hundreds of random gyms.</p>
+    <h3>Is my data uploaded, and is this financial advice?</h3>
+    <p>Nothing is uploaded: it runs in your browser with no accounts. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. Lease terms, licences, waivers, insurance and safety rules depend on where you operate.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is arithmetic on the numbers you type, not tax, legal, lending or financial advice. <strong>Use at your own risk.</strong> A lease, a loan or a build is a large commitment: check the numbers, permits, insurance and contracts with an accountant or adviser.</p>
+    <p><strong>Independent.</strong> Not affiliated with any climbing gym chain, franchise, wall builder or software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or backups of anything you enter.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>gym_run</code>, <code>example_loaded</code>, <code>scenarios_compared</code>, <code>text_copied</code>, <code>csv_downloaded</code>, <code>file_saved</code>) are counted in this browser only, and you can switch that off below.</p>
+    <p>Related tools: the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a>, the <a href="../pickleball-facility-pro-forma/">pickleball facility pro forma</a> the <a href="../golf-simulator-bay-profit-calculator/">golf simulator bay profit calculator</a> and the <a href="../coworking-space-profit-calculator/">coworking space profit calculator</a>.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+  <script type="module">
+    import { solve, compareScenarios, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleScenario } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status");
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const A = {"capacity":"cp","openHours":"oh","visitHours":"vh","dayPasses":"dp","dayPassPrice":"dpp","members":"me","memberFee":"mf","memberVisits":"mv","shopSpend":"sh","shopCogsPct":"sc","kids":"yk","tuition":"yt","coachingPct":"yc","parties":"pa","partyPrice":"pp","partyCost":"pk","staff":"sf","wage":"wg","burdenPct":"bd","setters":"st","rent":"rt","utilities":"ut","insurance":"in","otherFixed":"of","processPct":"pc","reservePct":"rs","buildCost":"bc","fitout":"fo","targetMargin":"tm","financedPct":"fp","aprPct":"ap","termMonths":"tl","targetPaybackMonths":"tp"};
+    const B = {"dayPasses":"sdp","dayPassPrice":"sdpp","members":"sme","memberFee":"smf","kids":"syk","tuition":"syt","parties":"spa"};
+    let R = null;
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, Number($("#" + id).value)]));
+    const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
+    function run() {
+      const res = solve(readMap(A));
+      if (!res.ok) { status.textContent = res.errors.join(" "); return false; }
+      R = res; status.textContent = "Done. Scroll down."; render(); return true;
+    }
+    function render() {
+      $("#result").hidden = false;
+      $("#notices").innerHTML = R.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("");
+      $("#big").innerHTML = [[cents(R.profit), "profit a month, before tax"], [R.margin === null ? "n/a" : pct(R.margin), "margin"], [R.paybackMonths === null ? "never" : R.paybackMonths.toFixed(1), "months to pay back the build"], [R.breakevenMembers === null ? "n/a" : Math.ceil(R.breakevenMembers), "members to break even (with day passes in proportion)"], [R.minPassPrice === null ? "n/a" : cents(R.minPassPrice), "lowest day pass for your margin"], [R.minMemberFee === null ? "n/a" : cents(R.minMemberFee), "lowest membership fee for your margin"], [R.minPaybackPassPrice === null ? "n/a" : cents(R.minPaybackPassPrice), "lowest day pass for your payback"]].map(([v, l]) => "<div><strong>" + esc(v) + "</strong>" + esc(l) + "</div>").join("");
+      const row = (a, b) => "<tr><td>" + a + '</td><td class="num">' + b + "</td></tr>";
+      $("#out tbody").innerHTML = [
+        row("Climber visits a month", R.visits.toFixed(0) + " (" + pct(R.utilisation) + " of comfortable capacity)"),
+        row("Day pass revenue", cents(R.passRevenue)), row("Membership revenue", cents(R.memberRevenue)), row("Youth program revenue", cents(R.youthRevenue)), row("Party revenue", cents(R.partyRevenue)), row("Rentals, shop and cafe revenue", cents(R.shopRevenue)), row("<strong>Revenue</strong>", "<strong>" + cents(R.revenue) + "</strong>"),
+        row("Shop and cafe cost", cents(R.shopCost)), row("Youth coaching", cents(R.coachingCost)), row("Party cost", cents(R.partyCost)), row("Card and billing fees", cents(R.cardFees)), row("Replacement reserve", cents(R.reserve)), row("Front desk staff", cents(R.staffCost)), row("All fixed costs (incl. staff)", cents(R.fixed)), row("Loan payment", cents(R.loanPayment)),
+        row("<strong>Total costs</strong>", "<strong>" + cents(R.costs) + "</strong>"), row("<strong>Profit a month</strong>", "<strong>" + cents(R.profit) + "</strong>"), row("Profit per visit", R.profitPerVisit === null ? "n/a" : cents(R.profitPerVisit)),
+        row("Build cost (walls + fit-out)", money(R.capex)), row("Operating profit before the loan", cents(R.operating)), row("Payback (years)", R.paybackYears === null ? "never" : R.paybackYears.toFixed(1)), row("Profit a year", money(R.annualProfit)),
+      ].join("");
+      $("#sens tbody").innerHTML = R.sensitivity.map((s) => "<tr><td>" + s.change + '%</td><td class="num">' + Math.round(s.members) + " members, " + Math.round(s.dayPasses) + ' passes</td><td class="num">' + money(s.profit) + '</td><td class="num">' + money(s.annualProfit) + '</td><td class="num">' + (s.paybackMonths === null ? "never" : s.paybackMonths.toFixed(1)) + "</td></tr>").join("");
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function compare() {
+      const c = compareScenarios(readMap(A), readMap(B));
+      if (!c.ok) { status.textContent = c.errors.join(" "); $("#compare-out").innerHTML = ""; return false; }
+      const col = (x) => "<td class=\"num\">" + x + "</td>";
+      const line = (n, f) => "<tr><td>" + n + "</td>" + col(f(c.a)) + col(f(c.b)) + "</tr>";
+      $("#compare-out").innerHTML = c.notes.map((n) => '<div class="warn">' + esc(n) + "</div>").join("") + '<div class="scroll"><table><thead><tr><th>Per month</th><th class="num">Scenario A</th><th class="num">Scenario B</th></tr></thead><tbody>' +
+        line("Members", (x) => x.input.members) + line("Membership fee", (x) => cents(x.input.memberFee)) + line("Day pass price", (x) => cents(x.input.dayPassPrice)) + line("Revenue", (x) => cents(x.revenue)) + line("Total costs", (x) => cents(x.costs)) + line("Profit", (x) => cents(x.profit)) +
+        line("Payback (months)", (x) => (x.paybackMonths === null ? "never" : x.paybackMonths.toFixed(1))) + "</tbody></table></div>";
+      status.textContent = "Compared."; return true;
+    }
+    $("#solve").addEventListener("click", () => setTimeout(() => { if (run()) record("gym_run"); }, 0));
+    $("#load-example").addEventListener("click", () => { fillMap(A, sampleInput()); fillMap(B, sampleScenario()); setTimeout(() => { if (run()) { record("example_loaded"); status.textContent = "Example: a 120-climber gym with invented numbers. Enter yours above."; } }, 0); });
+    $("#compare").addEventListener("click", () => setTimeout(() => { if (compare()) record("scenarios_compared"); }, 0));
+    $("#copy-text").addEventListener("click", async () => { if (!R) return; try { await navigator.clipboard.writeText(resultText(R)); status.textContent = "Copied."; record("text_copied"); } catch { status.textContent = "Your browser blocked copying. Use Download CSV instead."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!R) return; download("climbing-gym-profit.csv", resultCsv(R), "text/csv"); record("csv_downloaded"); });
+    $("#save-file").addEventListener("click", () => { if (!R) return; download("climbing-gym.json", serializeState(R.input, readMap(B)), "application/json"); record("file_saved"); });
+    $("#load-file-btn").addEventListener("click", () => $("#load-file").click());
+    $("#load-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; const out = parseState(await f.text()); if (out.error) { status.textContent = out.error; return; } fillMap(A, out.state); if (out.scenario) fillMap(B, out.scenario); run(); });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

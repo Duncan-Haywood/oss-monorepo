@@ -1,0 +1,42 @@
+E1 pure sequential: wrong-cascade prob, expected revealed signals, herd ceiling vs independent majority
+   a   P(wrong casc)  E[agents]  herd acc  maj(3)  maj(5)  maj(11)  maj(101)
+ 0.55       0.4010      3.960    0.5990  0.5748  0.5931   0.6331    0.8438
+ 0.60       0.3077      3.846    0.6923  0.6480  0.6826   0.7535    0.9791
+ 0.65       0.2248      3.670    0.7752  0.7183  0.7648   0.8513    0.9990
+ 0.70       0.1552      3.448    0.8448  0.7840  0.8369   0.9218    1.0000
+ 0.80       0.0588      2.941    0.9412  0.8960  0.9421   0.9883    1.0000
+ 0.90       0.0122      2.439    0.9878  0.9720  0.9914   0.9997    1.0000
+
+E2 accuracy of the n-th sequential verdict (a=0.7) vs one verifier and majority of n
+n=  1  seq 0.7000  maj 0.7000
+n=  2  seq 0.7000  maj 0.7000
+n=  3  seq 0.7840  maj 0.7840
+n=  4  seq 0.7840  maj 0.7840
+n=  6  seq 0.8193  maj 0.8369
+n= 10  seq 0.8403  maj 0.9012
+n= 30  seq 0.8448  maj 0.9883
+
+E3 committed first batch of m sealed verifiers, then sequential (herd accuracy / expected paid verifiers)
+ a=0.6
+   m=  0  acc 0.6923  paid   3.85  maj(paid,rounded odd) 0.6826
+   m=  1  acc 0.6923  paid   3.85  maj(paid,rounded odd) 0.6826
+   m=  2  acc 0.6923  paid   3.85  maj(paid,rounded odd) 0.6826
+   m=  3  acc 0.7145  paid   5.05  maj(paid,rounded odd) 0.7102
+   m=  5  acc 0.7357  paid   6.64  maj(paid,rounded odd) 0.7102
+   m=  7  acc 0.7549  paid   8.38  maj(paid,rounded odd) 0.7334
+   m= 11  acc 0.7875  paid  12.05  maj(paid,rounded odd) 0.7712
+   m= 21  acc 0.8463  paid  21.64  maj(paid,rounded odd) 0.8364
+   m= 41  acc 0.9135  paid  41.31  maj(paid,rounded odd) 0.9087
+ a=0.7
+   m=  0  acc 0.8448  paid   3.45  maj(paid,rounded odd) 0.8369
+   m=  1  acc 0.8448  paid   3.45  maj(paid,rounded odd) 0.8369
+   m=  2  acc 0.8448  paid   3.45  maj(paid,rounded odd) 0.8369
+   m=  3  acc 0.8752  paid   4.54  maj(paid,rounded odd) 0.8369
+   m=  5  acc 0.9008  paid   6.08  maj(paid,rounded odd) 0.8740
+   m=  7  acc 0.9209  paid   7.79  maj(paid,rounded odd) 0.9012
+   m= 11  acc 0.9491  paid  11.46  maj(paid,rounded odd) 0.9376
+   m= 21  acc 0.9821  paid  21.14  maj(paid,rounded odd) 0.9786
+   m= 41  acc 0.9975  paid  41.02  maj(paid,rounded odd) 0.9971
+
+E4 Monte-Carlo with full Bayesian agents (no walk assumption), a=0.7, 6 verifiers, 100000 markets
+  wrong final verdict  MC 0.1803   DP 0.1807   cascade limit 0.1552

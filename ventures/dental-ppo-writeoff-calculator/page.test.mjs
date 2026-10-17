@@ -239,3 +239,7 @@ test('the negotiator comparison page links back to the calculator', () => {
   assert.match(vsPage, /href="\.\/"/);
   assert.match(page, /href="\.\/vs-ppo-fee-negotiators\.html"/);
 });
+
+test("links to the dental associate pay calculator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/dental-associate-pay-calculator\/"/);
+});

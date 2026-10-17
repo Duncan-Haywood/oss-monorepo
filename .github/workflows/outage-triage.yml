@@ -31,23 +31,17 @@ name: Outage triage
 # is absent.
 
 on:
+  # Dispatch only. The pull_request trigger was dropped 2026-10-01: the Hetzner
+  # servers this probes were deleted by the owner, so a PR run would only probe
+  # released IPs that may now belong to someone else.
   workflow_dispatch:
-  # Also on pull requests that touch the tool itself, so a change to the
-  # decision tree is exercised against the real hosts rather than only against
-  # its stubs. That is what produced the first reading: the workflow could not
-  # be dispatched before it existed on the default branch.
-  pull_request:
-    paths:
-      - "platform/ci/outage_triage.py"
-      - "platform/ci/test_outage_triage.py"
-      - ".github/workflows/outage-triage.yml"
 
 permissions:
   contents: read
 
 jobs:
   triage:
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Bounded by the dropped-packet case: every port is probed serially at
     # TCP_TIMEOUT each, so the worst case is well under a minute. The ceiling
     # matters because Actions minutes on this account are metered and have
@@ -55,6 +49,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:

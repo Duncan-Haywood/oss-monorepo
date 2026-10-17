@@ -36,7 +36,7 @@ def _load(name: str, path: Path):
 # gitops/ci/ is a manifest directory, not an importable package.
 _sync = _load("sync_readme_counts", CI / "sync_readme_counts.py")
 
-RUNS_ON = "${{ vars.CI_RUNNER || 'ubuntu-latest' }}"
+RUNS_ON = "${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}"
 
 # Jobs that must stay off the switch: `container:` and `services:` both need a
 # Docker daemon to pull and run an image alongside the job, and the
@@ -186,7 +186,9 @@ def test_sync_readme_counts_reports_a_reworded_sentence_rather_than_guessing() -
         _sync.rewrite("no count sentence here", 1, 2, 3)
 
 
-_PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
+# A hyphen is a word boundary, so a bare \b matched the interpreter inside a venture slug
+# (`ball-python-morph-pairing-planner`) and demanded a setup-python step for a node-only job.
+_PYTHON_NEEDLE = re.compile(r"(?<![\w-])(python3?|pip3?)(?![\w-])")
 _NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
 # Not an interpreter, but the same failure shape: a binary GitHub's image
 # happens to preinstall and the runner image does not. `shellcheck-py` is how
@@ -488,29 +490,24 @@ def test_runner_internet_egress_is_scoped_to_https() -> None:
     assert internet_rule.get("ports") == [{"protocol": "TCP", "port": 443}], internet_rule.get("ports")
 
 
-def test_runner_ssh_carveout_is_scoped_to_the_two_boxes_on_port_22_only() -> None:
-    # hetzner-gitops-ci.yml's `preflight` job SSHes to the two Hetzner boxes
-    # and reads the same `vars.CI_RUNNER` switch as every other job, so it
-    # needs port 22 to exactly those two addresses once CI_RUNNER is ever
-    # flipped to self-hosted -- the 443-only rule above does not cover it.
-    # Pinned narrowly so a future edit cannot quietly widen this into a
-    # second general-internet rule instead of a two-address carve-out.
+def test_runner_has_no_ssh_carveout_to_the_deleted_hetzner_boxes() -> None:
+    # Until 2026-10-01 this policy carried a port-22 egress rule to
+    # 89.167.29.39/32 and 157.180.80.188/32 for hetzner-gitops-ci.yml's
+    # `preflight` job. The owner deleted both servers that day and the job
+    # was removed; a released IP can be reassigned to a stranger, so no
+    # runner may be allowed to SSH to either address again.
     policy = _ci_docs()["NetworkPolicy"]["spec"]
     ssh_rules = [
         r
         for r in policy["egress"]
-        if r.get("ports") == [{"protocol": "TCP", "port": 22}]
+        if any(p.get("port") == 22 for p in r.get("ports", []))
     ]
-    assert len(ssh_rules) == 1, ssh_rules
-    cidrs = {block["ipBlock"]["cidr"] for block in ssh_rules[0]["to"]}
-    assert cidrs == {"89.167.29.39/32", "157.180.80.188/32"}, cidrs
-
-    # Both addresses are the literal ones the preflight job itself SSHes to,
-    # so the policy cannot silently drift from what the workflow actually
-    # needs.
+    assert ssh_rules == [], ssh_rules
+    text = (REPO / "gitops" / "ci" / "networkpolicy.yaml").read_text()
     workflow = (REPO / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
-    assert "89.167.29.39" in workflow
-    assert "157.180.80.188" in workflow
+    for ip in ("89.167.29.39", "157.180.80.188"):
+        assert ip not in text, ip
+        assert ip not in workflow, ip
 
 
 def test_runner_pod_runs_as_the_images_own_unprivileged_user() -> None:
@@ -593,3 +590,11 @@ def _gib(value: str) -> float:
     if value.endswith("Mi"):
         return float(value[:-2]) / 1024
     raise AssertionError(f"unhandled memory unit: {value}")
+
+
+def test_fork_pull_requests_never_reach_a_self_hosted_runner() -> None:
+    # The repository is public. A fork PR must land on a GitHub-hosted runner
+    # whatever CI_RUNNER says, and the guard has to come before the variable.
+    assert RUNS_ON.startswith(
+        "${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER"
+    )

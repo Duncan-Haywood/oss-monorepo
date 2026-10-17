@@ -105,11 +105,49 @@ function party(node) {
     || textOf(partyNode, "Name", false);
   const mapped = { id: partyIdentifier(partyNode), name };
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
+    // A national tax number travels in the same element with TaxScheme/ID "FC"
+    // (or similar); only a VAT scheme -- or an unlabelled one -- is a VAT ID.
+    const schemeId = nestedText(scheme, "TaxScheme", "ID").toUpperCase();
+    if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
     if (vatId) {
       mapped.vat_id = vatId;
       break;
     }
+  }
+  const addressNode = descendants(partyNode, "PostalAddress")[0];
+  if (addressNode) {
+    const street = textOf(addressNode, "StreetName", false);
+    const city = textOf(addressNode, "CityName", false);
+    const postal = textOf(addressNode, "PostalZone", false);
+    const country = nestedText(addressNode, "Country", "IdentificationCode");
+    if (street) mapped.street = street;
+    if (city) mapped.city = city;
+    if (postal) mapped.postal_code = postal;
+    if (country) mapped.country = country;
+  }
+  const contactNode = descendants(partyNode, "Contact")[0];
+  if (contactNode) {
+    const contact = {};
+    const cName = textOf(contactNode, "Name", false);
+    const phone = textOf(contactNode, "Telephone", false);
+    const email = textOf(contactNode, "ElectronicMail", false);
+    if (cName) contact.name = cName;
+    if (phone) contact.phone = phone;
+    if (email) contact.email = email;
+    if (Object.keys(contact).length) mapped.contact = contact;
+  }
+  for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
+    if (nestedText(scheme, "TaxScheme", "ID").toUpperCase() === "FC") {
+      const number = textOf(scheme, "CompanyID", false);
+      if (number) mapped.tax_number = number;
+      break;
+    }
+  }
+  const legalNode = descendants(partyNode, "PartyLegalEntity").flatMap((entity) => descendants(entity, "CompanyID"))[0];
+  if (legalNode && legalNode.text.trim()) {
+    const scheme = (legalNode.attrs && legalNode.attrs.schemeID) ? legalNode.attrs.schemeID.trim() : "";
+    mapped.legal_id = { id: legalNode.text.trim(), scheme };
   }
   const endpointNode = descendants(partyNode, "EndpointID")[0];
   if (endpointNode) {
@@ -314,8 +352,17 @@ export function parseUblInvoice(source) {
   const period = invoicePeriod(root);
   if (period) invoice.period = period;
   Object.assign(invoice, commercialReferences(root));
+  const specification = textOf(root, "CustomizationID", false);
+  if (specification) invoice.specification_id = specification;
+  const businessProcess = textOf(root, "ProfileID", false);
+  if (businessProcess) invoice.profile_id = businessProcess;
   const adjustments = headerAdjustments(root);
   if (adjustments.length) invoice.adjustments = adjustments;
+  const notes = [
+    ...root.children.filter((child) => child.name === "Note").map((child) => child.text.trim()),
+    ...root.children.filter((child) => child.name === "PaymentTerms").flatMap((terms) => descendants(terms, "Note").map((n) => n.text.trim())),
+  ].filter(Boolean);
+  if (notes.length) invoice.notes = notes;
   return invoice;
 }
 

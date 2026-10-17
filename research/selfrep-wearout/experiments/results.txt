@@ -1,0 +1,49 @@
+inputs from selfrep-growth/selfrep-closure (assumed): W=50.0 h, V=170.3 units per copy; import budget B=4 units/h unless stated
+horizon 20000 h, start from 1 new machine, 100 runs per row, seed 0; lognormal build CV 0.2
+DES = fleet size averaged over the last quarter of each run, median [5th-95th pct] over the runs that survived; dead = share of runs with no machine left at the end.
+fluid = Euler integral of the ODE at the horizon; fixed pt = closed-form import-limited equilibrium (exponential life); with interrupted builds = the same equilibrium charging for builds cut short by retirement.
+
+== A. mean lifetime L sweep (exponential life, no failures, no recycling)
+L=40 h                         L>W/(1-f)? False  DES     0.0 [    0.0-    0.0] dead 1.00  fluid     0.0  fixed pt     0.0  with interrupted builds     0.0
+L=55 h                         L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     1.3  fixed pt     1.3  with interrupted builds     0.5
+L=75 h                         L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     1.8  fixed pt     1.8  with interrupted builds     0.9
+L=100 h                        L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     2.3  fixed pt     2.3  with interrupted builds     1.4
+L=200 h                        L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     4.7  fixed pt     4.7  with interrupted builds     3.7
+L=500 h                        L>W/(1-f)? True   DES    10.3 [    8.9-   12.1] dead 0.20  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+L=2000 h                       L>W/(1-f)? True   DES    45.3 [   39.1-   50.7] dead 0.03  fluid    47.0  fixed pt    47.0  with interrupted builds    45.8
+L=8000 h                       L>W/(1-f)? True   DES   165.8 [  152.5-  176.3] dead 0.00  fluid   172.5  fixed pt   187.9  with interrupted builds   186.7
+
+== B. Weibull shape at the same mean life (L=500 h; shape 1 = constant hazard, 3 = wear-out)
+shape 1                        L>W/(1-f)? True   DES    10.3 [    8.9-   12.1] dead 0.20  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+shape 2                        L>W/(1-f)? True   DES    11.0 [   10.0-   12.2] dead 0.01  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+shape 3                        L>W/(1-f)? True   DES    11.3 [   10.3-   12.1] dead 0.00  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+shape 5                        L>W/(1-f)? True   DES    11.7 [   11.0-   12.1] dead 0.00  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+
+== C. recycling share rho of vitamin value recovered at retirement (L=500 h)
+rho 0.0                        L>W/(1-f)? True   DES    10.3 [    8.9-   12.1] dead 0.20  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+rho 0.25                       L>W/(1-f)? True   DES    13.6 [   11.6-   15.2] dead 0.20  fluid    15.7  fixed pt    15.7  with interrupted builds    13.7
+rho 0.5                        L>W/(1-f)? True   DES    19.3 [   16.5-   21.5] dead 0.20  fluid    23.5  fixed pt    23.5  with interrupted builds    19.4
+rho 0.75                       L>W/(1-f)? True   DES    32.5 [   29.7-   35.8] dead 0.20  fluid    47.0  fixed pt    47.0  with interrupted builds    33.1
+rho 0.95                       L>W/(1-f)? True   DES    73.4 [   66.0-   82.6] dead 0.20  fluid   203.2  fixed pt   234.8  with interrupted builds    75.7
+
+== D. build failure probability f (L=500 h, rho=0.5)
+fail 0.0                       L>W/(1-f)? True   DES    19.3 [   16.5-   21.5] dead 0.20  fluid    23.5  fixed pt    23.5  with interrupted builds    19.4
+fail 0.1                       L>W/(1-f)? True   DES    16.4 [   14.0-   18.7] dead 0.23  fluid    19.2  fixed pt    19.2  with interrupted builds    16.1
+fail 0.3                       L>W/(1-f)? True   DES    11.1 [    9.2-   13.2] dead 0.27  fluid    12.6  fixed pt    12.6  with interrupted builds    10.9
+fail 0.5                       L>W/(1-f)? True   DES     6.7 [    5.5-    8.8] dead 0.49  fluid     7.8  fixed pt     7.8  with interrupted builds     6.9
+
+== E. import budget B (L=500 h)
+B=1/h                          L>W/(1-f)? True   DES     3.3 [    3.3-    3.3] dead 0.98  fluid     2.9  fixed pt     2.9  with interrupted builds     2.7
+B=2/h                          L>W/(1-f)? True   DES     5.5 [    4.9-    6.6] dead 0.53  fluid     5.9  fixed pt     5.9  with interrupted builds     5.3
+B=4/h                          L>W/(1-f)? True   DES    10.3 [    8.9-   12.1] dead 0.20  fluid    11.7  fixed pt    11.7  with interrupted builds    10.6
+B=8/h                          L>W/(1-f)? True   DES    21.2 [   19.0-   23.7] dead 0.12  fluid    23.5  fixed pt    23.5  with interrupted builds    21.2
+B=16/h                         L>W/(1-f)? True   DES    42.2 [   38.7-   46.7] dead 0.12  fluid    47.0  fixed pt    47.0  with interrupted builds    42.5
+
+== F. seed fleet size n0 (L=200 h; every n0=1 run died out in A)
+n0=1                           L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     4.7  fixed pt     4.7  with interrupted builds     3.7
+n0=2                           L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     4.7  fixed pt     4.7  with interrupted builds     3.7
+n0=4                           L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     4.7  fixed pt     4.7  with interrupted builds     3.7
+n0=8                           L>W/(1-f)? True   DES     0.0 [    0.0-    0.0] dead 1.00  fluid     4.7  fixed pt     4.7  with interrupted builds     3.7
+
+== G. longer horizon for the high-recycling gap in C (rho 0.95, L=500 h; 100000 h, 30 runs)
+rho 0.95, 100000 h             L>W/(1-f)? True   DES    76.3 [   73.0-   79.7] dead 0.17  fluid   234.8  fixed pt   234.8  with interrupted builds    75.7

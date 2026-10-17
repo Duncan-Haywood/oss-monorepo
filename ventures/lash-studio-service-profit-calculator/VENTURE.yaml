@@ -1,0 +1,52 @@
+name: lash-studio-service-profit-calculator
+description: >-
+  Free browser tool for lash artists and small lash studios: enter each service's price, chair and clean-up time, supplies,
+  no-show rate and deposit, plus rent, overhead and card fees, to see what a full set, a fill or a volume set takes home per
+  hour of chair time, rank up to three services, and find the price that reaches a target and the bookings a month that cover
+  the studio. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest rows were voiceover-project-rate-calculator 0.22 and
+# dog-grooming-profit-calculator 0.18 (different services); screened-out.md has no lash or esthetics row. Siblings in the
+# appointment-service family (massage-therapist-profit-calculator, nail-tech-booth-rent-calculator) do not price lash services.
+#
+# Why this niche: lash extension is a large, fast-growing solo-service trade, mostly independent artists renting a suite or
+# chair. Prices are set by what the neighbour charges, while time per set (2-3 hours), lash and glue cost, late cancellations,
+# card fees and rent are rarely totalled into a per-hour figure. Fills and full sets have very different economics and a
+# returning client is worth many visits.
+#
+# First visitor: people searching "lash extension pricing calculator", "how much to charge for lash extensions" and "lash
+# tech profit per hour"; lash-artist Facebook groups, r/lashtech and Instagram educators. Volume not measured with an
+# external tool.
+#
+# Liability boundary: arithmetic on typed figures; not tax, business or licensing advice; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end for a paid booking/deposit
+# template or lash-education referral.
+
+hypotheses:
+  - claim: >-
+      Independent lash artists will use a private calculator that turns price, chair time, supplies, no-shows and rent
+      into take-home per hour, and will change a price or a deposit after seeing the figure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/lash-studio-service-profit-calculator/
+  analytics: null

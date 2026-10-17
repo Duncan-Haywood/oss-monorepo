@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "occlusion-twin"
+version = "0.1.0"
+description = "Occlusion twin: a lidar twin that gives each beam an independent visibility probability is exact only when the beam spacing exceeds the occluder diameter; for closer beams the exact blind probability of a Poisson-occluder field is higher, and the gap is closed-form"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

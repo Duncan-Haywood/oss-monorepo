@@ -1,0 +1,39 @@
+name: uk-scottish-income-tax-calculator
+description: >-
+  Free browser tool for Scottish taxpayers: enter gross salary, pension and student loan to see 2026/27 Scottish income tax band by band (19% to 48%), National Insurance, loan deductions and take-home pay per year, month and week, the marginal rate including the 67.5% allowance taper, and the same salary taxed in the rest of the UK. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-14 in a new-venture-first session; uk-take-home-pay-calculator is explicitly England/Wales/NI and lists Scotland as not modelled, so no Scottish tool existed in ventures/.
+#
+# First visitor: a Scottish employee, or someone weighing a job move across the border, searching "Scottish income tax calculator", "take home pay Scotland", "£50,000 after tax Scotland".
+# Large, evergreen query family with a spike each April and after each Scottish Budget; volume not measured. Bands changed for 2026/27, so last year's pages are stale. Sibling of the UK take-home, student loan and 100k trap tools.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: salary-by-salary and city-by-city landing pages and an employer relocation/offer-comparison sheet behind an env-var switch.
+#
+# Liability: Scottish bands checked against gov.scot's 2026/27 page in the building session (proposed in the January 2026 Budget; the Parliament must still pass the Scottish Rate Resolution); student loan thresholds are 2025/26.
+# Every result names gov.scot and GOV.UK as sources to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide. Ethical risk is an overstated take-home figure; mitigated by sourcing and listing what is unmodelled.
+hypotheses:
+  - claim: >-
+      Scottish employees and people considering a move to or from Scotland will use a free calculator to see take-home pay under the Scottish bands and how it differs from the rest of the UK.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a band, rate or threshold differs from gov.scot or HMRC guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/uk-scottish-income-tax-calculator/
+  analytics: null

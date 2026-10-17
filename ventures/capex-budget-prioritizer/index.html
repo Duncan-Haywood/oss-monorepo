@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Capex Budget Prioritizer: Which Projects to Fund — Free</title>
+  <meta name="description" content="Free capital budgeting tool for small businesses: list the equipment, vehicle and software projects you want, enter your budget, and get the set with the highest total net present value, with options, must-dos and payback. Nothing uploaded.">
+  <meta property="og:title" content="Capex budget prioritizer">
+  <meta property="og:description" content="Which projects should I fund with a limited budget? The best set by net present value, checked exactly, from your own numbers. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M7 22 13 14l5 4 7-9' stroke='%23fff' stroke-width='2.400' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Capex Budget Prioritizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Choose which equipment, vehicle, software or building projects to fund from a fixed budget by maximising total net present value, checked exactly, with mutually exclusive options and must-do projects. Runs in your browser.","featureList":"Net present value, internal rate of return, payback, exact best set under a budget, option groups, must-do projects, comparison with payback-first and return-per-dollar shortcuts, value of extra budget, discount-rate sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide which equipment to buy when I cannot afford everything?","acceptedAnswer":{"@type":"Answer","text":"Give each project a net present value: the savings or extra profit it brings each year, discounted back to today at the return you could earn elsewhere, minus what it costs. Then pick the set of projects with the highest total value that fits the budget. Ranking by payback or by return per dollar is a shortcut that can leave money unspent or skip a better combination. This tool checks every combination exactly."}},{"@type":"Question","name":"What discount rate should I use?","acceptedAnswer":{"@type":"Answer","text":"Use the return you would demand from a risky use of the same money: the interest on a business loan, or what you would expect from putting it back into the business. 10 to 15 percent is common for a small business. The tool re-solves at 5 points higher and lower so you can see whether the answer depends on the rate."}},{"@type":"Question","name":"What are options in the same group?","acceptedAnswer":{"@type":"Answer","text":"Give two projects the same group name, for example van, and the tool will take at most one of them. Use it for two quotes on the same machine, buy against lease, or a new against a used one."}},{"@type":"Question","name":"What is a must-do project?","acceptedAnswer":{"@type":"Answer","text":"Something you will do whatever its value, such as a roof repair or a compliance fix. It is always included and its cost comes out of the budget first."}},{"@type":"Question","name":"Does it tell me what an extra dollar of budget is worth?","acceptedAnswer":{"@type":"Answer","text":"Yes. It shows the next budget level at which a better set becomes affordable and how much more value that set brings, so you can decide whether to borrow, wait for a season or trim a project."}},{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Benefits are your own estimates and are treated as certain and level each year; taxes, financing costs, depreciation and inflation are not modelled."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">CAPEX BUDGET PRIORITIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>I can't afford every upgrade. Which projects should I fund?</h1>
+    <p>List the equipment, vehicles, software or building work you are considering, with what each costs and what it saves or earns each year. Enter your budget and the tool finds the combination with the highest total net present value that fits, shows how that compares with picking by payback or by return per dollar, and says what the next slice of budget would unlock.</p>
+    <p class="note">Arithmetic on figures you type. Not financial or tax advice. The example figures are placeholders, not any business's costs or savings.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-s">
+      <h2 id="h-s">Budget</h2>
+      <div class="grid">
+        <div><label for="budget">Budget to spend ($)</label><input id="budget" type="number" step="any" value="0"><p class="note">Total cash you can put into projects this period.</p></div>
+        <div><label for="discountPct">Discount rate (% a year)</label><input id="discountPct" type="number" step="any" value="0"><p class="note">Return you would require from the same money. 10 to 15 is common.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t0">
+      <h2 id="h-t0">Project 1</h2>
+      <div class="grid">
+        <div><label for="t0_name">Project</label><input id="t0_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t0_cost">Cost up front ($)</label><input id="t0_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t0_annualBenefit">Benefit each year ($)</label><input id="t0_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t0_years">Years it pays</label><input id="t0_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t0_salvage">Value at the end ($)</label><input id="t0_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t0_group">Option group</label><input id="t0_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t0_mustDo">Must do?</label><select id="t0_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t1">
+      <h2 id="h-t1">Project 2</h2>
+      <div class="grid">
+        <div><label for="t1_name">Project</label><input id="t1_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t1_cost">Cost up front ($)</label><input id="t1_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t1_annualBenefit">Benefit each year ($)</label><input id="t1_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t1_years">Years it pays</label><input id="t1_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t1_salvage">Value at the end ($)</label><input id="t1_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t1_group">Option group</label><input id="t1_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t1_mustDo">Must do?</label><select id="t1_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t2">
+      <h2 id="h-t2">Project 3</h2>
+      <div class="grid">
+        <div><label for="t2_name">Project</label><input id="t2_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t2_cost">Cost up front ($)</label><input id="t2_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t2_annualBenefit">Benefit each year ($)</label><input id="t2_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t2_years">Years it pays</label><input id="t2_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t2_salvage">Value at the end ($)</label><input id="t2_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t2_group">Option group</label><input id="t2_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t2_mustDo">Must do?</label><select id="t2_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t3">
+      <h2 id="h-t3">Project 4</h2>
+      <div class="grid">
+        <div><label for="t3_name">Project</label><input id="t3_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t3_cost">Cost up front ($)</label><input id="t3_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t3_annualBenefit">Benefit each year ($)</label><input id="t3_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t3_years">Years it pays</label><input id="t3_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t3_salvage">Value at the end ($)</label><input id="t3_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t3_group">Option group</label><input id="t3_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t3_mustDo">Must do?</label><select id="t3_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t4">
+      <h2 id="h-t4">Project 5</h2>
+      <div class="grid">
+        <div><label for="t4_name">Project</label><input id="t4_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t4_cost">Cost up front ($)</label><input id="t4_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t4_annualBenefit">Benefit each year ($)</label><input id="t4_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t4_years">Years it pays</label><input id="t4_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t4_salvage">Value at the end ($)</label><input id="t4_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t4_group">Option group</label><input id="t4_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t4_mustDo">Must do?</label><select id="t4_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t5">
+      <h2 id="h-t5">Project 6</h2>
+      <div class="grid">
+        <div><label for="t5_name">Project</label><input id="t5_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t5_cost">Cost up front ($)</label><input id="t5_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t5_annualBenefit">Benefit each year ($)</label><input id="t5_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t5_years">Years it pays</label><input id="t5_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t5_salvage">Value at the end ($)</label><input id="t5_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t5_group">Option group</label><input id="t5_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t5_mustDo">Must do?</label><select id="t5_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t6">
+      <h2 id="h-t6">Project 7</h2>
+      <div class="grid">
+        <div><label for="t6_name">Project</label><input id="t6_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t6_cost">Cost up front ($)</label><input id="t6_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t6_annualBenefit">Benefit each year ($)</label><input id="t6_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t6_years">Years it pays</label><input id="t6_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t6_salvage">Value at the end ($)</label><input id="t6_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t6_group">Option group</label><input id="t6_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t6_mustDo">Must do?</label><select id="t6_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t7">
+      <h2 id="h-t7">Project 8</h2>
+      <div class="grid">
+        <div><label for="t7_name">Project</label><input id="t7_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t7_cost">Cost up front ($)</label><input id="t7_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t7_annualBenefit">Benefit each year ($)</label><input id="t7_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t7_years">Years it pays</label><input id="t7_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t7_salvage">Value at the end ($)</label><input id="t7_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t7_group">Option group</label><input id="t7_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t7_mustDo">Must do?</label><select id="t7_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t8">
+      <h2 id="h-t8">Project 9</h2>
+      <div class="grid">
+        <div><label for="t8_name">Project</label><input id="t8_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t8_cost">Cost up front ($)</label><input id="t8_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t8_annualBenefit">Benefit each year ($)</label><input id="t8_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t8_years">Years it pays</label><input id="t8_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t8_salvage">Value at the end ($)</label><input id="t8_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t8_group">Option group</label><input id="t8_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t8_mustDo">Must do?</label><select id="t8_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t9">
+      <h2 id="h-t9">Project 10</h2>
+      <div class="grid">
+        <div><label for="t9_name">Project</label><input id="t9_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t9_cost">Cost up front ($)</label><input id="t9_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t9_annualBenefit">Benefit each year ($)</label><input id="t9_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t9_years">Years it pays</label><input id="t9_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t9_salvage">Value at the end ($)</label><input id="t9_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t9_group">Option group</label><input id="t9_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t9_mustDo">Must do?</label><select id="t9_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t10">
+      <h2 id="h-t10">Project 11</h2>
+      <div class="grid">
+        <div><label for="t10_name">Project</label><input id="t10_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t10_cost">Cost up front ($)</label><input id="t10_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t10_annualBenefit">Benefit each year ($)</label><input id="t10_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t10_years">Years it pays</label><input id="t10_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t10_salvage">Value at the end ($)</label><input id="t10_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t10_group">Option group</label><input id="t10_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t10_mustDo">Must do?</label><select id="t10_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-t11">
+      <h2 id="h-t11">Project 12</h2>
+      <div class="grid">
+        <div><label for="t11_name">Project</label><input id="t11_name" type="text" value=""><p class="note">What it is, for example Convection oven.</p></div>
+        <div><label for="t11_cost">Cost up front ($)</label><input id="t11_cost" type="number" step="any" value="0"><p class="note">Purchase, installation and training.</p></div>
+        <div><label for="t11_annualBenefit">Benefit each year ($)</label><input id="t11_annualBenefit" type="number" step="any" value="0"><p class="note">Savings or extra profit per year, net of running costs.</p></div>
+        <div><label for="t11_years">Years it pays</label><input id="t11_years" type="number" step="any" value="0"><p class="note">How long the benefit lasts, 1 to 40.</p></div>
+        <div><label for="t11_salvage">Value at the end ($)</label><input id="t11_salvage" type="number" step="any" value="0"><p class="note">Resale or residual value after those years. Zero if none.</p></div>
+        <div><label for="t11_group">Option group</label><input id="t11_group" type="text" value=""><p class="note">Projects sharing a group name are alternatives: at most one is chosen. Leave blank otherwise.</p></div>
+        <div><label for="t11_mustDo">Must do?</label><select id="t11_mustDo"><option value="0">No</option><option value="1">Yes</option></select><p class="note">Yes means it is included whatever its value.</p></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Find the best set of projects</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <p class="note">A project needs a cost. Leave a project blank to leave it out. Up to 12 projects.</p>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions owners ask</h2>
+      <h3>How do I decide which equipment to buy when I cannot afford everything?</h3>
+      <p>Give each project a net present value: the savings or extra profit it brings each year, discounted back to today at the return you could earn elsewhere, minus what it costs. Then pick the set of projects with the highest total value that fits the budget. Ranking by payback or by return per dollar is a shortcut that can leave money unspent or skip a better combination. This tool checks every combination exactly.</p>
+      <h3>What discount rate should I use?</h3>
+      <p>Use the return you would demand from a risky use of the same money: the interest on a business loan, or what you would expect from putting it back into the business. 10 to 15 percent is common for a small business. The tool re-solves at 5 points higher and lower so you can see whether the answer depends on the rate.</p>
+      <h3>What are options in the same group?</h3>
+      <p>Give two projects the same group name, for example van, and the tool will take at most one of them. Use it for two quotes on the same machine, buy against lease, or a new against a used one.</p>
+      <h3>What is a must-do project?</h3>
+      <p>Something you will do whatever its value, such as a roof repair or a compliance fix. It is always included and its cost comes out of the budget first.</p>
+      <h3>Does it tell me what an extra dollar of budget is worth?</h3>
+      <p>Yes. It shows the next budget level at which a better set becomes affordable and how much more value that set brings, so you can decide whether to borrow, wait for a season or trim a project.</p>
+      <h3>Is this financial advice?</h3>
+      <p>No. It is arithmetic on figures you type. Benefits are your own estimates and are treated as certain and level each year; taxes, financing costs, depreciation and inflation are not modelled.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your benefit estimates are right, risk and uncertainty in them, taxes and depreciation, how you finance the purchase, inflation, projects that depend on one another, and spending that has to happen in a particular year. Benefits are treated as level and certain across the project's life.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../laundromat-machine-payback-calculator/">laundromat machine payback calculator</a> and the <a href="../solar-payback-calculator/">solar payback calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before you rely on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, ITEM_DEFAULTS, EXAMPLE_SHARED, EXAMPLE_ITEMS, MAX_PROJECTS, money, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const N = MAX_PROJECTS, SKEYS = Object.keys(SHARED_DEFAULTS), IKEYS = Object.keys(ITEM_DEFAULTS);
+    const fill = () => {
+      for (const k of SKEYS) $(k).value = EXAMPLE_SHARED[k];
+      for (let i = 0; i < N; i++) for (const k of IKEYS) $("t" + i + "_" + k).value = (EXAMPLE_ITEMS[i] || ITEM_DEFAULTS)[k];
+    };
+    const readAll = () => {
+      const shared = {}; for (const k of SKEYS) shared[k] = $(k).value;
+      const items = []; for (let i = 0; i < N; i++) { const t = {}; for (const k of IKEYS) t[k] = $("t" + i + "_" + k).value; items.push(t); }
+      return { shared, items };
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    const list = (a) => (a.length ? a.map(esc).join(", ") : "nothing");
+    let last = null;
+    function run() {
+      const { shared, items } = readAll();
+      const a = analyze(items, shared);
+      let h = "";
+      for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      h += `<div class="finding"><h4>Fund: ${list(a.best.names)}</h4><p>Together they cost ${money(a.best.cost)} of your ${money(a.shared.budget)} budget (${money(a.unspent)} left) and are worth ${money(a.best.value)} in net present value at ${a.shared.discountPct}%.</p></div>`;
+      h += `<div class="finding"><h4>Against the shortcuts</h4><p>Picking by shortest payback gives ${money(a.byPayback.value)} (${list(a.byPayback.names)}). Picking by best return per dollar gives ${money(a.byIndex.value)} (${list(a.byIndex.names)}). ${a.shortcutLoss > 0.5 ? "The exact answer is worth " + money(a.shortcutLoss) + " more than the better shortcut." : "Here the shortcuts find the same value."}</p></div>`;
+      if (a.next) h += `<div class="finding"><h4>What more budget would buy</h4><p>With ${money(a.next.extraBudget)} more you could fund ${list(a.next.names)}, adding ${money(a.next.extraValue)} of value.</p></div>`;
+      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.sensitivity.map((s) => "At " + s.rate + "% the best set " + (s.same ? "is the same" : "changes to " + list(a.projects.filter((_, i) => s.mask & (1 << i)).map((p) => p.name))) + " (" + money(s.value) + ").").join(" ")}</p></div>`;
+      if (a.negative.length) h += `<div class="finding"><span class="pill">Check</span> ${esc(a.negative.join(", "))} ${a.negative.length > 1 ? "do" : "does"} not earn back ${a.negative.length > 1 ? "their" : "its"} cost at ${a.shared.discountPct}% and ${a.negative.length > 1 ? "are" : "is"} left out whatever the budget.</div>`;
+      h += `<div class="finding"><h4>Every project</h4>${table(["Project", "Cost", "Value (NPV)", "Value per $", "Return (IRR)", "Payback", "In plan"], a.rows.map((r) => [esc(r.name) + (r.must ? " <small>(must do)</small>" : "") + (r.group ? " <small>(" + esc(r.group) + ")</small>" : ""), money(r.cost), money(r.npv), r.pi.toFixed(2), r.irr == null ? "none" : r.irr >= 1000 ? "1000%+" : Math.round(r.irr) + "%", r.payback == null ? "not within its life" : r.payback.toFixed(1) + " yr", r.chosen ? "Yes" : "No"]))}</div>`;
+      h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "capex-plan.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>

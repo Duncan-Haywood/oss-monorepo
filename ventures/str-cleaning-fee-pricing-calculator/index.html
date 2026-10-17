@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Short-Term Rental Cleaning Fee Calculator — Free, Runs in Your Browser</title>
+  <meta name="description" content="Free cleaning fee calculator for Airbnb and VRBO hosts: the fee that covers your cleaner, host profit and guest total price by stay length, and whether to roll the fee into the nightly rate. Nothing uploaded.">
+  <meta property="og:title" content="Short-Term Rental Cleaning Fee Calculator — free">
+  <meta property="og:description" content="Separate cleaning fee or higher nightly rate? Host profit and guest price for 1 to 14 night stays.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Short-Term Rental Cleaning Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compares a separate cleaning fee against rolling it into the nightly rate for a short-term rental host, with host profit and guest total price by stay length. Entirely client-side; nothing is uploaded.", "featureList": "break-even cleaning fee, separate fee vs rolled-in nightly rate, host profit by stay length, guest all-in price by stay length, minimum profitable stay"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I charge a cleaning fee or raise my nightly rate?", "acceptedAnswer": {"@type": "Answer", "text": "Both can earn the same money at your average stay length, but they behave differently. A separate fee collects the same cleaning money from every stay, so 1-night stays are protected. Rolling it into the nightly rate spreads it per night, so long stays overpay you and short stays underpay the cleaner. This calculator shows host profit under each, for stays from 1 to 14 nights, on your own numbers."}}, {"@type": "Question", "name": "How much cleaning fee do I need to charge to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Cleaning cost divided by one minus the host fee, because the platform takes its fee on the cleaning fee too. A $90 cleaner bill with a 3% host fee needs a fee of about $92.78. With a 15.5% host-only fee it needs about $106.51."}}, {"@type": "Question", "name": "Do guests see the cleaning fee in the price?", "acceptedAnswer": {"@type": "Answer", "text": "Major platforms now show the total price including fees up front, so hiding cost in a fee no longer helps search ranking or click-through. What matters is the all-in total for the guest's stay length, which this calculator shows for both structures."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies simple arithmetic to the numbers you enter and does not replace platform rules, local law or a qualified adviser."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHORT-TERM RENTAL CLEANING FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Separate cleaning fee, or roll it into the nightly rate?</h1>
+    <p>Enter your rate, cleaning fee and what your cleaner charges and see the <strong>fee that actually covers the cleaner after platform fees</strong>, <strong>your profit on stays from 1 to 14 nights</strong> under each structure, what the <strong>guest pays all-in</strong>, and the <strong>shortest stay that makes money</strong>.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this browser and never leave your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your listing and costs</h2>
+    <div class="grid">
+      <div>
+        <label for="nightly">Nightly rate ($)</label>
+        <input type="number" id="nightly" min="0" step="1" placeholder="e.g. 150">
+      </div>
+      <div>
+        <label for="cleaning-fee">Cleaning fee you charge now ($)</label>
+        <input type="number" id="cleaning-fee" min="0" step="1" placeholder="e.g. 100">
+      </div>
+      <div>
+        <label for="cleaning-cost">What your cleaner costs per turnover ($)</label>
+        <input type="number" id="cleaning-cost" min="0" step="1" placeholder="e.g. 90">
+      </div>
+      <div>
+        <label for="avg-stay">Average stay (nights)</label>
+        <input type="number" id="avg-stay" min="0" step="0.5" placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="host-fee">Platform host fee (%)</label>
+        <input type="number" id="host-fee" min="0" step="0.5" placeholder="e.g. 3 (split fee) or 15.5">
+      </div>
+      <div>
+        <label for="guest-fee">Platform guest service fee (%)</label>
+        <input type="number" id="guest-fee" min="0" step="0.5" placeholder="e.g. 14 (0 if host-only fee)">
+      </div>
+      <div>
+        <label for="night-cost">Variable cost per booked night ($)</label>
+        <input type="number" id="night-cost" min="0" step="1" placeholder="e.g. 10 (utilities, supplies)">
+      </div>
+      <div>
+        <label for="nights-per-month">Booked nights per month</label>
+        <input type="number" id="nights-per-month" min="0" step="1" placeholder="e.g. 18">
+      </div>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Compare structures</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your numbers, then click Compare structures.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By stay length</h3>
+    <table><thead><tr><th scope="col">Nights</th><th scope="col">Guest pays (separate fee)</th><th scope="col">Guest pays (rolled in)</th><th scope="col">Your profit (separate fee)</th><th scope="col">Your profit (rolled in)</th></tr></thead><tbody id="stay-table"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Separate fee.</strong> A stay of n nights brings in n x nightly rate + cleaning fee. The guest also pays the guest service fee on that; you pay the host fee.</li>
+      <li><strong>Rolled in.</strong> The nightly rate rises by cleaning fee / average stay and there is no cleaning fee, so revenue is identical at your average stay, more on longer stays, less on shorter ones.</li>
+      <li><strong>Profit per stay.</strong> Payout after the host fee, minus the cleaner's bill, minus variable cost per booked night. Profit is linear in nights, so the shortest profitable stay is solved exactly.</li>
+      <li><strong>Break-even cleaning fee.</strong> Cleaner's bill / (1 - host fee), since the platform's fee applies to the cleaning fee too.</li>
+      <li><strong>Not modelled:</strong> demand response to the displayed price, taxes and occupancy tax, weekly and monthly discounts, pet or extra-guest fees, damage, your own time cleaning, and platform rules that differ by region or change over time.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Should I charge a cleaning fee or raise my nightly rate?</h3>
+    <p>Both can earn the same money at your average stay length, but they behave differently. A separate fee collects the same cleaning money from every stay, so 1-night stays are protected. Rolling it into the nightly rate spreads it per night, so long stays overpay you and short stays underpay the cleaner. This calculator shows host profit under each, for stays from 1 to 14 nights, on your own numbers.</p>
+    <h3>How much cleaning fee do I need to charge to break even?</h3>
+    <p>Cleaning cost divided by one minus the host fee, because the platform takes its fee on the cleaning fee too. A $90 cleaner bill with a 3% host fee needs a fee of about $92.78. With a 15.5% host-only fee it needs about $106.51.</p>
+    <h3>Do guests see the cleaning fee in the price?</h3>
+    <p>Major platforms now show the total price including fees up front, so hiding cost in a fee no longer helps search ranking or click-through. What matters is the all-in total for the guest's stay length, which this calculator shows for both structures.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies simple arithmetic to the numbers you enter and does not replace platform rules, local law or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the inputs you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any pricing decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>comparison_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Want to see what your real bookings earned after cleaning cost? The <a href="../airbnb-earnings-report-analyzer/">Airbnb earnings report analyzer</a> reads your Transaction history in the browser.</p>
+    <p>Cleaning homes for recurring clients rather than turning over rentals? The <a href="../house-cleaning-quote-calculator/">house cleaning quote calculator</a> finds the price floor and the weekly or biweekly discount limit for a crew &mdash; nothing uploaded.</p>
+    <p>Also see the <a href="../str-host-payout-calculator/">short-term rental host payout calculator</a> and the <a href="../str-occupancy-tax-calculator/">occupancy tax calculator</a>.</p>
+    <p>Running a cleaning company with several crews? The <a href="../str-turnover-crew-planner/">STR turnover crew planner</a> picks which of the day's turnovers to take, which crew does each, and what a second crew adds.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { outcome, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["nightly", "cleaning-fee", "cleaning-cost", "avg-stay", "host-fee", "guest-fee", "night-cost", "nights-per-month"];
+    const num = (id) => Number($("#" + id).value.trim()) || 0;
+    const status = $("#form-status"), report = $("#report");
+
+    function runCalculate() {
+      const r = outcome({
+        nightly: num("nightly"), cleaningFee: num("cleaning-fee"), cleaningCost: num("cleaning-cost"),
+        avgStay: num("avg-stay"), hostFee: num("host-fee") / 100, guestFee: num("guest-fee") / 100,
+        nightCost: num("night-cost"), nightsPerMonth: num("nights-per-month"),
+      });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return; }
+      const ms = r.minProfitableStaySeparate;
+      $("#report-stats").innerHTML = `A cleaning fee of <strong>${money2(r.breakEvenFee)}</strong> covers your cleaner after platform fees. Rolling your ${money2(r.input.cleaningFee)} fee in means a nightly rate of <strong>${money2(r.rolledNightly)}</strong>. `
+        + (ms === null ? "No stay length is profitable at these costs." : ms === 0 ? "Every stay length is profitable under a separate fee." : `Under a separate fee a stay needs about <strong>${ms.toFixed(1)} nights</strong> to make money.`)
+        + (r.staysPerMonth > 0 ? ` At ${r.staysPerMonth.toFixed(1)} stays a month the cleaning fee nets <strong>${money(r.monthlyCleaningNet)}</strong> against the cleaner.` : "");
+      $("#report-findings").innerHTML = r.findings.map((f) => `
+        <div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4><p>${f.detail}</p></div>`).join("");
+      $("#stay-table").innerHTML = r.table.map((t) => `<tr><th scope="row">${t.nights}</th><td>${money(t.separate.guestTotal)}</td><td>${money(t.rolled.guestTotal)}</td><td>${money(t.separate.profit)}</td><td>${money(t.rolled.profit)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "";
+      record("comparison_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      const ex = { "nightly": 150, "cleaning-fee": 100, "cleaning-cost": 90, "avg-stay": 3, "host-fee": 3, "guest-fee": 14, "night-cost": 10, "nights-per-month": 18 };
+      for (const id of ids) $("#" + id).value = ex[id] ?? "";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $150 a night, $100 cleaning fee, $90 cleaner, 3-night average stay, 3% host fee and 14% guest fee, $10 a night variable cost, 18 nights booked a month.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = "";
+      report.hidden = true;
+      status.textContent = "Enter your numbers, then click Compare structures.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

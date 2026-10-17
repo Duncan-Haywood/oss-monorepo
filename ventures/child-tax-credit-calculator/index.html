@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Child Tax Credit Calculator — Free 2025/2026 CTC &amp; ACTC Estimator</title>
+  <meta name="description" content="Free calculator for the federal Child Tax Credit and Credit for Other Dependents (One Big Beautiful Bill Act, permanent from 2025): $2,200 per qualifying child, $500 per other dependent, the $50-per-$1,000 MAGI phase-out above $200,000 single or $400,000 joint, the filer-SSN requirement, and the refundable Additional Child Tax Credit ceiling. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Child Tax Credit Calculator — free 2025/2026 CTC &amp; ACTC estimator">
+  <meta property="og:description" content="Estimate the federal Child Tax Credit, Credit for Other Dependents, and refundable Additional Child Tax Credit, including the income phase-out and filer SSN requirement. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Child Tax Credit Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the federal Child Tax Credit and Credit for Other Dependents made permanent by the One Big Beautiful Bill Act starting tax year 2025: $2,200 per qualifying child under 17 with a Social Security number, $500 per other dependent (ITIN-only children, dependents who turned 17, or other qualifying relatives), a combined phase-out of $50 per $1,000 (or part of $1,000) of MAGI over $200,000 (single, head of household, qualifying surviving spouse, or married filing separately) or $400,000 (married filing jointly), the OBBBA filer-SSN requirement, and a ceiling on the refundable Additional Child Tax Credit (smallest of $1,700 per child, 15% of earned income over $2,500, and the Child Tax Credit remaining after phase-out). Entirely client-side; nothing is uploaded.","featureList":"Child Tax Credit and Credit for Other Dependents with combined MAGI phase-out, filer Social Security number eligibility check, refundable Additional Child Tax Credit ceiling, plain-English findings explaining every reduction"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much is the Child Tax Credit?","acceptedAnswer":{"@type":"Answer","text":"$2,200 per qualifying child under age 17 (by December 31) with a Social Security number valid for employment. The One Big Beautiful Bill Act made this amount permanent starting tax year 2025, with inflation indexing going forward -- it is still $2,200 for 2026."}},{"@type":"Question","name":"What if my dependent doesn't have a Social Security number?","acceptedAnswer":{"@type":"Answer","text":"A dependent with only an ITIN instead of an SSN, or a dependent who turned 17 during the year, does not qualify for the Child Tax Credit -- but may qualify for the separate $500 Credit for Other Dependents (ODC) instead. The ODC is entirely nonrefundable, unlike the Child Tax Credit's refundable Additional Child Tax Credit portion."}},{"@type":"Question","name":"Do I need a Social Security number myself to claim these credits?","acceptedAnswer":{"@type":"Answer","text":"Yes -- an OBBBA change. The taxpayer (and, on a joint return, at least one spouse) must have a Social Security number valid for employment to claim either the Child Tax Credit or the Credit for Other Dependents, even if the child has a valid SSN. A couple where both spouses hold only an ITIN cannot claim either credit."}},{"@type":"Question","name":"What is the income phase-out?","acceptedAnswer":{"@type":"Answer","text":"The combined Child Tax Credit and Credit for Other Dependents is reduced $50 for every $1,000, or part of $1,000, that modified adjusted gross income (MAGI) exceeds $200,000 (single, head of household, qualifying surviving spouse, or married filing separately) or $400,000 (married filing jointly). Even $1 over the threshold costs a full $50 -- the reduction rounds up to the next $1,000."}},{"@type":"Question","name":"What is the refundable Additional Child Tax Credit?","acceptedAnswer":{"@type":"Answer","text":"Up to $1,700 per qualifying child of an unused Child Tax Credit can be refunded even if you owe no tax, called the Additional Child Tax Credit (ACTC). It is capped at the smallest of $1,700 per qualifying child, 15% of your earned income over $2,500, and the Child Tax Credit remaining after the phase-out. This calculator reports that ceiling, not a guaranteed refund -- the actual amount also depends on your total tax liability, which this tool does not model. The Credit for Other Dependents is never refundable."}},{"@type":"Question","name":"Can I claim this if I file married filing separately?","acceptedAnswer":{"@type":"Answer","text":"Yes. Unlike this portfolio's own senior-deduction-calculator, which excludes married filing separately entirely, MFS filers can claim the Child Tax Credit and Credit for Other Dependents for the dependents they support, using the same $200,000 phase-out threshold a single filer uses."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory amounts, phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, does not model your total tax liability, does not verify Social Security numbers or ages, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0; }
+    .checkrow input { width: auto; margin-top: 4px; flex: 0 0 auto; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHILD TAX CREDIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's your Child Tax Credit worth?</h1>
+    <p>The federal Child Tax Credit is <strong>$2,200 per qualifying child</strong>
+    under 17 with a Social Security number, plus <strong>$500 per other
+    dependent</strong> (an ITIN-only child, a dependent who turned 17, or a
+    qualifying relative) — made permanent by the One Big Beautiful Bill Act
+    starting tax year 2025. Both shrink together once modified adjusted
+    gross income (MAGI) clears $200,000 (single/HoH/QSS/MFS) or $400,000
+    (joint), and up to $1,700 per child can come back as a refund even if
+    you owe no tax. This applies the phase-out, the filer-SSN requirement,
+    and the refundable-ceiling formula.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status, income &amp; eligibility</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="qss">Qualifying surviving spouse</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">Estimated MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1000" placeholder="e.g. 180000">
+      </div>
+      <div>
+        <label for="earned-income">Earned income ($)</label>
+        <input type="number" id="earned-income" min="0" step="1000" placeholder="e.g. 95000">
+      </div>
+    </div>
+    <p class="note">Earned income is wages and self-employment income only
+    — not investment income, Social Security, or unemployment benefits. It
+    is used only for the refundable Additional Child Tax Credit ceiling
+    below.</p>
+    <div class="checkrow">
+      <input type="checkbox" id="filer-has-ssn">
+      <label for="filer-has-ssn">The taxpayer (or, on a joint return, at least one spouse) has a Social Security number valid for employment</label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Dependents</h2>
+    <div class="grid">
+      <div>
+        <label for="qualifying-children">Qualifying children (under 17, with an SSN)</label>
+        <input type="number" id="qualifying-children" min="0" step="1" placeholder="e.g. 2">
+      </div>
+      <div>
+        <label for="other-dependents">Other dependents (ITIN-only, age 17+, or other relatives)</label>
+        <input type="number" id="other-dependents" min="0" step="1" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">A dependent counts as a "qualifying child" only with a
+    Social Security number valid for employment and under age 17 by
+    December 31 — otherwise count them as an "other dependent" for the
+    $500 Credit for Other Dependents instead.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in filing status, MAGI, earned income, the SSN checkbox, and your dependents, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates these two
+      credits only — not your total tax liability, other deductions or
+      credits, or state tax.</li>
+      <li><strong>The refundable ceiling is a maximum, not a guaranteed
+      refund.</strong> It does not model total tax liability, so it cannot
+      say how much of the Child Tax Credit is used nonrefundably first.</li>
+      <li><strong>Ages, SSNs, and relationships are self-reported</strong> —
+      this tool does not verify any of them.</li>
+      <li><strong>Federal only.</strong> Most states offer their own,
+      separate child tax credit or none at all — check your state.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much is the Child Tax Credit?</h3>
+    <p>$2,200 per qualifying child under age 17 (by December 31) with a Social Security number valid for employment. The One Big Beautiful Bill Act made this amount permanent starting tax year 2025, with inflation indexing going forward -- it is still $2,200 for 2026.</p>
+    <h3>What if my dependent doesn't have a Social Security number?</h3>
+    <p>A dependent with only an ITIN instead of an SSN, or a dependent who turned 17 during the year, does not qualify for the Child Tax Credit -- but may qualify for the separate $500 Credit for Other Dependents (ODC) instead. The ODC is entirely nonrefundable, unlike the Child Tax Credit's refundable Additional Child Tax Credit portion.</p>
+    <h3>Do I need a Social Security number myself to claim these credits?</h3>
+    <p>Yes -- an OBBBA change. The taxpayer (and, on a joint return, at least one spouse) must have a Social Security number valid for employment to claim either the Child Tax Credit or the Credit for Other Dependents, even if the child has a valid SSN. A couple where both spouses hold only an ITIN cannot claim either credit.</p>
+    <h3>What is the income phase-out?</h3>
+    <p>The combined Child Tax Credit and Credit for Other Dependents is reduced $50 for every $1,000, or part of $1,000, that modified adjusted gross income (MAGI) exceeds $200,000 (single, head of household, qualifying surviving spouse, or married filing separately) or $400,000 (married filing jointly). Even $1 over the threshold costs a full $50 -- the reduction rounds up to the next $1,000.</p>
+    <h3>What is the refundable Additional Child Tax Credit?</h3>
+    <p>Up to $1,700 per qualifying child of an unused Child Tax Credit can be refunded even if you owe no tax, called the Additional Child Tax Credit (ACTC). It is capped at the smallest of $1,700 per qualifying child, 15% of your earned income over $2,500, and the Child Tax Credit remaining after the phase-out. This calculator reports that ceiling, not a guaranteed refund -- the actual amount also depends on your total tax liability, which this tool does not model. The Credit for Other Dependents is never refundable.</p>
+    <h3>Can I claim this if I file married filing separately?</h3>
+    <p>Yes. Unlike this portfolio's own senior-deduction-calculator, which excludes married filing separately entirely, MFS filers can claim the Child Tax Credit and Credit for Other Dependents for the dependents they support, using the same $200,000 phase-out threshold a single filer uses.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory amounts, phase-out formula, and eligibility rules to the numbers and checkboxes you enter. It is not a full tax return, does not model your total tax liability, does not verify Social Security numbers or ages, and is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own dependents' ages, Social Security number status, and MAGI before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also checking a new car loan deduction or the new senior deduction? See the <a href="../auto-loan-interest-deduction-calculator/">auto loan interest deduction calculator</a> and the <a href="../senior-deduction-calculator/">senior deduction calculator</a> (that one excludes married filing separately entirely — the opposite of this one). Opening a Trump Account for a child born 2025-2028? See the <a href="../trump-account-calculator/">Trump Account calculator</a> — a separate, stackable federal child savings provision from this credit.</p>
+    <p>Working, with a lower income? See the <a href="../eitc-calculator/">EITC calculator</a> — a separate federal credit built on earned income rather than a per-child amount, and often claimed alongside this one on the same return.</p>
+    <p>Estimating this by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand calculation of this credit usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeChildTaxCredit, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), magi: $("#magi"), earnedIncome: $("#earned-income"),
+      filerHasSsn: $("#filer-has-ssn"), qualifyingChildren: $("#qualifying-children"), otherDependents: $("#other-dependents"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = computeChildTaxCredit({
+        filingStatus: els.filingStatus.value,
+        magi: Number(els.magi.value) || 0,
+        earnedIncome: Number(els.earnedIncome.value) || 0,
+        qualifyingChildren: Number(els.qualifyingChildren.value) || 0,
+        otherDependents: Number(els.otherDependents.value) || 0,
+        filerHasSsn: els.filerHasSsn.checked,
+      });
+
+      els.stats.innerHTML = `Estimated credit: <strong><span class="price">${money(result.totalAfter)}</span></strong> (up to <strong>${money(result.maxRefundable)}</strong> of that could be refundable as the Additional Child Tax Credit).`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "joint";
+      els.magi.value = "420000";
+      els.earnedIncome.value = "180000";
+      els.filerHasSsn.checked = true;
+      els.qualifyingChildren.value = "2";
+      els.otherDependents.value = "1";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: married filing jointly, $420,000 MAGI (above the $400,000 joint threshold), two qualifying children and one other dependent.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.magi.value = "";
+      els.earnedIncome.value = "";
+      els.qualifyingChildren.value = "";
+      els.otherDependents.value = "";
+      els.filerHasSsn.checked = false;
+      els.report.hidden = true;
+      els.status.textContent = "Fill in filing status, MAGI, earned income, the SSN checkbox, and your dependents, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

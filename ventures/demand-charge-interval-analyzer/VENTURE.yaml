@@ -1,0 +1,48 @@
+name: demand-charge-interval-analyzer
+description: >-
+  Free browser tool for commercial electricity customers: paste utility 15-minute interval data and see monthly peak demand, the demand
+  charge each peak set, ratchet effects, and what holding demand to a lower cap would save, with battery energy and payback. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: nothing scored above 0.18 for interval-data demand analysis;
+# ev-charging-site-roi-calculator and commercial-solar-ppa-lease-buy-calculator are neighbours (different input: no interval data, no peak-shaving).
+#
+# Why this niche: small and mid-size commercial customers (restaurants, cold storage, light manufacturing, gyms, car washes) pay demand
+# charges that are often a third of the bill, set by one 15-minute window. Utilities offer the data free but not the analysis; battery
+# vendors do the analysis as a sales tool. A neutral analyzer that parses the real file is the lead magnet and the front end for a
+# paid recurring bill-audit or monitoring service.
+#
+# First visitor: searches "how to reduce demand charges", "demand charge ratchet", "peak shaving battery payback",
+# "green button data analysis"; facilities managers, small-business owners, energy consultants. Volume not measured.
+#
+# Liability boundary: arithmetic on pasted numbers; synthetic example labelled as placeholder; "Not decided" names tariff tiers, power factor,
+# engineering and safety; no-advice footer. Data is read in the browser only; nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid multi-site bill-audit or
+# monitoring product -- needs an owner decision on payment handling.
+
+hypotheses:
+  - claim: >-
+      Facilities managers and small-business owners will paste real interval data into a free tool to find out what their peaks cost and whether shaving them is worth it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a figure that differs from the model in README.md for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/demand-charge-interval-analyzer/
+  analytics: null

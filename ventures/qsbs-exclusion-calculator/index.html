@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QSBS Exclusion Calculator — Section 1202, Free</title>
+  <meta name="description" content="Free calculator for the Section 1202 Qualified Small Business Stock (QSBS) gain exclusion, expanded by OBBBA — compares the old all-or-nothing 5-year rule against the new tiered 3/4/5-year schedule for stock acquired after July 4, 2025, and the higher $15M exclusion cap. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="QSBS Exclusion Calculator — free, Section 1202">
+  <meta property="og:description" content="Compute your Section 1202 QSBS gain exclusion under the old or new (post-OBBBA) rules — holding-period tier, per-issuer cap, and excluded vs. taxable gain. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"QSBS Exclusion Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the Section 1202 Qualified Small Business Stock (QSBS) gain exclusion under either the pre-OBBBA rule (all-or-nothing at 5 years, capped at the greater of $10 million or 10x basis) or the post-OBBBA rule for stock acquired after July 4, 2025 (tiered 50 percent at 3 years, 75 percent at 4 years, 100 percent at 5 years, capped at the greater of $15 million or 10x basis) — the excluded and taxable gain, and the next holding-period milestone. Entirely client-side; nothing is uploaded.","featureList":"old vs. new (post-OBBBA) Section 1202 rule comparison, tiered 3/4/5-year exclusion schedule, per-issuer exclusion cap (greater of a fixed dollar figure or 10x basis), next-tier milestone, excluded vs. taxable gain"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What changed about QSBS under OBBBA?","acceptedAnswer":{"@type":"Answer","text":"For stock acquired after July 4, 2025 (OBBBA's enactment date), Section 1202 gained a tiered holding-period schedule — 50% exclusion at 3 years, 75% at 4 years, 100% at 5 years — replacing the old all-or-nothing 5-year cliff. The per-issuer exclusion cap also rose from the greater of $10 million or 10x basis to the greater of $15 million or 10x basis."}},{"@type":"Question","name":"Is there really no partial exclusion under the old rule?","acceptedAnswer":{"@type":"Answer","text":"Correct. For stock acquired on or before July 4, 2025, Section 1202 was strictly all-or-nothing: hold for more than 5 years and exclude 100% of eligible gain; sell even a day earlier and exclude 0%. There was no 3- or 4-year partial exclusion under the old rule at all."}},{"@type":"Question","name":"How does the per-issuer cap work?","acceptedAnswer":{"@type":"Answer","text":"Eligible gain is capped at the greater of a fixed dollar figure ($10 million old rule, $15 million new rule) or 10 times your adjusted basis in the stock — whichever is larger. This cap is cumulative, per issuer, across every sale of that company's stock you ever claim the exclusion against, not a fresh allowance for each sale."}},{"@type":"Question","name":"Which rule applies to my stock?","acceptedAnswer":{"@type":"Answer","text":"The rule depends on when you ACQUIRED the stock, not the tax year you sell it in. Stock acquired on or before July 4, 2025 follows the old all-or-nothing rule for its entire life, even if you sell it in 2027 or later. Stock acquired after that date follows the new tiered rule."}},{"@type":"Question","name":"Does this verify that my stock actually qualifies as QSBS?","acceptedAnswer":{"@type":"Answer","text":"No. Qualifying as QSBS in the first place depends on company-level facts this calculator does not check — original issuance, C-corp status, active-business requirements, and the gross-assets threshold at issuance. This tool only computes the shareholder-level exclusion math once you already know the stock qualifies."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published federal Section 1202 exclusion rules to the numbers you enter. It does not verify QSBS eligibility, track your cumulative prior exclusions against this issuer, or account for day-precision holding-period timing, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">QSBS EXCLUSION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your QSBS gain is excluded?</h1>
+    <p>The One Big Beautiful Bill Act replaced Section 1202's old
+    all-or-nothing 5-year cliff with a <strong>tiered exclusion</strong> —
+    50% at 3 years, 75% at 4 years, 100% at 5 years — for stock acquired
+    after July 4, 2025, and raised the per-issuer cap to $15 million. Stock
+    from before that date still follows the old rule. This tool runs
+    either rule on your own numbers.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Which rule applies</h2>
+    <div class="grid">
+      <div>
+        <label for="era">When was the stock acquired?</label>
+        <select id="era">
+          <option value="new" selected>After July 4, 2025 (new, tiered rule)</option>
+          <option value="old">On or before July 4, 2025 (old, all-or-nothing rule)</option>
+        </select>
+      </div>
+      <div>
+        <label for="years-held">Years held</label>
+        <input type="number" id="years-held" min="0" step="0.1" placeholder="e.g. 4">
+      </div>
+    </div>
+    <p class="note">The rule depends on when you ACQUIRED the stock, not
+    the year you sell it — stock acquired before the enactment date keeps
+    the old all-or-nothing rule for its entire life.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Your numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="gain">Total gain on sale ($)</label>
+        <input type="number" id="gain" min="0" step="10000" placeholder="e.g. 5000000">
+      </div>
+      <div>
+        <label for="basis">Your adjusted basis in the stock ($)</label>
+        <input type="number" id="basis" min="0" step="1000" placeholder="e.g. 100000">
+      </div>
+    </div>
+    <p class="note">The exclusion cap is the greater of a fixed dollar
+    figure or 10 times your basis — a low basis (common for early
+    founders/employees) usually means the fixed dollar cap governs.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in the acquisition era, years held, gain, and basis, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This computes one
+      exclusion on one sale — not total tax liability, other deductions or
+      credits, AMT, or state tax (state conformity to Section 1202
+      varies).</li>
+      <li><strong>Does not verify QSBS eligibility.</strong> Original
+      issuance, C-corp status, active-business requirements, and the
+      gross-assets threshold at issuance are company-level facts this tool
+      does not check.</li>
+      <li><strong>No cumulative-cap tracking.</strong> The per-issuer cap
+      is lifetime and cumulative across every sale of that issuer's stock;
+      this tool assumes a single, first-ever sale against the cap.</li>
+      <li><strong>No day-precision holding-period timing.</strong> The
+      statute requires holding for MORE than the stated number of years;
+      confirm your exact closing date against your acquisition date with a
+      tax professional near a milestone.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What changed about QSBS under OBBBA?</h3>
+    <p>For stock acquired after July 4, 2025 (OBBBA's enactment date), Section 1202 gained a tiered holding-period schedule — 50% exclusion at 3 years, 75% at 4 years, 100% at 5 years — replacing the old all-or-nothing 5-year cliff. The per-issuer exclusion cap also rose from the greater of $10 million or 10x basis to the greater of $15 million or 10x basis.</p>
+    <h3>Is there really no partial exclusion under the old rule?</h3>
+    <p>Correct. For stock acquired on or before July 4, 2025, Section 1202 was strictly all-or-nothing: hold for more than 5 years and exclude 100% of eligible gain; sell even a day earlier and exclude 0%. There was no 3- or 4-year partial exclusion under the old rule at all.</p>
+    <h3>How does the per-issuer cap work?</h3>
+    <p>Eligible gain is capped at the greater of a fixed dollar figure ($10 million old rule, $15 million new rule) or 10 times your adjusted basis in the stock — whichever is larger. This cap is cumulative, per issuer, across every sale of that company's stock you ever claim the exclusion against, not a fresh allowance for each sale.</p>
+    <h3>Which rule applies to my stock?</h3>
+    <p>The rule depends on when you ACQUIRED the stock, not the tax year you sell it in. Stock acquired on or before July 4, 2025 follows the old all-or-nothing rule for its entire life, even if you sell it in 2027 or later. Stock acquired after that date follows the new tiered rule.</p>
+    <h3>Does this verify that my stock actually qualifies as QSBS?</h3>
+    <p>No. Qualifying as QSBS in the first place depends on company-level facts this calculator does not check — original issuance, C-corp status, active-business requirements, and the gross-assets threshold at issuance. This tool only computes the shareholder-level exclusion math once you already know the stock qualifies.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published federal Section 1202 exclusion rules to the numbers you enter. It does not verify QSBS eligibility, track your cumulative prior exclusions against this issuer, or account for day-precision holding-period timing, and it is not a substitute for reviewing IRS guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Raising on SAFEs before any of this exit? The <a href="../safe-dilution-calculator/">SAFE dilution calculator</a> models the cap table after a priced round and what founders take home at an exit.</p>
+    <p>Running a business loss instead of a stock sale gain? See the <a href="../excess-business-loss-calculator/">excess business loss calculator</a> — a different pass-through-owner limitation, also permanent under OBBBA.</p>
+    <p>Working this out by hand instead? See <a href="./vs-doing-the-math-by-hand.html">where a hand estimate of the QSBS exclusion usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Hiring from abroad? The <a href="../h1b-weighted-lottery-odds-calculator/">H-1B weighted lottery odds calculator</a> turns the wage-level weights into per-candidate selection odds &mdash; nothing uploaded.</p>
+</footer>
+
+  <script type="module">
+    import { qsbsExclusionOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      era: $("#era"), yearsHeld: $("#years-held"), gain: $("#gain"), basis: $("#basis"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = qsbsExclusionOutcome({
+        era: els.era.value,
+        yearsHeld: Number(els.yearsHeld.value) || 0,
+        gain: Number(els.gain.value) || 0,
+        basis: Number(els.basis.value) || 0,
+      });
+
+      els.stats.innerHTML = `Excluded: <strong>${money(result.excludedGain)}</strong> (${(result.percent * 100).toFixed(0)}% of ${money(result.eligibleGain)} eligible gain). Taxable: <strong>${money(result.taxableGain)}</strong>.`;
+
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">Exclusion cap</th><td>${money(result.cap)}</td></tr>
+        <tr><th scope="row">Eligible gain</th><td>${money(result.eligibleGain)}</td></tr>
+        <tr><th scope="row">Exclusion percentage</th><td>${(result.percent * 100).toFixed(0)}%</td></tr>
+        <tr><th scope="row"><strong>Excluded gain</strong></th><td><strong>${money(result.excludedGain)}</strong></td></tr>
+        <tr><th scope="row"><strong>Taxable gain</strong></th><td><strong>${money(result.taxableGain)}</strong></td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.era.value = "new";
+      els.yearsHeld.value = "4";
+      els.gain.value = "5000000";
+      els.basis.value = "100000";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: stock acquired after July 4, 2025, held 4 years, $5,000,000 gain, $100,000 basis.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.era.value = "new";
+      els.yearsHeld.value = "";
+      els.gain.value = "";
+      els.basis.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in the acquisition era, years held, gain, and basis, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

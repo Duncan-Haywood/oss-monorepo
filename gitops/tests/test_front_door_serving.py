@@ -61,6 +61,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from front_door_mirror import all_kustomizations
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -98,7 +99,7 @@ def _front_door_configmaps() -> dict[str, dict[str, bytes]]:
     and it is the only place it could differ silently.
     """
     built: dict[str, dict[str, bytes]] = {}
-    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+    for kustomization in all_kustomizations(ROOT):
         parsed = yaml.safe_load(kustomization.read_text()) or {}
         for entry in parsed.get("configMapGenerator", []):
             if not entry["name"].startswith("portfolio-front"):
@@ -164,7 +165,7 @@ def front_door(tmp_path_factory) -> str:
         served[canonical_key] = tools[canonical_key]
     root = tmp_path_factory.mktemp("front-door")
     for sub, keys in (
-        ("html", maps["portfolio-front-html"]),
+        ("html", {**maps["portfolio-front-html"], **maps["portfolio-front-html-index"]}),
         ("tools", served),
         ("conf", maps["portfolio-front-nginx"]),
     ):
@@ -505,6 +506,28 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
         "the inflated sitemap differs from the gzip-encoded one"
     )
 
+    # And the same identity-encoding check for `/llms.txt`, gz-only since
+    # 2026-09-24 for the identical reason `catalog.json` and `sitemap.xml`
+    # went gz-only before it: it was the largest remaining plain key in
+    # `portfolio-front-html` and took the object over the etcd budget. Every
+    # assertion in the loop above passes with `gzip_static on;` and no
+    # `gunzip on;`, which would 404 a crawler or an assistant's fetcher that
+    # sent no encoding header at all -- not a hypothetical client, since that
+    # is the common case for a machine-readable document.
+    _, _, llms_gzip_body = _get(front_door + "/llms.txt", gzip_ok=True)
+    status, headers, llms_identity_body = _get(front_door + "/llms.txt", gzip_ok=False)
+    assert status == 200, (
+        f"/llms.txt returned {status} to a client sending Accept-Encoding: identity. "
+        "A gz-only key needs `gzip_static always` (not plain `on`) plus `gunzip on`, and no "
+        "`try_files` -- try_files stats the uncompressed name, which is not on disk."
+    )
+    assert headers.get("Content-Encoding") != "gzip", (
+        "nginx returned gzip to a client that did not accept it -- `gunzip on` is missing"
+    )
+    assert llms_identity_body == llms_gzip_body, (
+        "the inflated llms.txt differs from the gzip-encoded one"
+    )
+
 
 def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
     # The category pages are the one part of the apex whose URL and whose
@@ -649,7 +672,7 @@ def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> No
     # than only on what each member does.
     products = sorted(
         key[len("vs__") : -len(".html.gz")]
-        for key in _front_door_configmaps()["portfolio-front-html"]
+        for key in _front_door_configmaps()["portfolio-front-html-index"]
         if key.startswith("vs__") and key.endswith(".html.gz")
     )
     assert products, "no per-product comparison pages are mounted, so there is nothing to route"

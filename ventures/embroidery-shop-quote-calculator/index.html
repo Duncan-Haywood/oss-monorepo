@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Embroidery Pricing Calculator for Small Shops: Quotes, Quantity Breaks and Margin</title>
+  <meta name="description" content="Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="How much should you charge for embroidery?">
+  <meta property="og:description" content="Per-piece price, quantity breaks and a take-the-job verdict from your stitches, setup and hourly floor. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Embroidery Shop Quote Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter an embroidery job - garment cost, quantity, stitch count, colors, digitizing, machine speed and your labor and overhead - and get the per-piece price that hits your target margin, machine time, true cost, effective hourly rate, a quantity-break table, a stitch-count sensitivity and a check of the flat per-1000-stitches rule. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my job?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page works on the numbers you type, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "How is the quote worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Clock time is job setup plus color setup, plus one run per hoop (stitches divided by stitches per minute at your real efficiency, plus thread changes) for each batch of pieces across your heads, plus hooping minutes per piece. Cost adds garments, thread and backing, labor and overhead for that time, and digitizing. The quote is cost divided by one minus your target margin, at least your minimum charge, plus any rush surcharge, rounded up to the cent per piece."}}, {"@type": "Question", "name": "Why does the per-piece price drop as quantity grows?", "acceptedAnswer": {"@type": "Answer", "text": "Digitizing, job setup and color setup are paid once however many pieces you stitch, so their share of each piece shrinks. The break table shows the drop at each quantity and flags where the minimum charge or setup dominates."}}, {"@type": "Question", "name": "Is a flat price per 1000 stitches enough?", "acceptedAnswer": {"@type": "Answer", "text": "It ignores setup, digitizing, color changes and hooping, so on a small run it can sell below your cost. The page compares it with the quote that hits your margin at every quantity and shows the quantity from which it covers your cost."}}, {"@type": "Question", "name": "What does the take-the-job verdict mean?", "acceptedAnswer": {"@type": "Answer", "text": "Effective hourly rate is what is left of the price per clock hour after garments, thread, overhead and digitizing are paid, before you pay yourself. If it is below your floor the page tells you the price that reaches it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b2a; background: #f5f3f8; color-scheme: light; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #3b1f5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b1f5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5368; }
+    .card { background: #fff; border: 1px solid #dad4e3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b1f5c10; margin: 18px 0; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a69db5; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a2577; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e8e2f0; color: #3b1f5c; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe6f1; vertical-align: top; }
+    th { color: #5a5368; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f8f6fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    .warn { color: #7c2d12; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #dad4e3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EMBROIDERY SHOP QUOTE CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>How much should you charge for this embroidery job?</h1>
+    <p>A flat price per 1000 stitches ignores digitizing, setup, color changes and hooping, which is why it loses money on small runs. Enter the job and your machine, and see <strong>the per-piece price that hits your target margin</strong>, the true cost and machine time, <strong>a quantity-break table</strong> (12, 24, 48, 100, 250), how price moves with stitch count, and <strong>whether to take the job</strong> at your lowest acceptable hourly rate.</p>
+    <p class="note">For home and micro embroidery shops running one to six heads. Nothing is uploaded: the numbers stay in this browser. They are your inputs, not a forecast.</p>
+  </header>
+
+  <section class="card">
+    <h2>Enter the job</h2>
+    <h3>1. The job</h3>
+    <p>
+      <label for="quantity">Pieces in the job</label><input type="number" id="quantity" value="24" min="1" step="1">
+      <label for="garment">Garment cost each ($, 0 if customer supplies)</label><input type="number" id="garment" value="4.5" min="0" step="0.25">
+      <label for="stitches">Stitches in the design</label><input type="number" id="stitches" value="7500" min="1" step="1">
+      <label for="colors">Thread colors in the design</label><input type="number" id="colors" value="4" min="1" max="99" step="1">
+      <label for="digitizing">Digitizing fee, one time ($)</label><input type="number" id="digitizing" value="25" min="0" step="5">
+      <label for="offer">Price the customer offered per piece ($, optional)</label><input type="number" id="offer" min="0" step="0.25">
+    </p>
+    <h3>2. Your machine and time</h3>
+    <p>
+      <label for="heads">Machine heads</label><input type="number" id="heads" value="2" min="1" max="99" step="1">
+      <label for="spm">Rated stitches per minute</label><input type="number" id="spm" value="650" min="1" max="3000" step="1">
+      <label for="eff">Real efficiency (% of rated speed)</label><input type="number" id="eff" value="75" min="1" max="100" step="1">
+      <label for="hoop">Hooping and handling per piece (min)</label><input type="number" id="hoop" value="1.5" min="0" step="0.5">
+      <label for="setupjob">Setup per job (min)</label><input type="number" id="setupjob" value="15" min="0" step="1">
+      <label for="setupcolor">Setup per color (min)</label><input type="number" id="setupcolor" value="2" min="0" step="1">
+      <label for="colorchange">Seconds per thread change</label><input type="number" id="colorchange" value="8" min="0" step="1">
+    </p>
+    <h3>3. Your costs</h3>
+    <p>
+      <label for="material">Thread, backing and topping per 1000 stitches ($)</label><input type="number" id="material" value="0.1" min="0" step="0.01">
+      <label for="labor">Labor rate per hour ($)</label><input type="number" id="labor" value="20" min="0" step="1">
+      <label for="overhead">Overhead per machine hour ($)</label><input type="number" id="overhead" value="10" min="0" step="1">
+    </p>
+    <h3>4. Your price rules</h3>
+    <p>
+      <label for="margin">Target margin (% of the quote)</label><input type="number" id="margin" value="40" min="0" max="90" step="1">
+      <label for="mincharge">Minimum order charge ($)</label><input type="number" id="mincharge" value="75" min="0" step="5">
+      <label for="rush">Rush surcharge (%)</label><input type="number" id="rush" value="0" min="0" max="500" step="5">
+      <label for="minhourly">Lowest hourly rate you will accept ($)</label><input type="number" id="minhourly" value="35" min="0" step="1">
+      <label for="flat">Flat rule of thumb: $ per 1000 stitches</label><input type="number" id="flat" value="1" min="0" step="0.1">
+    </p>
+    <p>
+      <label for="breaks">Quantity breaks to compare (comma separated)</label><input type="text" id="breaks" value="12, 24, 48, 100, 250" size="26">
+    </p>
+    <p>
+      <button type="button" id="analyze">Quote this job</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status" role="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>The quote</h2>
+    <p id="summary"></p>
+    <h3>True cost</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Garments</th><th>Thread and backing</th><th>Labor</th><th>Overhead</th><th>Digitizing</th><th>Total cost</th><th>Machine and hand time</th></tr></thead>
+      <tbody id="cost-rows"></tbody>
+    </table></div>
+    <h3>Quantity breaks</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Pieces</th><th>Per piece</th><th>Quote</th><th>Drop</th><th>Effective $/hr</th><th>Setup + digitizing share</th><th>Flat rule per piece</th><th>Flat rule profit</th><th>Note</th></tr></thead>
+      <tbody id="break-rows"></tbody>
+    </table></div>
+    <h3>Stitch count vs price</h3>
+    <p id="stitch-note" class="note"></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Stitches</th><th>Per piece</th><th>Quote</th><th>Flat rule per piece</th><th>Flat rule profit</th></tr></thead>
+      <tbody id="stitch-rows"></tbody>
+    </table></div>
+    <h3>Checks</h3>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command. Quote a CSV of jobs, or one job from flags:</p>
+    <pre class="cmd">node cli.mjs quote jobs.csv --heads 2 --spm 650 --margin 40 --min-charge 75 --min-hourly 35 --json
+node cli.mjs quote --quantity 24 --garment-cost 4.5 --stitches 7500 --colors 4</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a>: Node 18+, nothing to install, no network call. More: <a href="how-much-to-charge-for-embroidery.html">How much to charge for embroidery: per-stitch pricing, setup and quantity breaks</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">Hooping is assumed to happen while the machine is stopped, with one operator for the whole job. Digitizing is treated as a cost you recover inside the quote. Bobbin changes, hoop-burn rejects and re-stitches are not modelled; raise the garment cost or lower the efficiency to allow for them.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my job?</h3>
+    <p>No. The page works on the numbers you type, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>How is the quote worked out?</h3>
+    <p>Clock time is job setup plus color setup, plus one run per hoop (stitches divided by stitches per minute at your real efficiency, plus thread changes) for each batch of pieces across your heads, plus hooping minutes per piece. Cost adds garments, thread and backing, labor and overhead for that time, and digitizing. The quote is cost divided by one minus your target margin, at least your minimum charge, plus any rush surcharge, rounded up to the cent per piece.</p>
+    <h3>Why does the per-piece price drop as quantity grows?</h3>
+    <p>Digitizing, job setup and color setup are paid once however many pieces you stitch, so their share of each piece shrinks. The break table shows the drop at each quantity and flags where the minimum charge or setup dominates.</p>
+    <h3>Is a flat price per 1000 stitches enough?</h3>
+    <p>It ignores setup, digitizing, color changes and hooping, so on a small run it can sell below your cost. The page compares it with the quote that hits your margin at every quantity and shows the quantity from which it covers your cost.</p>
+    <h3>What does the take-the-job verdict mean?</h3>
+    <p>Effective hourly rate is what is left of the price per clock hour after garments, thread, overhead and digitizing are paid, before you pay yourself. If it is below your floor the page tells you the price that reaches it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the stitch counts, times, costs and prices you type, and for every quote you give a customer and any order, deposit or contract you accept. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It prices a job using the numbers you supply; it is not a forecast of what a job will really cost or what a customer will pay.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../apparel-decoration-price-calculator/">Apparel Decoration Price Calculator</a> (screen print, embroidery and DTF cost per piece), <a href="../3d-print-price-calculator/">3D Print Price Calculator</a> and <a href="../trade-show-roi-calculator/">Trade Show ROI Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summarize, money, cents, pct, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td>${escapeHtml(p.what)}</td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    const FIELDS = {"quantity": "quantity", "garment": "garmentCost", "stitches": "stitches", "colors": "colors", "digitizing": "digitizingFee", "offer": "offerPerPiece", "heads": "heads", "spm": "spm", "eff": "efficiency", "hoop": "hoopMin", "setupjob": "setupJobMin", "setupcolor": "setupColorMin", "colorchange": "colorChangeSec", "material": "materialPer1000", "labor": "laborRate", "overhead": "overheadPerHour", "margin": "margin", "mincharge": "minCharge", "rush": "rushPct", "minhourly": "minHourly", "flat": "flatPer1000"};
+    const EXAMPLE = { quantity: 24, garment: 4.5, stitches: 7500, colors: 4, digitizing: 25, offer: "", heads: 2, spm: 650, eff: 75, hoop: 1.5, setupjob: 15, setupcolor: 2, colorchange: 8, material: 0.1, labor: 20, overhead: 10, margin: 40, mincharge: 75, rush: 0, minhourly: 35, flat: 1, breaks: "12, 24, 48, 100, 250" };
+
+    function readInput() {
+      const input = {};
+      for (const [id, key] of Object.entries(FIELDS)) input[key] = $("#" + id).value;
+      input.breakQtys = $("#breaks").value;
+      return input;
+    }
+
+    function renderReport() {
+      const status = $("#status");
+      let a;
+      try {
+        a = analyze(readInput());
+      } catch (e) {
+        status.innerHTML = `<span class="error">${escapeHtml(e.message)}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const s = summarize(a);
+      $("#summary").innerHTML = `<span class="${s.status === "take" ? "gain" : s.status === "counter" ? "warn" : "error"}">${escapeHtml(s.text)}</span>`;
+      const c = a.quote.cost;
+      $("#cost-rows").innerHTML = `<tr><td>${cents(c.garments)}</td><td>${cents(c.materials)}</td><td>${cents(c.labor)}</td><td>${cents(c.overhead)}</td><td>${cents(c.digitizing)}</td><td>${cents(c.total)}</td><td>${c.minutes.total.toFixed(1)} min clock time (${c.minutes.hoops} hoops x ${c.minutes.hoopRunMin.toFixed(2)} min, setup ${c.minutes.setup.toFixed(1)}, hooping ${c.minutes.handling.toFixed(1)})</td></tr>`;
+      $("#break-rows").innerHTML = a.breaks.map((b) => {
+        const note = [b.minChargeBinds ? "minimum charge sets the price" : "", b.setupDominates ? "setup and digitizing dominate" : "", b.flat.losesMoney ? "flat rule loses money" : ""].filter(Boolean).join("; ");
+        return `<tr><td>${b.qty}</td><td>${money(b.quote.perPieceCents / 100)}</td><td>${cents(b.quote.total)}</td><td>${b.dropPct === null ? "-" : pct(b.dropPct)}</td><td>${money(b.quote.effectiveHourly)}</td><td>${pct(b.quote.setupShare)}</td><td>${money(b.flat.perPiece)}</td><td>${cents(b.flat.profit)}</td><td>${escapeHtml(note)}</td></tr>`;
+      }).join("");
+      $("#stitch-note").textContent = `At ${a.job.quantity} pieces each extra 1000 stitches adds about ${money(a.sensitivity.pricePer1000)} a piece to the quote; your flat rule charges ${money(a.job.flatPer1000)}.`;
+      $("#stitch-rows").innerHTML = a.sensitivity.rows.map((r) => `<tr><td>${r.stitches.toLocaleString("en-US")}</td><td>${money(r.quote.perPieceCents / 100)}</td><td>${cents(r.quote.total)}</td><td>${money(r.flat.perPiece)}</td><td>${cents(r.flat.profit)}</td></tr>`).join("");
+      $("#findings").innerHTML = a.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("") || "<li>No warnings at these numbers.</li>";
+      $("#report-card").hidden = false;
+      record("quote_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+    $("#load-example").addEventListener("click", () => {
+      for (const [id, v] of Object.entries(EXAMPLE)) $("#" + id).value = v;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      for (const id of Object.keys(FIELDS)) $("#" + id).value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

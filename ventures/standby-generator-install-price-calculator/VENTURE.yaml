@@ -1,0 +1,44 @@
+name: standby-generator-install-price-calculator
+description: >-
+  Free browser calculator for electricians and generator installers: enter the generator, transfer switch, gas and electrical runs, permit, crew hours,
+  callback risk and margin, and see the price, the cash needed before install day, what an overrun does to a fixed price, a service plan's lifetime
+  value and a rough size check. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-11 in a scheduled session. electrical-panel-upgrade-bid-calculator and ev-charger-bid-calculator are the nearest siblings (panel and
+# charger jobs); none models a standby generator install where the equipment is over half the cost, the deposit has to carry it, and a service plan is
+# the recurring revenue. Home standby demand follows storms and outage news, and installers (Generac, Kohler, Briggs dealers) are small shops.
+#
+# First visitor: electricians and generator dealers searching "how much to charge to install a standby generator", "generator installation pricing
+# for contractors" and "generator install deposit". Volume not measured with an external tool.
+#
+# Liability boundary: arithmetic over numbers the user types; nothing stored; says it is not legal, tax, financial, electrical or gas advice and that
+# the size check is not a load calculation; says what is not modelled; carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small generator installers will type equipment, gas run and crew hours into a no-signup calculator to set a quote and a deposit, because most
+      quote the generator at a markup and guess the gas run and the labour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/standby-generator-install-price-calculator/
+  analytics: null

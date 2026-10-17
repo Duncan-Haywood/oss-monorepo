@@ -1,13 +1,14 @@
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compareLateReport } from "./calc.mjs";
+import { compareLateReport, nextDueFromInterval } from "./calc.mjs";
 import { faqEntries, injectChrome } from "../../platform/pages/build.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const dueSeo = readFileSync(new URL("./when-is-my-next-grant-report-due.html", import.meta.url), "utf8");
 const writerSeo = readFileSync(new URL("./should-i-hire-a-grant-writer-to-file-this-report.html", import.meta.url), "utf8");
 const instrumentlSeo = readFileSync(new URL("./vs-instrumentl.html", import.meta.url), "utf8");
+const spreadsheetSeo = readFileSync(new URL("./vs-tracking-deadlines-in-a-spreadsheet.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 
 test("the tracker page wires the late-report comparison without a build step", () => {
@@ -135,6 +136,24 @@ test("the vs-Instrumentl comparison page names what each tool is for, disclaims 
   assert.match(instrumentlSeo, /GitHub Sponsors/);
 });
 
+test("the vs-spreadsheet comparison page uses the same worked example the calc tests lock and carries the standard disclaimer", () => {
+  assert.equal(nextDueFromInterval("2025-01-01", 6, "2026-08-26"), "2026-07-01");
+  assert.match(spreadsheetSeo, /<title>This tracker vs\. tracking grant deadlines in a spreadsheet/);
+  assert.match(spreadsheetSeo, /name="description"/);
+  assert.match(spreadsheetSeo, /"@type":"FAQPage"/);
+  assert.match(spreadsheetSeo, /href="\.\/"/);
+  assert.match(spreadsheetSeo, /2025-07-01/);
+  assert.match(spreadsheetSeo, /2026-01-01/);
+  assert.match(spreadsheetSeo, /2026-07-01/);
+  assert.match(spreadsheetSeo, /Best-effort hosting, no SLA/);
+  assert.match(spreadsheetSeo, /GitHub Sponsors/);
+});
+
+test("the tracker links to its vs-spreadsheet comparison page and is listed in the sitemap", () => {
+  assert.match(html, /vs-tracking-deadlines-in-a-spreadsheet\.html/);
+  assert.match(sitemap, /vs-tracking-deadlines-in-a-spreadsheet\.html/);
+});
+
 test("an invalid risk input clears the stale comparison instead of leaving it next to a silent error", () => {
   // Before this fix, a rejected input in the "cash at risk" panel (a negative
   // number, non-numeric text) overwrote only #riskMessage with the error
@@ -186,4 +205,8 @@ test("the entry page's FAQ derivation is not suppressed by its own explanatory c
     isEntry: true,
   });
   assert.match(built, /"@type":"FAQPage"/, "the derived schema must actually be injected, not suppressed by the comment");
+});
+
+test("the page links the grant indirect cost calculator", () => {
+  assert.ok(html.includes('href="../grant-indirect-cost-calculator/"'));
 });

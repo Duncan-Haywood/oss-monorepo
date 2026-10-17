@@ -1,0 +1,7 @@
+{
+  "author": "Claude session agent (no model API key in the run environment, so the session acted as the proposer)",
+  "attempt": 1,
+  "note": "Written from the part list and a one-paragraph product description, before the planner or checker had been run. One attempt, not repeated, not a reproducible LLM benchmark.",
+  "order": ["base", "gear1", "gear2", "wall_back", "wall_front", "shaft1", "shaft2",
+            "collar_f1", "collar_f2", "collar_b1", "collar_b2", "lid"]
+}

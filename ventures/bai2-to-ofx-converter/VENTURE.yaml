@@ -1,0 +1,60 @@
+name: bai2-to-ofx-converter
+description: >-
+  Free browser tool that converts a BAI2 bank file (the cash-management format US business banks export)
+  into the import files accounting software accepts: OFX/QBO for QuickBooks and Quicken, QIF, and Xero's
+  statement CSV. It checks the file first (49/98/99 control totals and record counts, opening ledger plus
+  transactions equal to closing ledger, naming the amount it is off by), writes a stable transaction ID per
+  entry so re-importing does not double-post, and writes one file per account. The file is read locally and
+  never uploaded; account numbers are masked in the output unless you choose otherwise.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05 in a new-venture-first session. Sibling bai2-statement-reader reads, checks and repairs
+# BAI2 and exports a generic CSV; camt053-to-ofx-converter is the European equivalent of this tool. BAI2 had
+# no converter to the formats bookkeeping software imports.
+# Search phrases: "BAI2 to QBO", "BAI2 to OFX", "BAI2 to QuickBooks", "BAI2 to Xero", "convert BAI2 file".
+# Volume not measured with an external tool.
+#
+# Who: bookkeepers and small US firms whose business bank offers BAI2 (or only BAI2) for previous-day
+# reporting while QuickBooks, Quicken and Xero want OFX/QBO, QIF or a CSV. Existing answers are paid
+# converters and converters that need the bank file uploaded to a server.
+#
+# What makes it more than a re-labelled CSV: the sign comes from the BAI type code (detail amounts are
+# unsigned), the file is control-total and balance checked first, ids are stable across re-runs and unique for
+# identical same-day entries, names are cut to 32 characters, and each account gets its own file.
+#
+# Path to revenue (payment rails stay off): lead magnet for bookkeeping audiences. A paid version, if usage
+# appears, is batch conversion, bank-specific profiles and ledger mappings behind an env-var switch; not built.
+#
+# Liability: it writes files from the user's own bank file, shows the checks it ran, states what it does not
+# check, and carries the no-warranty, independent-of-banks and financial-data clauses.
+#
+# Unverified: the BAI2 layout and the OFX/QIF/Xero layouts and each importer's tolerance are from memory of
+# public documents; nothing ran against a live QuickBooks, Quicken or Xero import. The first report of an
+# import that is refused is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper whose bank exports BAI2 will convert it to OFX/QBO or a Xero CSV on a no-upload page,
+      because the alternatives are paid converters or sending bank data to a stranger.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a converted file that QuickBooks, Quicken or Xero refuses, or a real bank file this tool misreads, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bai2-to-ofx-converter/
+  analytics: null

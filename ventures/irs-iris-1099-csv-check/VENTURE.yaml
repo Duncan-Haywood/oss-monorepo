@@ -1,0 +1,80 @@
+name: irs-iris-1099-csv-check
+description: >-
+  Free browser tool that checks an IRS IRIS bulk-upload CSV for Form 1099-NEC and 1099-MISC
+  before it is uploaded: header and column layout, TIN formats (nine digits, SSN vs EIN vs ITIN,
+  never-issued SSN ranges, all-same-digit placeholders), names, addresses, state codes and ZIPs,
+  money formats, box amounts against the filing thresholds, tax year, duplicate recipients and
+  record counts and totals, each with its line number, plus a narrow safe-fixes pass that never
+  changes a name, an address or an amount's value and lists every change. The file is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. duplicate_check.py: top score 0.14
+# (nothing near the 0.45 bar). Open PR #6319 (1099-vendor-csv-checker) checks a vendor list
+# before 1099-NEC filing; this checks the IRIS upload file itself (columns, TIN rules,
+# thresholds, totals) and is the downstream step.
+#
+# Why now: the IRS is retiring FIRE for information returns and small filers (bookkeepers,
+# payroll preparers, property managers, small businesses with a few dozen contractors) are
+# moving to IRIS, whose bulk path is a CSV upload. Rejected or mismatched records mean
+# CP2100 notices and penalty exposure for the payer, and the people doing this work are
+# exactly those who earn from it: bookkeepers and tax preparers filing for many clients.
+#
+# First visitor: preparers and bookkeepers searching "IRIS CSV upload error", "1099-NEC IRIS
+# template", "FIRE replacement 1099 bulk upload", and r/taxpros / r/Bookkeeping threads.
+# Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: the file holds TINs, so it never leaves the browser
+# (a test asserts no network calls) and results show only the last four digits.
+#
+# Path to revenue (payment rails stay off): lead magnet for the bookkeeper / tax preparer
+# audience. A paid version, if usage appears, is multi-client batch checks and saved rule sets
+# behind an env-var switch; not built.
+#
+# Liability: format and arithmetic checks on the user's own file; no warranty, not tax advice,
+# independent of the IRS, IRS and IRIS used nominatively.
+#
+# Every rule below is from memory of public IRS IRIS template / Pub 5717-style guidance; unverified.
+# No IRS template, schema or IRIS account was available. Specifically unverified: the column
+# names and their order in the real IRIS CSV template (this tool uses its own layout and reads
+# names order-independently); the 1099-NEC threshold ($600 through 2025, $2,000 for payments
+# in 2026); the 1099-MISC per-box amounts ($600 most boxes, $10 royalties and substitute
+# payments); the 40-character name and address limits and the name-line character set; the
+# EIN prefix list; the SSN, ITIN and EIN number-range rules; whether IRIS accepts ZIP+4 with a
+# dash; accepted values for the Corrected and TIN Type columns; and the FIRE retirement dates.
+# The first report of a file that passes here and is rejected by IRIS, or the reverse, is the
+# priority fix.
+
+hypotheses:
+  - claim: >-
+      A bookkeeper or small filer preparing an IRIS 1099 upload will paste the CSV into a
+      no-login page, because the alternative is finding out from a rejection or a later
+      CP2100 notice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the line and cause, and getting a cleaned file, leads the same person to check
+      next year's file the same way, which is the reason to return.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted file structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports IRIS rejecting a file this tool passed, or this tool failing a file IRIS accepted, at which point the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/irs-iris-1099-csv-check/
+  analytics: null

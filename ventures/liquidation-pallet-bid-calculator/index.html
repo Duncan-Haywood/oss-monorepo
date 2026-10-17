@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Liquidation Pallet Bid Calculator — max bid from your manifest</title>
+  <meta name="description" content="Free liquidation pallet bid calculator. Paste a manifest to get the maximum bid for a chance of loss you accept, with a Monte Carlo simulation of recovery rate, sell-through and damage, break-even recovery and concentration risk. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Liquidation Pallet Bid Calculator — free, private, in your browser">
+  <meta property="og:description" content="Turn a liquidation manifest into a max bid, a probability of profit and a break-even recovery rate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Liquidation Pallet Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload a liquidation manifest and get the maximum bid for a pallet or truckload from a seeded Monte Carlo simulation of recovery rate, sell-through and damage: probability of profit, expected net, P10/P50/P90, max bid for a loss probability, ROI and profit target, break-even recovery rate, per-line contribution and concentration risk. Runs entirely in your browser.", "featureList": "liquidation pallet max bid calculator, manifest CSV analysis, Monte Carlo profit simulation, probability of loss, break-even recovery rate, recovery rate sensitivity table, buyer premium and freight, concentration risk, spreadsheet-safe CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I work out the most I should bid on a liquidation pallet?", "acceptedAnswer": {"@type": "Answer", "text": "Work backwards from what the pallet will realistically resell for. Take the manifest retail value, apply a recovery rate for each condition (new, open box, used, salvage), remove units that will not sell or arrive damaged, take off the resale channel fee and your postage, then subtract everything you pay on top of the hammer price: buyer's premium, freight, handling and the cost of holding stock until it sells. What is left is the most you can bid. This tool does that and, because recovery rates are guesses, runs 4,000 simulated outcomes so the max bid reflects how likely you are to lose money, not only the average."}}, {"@type": "Question", "name": "What recovery rate should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Recovery rate is the share of the manifest's retail price that a unit that actually sells fetches. The defaults (new 45%, open box 35%, used 25%, salvage 8%) are placeholders, not market data. Replace them with your own sold-listing history for similar goods. The sensitivity table shows what happens if you are 10% to 40% too optimistic or too pessimistic."}}, {"@type": "Question", "name": "What does the Monte Carlo simulation do?", "acceptedAnswer": {"@type": "Answer", "text": "Each trial draws one pallet-wide market factor that moves every recovery rate together, a sell-through rate and a damage rate around your inputs, and an independent factor for every line so big items can miss on their own. Adding up the trials gives the chance of a profit, the expected net profit and the 10th, 50th and 90th percentile outcomes. The random seed is fixed, so the same manifest and inputs always give the same numbers."}}, {"@type": "Question", "name": "What are the three max bids?", "acceptedAnswer": {"@type": "Answer", "text": "One is the highest bid at which the chance of losing money stays at or below the limit you set. One is the highest bid at which expected return on the cash you put in still meets your target ROI. One is the highest bid at which expected profit still meets your target in dollars. The recommended max bid is the lowest of the three, so it satisfies all of them."}}, {"@type": "Question", "name": "What is the break-even recovery rate?", "acceptedAnswer": {"@type": "Answer", "text": "It is the blended recovery rate, as a share of retail, at which expected profit at your bid is exactly zero, keeping the mix of conditions in your manifest. If it is close to or above the recovery you assumed, the bid leaves no room for error."}}, {"@type": "Question", "name": "Why does concentration matter?", "acceptedAnswer": {"@type": "Answer", "text": "Manifests often hide most of their value in a handful of lines. If the top five lines are half of retail value and one is missing, damaged or worth less than listed, nothing else can make up the gap. The tool shows the top five lines' share of retail value and the simulation gives each line its own independent uncertainty, so a top-heavy manifest shows a wider spread than an even one."}}, {"@type": "Question", "name": "Is my manifest uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your manifest."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.base td { background: #eef5f8; font-weight: 700; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    .big.hero div { background: #e3f0f5; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    fieldset { border: 1px solid #d9dfe6; border-radius: 10px; margin: 12px 0 0; padding: 4px 14px 14px; }
+    legend { font-weight: 700; color: #1f4a5d; padding: 0 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LIQUIDATION PALLET BID CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What is the most you can bid on this pallet?</h1>
+    <p>Paste or upload the <strong>manifest</strong> for a liquidation pallet or truckload (item, quantity, retail price, condition). Set your buyer's premium, freight, fees and the recovery rate you expect for each condition. The tool runs a <strong>seeded Monte Carlo simulation</strong> of recovery, sell-through and damage and returns the <strong>max bid</strong> for the chance of loss you will accept, the <strong>probability of profit</strong>, the <strong>10th, 50th and 90th percentile outcomes</strong>, the <strong>recovery rate you need to break even</strong> and how much of the manifest rides on a few lines.</p>
+    <p class="note">Your manifest never leaves this browser tab. An estimate from assumptions you supply, not a guarantee. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>The manifest</h2>
+    <label for="file">Upload a CSV or TSV manifest</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="manifest">…or paste rows (header optional: item, qty, retail, condition, category)</label>
+    <textarea id="manifest" spellcheck="false" placeholder="item,qty,unit_retail,condition,category&#10;Smart TV 55in,2,479.00,Customer Return,electronics&#10;Robot vacuum,3,259.00,New,home"></textarea>
+    <p class="note">Columns are found by header name (item, qty, msrp or retail, condition, category). A header containing “ext” or “total” is read as extended retail for the line; otherwise as price per unit. Lines with no retail price above zero are skipped.</p>
+
+    <fieldset>
+      <legend>Buying costs</legend>
+      <div class="grid">
+        <div><label for="bid">Bid to evaluate ($, blank = the recommended max)</label><input id="bid" inputmode="decimal" placeholder="blank"></div>
+        <div><label for="premium">Buyer's premium (%)</label><input id="premium" inputmode="decimal" value="10"></div>
+        <div><label for="freight">Freight / pickup, whole lot ($)</label><input id="freight" inputmode="decimal" value="350"></div>
+        <div><label for="handling">Handling per unit ($)</label><input id="handling" inputmode="decimal" value="0.75"></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Expected recovery (% of retail for a unit that sells)</legend>
+      <div class="grid">
+        <div><label for="rec-new">New</label><input id="rec-new" inputmode="decimal" value="45"></div>
+        <div><label for="rec-open">Open box / like new</label><input id="rec-open" inputmode="decimal" value="35"></div>
+        <div><label for="rec-used">Used / returned</label><input id="rec-used" inputmode="decimal" value="25"></div>
+        <div><label for="rec-salvage">Salvage / damaged</label><input id="rec-salvage" inputmode="decimal" value="8"></div>
+        <div><label for="default-class">Lines with no readable condition count as</label><select id="default-class"><option value="new">New</option><option value="open-box" selected>Open box / like new</option><option value="used">Used / returned</option><option value="salvage">Salvage / damaged</option></select></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Selling</legend>
+      <div class="grid">
+        <div><label for="fee">Resale fees incl. payment processing (%)</label><input id="fee" inputmode="decimal" value="14"></div>
+        <div><label for="outbound">Postage and packing per unit sold ($)</label><input id="outbound" inputmode="decimal" value="2.50"></div>
+        <div><label for="sellthrough">Sell-through in the window (%)</label><input id="sellthrough" inputmode="decimal" value="80"></div>
+        <div><label for="damage">Unsellable or damaged units (%)</label><input id="damage" inputmode="decimal" value="6"></div>
+        <div><label for="months">Months to sell</label><input id="months" inputmode="decimal" value="3"></div>
+        <div><label for="storage">Storage per month ($)</label><input id="storage" inputmode="decimal" value="25"></div>
+        <div><label for="capital">Cost of capital (% a year)</label><input id="capital" inputmode="decimal" value="12"></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>What you need from the pallet</legend>
+      <div class="grid">
+        <div><label for="target-profit">Target profit ($)</label><input id="target-profit" inputmode="decimal" value="300"></div>
+        <div><label for="target-roi">Target ROI on cash in (%)</label><input id="target-roi" inputmode="decimal" value="30"></div>
+        <div><label for="max-loss">Acceptable chance of a loss (%)</label><input id="max-loss" inputmode="decimal" value="10"></div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>How unsure you are</legend>
+      <div class="grid">
+        <div><label for="market-sigma">Pallet-wide recovery uncertainty (%)</label><input id="market-sigma" inputmode="decimal" value="20"></div>
+        <div><label for="line-sigma">Per-line recovery uncertainty (%)</label><input id="line-sigma" inputmode="decimal" value="35"></div>
+        <div><label for="tightness">Sell-through and damage tightness</label><input id="tightness" inputmode="decimal" value="25"></div>
+        <div><label for="trials">Simulated outcomes</label><input id="trials" inputmode="numeric" value="4000"></div>
+        <div><label for="seed">Random seed</label><input id="seed" inputmode="numeric" value="2026"></div>
+      </div>
+      <p class="note">Higher tightness means sell-through and damage stay closer to your inputs. The same manifest, inputs and seed always give the same result.</p>
+    </fieldset>
+
+    <button type="button" id="analyze">Find my max bid</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste or upload a manifest, then click Find my max bid.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big hero" id="bids"></div>
+    <div id="report-findings"></div>
+    <h3>Outcome at the bid evaluated</h3>
+    <div class="big" id="outcome"></div>
+    <h3>Break-even recovery rate</h3>
+    <div class="big" id="breakeven"></div>
+    <h3>If recovery is better or worse than you assumed</h3>
+    <div class="scroll"><table id="sens"><thead><tr><th>Recovery vs your assumption</th><th class="n">Blended recovery</th><th class="n">Expected net</th><th class="n">Expected ROI</th><th class="n">Chance of profit</th><th class="n">Max bid at your loss limit</th></tr></thead><tbody></tbody></table></div>
+    <h3>Concentration</h3>
+    <div class="big" id="conc"></div>
+    <div class="scroll"><table id="toplines"><thead><tr><th>Largest lines by retail value</th><th class="n">Qty</th><th class="n">Retail value</th><th class="n">Share of manifest</th></tr></thead><tbody></tbody></table></div>
+    <h3>Contribution by line at your assumptions</h3>
+    <p class="note">Expected net revenue after damage, sell-through, fees and postage, less that line's share of total cost (split by retail value). Best and worst lines shown; the download has every line.</p>
+    <div class="scroll"><table id="contrib"><thead><tr><th>Item</th><th>Class</th><th class="n">Retail value</th><th class="n">Net revenue</th><th class="n">Cost share</th><th class="n">Contribution</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="run-note"></p>
+    <button type="button" id="download">Download per-line CSV</button>
+    <button type="button" class="secondary" id="download-summary">Download summary CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Per line:</strong> retail value times the recovery rate for its condition class, times the share of units that are sellable and sell in your window, less the channel fee and postage per unit sold. <strong>Simulation:</strong> each of the trials draws a pallet-wide recovery factor (lognormal with mean one) that moves every line together, a sell-through rate and a damage rate (beta distributions around your inputs), and a separate lognormal factor for each line. The 400 largest lines are simulated one by one; any smaller remainder is added with a normal approximation. <strong>Costs:</strong> hammer bid plus buyer's premium, freight and per-unit handling, then storage for the months held and the cost of capital on the cash tied up. Profit is net revenue minus that total, so the bid enters linearly and one simulation prices every bid. <strong>Max bid for a loss limit:</strong> the total cost equal to the loss-limit percentile of net revenue, converted back to a hammer price. <strong>Max bid for ROI or profit:</strong> the total cost at which mean net revenue leaves exactly your target. <strong>Recommended:</strong> the lowest of the three. <strong>Break-even recovery:</strong> the scale on all four recovery rates at which mean profit at the bid is zero.</p>
+    <p><strong>Not modelled:</strong> price changes after listing, returns and chargebacks, unsold units' residual value (valued at zero), missing or wrong manifest data, shipping damage beyond the damage rate, sales tax, and how the auction is bid up by others. Correlation between items other than the shared market factor is not modelled. <strong>Unverified:</strong> tested against closed-form arithmetic and simulation identities, not against outcomes of real pallets; the default recovery rates are placeholders, not market data.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I work out the most I should bid on a liquidation pallet?</h3>
+    <p>Work backwards from what the pallet will realistically resell for. Take the manifest retail value, apply a recovery rate for each condition (new, open box, used, salvage), remove units that will not sell or arrive damaged, take off the resale channel fee and your postage, then subtract everything you pay on top of the hammer price: buyer's premium, freight, handling and the cost of holding stock until it sells. What is left is the most you can bid. This tool does that and, because recovery rates are guesses, runs 4,000 simulated outcomes so the max bid reflects how likely you are to lose money, not only the average.</p>
+    <h3>What recovery rate should I use?</h3>
+    <p>Recovery rate is the share of the manifest's retail price that a unit that actually sells fetches. The defaults (new 45%, open box 35%, used 25%, salvage 8%) are placeholders, not market data. Replace them with your own sold-listing history for similar goods. The sensitivity table shows what happens if you are 10% to 40% too optimistic or too pessimistic.</p>
+    <h3>What does the Monte Carlo simulation do?</h3>
+    <p>Each trial draws one pallet-wide market factor that moves every recovery rate together, a sell-through rate and a damage rate around your inputs, and an independent factor for every line so big items can miss on their own. Adding up the trials gives the chance of a profit, the expected net profit and the 10th, 50th and 90th percentile outcomes. The random seed is fixed, so the same manifest and inputs always give the same numbers.</p>
+    <h3>What are the three max bids?</h3>
+    <p>One is the highest bid at which the chance of losing money stays at or below the limit you set. One is the highest bid at which expected return on the cash you put in still meets your target ROI. One is the highest bid at which expected profit still meets your target in dollars. The recommended max bid is the lowest of the three, so it satisfies all of them.</p>
+    <h3>What is the break-even recovery rate?</h3>
+    <p>It is the blended recovery rate, as a share of retail, at which expected profit at your bid is exactly zero, keeping the mix of conditions in your manifest. If it is close to or above the recovery you assumed, the bid leaves no room for error.</p>
+    <h3>Why does concentration matter?</h3>
+    <p>Manifests often hide most of their value in a handful of lines. If the top five lines are half of retail value and one is missing, damaged or worth less than listed, nothing else can make up the gap. The tool shows the top five lines' share of retail value and the simulation gives each line its own independent uncertainty, so a top-heavy manifest shows a wider spread than an even one.</p>
+    <h3>Is my manifest uploaded anywhere?</h3>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your manifest.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own judgment or a qualified professional. Results are estimates from the manifest and assumptions you supply; they do not guarantee what a pallet will sell for or that a bid will be profitable. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any liquidation auction platform, marketplace or reseller service, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your manifest is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Buying storage-unit contents instead? See the <a href="../storage-auction-max-bid-calculator/">storage auction max bid calculator</a>. Selling what you win: the <a href="../lot-split-calculator/">lot split calculator</a> (sell the lot whole or list it item by item), the <a href="../ebay-fee-calculator/">eBay fee calculator</a> and the <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseManifest, analyze, reportCsv, summaryCsv, sampleManifestText, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const CLS = { "new": "New", "open-box": "Open box", "used": "Used", "salvage": "Salvage" };
+    let last = null;
+    const val = (id) => { const t = $(id).value.trim(); return t === "" ? NaN : Number(t.replace(/[$,%\s,]/g, "")); };
+    const cards = (rows) => rows.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+
+    function readParams() {
+      const bidText = $("#bid").value.trim();
+      return {
+        bid: bidText === "" ? null : val("#bid"),
+        buyerPremiumPct: val("#premium"), freight: val("#freight"), handlingPerUnit: val("#handling"),
+        channelFeePct: val("#fee"), outboundPerUnit: val("#outbound"),
+        recovery: { "new": val("#rec-new"), "open-box": val("#rec-open"), "used": val("#rec-used"), "salvage": val("#rec-salvage") },
+        defaultClass: $("#default-class").value,
+        sellThroughPct: val("#sellthrough"), damagePct: val("#damage"), months: val("#months"), storagePerMonth: val("#storage"), capitalRatePct: val("#capital"),
+        targetProfit: val("#target-profit"), targetRoiPct: val("#target-roi"), maxLossProbPct: val("#max-loss"),
+        marketSigmaPct: val("#market-sigma"), lineSigmaPct: val("#line-sigma"), concentration: val("#tightness"),
+        trials: val("#trials"), seed: val("#seed"),
+      };
+    }
+
+    function run() {
+      const parsed = parseManifest($("#manifest").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
+      const r = analyze(parsed.lines, readParams());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, b = r.bids, st = r.stats, be = r.breakEven, c = r.concentration, p = r.p;
+      $("#bids").innerHTML = cards([
+        [money(b.recommended), "Recommended max bid (the lowest of the three limits)"],
+        [money(b.loss), `Max bid for a ${p.maxLossProbPct}% chance of loss`],
+        [money(b.roi), `Max bid for a ${p.targetRoiPct}% expected ROI`],
+        [money(b.profit), `Max bid for ${money(p.targetProfit)} expected profit`],
+      ]);
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
+      $("#outcome").innerHTML = cards([
+        [money(s.bid), s.bidWasEntered ? "Bid evaluated (yours)" : "Bid evaluated (recommended max)"],
+        [pct(st.pProfit, 0), "Chance of making a profit"],
+        [money(st.mean), "Expected net profit"],
+        [st.roi === null ? "n/a" : pct(st.roi, 0), "Expected ROI on cash in"],
+        [money(st.p10), "P10 (a bad outcome)"],
+        [money(st.p50), "P50 (the middle)"],
+        [money(st.p90), "P90 (a good outcome)"],
+        [pct(st.pTarget, 0), `Chance of reaching ${money(p.targetProfit)}`],
+        [money(s.totalCost), `All-in cost: ${money(s.cashCost)} cash plus ${money(s.holding)} holding`],
+      ]);
+      $("#breakeven").innerHTML = be ? cards([
+        [pct(be.blended, 1), "Blended recovery needed to break even, % of retail"],
+        [pct(be.assumedBlended, 1), "Blended recovery you assumed"],
+        [be.multiplier <= 1 ? pct(be.headroom, 0) : `-${pct(be.multiplier - 1, 0)}`, be.multiplier <= 1 ? "Room for recovery to fall short" : "Recovery you are short"],
+      ]) : `<p class="note">No recovery rate breaks even: nothing is expected to sell under these inputs.</p>`;
+      $("#sens tbody").innerHTML = r.sensitivity.map((x) => `<tr${x.mult === 1 ? ' class="base"' : ""}><td>${x.mult === 1 ? "as assumed" : (x.mult > 1 ? "+" : "") + Math.round((x.mult - 1) * 100) + "%"}</td><td class="n">${pct(x.blended, 1)}</td><td class="n">${esc(money(x.mean))}</td><td class="n">${x.roi === null ? "n/a" : pct(x.roi, 0)}</td><td class="n">${pct(x.pProfit, 0)}</td><td class="n">${esc(money(x.maxBidLoss))}</td></tr>`).join("");
+      $("#conc").innerHTML = cards([
+        [pct(c.top5, 0), "Top 5 lines' share of retail value"],
+        [pct(c.top1, 0), "Largest single line"],
+        [c.effectiveLines.toFixed(0), "Equivalent equal-sized lines"],
+        ...(c.topCategory ? [[`${c.topCategory.name} ${pct(c.topCategory.share, 0)}`, "Largest category by retail value"]] : []),
+      ]);
+      $("#toplines tbody").innerHTML = c.topLines.map((l) => `<tr><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td class="n">${esc(money(l.ext))}</td><td class="n">${pct(l.ext / c.total, 1)}</td></tr>`).join("");
+      const rows = r.perLine.length <= 16 ? r.perLine : [...r.perLine.slice(0, 8), ...r.perLine.slice(-8)];
+      $("#contrib tbody").innerHTML = rows.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(CLS[l.cls])}</td><td class="n">${esc(money(l.ext))}</td><td class="n">${esc(money(l.netRevenue))}</td><td class="n">${esc(money(l.allocatedCost))}</td><td class="n">${esc(money2(l.contribution))}</td></tr>`).join("");
+      $("#run-note").textContent = `${s.lines.toLocaleString("en-US")} lines, ${Math.round(s.units).toLocaleString("en-US")} units, ${money(s.totalRetail)} retail value; ${s.trials.toLocaleString("en-US")} simulated outcomes, seed ${s.seed}.` + (parsed.skipped ? ` ${parsed.skipped} unreadable rows skipped.` : "") + (parsed.defaultedQty ? ` ${parsed.defaultedQty} rows had no quantity and count as 1.` : "");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      record("report_downloaded");
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#manifest").value = sampleManifestText();
+      if (run()) { record("example_loaded"); status.textContent = "Sample manifest: 50 invented lines, not a real pallet."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#manifest").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click Find my max bid.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#manifest").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste or upload a manifest, then click Find my max bid."; });
+    $("#download").addEventListener("click", () => { if (last) download("liquidation-pallet-lines.csv", reportCsv(last)); });
+    $("#download-summary").addEventListener("click", () => { if (last) download("liquidation-pallet-summary.csv", summaryCsv(last)); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

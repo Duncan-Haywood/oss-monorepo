@@ -1,0 +1,46 @@
+name: object-storage-pricing-calculator
+description: 'Free, zero-network, zero-dependency browser tool + CLI that prices object storage (Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces, Hetzner) at a stored volume and a monthly egress volume from editable approximate list prices, projects 12 months of spend under a monthly growth rate, and finds the egress levels where the cheapest provider changes; has a --budget CI gate. A deterministic calculator over the user''s inputs, not a quote and not a guarantee of spend.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, sibling of cdn-bandwidth-pricing-calculator and
+# log-management-pricing-calculator. cloud-egress-calculator prices cloud-provider egress and
+# s3-storage-class-advisor tiers within S3; nothing compares object-storage vendors at one
+# stored + egress volume.
+#
+# Where the first real visitor would come from: search phrases "s3 vs r2 cost", "cheapest
+# object storage", "backblaze b2 vs wasabi", "r2 vs s3 pricing calculator"; r/selfhosted,
+# r/aws and Hacker News threads after an egress bill shock. The reader is a founder or lead dev
+# choosing or leaving S3. Vendor pages are rate cards per vendor; none shows all of them at one
+# volume with growth and the crossover, which is the wedge. A hosted pricing-change monitor is
+# the natural paid path later.
+hypotheses:
+  - claim: A founder choosing or leaving S3 will search for a price comparison at their stored and egress volume, enter both numbers and growth, and use the crossover table to decide.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A platform team will add the CLI to CI with --budget so growth that pushes storage spend over budget fails review instead of the invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, structurally: the browser tool calculates only from typed numbers in
+  # the visitor's own browser and the CLI reads only local input; no network call.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/object-storage-pricing-calculator/
+  analytics: null

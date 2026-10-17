@@ -1,0 +1,54 @@
+name: sep-ira-vs-solo-401k-calculator
+description: >-
+  Free browser calculator comparing a SEP-IRA and a Solo 401(k) for a sole proprietor or single-member LLC in 2026:
+  the contribution each allows (SEP-IRA is employer-only 20% of net earnings with no catch-up; Solo 401(k) adds an
+  employee deferral and catch-up), the dollar gap, the estimated tax the gap is worth at the user's marginal rate,
+  the net profit each plan needs to reach the $72,000 ceiling, and a profit sweep table. Entirely client-side,
+  nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-05. The commercial analogues are the plan-chooser pages of Fidelity, Vanguard, Schwab and
+# Carry/Ubiquity-style solo-401(k) providers, which pitch their own product; this is the neutral side-by-side with
+# the number that decides it (the Solo 401(k)'s extra room and what it is worth in tax), at no signup. Sibling of
+# solo-401k-contribution-calculator (one plan, full worksheet); this one answers the prior search, "SEP-IRA or
+# Solo 401(k)". Search phrases: "SEP IRA vs solo 401k", "SEP IRA or solo 401k for self employed", "solo 401k vs
+# SEP IRA contribution limits 2026", "which is better SEP IRA or solo 401k". Volume not measured with an external
+# tool. Year-end tax planning drives a Q4 spike.
+#
+# Path to revenue (payment rails stay off): lead magnet for the self-employed audience, linked from the Solo 401(k)
+# calculator and the self-employment tax calculator. Not built: provider referral links are off the table without
+# the owner (affiliate income would need disclosure and an account).
+#
+# Liability: applies published federal limits to the user's own numbers, states its sole-proprietor-only scope in the
+# page body and in a standing finding, and carries the no-warranty / not-tax-advice clauses.
+#
+# Unverified: the 2026 limits are the ones solo-401k-contribution-calculator already verified against IRS.gov on
+# 2026-09-28; the profit-to-max figures are derived from them by bisection, not from an external source. Nothing here
+# was checked against a provider's own calculator.
+
+hypotheses:
+  - claim: >-
+      A self-employed person choosing a retirement plan will search "SEP IRA vs solo 401k" and use a free, no-signup
+      comparison that shows the dollar gap and its tax value at their own profit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars) engage within 90 days of being reachable from the published site.
+  - A user reports a 2026 limit or a contribution this tool gets wrong.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sep-ira-vs-solo-401k-calculator/
+  analytics: null

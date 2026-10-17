@@ -6,6 +6,8 @@ local preflight — in the browser or in CI — which used to mean waiting for a
 network rejection. Open `index.html` and drop a JSON, UBL, CII, or Factur-X
 PDF file, or run the CLI below. The page never uploads the invoice.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/
+
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
 for missing fields and arithmetic mistakes, then prints rule IDs and
@@ -15,6 +17,40 @@ emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
 When a PDF unwraps, the result names the standard attachment
 (`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
 (CII or UBL). Custom attachment names are not echoed.
+
+**XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
+on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
+nine `XR-001`..`XR-009` rules that mirror the BR-DE business rules a German
+public buyer's portal enforces: buyer reference (BT-10), Leitweg-ID check
+digits (ISO 7064 MOD 97-10, verified against published samples), payment
+instructions, seller contact, seller and buyer city and postcode, invoice type
+code, the XRechnung 3.x specification identifier, and a seller tax identifier.
+Off by default. JS (page and API) only; the Python CLI does not apply it yet.
+It is an offline observation, not the KoSIT validator.
+
+**Peppol profile.** Tick "Also apply the Peppol BIS Billing 3.0 rules" on the
+page, or call `POST /v1/validate?profile=peppol`, to add five `PP-001`..`PP-005`
+rules that mirror what a Peppol access point rejects: the business process
+(BT-23, R001), the Peppol 3.0 specification identifier (R004), seller and buyer
+electronic addresses (R020, R010) and a buyer or order reference (R003). Off by
+default, JS only, and an offline observation, not the OpenPeppol Schematron.
+The UN/CEFACT CII reader now also captures the party electronic address.
+
+**France profile.** Tick "Also apply the French rules" on the page, or call
+`POST /v1/validate?profile=france`, to add seven `FR-001`..`FR-007` rules for
+invoices to French buyers under the e-invoicing reform (reception mandatory
+from 1 September 2026, issuing phased in after): the seller and buyer SIREN or
+SIRET (`legal_id`, scheme 0002) must be present and pass the Luhn check digit
+(La Poste's SIREN 356000000 uses its documented digit-sum exception), the
+SIREN inside a French VAT number must be the seller's own, and the three
+mentions the Code de commerce has always required on a B2B invoice must
+appear in the notes or payment terms: late-payment penalty rate (L441-10),
+the fixed 40 euro recovery indemnity (D441-5) and the early-payment discount
+condition (L441-9). Factur-X subject codes `#PMD#`, `#PMT#` and `#AAB#` are
+recognised, as are French and English wording. The UBL and CII readers now
+capture the party legal identifier and the invoice and payment-terms notes.
+Off by default, JS only, and an offline observation, not a certified
+platform's validator or legal advice. Findings never echo the number.
 
 ```sh
 cd ventures/einvoice-preflight
@@ -90,6 +126,82 @@ The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
 for selecting the correct format, tax treatment, and submission process.
+
+## Run it as your own API (self-hosted, one click)
+
+The same rules are available as a small HTTP service you run in **your own**
+account. Nothing is stored, nothing is forwarded, and the author runs nothing
+in between. Use it from an ERP, a webhook or a CI job instead of shelling out
+to the CLI.
+
+**Deploy:** fork this repository, then open
+`https://render.com/deploy?repo=<your fork URL>`. `render.yaml` builds the
+`Dockerfile` here on Render's free plan and generates an `EINVOICE_API_KEY`
+for you. Anywhere that runs Docker works too:
+
+```sh
+cd ventures/einvoice-preflight
+docker build -t einvoice-preflight . && docker run -p 8080:8080 -e EINVOICE_API_KEY=change-me einvoice-preflight
+# or, with Node 20+ and no Docker:  EINVOICE_API_KEY=change-me node server.mjs
+```
+
+```sh
+# one invoice: body is the raw file; Content-Type (or ?name=x.pdf) picks the parser
+curl -H "Authorization: Bearer $KEY" -H "Content-Type: application/xml" \
+  --data-binary @invoice.xml https://YOUR-HOST/v1/validate
+# a batch (base64 for PDFs); also flags duplicate invoice numbers (INV-019)
+curl -H "Authorization: Bearer $KEY" -d '{"documents":[{"name":"a.json","content":"{...}"}]}' \
+  https://YOUR-HOST/v1/validate/batch
+```
+
+The response is the CLI's `--format json` report plus a `disclaimer`. With no
+`EINVOICE_API_KEY` the API is open, so set one on anything public.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8080` | listen port |
+| `EINVOICE_API_KEY` | none | require `Authorization: Bearer <key>` on `/v1/*` |
+| `EINVOICE_MAX_BYTES` | `1048576` | per-invoice size limit |
+| `EINVOICE_MAX_BATCH` | `50` | documents per batch |
+| `EINVOICE_RATE_LIMIT_PER_MIN` | `120` | per client IP (honours `X-Forwarded-For`) |
+| `EINVOICE_CORS_ORIGIN` | none | allow browser calls from this origin |
+| `EINVOICE_SERVE_UI` | on | `0` serves the API only |
+
+If this saves you a rejected invoice run, you can chip in at
+<https://buymeacoffee.com/duncanhaywood>. Same safety boundary as below:
+preflight, not a Peppol/EN 16931 conformance validator, and no warranty.
+
+## Create an e-invoice (new)
+
+The checker's other half. Germany already requires businesses to *receive*
+structured e-invoices and makes *sending* mandatory from 2027 (2028 for small
+firms); Belgium, Poland and France follow. A PDF no longer counts, and the
+usual answer is a paid invoicing subscription. This writes the file instead.
+
+```sh
+# Browser: open create.html (or GET /create.html on the server). No upload.
+node generate-cli.mjs examples/draft-invoice.json -o RE-2026-001.xml          # XRechnung 3.0 UBL
+node generate-cli.mjs examples/draft-invoice.json -f cii -p peppol -o out.xml # CII, Peppol BIS 3.0
+curl -H "Authorization: Bearer $KEY" -d '{"draft":{...},"format":"ubl"}' https://YOUR-HOST/v1/generate
+```
+
+A *draft* is who, what and how much (`examples/draft-invoice.json`). Line
+nets, the per-rate/category VAT breakdown, the totals and the amount due are
+computed in integer cents, so they cannot disagree with each other. Standard,
+zero, exempt (`E`, e.g. Kleinunternehmer § 19 UStG), reverse-charge (`AE`),
+intra-EU (`K`), export (`G`) and out-of-scope (`O`) VAT; invoices and credit
+notes; a seller VAT ID or national tax number; prepayments. Profiles:
+`xrechnung` (BR-DE contact, buyer reference and payment checks), `peppol`
+(BIS 3.0), `en16931`. Missing required data is an *error* and nothing is
+written; what only your profile wants (a Leitweg-ID, a seller contact) is a
+*warning*. Every file is read back through the same readers and rules as the
+checker, and the API returns that result as `preflight`.
+
+Not a certified invoicing system: it does not sign, archive, transmit, look
+up a Leitweg-ID or a Peppol participant, or do document-level allowances
+(put discounts into the line price). It is a preflight-grade writer, not a
+schema/Schematron validator, so run the output through your network's validator
+(e.g. the KoSIT validator) before sending.
 
 ## Input shape
 
@@ -310,8 +422,9 @@ results so a CI consumer cannot mistake a skipped file for a clean check. Both f
 any check fails and `2` for an unreadable input file. Pass a directory to scan
 all `.json` files recursively; batch JSON includes per-file errors and batch
 SARIF uses paths relative to the input directory. An empty directory is an
-input error and exits `2`. Batch scans also flag duplicate `invoice_number`
-values as `INV-019`; the number itself is never emitted.
+input error and exits `2`. Batch scans also flag a supplier (matched by id, VAT id or
+name) who reuses an `invoice_number` as `INV-019`; the number itself is never
+emitted. Two different suppliers that both issue `1001` are not flagged.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
 `files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.

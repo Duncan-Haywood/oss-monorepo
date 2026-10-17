@@ -1,0 +1,57 @@
+name: weekly-staff-schedule-maker
+description: >-
+  Free browser tool for restaurants, cafes, shops and salons: list your people
+  (roles, hour limits, days off) and the shifts to cover, and a constraint solver
+  builds the weekly schedule with rest between shifts, fair hours, weekend
+  rotation, open shifts explained, a labor cost estimate and CSV, grid and text
+  exports. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture session.
+# duplicate_check.py: closest rows were flsa-regular-rate-overtime-audit 0.23 and
+# shift-cover-optimizer 0.19 (cover for one absence, a different job); nothing near the
+# 0.45 line. Shape is a constraint solver, not a bid calculator.
+#
+# Why this niche: owners and managers of small shift businesses build the weekly rota
+# by hand or pay per-seat for scheduling apps (7shifts, When I Work, Homebase). The free
+# spreadsheet templates do no checking: close-then-open, a sixth straight day and an
+# uncovered Friday are found on the day.
+#
+# First visitor: people searching "employee schedule maker free", "restaurant work
+# schedule template", "weekly staff schedule generator"; managers asking in
+# r/restaurateur, r/smallbusiness and r/KitchenConfidential. Volume not measured with an
+# external tool.
+#
+# Liability boundary: scheduling arithmetic only. No payments, no accounts, no payroll,
+# nothing stored or uploaded, no claim of compliance with predictive-scheduling, break or
+# overtime law. The manager reviews every shift before sharing it.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations.
+
+hypotheses:
+  - claim: >-
+      Small shift-business managers will paste their staff and shifts into a private,
+      no-signup solver and use the schedule it makes instead of building the rota by
+      hand each week, and will come back weekly.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a schedule that breaks a rule the page says it enforces (role, day off, hour cap, rest, run length).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/weekly-staff-schedule-maker/
+  analytics: null

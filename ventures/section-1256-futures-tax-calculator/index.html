@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Section 1256 Futures Tax Calculator</title>
+  <meta name="description" content="Free Section 1256 60/40 tax calculator for futures and index option traders: enter Form 1099-B boxes 8, 9 and 10, see the aggregate, the 60% long-term and 40% short-term split, the blended rate and how much 60/40 saves against short-term. Private, runs in your browser.">
+  <meta property="og:title" content="Section 1256 60/40 futures tax calculator — free, private">
+  <meta property="og:description" content="Enter 1099-B boxes 8, 9 and 10. See the 60/40 split, the tax and the saving. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Section 1256 Futures Tax Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Section 1256 contract?", "acceptedAnswer": {"@type": "Answer", "text": "Regulated futures contracts, broad-based index options such as SPX, NDX and VIX, dealer equity options and some foreign currency contracts. They are marked to market on the last business day of the year, as if sold at fair value, and the result is reported on Form 6781."}}, {"@type": "Question", "name": "What is the 60/40 rule?", "acceptedAnswer": {"@type": "Answer", "text": "Net gains and losses on Section 1256 contracts are treated as 60% long-term and 40% short-term capital gain or loss, however long you held the position. For a high earner that blended rate is lower than the ordinary short-term rate that applies to day trading stocks or options on single stocks."}}, {"@type": "Question", "name": "Where do the numbers come from?", "acceptedAnswer": {"@type": "Answer", "text": "From Form 1099-B. Box 8 is realized profit or loss, box 9 is last year's year-end unrealized, box 10 is this year's year-end unrealized, and box 11 is the aggregate: box 8 minus box 9 plus box 10. Enter boxes 8, 9 and 10 per account and the page computes the aggregate for you so you can compare it with box 11."}}, {"@type": "Question", "name": "Can I carry a 1256 loss back?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, by election on Form 6781 Part II: a net 1256 loss can be carried back three years against net 1256 gains instead of only being carried forward. Whether that pays depends on your earlier years; ask a tax professional."}}, {"@type": "Question", "name": "Does this include SPY, QQQ or single-stock options?", "acceptedAnswer": {"@type": "Answer", "text": "No. ETF shares and options on ETFs or single stocks are ordinary capital assets and are not 1256 contracts. Only the contracts listed above qualify, and your broker's 1099-B tells you which."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f6e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14384f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14384f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5963; }
+    .card { background: #fff; border: 1px solid #d3dde3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14384f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f6e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfeaf1; color: #14384f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e3eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5963; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3eaee; color: #14384f; }
+    .pill.ok { background: #dff3e6; color: #1f5c35; }
+    .stats { font-size: .95rem; color: #2b363d; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dde3; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #aebfca; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SECTION 1256 CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does the 60/40 rule save me on futures and index options?</h1>
+    <p>Enter the <strong>Form 1099-B</strong> boxes 8, 9 and 10 for each account. The page computes the aggregate profit or loss (box 11), splits it <strong>60% long-term / 40% short-term</strong>, and compares the tax with treating the same result as short-term.</p>
+    <p class="note">A planning and cross-check tool, not tax advice. It uses the marginal rates you type, not a bracket calculation. Confirm with a tax professional before filing Form 6781.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your accounts</h2>
+    <p class="note">One row per account or contract group: label, realized (box 8), prior year-end unrealized (box 9), current year-end unrealized (box 10). CSV or pasted spreadsheet range; a header row is optional. Losses as -500 or (500).</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="paste">…or paste the rows</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Account,Box 8,Box 9,Box 10&#10;Broker A - ES futures,18250,-1200,3400"></textarea>
+    <div class="grid">
+      <div><label for="ordinary">Ordinary (short-term) marginal rate, %</label><input id="ordinary" type="number" min="0" max="60" step="0.5" value="32"></div>
+      <div><label for="ltcg">Long-term capital gains rate, %</label><input id="ltcg" type="number" min="0" max="40" step="0.5" value="15"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="niit"><label for="niit">Add the 3.8% net investment income tax to both</label></div>
+    <p>
+      <button type="button" id="validate">Calculate</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the rows, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Account</th><th scope="col" class="n">Realized</th><th scope="col" class="n">Prior unrealized</th><th scope="col" class="n">Current unrealized</th><th scope="col" class="n">Aggregate (box 11)</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div id="notes" class="note"></div>
+    <p><button type="button" id="dl-report">Download report (CSV)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and what it leaves out</h2>
+    <ul>
+      <li><strong>Aggregate:</strong> realized (8) minus prior year-end unrealized (9) plus current year-end unrealized (10), per row, then summed.</li>
+      <li><strong>Split:</strong> 60% long-term, 40% short-term, regardless of holding period.</li>
+      <li><strong>Tax:</strong> net × (0.6 × long-term rate + 0.4 × ordinary rate); compared with net × ordinary rate. The 3.8% net investment income tax, if ticked, is added to both rates.</li>
+      <li><strong>Rules reviewed:</strong> 2026-10-08, by the author from IRC section 1256, Form 6781 and its instructions, and Form 1099-B instructions, not by a tax professional. Rules can change.</li>
+      <li><strong>Not decided:</strong> which of your contracts qualify, straddle and mixed-straddle rules, the section 988 currency election, the trader tax status election (section 475), capital loss limits against other gains, state tax, and the exact bracket your gain pushes you into.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a Section 1256 contract?</h3>
+    <p>Regulated futures contracts, broad-based index options such as SPX, NDX and VIX, dealer equity options and some foreign currency contracts. They are marked to market on the last business day of the year, as if sold at fair value, and the result is reported on Form 6781.</p>
+    <h3>What is the 60/40 rule?</h3>
+    <p>Net gains and losses on Section 1256 contracts are treated as 60% long-term and 40% short-term capital gain or loss, however long you held the position. For a high earner that blended rate is lower than the ordinary short-term rate that applies to day trading stocks or options on single stocks.</p>
+    <h3>Where do the numbers come from?</h3>
+    <p>From Form 1099-B. Box 8 is realized profit or loss, box 9 is last year's year-end unrealized, box 10 is this year's year-end unrealized, and box 11 is the aggregate: box 8 minus box 9 plus box 10. Enter boxes 8, 9 and 10 per account and the page computes the aggregate for you so you can compare it with box 11.</p>
+    <h3>Can I carry a 1256 loss back?</h3>
+    <p>Yes, by election on Form 6781 Part II: a net 1256 loss can be carried back three years against net 1256 gains instead of only being carried forward. Whether that pays depends on your earlier years; ask a tax professional.</p>
+    <h3>Does this include SPY, QQQ or single-stock options?</h3>
+    <p>No. ETF shares and options on ETFs or single stocks are ordinary capital assets and are not 1256 contracts. Only the contracts listed above qualify, and your broker's 1099-B tells you which.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. It is read in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a tax professional or your broker's tax forms. The figures it shows are estimates.</p>
+    <p><strong>Not affiliated with any court, housing agency or government body.</strong> This tool is independent; it is not sponsored, endorsed or connected to the IRS, the Department of the Treasury, any broker or any government body.</p>
+    <p><strong>Trading data.</strong> Broker figures are financial details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives them. Closing the tab discards them; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>rows_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../wash-sale-checker/">wash sale checker</a> and the <a href="../tax-loss-harvesting-calculator/">tax-loss harvesting calculator</a> cover the neighbouring decisions.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { evaluate, sampleList, reportCsv, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+
+    function run(text) {
+      const r = evaluate(text, { ordinary: parseFloat($("#ordinary").value), longTerm: parseFloat($("#ltcg").value), niit: $("#niit").checked });
+      if (r.error) { status.textContent = r.error; return false; }
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>Net 1256 result ${money(s.net)}</strong> · long-term 60% ${money(s.lt)} · short-term 40% ${money(s.st)} · blended rate ${(s.blended * 100).toFixed(1)}% · tax at 60/40 ${money(s.as1256)} · tax if all short-term ${money(s.asShortTerm)} · difference ${money(s.saving)}${r.errors.length ? ` · ${r.errors.length} row(s) unreadable` : ""}`;
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${money(x.realized)}</td><td class="n">${money(x.prior)}</td><td class="n">${money(x.current)}</td><td class="n">${money(x.aggregate)}</td></tr>`).join("");
+      $("#notes").innerHTML = [...r.notes, ...r.errors].map((n) => `<p>${esc(n)}</p>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.rows.length} row${r.rows.length === 1 ? "" : "s"} calculated.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#validate").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the rows first."; return; }
+      if (run(text)) record("rows_calculated");
+    });
+    $("#load-ok").addEventListener("click", () => {
+      $("#paste").value = sampleList(); $("#file").value = "";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up figures.";
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the rows, then click Calculate."; });
+    $("#dl-report").addEventListener("click", () => { if (last) { record("report_downloaded"); download("section-1256-report.csv", reportCsv(last), "text/csv"); } });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

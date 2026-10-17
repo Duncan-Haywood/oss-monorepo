@@ -1,0 +1,31 @@
+mimic-genshift: AUROC of the n-gram detector on a generator / decoding it was not fit on
+
+generator                 in-distribution            left out of fit
+llama-chat     0.991 [0.989,0.993]   0.978 [0.974,0.982]
+mistral-chat   0.983 [0.978,0.987]   0.971 [0.965,0.977]
+mpt-chat       0.981 [0.974,0.987]   0.959 [0.946,0.971]
+
+by family (left out of fit):
+  llama-chat     abstracts=0.97 books=1.00 news=0.98 poetry=0.99 recipes=1.00 reddit=0.95 reviews=0.98 wiki=0.96
+  mistral-chat   abstracts=0.96 books=1.00 news=0.99 poetry=0.99 recipes=1.00 reddit=0.97 reviews=1.00 wiki=0.89
+  mpt-chat       abstracts=n/a books=n/a news=n/a poetry=0.98 recipes=0.97 reddit=0.96 reviews=0.99 wiki=n/a
+
+decoding                  in-distribution            left out of fit
+greedy         0.989 [0.986,0.991]   0.964 [0.957,0.970]
+sampling       0.984 [0.980,0.987]   0.936 [0.927,0.945]
+
+by family (left out of fit):
+  greedy         abstracts=0.92 books=1.00 news=0.96 poetry=0.95 recipes=1.00 reddit=0.95 reviews=1.00 wiki=0.92
+  sampling       abstracts=0.97 books=0.99 news=0.96 poetry=0.95 recipes=0.93 reddit=0.92 reviews=0.97 wiki=0.83
+
+distinct-n of a 100-text batch (mean of 20 draws), human vs model:
+  abstracts  human: d1=0.262 d2=0.749 d3=0.943  llama-chat: d1=0.169 d2=0.546 d3=0.784  mistral-chat: d1=0.214 d2=0.630 d3=0.837
+  books      human: d1=0.308 d2=0.788 d3=0.970  llama-chat: d1=0.199 d2=0.602 d3=0.842  mistral-chat: d1=0.208 d2=0.629 d3=0.862
+  news       human: d1=0.275 d2=0.784 d3=0.965  llama-chat: d1=0.255 d2=0.724 d3=0.924  mistral-chat: d1=0.254 d2=0.723 d3=0.918
+  poetry     human: d1=0.278 d2=0.796 d3=0.955  mistral-chat: d1=0.230 d2=0.721 d3=0.912  mpt-chat: d1=0.279 d2=0.816 d3=0.954
+  recipes    human: d1=0.148 d2=0.589 d3=0.865  llama-chat: d1=0.105 d2=0.373 d3=0.581  mistral-chat: d1=0.106 d2=0.399 d3=0.623
+  reddit     human: d1=0.237 d2=0.735 d3=0.949  mistral-chat: d1=0.237 d2=0.712 d3=0.910  mpt-chat: d1=0.307 d2=0.794 d3=0.945
+  reviews    human: d1=0.281 d2=0.773 d3=0.963  llama-chat: d1=0.231 d2=0.626 d3=0.829
+  wiki       human: d1=0.330 d2=0.789 d3=0.954  llama-chat: d1=0.269 d2=0.682 d3=0.872  mistral-chat: d1=0.289 d2=0.730 d3=0.903
+
+batch-mean score AUROC, detector left out of fit, k texts per batch: k=1: 0.971  k=2: 0.993  k=4: 0.999  k=8: 1.000  k=16: 1.000

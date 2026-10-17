@@ -1,0 +1,41 @@
+name: pipedrive-import-csv-check
+description: >-
+  Free browser tool that checks a Pipedrive spreadsheet import CSV of deals, people or organizations
+  before it is uploaded: deals with a status that is not Open, Won or Lost, values with currency
+  symbols or thousands separators, currencies that are not 3-letter codes, probabilities written as
+  fractions or over 100, missing person names and deal titles, invalid and duplicate emails,
+  duplicate deals, phone numbers Excel damaged (scientific notation), date formats the import will
+  misread, headings that do not match field names, semicolon-delimited files and over-limit files,
+  each with its line number, plus a formatting-only safe-fixes pass that lists every change. The
+  file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-04 in a new-venture-first session. The portfolio has HubSpot, Salesforce (leads),
+# Xero, QuickBooks and email-list import checkers; none covers Pipedrive, the CRM small sales teams
+# and agencies pick for its deal pipeline. Pipedrive's import is a mapping wizard over a spreadsheet,
+# so the faults are the ones a spreadsheet round trip produces plus a deal-shaped set of its own: a
+# status that is a stage name from the old CRM ("Closed Won"), "$12,000" in the Value column, a
+# Probability of 0.6, a currency written as a symbol or a word, and the same deal entered twice,
+# which doubles pipeline value. Deals are the differentiated shape; the sibling checkers are
+# contact-shaped.
+#
+# First visitor: people searching the literal problems ("Pipedrive import deals CSV error",
+# "Pipedrive import deal status won lost", "Pipedrive import currency", "Pipedrive import date
+# format") and Pipedrive Community threads, r/pipedrive, r/sales. Volume not measured.
+#
+# Privacy is the liability boundary: a customer and deal list names people, emails, phones and
+# amounts, so the file never leaves the browser (a test asserts no network calls).
+#
+# Rules are read from memory of Pipedrive's public import help, with an explicit not-checked list
+# shown on the page and returned with every result: custom fields, pipeline and stage names, owner
+# matching, existing records, enabled currencies, the date and number formats chosen at import,
+# deliverability.
+#
+# Path to revenue (payment rails stay off): lead magnet for the CRM-migration and sales-ops
+# audience, sibling to the HubSpot, Salesforce, Xero, QuickBooks and email-list checkers. A paid
+# version, if usage appears, is bulk checks across client files with saved rules behind an env-var
+# switch; not built.
+#
+# Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
+# independent-of-Pipedrive clause, trademark used nominatively.

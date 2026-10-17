@@ -1,0 +1,56 @@
+name: wash-sale-checker
+description: >-
+  Free browser tool for active retail traders and their accountants: paste trades from every brokerage and IRA
+  account and see each loss sale matched against purchases of the same ticker in the 61-day window, the loss disallowed,
+  the loss still claimable, losses permanently lost to IRA repurchases, the adjusted basis carried into replacement
+  shares, the Form 8949 code W figure and the first safe re-buy date. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: closest ventures at 0.16
+# (tax-loss-harvesting-calculator, which nets losses and mentions wash sales as a flag but reads no trade list).
+# Search phrases: "wash sale checker", "wash sale calculator across accounts", "wash sale IRA permanent loss",
+# "form 8949 code W adjustment", "wash sale rule 30 days calculator".
+# Volume not measured with an external tool. Demand peaks in December (loss harvesting) and March-April (filing).
+#
+# Who: active retail traders with several accounts (taxable, spouse, IRA) whose broker's 1099-B only sees wash sales
+# inside one account, and the preparers who clean that up by hand. Paid competitors are TradeLog and GainsKeeper-style
+# tools and broker-specific reports; this is the free, private, paste-a-CSV version of the matching step.
+#
+# Path to revenue (payment rails stay off): lead magnet for traders and CPA firms. A paid version, if usage appears,
+# is broker-export importers (Schwab, Fidelity, IBKR, Robinhood), lot-level specific identification, holding-period
+# tracking and a year-end 8949 export behind an env-var switch; not built.
+#
+# Liability: it reads the user's own list, shows its model and assumptions, matches identical tickers only and says
+# so, never says what to file, carries the no-warranty and not-tax-advice clauses, and lists substantially-identical
+# judgement, options, short sales, crypto, spouse and entity accounts as not decided.
+#
+# Unverified: the rule was read by the author from section 1091, Pub. 550 and Rev. Rul. 2008-5, not a tax
+# professional. Matching order for replacement shares is first-in by date, an assumption, not a statement of the
+# regulations. The first report of a wrong result is the priority fix.
+
+hypotheses:
+  - claim: >-
+      A multi-account trader will paste a trade list into a no-upload page to find cross-account and IRA wash sales
+      their broker's 1099-B did not report, because no free tool does the matching step without an upload or account link.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted list structure) engage with the tool by 2027-04-15, after the 2026 filing season it is built for.
+  - A user reports a result that differs from their broker or preparer on a plain same-ticker case, at which point the matching needs revisiting before the next December.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wash-sale-checker/
+  analytics: null

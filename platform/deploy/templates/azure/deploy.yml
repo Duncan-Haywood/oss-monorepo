@@ -1,0 +1,51 @@
+# Creates a storage account with a static website in YOUR Azure subscription with
+# OpenTofu and uploads ./app to it. State is encrypted with OpenTofu's native
+# state encryption (key: the TOFU_STATE_PASSPHRASE secret) and committed to
+# state/ in this repository.
+name: Deploy
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['app/**', 'tofu/**.tf']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tofu
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION || 'eastus' }}
+      BUDGET_EMAIL: ${{ vars.BUDGET_EMAIL }}
+      BUDGET_AMOUNT: ${{ vars.BUDGET_AMOUNT || '10' }}
+      PASSPHRASE: ${{ secrets.TOFU_STATE_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.8.5
+      - name: tofu apply
+        working-directory: tofu
+        run: |
+          export TF_ENCRYPTION="$(sed "s/__PASSPHRASE__/${PASSPHRASE}/" encryption.hcl.tmpl)"
+          mkdir -p ../state
+          tofu init -input=false
+          tofu apply -input=false -auto-approve -state=../state/terraform.tfstate \
+            -var "name=${{ github.event.repository.name }}" -var "location=${AZURE_LOCATION}" \
+            -var "budget_email=${BUDGET_EMAIL}" -var "budget_amount=${BUDGET_AMOUNT}"
+          echo "Live at $(tofu output -raw url)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit encrypted state
+        run: |
+          git config user.name "deploy-bot"
+          git config user.email "deploy-bot@users.noreply.github.com"
+          git add state
+          git diff --cached --quiet || { git commit -m "state: encrypted OpenTofu state" && git push; }

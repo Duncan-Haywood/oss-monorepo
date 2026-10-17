@@ -1,0 +1,82 @@
+name: insurance-denial-appeal-builder
+description: >-
+  Free browser tool that reads the text of a health insurance denial letter or
+  EOB, suggests the denial reason from adjustment codes and phrases, computes
+  the appeal deadline for the plan type, drafts the appeal letter (with the
+  documents to enclose and the plan's criteria and claim file to request for
+  that kind of denial), lists what to do first, and exports the deadline and
+  reminders as a calendar file. The text is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-02 in a new-venture-first session. duplicate_check.py: no
+# denial or appeal venture (closest: medical-bill-error-checker, which reads an
+# itemised bill and drafts a billing review, not an appeal of a coverage
+# decision; property-tax-appeal-calculator is unrelated).
+#
+# First visitor: searches like "health insurance denial appeal letter",
+# "how to appeal insurance claim denial", "CO-50 denial code", "CO-197 denial
+# reason" and "insurance denied MRI medical necessity appeal", and r/HealthInsurance
+# and r/personalfinance threads on denied claims. Search volume not measured
+# with an external tool. Paid alternatives are advocacy services that take a
+# share of the recovery and AI letter generators that want the letter uploaded.
+#
+# What makes it more than a template: the reason is read from the user's own
+# letter (codes outrank phrases, evidence is shown, the user can override); the
+# deadline comes from plan type and receipt date and a window stated in the
+# notice always overrides the rule of thumb; a passed window changes the letter
+# to ask for good-cause acceptance; billing, authorization and filing denials
+# are steered to the provider first because a corrected claim is usually faster;
+# every reason has its own asks and enclosures.
+#
+# Privacy is the liability boundary: a denial letter is health information. It
+# never leaves the browser (tests assert no network calls), so the portfolio
+# holds no health data.
+#
+# Liability: dates are reminders from rules of thumb, the notice controls; no
+# outcome is promised; not legal, medical or insurance advice; the letter states
+# only what the user supplies and shows placeholders for the rest.
+#
+# Path to revenue (payment rails stay off): lead magnet. A paid tier, if usage
+# appears, is a curated per-insurer rule pack and state external-review
+# deadlines, local-only, behind an env-var switch; not built. Not built: LLM
+# letter polishing (needs a key and would send health text out), claim-portal
+# integration.
+#
+# Unverified: reason-code table and phrase matches come from public references
+# and have not been run against real denial letters from many insurers; the
+# deadline rules of thumb were not checked by an attorney or benefits adviser.
+# The first report of a misread letter or a wrong deadline is the priority fix.
+
+hypotheses:
+  - claim: >-
+      People holding a denial letter will paste it into a no-signup tool that
+      names the reason, the deadline and the attachments, rather than letting
+      the window lapse or paying an advocate a share of the recovery.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The deadline reminder file and the reason-specific letter are what get
+      used: people download the .ics and send the letter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a misread denial reason or a materially wrong deadline, at which point the rule tables need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/insurance-denial-appeal-builder/
+  analytics: null

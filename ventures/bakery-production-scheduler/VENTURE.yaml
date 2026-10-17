@@ -1,0 +1,48 @@
+name: bakery-production-scheduler
+description: >-
+  Free browser tool for small and wholesale bakeries. Paste products (batch size, prep, proof, bake minutes, price,
+  cost) and orders with due times; get a backwards-planned prep, proof and bake timeline across your ovens and bakers,
+  the earliest start, the smallest extra oven or baker that makes it fit, and which orders to turn down when it does
+  not. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-07 in a new-venture-first session. duplicate_check.py "bakery production schedule oven batch
+# planner wholesale orders": closest 0.17 (candle-batch-cost-calculator); no bakery scheduler exists. Not in
+# screened-out.md.
+# Who: owners of micro, cottage-to-commercial and wholesale bakeries who take standing orders from cafes, hotels and
+# markets and plan the night's bake on paper. Where the first visitor comes from: searches such as "bakery production
+# schedule template", "how to plan bakery production", "bread baking schedule backwards from delivery"; r/Baking and
+# r/Bakery posts on wholesale timing. Volume not measured with an external tool.
+#
+# Liability: scheduling arithmetic on the user's own numbers; no personal data, stores nothing, carries the no-warranty
+# and not-advice clauses. Food-safety rules are explicitly out of scope.
+#
+# Unverified: no baker has used it. Every batch fits any oven slot, and prep is one baker for the full prep time, both
+# stated on the page. Path to revenue (payment rails stay off): lead magnet and donations; if usage appears, saved
+# product lists and a printable production sheet are the next build, then a paid-tier candidate behind an env switch.
+
+hypotheses:
+  - claim: >-
+      Wholesale bakers will paste their products and orders into a private scheduler to find the start time and the
+      oven and baker count a morning needs, because the plan is otherwise worked out on paper from habit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bakery-production-scheduler/
+  analytics: null

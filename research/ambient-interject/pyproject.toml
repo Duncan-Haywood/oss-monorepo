@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ambient-interject"
+version = "0.1.0"
+description = "Simulated conversations and interruption policies for an always-on assistant, compared at equal annoyance"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

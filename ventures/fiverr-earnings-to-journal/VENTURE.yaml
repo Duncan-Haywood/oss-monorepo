@@ -1,0 +1,66 @@
+name: fiverr-earnings-to-journal
+description: >-
+  Free browser tool that turns a Fiverr earnings or transaction history into balanced accounting journals for
+  Xero, QuickBooks Online and QuickBooks Desktop (IIF). It books order revenue and tips gross to separate
+  income accounts, Fiverr's 20% service fee and withdrawal fees as expenses, refunds and cancellations as
+  reversals and withdrawals as money moving to the bank, can gross up order rows that are already net of the
+  fee, proves the export is complete by walking a running Balance column row to row, splits a history that
+  straddles a month end into one journal per month, and shows what Fiverr took as a share of what was billed.
+  Types no rule recognises are journalled to an uncategorised account rather than dropped. The export is read
+  locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 (sibling of upwork-earnings-to-journal and fiverr-earnings-fee-analyzer: that one reads
+# Fiverr to analyse take-home per order, this one books the same money into the ledger). The commercial analogues are A2X, Synder and
+# Fiverr bookkeeping services (marketplace and payment-platform sync into Xero and QuickBooks, sold per
+# month); this is the no-account, no-upload, one-export-at-a-time version for freelancers whose money sits in an
+# Fiverr balance net of fees and is withdrawn in lumps that match no invoice.
+# Search phrases: "Fiverr to QuickBooks", "Fiverr to Xero", "how to record Fiverr income in QuickBooks",
+# "Fiverr bookkeeping", "Fiverr fees accounting", "Fiverr service fee journal entry". Volume not measured with
+# an external tool.
+#
+# First visitor: freelancers and their bookkeepers searching the phrases above, r/Fiverr and r/freelance threads
+# on "how do I book Fiverr fees", and the QuickBooks and Xero community forums where the question recurs.
+#
+# Who: Fiverr sellers who keep their own books, and bookkeepers serving several of
+# them, who today book the net withdrawal as income.
+#
+# Path to revenue (payment rails stay off): lead magnet for the freelancer and bookkeeper audience. If usage
+# appears, the paid version is what a browser page cannot do: batch many clients, remember the account mapping
+# per client, and add Freelancer.com and Toptal exports. Not built.
+#
+# Liability: writes a journal from the user's own export, shows the check it ran, states what it does not
+# check (tax treatment, currency conversion), and carries the no-warranty, independent-of-Fiverr and
+# financial-data clauses.
+#
+# Unverified: the column names of the Fiverr earnings export (matched here by alias), its Type labels, whether it
+# lists newest or oldest first, whether it has a Balance column at all, whether order rows are gross or net of the fee, and the Xero, QuickBooks Online and IIF import layouts are from memory of public help documents;
+# nothing ran against a real Fiverr export or a live import. The first export this misreads is the priority fix.
+
+hypotheses:
+  - claim: >-
+      An Fiverr freelancer or their bookkeeper will paste a transaction history into a no-upload page to get a
+      month-split journal and a fee-share figure, because the alternatives are booking the net withdrawal as
+      income (hiding fees, putting income in the wrong month) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a payout this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fiverr-earnings-to-journal/
+  analytics: null

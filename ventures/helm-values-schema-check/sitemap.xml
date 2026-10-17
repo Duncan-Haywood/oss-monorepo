@@ -3,4 +3,5 @@
   <url><loc>./index.html</loc></url>
   <url><loc>./why-helm-silently-accepts-a-typo-in-values-yaml.html</loc></url>
   <url><loc>./vs-helm-lint.html</loc></url>
+  <url><loc>./vs-checking-it-by-eye.html</loc></url>
 </urlset>

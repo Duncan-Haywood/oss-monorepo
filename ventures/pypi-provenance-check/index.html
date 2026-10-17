@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PyPI Provenance Check — Which of Your Python Dependencies Lack Trusted Publishing?</title>
+  <meta name="description" content="Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing / OIDC via GitHub Actions or another supported CI) and which still rely on a classic, stealable API token. Free, no account, two read-only requests per package to the public PyPI API.">
+  <meta property="og:title" content="Which of your PyPI dependencies lack a provenance attestation?">
+  <meta property="og:description" content="Paste a requirements.txt and get a deterministic list of which packages were published via PyPI trusted publishing, and which still depend on a classic, stealable API token. No account, no upload of your file -- only package names and versions leave the browser, straight to the public PyPI API.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"PyPI Provenance Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks which packages in a requirements.txt, a PEP 621 pyproject.toml, or a plain list were published with a PyPI provenance attestation (PEP 740, trusted publishing / OIDC) versus a classic long-lived API token. Runs in the browser or as a zero-dependency Node CLI, two read-only requests per package to the public PyPI API."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't pypi-attestations verify enough?","acceptedAnswer":{"@type":"Answer","text":"pypi-attestations verify checks one already-downloaded artifact at a time, from the command line, with no bulk or CI-friendly report across a requirements file or several repositories. This tool works from a pasted requirements.txt, pyproject.toml, or plain list -- no download or install required -- and the CLI emits JSON for scripting. More: why this exists alongside pypi-attestations."}},{"@type":"Question","name":"Does a package without provenance mean it's compromised?","acceptedAnswer":{"@type":"Answer","text":"No. PyPI attestations only became available in November 2024, so most published packages predate the feature or their maintainer hasn't migrated yet -- popular, actively maintained packages show up with no provenance attestation too. And the reverse isn't a safety guarantee either: a documented May 2026 worm shipped malicious PyPI and npm packages carrying valid, verifiable attestations, because an attestation proves how a release was built, not that its source code is safe. The absence or presence of provenance is a fact about how a version was published, not a verdict on whether it is safe to install."}},{"@type":"Question","name":"Is my requirements.txt uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is parsed entirely in your browser. What does leave your browser is two read-only GET requests per package name/version -- one to pypi.org's package metadata API, one to its PEP 740 integrity/provenance API -- the same public endpoints pip and pypi-attestations already talk to."}},{"@type":"Question","name":"What counts as a provenance attestation?","acceptedAnswer":{"@type":"Answer","text":"PyPI's integrity API (PEP 740) serves a non-empty attestation_bundles array for a release file published via trusted publishing from a supported CI. This tool reports exactly that: present or absent, and, when present, the publisher's repository and workflow from the attestation's own certificate."}},{"@type":"Question","name":"How is this different from a supply-chain security platform like Socket?","acceptedAnswer":{"@type":"Answer","text":"Different layers. Socket watches a connected dependency graph and the public registries on an ongoing basis across dozens of risk categories, including Python. This tool answers one narrower, one-time question from a pasted requirements file or the CLI: does this exact release file carry PyPI's own PEP 740 provenance attestation? See this checker vs. Socket."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.yes { background: #dcfce7; color: #14532d; }
+    .pill.no { background: #fde8e8; color: #7f1d1d; }
+    .pill.unknown { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PYPI PROVENANCE CHECK · TWO READ-ONLY REQUESTS PER PACKAGE</p>
+    <h1>Which of your Python dependencies lack a provenance attestation?</h1>
+    <p>Paste a <code>requirements.txt</code>, a PEP 621 <code>pyproject.toml</code>, or a plain list of package names, and see which ones were published with a PyPI <strong>provenance attestation</strong> -- <a href="https://docs.pypi.org/attestations/" rel="noopener">PEP 740</a>, PyPI's trusted-publishing signature (OIDC, no long-lived API token to steal) -- and which still rely on a classic upload token.</p>
+    <p class="note">Your file is parsed in this browser and never uploaded. Checking a package makes two GET requests, from your browser, to the public PyPI API -- pypi.org's package metadata endpoint, then its PEP 740 integrity/provenance endpoint.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste a requirements.txt, pyproject.toml, or a plain list</h2>
+    <label for="input">requirements.txt / pyproject.toml [project] dependencies / one package per line (name or name==version)</label>
+    <textarea id="input" spellcheck="false" placeholder="pip
+six==1.17.0
+urllib3
+
+-- or --
+
+[project]
+dependencies = [&quot;requests>=2.31.0&quot;]"></textarea>
+    <p>
+      <button type="button" id="check">Check provenance</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Provenance by package</h2>
+    <p id="summary"></p>
+    <table>
+      <thead><tr><th>Package</th><th>Version checked</th><th>Provenance</th><th>Detail</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs requirements.txt
+node cli.mjs requirements.txt --json
+node cli.mjs requirements.txt --without-provenance-only
+node cli.mjs pyproject.toml                     # unpinned deps: checks the latest published version
+echo "pip\nsix==1.17.0" | node cli.mjs -         # freeform list on stdin</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. Reads only the file you name; the only network calls are the per-package PyPI lookups.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why isn't <code>pypi-attestations verify</code> enough?</h3>
+    <p><code>pypi-attestations verify</code> checks one already-downloaded artifact at a time, from the command line, with no bulk or CI-friendly report across a requirements file or several repositories. This tool works from a pasted <code>requirements.txt</code>, <code>pyproject.toml</code>, or plain list -- no download or install required -- and the CLI emits JSON for scripting. More: <a href="why-not-just-pypi-attestations-verify.html">why this exists alongside pypi-attestations</a>.</p>
+    <h3>Does a package without provenance mean it's compromised?</h3>
+    <p>No. PyPI attestations only became available in November 2024, so most published packages predate the feature or their maintainer hasn't migrated yet -- popular, actively maintained packages show up with no provenance attestation too. And the reverse isn't a safety guarantee either: a documented May 2026 worm shipped malicious PyPI and npm packages carrying valid, verifiable attestations, because an attestation proves how a release was built, not that its source code is safe. The absence or presence of provenance is a fact about how a version was published, not a verdict on whether it is safe to install.</p>
+    <h3>Is my requirements.txt uploaded anywhere?</h3>
+    <p>No. The file is parsed entirely in your browser. What does leave your browser is two read-only GET requests per package name/version -- one to <code>pypi.org</code>'s package metadata API, one to its PEP 740 integrity/provenance API -- the same public endpoints pip and pypi-attestations already talk to.</p>
+    <h3>What counts as a provenance attestation?</h3>
+    <p>PyPI's integrity API (PEP 740) serves a non-empty <code>attestation_bundles</code> array for a release file published via trusted publishing from a supported CI. This tool reports exactly that: present or absent, and, when present, the publisher's repository and workflow from the attestation's own certificate.</p>
+    <h3>How is this different from a supply-chain security platform like Socket?</h3>
+    <p>Different layers. Socket watches a connected dependency graph and the public registries on an ongoing basis across dozens of risk categories, including Python. This tool answers one narrower, one-time question from a pasted requirements file or the CLI: does this exact release file carry PyPI's own PEP 740 provenance attestation? See <a href="vs-socket.html">this checker vs. Socket</a>.</p>
+    <p>Been checking packages one at a time on pypi.org? See <a href="vs-checking-each-package-on-pypi-by-hand.html">this checker vs. checking each package on PyPI by hand</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review. It reports one factual field the PyPI integrity API publishes about each release file you asked about -- nothing more. The absence of a provenance attestation is not evidence of compromise, and its presence is not a guarantee of safety. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The file you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Checking a package sends its name and version to the public PyPI API, from your browser, over HTTPS -- nothing about your project beyond what you pasted. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over the same dependency tree: <a href="../npm-provenance-check/">npm Provenance Check</a> is the same idea for JavaScript's registry, and <a href="../dependency-confusion-check/">Dependency Confusion Check</a> flags a <code>pip --extra-index-url</code> or unscoped npm setup that lets an attacker's package win over your private one.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInput, lookupPackage, summarizeReport, mapWithConcurrency } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#input"), status: $("#status"), check: $("#check"),
+      reportCard: $("#report-card"), summary: $("#summary"), rows: $("#rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function provenancePill(row) {
+      if (row.status !== "ok") return `<span class="pill unknown">${row.status === "not-found" ? "not found" : "error"}</span>`;
+      return row.hasProvenance ? '<span class="pill yes">yes</span>' : '<span class="pill no">no</span>';
+    }
+
+    async function checkProvenance() {
+      let entries;
+      try {
+        entries = parseInput(els.input.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!entries.length) {
+        els.status.innerHTML = `<span class="error">Paste a requirements.txt, pyproject.toml, or a list of package names first (or load the worked example).</span>`;
+        return;
+      }
+
+      els.check.disabled = true;
+      els.status.textContent = `Checking ${entries.length} package(s) against the public PyPI API…`;
+      els.reportCard.hidden = true;
+
+      const rows = await mapWithConcurrency(entries, 6, (pkg) => lookupPackage(pkg, { fetchImpl: fetch }));
+
+      const summary = summarizeReport(rows);
+      els.status.textContent = "";
+      els.check.disabled = false;
+      els.summary.innerHTML = `<span class="ok">${summary.withProvenance} of ${summary.total} package(s) have a provenance attestation.</span>`
+        + (summary.notFound || summary.errors ? ` <span class="note">(${summary.notFound} not found, ${summary.errors} lookup error(s))</span>` : "");
+      els.rows.innerHTML = rows.map((row) => `<tr>
+        <td><strong>${escapeHtml(row.name)}</strong></td>
+        <td>${escapeHtml(row.resolvedVersion || row.requestedVersion || "latest")}</td>
+        <td>${provenancePill(row)}</td>
+        <td class="note">${escapeHtml(row.detail)}</td>
+      </tr>`).join("");
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", checkProvenance);
+
+    const EXAMPLE = `pip
+six
+urllib3`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE;
+      checkProvenance();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

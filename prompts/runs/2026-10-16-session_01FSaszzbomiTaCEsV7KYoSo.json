@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-16",
+  "session": "https://claude.ai/code/session_01FSaszzbomiTaCEsV7KYoSo",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-16T20:40:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "eda follow-up (equivpredict next step, log-only)",
+  "projects": [
+    "research/eda-equivinterval"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7523",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Next step for eda-equivpredict needs Yosys, which is not installed and not apt-installable in the cloud container; had to pick a log-only variant."
+    },
+    {
+      "file": "research/eda-equivpredict/README.md",
+      "issue": "Says survivors span about a dozen lines; actual distinct lines is 11."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Pushed once to a non-designated branch name by mistake; remote delete of research/eda-equivinterval failed (stray branch at same sha). Limited to log replay; no EDA tools.",
+  "corrections": [],
+  "redteam": null
+}

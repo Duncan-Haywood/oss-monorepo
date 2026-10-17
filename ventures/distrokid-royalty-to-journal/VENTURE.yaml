@@ -1,0 +1,68 @@
+name: distrokid-royalty-to-journal
+description: >-
+  Free browser tool that turns a DistroKid earnings report (CSV or TSV from Bank) into balanced accounting journals
+  for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It books earnings by store and kind (streaming,
+  downloads, social and video such as TikTok and YouTube Content ID) in the month they were earned, books
+  songwriter royalties withheld as a deduction, keeps each currency in its own journal without converting
+  anything, and checks each row's Total column and any Total row against the rows. Stores no rule recognises are
+  journalled to an uncategorised account rather than dropped. The export is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 (sibling of music-distribution-fee-calculator, which compares distributor fees, and of
+# kdp-royalty-to-journal and youtube-adsense-payout-to-journal, which book the same kind of lumpy platform payout
+# for authors and video creators). The commercial analogues are music-royalty accounting services for independent
+# artists and marketplace sync tools (A2X, Synder) that post platform payouts into Xero and QuickBooks, sold per
+# month; this is the no-account, no-upload, one-report-at-a-time version for independent musicians whose DistroKid
+# withdrawals land in lumps that mix every store and month and match no invoice.
+# Search phrases: "DistroKid to QuickBooks", "DistroKid to Xero", "how to record DistroKid earnings in
+# QuickBooks", "musician bookkeeping", "DistroKid earnings accounting", "Spotify royalties journal entry".
+# Volume not measured with an external tool.
+#
+# First visitor: independent musicians and their bookkeepers searching the phrases above, r/WeAreTheMusicMakers and
+# r/musicbusiness threads on "how do I book DistroKid income", and the QuickBooks and Xero community forums where
+# the question recurs.
+#
+# Who: independent artists, bands and small labels who keep their own books, and bookkeepers serving several of
+# them, who today book each bank deposit as income.
+#
+# Path to revenue (payment rails stay off): lead magnet for the musician and bookkeeper audience. If usage
+# appears, the paid version is what a browser page cannot do: batch many artists or labels, remember the account
+# mapping per client, and add TuneCore, CD Baby, Bandcamp and PRO (ASCAP, BMI) statements. Not built.
+#
+# Liability: writes a journal from the user's own export, shows the checks it ran, states what it does not check
+# (tax treatment, currency conversion, when DistroKid pays), and carries the no-warranty, independent-of-DistroKid
+# and financial-data clauses.
+#
+# Unverified: the column names of the DistroKid earnings export (matched here by alias), its store names, whether
+# its Earnings column is before or after songwriter royalties withheld (the page asks), whether it carries a Total
+# column or Total row at all, and the Xero, QuickBooks Online and IIF import layouts are from memory of public
+# help documents; nothing ran against a real DistroKid export or a live import. The first export this misreads is
+# the priority fix.
+
+hypotheses:
+  - claim: >-
+      An independent musician or their bookkeeper will paste a DistroKid earnings report into a no-upload page to
+      get a month-split journal by store, because the alternatives are booking each withdrawal as income (putting
+      income in the wrong month and hiding which stores pay) or paying a monthly sync fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report structure) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a report this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/distrokid-royalty-to-journal/
+  analytics: null

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision-regret-transfer"
+version = "0.1.0"
+description = "From scoring-rule loss to decision regret: calibration functions and certificates for accept/audit/slash decisions"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,39 @@
+name: nz-gst-registration-checker
+description: >-
+  Free browser tool for New Zealand freelancers, side-hustlers and small sellers: enter 12 months of sales (and an optional forecast) to see whether taxable turnover has passed the NZD 60,000 GST registration threshold, the expected-turnover test, and a 21-day registration deadline. Taxi and ride-share drivers flagged from the first fare. Nothing is uploaded. Not tax advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-13 in a new-venture-first session; duplicate_check.py closest match was au-gst-registration-checker (0.46), a different jurisdiction, threshold and rules; no New Zealand tax tool in ventures/.
+#
+# First visitor: New Zealand freelancer, Trade Me/Shopify seller, Uber driver or sole trader searching "do I need to register for GST NZ", "GST $60,000 threshold", "GST turnover calculator".
+# Audience is the new sole traders each year; volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: a rolling-turnover tracker with threshold alerts behind an env-var switch.
+#
+# Liability: rules written from memory without network access; every result names Inland Revenue as the source to verify, carries no-warranty and not-tax-advice clauses,
+# and says what it does not decide (what counts as taxable turnover, associates, the actual date the line was passed, penalties). Ethical risk is false comfort from a "not required" result, mitigated by the near-threshold and run-rate warnings and the re-test note.
+hypotheses:
+  - claim: >-
+      New Zealand sole traders approaching NZD 60,000 will use a free checker to learn when they must register and charge GST.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a threshold or date differs from Inland Revenue guidance on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nz-gst-registration-checker/
+  analytics: null

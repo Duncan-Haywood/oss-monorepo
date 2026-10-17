@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Boat Rental Fleet Profit Calculator — Rent Direct, List or Charter</title>
+  <meta name="description" content="Free boat, jet ski and pontoon rental calculator: enter hourly, half-day and full-day prices, fuel and wear, dock and insurance, a short season and a weather cancellation rate, and see profit per rental and per boat hour, break-even rentals per week and whether to rent direct, list on a marketplace or run captained charters. Runs in your browser.">
+  <meta property="og:title" content="Boat Rental Fleet Profit Calculator — free, private">
+  <meta property="og:description" content="Find out what a rental boat really earns after fuel, dock, insurance, a short season and weather cancellations, and whether a marketplace listing or a captained charter pays it better.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Boat Rental Fleet Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free boat, jet ski and paddleboard rental calculator: turn hourly, half-day and full-day prices, fuel and wear, dock and insurance, a short season and a weather cancellation rate into profit per rental and per boat hour, break-even rentals per week, and a rent-direct versus marketplace versus captained-charter comparison."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to rent out a boat, jet ski or pontoon?","acceptedAnswer":{"@type":"Answer","text":"Add the fuel and wear for the hours on the water, your own dock time to hand the boat over and clean it, and the rental's share of the boat's dock, insurance and purchase cost, then divide by one minus the margin you want. The fixed cost is the part most owners miss: it falls on only the weeks you can rent, not the fifty-two you pay for. Type your own numbers and read the price off."}},{"@type":"Question","name":"Is it worth listing my boat on a rental marketplace?","acceptedAnswer":{"@type":"Answer","text":"A marketplace takes a commission on every rental and, if it works, brings bookings you would not get on your own. The calculator prints what the boat nets per week renting direct and listed, and the lift in bookings at which the two are equal. If you expect fewer extra bookings than that, rent direct; if you expect more, list."}},{"@type":"Question","name":"Is a captained charter more profitable than renting the boat out self-drive?","acceptedAnswer":{"@type":"Answer","text":"A charter sells the same hours at a higher price but you pay a captain for every hour on the water. The calculator prints the weekly net of both and the premium over your self-drive prices at which a captain pays for himself. Licensing, charter insurance and whether you may charter at all depend on your jurisdiction and are not modelled."}},{"@type":"Question","name":"How many rentals a week does a rental boat need to break even?","acceptedAnswer":{"@type":"Answer","text":"The boat's weekly fixed cost during the season divided by what each rental that happens leaves after fuel, wear and your dock time. The result is shown as rentals that happen and rentals you would have to book at your own weather and cancellation rate."}},{"@type":"Question","name":"What do weather cancellations cost a rental business?","acceptedAnswer":{"@type":"Answer","text":"Each lost rental loses its margin unless you can rebook the hours. The calculator multiplies your cancellation rate by the week's bookings and shows the cost per week and per season, so you can compare it with a rebooking credit or a kept deposit."}},{"@type":"Question","name":"What does this leave out?","acceptedAnswer":{"@type":"Answer","text":"Tips and fuel surcharges, sales and rental taxes, card fees, damage and deductibles, winter storage and haul-out, your own pay beyond the hourly figure, advertising, captain licensing, seasonality inside the season, and income tax. It is a planning aid, not an estimate of record."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f3f6fa; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b2e55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b2e55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { min-height: 90px; font-family: ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0b2e55; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e6edf5; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    tr.drive td:first-child { border-left: 4px solid #0b4f9c; }
+    tr.break td:first-child, tr.dwell td:first-child { border-left: 4px solid #b7791f; }
+    tr.off td:first-child, tr.restart td:first-child { border-left: 4px solid #9a3412; }
+    .finding { border-bottom: 1px solid #e6edf5; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BOAT RENTAL FLEET PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>What does one rental boat really earn in a short season, and should you rent it direct, list it or charter it?</h1>
+    <p>Enter your hourly, half-day and full-day prices, hours on the water, fuel and wear, dock and insurance, the boat's cost and how many weeks you can rent. You get <strong>profit per rental and per boat hour, the price each offer needs for your target margin, break-even rentals per week, what weather cancellations cost, and what the same boat nets renting it yourself, listing it on a marketplace for a commission, or running it as a captained charter</strong>.</p>
+    <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips and fuel surcharges are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. What the boat books in a typical in-season week</h2>
+    <div class="grid">
+      <div><label for="hourlyQty">Hourly rentals booked per week</label><input type="number" id="hourlyQty" min="0" step="1" value="6"></div>
+      <div><label for="hourlyPrice">Hourly rental price ($)</label><input type="number" id="hourlyPrice" min="0" step="any" value="95"></div>
+      <div><label for="hourlyHrs">Hourly rental hours on the water</label><input type="number" id="hourlyHrs" min="0" step="any" value="1"></div>
+      <div><label for="halfQty">Half-day rentals booked per week</label><input type="number" id="halfQty" min="0" step="1" value="5"></div>
+      <div><label for="halfPrice">Half-day rental price ($)</label><input type="number" id="halfPrice" min="0" step="any" value="295"></div>
+      <div><label for="halfHrs">Half-day rental hours on the water</label><input type="number" id="halfHrs" min="0" step="any" value="4"></div>
+      <div><label for="fullQty">Full-day rentals booked per week</label><input type="number" id="fullQty" min="0" step="1" value="2"></div>
+      <div><label for="fullPrice">Full-day rental price ($)</label><input type="number" id="fullPrice" min="0" step="any" value="495"></div>
+      <div><label for="fullHrs">Full-day rental hours on the water</label><input type="number" id="fullHrs" min="0" step="any" value="8"></div>
+    </div>
+    <h2 style="margin-top:22px">2. The water, the weather and your time</h2>
+    <div class="grid">
+      <div><label for="availHours">Boat hours you could rent per week</label><input type="number" id="availHours" min="0" step="any" value="60"></div>
+      <div><label for="cancelPct">Weather and cancellation rate (% of booked rentals)</label><input type="number" id="cancelPct" min="0" step="any" value="15"></div>
+      <div><label for="ownerRate">What your own dock hour should pay you ($)</label><input type="number" id="ownerRate" min="0" step="any" value="25"></div>
+      <div><label for="turnMin">Handover, clean and refuel minutes per rental</label><input type="number" id="turnMin" min="0" step="any" value="30"></div>
+      <div><label for="fuelPerHour">Fuel per engine hour ($)</label><input type="number" id="fuelPerHour" min="0" step="any" value="18"></div>
+      <div><label for="wearPerHour">Wear and maintenance reserve per engine hour ($)</label><input type="number" id="wearPerHour" min="0" step="any" value="7"></div>
+      <div><label for="seasonWeeks">Weeks per year you can rent</label><input type="number" id="seasonWeeks" min="0" step="any" value="20"></div>
+      <div><label for="targetMarginPct">Target margin on each offer (%)</label><input type="number" id="targetMarginPct" min="0" step="any" value="35"></div>
+    </div>
+    <h2 style="margin-top:22px">3. Dock, insurance and the boat</h2>
+    <div class="grid">
+      <div><label for="dockMonth">Dock, slip or mooring ($ per month, all year)</label><input type="number" id="dockMonth" min="0" step="any" value="350"></div>
+      <div><label for="insuranceMonth">Insurance ($ per month, all year)</label><input type="number" id="insuranceMonth" min="0" step="any" value="180"></div>
+      <div><label for="boatCost">Boat cost net of expected resale ($)</label><input type="number" id="boatCost" min="0" step="any" value="21000"></div>
+      <div><label for="boatYears">Years you will keep the boat</label><input type="number" id="boatYears" min="0" step="any" value="7"></div>
+      <div><label for="otherFixedMonth">Registration, marketing and other fixed cost ($ per month)</label><input type="number" id="otherFixedMonth" min="0" step="any" value="60"></div>
+    </div>
+    <h2 style="margin-top:22px">4. Marketplace listing and captained charter</h2>
+    <div class="grid">
+      <div><label for="platformPct">Marketplace commission (% of the rental price)</label><input type="number" id="platformPct" min="0" step="any" value="20"></div>
+      <div><label for="liftPct">Extra bookings a listing would bring (%)</label><input type="number" id="liftPct" min="0" step="any" value="30"></div>
+      <div><label for="charterPremiumPct">Charter price premium over self-drive (%)</label><input type="number" id="charterPremiumPct" min="0" step="any" value="40"></div>
+      <div><label for="captainRate">Captain pay per hour on the water ($)</label><input type="number" id="captainRate" min="0" step="any" value="35"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Work out the boat</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="share">Copy a share link</button>
+    </p>
+    <p class="note" id="form-status">Enter your numbers or load the example, then click Work out the boat.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div id="advice"></div>
+    <h3>Each offer</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Offer</th><th scope="col">Price</th><th scope="col">Cost</th><th scope="col">Profit per rental</th><th scope="col">Margin</th><th scope="col">Per boat hour</th><th scope="col">Price for target</th></tr></thead><tbody id="lines"></tbody></table></div>
+    <h3>The week at different volumes: what the boat nets three ways</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Volume</th><th scope="col">Booked</th><th scope="col">Boat hours</th><th scope="col">Boat used</th><th scope="col">Rent direct, after your dock time</th><th scope="col">List on a marketplace</th><th scope="col">Captained charter</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p><button type="button" class="secondary" id="download">Download as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The arithmetic, and what it leaves out</h2>
+    <ul>
+      <li>Only rentals that happen earn money or burn fuel. A weather cancellation empties the slot, so its margin is lost, and the boat's fixed cost is paid regardless.</li>
+      <li>The dock, insurance, other fixed cost and the boat spread over the years you keep it are paid all year, but only the weeks you can rent earn, so they are divided by your season weeks. A rental costs its fuel and wear for the hours on the water, your dock time to turn the boat round, and its share of that weekly fixed cost.</li>
+      <li>A marketplace takes its commission on every rental and is assumed to bring the extra bookings you type. A captained charter sells the same trips at a premium and pays a captain for every hour on the water, with the captain handling the turnaround.</li>
+      <li><strong>Not modelled:</strong> tips and fuel surcharges, sales and rental taxes, card fees, damage and deductibles, winter storage and haul-out, any pay to you beyond the hourly figure, advertising, captain licensing and charter permits, seasonality inside the season, and income tax.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge to rent out a boat, jet ski or pontoon?</h3>
+    <p>Add the fuel and wear for the hours on the water, your own dock time to hand the boat over and clean it, and the rental's share of the boat's dock, insurance and purchase cost, then divide by one minus the margin you want. The fixed cost is the part most owners miss: it falls on only the weeks you can rent, not the fifty-two you pay for. Type your own numbers and read the price off.</p>
+    <h3>Is it worth listing my boat on a rental marketplace?</h3>
+    <p>A marketplace takes a commission on every rental and, if it works, brings bookings you would not get on your own. The calculator prints what the boat nets per week renting direct and listed, and the lift in bookings at which the two are equal. If you expect fewer extra bookings than that, rent direct; if you expect more, list.</p>
+    <h3>Is a captained charter more profitable than renting the boat out self-drive?</h3>
+    <p>A charter sells the same hours at a higher price but you pay a captain for every hour on the water. The calculator prints the weekly net of both and the premium over your self-drive prices at which a captain pays for himself. Licensing, charter insurance and whether you may charter at all depend on your jurisdiction and are not modelled.</p>
+    <h3>How many rentals a week does a rental boat need to break even?</h3>
+    <p>The boat's weekly fixed cost during the season divided by what each rental that happens leaves after fuel, wear and your dock time. The result is shown as rentals that happen and rentals you would have to book at your own weather and cancellation rate.</p>
+    <h3>What do weather cancellations cost a rental business?</h3>
+    <p>Each lost rental loses its margin unless you can rebook the hours. The calculator multiplies your cancellation rate by the week's bookings and shows the cost per week and per season, so you can compare it with a rebooking credit or a kept deposit.</p>
+    <h3>What does this leave out?</h3>
+    <p>Tips and fuel surcharges, sales and rental taxes, card fees, damage and deductibles, winter storage and haul-out, your own pay beyond the hourly figure, advertising, captain licensing, seasonality inside the season, and income tax. It is a planning aid, not an estimate of record.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser tab and nothing is sent anywhere. There are no accounts. The share link keeps your numbers in the link itself, which you choose whether to send.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace your own books, a written agreement or an advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> and for the prices you set.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>fleet_planned</code>, <code>example_loaded</code>, <code>link_shared</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../ebike-rental-fleet-profit-calculator/">e-bike rental fleet profit calculator</a>, <a href="../rental-fleet-size-optimizer/">rental fleet size optimizer</a>, <a href="../rv-rental-host-profit-calculator/">RV rental host profit</a>, <a href="../campground-site-profit-calculator/">campground site profit</a>, <a href="../bounce-house-rental-calculator/">bounce house rental</a>, <a href="../horse-boarding-stall-profit-calculator/">horse boarding stall profit</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { plan, sampleInput, toCsv, encodeShare, decodeShare } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const keys = ["hourlyQty", "hourlyPrice", "hourlyHrs", "halfQty", "halfPrice", "halfHrs", "fullQty", "fullPrice", "fullHrs", "cancelPct", "availHours", "ownerRate", "turnMin", "fuelPerHour", "wearPerHour", "seasonWeeks", "dockMonth", "insuranceMonth", "boatCost", "boatYears", "otherFixedMonth", "platformPct", "liftPct", "charterPremiumPct", "captainRate", "targetMarginPct"];
+    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    let last = null;
+
+    function read() {
+      const input = {};
+      for (const k of keys) input[k] = $("#" + k).value;
+      return input;
+    }
+
+    function run(scroll = true) {
+      const r = plan(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#advice").innerHTML = r.advice.map((a) => `<div class="finding">${esc(a)}</div>`).join("");
+      $("#lines").innerHTML = r.season.lines.map((l) => `<tr><th scope="row">${esc(l.label)}</th><td>${usd(l.price)}</td><td>${usd(l.cost)}</td><td>${usd(l.profit)}</td><td>${l.marginPct}%</td><td>${usd(l.perBoatHour)}</td><td>${usd(l.targetPrice)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.booked}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td><td>${usd(x.direct)}</td><td>${usd(x.market)}</td><td>${usd(x.charter)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Weekly result renting direct: ${usd(r.season.directAfterPay)} after your dock time.`;
+      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    function fill(values) { for (const k of keys) if (values[k] !== undefined) $("#" + k).value = values[k]; }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("fleet_planned"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Worked example: made-up numbers."; }
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#" + encodeShare(read());
+      try { history.replaceState(null, "", url); } catch { /* optional */ }
+      try { await navigator.clipboard.writeText(url); status.textContent = "Link copied. It contains your numbers, so send it only to people you want to see them."; }
+      catch { status.textContent = "Copy the address bar: it now contains your numbers."; }
+      record("link_shared");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "boat-rental-week.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    if (location.hash.length > 1) { const shared = decodeShare(location.hash); if (Object.keys(shared).length) { fill(shared); run(false); } }
+  </script>
+</body>
+</html>

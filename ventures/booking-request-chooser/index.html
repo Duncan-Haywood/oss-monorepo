@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Booking Request Chooser — Which Rental Requests to Accept for the Most Income</title>
+  <meta name="description" content="Paste your confirmed bookings and pending requests and get the exact set of requests to accept for the highest income, counting turnover cost and the dead gap nights a short stay leaves behind. Free, runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which booking requests should you accept?">
+  <meta property="og:description" content="The priciest request is not always the best one. Paste your calendar, see the plan that earns the most. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Booking Request Chooser", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste your confirmed bookings and pending requests and see which requests to accept so the calendar earns the most, with the dead gap nights each choice leaves and counter-offers worth sending. Browser or zero-dependency Node CLI."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it upload my bookings?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call."}}, {"@type": "Question", "name": "Why would I decline a request that pays well?", "acceptedAnswer": {"@type": "Answer", "text": "A stay that leaves one or two nights between it and the next booking creates a gap shorter than your minimum stay that nobody can book. Those nights earn nothing, so a lower-priced pair of stays that fit end to end can earn more than one high-priced stay that strands them."}}, {"@type": "Question", "name": "What is the empty-night value?", "acceptedAnswer": {"@type": "Answer", "text": "Your own estimate of what a leftover night you can still sell is worth: your usual nightly price times how often leftover nights actually fill. Set it to zero to ignore gaps and only compare prices less turnover cost."}}, {"@type": "Question", "name": "Is the plan guaranteed to be best?", "acceptedAnswer": {"@type": "Answer", "text": "It is the exact best answer for the numbers you typed, found by dynamic programming and checked against trying every combination in the tests. The numbers themselves are your estimates, so the result is a decision aid, not a forecast."}}, {"@type": "Question", "name": "Does it work for things other than short-term rentals?", "acceptedAnswer": {"@type": "Answer", "text": "Yes for anything sold by the night with a minimum stay and a changeover cost: bed and breakfasts, cabins, campsites, boat and RV rentals, vacation homes and event spaces booked by the day."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: inline-block; font-weight: 600; margin: 6px 14px 6px 0; }
+    input[type=number] { width: 6.5em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .tablewrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .gain { color: #14532d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BOOKING REQUEST CHOOSER · RUNS IN YOUR BROWSER</p>
+    <h1>Which booking requests should you accept?</h1>
+    <p>Two requests want the same week and one pays more. Or a 2-night request would leave a 1-night hole nobody can book. Paste your <strong>confirmed bookings and pending requests</strong> and see <strong>the exact set to accept for the most income</strong>, counting <strong>turnover cost</strong>, the <strong>dead gap nights</strong> each choice leaves, and <strong>counter-offers</strong> (a night earlier or later) worth sending the guests you would otherwise decline.</p>
+    <p class="note">For hosts of vacation rentals, cabins, campsites, B&amp;Bs, boats and event spaces. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your calendar</h2>
+    <label for="cal-input">One row per stay: kind (booked or request), check-in, check-out, total price, optional label</label>
+    <textarea id="cal-input" spellcheck="false" placeholder="booked,2026-07-01,2026-07-05,640,Miller&#10;request,2026-07-05,2026-07-09,440,Dana 4 nights"></textarea>
+    <p>
+      <label for="turnover">Turnover cost per stay ($)</label><input type="number" id="turnover" value="60" min="0" step="1">
+      <label for="night-value">Value of a sellable leftover night ($)</label><input type="number" id="night-value" value="50" min="0" step="1">
+      <label for="min-stay">Minimum stay (nights)</label><input type="number" id="min-stay" value="3" min="1" step="1">
+    </p>
+    <p>
+      <button type="button" id="analyze">Find the best plan</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. The plan</h2>
+    <p id="summary"></p>
+    <h3>Accept</h3>
+    <div class="tablewrap"><table id="accept-table" hidden>
+      <thead><tr><th>Stay</th><th>Price</th><th>Guest</th></tr></thead>
+      <tbody id="accept-rows"></tbody>
+    </table></div>
+    <h3>Decline</h3>
+    <div class="tablewrap"><table id="decline-table" hidden>
+      <thead><tr><th>Stay</th><th>Price</th><th>Guest</th><th>Why</th></tr></thead>
+      <tbody id="decline-rows"></tbody>
+    </table></div>
+    <h3>Counter-offers worth sending</h3>
+    <ul id="offers"></ul>
+    <h3>Plan against the usual shortcuts</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Rule</th><th>Calendar value</th></tr></thead>
+      <tbody id="compare-rows"></tbody>
+    </table></div>
+    <p id="robust" class="note"></p>
+    <ul id="findings"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI?</h2>
+    <p>Same logic, zero dependencies, one command — reads a file or stdin:</p>
+    <pre class="cmd">node cli.mjs plan calendar.csv --turnover 60 --night-value 50 --min-stay 3
+cat calendar.csv | node cli.mjs plan - --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="engine.mjs" rel="noopener">engine.mjs</a> — Node 18+, nothing to install, no network call. More: <a href="which-booking-request-to-accept.html">Which booking request should you accept? The gap-night math</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's recognised</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Input</th><th>Handling</th></tr></thead>
+      <tbody id="patterns-rows"></tbody>
+    </table></div>
+    <p class="note">The plan is exact for the numbers you type (dynamic programming over the gaps between confirmed bookings). Nights before the first and after the last stay in your paste are not counted. Platform fees, taxes, seasonal price changes and cancellations are not modelled; enter prices net of fees if you want a net result.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does it upload my bookings?</h3>
+    <p>No. The browser page works on the text you paste, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
+    <h3>Why would I decline a request that pays well?</h3>
+    <p>A stay that leaves one or two nights between it and the next booking creates a gap shorter than your minimum stay that nobody can book. Those nights earn nothing, so a lower-priced pair of stays that fit end to end can earn more than one high-priced stay that strands them.</p>
+    <h3>What is the empty-night value?</h3>
+    <p>Your own estimate of what a leftover night you can still sell is worth: your usual nightly price times how often leftover nights actually fill. Set it to zero to ignore gaps and only compare prices less turnover cost.</p>
+    <h3>Is the plan guaranteed to be best?</h3>
+    <p>It is the exact best answer for the numbers you typed, found by dynamic programming and checked against trying every combination in the tests. The numbers themselves are your estimates, so the result is a decision aid, not a forecast.</p>
+    <h3>Does it work for things other than short-term rentals?</h3>
+    <p>Yes for anything sold by the night with a minimum stay and a changeover cost: bed and breakfasts, cabins, campsites, boat and RV rentals, vacation homes and event spaces booked by the day.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices and dates you type, and for complying with the rules of any booking platform you use, including any obligation to honour or respond to a request. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will book.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools on the same repo: <a href="../str-nightly-rate-optimizer/">STR Nightly Rate Optimizer</a> (what to charge per night), <a href="../str-host-payout-calculator/">STR Host Payout Calculator</a> and <a href="../str-cleaning-fee-pricing-calculator/">STR Cleaning Fee Pricing Calculator</a>.</p>
+    <p class="support">Free and open source. If this earned you a better week, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCalendar, plan, summarize, isoDay, money, INPUT_NOTES } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    $("#patterns-rows").innerHTML = INPUT_NOTES.map((p) => `<tr><td><code>${escapeHtml(p.what)}</code></td><td>${escapeHtml(p.detail)}</td></tr>`).join("");
+    const range = (a, b) => `${isoDay(a)} to ${isoDay(b)}`;
+
+    function renderReport() {
+      const status = $("#status");
+      const text = $("#cal-input").value;
+      if (!text.trim()) {
+        status.innerHTML = `<span class="error">Paste some rows first (or load the worked example).</span>`;
+        return;
+      }
+      const parsed = parseCalendar(text);
+      if (parsed.errors.length) {
+        status.innerHTML = `<span class="error">${parsed.errors.map(escapeHtml).join("<br>")}</span>`;
+        return;
+      }
+      status.textContent = "";
+      const p = plan(parsed, { turnover: $("#turnover").value, nightValue: $("#night-value").value, minStay: $("#min-stay").value });
+      const s = summarize(p);
+      $("#summary").innerHTML = `<span class="${s.status === "gain" ? "gain" : s.status === "none" ? "error" : "ok"}">${escapeHtml(s.text)}</span>`;
+      $("#accept-table").hidden = !p.chosen.length;
+      $("#accept-rows").innerHTML = p.chosen.map((c) => `<tr><td>${range(c.start, c.end)}</td><td>${money(c.price)}</td><td>${escapeHtml(c.label)}</td></tr>`).join("");
+      $("#decline-table").hidden = !p.declined.length;
+      $("#decline-rows").innerHTML = p.declined.map((d) => `<tr><td>${range(d.start, d.end)}</td><td>${money(d.price)}</td><td>${escapeHtml(d.label)}</td><td>${escapeHtml(d.reason)}</td></tr>`).join("");
+      $("#offers").innerHTML = p.counterOffers.length
+        ? p.counterOffers.map((o) => {
+            const ext = [o.before ? `${o.before} night(s) earlier` : "", o.after ? `${o.after} night(s) later` : ""].filter(Boolean).join(" and ");
+            return `<li>${escapeHtml(o.label || "Request on line " + o.line)}: offer ${range(o.start, o.end)} (${ext}) for ${money(o.price)} at their nightly rate; the plan improves by ${money(o.gain)}.</li>`;
+          }).join("")
+        : "<li>None: no small change to a declined request improves the plan.</li>";
+      const t = p.totals;
+      $("#compare-rows").innerHTML = [
+        ["Best plan (this tool)", t.plan], ["Accept in the order requests arrived", t.firstComeFirstServed],
+        ["Accept the highest price first", t.highestPriceFirst], ["Accept none", t.noRequests],
+      ].map(([l, v]) => `<tr><td>${l}</td><td>${money(v)}</td></tr>`).join("");
+      const stable = p.sensitivity.every((x) => x.same);
+      $("#robust").textContent = stable
+        ? "The plan is the same whether leftover nights are worth nothing, half or double your estimate."
+        : "The plan changes if leftover nights are worth less or more than your estimate, so the empty-night value is the number to think about: " + p.sensitivity.filter((x) => !x.same).map((x) => `at ${money(x.nightValue)} per night the choice differs`).join("; ") + ".";
+      $("#findings").innerHTML = p.findings.map((f) => `<li>${escapeHtml(f.message)}</li>`).join("");
+      $("#report-card").hidden = false;
+      record("plan_run");
+      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#analyze").addEventListener("click", renderReport);
+
+    const EXAMPLE_SOURCE = `kind,check_in,check_out,price,label
+booked,2026-07-01,2026-07-05,640,Miller
+booked,2026-07-12,2026-07-15,540,Okafor
+booked,2026-07-22,2026-07-26,760,Reyes
+request,2026-07-07,2026-07-10,480,Wilson 3 nights
+request,2026-07-05,2026-07-09,440,Dana 4 nights
+request,2026-07-09,2026-07-12,345,Lee 3 nights
+request,2026-07-16,2026-07-19,300,Chen 3 nights
+request,2026-07-15,2026-07-17,230,Park 2 nights
+request,2026-07-13,2026-07-16,390,Ito 3 nights`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#cal-input").value = EXAMPLE_SOURCE;
+      $("#turnover").value = 60; $("#night-value").value = 50; $("#min-stay").value = 3;
+      renderReport();
+      record("example_loaded");
+    });
+    $("#clear").addEventListener("click", () => {
+      $("#cal-input").value = "";
+      $("#status").textContent = "";
+      $("#report-card").hidden = true;
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const c = document.getElementById("optout");
+      if (c) { c.textContent = "Usage counting is off"; c.disabled = true; }
+    }
+  </script>
+</body>
+</html>

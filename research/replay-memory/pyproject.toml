@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "replay-memory"
+version = "0.1.0"
+description = "Exact expected forgetting when only m of an old task's r examples are stored for replay: the memory-size law, and many small replays versus few large ones at a fixed budget"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

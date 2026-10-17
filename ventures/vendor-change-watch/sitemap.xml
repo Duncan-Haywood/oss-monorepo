@@ -2,4 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./vs-changedetection-io.html</loc></url>
+  <url><loc>./how-often-to-recheck-vendor-pages.html</loc></url>
+  <url><loc>./vs-checking-vendor-pages-by-hand.html</loc></url>
 </urlset>

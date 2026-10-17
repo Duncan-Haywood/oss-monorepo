@@ -1,0 +1,59 @@
+name: dj-gig-profit-calculator
+description: >-
+  Free browser tool for mobile DJs and event entertainers: enter packages with price,
+  event hours, gig costs and gigs per month, plus overhead, and see profit per hour
+  worked (setup, travel and planning counted), the price that hits an hourly target,
+  direct clients vs lead marketplace vs agency subcontract, and the client loss a price
+  raise can absorb. No client or event data; nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-01 in a new-venture-first session (session_gate.py: PROCEED,
+# build-now queue empty). duplicate_check.py: closest rows were adjacent event trades
+# (photo-booth-event-quote 0.28, wedding-florist-proposal-calculator 0.37), none a DJ
+# tool; screened-out rows not hit.
+#
+# Why this niche: mobile and wedding DJs are a large US small-business trade that sells
+# packages by feel, pays for booking software (DJ Event Planner, HoneyBook, Bookeo) and
+# marketplace leads (The Knot, WeddingWire, GigSalad, Thumbtack), and routinely under-
+# counts setup, travel and planning hours. The question "what do I really earn per hour
+# worked, and what should I charge?" is not answered by any of them in a free, private page.
+#
+# First visitor: DJs searching "how much to charge as a wedding DJ", "DJ pricing
+# calculator", "is The Knot worth it for DJs"; DJ forums and groups ask the pricing and
+# marketplace-vs-direct question constantly. Volume not measured with an external tool.
+#
+# Extended 2026-10-06 (quote.mjs + guide): a quote builder and annual-income-target planner on the same page; searches "DJ rate per hour",
+# "wedding DJ pricing calculator", r/WeddingDJs, r/DJs. Extended rather than a second DJ venture, which would split the same visitors.
+#
+# Liability boundary: arithmetic on user-typed figures; no market prices asserted; no tax
+# advice; says what it does not model. No client or event data.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural lead magnet
+# for a future hosted package-pricing and booking-margin tracker.
+
+hypotheses:
+  - claim: >-
+      DJs will use a private, no-signup profit-per-hour calculator when setting package
+      prices and when deciding whether a lead marketplace or agency is worth its cut.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with a hand calculation from the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dj-gig-profit-calculator/
+  analytics: null

@@ -1,0 +1,50 @@
+== 1. Information of one worker is I_inf*tanh(lam H/2): fraction of I_inf, and information per step (a=0.25, eta=0.2) ==
+H=1   I/I_inf=0.0256  (I/I_inf)/H=0.0256
+H=2   I/I_inf=0.0512  (I/I_inf)/H=0.0256
+H=4   I/I_inf=0.1022  (I/I_inf)/H=0.0256
+H=8   I/I_inf=0.2023  (I/I_inf)/H=0.0253
+H=16  I/I_inf=0.3888  (I/I_inf)/H=0.0243
+H=32  I/I_inf=0.6754  (I/I_inf)/H=0.0211
+H=64  I/I_inf=0.9277  (I/I_inf)/H=0.0145
+
+== 2. Penalty over the best weights at equal contraction (single mode) ==
+fleet                          a     equal   by-steps  info-weighted
+two speeds [1,64]              0.05  1.0014  1.0155    1.0000
+two speeds [1,64]              0.25  1.0193  1.0260    1.0000
+two speeds [1,64]              1.00  1.0494  1.1043    1.0000
+geometric [1..64]              0.05  1.0088  1.2318    1.0000
+geometric [1..64]              0.25  1.0420  1.2627    1.0000
+geometric [1..64]              1.00  1.0330  1.6287    1.0000
+one fast in eight [1x7,256]    0.05  1.0255  1.0404    1.0000
+one fast in eight [1x7,256]    0.25  1.0889  1.1763    1.0000
+one fast in eight [1x7,256]    1.00  1.0864  1.7586    1.0000
+mild [2,4,4,8]                 0.05  1.0001  1.1590    1.0000
+mild [2,4,4,8]                 0.25  1.0025  1.1348    1.0000
+mild [2,4,4,8]                 1.00  1.0141  1.1022    1.0000
+Kantorovich bound for a 2x weight span: 1.1250
+
+== 3. Three modes (a=1,.25,.05), alpha=1, weights sum to 1: exact vs simulation (60k rounds) ==
+fleet                          scheme   exact     sim       ratio  vs equal
+two speeds [1,64]              equal    0.06301  0.06325  1.004  1.00
+two speeds [1,64]              steps    0.15288  0.15351  1.004  2.43
+two speeds [1,64]              info     0.07101  0.07128  1.004  1.13
+geometric [1..64]              equal    0.01980  0.01984  1.002  1.00
+geometric [1..64]              steps    0.05634  0.05626  0.998  2.85
+geometric [1..64]              info     0.02101  0.02104  1.002  1.06
+one fast in eight [1x7,256]    equal    0.01417  0.01409  0.994  1.00
+one fast in eight [1x7,256]    steps    0.14910  0.14865  0.997  10.52
+one fast in eight [1x7,256]    info     0.01948  0.01940  0.996  1.37
+mild [2,4,4,8]                 equal    0.03848  0.03826  0.994  1.00
+mild [2,4,4,8]                 steps    0.05297  0.05260  0.993  1.38
+mild [2,4,4,8]                 info     0.03862  0.03840  0.994  1.00
+
+== 4. Wall-clock-optimal inner steps per worker, I(H)/(C+H), by sync cost C (in inner steps) ==
+C     a=0.05  a=0.25  a=1.0
+0     1       1       1
+5     66      22      8
+20    104     34      12
+100   172     54      18
+
+== 5. Keep or drop the slowest worker (equal weights, alpha=1) ==
+[1, 8, 8, 8] all=0.03759  without slowest=0.05236
+[1, 1, 1, 64] all=0.03034  without slowest=0.04060

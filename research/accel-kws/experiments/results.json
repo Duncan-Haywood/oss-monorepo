@@ -1,0 +1,1478 @@
+{
+ "versions": {
+  "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+  "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+  "numpy": "2.5.3"
+ },
+ "data": {
+  "train": {
+   "n": 33895,
+   "unknown_fraction_kept": 0.05743980471206125,
+   "median_keyword_count": 3106,
+   "per_class": [
+    3228,
+    3130,
+    2948,
+    3134,
+    3037,
+    3019,
+    3086,
+    2970,
+    3111,
+    3106,
+    3126
+   ]
+  },
+  "validation": {
+   "n": 4084,
+   "unknown_fraction_kept": 0.05925453966231284,
+   "median_keyword_count": 372,
+   "per_class": [
+    397,
+    406,
+    350,
+    377,
+    352,
+    363,
+    363,
+    373,
+    350,
+    372,
+    381
+   ]
+  },
+  "test": {
+   "n": 4509,
+   "unknown_fraction_kept": 0.058577405857740586,
+   "median_keyword_count": 406,
+   "per_class": [
+    419,
+    405,
+    425,
+    406,
+    412,
+    396,
+    396,
+    402,
+    411,
+    402,
+    435
+   ]
+  },
+  "speaker_overlap": {
+   "train&validation": 0,
+   "train&test": 0,
+   "validation&test": 0
+  }
+ },
+ "epochs": 40,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "rate_hz": 4.0,
+ "mic_floor_uw": 1800.0,
+ "rows": [
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 2,
+   "macs": 648,
+   "val_acc": [
+    0.18290891283055827,
+    0.2984818805093046,
+    0.3452497551420176
+   ],
+   "test_acc": [
+    0.1993790197383012,
+    0.2987358616101131,
+    0.3408738079396762
+   ],
+   "val_mean": 0.27554684949396013,
+   "test_mean": 0.2796628964293635,
+   "test_std": 0.05931850342362299,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 4,
+   "rtl_true_classes": 11,
+   "cycles": [
+    651
+   ],
+   "cells": 1066,
+   "flops": 184,
+   "storage_kbit": 1.752,
+   "energy_nj": 1.1178,
+   "energy_nj_lo": 0.3726,
+   "energy_nj_hi": 3.3533999999999997,
+   "uw_at_rate": 0.0044712,
+   "min_clock_khz": 2.592
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 3,
+   "macs": 648,
+   "val_acc": [
+    0.45714985308521056,
+    0.43609206660137123,
+    0.4515181194906954
+   ],
+   "test_acc": [
+    0.42714570858283435,
+    0.40762918607229987,
+    0.4353515191838545
+   ],
+   "val_mean": 0.4482533463924257,
+   "test_mean": 0.4233754712796629,
+   "test_std": 0.011627351526427356,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    651
+   ],
+   "cells": 1250,
+   "flops": 184,
+   "storage_kbit": 2.4,
+   "energy_nj": 1.2376800000000001,
+   "energy_nj_lo": 0.41256000000000004,
+   "energy_nj_hi": 3.7130400000000003,
+   "uw_at_rate": 0.0049507200000000005,
+   "min_clock_khz": 2.592
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 4,
+   "macs": 648,
+   "val_acc": [
+    0.5046523016650343,
+    0.5149363369245837,
+    0.5176297747306562
+   ],
+   "test_acc": [
+    0.47704590818363274,
+    0.4958970946994899,
+    0.4899090707473941
+   ],
+   "val_mean": 0.5124061377734247,
+   "test_mean": 0.48761735787683885,
+   "test_std": 0.007864721617226718,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    651
+   ],
+   "cells": 1331,
+   "flops": 184,
+   "storage_kbit": 3.048,
+   "energy_nj": 1.35756,
+   "energy_nj_lo": 0.45252000000000003,
+   "energy_nj_hi": 4.07268,
+   "uw_at_rate": 0.005430240000000001,
+   "min_clock_khz": 2.592
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 8,
+   "wbits": 8,
+   "macs": 648,
+   "val_acc": [
+    0.5465230166503428,
+    0.5002448579823702,
+    0.5595004897159648
+   ],
+   "test_acc": [
+    0.5265025504546462,
+    0.4703925482368596,
+    0.5180749611887336
+   ],
+   "val_mean": 0.5354227881162259,
+   "test_mean": 0.5049900199600798,
+   "test_std": 0.024704855830895513,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    651
+   ],
+   "cells": 1833,
+   "flops": 184,
+   "storage_kbit": 5.64,
+   "energy_nj": 1.8370799999999998,
+   "energy_nj_lo": 0.6123599999999999,
+   "energy_nj_hi": 5.511239999999999,
+   "uw_at_rate": 0.00734832,
+   "min_clock_khz": 2.592
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 2,
+   "macs": 1296,
+   "val_acc": [
+    0.38418217433888346,
+    0.3981390793339863,
+    0.302154750244858
+   ],
+   "test_acc": [
+    0.3927700155245065,
+    0.3956531381681082,
+    0.2923042803282324
+   ],
+   "val_mean": 0.36149200130590925,
+   "test_mean": 0.3602424780069491,
+   "test_std": 0.04805397747615901,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 10,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1299
+   ],
+   "cells": 1206,
+   "flops": 252,
+   "storage_kbit": 3.24,
+   "energy_nj": 2.2356,
+   "energy_nj_lo": 0.7452,
+   "energy_nj_hi": 6.706799999999999,
+   "uw_at_rate": 0.0089424,
+   "min_clock_khz": 5.184
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 3,
+   "macs": 1296,
+   "val_acc": [
+    0.561949069539667,
+    0.5702742409402547,
+    0.5705190989226249
+   ],
+   "test_acc": [
+    0.5269461077844312,
+    0.5338212463960967,
+    0.5378132623641606
+   ],
+   "val_mean": 0.5675808031341821,
+   "test_mean": 0.5328602055148961,
+   "test_std": 0.004488241069464192,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1299
+   ],
+   "cells": 1394,
+   "flops": 252,
+   "storage_kbit": 4.536,
+   "energy_nj": 2.4753600000000002,
+   "energy_nj_lo": 0.8251200000000001,
+   "energy_nj_hi": 7.426080000000001,
+   "uw_at_rate": 0.009901440000000001,
+   "min_clock_khz": 5.184
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 4,
+   "macs": 1296,
+   "val_acc": [
+    0.621694417238002,
+    0.626101860920666,
+    0.635896180215475
+   ],
+   "test_acc": [
+    0.5799512086937236,
+    0.5956974939010867,
+    0.5801729873586161
+   ],
+   "val_mean": 0.6278974861247143,
+   "test_mean": 0.5852738966511422,
+   "test_std": 0.007371152382354671,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1299
+   ],
+   "cells": 1481,
+   "flops": 252,
+   "storage_kbit": 5.832,
+   "energy_nj": 2.71512,
+   "energy_nj_lo": 0.9050400000000001,
+   "energy_nj_hi": 8.14536,
+   "uw_at_rate": 0.010860480000000002,
+   "min_clock_khz": 5.184
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 16,
+   "wbits": 8,
+   "macs": 1296,
+   "val_acc": [
+    0.6464250734573947,
+    0.6530362389813908,
+    0.6594025465230167
+   ],
+   "test_acc": [
+    0.6118873364382347,
+    0.6134397870924817,
+    0.6118873364382347
+   ],
+   "val_mean": 0.6529546196539341,
+   "test_mean": 0.6124048199896504,
+   "test_std": 0.0007318322567170441,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1299
+   ],
+   "cells": 2011,
+   "flops": 252,
+   "storage_kbit": 11.016,
+   "energy_nj": 3.6741599999999996,
+   "energy_nj_lo": 1.2247199999999998,
+   "energy_nj_hi": 11.022479999999998,
+   "uw_at_rate": 0.01469664,
+   "min_clock_khz": 5.184
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 2,
+   "macs": 2592,
+   "val_acc": [
+    0.3592066601371205,
+    0.33863858961802157,
+    0.3729187071498531
+   ],
+   "test_acc": [
+    0.3710357063650477,
+    0.3466400532268796,
+    0.36615657573741406
+   ],
+   "val_mean": 0.35692131896833174,
+   "test_mean": 0.36127744510978044,
+   "test_std": 0.010540126810451165,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2595
+   ],
+   "cells": 1438,
+   "flops": 384,
+   "storage_kbit": 6.216,
+   "energy_nj": 4.4712,
+   "energy_nj_lo": 1.4904,
+   "energy_nj_hi": 13.413599999999999,
+   "uw_at_rate": 0.0178848,
+   "min_clock_khz": 10.368
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 3,
+   "macs": 2592,
+   "val_acc": [
+    0.6518119490695397,
+    0.6753183153770813,
+    0.6851126346718903
+   ],
+   "test_acc": [
+    0.6347305389221557,
+    0.6433799068529608,
+    0.6589044133954314
+   ],
+   "val_mean": 0.6707476330395038,
+   "test_mean": 0.6456716197235159,
+   "test_std": 0.010001100361900972,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2595
+   ],
+   "cells": 1692,
+   "flops": 384,
+   "storage_kbit": 8.808,
+   "energy_nj": 4.9507200000000005,
+   "energy_nj_lo": 1.6502400000000002,
+   "energy_nj_hi": 14.852160000000001,
+   "uw_at_rate": 0.019802880000000002,
+   "min_clock_khz": 10.368
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 4,
+   "macs": 2592,
+   "val_acc": [
+    0.7061704211557297,
+    0.7105778648383937,
+    0.7181684622918707
+   ],
+   "test_acc": [
+    0.6770902639166112,
+    0.6890663118208028,
+    0.6881791971612331
+   ],
+   "val_mean": 0.7116389160953314,
+   "test_mean": 0.6847785909662156,
+   "test_std": 0.0054485180077440045,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2595
+   ],
+   "cells": 1822,
+   "flops": 384,
+   "storage_kbit": 11.4,
+   "energy_nj": 5.43024,
+   "energy_nj_lo": 1.8100800000000001,
+   "energy_nj_hi": 16.29072,
+   "uw_at_rate": 0.021720960000000004,
+   "min_clock_khz": 10.368
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 32,
+   "wbits": 8,
+   "macs": 2592,
+   "val_acc": [
+    0.7174338883447601,
+    0.7193927522037218,
+    0.7213516160626836
+   ],
+   "test_acc": [
+    0.6830782878687071,
+    0.690175205145265,
+    0.6983810157462852
+   ],
+   "val_mean": 0.7193927522037219,
+   "test_mean": 0.690544836253419,
+   "test_std": 0.006252777542334723,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2595
+   ],
+   "cells": 2294,
+   "flops": 384,
+   "storage_kbit": 21.768,
+   "energy_nj": 7.348319999999999,
+   "energy_nj_lo": 2.4494399999999996,
+   "energy_nj_hi": 22.044959999999996,
+   "uw_at_rate": 0.02939328,
+   "min_clock_khz": 10.368
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 2,
+   "macs": 5184,
+   "val_acc": [
+    0.43046033300685604,
+    0.6170421155729677,
+    0.4777179236043095
+   ],
+   "test_acc": [
+    0.4233754712796629,
+    0.5843867819915725,
+    0.4852517187846529
+   ],
+   "val_mean": 0.5084067907280444,
+   "test_mean": 0.4976713240186294,
+   "test_std": 0.06631664190290716,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    5187
+   ],
+   "cells": 2076,
+   "flops": 644,
+   "storage_kbit": 12.168,
+   "energy_nj": 8.9424,
+   "energy_nj_lo": 2.9808,
+   "energy_nj_hi": 26.827199999999998,
+   "uw_at_rate": 0.0357696,
+   "min_clock_khz": 20.736
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 3,
+   "macs": 5184,
+   "val_acc": [
+    0.7291870714985309,
+    0.7255142017629774,
+    0.7436336924583742
+   ],
+   "test_acc": [
+    0.7003770237303172,
+    0.7136837436238633,
+    0.7041472610334886
+   ],
+   "val_mean": 0.7327783219066276,
+   "test_mean": 0.7060693427958897,
+   "test_std": 0.005599880790834776,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    5187
+   ],
+   "cells": 2260,
+   "flops": 644,
+   "storage_kbit": 17.352,
+   "energy_nj": 9.901440000000001,
+   "energy_nj_lo": 3.3004800000000003,
+   "energy_nj_hi": 29.704320000000003,
+   "uw_at_rate": 0.039605760000000004,
+   "min_clock_khz": 20.736
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 4,
+   "macs": 5184,
+   "val_acc": [
+    0.7495102840352595,
+    0.7468168462291871,
+    0.7485308521057786
+   ],
+   "test_acc": [
+    0.7261033488578399,
+    0.7176757595919273,
+    0.7234420048791306
+   ],
+   "val_mean": 0.7482859941234085,
+   "test_mean": 0.7224070377762993,
+   "test_std": 0.0035175211808590938,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    5187
+   ],
+   "cells": 2414,
+   "flops": 644,
+   "storage_kbit": 22.536,
+   "energy_nj": 10.86048,
+   "energy_nj_lo": 3.6201600000000003,
+   "energy_nj_hi": 32.58144,
+   "uw_at_rate": 0.04344192000000001,
+   "min_clock_khz": 20.736
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 64,
+   "wbits": 8,
+   "macs": 5184,
+   "val_acc": [
+    0.7580803134182175,
+    0.7519588638589618,
+    0.7492654260528894
+   ],
+   "test_acc": [
+    0.7276557995120869,
+    0.7192282102461743,
+    0.7274340208471946
+   ],
+   "val_mean": 0.7531015344433563,
+   "test_mean": 0.7247726768684851,
+   "test_std": 0.003921575281991525,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    5187
+   ],
+   "cells": 2885,
+   "flops": 644,
+   "storage_kbit": 43.272,
+   "energy_nj": 14.696639999999999,
+   "energy_nj_lo": 4.898879999999999,
+   "energy_nj_hi": 44.08991999999999,
+   "uw_at_rate": 0.05878656,
+   "min_clock_khz": 20.736
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 2,
+   "macs": 10368,
+   "val_acc": [
+    0.7100881488736532,
+    0.7098432908912831,
+    0.7120470127326151
+   ],
+   "test_acc": [
+    0.67243291195387,
+    0.677533821246396,
+    0.6890663118208028
+   ],
+   "val_mean": 0.7106594841658506,
+   "test_mean": 0.6796776816736897,
+   "test_std": 0.006957710396009429,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    10371
+   ],
+   "cells": 3195,
+   "flops": 1160,
+   "storage_kbit": 24.072,
+   "energy_nj": 17.8848,
+   "energy_nj_lo": 5.9616,
+   "energy_nj_hi": 53.654399999999995,
+   "uw_at_rate": 0.0715392,
+   "min_clock_khz": 41.472
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 3,
+   "macs": 10368,
+   "val_acc": [
+    0.7590597453476984,
+    0.7627326150832517,
+    0.7595494613124388
+   ],
+   "test_acc": [
+    0.7387447327567088,
+    0.738301175426924,
+    0.7387447327567088
+   ],
+   "val_mean": 0.7604472739144629,
+   "test_mean": 0.7385968803134472,
+   "test_std": 0.00020909493049057654,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    10371
+   ],
+   "cells": 3380,
+   "flops": 1160,
+   "storage_kbit": 34.44,
+   "energy_nj": 19.802880000000002,
+   "energy_nj_lo": 6.600960000000001,
+   "energy_nj_hi": 59.408640000000005,
+   "uw_at_rate": 0.07921152000000001,
+   "min_clock_khz": 41.472
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 4,
+   "macs": 10368,
+   "val_acc": [
+    0.7632223310479922,
+    0.7690989226248776,
+    0.767384916748286
+   ],
+   "test_acc": [
+    0.7509425593257929,
+    0.7493901086715458,
+    0.7458416500332667
+   ],
+   "val_mean": 0.7665687234737186,
+   "test_mean": 0.7487247726768684,
+   "test_std": 0.0021349196537582453,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    10371
+   ],
+   "cells": 3474,
+   "flops": 1160,
+   "storage_kbit": 44.808,
+   "energy_nj": 21.72096,
+   "energy_nj_lo": 7.2403200000000005,
+   "energy_nj_hi": 65.16288,
+   "uw_at_rate": 0.08688384000000002,
+   "min_clock_khz": 41.472
+  },
+  {
+   "segments": 7,
+   "inputs": 70,
+   "hidden": 128,
+   "wbits": 8,
+   "macs": 10368,
+   "val_acc": [
+    0.7629774730656219,
+    0.7642017629774731,
+    0.7627326150832517
+   ],
+   "test_acc": [
+    0.7513861166555778,
+    0.7460634286981592,
+    0.746950543357729
+   ],
+   "val_mean": 0.763303950375449,
+   "test_mean": 0.7481333629038219,
+   "test_std": 0.0023283826048678415,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    10371
+   ],
+   "cells": 3979,
+   "flops": 1160,
+   "storage_kbit": 86.28,
+   "energy_nj": 29.393279999999997,
+   "energy_nj_lo": 9.797759999999998,
+   "energy_nj_hi": 88.17983999999998,
+   "uw_at_rate": 0.11757312,
+   "min_clock_khz": 41.472
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 2,
+   "macs": 1048,
+   "val_acc": [
+    0.18927522037218414,
+    0.23800195886385897,
+    0.3393731635651322
+   ],
+   "test_acc": [
+    0.18451984919050787,
+    0.2251053448658239,
+    0.32823242404080727
+   ],
+   "val_mean": 0.2555501142670584,
+   "test_mean": 0.245952539365713,
+   "test_std": 0.06049396764093029,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 6,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1051
+   ],
+   "cells": 1062,
+   "flops": 184,
+   "storage_kbit": 2.552,
+   "energy_nj": 1.8078,
+   "energy_nj_lo": 0.6026,
+   "energy_nj_hi": 5.4234,
+   "uw_at_rate": 0.0072312,
+   "min_clock_khz": 4.192
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 3,
+   "macs": 1048,
+   "val_acc": [
+    0.46131243878550443,
+    0.490205680705191,
+    0.4720861900097943
+   ],
+   "test_acc": [
+    0.43490796185406966,
+    0.4553115990241739,
+    0.45154136172100245
+   ],
+   "val_mean": 0.4745347698334966,
+   "test_mean": 0.44725364086641534,
+   "test_std": 0.008864367435128908,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1051
+   ],
+   "cells": 1248,
+   "flops": 184,
+   "storage_kbit": 3.6,
+   "energy_nj": 2.00168,
+   "energy_nj_lo": 0.6672266666666666,
+   "energy_nj_hi": 6.005039999999999,
+   "uw_at_rate": 0.00800672,
+   "min_clock_khz": 4.192
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 4,
+   "macs": 1048,
+   "val_acc": [
+    0.5171400587659157,
+    0.5007345739471106,
+    0.527179236043095
+   ],
+   "test_acc": [
+    0.48769128409846974,
+    0.47726768684852516,
+    0.5003326679973387
+   ],
+   "val_mean": 0.5150179562520405,
+   "test_mean": 0.48843054631477784,
+   "test_std": 0.009430737698862733,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1051
+   ],
+   "cells": 1328,
+   "flops": 184,
+   "storage_kbit": 4.648,
+   "energy_nj": 2.1955600000000004,
+   "energy_nj_lo": 0.7318533333333335,
+   "energy_nj_hi": 6.586680000000001,
+   "uw_at_rate": 0.008782240000000002,
+   "min_clock_khz": 4.192
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 8,
+   "wbits": 8,
+   "macs": 1048,
+   "val_acc": [
+    0.5340352595494613,
+    0.5200783545543585,
+    0.5653770812928501
+   ],
+   "test_acc": [
+    0.5016633399866933,
+    0.4881348414282546,
+    0.5282767797737857
+   ],
+   "val_mean": 0.53983023179889,
+   "test_mean": 0.5060249870629112,
+   "test_std": 0.016675566506063416,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    1051
+   ],
+   "cells": 1829,
+   "flops": 184,
+   "storage_kbit": 8.84,
+   "energy_nj": 2.9710799999999997,
+   "energy_nj_lo": 0.9903599999999999,
+   "energy_nj_hi": 8.913239999999998,
+   "uw_at_rate": 0.01188432,
+   "min_clock_khz": 4.192
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 2,
+   "macs": 2096,
+   "val_acc": [
+    0.36606268364348676,
+    0.3807541625857003,
+    0.45959843290891284
+   ],
+   "test_acc": [
+    0.3634952317587048,
+    0.3608338877799956,
+    0.42980705256154356
+   ],
+   "val_mean": 0.40213842637936664,
+   "test_mean": 0.38471205736674796,
+   "test_std": 0.03190548157351889,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2099
+   ],
+   "cells": 1201,
+   "flops": 252,
+   "storage_kbit": 4.84,
+   "energy_nj": 3.6156,
+   "energy_nj_lo": 1.2052,
+   "energy_nj_hi": 10.8468,
+   "uw_at_rate": 0.0144624,
+   "min_clock_khz": 8.384
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 3,
+   "macs": 2096,
+   "val_acc": [
+    0.5751714005876591,
+    0.5954946131243879,
+    0.5812928501469148
+   ],
+   "test_acc": [
+    0.5513417609225992,
+    0.5677533821246397,
+    0.5551119982257707
+   ],
+   "val_mean": 0.5839862879529872,
+   "test_mean": 0.5580690470910032,
+   "test_std": 0.0070187098108482025,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2099
+   ],
+   "cells": 1393,
+   "flops": 252,
+   "storage_kbit": 6.936,
+   "energy_nj": 4.00336,
+   "energy_nj_lo": 1.3344533333333333,
+   "energy_nj_hi": 12.010079999999999,
+   "uw_at_rate": 0.01601344,
+   "min_clock_khz": 8.384
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 4,
+   "macs": 2096,
+   "val_acc": [
+    0.6356513222331048,
+    0.6363858961802155,
+    0.6429970617042116
+   ],
+   "test_acc": [
+    0.6138833444222666,
+    0.5948103792415169,
+    0.6083388777999557
+   ],
+   "val_mean": 0.6383447600391773,
+   "test_mean": 0.6056775338212463,
+   "test_std": 0.008010683034809667,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2099
+   ],
+   "cells": 1479,
+   "flops": 252,
+   "storage_kbit": 9.032,
+   "energy_nj": 4.391120000000001,
+   "energy_nj_lo": 1.463706666666667,
+   "energy_nj_hi": 13.173360000000002,
+   "uw_at_rate": 0.017564480000000004,
+   "min_clock_khz": 8.384
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 16,
+   "wbits": 8,
+   "macs": 2096,
+   "val_acc": [
+    0.651077375122429,
+    0.6287952987267384,
+    0.6601371204701273
+   ],
+   "test_acc": [
+    0.6227544910179641,
+    0.6063428698159237,
+    0.6194278110445776
+   ],
+   "val_mean": 0.6466699314397649,
+   "test_mean": 0.6161750572928217,
+   "test_std": 0.0070838140784460985,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    2099
+   ],
+   "cells": 2008,
+   "flops": 252,
+   "storage_kbit": 17.416,
+   "energy_nj": 5.942159999999999,
+   "energy_nj_lo": 1.9807199999999998,
+   "energy_nj_hi": 17.826479999999997,
+   "uw_at_rate": 0.02376864,
+   "min_clock_khz": 8.384
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 2,
+   "macs": 4192,
+   "val_acc": [
+    0.5269343780607247,
+    0.5254652301665035,
+    0.5396669931439765
+   ],
+   "test_acc": [
+    0.5047682412951874,
+    0.5165225105344866,
+    0.5211798624972278
+   ],
+   "val_mean": 0.530688867123735,
+   "test_mean": 0.5141568714423007,
+   "test_std": 0.006905674664393756,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    4195
+   ],
+   "cells": 1503,
+   "flops": 384,
+   "storage_kbit": 9.416,
+   "energy_nj": 7.2312,
+   "energy_nj_lo": 2.4104,
+   "energy_nj_hi": 21.6936,
+   "uw_at_rate": 0.0289248,
+   "min_clock_khz": 16.768
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 3,
+   "macs": 4192,
+   "val_acc": [
+    0.671645445641528,
+    0.6900097943192948,
+    0.688050930460333
+   ],
+   "test_acc": [
+    0.6433799068529608,
+    0.6526946107784432,
+    0.6713240186294078
+   ],
+   "val_mean": 0.6832353901403853,
+   "test_mean": 0.6557995120869372,
+   "test_std": 0.011617476916131091,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    4195
+   ],
+   "cells": 1690,
+   "flops": 384,
+   "storage_kbit": 13.608,
+   "energy_nj": 8.00672,
+   "energy_nj_lo": 2.6689066666666665,
+   "energy_nj_hi": 24.020159999999997,
+   "uw_at_rate": 0.03202688,
+   "min_clock_khz": 16.768
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 4,
+   "macs": 4192,
+   "val_acc": [
+    0.7135161606268364,
+    0.7174338883447601,
+    0.705435847208619
+   ],
+   "test_acc": [
+    0.6837436238633844,
+    0.6833000665335994,
+    0.6839654025282768
+   ],
+   "val_mean": 0.7121286320600718,
+   "test_mean": 0.6836696976417534,
+   "test_std": 0.0002766065932412308,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    4195
+   ],
+   "cells": 1819,
+   "flops": 384,
+   "storage_kbit": 17.8,
+   "energy_nj": 8.782240000000002,
+   "energy_nj_lo": 2.927413333333334,
+   "energy_nj_hi": 26.346720000000005,
+   "uw_at_rate": 0.03512896000000001,
+   "min_clock_khz": 16.768
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 32,
+   "wbits": 8,
+   "macs": 4192,
+   "val_acc": [
+    0.7189030362389814,
+    0.7311459353574926,
+    0.7230656219392753
+   ],
+   "test_acc": [
+    0.6912840984697272,
+    0.6888445331559104,
+    0.7034819250388112
+   ],
+   "val_mean": 0.7243715311785831,
+   "test_mean": 0.694536852221483,
+   "test_std": 0.0064030521633865415,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    4195
+   ],
+   "cells": 2291,
+   "flops": 384,
+   "storage_kbit": 34.568,
+   "energy_nj": 11.884319999999999,
+   "energy_nj_lo": 3.9614399999999996,
+   "energy_nj_hi": 35.65295999999999,
+   "uw_at_rate": 0.04753728,
+   "min_clock_khz": 16.768
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 2,
+   "macs": 8384,
+   "val_acc": [
+    0.6270812928501469,
+    0.6383447600391773,
+    0.6290401567091087
+   ],
+   "test_acc": [
+    0.6101131071190952,
+    0.6083388777999557,
+    0.6010201818585053
+   ],
+   "val_mean": 0.6314887365328109,
+   "test_mean": 0.6064907222591853,
+   "test_std": 0.003935486554064059,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    8387
+   ],
+   "cells": 2075,
+   "flops": 644,
+   "storage_kbit": 18.568,
+   "energy_nj": 14.4624,
+   "energy_nj_lo": 4.8208,
+   "energy_nj_hi": 43.3872,
+   "uw_at_rate": 0.0578496,
+   "min_clock_khz": 33.536
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 3,
+   "macs": 8384,
+   "val_acc": [
+    0.7502448579823702,
+    0.7470617042115573,
+    0.7431439764936337
+   ],
+   "test_acc": [
+    0.7159015302727878,
+    0.7267686848525172,
+    0.7176757595919273
+   ],
+   "val_mean": 0.7468168462291871,
+   "test_mean": 0.720115324905744,
+   "test_std": 0.004760068021588002,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    8387
+   ],
+   "cells": 2258,
+   "flops": 644,
+   "storage_kbit": 26.952,
+   "energy_nj": 16.01344,
+   "energy_nj_lo": 5.337813333333333,
+   "energy_nj_hi": 48.040319999999994,
+   "uw_at_rate": 0.06405376,
+   "min_clock_khz": 33.536
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 4,
+   "macs": 8384,
+   "val_acc": [
+    0.7661606268364348,
+    0.7558765915768854,
+    0.7593046033300686
+   ],
+   "test_acc": [
+    0.7332002661343978,
+    0.7420714127300954,
+    0.7391882900864937
+   ],
+   "val_mean": 0.7604472739144629,
+   "test_mean": 0.7381533229836622,
+   "test_std": 0.0036948322612848,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    8387
+   ],
+   "cells": 2404,
+   "flops": 644,
+   "storage_kbit": 35.336,
+   "energy_nj": 17.564480000000003,
+   "energy_nj_lo": 5.854826666666668,
+   "energy_nj_hi": 52.69344000000001,
+   "uw_at_rate": 0.07025792000000002,
+   "min_clock_khz": 33.536
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 64,
+   "wbits": 8,
+   "macs": 8384,
+   "val_acc": [
+    0.7649363369245837,
+    0.7566111655239961,
+    0.7556317335945152
+   ],
+   "test_acc": [
+    0.7358616101131071,
+    0.7418496340652029,
+    0.732756708804613
+   ],
+   "val_mean": 0.7590597453476984,
+   "test_mean": 0.7368226509943078,
+   "test_std": 0.0037738593976787693,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    8387
+   ],
+   "cells": 2884,
+   "flops": 644,
+   "storage_kbit": 68.872,
+   "energy_nj": 23.768639999999998,
+   "energy_nj_lo": 7.922879999999999,
+   "energy_nj_hi": 71.30591999999999,
+   "uw_at_rate": 0.09507456,
+   "min_clock_khz": 33.536
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 2,
+   "macs": 16768,
+   "val_acc": [
+    0.7171890303623898,
+    0.7164544564152792,
+    0.718413320274241
+   ],
+   "test_acc": [
+    0.6844089598580616,
+    0.6866267465069861,
+    0.7023730317143491
+   ],
+   "val_mean": 0.7173522690173032,
+   "test_mean": 0.6911362460264656,
+   "test_std": 0.007997026899692334,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    16771
+   ],
+   "cells": 3196,
+   "flops": 1160,
+   "storage_kbit": 36.872,
+   "energy_nj": 28.9248,
+   "energy_nj_lo": 9.6416,
+   "energy_nj_hi": 86.7744,
+   "uw_at_rate": 0.1156992,
+   "min_clock_khz": 67.072
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 3,
+   "macs": 16768,
+   "val_acc": [
+    0.767384916748286,
+    0.7730166503428012,
+    0.7784035259549461
+   ],
+   "test_acc": [
+    0.7480594366821912,
+    0.7458416500332667,
+    0.7524950099800399
+   ],
+   "val_mean": 0.7729350310153444,
+   "test_mean": 0.7487986988984994,
+   "test_std": 0.0027660659324121894,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    16771
+   ],
+   "cells": 3377,
+   "flops": 1160,
+   "storage_kbit": 53.64,
+   "energy_nj": 32.02688,
+   "energy_nj_lo": 10.675626666666666,
+   "energy_nj_hi": 96.08063999999999,
+   "uw_at_rate": 0.12810752,
+   "min_clock_khz": 67.072
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 4,
+   "macs": 16768,
+   "val_acc": [
+    0.767384916748286,
+    0.7766895200783546,
+    0.7818315377081293
+   ],
+   "test_acc": [
+    0.746950543357729,
+    0.7504990019960079,
+    0.757595919272566
+   ],
+   "val_mean": 0.77530199151159,
+   "test_mean": 0.751681821542101,
+   "test_std": 0.004425705491859455,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    16771
+   ],
+   "cells": 3471,
+   "flops": 1160,
+   "storage_kbit": 70.408,
+   "energy_nj": 35.128960000000006,
+   "energy_nj_lo": 11.709653333333335,
+   "energy_nj_hi": 105.38688000000002,
+   "uw_at_rate": 0.14051584000000003,
+   "min_clock_khz": 67.072
+  },
+  {
+   "segments": 12,
+   "inputs": 120,
+   "hidden": 128,
+   "wbits": 8,
+   "macs": 16768,
+   "val_acc": [
+    0.7759549461312438,
+    0.7664054848188051,
+    0.7820763956904995
+   ],
+   "test_acc": [
+    0.7427367487247727,
+    0.7567088046129963,
+    0.7516078953204701
+   ],
+   "val_mean": 0.7748122755468495,
+   "test_mean": 0.7503511495527464,
+   "test_std": 0.005772875879457283,
+   "rtl_vectors": 200,
+   "rtl_bit_exact": true,
+   "rtl_classes_seen": 11,
+   "rtl_true_classes": 11,
+   "cycles": [
+    16771
+   ],
+   "cells": 3977,
+   "flops": 1160,
+   "storage_kbit": 137.48,
+   "energy_nj": 47.537279999999996,
+   "energy_nj_lo": 15.845759999999999,
+   "energy_nj_hi": 142.61183999999997,
+   "uw_at_rate": 0.19014912,
+   "min_clock_khz": 67.072
+  }
+ ]
+}

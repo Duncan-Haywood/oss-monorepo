@@ -1,0 +1,24 @@
+Active suit gain 0.3: mass and net whole-body change vs hours of battery (assumed power train)
+0 h: mass 9.00 kg (motor 8.40, battery 0.00), electrical 27 W, net +0.2%
+1 h: mass 9.22 kg (motor 8.40, battery 0.22), electrical 27 W, net +0.4%
+2 h: mass 9.43 kg (motor 8.40, battery 0.43), electrical 27 W, net +0.6%
+4 h: mass 9.86 kg (motor 8.40, battery 0.86), electrical 27 W, net +1.0%
+8 h: mass 10.72 kg (motor 8.40, battery 1.72), electrical 27 W, net +1.9%
+
+Best gain (grid 0.02..0.60) and its net change vs hours, by mass sensitivity
+sens 0.005: 1h: gain 0.60 -> -7.6%; 4h: gain 0.60 -> -7.0%; 8h: gain 0.60 -> -6.1%
+sens 0.010: 1h: gain 0.22 -> +0.3%; 4h: gain 0.04 -> +0.6%; 8h: gain 0.02 -> +0.6%
+sens 0.020: 1h: gain 0.02 -> +1.7%; 4h: gain 0.02 -> +1.8%; 8h: gain 0.02 -> +1.9%
+sens 0.050: 1h: gain 0.02 -> +5.2%; 4h: gain 0.02 -> +5.5%; 8h: gain 0.02 -> +5.7%
+
+Motor+gearbox torque density (N m/kg) needed for net benefit: gain 0.3, 4 h battery; net change by density and mass sensitivity
+sens        8      20      40      80     160
+0.005    -3.9    -6.4    -7.3    -7.7    -7.9
+0.010    +1.0    -4.0    -5.7    -6.5    -7.0
+0.020   +10.9    +0.8    -2.6    -4.2    -5.1
+
+Same, battery share of suit mass at density 40 (gain 0.3), cell 150 Wh/kg, by hours
+ 1 h: mass 2.50 kg, battery 0.22 kg, net -6.4% (sens 1%/kg)
+ 4 h: mass 3.14 kg, battery 0.86 kg, net -5.7% (sens 1%/kg)
+ 8 h: mass 4.00 kg, battery 1.72 kg, net -4.8% (sens 1%/kg)
+16 h: mass 5.72 kg, battery 3.44 kg, net -3.1% (sens 1%/kg)

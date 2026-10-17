@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cash Flow Risk Forecaster</title>
+  <meta name="description" content="Free 13-week cash flow forecast that assumes invoices arrive late: paste your invoices and bills, and 2,000 simulated outcomes show the chance you run short, the cushion that would cover it and which invoice or bill to fix first. Private, runs in your browser.">
+  <meta property="og:title" content="Cash flow forecast with late-paying customers: the odds you run short. Free, private">
+  <meta property="og:description" content="Paste invoices and bills, get the chance of a cash shortfall, the cushion needed and the biggest lever.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cash Flow Risk Forecaster", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a cash-flow forecast?", "acceptedAnswer": {"@type": "Answer", "text": "A week-by-week list of the money you expect to receive and the money you must pay, starting from the cash you have today. Its job is to show the week your balance gets thin before it does."}}, {"@type": "Question", "name": "Why simulate late payments instead of assuming invoices arrive on time?", "acceptedAnswer": {"@type": "Answer", "text": "A forecast that treats every invoice as paid on its due date shows one tidy line and hides the risk. Real customers pay late or not at all, so this tool draws a delay for each invoice, thousands of times, and reports how often your balance falls below the floor you set."}}, {"@type": "Question", "name": "What does 'cushion to cover 9 in 10 outcomes' mean?", "acceptedAnswer": {"@type": "Answer", "text": "In 90% of the simulated outcomes the lowest balance never fell short of your floor by more than that amount. It is the cash or credit line that would have kept you above the floor in nine out of ten runs of the same assumptions."}}, {"@type": "Question", "name": "How are the 'biggest levers' worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Each large line is changed on its own and the same simulated outcomes are replayed: an invoice is collected on its due date, or a bill is paid 14 days later. The tool then compares the chance of a shortfall and the cushion needed. It shows what the arithmetic says, not whether a customer or supplier would agree."}}, {"@type": "Question", "name": "Where do the on-time and days-late figures come from?", "acceptedAnswer": {"@type": "Answer", "text": "From you. Use your own history: of the last twenty invoices, how many were paid by the due date, and how late were the rest. The defaults are placeholders, not an industry statistic."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The lines you paste stay in this page, the simulation runs in your browser, and a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CASH FLOW RISK FORECASTER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>A 13-week cash forecast that assumes your customers pay late, and tells you the odds you run short</h1>
+    <p>Paste the invoices you expect and the bills you owe. The tool pays each invoice on time, late or never, thousands of times over, and shows the <strong>chance your balance drops below your floor</strong>, the <strong>cushion that would cover it</strong>, and the <strong>single invoice or bill</strong> that moves the odds most.</p>
+    <p class="note">The on-time share, days late and never-paid share are yours to set from your own history. It does not know your customers.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your cash</h2>
+    <div class="grid">
+      <div><label for="start">Forecast start date (YYYY-MM-DD)</label><input id="start" inputmode="decimal" value="" placeholder="2026-10-12"></div>
+      <div><label for="opening">Cash in the bank today, dollars</label><input id="opening" inputmode="decimal" value="" placeholder="19000"></div>
+      <div><label for="weeks">Weeks to forecast (4 to 26)</label><input id="weeks" inputmode="decimal" value="" placeholder="13"></div>
+      <div><label for="buffer">Cash you never want to drop below, dollars</label><input id="buffer" inputmode="decimal" value="" placeholder="5000"></div>
+      <div><label for="onTime">Invoices paid on time, %</label><input id="onTime" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="lateDays">The rest are late by about this many days</label><input id="lateDays" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="noPay">Invoices never paid, %</label><input id="noPay" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="trials">Simulated outcomes (200 to 5000)</label><input id="trials" inputmode="decimal" value="" placeholder="2000"></div>
+    </div>
+    <h3>Money coming in</h3>
+    <label for="incoming">One line each: date due, who, amount. Optional fourth column: weekly, biweekly or monthly. No commas inside amounts.</label>
+    <textarea id="incoming" placeholder="2026-10-23, Brightline Co invoice, 9800&#10;2026-10-14, Patel Law retainer, 2500, monthly"></textarea>
+    <h3>Money going out</h3>
+    <label for="outgoing">Same format. Bills are assumed paid on their date.</label>
+    <textarea id="outgoing" placeholder="2026-10-16, Payroll, 4600, biweekly&#10;2026-11-01, Rent, 3400, monthly"></textarea>
+    <p>
+      <button type="button" id="calc">Run the forecast</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your cash and lines, then click Run the forecast.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Forecast</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Balance by week</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Week</th><th scope="col">From</th><th scope="col" class="n">Bad case (10th pct)</th><th scope="col" class="n">Middle</th><th scope="col" class="n">Good case (90th pct)</th><th scope="col" class="n">Chance short by now</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>What to fix first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Change</th><th scope="col" class="n">Chance of shortfall after</th><th scope="col" class="n">9-in-10 cushion after</th></tr></thead><tbody id="levers"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download forecast (text)</button> <button type="button" class="secondary" id="dl-csv">Download weeks (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> each invoice is paid on its due date with the on-time probability you set; otherwise it arrives later by a random delay averaging the days you set (exponential, at least one day), or never with the never-paid probability. Bills and repeating lines are fixed on their dates. The simulation uses a fixed seed, so the same inputs always give the same answer. Overdue invoices dated before the start are treated as due on day one. The levers replay the same random outcomes with one line changed.</li>
+      <li><strong>Not decided:</strong> whether your on-time share and delays are right, seasonality and new sales, tax timing, interest, whether a customer or supplier would agree to a different date, and any advice about financing. Customers who pay late are often correlated; a bad month for one is often a bad month for several, which this simple model understates.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a cash-flow forecast?</h3>
+    <p>A week-by-week list of the money you expect to receive and the money you must pay, starting from the cash you have today. Its job is to show the week your balance gets thin before it does.</p>
+    <h3>Why simulate late payments instead of assuming invoices arrive on time?</h3>
+    <p>A forecast that treats every invoice as paid on its due date shows one tidy line and hides the risk. Real customers pay late or not at all, so this tool draws a delay for each invoice, thousands of times, and reports how often your balance falls below the floor you set.</p>
+    <h3>What does 'cushion to cover 9 in 10 outcomes' mean?</h3>
+    <p>In 90% of the simulated outcomes the lowest balance never fell short of your floor by more than that amount. It is the cash or credit line that would have kept you above the floor in nine out of ten runs of the same assumptions.</p>
+    <h3>How are the 'biggest levers' worked out?</h3>
+    <p>Each large line is changed on its own and the same simulated outcomes are replayed: an invoice is collected on its due date, or a bill is paid 14 days later. The tool then compares the chance of a shortfall and the cushion needed. It shows what the arithmetic says, not whether a customer or supplier would agree.</p>
+    <h3>Where do the on-time and days-late figures come from?</h3>
+    <p>From you. Use your own history: of the last twenty invoices, how many were paid by the due date, and how late were the rest. The defaults are placeholders, not an industry statistic.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The lines you paste stay in this page, the simulation runs in your browser, and a test in the code asserts there are no network calls.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before relying on it for any financing, payroll or spending decision. Treat it as a worksheet to check, not a prediction.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../invoice-payment-terms-calculator/">invoice payment terms calculator</a> and the <a href="../sales-seasonality-forecaster/">sales seasonality forecaster</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const ids = ["start", "opening", "weeks", "buffer", "onTime", "lateDays", "noPay", "trials", "incoming", "outgoing"];
+    const IDLE = "Fill in your cash and lines, then click Run the forecast.";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => Object.fromEntries(ids.map((id) => [id, $("#" + id).value]));
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = `${Math.round(r.pShort * 100)}% chance of dipping below ${dollars(r.buffer)}; a ${dollars(r.cushion90)} cushion covers 9 in 10 outcomes`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${x.week}</td><td>${x.from}</td><td class="n">${dollars(x.p10)}</td><td class="n">${dollars(x.p50)}</td><td class="n">${dollars(x.p90)}</td><td class="n">${Math.round(x.pShort * 100)}%</td></tr>`).join("");
+      $("#levers").innerHTML = r.levers.length ? r.levers.slice(0, 8).map((l) => `<tr><td>${esc(l.action)}</td><td class="n">${Math.round(l.pShort * 100)}%</td><td class="n">${dollars(l.cushion90)}</td></tr>`).join("") : `<tr><td colspan="3">No shortfall in the simulation, so nothing to fix.</td></tr>`;
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const id of ids) $("#" + id).value = SAMPLE[id] ?? "";
+      run(); record("example_loaded");
+      status.textContent = "Worked example: a small services firm, $19,000 in the bank, 13 weeks, five invoices and a monthly retainer.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ids) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("cash-flow-forecast.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("cash-flow-weeks.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rental Fleet Size Optimizer — how many units to own, from your own demand</title>
+  <meta name="description" content="Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Rental Fleet Size Optimizer — free, private, in your browser">
+  <meta property="og:description" content="How many units should you own? See the yearly profit of every fleet size, the share of customers you would turn away, and a bad year, from your own demand figures.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rental Fleet Size Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter your seasons of demand, how long rentals last, what you charge and what a unit costs to own. The tool computes the yearly profit of every fleet size with the Erlang loss formula and a repeatable day-by-day simulation, and recommends how many units to own, with turn-away rates, bad-year profit and how the answer moves if demand changes. Runs entirely in your browser; nothing is uploaded.", "featureList": "fleet size optimization, Erlang B turn-away rate, day-by-day Monte Carlo simulation, seasonal demand, booking clustering, turn-away cap, bad-year profit, demand sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many units should a small rental business own?", "acceptedAnswer": {"@type": "Answer", "text": "As many as still pay for themselves. Each extra unit rescues fewer requests than the one before it, because it is only needed on the few busiest days, while it costs the same to own every day of the year. The table in this tool shows the yearly profit of every fleet size from one upward and marks the size after which the next unit earns less than it costs to own."}}, {"@type": "Question", "name": "Why not just buy enough for the busiest weekend?", "acceptedAnswer": {"@type": "Answer", "text": "Because the busiest weekend is a handful of days and the unit sits in the shed for the rest of the year. A unit needs a minimum number of rental days a year to cover its cost; the tool prints that number from your own price and costs. When the last unit you are considering would be out fewer days than that, it loses money even though every request in the peak would have been served."}}, {"@type": "Question", "name": "What is the difference between Erlang B and the day-by-day simulation?", "acceptedAnswer": {"@type": "Answer", "text": "Erlang B is the classic formula for the share of requests turned away when every unit is busy. It assumes requests arrive at any moment and a unit is only free once it is back. The simulation books by calendar day, so a unit returned on a day can go out again that day, and it can model bookings that cluster. Calendar-booked rentals such as a tent for Saturday sit closer to the simulation; hourly or walk-up rentals sit closer to Erlang B. The tool computes both and lets you choose which drives the recommendation."}}, {"@type": "Question", "name": "What does the booking clustering setting do?", "acceptedAnswer": {"@type": "Answer", "text": "It sets how much busier and quieter than average the days are, as a variance-to-mean ratio. At 1, requests arrive independently. At 2 or 3, a day's requests swing more widely around the average, as they do when weather, holidays or a single event drive bookings. Clustering turns away more customers at the same fleet size, so the best fleet and the bad-year figures both move."}}, {"@type": "Question", "name": "Can I set a limit on how many customers I turn away?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Enter the largest share of requests you are willing to turn away, and the recommendation becomes the larger of the most profitable fleet and the smallest fleet that meets the limit. The result says what the limit costs you in a year, so you can see the price of the promise before making it."}}, {"@type": "Question", "name": "What does it not model?", "acceptedAnswer": {"@type": "Answer", "text": "It treats the units as identical and the demand as figures you type. It does not model different unit types, damage or theft, units out of service for repair, deposits, delivery routing, staff, taxes, financing or the resale value of a unit. The yearly cost of owning a unit is a number you supply, so include depreciation, storage, insurance and upkeep in it."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in your browser from the figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 110px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    textarea.short { min-height: 90px; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    tr.rec td { background: #eef6ee; }
+    .bar { display: inline-block; height: 10px; background: #1f5f86; border-radius: 3px; vertical-align: middle; min-width: 1px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RENTAL FLEET SIZE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many units should you own?</h1>
+    <p>Enter your <strong>seasons of demand</strong>, how <strong>long rentals last</strong>, what you <strong>charge</strong> and what a unit <strong>costs to own</strong>. The tool computes the yearly profit of <strong>every fleet size</strong> two ways, with the <strong>Erlang loss formula</strong> and a repeatable <strong>day-by-day simulation</strong>, then recommends how many units to own, how many customers that turns away, what a <strong>bad year</strong> looks like and how the answer moves if demand does.</p>
+    <p class="note">Arithmetic and simulation on figures you supply. Not legal, tax, or financial advice. New to this? Read <a href="./how-many-rental-units-to-own.html">how many rental units to own, and why the last one rarely pays</a>.</p>
+  </header>
+
+  <section class="card">
+    <div class="two">
+      <div>
+        <h2>Demand by season</h2>
+        <label for="seasons">Season, days in it, new rental requests per day</label>
+        <textarea id="seasons" spellcheck="false" placeholder="Peak (May to Sep),150,2.4&#10;Off-season,215,0.2"></textarea>
+        <p class="note">Count requests, including the ones you turned away. Weekends can be their own season. Days should add up to about 365.</p>
+      </div>
+      <div>
+        <h2>How long rentals last</h2>
+        <label for="durations">Days, share of rentals</label>
+        <textarea id="durations" spellcheck="false" placeholder="1,25&#10;2,45&#10;3,20&#10;7,10"></textarea>
+        <p class="note">Shares can be counts or percentages. A single number means every rental is that long.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:18px">Money</h2>
+    <div class="row3">
+      <div><label for="price">Revenue per unit per rental day ($)</label><input id="price" inputmode="decimal" value="85"></div>
+      <div><label for="costPerRental">Cost of each rental: cleaning, delivery, wear ($)</label><input id="costPerRental" inputmode="decimal" value="18"></div>
+      <div><label for="unitCost">Yearly cost of owning one unit ($)</label><input id="unitCost" inputmode="decimal" value="1100"></div>
+      <div><label for="lostCost">Extra cost of turning a customer away ($)</label><input id="lostCost" inputmode="decimal" value="0"></div>
+    </div>
+    <p class="note">The cost of owning a unit is what it costs you whether or not it is out: depreciation or finance, storage, insurance, upkeep.</p>
+
+    <h2 style="margin-top:18px">How bookings arrive</h2>
+    <div class="row3">
+      <div><label for="bookingStyle">Rentals are booked</label><select id="bookingStyle"><option value="date">By calendar date (a tent for Saturday)</option><option value="anytime">At any hour (hourly or walk-up)</option></select></div>
+      <div><label for="vmr">Booking clustering (1 = independent days)</label><input id="vmr" inputmode="decimal" value="1"></div>
+      <div><label for="maxTurnAway">Optional: most requests you will turn away (%)</label><input id="maxTurnAway" inputmode="decimal" placeholder="none"></div>
+      <div><label for="currentUnits">Optional: units you own today</label><input id="currentUnits" inputmode="numeric" placeholder="none"></div>
+      <div><label for="maxUnits">Optional: most units to evaluate</label><input id="maxUnits" inputmode="numeric" placeholder="automatic"></div>
+      <div><label for="years">Simulated years</label><input id="years" inputmode="numeric" value="200"></div>
+    </div>
+    <button type="button" id="analyze">Find the best fleet size</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Add your seasons and rental lengths, then click Find the best fleet size.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="verdict"></p>
+    <h3>Yearly profit by fleet size</h3>
+    <div class="scroll"><table id="ct"><thead><tr><th class="n">Units</th><th>Profit</th><th class="n">Profit / year</th><th class="n">This unit adds</th><th class="n">Turned away</th><th class="n">Units out, on average</th><th class="n">Bad year (1 in 10)</th><th class="n">Erlang B profit</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="floor"></p>
+    <h3>Each season at the recommended fleet (Erlang B)</h3>
+    <div class="scroll"><table id="st"><thead><tr><th>Season</th><th class="n">Days</th><th class="n">Requests / day</th><th class="n">Units wanted on average</th><th class="n">Turned away</th><th class="n">Units out, on average</th></tr></thead><tbody></tbody></table></div>
+    <h3>If demand is different from what you typed</h3>
+    <div class="scroll"><table id="sens"><thead><tr><th class="n">Demand</th><th class="n">Best fleet</th><th class="n">Profit / year</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the result (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Offered load:</strong> requests per day times the average rental length, in units. <strong>Erlang B:</strong> with c units and offered load a, the share of requests turned away is B(c) from B(0) = 1 and B(c) = a·B(c−1) / (c + a·B(c−1)). It depends only on the average rental length, not on how lengths vary. Each season is computed on its own and summed, because the fleet is fixed while demand is not. <strong>Day-by-day simulation:</strong> each day draws a number of requests (Poisson, or negative binomial when clustering is above 1), each request draws a rental length from your mix and takes a free unit or is turned away. Units come back on the day after the last rental day and can go out again that day. Every fleet size sees the same simulated years from a fixed seed, one warm-up year is discarded, and the table shows the mean year and the 10th-percentile year. <strong>Profit:</strong> price × rental days − cost per rental × rentals − cost of turning a customer away × turn-aways − units × yearly cost of owning one. <strong>Recommendation:</strong> the fleet size with the highest mean profit, or the smallest size meeting your turn-away limit if that is larger. Calendar-booked rentals use the simulation; any-hour rentals use Erlang B.</p>
+    <p><strong>Not modelled:</strong> different unit types, damage, theft or units out for repair, deposits, delivery routes and staff, taxes and financing, resale value, waiting lists or customers who come back later, and rentals that cross the year boundary (revenue is counted when a rental starts). Unverified: tested against hand-calculated Erlang values, an exact one-day-rental formula and a repeatable simulation, not on a real rental business's books. It does not tell you what to charge or which unit to buy.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many units should a small rental business own?</h3>
+    <p>As many as still pay for themselves. Each extra unit rescues fewer requests than the one before it, because it is only needed on the few busiest days, while it costs the same to own every day of the year. The table in this tool shows the yearly profit of every fleet size from one upward and marks the size after which the next unit earns less than it costs to own.</p>
+    <h3>Why not just buy enough for the busiest weekend?</h3>
+    <p>Because the busiest weekend is a handful of days and the unit sits in the shed for the rest of the year. A unit needs a minimum number of rental days a year to cover its cost; the tool prints that number from your own price and costs. When the last unit you are considering would be out fewer days than that, it loses money even though every request in the peak would have been served.</p>
+    <h3>What is the difference between Erlang B and the day-by-day simulation?</h3>
+    <p>Erlang B is the classic formula for the share of requests turned away when every unit is busy. It assumes requests arrive at any moment and a unit is only free once it is back. The simulation books by calendar day, so a unit returned on a day can go out again that day, and it can model bookings that cluster. Calendar-booked rentals such as a tent for Saturday sit closer to the simulation; hourly or walk-up rentals sit closer to Erlang B. The tool computes both and lets you choose which drives the recommendation.</p>
+    <h3>What does the booking clustering setting do?</h3>
+    <p>It sets how much busier and quieter than average the days are, as a variance-to-mean ratio. At 1, requests arrive independently. At 2 or 3, a day's requests swing more widely around the average, as they do when weather, holidays or a single event drive bookings. Clustering turns away more customers at the same fleet size, so the best fleet and the bad-year figures both move.</p>
+    <h3>Can I set a limit on how many customers I turn away?</h3>
+    <p>Yes. Enter the largest share of requests you are willing to turn away, and the recommendation becomes the larger of the most profitable fleet and the smallest fleet that meets the limit. The result says what the limit costs you in a year, so you can see the price of the promise before making it.</p>
+    <h3>What does it not model?</h3>
+    <p>It treats the units as identical and the demand as figures you type. It does not model different unit types, damage or theft, units out of service for repair, deposits, delivery routing, staff, taxes, financing or the resale value of a unit. The yearly cost of owning a unit is a number you supply, so include depreciation, storage, insurance and upkeep in it.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. Everything runs in your browser from the figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace an accountant or a qualified business adviser. Results are arithmetic and simulation on the figures you type; real demand differs from a model and a recommended fleet size is not a forecast. You are responsible for reviewing and verifying its output.</p>
+    <p><strong>Independent.</strong> Not affiliated with any rental software, equipment maker or marketplace, and none is named or ranked here. The example business and its prices are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../boat-rental-fleet-profit-calculator/">boat rental fleet profit calculator</a> for a boat or jet ski, the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a> for pricing one rental, the <a href="../dumpster-rental-margin-calculator/">dumpster rental margin calculator</a>, the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a> the <a href="../fleet-repair-or-replace-planner/">fleet repair-or-replace planner</a> and, for a whole kayak or boat rental season, the <a href="../waterfront-rental-season-planner/">waterfront rental season planner</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSeasons, parseDurations, analyze, reportCsv, sampleSeasons, sampleDurations, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const FIELDS = ["price", "costPerRental", "unitCost", "lostCost", "bookingStyle", "vmr", "maxTurnAway", "currentUnits", "maxUnits", "years"];
+    let last = null;
+
+    function run() {
+      const se = parseSeasons($("#seasons").value);
+      if (se.error) { status.textContent = se.error; report.hidden = true; return false; }
+      const du = parseDurations($("#durations").value);
+      if (du.error) { status.textContent = du.error; report.hidden = true; return false; }
+      const opts = {};
+      for (const k of FIELDS) opts[k] = $("#" + k).value;
+      const r = analyze(se.rows, du.rows, opts);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const rec = r.recommended, sim = r.useSim;
+      const pick = (c) => (sim ? c.sim : c.analytic);
+      $("#notices").innerHTML = [...se.warnings, ...du.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = rec
+        ? [
+            [String(rec.units), "Units to own"],
+            [money(pick(rec).profit), "Profit per year after owning costs"],
+            [pct(pick(rec).turnAwayShare, 1), "Of requests turned away"],
+            [pct(pick(rec).utilization), "Of unit-days rented out"],
+            [money(rec.sim.p10), "Profit in a bad year (1 in 10, simulated)"],
+          ]
+        : [["0", "Units that pay for themselves"], [`${Number.isFinite(r.breakEvenDays) ? Math.ceil(r.breakEvenDays) : "—"} days`, "A unit must be rented this many days a year to cover itself"]];
+      $("#big").innerHTML = big.map(([v, t]) => `<div><strong>${esc(v)}</strong>${esc(t)}</div>`).join("");
+      $("#verdict").textContent = r.verdict;
+      const top = Math.max(...r.curve.map((c) => pick(c).profit), 1);
+      $("#ct tbody").innerHTML = r.curve.map((c) => {
+        const p = pick(c);
+        const mark = c.units === r.recommendedUnits ? " ★" : "";
+        return `<tr${c.units === r.recommendedUnits ? ' class="rec"' : ""}><td class="n">${c.units}${mark}</td><td><span class="bar" style="width:${Math.max(0, Math.round((p.profit / top) * 140))}px"></span></td><td class="n">${money(p.profit)}</td><td class="n">${money(sim ? c.marginalSim : c.marginalAnalytic)}</td><td class="n">${pct(p.turnAwayShare, 1)}</td><td class="n">${pct(p.utilization)}</td><td class="n">${money(c.sim.p10)}</td><td class="n">${money(c.analytic.profit)}</td></tr>`;
+      }).join("");
+      $("#floor").textContent = `Recommendation uses the ${r.primary}. ${r.years} simulated years, average rental ${r.meanDays.toFixed(2)} days, about ${Math.round(r.requestsPerYear).toLocaleString("en-US")} requests a year. A unit needs ${Number.isFinite(r.breakEvenDays) ? Math.ceil(r.breakEvenDays) : "—"} rental days a year to cover its cost. The "Profit" and "Units out" columns follow the recommendation model; the last two columns are always the simulated bad year and the Erlang B profit.`;
+      $("#st tbody").innerHTML = r.seasonRows.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${s.days}</td><td class="n">${s.rate}</td><td class="n">${s.load.toFixed(1)}</td><td class="n">${pct(s.turnAway, 1)}</td><td class="n">${pct(s.utilization)}</td></tr>`).join("") || '<tr><td colspan="6">No fleet size pays for itself.</td></tr>';
+      $("#sens tbody").innerHTML = r.sensitivity.map((s) => `<tr><td class="n">${Math.round(s.factor * 100)}%</td><td class="n">${s.units}</td><td class="n">${money(s.profit)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    // The simulation takes a fraction of a second; let the status paint first.
+    const later = (fn) => { status.textContent = "Simulating fleet sizes…"; setTimeout(fn, 20); };
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("analysis_run"); }));
+    $("#load-example").addEventListener("click", () => {
+      $("#seasons").value = sampleSeasons();
+      $("#durations").value = sampleDurations();
+      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented party-tent rental business with invented prices, not a real business."; } });
+    });
+    $("#clear-all").addEventListener("click", () => { $("#seasons").value = ""; $("#durations").value = ""; report.hidden = true; last = null; status.textContent = "Add your seasons and rental lengths, then click Find the best fleet size."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "rental-fleet-size.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

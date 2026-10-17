@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Arcade Game Payback Calculator — Which Games to Keep, Move or Cut</title>
+  <meta name="description" content="Free arcade game payback calculator: plays, credits, ticket payout, floor space and upkeep become weekly profit, payback, break-even plays and a keep, watch or cut verdict for every game. Private, runs in your browser.">
+  <meta property="og:title" content="Arcade game payback calculator: which games earn their floor space? Free, private">
+  <meta property="og:description" content="One line per game in; profit, payback, break-even plays and a keep or cut verdict out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Arcade Game Payback Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which arcade games make the most money?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what each game costs, how often it is played, what it pays out and how much floor it takes. Enter each game once and the page ranks them by weekly profit, payback and profit per square foot, using only your figures."}}, {"@type": "Question", "name": "How do I work out whether a redemption game pays for itself?", "acceptedAnswer": {"@type": "Answer", "text": "Revenue per play is credits times what a credit earns you. Take off card fees and the prize cost of the tickets it pays, then the game's share of rent, power and upkeep. What is left per week, divided into the game's cost, is its payback."}}, {"@type": "Question", "name": "How many plays a week does a game need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "The page shows two numbers per game: the plays that cover its floor, power and upkeep, and the plays that also reach your payback target. Both are exact for your inputs."}}, {"@type": "Question", "name": "Should I raise prices or cut tickets?", "acceptedAnswer": {"@type": "Answer", "text": "The tables show total weekly profit if every credit earns 10 or 20 percent more or less, and if the prize cost per ticket rises or falls. Compare them to see which lever moves your floor most."}}, {"@type": "Question", "name": "Does this tell me which games players will like?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works only from the plays you enter. A new game has no history, so enter a play count you believe and check it against your own card-system reports."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ARCADE GAME PAYBACK CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which games earn their floor space, and which should you move or cut?</h1>
+    <p>List each game with what it cost, credits per play, plays per week and tickets paid per play. You get <strong>weekly profit</strong>, <strong>payback</strong>, <strong>break-even plays</strong>, the <strong>plays a week needed to hit your payback target</strong> and a <strong>keep, watch or cut</strong> verdict for every game, plus what happens to the whole floor if you change credit prices or prize cost.</p>
+    <p class="note">It works from your own figures. It does not know how popular a game will be, what your card system reports, or what the same game earns in another venue.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your floor</h2>
+    <div class="grid">
+      <div><label for="creditvalue">What one credit earns you, dollars (average after bonuses and discounts)</label><input id="creditvalue" inputmode="decimal" value="" placeholder="0.25"></div>
+      <div><label for="prizepertic">Prize cost per ticket, dollars (what the prize case costs you per ticket paid)</label><input id="prizepertic" inputmode="decimal" value="" placeholder="0.004"></div>
+      <div><label for="feespct">Card and platform fees, % of revenue</label><input id="feespct" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="rentpersqft">Rent per square foot per year, dollars</label><input id="rentpersqft" inputmode="decimal" value="" placeholder="24"></div>
+      <div><label for="energymonthly">Power per game per month, dollars</label><input id="energymonthly" inputmode="decimal" value="" placeholder="25"></div>
+      <div><label for="maintpct">Repairs and parts per year, % of game cost</label><input id="maintpct" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="targetpayback">Target payback, months</label><input id="targetpayback" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="defaultsqft">Default floor space per game, square feet</label><input id="defaultsqft" inputmode="decimal" value="" placeholder="12"></div>
+      <div><label for="maxpayoutpct">Prize cost limit, % of a game's revenue (blank for none)</label><input id="maxpayoutpct" inputmode="decimal" value="" placeholder="8"></div>
+    </div>
+    <label for="games">Games, one per line: name, game cost, credits per play, plays per week, tickets per play (0 if none), square feet (optional)</label>
+    <textarea id="games" placeholder="Roller, 4000, 4, 250, 10, 12&#10;Claw crane, 3200, 2, 330, 0, 10"></textarea>
+    <p>
+      <button type="button" id="calc">Work out the games</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your floor and games, then click Work out the games. Only what a credit earns and at least one game are required; the rest default to zero.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>Every game, best first</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Game</th><th scope="col" class="n">Profit per week</th><th scope="col" class="n">Payback, months</th><th scope="col" class="n">Break-even plays</th><th scope="col" class="n">Plays for target</th><th scope="col" class="n">Per sq ft per year</th><th scope="col">Verdict</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>If credits earn more or less</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Credit price change</th><th scope="col" class="n">Floor profit per week</th><th scope="col" class="n">Per year</th><th scope="col" class="n">Margin</th></tr></thead><tbody id="price-rows"></tbody></table></div>
+    <h3>If prizes cost more or less</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Prize cost change</th><th scope="col" class="n">Floor profit per week</th><th scope="col" class="n">Per year</th></tr></thead><tbody id="prize-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download games table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Revenue:</strong> plays per week times credits per play times what a credit earns you. Card and platform fees come off it.</li>
+      <li><strong>Prizes:</strong> plays times tickets per play times your prize cost per ticket. The ticket value is your own cost, not the price printed on a prize.</li>
+      <li><strong>Floor cost:</strong> each game's square feet times rent, plus the power figure spread over weeks, plus repairs and parts as a share of the game's cost per year. Staff, insurance and the venue's other costs are not allocated.</li>
+      <li><strong>Payback:</strong> game cost divided by weekly profit. Verdicts: <em>keep</em> if it pays back within your target, <em>watch</em> if it makes money but slower, <em>cut</em> if it loses money each week.</li>
+      <li><strong>Not decided:</strong> how many plays a game will really get, how a game affects the games beside it, resale value, financing, income tax and depreciation, licences and local amusement rules, and whether prizes in your venue count as gambling where you are.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>Which arcade games make the most money?</h3>
+    <p>It depends on what each game costs, how often it is played, what it pays out and how much floor it takes. Enter each game once and the page ranks them by weekly profit, payback and profit per square foot, using only your figures.</p>
+    <h3>How do I work out whether a redemption game pays for itself?</h3>
+    <p>Revenue per play is credits times what a credit earns you. Take off card fees and the prize cost of the tickets it pays, then the game's share of rent, power and upkeep. What is left per week, divided into the game's cost, is its payback.</p>
+    <h3>How many plays a week does a game need to break even?</h3>
+    <p>The page shows two numbers per game: the plays that cover its floor, power and upkeep, and the plays that also reach your payback target. Both are exact for your inputs.</p>
+    <h3>Should I raise prices or cut tickets?</h3>
+    <p>The tables show total weekly profit if every credit earns 10 or 20 percent more or less, and if the prize cost per ticket rises or falls. Compare them to see which lever moves your floor most.</p>
+    <h3>Does this tell me which games players will like?</h3>
+    <p>No. It works only from the plays you enter. A new game has no history, so enter a play count you believe and check it against your own card-system reports.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before buying, moving or selling any game. Treat it as a worksheet to check, not a business recommendation.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../amusement-route-location-calculator/">amusement route location calculator</a>, the <a href="../mini-golf-course-profit-calculator/">mini-golf course profit calculator</a> and the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { creditvalue: "creditValue", prizepertic: "prizePerTicket", feespct: "feesPct", rentpersqft: "rentPerSqft", energymonthly: "energyMonthly", maintpct: "maintPct", targetpayback: "targetPaybackMonths", defaultsqft: "defaultSqft", maxpayoutpct: "maxPayoutPct", games: "games" };
+    const IDLE = "Fill in your floor and games, then click Work out the games. Only what a credit earns and at least one game are required; the rest default to zero.";
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+    const pct = (n) => (n * 100).toFixed(1) + "%";
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const keep = r.rows.filter((x) => x.verdict === "keep").length, cut = r.rows.filter((x) => x.verdict === "cut").length;
+      $("#due").textContent = `${r.rows.length} games: ${whole(r.totals.net)} profit a week (${r.totals.margin === null ? "n/a" : pct(r.totals.margin)} margin); ${keep} keep, ${r.rows.length - keep - cut} watch, ${cut} cut`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#rows").innerHTML = [...r.rows].sort((a, b) => b.net - a.net).map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${money2(x.net)}</td><td class="n">${x.paybackMonths === null ? "never" : x.paybackMonths.toFixed(1)}</td><td class="n">${x.breakEvenPlays === null ? "n/a" : Math.ceil(x.breakEvenPlays)}</td><td class="n">${x.needPlays === null ? "n/a" : Math.ceil(x.needPlays)}</td><td class="n">${whole(x.netPerSqftYear)}</td><td>${x.verdict}</td></tr>`).join("");
+      $("#price-rows").innerHTML = r.priceSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${money2(x.net)}</td><td class="n">${whole(x.annual)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td></tr>`).join("");
+      $("#prize-rows").innerHTML = r.prizeSweep.map((x) => `<tr><td class="n">${x.pct > 0 ? "+" : ""}${x.pct}%</td><td class="n">${money2(x.net)}</td><td class="n">${whole(x.annual)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: six games on a small floor. Illustrative figures, not market rates or a forecast.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("arcade-games.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("arcade-games.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

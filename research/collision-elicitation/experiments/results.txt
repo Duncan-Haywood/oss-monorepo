@@ -1,0 +1,29 @@
+== 1. estimator variance: all pairs vs disjoint pairs (p=[.6,.3,.1], Monte Carlo 20000)
+n  var_allpairs(exact)  var_allpairs(MC)  var_disjoint(exact)  ratio
+4 0.06300 0.06341 0.12420 0.507
+10 0.01704 0.01697 0.04968 0.343
+30 0.00474 0.00470 0.01656 0.286
+100 0.00133 0.00135 0.00497 0.268
+
+== 2. one run cannot elicit Gamma: level-set witness
+Gamma(p), Gamma(q), Gamma(mid) = 0.680 0.680 0.500
+
+== 3. k-fold: strict-equality false-slash rate of honest replicas, fleet of H equal classes
+H  Gamma_2  fail(k=2)  fail(k=3)  fail(k=5)
+1 1.000 0.000 0.000 0.000
+2 0.500 0.500 0.750 0.938
+3 0.333 0.667 0.889 0.988
+5 0.200 0.800 0.960 0.998
+10 0.100 0.900 0.990 1.000
+
+== 4. collusion blind spot: eps that leaves pair agreement unchanged
+Gamma=0.20 blind eps=0.333  agreement at eps=.1: 0.1720
+Gamma=0.50 blind eps=0.667  agreement at eps=.1: 0.4150
+Gamma=0.90 blind eps=0.947  agreement at eps=.1: 0.7390
+Gamma=0.99 blind eps=0.995  agreement at eps=.1: 0.8119
+
+== 5. float32 reduction-order fleets (n_terms sums, 4 kernels, random weights)
+terms  classes_distinct  Gamma_true  Gamma_hat(n=40 runs)  runs_for_+-0.05
+8 4 0.300 0.300 (sd 0.035) 70
+64 4 0.300 0.299 (sd 0.034) 70
+512 3 0.420 0.420 (sd 0.040) 91

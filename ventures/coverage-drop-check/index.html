@@ -99,7 +99,7 @@ mvn test                                        # JaCoCo writes target/site/jaco
     <pre class="cmd"><code>python3 check.py baseline.xml current.xml            # exits 1 if coverage dropped
 python3 check.py baseline.xml current.xml --max-drop 0.5
 python3 check.py baseline.xml current.xml --json</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/coverage-drop-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
   </section>
 
   <section class="card">
@@ -112,14 +112,14 @@ python3 check.py baseline.xml current.xml --json</code></pre>
     <p>Cobertura XML (coverage.py, pytest-cov --cov-report=xml, nyc/Istanbul --reporter=cobertura) and JaCoCo XML. Those are the reports most CI jobs already write. LCOV is not read yet.</p>
     <h3>Is my coverage report uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
-    <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>, or how this compares to <a href="vs-codecov.html">Codecov</a>, a hosted, connected alternative with a historical dashboard.</p>
+    <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>, how this compares to <a href="vs-a-flat-coverage-floor.html">a flat coverage floor</a> like <code>--cov-fail-under</code>, or to <a href="vs-codecov.html">Codecov</a>, a hosted, connected alternative with a historical dashboard.</p>
     <p>Related: if coverage looks fine but the same tests flip between CI runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
     <p>Related: if every check fails in a few seconds with an empty body before you look at coverage, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
   </section>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a quality judgement of your code, not a substitute for reading the diff, and not advice about what coverage you should have. It only subtracts two reports you gave it. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/coverage-drop-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p class="support">Free and open source. If this saved you a Codecov bill or a silent coverage drop, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>

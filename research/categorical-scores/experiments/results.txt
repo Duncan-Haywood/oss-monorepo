@@ -1,0 +1,24 @@
+E1 worst-case regret (exact vertex formulas), K=5
+ uniform         brier max 0.8000 (range 2)  spherical max 0.2472 (range 1)  log max inf
+ rare rho=0.01   brier max 1.2251 (range 2)  spherical max 0.4851 (range 1)  log max inf
+ rare rho=0.001  brier max 1.2475 (range 2)  spherical max 0.4985 (range 1)  log max inf
+
+E2 curvature per unit payment range for moving mass between classes 0 and 1 (regret / eps^2)
+ Brier range 2, spherical range 1; log has no range. K=5, truth rare_class(5, rho)
+ rho=0.5    brier/range    1.000  spherical/range    1.386  ratio  1.386  log(unbounded)        5.0
+ rho=0.2    brier/range    1.000  spherical/range    2.236  ratio  2.236  log(unbounded)        5.0
+ rho=0.05   brier/range    1.000  spherical/range    1.932  ratio  1.932  log(unbounded)       12.1
+ rho=0.01   brier/range    1.000  spherical/range    1.787  ratio  1.787  log(unbounded)       52.0
+ rho=0.001  brier/range    1.000  spherical/range    1.754  ratio  1.754  log(unbounded)      502.0
+
+E3 uniform truth: spherical/Brier curvature per range = sqrt(K)
+ K=2    ratio   1.414  sqrt(K)   1.414
+ K=4    ratio   2.000  sqrt(K)   2.000
+ K=9    ratio   3.000  sqrt(K)   3.000
+ K=16   ratio   4.000  sqrt(K)   4.000
+ K=100  ratio  10.000  sqrt(K)  10.000
+
+E4 dropping the rare class (report r_0 = tiny, renormalise), K=5
+ rho=0.05   brier 0.003125  spherical 0.002624  log 0.837648
+ rho=0.01   brier 0.000125  spherical 0.000101  log 0.151231
+ rho=0.001  brier 0.000001  spherical 0.000001  log 0.012816

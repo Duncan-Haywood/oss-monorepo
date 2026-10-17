@@ -1,0 +1,33 @@
+# A lidar twin calibrated on the mean return rate certifies an approach speed that correlated scan fades make unsafe
+
+*Stylised: one thin obstacle, exact random-phase beam counts, per-beam dropout plus whole-scan fades, constant-speed braking. Pure Python; every number is from `experiments/results.txt` (seeded, ~1 s). The "real" sensor is itself simulated; no lidar logs.*
+
+## Question
+Sensor simulation in a digital twin often reproduces dropout by removing each return independently at the measured rate. A certificate computed there, "the obstacle is confirmed before the stopping distance with probability ≥ 1−δ", is then used to set a speed limit. Real returns are lost in bursts: a wet patch, sun glare or a dust cloud removes every beam on the obstacle in a scan. If the twin matches the *mean* return rate but not the correlation, how wrong is the certified speed, in which direction, and how many calibration scans repair it?
+
+## Model
+Beams are spaced `δ` rad with a uniformly random phase. An obstacle of width `w` at range `r` covers `λ = w/(rδ)` beams on average, and the count is exactly `N = ⌊λ⌋ + Bernoulli(λ − ⌊λ⌋)`. A scan confirms the obstacle if at least `m` beams return. Real scan: with probability `s` every beam is lost (fade); otherwise each beam returns independently with probability `q`. The per-scan miss probability is exactly `s + (1−s)·E[P(Bin(N,q) < m)]`. The vehicle approaches at speed `v`, scanning at `f` Hz from first visibility at `R0`, so scans are `v/f` metres apart; it must confirm before `d(v) = v·t_react + v²/2a`. With independent scan phases the miss probability is the product of per-scan miss probabilities over scans at ranges ≥ `d(v)`; in particular it is at least `sⁿ` (`n` scans). The twin uses `s=0` and `q_eff=(1−s)q`. The certified speed at level `δ_c = 10⁻³` is the crossing found by bisection. Scene: `w=0.5 m`, `δ=0.0035 rad`, `f=10 Hz`, `R0=30 m`, `a=4 m/s²`, `t_react=0.5 s`, `q=0.9`, `m=1` unless stated (`src/beam_twin/model.py`).
+
+## Results
+1. **Certified speed** (`m=1`). For `s`=0.1/0.3/0.5/0.7 the twin certifies 13.62/13.28/12.94/12.30 m/s and the real sensor 12.62/12.00/10.87/8.63 (ratios 0.93/0.90/0.84/0.70). At the twin's speed the real miss probability is 0.100/0.090/0.125/0.168, i.e. 100/90/125/168× the level, and equals the fade floor `sⁿ` (`n`=1/2/3/5 scans) to the digits shown. At `s=0` the two agree.
+2. **A cliff, not a slope.** With `s=0.3` the twin-to-real miss ratio is 5.5·10²⁸² at 4 m/s, 1.0·10²⁷ at 10 m/s, `2.9·10¹⁰` at 12 m/s and 1.3·10³ at 13 m/s (twin 7·10⁻⁵, real 0.09). Probabilities below ~10⁻¹⁰ are irrelevant to any decision, so the speed error is bounded by where the cliff sits, not by these ratios; the gap matters only within a few scans of the stopping distance.
+3. **First-visibility range.** For `s=0.5`, real/twin certified speed is 0.79/0.84/0.89/0.96/1.00 for `R0`=20/30/50/100/150 m; the real miss at the twin's speed is 0.25/0.125/0.063/0.0057/0.00076. With many scans the fade floor `sⁿ` is negligible and the twin is adequate.
+4. **Confirmation count.** At `R0=30`, `s=0.5`, twin/real speeds are 12.94/10.87 (`m=1`), 12.30/10.87 (`m=2`), 10.87/10.61 (`m=3`); real miss at the twin's speed 0.125/0.031/0.001.
+5. **Sign reversal.** For a 0.3 m obstacle, `m=3`, `R0=100`: twin/real speed is 10.51/11.80 (`s=0.3`), 8.70/10.71 (`s=0.5`), 6.18/8.77 (`s=0.7`). A fade concentrates loss in few scans, which is better than spreading it when several returns are needed, so the matched twin is conservative. The direction of the twin's error depends on the decision rule, so it cannot be fixed by a constant safety factor.
+6. **Closed form vs simulation** (beam-pattern Monte Carlo, 200 000 runs): 0.0156 vs 0.0158 (`v=12, s=0.5`), 7.3·10⁻⁴ vs 8.5·10⁻⁴ (`m=2`), 2.0·10⁻⁵ vs 3.0·10⁻⁵ (6 events; consistent with Poisson noise); 1.1·10⁻²⁰ vs 0 (no event expected).
+7. **Continuum power law** (`m=1`, `s=0`, `R0=150`): `miss ≈ (d/R0)^κ`, `κ = f·w·|ln(1−q)|/(vδ)`. Exact/approximation is 0.84–0.85 at `q=0.3`, 0.94–1.45 at `q=0.5`, and 20–6·10⁴ at `q=0.9`: a rough guide only under heavy dropout, unreliable when returns are plentiful.
+8. **Repair.** Estimating `s` from `n_cal` calibration scans and rebuilding the twin (true `s=0.3`, exact over the binomial law of `ŝ`): mean certified speed 11.93/11.90/11.93/11.96 against the oracle 12.00, probability the real level is violated 0.416/0.223/0.070/0.000, mean real miss 2.2·10⁻³/9.7·10⁻⁴/7.0·10⁻⁴/6.7·10⁻⁴ for `n_cal`=20/50/200/1000. The mean-return-rate twin gives 13.28 m/s and real miss 0.09.
+
+## Interpretation
+Matching the marginal return rate is not enough: the certificate depends on whether loss is spread across scans or concentrated in them, because only spreading lets many scans compound. The real miss probability cannot fall below `sⁿ`, so the twin's error matters when few scans remain, that is for late-appearing obstacles, high speeds and strict confirmation rules. The quantity to measure from logs is the per-scan fade probability (scan-level return/no-return on targets large enough that dropout of all beams is unambiguous), and a few hundred scans suffice here. Validation that compares mean return rates or detection ranges cannot reveal the gap.
+
+## Limitations
+Independent scans, independent fades, range-independent dropout; obstacle always within the sensor's field of view; a single first-visibility range; no false alarms, tracking or fusion with other sensors; bisection crossing of a non-monotone miss probability (the `m=3` twin speed at `s=0` moved from 12.82 to 12.68 m/s when the bisection lower bracket changed from 0 to 0.5 m/s during development); the repair assumes fades are identifiable from logs, which real dropout mechanisms may not allow. The real sensor is simulated.
+
+## Next steps
+Fit fade persistence across consecutive scans (Markov fades; then `sⁿ` becomes a burst-length law, see `autocorr-twin`); range-dependent dropout from a reflectivity model; calibrate against logged returns from a real sensor in an ARPG-style subterranean or off-road scene; combine with `radar-clutter-twin` for a lidar–radar redundancy certificate.
+
+## References
+- Manivasagam, S., Wang, S., Wong, K., Zeng, W., Sazanovich, M., Tan, S., Yang, B., Ma, W.-C. & Urtasun, R. (2020). LiDARsim: Realistic LiDAR simulation by leveraging the real world. *CVPR*.
+- Zhao, W., Queralta, J. P. & Westerlund, T. (2020). Sim-to-real transfer in deep reinforcement learning for robotics: a survey. *IEEE SSCI*.
+- Tobin, J., Fong, R., Ray, A., Schneider, J., Zaremba, W. & Abbeel, P. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. *IROS*.

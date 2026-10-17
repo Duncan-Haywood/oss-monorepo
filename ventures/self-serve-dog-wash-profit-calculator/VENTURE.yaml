@@ -1,0 +1,53 @@
+name: self-serve-dog-wash-profit-calculator
+description: >-
+  Free browser tool for people planning a self-serve or full-service dog wash: enter tubs, wash price, washes per tub on weekdays and
+  weekends, busy and slow seasons, water, shampoo, towels, attendant and full-service labor, rent, build-out and a loan, and see
+  break-even washes per day, whether the tubs can physically do it, operating profit, yield on start-up cost, the price that reaches a
+  target yield, a month-by-month ramp with the lowest cash point and payback month, and an equity view with an optional sale. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-12 in a new-venture-first session. duplicate_check.py "self-serve dog wash" scored nothing above 0.19 (car-wash-membership-calculator,
+# pressure-washing-bid-calculator, wash-and-fold-price-calculator share only the word wash). dog-grooming-profit-calculator, dog-grooming-price-calculator
+# and pet-grooming-bid-calculator price a groomer's appointments, dog-boarding-daycare-pricing prices kennel nights; none models a tub-based wash
+# business with a build-out, per-tub capacity, seasonal traffic and a loan. surface-budget.mjs --for dog-grooming-profit-calculator showed no overlapping
+# page. Not in screened-out.md.
+#
+# First visitor: someone pricing a self-serve dog wash before leasing a unit; search phrases "self serve dog wash business plan", "dog wash profit",
+# "how much does a self serve dog wash make". Volume not measured with an external tool.
+#
+# Who: prospective and early-stage owners. Build-out, plumbing and tubs are a five-figure commitment, so a free private pro forma that shows break-even
+# washes per tub and the ramp-up cash dip before signing a lease is worth more than a spreadsheet template.
+#
+# Path to revenue (payment rails stay off): lead magnet; donations via GitHub Sponsors. Saved scenarios and a multi-location comparison behind an
+# env-var switch is the possible paid version, not built.
+#
+# Liability: arithmetic on the user's own figures with every rule visible on the page. No market price or traffic is claimed, sample figures are
+# labelled illustrative, bad input is rejected instead of clamped, a plan above tub capacity is rejected, and the page carries the no-warranty and
+# not-advice clauses and lists what it does not decide (zoning, sewer and water fees, licensing, tax, lender terms).
+
+hypotheses:
+  - claim: >-
+      A prospective dog-wash owner will enter tubs, price, dogs per tub, rent and build-out before signing a lease, because the break-even
+      washes per tub and the ramp-up cash dip are hard to see in a headline price-per-wash number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that the capacity, break-even or payback arithmetic differs from the stated rules on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-serve-dog-wash-profit-calculator/
+  analytics: null

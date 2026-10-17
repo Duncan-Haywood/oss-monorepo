@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "session": "https://claude.ai/code/session_01KdsJhf24ZbkSREsaf7mrKv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_mirror/mirror.py",
+      "issue": "sync printed 'merge is staged' but no MERGE_HEAD existed, so a plain git commit made a single-parent commit and check then failed on history; I made the two-parent commit with git commit-tree."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Research track milestone 1 mirror-sync to upstream efd8753; no new project built.",
+  "corrections": [],
+  "redteam": null
+}

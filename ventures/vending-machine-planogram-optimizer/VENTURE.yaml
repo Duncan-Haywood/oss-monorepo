@@ -1,0 +1,53 @@
+name: vending-machine-planogram-optimizer
+description: >-
+  Free browser tool for independent vending operators: enter the machine's coils, the days between restocking visits, and
+  each product's price, unit cost, weekly sales and units per coil (with optional perishable flag, minimum and maximum
+  coils), and get the exact split of coils that earns the most per week, which products sell out before the next visit, what
+  one more coil is worth, and the best gap between visits after the cost of a trip. Compares with today's layout on thousands
+  of identical simulated restock intervals, including customers who switch when their pick is empty, with a paired standard
+  error. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-09 in a scheduled session. duplicate_check.py: closest was vending-machine-route-margin 0.17 (which ranks
+# locations by profit; it does not decide what goes in each coil) and small-batch-run-size-optimizer 0.14. Nothing in the tree
+# allocates a machine's coils across products.
+#
+# Why this niche: a small route operator fills coils by habit, evenly, while demand differs by 10x between products, so best
+# sellers sell out days before the next visit and slow items sit. Planogram and route software that fixes this is sold to
+# larger operators inside telemetry and route-management suites. The gain is sales the machine already has at the door.
+#
+# First visitor: people searching "vending machine planogram", "how many coils per product vending", "vending machine
+# restock frequency", "vending machine product mix"; r/vending operators, new route buyers. Volume not measured.
+#
+# Liability boundary: arithmetic and simulation on typed figures; not machine-compatibility, food-safety or licensing advice
+# (the page says so); nothing stored or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations. Natural front end for a paid tool that reads a
+# telemetry or sales export (needs accounts, an owner decision), or referrals to machine, card-reader and wholesale suppliers.
+
+hypotheses:
+  - claim: >-
+      Small vending operators will use a free tool that turns last month's per-product sales into a coil split with a gain
+      they can see is not noise, and will come back at each re-plan or when they add a machine.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a recommended split that exceeds the coils entered, or a result that is not reproducible for the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vending-machine-planogram-optimizer/
+  analytics: null

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-elicitation"
+version = "0.1.0"
+description = "Paying a digital-twin provider by the control cost of its report: the decision-equivalent estimate, why mean-scoring and cost-scoring elicit different twins, and how payment caps and probing incentives change what is reported"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

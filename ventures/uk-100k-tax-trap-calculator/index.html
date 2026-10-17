@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UK £100k Tax Trap Calculator — What a Pension Really Costs</title>
+  <meta name="description" content="Free UK 60% tax trap calculator for pay between £100,000 and £125,140: your real marginal rate, the pension contribution that restores your personal allowance and childcare, and what it truly costs after tax and NI. Runs in your browser.">
+  <meta property="og:title" content="UK £100k tax trap: what does the pension contribution really cost? Free, private">
+  <meta property="og:description" content="See your 60% band, the pension payment that escapes it and its net cost.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK 100k Tax Trap Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the 60% tax trap?", "acceptedAnswer": {"@type": "Answer", "text": "Between £100,000 and £125,140 of adjusted net income you lose £1 of personal allowance for every £2 earned. That extra income is taxed at 40% and also pulls £0.50 of allowance into the 40% band, so the effective marginal income tax rate is 60%, or about 62% with employee National Insurance."}}, {"@type": "Question", "name": "How much do I need to pay into a pension to avoid it?", "acceptedAnswer": {"@type": "Answer", "text": "Your adjusted net income minus £100,000. A gross pension contribution of that size brings you back to exactly £100,000, restores the full £12,570 allowance and, with salary sacrifice, costs far less than its face value. Enter your pay to see the real out-of-pocket cost."}}, {"@type": "Question", "name": "Does it also affect childcare?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Tax-Free Childcare and the 30 hours of free childcare are lost entirely if either parent's adjusted net income is over £100,000, so the cliff can be worth thousands. Enter the yearly value to see it included."}}, {"@type": "Question", "name": "Is salary sacrifice better than a personal pension contribution?", "acceptedAnswer": {"@type": "Answer", "text": "For tax they are equivalent here, but salary sacrifice also saves 2% employee National Insurance above £50,270 (8% below it) and often employer NI too. Personal contributions need a claim through Self Assessment for the higher-rate part."}}, {"@type": "Question", "name": "Does this cover Scotland?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses the England, Wales and Northern Ireland bands. Scottish rates differ and the trap sits in a different place."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">UK £100K TAX TRAP CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Earning over £100,000? Find out what the 60% band costs you, and what escaping it costs.</h1>
+    <p>Enter your pay. You get your real marginal rate, the pension contribution that restores your personal allowance, and the true out-of-pocket cost of making it, including National Insurance, Child Benefit and childcare.</p>
+    <p class="note">A first read written from published rules without a live lookup. England, Wales and Northern Ireland rates. Confirm current figures. Not tax advice.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <div class="grid">
+      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26 (6 Apr 2025 – 5 Apr 2026)</option><option value="2026">2026/27 (6 Apr 2026 – 5 Apr 2027)</option></select></div>
+      <div><label for="salary">Gross annual pay before this contribution (£)</label><input id="salary" type="number" min="0" step="1"></div>
+      <div><label for="method">How the contribution is paid</label><select id="method"><option value="sacrifice">Salary sacrifice (saves tax and NI)</option><option value="personal">Personal / net pay (saves tax only)</option></select></div>
+      <div><label for="contribution">Gross pension contribution to test (£, optional)</label><input id="contribution" type="number" min="0" step="1"></div>
+      <div><label for="childBenefit">Yearly Child Benefit (£, optional)</label><input id="childBenefit" type="number" min="0" step="1"></div>
+      <div><label for="childcare">Yearly value of childcare support lost over £100k (£, optional)</label><input id="childcare" type="number" min="0" step="1"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Check my band</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in the figures, then click Check my band.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <div id="report-findings"></div>
+    <h2>The numbers</h2>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h2>Marginal rate by pay</h2>
+    <div class="scroll"><table><thead><tr><th>Gross pay</th><th class="n">Personal allowance left</th><th class="n">Marginal rate</th></tr></thead><tbody id="curve"></tbody></table></div>
+    <h2>What to check</h2>
+    <div class="scroll"><table><thead><tr><th>Step</th><th>What it means</th></tr></thead><tbody id="duties"></tbody></table></div>
+    <pre class="sum" id="summary"></pre>
+    <p><button type="button" id="dl-summary">Download result (text)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Covers:</strong> personal allowance taper, 20/40/45% bands, employee NI, High Income Child Benefit Charge, the £100,000 childcare cliff, and salary sacrifice versus personal contributions.</li>
+      <li><strong>Gives:</strong> your marginal rate, the contribution that reaches £100,000, its net cost and effective relief, and the cost of any amount you test.</li>
+      <li><strong>Not decided:</strong> Scottish rates, savings, dividends and rental income inside adjusted net income, the pension annual allowance and carry forward, student loan repayments, the 2029 cap on NI-free salary sacrifice, and whether locking money in a pension suits you. For graduate repayments see the <a href="../uk-student-loan-repayment-calculator/">student loan calculator</a>.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is the 60% tax trap?</h3>
+    <p>Between £100,000 and £125,140 of adjusted net income you lose £1 of personal allowance for every £2 earned. That extra income is taxed at 40% and also pulls £0.50 of allowance into the 40% band, so the effective marginal income tax rate is 60%, or about 62% with employee National Insurance.</p>
+    <h3>How much do I need to pay into a pension to avoid it?</h3>
+    <p>Your adjusted net income minus £100,000. A gross pension contribution of that size brings you back to exactly £100,000, restores the full £12,570 allowance and, with salary sacrifice, costs far less than its face value. Enter your pay to see the real out-of-pocket cost.</p>
+    <h3>Does it also affect childcare?</h3>
+    <p>Yes. Tax-Free Childcare and the 30 hours of free childcare are lost entirely if either parent's adjusted net income is over £100,000, so the cliff can be worth thousands. Enter the yearly value to see it included.</p>
+    <h3>Is salary sacrifice better than a personal pension contribution?</h3>
+    <p>For tax they are equivalent here, but salary sacrifice also saves 2% employee National Insurance above £50,270 (8% below it) and often employer NI too. Personal contributions need a claim through Self Assessment for the higher-rate part.</p>
+    <h3>Does this cover Scotland?</h3>
+    <p>No. It uses the England, Wales and Northern Ireland bands. Scottish rates differ and the trap sits in a different place.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output with your accountant or HMRC before relying on it.</p>
+    <p><strong>Your answers.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../uk-pension-annual-allowance-calculator/">UK pension annual allowance calculator</a>, the <a href="../uk-child-benefit-charge-calculator/">UK Child Benefit charge calculator</a>, the <a href="../uk-student-loan-repayment-calculator/">UK student loan repayment calculator</a>, the <a href="../uk-take-home-pay-calculator/">UK take-home pay calculator</a>, the <a href="../uk-scottish-income-tax-calculator/">Scottish income tax calculator</a> and the <a href="../uk-sole-trader-vs-limited-company-calculator/">UK sole trader vs limited company calculator</a>.</p>
+    <p>Paying for childcare? The <a href="../uk-tax-free-childcare-calculator/">UK Tax-Free Childcare and 30 hours calculator</a> shows your bill after free hours and the 20% top-up.</p>
+    <p>More UK tools: the <a href="../uk-money-tools-finder/">UK money tools finder</a> lists every free UK tax and pay calculator by situation.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compute, SAMPLE, summaryText, marginalTable } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    let last = null;
+    const map = { year: "year", salary: "salary", method: "method", contribution: "contribution", childBenefit: "childBenefit", childcare: "childcare" };
+    const IDLE = "Fill in the figures, then click Check my band.";
+    const DEFAULTS = {"year": "2025", "method": "sacrifice"};
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      $("#due").textContent = r.toEdge > 0 ? `${gbp(r.toEdge)} into a pension reaches £100,000 and costs you ${gbp(r.edgeCost)}` : `Marginal rate ${Math.round(r.marginal * 1000) / 10}%`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      const rows = [["Personal allowance left", r.base.pa], ["Income tax now", r.base.tax], ["Employee NI now", r.base.ni], ["Take-home now (before any contribution)", r.base.takeHome], ["Contribution to reach £100,000", r.toEdge], ["Out-of-pocket cost of that contribution", r.edgeCost]];
+      if (r.test) rows.push(["Out-of-pocket cost of your test contribution", r.testCost]);
+      $("#rows").innerHTML = rows.map((x) => `<tr><td>${esc(x[0])}</td><td class="n">${gbp(x[1])}</td></tr>`).join("");
+      $("#curve").innerHTML = marginalTable(r.p.childBenefit).map((x) => `<tr><td>${gbp(x.salary)}</td><td class="n">${gbp(x.pa)}</td><td class="n">${Math.round(x.rate * 1000) / 10}%</td></tr>`).join("");
+      $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Verify against the source named in the summary.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: £110,000 pay, £10,000 salary sacrifice, £2,000 childcare at stake.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = DEFAULTS[id] ?? ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("uk-100k-tax-trap.txt", summaryText(last), "text/plain"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

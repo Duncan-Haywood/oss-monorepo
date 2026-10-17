@@ -1,0 +1,54 @@
+name: covered-call-wheel-calculator
+description: >-
+  Free browser tool for options income sellers: paste option quotes for one stock and rank every covered-call
+  or cash-secured-put strike by annualized premium yield, model chance of assignment, breakeven and payoff at
+  expiry, with the best quote under the assignment risk you accept. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-08 in a scheduled new-venture session. duplicate_check.py "covered call wheel strategy
+# options premium" scored 0.22 at best (no options-income tool in the tree); 0.2 band for the nearest
+# queries, versus 0.7-1.0 for pension, backdoor-Roth, NUA, RMD and 1031 niches, which are saturated.
+#
+# Why this niche: retail options sellers (covered calls, "the wheel") pick strikes by eyeballing the
+# broker's chain. Brokers show premium and delta but not annualized yield next to the chance of losing the
+# shares and the breakeven. Paid screeners (Option Alpha, barchart premium screeners, Market Chameleon)
+# exist; a private, free, paste-your-chain ranker with an explicit assignment-risk cap is the gap.
+# Lead magnet and donation play, not sales-led.
+#
+# First visitor: someone in r/thetagang, r/options or r/Optionswheel asking "which strike should I sell",
+# "annualized return covered call" or "wheel strategy calculator". Volume not measured.
+#
+# Liability boundary: arithmetic and a stated Black-Scholes model on user-typed quotes; does not fetch
+# quotes, recommend any security or option, or give tax advice; options-risk disclosure on the page;
+# nothing stored or uploaded.
+#
+# Path to revenue (payment rails stay off): donations; later broker chain CSV import, roll-vs-close
+# comparison, a multi-expiry ladder across several holdings, and a wheel cycle P&L journal (not built).
+
+hypotheses:
+  - claim: >-
+      Options income sellers will paste a chain into a private page to see yield, assignment chance and
+      breakeven side by side, because broker chains show premium and delta but not annualized return against
+      the risk of losing the shares.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a figure disagrees with the same inputs done by hand.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/covered-call-wheel-calculator/
+  analytics: null

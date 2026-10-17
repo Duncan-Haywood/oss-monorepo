@@ -100,7 +100,11 @@ export function calculateRoute(input) {
   };
 }
 
-const dollars = (value) => (value === null ? 'not reachable at this overhead' : `$${value.toFixed(2)}`);
+const dollars = (value) => {
+  if (value === null) return 'not reachable at this overhead';
+  const text = `$${Math.abs(value).toFixed(2)}`;
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export function summary(result, mode = 'scheduled') {
   const verdict = result.margin < 0

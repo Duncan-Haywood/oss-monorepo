@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopify Payout Profit Analyzer — Free Fee and Profit-per-Product Tool</title>
+  <meta name="description" content="Free Shopify payout analyzer: drop in your Shopify Payments Transactions CSV and Orders export and get a fee waterfall, net to bank per order, profit per product, discount code cost and chargeback findings. Runs in your browser, the files are never uploaded.">
+  <meta property="og:title" content="Shopify Payout Profit Analyzer — free, private, CSVs in your browser">
+  <meta property="og:description" content="Fee waterfall and profit per product from your Shopify payouts. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shopify Payout Profit Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Shopify Payments Transactions CSV and the Orders export into a fee waterfall, net to bank per order, fee rate by card, profit per product, discount-code cost and dispute findings. Runs entirely in your browser; the files are never uploaded.", "featureList": "Fee waterfall, net to bank per order, effective fee rate by card and gateway, profit per product after unit costs, discount code cost, refund and chargeback findings, monthly table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see profit per product from my Shopify payouts without paying for an app?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Shopify admin open Finances → Payments (Shopify Payments) → Transactions and export the CSV for the months you want, then export Orders as CSV for the same period. Drop both in here, type a cost per unit for each product, and the tool splits every order's net-to-bank across its line items. Nothing is uploaded and no app needs access to your store."}}, {"@type": "Question", "name": "Why do I need two files?", "acceptedAnswer": {"@type": "Answer", "text": "The transactions export has every charge, fee, refund, dispute and payout but names orders, not products. The Orders export names the products and the discount code on each order. Joining them by order name (#1001) is what turns a shop-level fee total into profit per product. The transactions file on its own still gives the fee waterfall, net-to-bank per order and the effective fee rate by card."}}, {"@type": "Question", "name": "What does “net to bank” mean here?", "acceptedAnswer": {"@type": "Answer", "text": "For each order it is everything that reached or left your Shopify balance because of it: the charge, less the processing fee, less any refund, less any chargeback and dispute fee. Payout rows are not counted, because they only move money that is already counted. The waterfall adds up to the same total as the sum of the Net column."}}, {"@type": "Question", "name": "How are chargebacks and dispute fees handled?", "acceptedAnswer": {"@type": "Answer", "text": "A chargeback row takes the disputed amount out of the balance and carries a dispute fee. If you win, a reversal row returns the amount and usually not the fee. The tool shows the disputed amount and the fees separately, counts opened and won disputes, and warns when the share of orders disputed is high."}}, {"@type": "Question", "name": "Where do unit costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "You. Neither Shopify file knows what a product costs you to make or buy, or what you pay for shipping. Type a cost per unit next to each product, or paste lines like Merino Beanie - Charcoal,9.50 (a SKU works in place of the name). Products without a cost are left out of profit rather than counted as free."}}, {"@type": "Question", "name": "What about orders paid with PayPal or another gateway?", "acceptedAnswer": {"@type": "Answer", "text": "They are not in a Shopify Payments transactions file, so their processor fees are missing. If they appear in your Orders export they are counted and listed, and if you enter a third-party transaction fee rate the tool shows an estimate of it separately. It is not added to the waterfall."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Your time, shipping you pay, packaging, the Shopify plan fee and apps, ad spend, income tax, sales tax beyond what the Orders export reports, currency effects on your bank, and anything sold off Shopify. Rows Shopify files under types this tool does not know are shown as “other” so they are visible rather than lost."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the files you provide and does not replace your own records or a qualified accountant."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0d6b45; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #0b3d2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0b3d2a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0b3d2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0d6b45; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dcefe5; color: #0b3d2a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #0b3d2a; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #9db8a9; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    td.small, th.small { font-size: .85rem; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHOPIFY PAYOUT PROFIT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Where did your Shopify payout go, and which products actually make money?</h1>
+    <p>Drop in your <strong>Shopify Payments Transactions</strong> export (and, for products and discount codes, your <strong>Orders</strong> export) and get the <strong>fee waterfall</strong> (charges, processing fees, third-party gateway fees, refunds, chargebacks and dispute fees, adjustments), <strong>net to bank per order</strong> and <strong>profit per product</strong> once you enter what each one costs you.</p>
+    <p class="note">The files are read in this browser tab and never leave your device. Order numbers, product names and discount codes in them are not sent anywhere. To look at one order before it sells, use the <a href="../shopify-fee-calculator/">Shopify fee calculator</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your Shopify files</h2>
+    <p class="note">Transactions: Shopify admin → Finances (or Settings → Payments) → Shopify Payments → Transactions → Export (columns “Transaction Date”, “Type”, “Order”, “Card Brand”, “Card Source”, “Payout Status”, “Amount”, “Fee”, “Net”, …). Orders (optional, for per-product profit and discount codes): Orders → Export → CSV for Excel, Numbers, or other spreadsheet programs.</p>
+    <label for="tx-file">Transactions CSV</label>
+    <input type="file" id="tx-file" accept=".csv,text/csv">
+    <label for="tx-paste">…or paste the transactions text</label>
+    <textarea id="tx-paste" spellcheck="false" placeholder="Transaction Date,Type,Order,Card Brand,Card Source,Payout Status,Payout Date,Payout ID,Available On,Amount,Fee,Net,…"></textarea>
+    <label for="orders-file">Orders CSV (optional)</label>
+    <input type="file" id="orders-file" accept=".csv,text/csv">
+    <label for="orders-paste">…or paste the orders text</label>
+    <textarea id="orders-paste" spellcheck="false" placeholder="Name,Email,Financial Status,Paid at,…,Discount Code,Discount Amount,…,Lineitem quantity,Lineitem name,Lineitem price,…"></textarea>
+    <label for="costs">Unit cost per product (optional): one <code>product name,cost</code> (or <code>sku,cost</code>) per line</label>
+    <textarea id="costs" spellcheck="false" placeholder="Merino Beanie - Charcoal,9.50"></textarea>
+    <label for="tp-rate">Third-party transaction fee rate, % (optional, for orders paid with PayPal or another gateway)</label>
+    <input type="text" id="tp-rate" inputmode="decimal" placeholder="e.g. 2">
+    <div class="checkbox-row"><input type="checkbox" id="resell" checked><label for="resell">Fully refunded orders go back into stock (their cost is not lost)</label></div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a transactions file or paste its text, then click Analyze. You can type costs in the table afterwards.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of charges</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Effective fee rate by card</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Card · source</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="cards"></tbody></table></div>
+    <h3>By payment method name</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Payment method</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Amount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Rate</th></tr></thead><tbody id="gateways"></tbody></table></div>
+    <h3>Profit by product</h3>
+    <p class="note" id="product-note">Sorted by sales after discount. Type a unit cost to fill in profit; figures update as you type. Net includes shipping customers paid you, and excludes sales tax the Orders export reports; shipping you pay is not in either file.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Product</th><th class="n" scope="col">Units</th><th class="n" scope="col">In refunded orders</th><th class="n" scope="col">Sales after discount</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds and disputes</th><th class="n" scope="col">Net to bank</th><th class="n" scope="col">Unit cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="products"></tbody></table></div>
+    <h3>Discount codes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Code</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Discount given</th><th class="n" scope="col">% of product sales</th><th class="n" scope="col">Share of all discounts</th><th class="n" scope="col">Net to bank per order</th></tr></thead><tbody id="codes"></tbody></table></div>
+    <h3>Net to bank per order</h3>
+    <p class="note" id="order-note"></p>
+    <div class="scroll"><table><thead><tr><th scope="col">Order</th><th class="n" scope="col">Charged</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunded</th><th class="n" scope="col">Disputed</th><th class="n" scope="col">Net to bank</th><th class="n" scope="col">% of charge</th></tr></thead><tbody id="orders"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Charges</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Disputes</th><th class="n" scope="col">Adjustments and other</th><th class="n" scope="col">Net</th></tr></thead><tbody id="months"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the product table as CSV</button><button type="button" class="secondary" id="download-orders">Download net to bank per order as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Every transaction row lands in one line</strong>: charges, processing fees, third-party gateway fees, refunds, chargebacks, dispute fees, adjustments, other. A row's Net is split into its amount and its fee, so the lines always add up to the sum of the Net column. Payout rows only move money already counted, so they are excluded and shown as “paid out”. Row types the tool does not recognise go to “Other rows”; rows it cannot read are listed with line number and reason.</li>
+      <li><strong>Per order</strong>, net to bank is the charge less the fee, refunds, chargebacks and dispute fees on the same order name (#1001).</li>
+      <li><strong>Per product</strong>, each order's net (less the sales tax the Orders export reports, in proportion to what was not refunded) is split across its line items by their price after the order's discount. Fees not tied to an order stay at shop level.</li>
+      <li><strong>Profit</strong> is that amount minus unit cost × units, except that a fully refunded order returns its units to stock if the box is ticked.</li>
+      <li><strong>Not modelled:</strong> your time, shipping you pay, packaging, the Shopify plan and app fees, ad spend, income tax, currency effects on your bank account, partial refunds beyond the refunded amount, and orders paid through other gateways (their processor fees are not in the file).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see profit per product from my Shopify payouts without paying for an app?</h3>
+    <p>Yes. In Shopify admin open Finances → Payments (Shopify Payments) → Transactions and export the CSV for the months you want, then export Orders as CSV for the same period. Drop both in here, type a cost per unit for each product, and the tool splits every order's net-to-bank across its line items. Nothing is uploaded and no app needs access to your store.</p>
+    <h3>Why do I need two files?</h3>
+    <p>The transactions export has every charge, fee, refund, dispute and payout but names orders, not products. The Orders export names the products and the discount code on each order. Joining them by order name (#1001) is what turns a shop-level fee total into profit per product. The transactions file on its own still gives the fee waterfall, net-to-bank per order and the effective fee rate by card.</p>
+    <h3>What does “net to bank” mean here?</h3>
+    <p>For each order it is everything that reached or left your Shopify balance because of it: the charge, less the processing fee, less any refund, less any chargeback and dispute fee. Payout rows are not counted, because they only move money that is already counted. The waterfall adds up to the same total as the sum of the Net column.</p>
+    <h3>How are chargebacks and dispute fees handled?</h3>
+    <p>A chargeback row takes the disputed amount out of the balance and carries a dispute fee. If you win, a reversal row returns the amount and usually not the fee. The tool shows the disputed amount and the fees separately, counts opened and won disputes, and warns when the share of orders disputed is high.</p>
+    <h3>Where do unit costs come from?</h3>
+    <p>You. Neither Shopify file knows what a product costs you to make or buy, or what you pay for shipping. Type a cost per unit next to each product, or paste lines like Merino Beanie - Charcoal,9.50 (a SKU works in place of the name). Products without a cost are left out of profit rather than counted as free.</p>
+    <h3>What about orders paid with PayPal or another gateway?</h3>
+    <p>They are not in a Shopify Payments transactions file, so their processor fees are missing. If they appear in your Orders export they are counted and listed, and if you enter a third-party transaction fee rate the tool shows an estimate of it separately. It is not added to the waterfall.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Your time, shipping you pay, packaging, the Shopify plan fee and apps, ad spend, income tax, sales tax beyond what the Orders export reports, currency effects on your bank, and anything sold off Shopify. Rows Shopify files under types this tool does not know are shown as “other” so they are visible rather than lost.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the files you provide and does not replace your own records or a qualified accountant.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Shopify and Shopify Payments are trademarks of Shopify Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by Shopify.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing a single order instead? The <a href="../shopify-fee-calculator/">Shopify fee calculator</a> works out one order's fees and profit before it sells. Selling on several channels? See the <a href="../marketplace-fee-compare/">marketplace fee comparison</a>. Running out of your best sellers? The <a href="../shopify-inventory-reorder-planner/">inventory reorder planner</a> turns an orders and stock export into reorder points and a dead-stock list.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeTransactions, normalizeOrders, analyze, parseCosts, sampleData, money, money2, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let rows = [], orders = [], skipped = [], last = null, costs = {};
+    const MAX_ORDER_ROWS = 200;
+
+    const tpRate = () => { const v = parseFloat(($("#tp-rate").value || "").replace(/[^0-9.]/g, "")); return Number.isFinite(v) && v > 0 ? v / 100 : 0; };
+
+    function render() {
+      const r = last = analyze(rows, orders, { costs, returnsResellable: $("#resell").checked, thirdPartyRate: tpRate() });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary, t = s.totals;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.charges)}</strong> charged across ${s.orderCount} orders. <strong>${money(s.operating)}</strong> reached your Shopify balance after fees, refunds, disputes and adjustments (${money(s.payouts)} of payouts appear in the file)`
+        + (s.profit !== null ? `; after your unit costs${s.allCosted ? "" : " (costed products only)"} that leaves <strong>${money(s.profit)}</strong> (${s.charges ? pct(s.profit / s.charges) : "–"} of charges).` : ".");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const line = (label, v, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td class="n${v < 0 ? " neg" : ""}">${bold ? "<strong>" + money(v) + "</strong>" : money(v)}</td><td class="n">${s.charges ? pct(v / s.charges) : "–"}</td></tr>`;
+      const opt = (label, v) => (Math.abs(v) >= 0.005 ? line(label, v) : "");
+      $("#waterfall").innerHTML = [
+        line("Charges (customer payments)", t.charges),
+        opt("Processing fees", t.processing), opt("Third-party gateway fees", t.gateway),
+        opt("Refunds", t.refunds), opt("Chargebacks and dispute reversals", t.disputes), opt("Dispute fees", t.disputeFees),
+        opt("Adjustments and reserves", t.adjustments), opt("Other rows", t.other),
+        line("Net to bank (before cost of goods)", s.operating, true),
+        s.anyCosted ? line("Cost of goods (entered)", -s.cogsTotal) : "",
+        s.profit !== null ? line("Profit", s.profit, true) : "",
+      ].join("");
+      const rateRows = (list) => list.length ? list.map((g) => `<tr><th scope="row">${esc(g.key)}</th><td class="n">${g.count}</td><td class="n">${money(g.gross)}</td><td class="n">${money2(-g.fee)}</td><td class="n">${pct(g.rate, 2)}</td></tr>`).join("") : `<tr><td colspan="5">No charges in the file.</td></tr>`;
+      $("#cards").innerHTML = rateRows(r.cards);
+      $("#gateways").innerHTML = rateRows(r.gateways);
+      $("#products").innerHTML = r.products.length ? r.products.map((k) => {
+        const v = costs[k.name] ?? (k.sku ? costs[k.sku] : undefined);
+        return `<tr><th scope="row">${esc(k.name)}${k.sku ? ` <span class="note">${esc(k.sku)}</span>` : ""}</th><td class="n">${k.units}</td><td class="n">${k.unitsRefunded}${k.units ? " (" + pct(k.refundRate, 0) + ")" : ""}</td><td class="n">${money(k.revenue)}</td><td class="n">${money(k.fees)}</td><td class="n">${money(k.refunds)}</td><td class="n">${money(k.net)}</td>`
+          + `<td class="n"><input class="cost" data-name="${esc(k.name)}" inputmode="decimal" aria-label="Unit cost for ${esc(k.name)}" value="${v === undefined ? "" : v}"></td>`
+          + `<td class="n${k.profit !== null && k.profit < 0 ? " neg" : ""}">${k.profit === null ? "–" : money(k.profit)}</td><td class="n">${k.margin === null ? "–" : pct(k.margin)}</td></tr>`;
+      }).join("") : `<tr><td colspan="10">Add the Orders export to see this table.</td></tr>`;
+      $("#codes").innerHTML = r.codes.length ? r.codes.map((c) => `<tr><th scope="row">${esc(c.code)}</th><td class="n">${c.orders}</td><td class="n">${money(c.discount)}</td><td class="n">${pct(c.pct)}</td><td class="n">${pct(c.share, 0)}</td><td class="n">${c.netPerOrder === null ? "–" : money2(c.netPerOrder)}</td></tr>`).join("") : `<tr><td colspan="6">${orders.length ? "No discount codes in the Orders export." : "Add the Orders export to see discount codes."}</td></tr>`;
+      const shown = r.orders.slice().sort((a, b) => (a.netRate ?? 9) - (b.netRate ?? 9)).slice(0, MAX_ORDER_ROWS);
+      $("#order-note").textContent = `Lowest net-to-bank first${r.orders.length > MAX_ORDER_ROWS ? `; ${MAX_ORDER_ROWS} of ${r.orders.length} orders shown, all are in the CSV download` : ""}.`;
+      $("#orders").innerHTML = shown.map((o) => `<tr><th scope="row">${esc(o.id)}</th><td class="n">${money2(o.charged)}</td><td class="n">${money2(o.fees)}</td><td class="n">${money2(o.refunds)}</td><td class="n">${money2(o.disputes)}</td><td class="n${o.net < 0 ? " neg" : ""}">${money2(o.net)}</td><td class="n">${o.netRate === null ? "–" : pct(o.netRate)}</td></tr>`).join("");
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${money(m.charges)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.disputes)}</td><td class="n">${money(m.other)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) were skipped: ` + skipped.slice(0, 8).map((k) => `${k.file} line ${k.line} (${k.reason})`).join("; ") + (skipped.length > 8 ? "…" : "") : "";
+      report.hidden = false;
+      return true;
+    }
+
+    function run(txText, orderText) {
+      const n = normalizeTransactions(parseCsv(txText));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const o = normalizeOrders(parseCsv(orderText));
+      if (o.error) { status.textContent = o.error; report.hidden = true; return false; }
+      rows = n.rows; orders = o.orders;
+      skipped = n.skipped.map((k) => ({ ...k, file: "transactions" })).concat(o.skipped.map((k) => ({ ...k, file: "orders" })));
+      const c = parseCosts($("#costs").value);
+      costs = c.costs;
+      if (!render()) return false;
+      status.textContent = `Read ${rows.length} transaction rows` + (orders.length ? ` and ${orders.length} orders.` : ".") + (c.bad.length ? ` Ignored cost line(s): ${c.bad.join(", ")}.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    async function textOf(fileSel, pasteSel) {
+      const f = $(fileSel).files[0];
+      return f ? await f.text() : $(pasteSel).value;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const tx = await textOf("#tx-file", "#tx-paste");
+      if (!tx.trim()) { status.textContent = "Choose a transactions file or paste its text first."; return; }
+      const od = await textOf("#orders-file", "#orders-paste");
+      if (run(tx, od)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const d = sampleData();
+      $("#tx-paste").value = d.transactions; $("#orders-paste").value = d.orders; $("#costs").value = d.costs;
+      $("#tx-file").value = ""; $("#orders-file").value = "";
+      if (run(d.transactions, d.orders)) { record("example_loaded"); status.textContent = "Worked example: a synthetic four-product shop over four months. Replace it with your own files."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#tx-paste", "#orders-paste", "#costs", "#tp-rate"]) $(id).value = ""; $("#tx-file").value = ""; $("#orders-file").value = ""; report.hidden = true; rows = []; orders = []; costs = {}; status.textContent = "Cleared."; });
+    $("#resell").addEventListener("change", () => { if (rows.length) render(); });
+    $("#tp-rate").addEventListener("change", () => { if (rows.length) render(); });
+    $("#products").addEventListener("change", (e) => {
+      const el = e.target.closest("input.cost");
+      if (!el) return;
+      const t = el.value.trim();
+      const v = t === "" ? undefined : parseFloat(t.replace(/[^0-9.]/g, ""));
+      if (v === undefined || Number.isNaN(v)) delete costs[el.dataset.name]; else costs[el.dataset.name] = v;
+      render();
+    });
+    const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+    const save = (name, lines) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+    };
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      save("profit-by-product.csv", ["product,sku,units,units_in_refunded_orders,sales_after_discount,fees,refunds_and_disputes,net_to_bank,unit_cost,profit"].concat(last.products.map((k) => [q(k.name), q(k.sku), k.units, k.unitsRefunded, k.revenue.toFixed(2), k.fees.toFixed(2), k.refunds.toFixed(2), k.net.toFixed(2), k.unitCost ?? "", k.profit === null ? "" : k.profit.toFixed(2)].join(","))));
+    });
+    $("#download-orders").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      save("net-to-bank-per-order.csv", ["order,month,charged,fees,refunded,disputed,net_to_bank"].concat(last.orders.map((o) => [q(o.id), o.month, o.charged.toFixed(2), o.fees.toFixed(2), o.refunds.toFixed(2), o.disputes.toFixed(2), o.net.toFixed(2)].join(","))));
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

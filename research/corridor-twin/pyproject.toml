@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "corridor-twin"
+version = "0.1.0"
+description = "Corridor twin: scan-matching localisation in a corridor is unobservable along the track, so an isotropic well-featured twin claims an along-track accuracy the real scan matcher does not have"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "roundtrip-twin"
+version = "0.1.0"
+description = "Zero-wind twin of a UAV out-and-back leg: wind cannot cancel over a round trip, energy is under-stated by 1/(1-w^2/v^2), the twin-optimal airspeed is too slow, and a twin fitted on one leg errs with the sign of that leg"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

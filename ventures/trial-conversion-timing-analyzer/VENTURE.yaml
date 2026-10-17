@@ -1,0 +1,66 @@
+name: trial-conversion-timing-analyzer
+description: >-
+  Free browser tool for SaaS and app founders: paste the date each SaaS trial
+  started and the date that user first paid, and see on which day of the trial
+  people convert, whether conversions pile up at the deadline, and what a
+  shorter trial would have lost, with seeded bootstrap ranges and a hold-out
+  check that says when conversion timing has shifted. Leaves out trials still
+  inside their window, refuses too few trials, and says it cannot speak to
+  trials longer than the one run. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py on
+# "trial length: when do trial users convert ..." closest is
+# bridal-hair-makeup-pricing-calculator at 0.15; on the looser "trial length
+# conversion optimizer" query, shift-cover-optimizer at 0.24. Adjacent:
+# saas-annual-plan-discount-calculator and saas-cac-payback-calculator (pricing and
+# payback, neither looks at when in a trial users pay) and patreon-members-churn-
+# analyzer (churn after paying). Appointment no-show analysis was screened first and
+# dropped: appointment-overbooking-optimizer scored 0.56.
+#
+# Alternatives: a spreadsheet pivot of days-to-convert (no censoring of open trials,
+# no range), the conversion charts in subscription-billing and product-analytics
+# suites (need the data in their cloud and a paid plan for cohort timing), and
+# blog-post rules of thumb ("7 days converts best").
+#
+# First visitor: searches "how long should a SaaS trial be", "trial length
+# conversion", "7 day vs 14 day SaaS trial"; r/SaaS, Indie Hackers and
+# microsaas founders with a few hundred trials. Volume not measured with an
+# external tool.
+#
+# Privacy is the liability boundary: trial data never leaves the browser (tests
+# assert no network calls). No vendor is ranked.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: statistical description of supplied data, not advice; says what it
+# cannot see (sign-ups, activation, churn, anything beyond the trial length run).
+# Unverified: tested on simulated trials with known timing, not on a published
+# dataset.
+
+hypotheses:
+  - claim: >-
+      SaaS founders with 30 or more finished trials will use a private, no-signup
+      tool that shows when their trials convert, and will return as trial data
+      grows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that the share of conversions after a cutoff disagrees with a hand count of the same rows.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/trial-conversion-timing-analyzer/
+  analytics: null

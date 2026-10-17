@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-lab"
+version = "0.1.0"
+description = "A stdlib protocol-checking twin of a liquid-handling bench: collisions, tip and volume errors, timing and pipetting-error Monte Carlo (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

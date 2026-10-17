@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wage Garnishment Limit Calculator — How Much of Your Paycheck Can Be Taken</title>
+  <meta name="description" content="Free tool: enter your pay stub and see the most that can be garnished from your paycheck under federal law for a debt judgment, a defaulted student loan or child support, how much is protected, and a draft request for payroll's worksheet. Runs in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Wage Garnishment Limit Calculator — free, private, in your browser">
+  <meta property="og:description" content="See the federal cap on wage garnishment for your paycheck: disposable earnings, the 25% and floor rule, student loan and support limits. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wage Garnishment Limit Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Enter a pay stub and see the most that can be garnished from a paycheck under federal law for ordinary debt, a defaulted federal student loan or child support, how much is protected, and a draft request for payroll's worksheet. Runs entirely in your browser.", "featureList": "Federal garnishment cap for ordinary debt, student loan and support, disposable earnings, pay stub check, overtime what-if, payroll worksheet request, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much of my paycheck can be garnished?", "acceptedAnswer": {"@type": "Answer", "text": "For an ordinary debt such as a credit card or medical bill, federal law lets a creditor with a court judgment take the lesser of 25% of your disposable earnings or the amount by which your disposable earnings exceed 30 times the federal minimum wage per week. At $7.25 that floor is $217.50 a week, $435 every two weeks, $471.25 twice a month and $942.50 a month. Some states protect more, and a few do not allow wage garnishment for ordinary consumer debt at all."}}, {"@type": "Question", "name": "What counts as disposable earnings?", "acceptedAnswer": {"@type": "Answer", "text": "Your gross pay minus deductions the law requires: federal, state and local income tax, Social Security and Medicare, state unemployment or disability insurance, and mandatory contributions to a government pension. Health insurance premiums, voluntary retirement contributions and union dues are not subtracted, so they do not lower the amount that can be garnished."}}, {"@type": "Question", "name": "How much can be taken for child support or alimony?", "acceptedAnswer": {"@type": "Answer", "text": "Up to 50% of disposable earnings if you support another spouse or child, or 60% if you do not. Those rise by 5 points, to 55% and 65%, when the payments are more than 12 weeks behind. All garnishments together cannot exceed the support percentage."}}, {"@type": "Question", "name": "How much can be taken for a defaulted federal student loan?", "acceptedAnswer": {"@type": "Answer", "text": "Administrative wage garnishment by the government is capped at 15% of disposable earnings, and it may not take pay that would leave you with less than 30 times the federal minimum wage per week. Student loan and ordinary debt garnishments together are limited to 25%."}}, {"@type": "Question", "name": "Can I be fired for being garnished?", "acceptedAnswer": {"@type": "Answer", "text": "Federal law protects a worker from being fired because of garnishment for any one debt. It does not stop discipline for garnishments on several debts, and it does not stop support orders from being enforced."}}, {"@type": "Question", "name": "Does my state change these limits?", "acceptedAnswer": {"@type": "Answer", "text": "Often, yes. Federal law is a floor and the lower limit applies. Some states use a smaller percentage or a higher protected amount, and some forbid garnishing wages for ordinary consumer debt. The tool has a box for a state limit you have confirmed, and it does not guess one for you."}}, {"@type": "Question", "name": "Does this prove my employer withheld too much?", "acceptedAnswer": {"@type": "Answer", "text": "No. It works from the numbers you type and cannot see the court order or the payroll worksheet. A difference is a question for payroll, and it can come from a different disposable-earnings figure, a second order, or a state rule. The amounts shown are what is in question, not money you are owed."}}, {"@type": "Question", "name": "Is my pay information uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+    @media (max-width: 720px) { .grid, .row { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { min-height: 120px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    .low td { background: #fdf0d5; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WAGE GARNISHMENT LIMIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your paycheck can be garnished?</h1>
+    <p>Enter the numbers from your <strong>pay stub</strong> and the kind of garnishment. See your <strong>disposable earnings</strong>, the <strong>most federal law lets an order take</strong> for a debt judgment, a defaulted federal student loan or child support, the <strong>pay that is protected</strong>, and what you would <strong>keep from extra hours</strong>. If the amount on your stub looks higher, copy a <strong>request for payroll's calculation</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. Results are questions for payroll, not findings that a figure is wrong. Not legal, tax, or financial advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. One pay stub</h2>
+    <p class="note">Use the <strong>current period</strong> figures. Required deductions are the ones the law requires; health insurance and 401(k) go under voluntary.</p>
+    <div class="grid">
+      <div><label for="period">How often you are paid</label><select id="period"><option value="">Choose</option><option value="weekly">Weekly</option><option value="biweekly" selected>Every two weeks</option><option value="semimonthly">Twice a month</option><option value="monthly">Monthly</option></select></div>
+      <div><label for="gross">Gross pay for the period</label><input type="text" id="gross" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="fed-tax">Federal income tax withheld</label><input type="text" id="fed-tax" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="state-tax">State and local income tax withheld</label><input type="text" id="state-tax" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="fica">Social Security and Medicare withheld</label><input type="text" id="fica" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="other-required">Other deductions required by law (state disability, mandatory government pension)</label><input type="text" id="other-required" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="voluntary">Voluntary deductions (health insurance, 401(k), dues)</label><input type="text" id="voluntary" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="stated-withheld">Garnishment withheld on the stub <span class="note">(optional, this is what gets checked)</span></label><input type="text" id="stated-withheld" inputmode="decimal" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. The garnishment <span class="note">(up to three orders)</span></h2>
+    <p class="note">Leave the amount blank to see the most each type could take. Support is processed first, then a student loan, then ordinary debt.</p>
+      <div class="row">
+        <select id="type1" aria-label="Garnishment 1 type"><option value="none">(none)</option><option value="ordinary" selected>Ordinary debt or civil judgment</option><option value="student">Defaulted federal student loan</option><option value="support">Child support or alimony</option></select>
+        <input type="text" id="dem1" aria-label="Garnishment 1 amount the order asks per pay period" inputmode="decimal" placeholder="Amount it asks per pay period (optional)" autocomplete="off">
+      </div>
+      <div class="row">
+        <select id="type2" aria-label="Garnishment 2 type"><option value="none" selected>(none)</option><option value="ordinary">Ordinary debt or civil judgment</option><option value="student">Defaulted federal student loan</option><option value="support">Child support or alimony</option></select>
+        <input type="text" id="dem2" aria-label="Garnishment 2 amount the order asks per pay period" inputmode="decimal" placeholder="Amount it asks per pay period (optional)" autocomplete="off">
+      </div>
+      <div class="row">
+        <select id="type3" aria-label="Garnishment 3 type"><option value="none" selected>(none)</option><option value="ordinary">Ordinary debt or civil judgment</option><option value="student">Defaulted federal student loan</option><option value="support">Child support or alimony</option></select>
+        <input type="text" id="dem3" aria-label="Garnishment 3 amount the order asks per pay period" inputmode="decimal" placeholder="Amount it asks per pay period (optional)" autocomplete="off">
+      </div>
+    <div class="grid">
+      <div><label for="supports-other">Do you support another spouse or child? <span class="note">(child support only)</span></label><select id="supports-other"><option value="yes">Yes</option><option value="no">No</option></select></div>
+      <div><label for="arrears12">Are support payments more than 12 weeks behind?</label><select id="arrears12"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div><label for="state-limit">A lower state limit you have confirmed, as a percent <span class="note">(optional)</span></label><input type="text" id="state-limit" inputmode="decimal" autocomplete="off"></div>
+      <div><label for="min-wage">Federal minimum wage per hour</label><input type="text" id="min-wage" inputmode="decimal" value="7.25" autocomplete="off"></div>
+      <div><label for="who-name">Your name (for the letter, optional)</label><input type="text" id="who-name" autocomplete="off"></div>
+      <div><label for="who-case">Case or reference number (for the letter, optional)</label><input type="text" id="who-case" autocomplete="off"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Calculate the limit</button>
+      <button type="button" class="secondary" id="load-example">Load sample pay stub</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in section 1, add the garnishment type, then click Calculate the limit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <p class="note" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Order by order</h3>
+    <div class="scroll"><table id="orders"><thead><tr><th>Order</th><th class="n">Asks for</th><th class="n">Federal cap</th><th class="n">Most taken</th></tr></thead><tbody></tbody></table></div>
+    <h3>Is extra pay worth it?</h3>
+    <div class="grid">
+      <div><label for="wi-extra">Extra gross pay in one pay period</label><input type="text" id="wi-extra" inputmode="decimal" autocomplete="off" placeholder="for example overtime, 300"></div>
+      <div><label for="wi-tax">Tax rate on the extra pay, percent</label><input type="text" id="wi-tax" inputmode="decimal" autocomplete="off" value="25"></div>
+    </div>
+    <p><button type="button" class="secondary" id="wi-run">Show what I would keep</button></p>
+    <p id="wi-result" class="note"></p>
+    <label for="letter">Draft request to payroll</label>
+    <textarea id="letter" spellcheck="false" style="min-height:280px"></textarea>
+    <p class="note">Send it to payroll or the party directing the garnishment. Edit it first, and read the order itself.</p>
+    <p><button type="button" class="secondary" id="copy">Copy letter</button> <button type="button" class="secondary" id="download">Download result as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Disposable earnings:</strong> gross pay minus deductions required by law (15 U.S.C. 1672(b)). Voluntary deductions are not subtracted.</li>
+      <li><strong>Ordinary debt:</strong> the lesser of 25% of disposable earnings or the excess over 30 times the federal minimum wage per week (15 U.S.C. 1673(a)). The floor is 60, 65 and 130 times the wage for two-week, twice-a-month and monthly pay (29 CFR 870.10).</li>
+      <li><strong>Defaulted federal student loan:</strong> up to 15% of disposable earnings, and student loan plus ordinary debt together stay within 25% (31 CFR 285.11).</li>
+      <li><strong>Child support or alimony:</strong> 50% if you support another spouse or child, 60% if not, plus 5 points for arrears over 12 weeks (15 U.S.C. 1673(b)). Total garnishments stay within that percentage.</li>
+      <li><strong>Amount in question</strong> is the most that could be affected over a year if the amount on the stub repeats, not a refund you are owed.</li>
+      <li><strong>Not checked:</strong> state law, which is often stricter and sometimes forbids garnishment for ordinary debt; federal tax levies and government benefit offsets; bankruptcy plans; exemptions you can claim in court; whether the order itself is valid; and anything not typed above.</li>
+      <li><strong>Unverified:</strong> the rules were read from the published statute and regulations, but the arithmetic has been run only against invented pay stubs and worked by hand, not against a real payroll worksheet. If a real stub disagrees, that is the priority report.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much of my paycheck can be garnished?</h3>
+    <p>For an ordinary debt such as a credit card or medical bill, federal law lets a creditor with a court judgment take the lesser of 25% of your disposable earnings or the amount by which your disposable earnings exceed 30 times the federal minimum wage per week. At $7.25 that floor is $217.50 a week, $435 every two weeks, $471.25 twice a month and $942.50 a month. Some states protect more, and a few do not allow wage garnishment for ordinary consumer debt at all.</p>
+    <h3>What counts as disposable earnings?</h3>
+    <p>Your gross pay minus deductions the law requires: federal, state and local income tax, Social Security and Medicare, state unemployment or disability insurance, and mandatory contributions to a government pension. Health insurance premiums, voluntary retirement contributions and union dues are not subtracted, so they do not lower the amount that can be garnished.</p>
+    <h3>How much can be taken for child support or alimony?</h3>
+    <p>Up to 50% of disposable earnings if you support another spouse or child, or 60% if you do not. Those rise by 5 points, to 55% and 65%, when the payments are more than 12 weeks behind. All garnishments together cannot exceed the support percentage.</p>
+    <h3>How much can be taken for a defaulted federal student loan?</h3>
+    <p>Administrative wage garnishment by the government is capped at 15% of disposable earnings, and it may not take pay that would leave you with less than 30 times the federal minimum wage per week. Student loan and ordinary debt garnishments together are limited to 25%.</p>
+    <h3>Can I be fired for being garnished?</h3>
+    <p>Federal law protects a worker from being fired because of garnishment for any one debt. It does not stop discipline for garnishments on several debts, and it does not stop support orders from being enforced.</p>
+    <h3>Does my state change these limits?</h3>
+    <p>Often, yes. Federal law is a floor and the lower limit applies. Some states use a smaller percentage or a higher protected amount, and some forbid garnishing wages for ordinary consumer debt. The tool has a box for a state limit you have confirmed, and it does not guess one for you.</p>
+    <h3>Does this prove my employer withheld too much?</h3>
+    <p>No. It works from the numbers you type and cannot see the court order or the payroll worksheet. A difference is a question for payroll, and it can come from a different disposable-earnings figure, a second order, or a state rule. The amounts shown are what is in question, not money you are owed.</p>
+    <h3>Is my pay information uploaded anywhere?</h3>
+    <p>No. Everything you type stays in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an attorney, a legal aid office or a qualified professional. Results are estimates that depend entirely on the values you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, before disputing a garnishment, and before stopping any payment ordered by a court. A flagged item is a question, not a finding that an employer or creditor is wrong. Follow the court order while you ask.</p>
+    <p><strong>Independent.</strong> Not affiliated with any employer, creditor, court, government agency or the U.S. Department of Labor. Statute and regulation citations identify the published rule and are not a legal opinion.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your pay and debt numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>garnishment_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Leaving a job while a garnishment is running? The <a href="../final-paycheck-deadline-calculator/">final paycheck deadline calculator</a> shows when your last paycheck is due by state.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, whatIf, requestLetter, reportCsv, sampleInput, money, ORDER_TYPES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const ROWS = [1, 2, 3];
+    let last = null, lastInput = null;
+
+    function read() {
+      return {
+        period: $("#period").value, gross: $("#gross").value, fedTax: $("#fed-tax").value, stateTax: $("#state-tax").value,
+        fica: $("#fica").value, otherRequired: $("#other-required").value, voluntary: $("#voluntary").value,
+        statedWithheld: $("#stated-withheld").value, minWage: $("#min-wage").value, stateLimitPct: $("#state-limit").value,
+        supportsOther: $("#supports-other").value, arrears12: $("#arrears12").value,
+        orders: ROWS.map((i) => ({ type: $("#type" + i).value, demand: $("#dem" + i).value })),
+      };
+    }
+
+    function fill(input) {
+      $("#period").value = input.period || ""; $("#gross").value = input.gross || ""; $("#fed-tax").value = input.fedTax || "";
+      $("#state-tax").value = input.stateTax || ""; $("#fica").value = input.fica || ""; $("#other-required").value = input.otherRequired || "";
+      $("#voluntary").value = input.voluntary || ""; $("#stated-withheld").value = input.statedWithheld || "";
+      $("#min-wage").value = input.minWage || "7.25"; $("#state-limit").value = input.stateLimitPct || "";
+      $("#supports-other").value = input.supportsOther === false ? "no" : "yes"; $("#arrears12").value = input.arrears12 ? "yes" : "no";
+      ROWS.forEach((i, k) => { const o = (input.orders || [])[k] || { type: "none", demand: "" }; $("#type" + i).value = o.type; $("#dem" + i).value = o.demand || ""; });
+    }
+
+    function letter() {
+      if (!last) return;
+      $("#letter").value = requestLetter(last, { name: $("#who-name").value.trim(), case: $("#who-case").value.trim(), date: new Date().toISOString().slice(0, 10) });
+    }
+
+    function run() {
+      const input = read();
+      const a = analyze(input);
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a; lastInput = input;
+      const s = a.summary;
+      const asks = a.findings.filter((f) => f.severity !== "info").length;
+      const tiles = [[String(asks), "item(s) worth asking about"], [usd(s.disposable), "disposable earnings"], [usd(s.totalTake), "most that can be taken this period"], [usd(s.shielded), "protected from garnishment"], [usd(s.net), "estimated take-home"], [usd(s.floor), "federal floor for this pay period"]];
+      if (s.questioned > 0) tiles.splice(1, 0, [usd(s.questioned), "most that is in question over a year"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-stats").textContent = `Gross ${usd(s.gross)} minus ${usd(s.required)} required by law leaves ${usd(s.disposable)} of disposable earnings. With no order entered the federal ceilings would be ${usd(a.perType.ordinary)} for ordinary debt, ${usd(a.perType.student)} for a student loan and ${usd(a.perType.support)} for support (${s.supportPct}%). Amounts in question are the most that could be affected, not a refund owed.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p>${f.cite ? `<p class="note">${esc(f.cite)}</p>` : ""}</div>`).join("") : `<p class="note">Nothing on the stub disagrees with these numbers. That does not mean it is right: the payroll worksheet and state law were not checked.</p>`;
+      $("#orders tbody").innerHTML = a.results.length ? a.results.map((r) => `<tr><td>${esc(ORDER_TYPES[r.type])}<br><span class="note">${esc(r.reason)}</span></td><td class="n">${r.demand === null ? "–" : usd(r.demand)}</td><td class="n">${usd(r.cap)}</td><td class="n">${usd(r.take)}</td></tr>`).join("") : `<tr><td colspan="4" class="note">No order entered.</td></tr>`;
+      $("#wi-result").textContent = "";
+      letter();
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    for (const id of ["#who-name", "#who-case"]) $(id).addEventListener("input", letter);
+    $("#analyze").addEventListener("click", () => { if (run()) record("garnishment_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented pay stub, not a real person."; }
+    });
+    $("#clear-all").addEventListener("click", () => {
+      fill({ period: "", orders: [] });
+      for (const id of ["#who-name", "#who-case", "#letter", "#wi-extra"]) $(id).value = "";
+      report.hidden = true; last = null; lastInput = null;
+      status.textContent = "Fill in section 1, add the garnishment type, then click Calculate the limit.";
+    });
+    $("#wi-run").addEventListener("click", () => {
+      if (!lastInput) return;
+      const w = whatIf(lastInput, $("#wi-extra").value, $("#wi-tax").value);
+      if (w.error) { $("#wi-result").textContent = w.error; return; }
+      $("#wi-result").textContent = `An extra ${usd(w.extra)} of gross pay, taxed at about ${w.taxPercent}% (${usd(w.extraTax)}), would raise the most that can be taken from ${usd(w.takeBefore)} to ${usd(w.takeAfter)} (${usd(w.takeMore)} more) and raise your take-home by about ${usd(w.keepMore)}, which is ${Math.round(w.keepShare * 100)}% of the extra pay. The tax rate is your own estimate.`;
+    });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#letter");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Letter copied."; }
+      catch { box.select(); status.textContent = "Select the letter text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "garnishment-limit.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

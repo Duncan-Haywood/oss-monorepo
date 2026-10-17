@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{SLUG}} — Duncan Haywood research</title>
+<meta name="description" content="{{DESC}}">
+<meta property="og:title" content="{{SLUG}}">
+<meta property="og:description" content="{{DESC}}">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+{{TOKENS}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;border-radius:4px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+.topbar{border-bottom:1px solid var(--border)}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:56px;font-size:14px}
+.topbar a{color:var(--muted)}
+.topbar a:hover{color:var(--text)}
+.theme-tag{display:inline-block;margin-top:40px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c,var(--accent))}
+h1{font:600 clamp(28px,5vw,40px)/1.2 var(--serif);letter-spacing:-.01em;margin:.4rem 0 1rem}
+.slug{font:13px var(--mono);color:var(--faint)}
+.lede{font-size:18px;color:var(--muted);margin:0 0 1.5rem}
+.stats{display:flex;gap:1rem;flex-wrap:wrap;margin:0 0 2rem}
+.stats span{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:.3rem .75rem;font-size:14px;color:var(--muted)}
+h2{font:600 22px/1.3 var(--serif);margin:2.2rem 0 .6rem}
+figure{margin:1rem 0;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+figure img{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:4px}
+figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
+.links{display:flex;gap:.6rem;flex-wrap:wrap;padding:0;list-style:none;margin:0}
+.links a{display:inline-block;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:8px;padding:.45rem .9rem;font-size:14px;font-weight:500}
+.links a.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.log-intro{font-size:14px;color:var(--muted);margin:0 0 1rem}
+.log-entry{border-left:3px solid var(--c,var(--accent));padding:.1rem 0 .1rem 1rem;margin:0 0 1.4rem}
+.log-entry h3{font:600 17px/1.35 var(--serif);margin:0 0 .4rem}
+.log-entry ul{margin:.3rem 0;padding-left:1.2rem}
+.log-entry li{margin:.25rem 0}
+.log-entry p{margin:.3rem 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+{{THEME_VARS}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="{{REPO_URL}}">GitHub</a></div></header>
+<main class="wrap t-{{THEME_ID}}">
+  <span class="theme-tag">{{THEME_NAME}}</span>
+  <h1>{{TITLE}}</h1>
+  <p class="slug">research/{{SLUG}}</p>
+  <p class="lede">{{LEDE}}</p>
+  <div class="stats">{{STATS}}</div>
+  <h2>What it found</h2>
+  <p>{{SUMMARY}}</p>
+{{FIGURE}}
+{{LOG}}
+  <h2>Paper, code and results</h2>
+  <ul class="links">
+{{LINKS}}
+  </ul>
+  <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
+</main>
+<footer><div class="wrap">© Duncan Haywood · <a href="{{REPO_URL}}">github.com/{{REPO}}</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exempt Salary Threshold Checker — Federal + State, 2026, Free</title>
+  <meta name="description" content="Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York's professional-exemption carve-out. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Exempt Salary Threshold Checker — free, 2026">
+  <meta property="og:description" content="Checks a weekly salary against the applicable federal or state FLSA white-collar exemption threshold for 2026, including the higher California, Washington, Maine, Alaska, and New York figures. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exempt Salary Threshold Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a weekly salary against the 2026 federal FLSA white-collar exemption salary threshold ($684/week) and the higher state-specific threshold that controls in California ($1,352/week), Washington ($1,541.70/week), Maine ($871.16/week), Alaska ($1,120/week, effective July 1, 2026), and New York (two regional figures, executive/administrative exemptions only). Flags a salary below the applicable threshold and states the necessary-but-not-sufficient salary-basis and duties-test caveats. Entirely client-side; nothing is uploaded.","featureList":"Federal and five-state 2026 EAP salary threshold comparison, New York regional and professional-exemption carve-out handling, weekly/annual conversion, shortfall amount, duties-test and salary-basis caveats"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the FLSA white-collar exempt salary threshold for 2026?","acceptedAnswer":{"@type":"Answer","text":"The federal threshold is $684/week ($35,568/year). The 2024 rule that would have raised it to $1,128/week was vacated by a federal court, and the Department of Labor's May 2026 technical amendment formally confirmed $684 as the operative figure rather than raising it."}},{"@type":"Question","name":"Which states have a higher exempt salary threshold than the federal figure?","acceptedAnswer":{"@type":"Answer","text":"Five states, all effective 2026: California ($1,352/week), Washington ($1,541.70/week), Maine ($871.16/week), New York ($1,275/week in NYC and Nassau, Suffolk, and Westchester counties, or $1,199.10/week elsewhere in the state), and Alaska ($1,120/week, but not effective until July 1, 2026). An employer must meet whichever of the federal or state figure is higher."}},{"@type":"Question","name":"Does New York's higher threshold apply to every exemption category?","acceptedAnswer":{"@type":"Answer","text":"No. New York's higher figures apply only to the executive and administrative exemptions. New York sets no state-specific threshold for the professional exemption, so the federal $684/week figure governs a professional-exemption classification even in New York — the detail this tool exists to catch, since every other modeled state uses one figure across all three EAP categories."}},{"@type":"Question","name":"If a salary meets the threshold, is the employee definitely exempt?","acceptedAnswer":{"@type":"Answer","text":"No. Meeting the salary threshold is necessary but not sufficient. The employee must also be paid on a true salary basis (not reduced for partial-day absences or variations in the amount of work) and must actually perform exempt duties under the executive, administrative, or professional duties test. This tool checks only the salary-level test."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published federal and state salary-threshold figures to the numbers you enter. It does not evaluate job duties, salary basis, or any other element of an exemption determination, and it is not a substitute for reviewing current DOL and state guidance or consulting a qualified employment attorney or HR compliance professional before classifying an employee."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EXEMPT SALARY THRESHOLD CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Does this salary clear the overtime-exemption threshold?</h1>
+    <p>The federal FLSA white-collar exemption salary threshold is
+    <strong>$684/week</strong> — but California, Washington, Maine, Alaska,
+    and New York all set a <strong>higher</strong> figure that controls
+    instead whenever an employee works there. This tool checks a weekly
+    salary against whichever figure actually applies, including New York's
+    carve-out for the professional exemption.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Where the employee works, and which exemption</h2>
+    <div class="grid">
+      <div>
+        <label for="jurisdiction">State (for the higher state threshold, if any)</label>
+        <select id="jurisdiction">
+          <option value="federal-only" selected>Federal only (no higher state figure)</option>
+          <option value="CA">California ($1,352/week, 2026)</option>
+          <option value="WA">Washington ($1,541.70/week, 2026)</option>
+          <option value="ME">Maine ($871.16/week, 2026)</option>
+          <option value="AK">Alaska ($1,120/week, effective 2026-07-01)</option>
+          <option value="NY_DOWNSTATE">New York — NYC, Nassau, Suffolk, Westchester ($1,275/week, 2026)</option>
+          <option value="NY_UPSTATE">New York — rest of state ($1,199.10/week, 2026)</option>
+        </select>
+      </div>
+      <div>
+        <label for="category">Exemption category</label>
+        <select id="category">
+          <option value="executive_administrative" selected>Executive or administrative</option>
+          <option value="professional">Professional</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">New York's higher figures apply only to the executive
+    and administrative exemptions — the professional exemption uses the
+    federal figure even in New York. Every other modeled state applies its
+    higher figure to all three EAP categories alike.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The salary</h2>
+    <div class="grid">
+      <div>
+        <label for="weekly-salary">Weekly salary ($)</label>
+        <input type="number" id="weekly-salary" min="0" step="1" placeholder="e.g. 1200">
+      </div>
+    </div>
+    <p class="note">Paid a fixed annual salary instead? Divide by 52 to get
+    the weekly figure this tool compares — the result below also shows the
+    annual equivalent of the applicable threshold.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Check</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Choose a state and exemption category, enter the weekly salary, then click Check.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full exemption determination.</strong> This checks
+      only the salary-level threshold — not the salary-basis test (whether
+      pay is actually reduced for partial-day absences or variable work) or
+      the duties test (whether the job's actual responsibilities qualify as
+      executive, administrative, or professional work).</li>
+      <li><strong>No computer-employee exemption.</strong> The separate
+      federal computer-employee exemption ($27.63/hour as an alternative to
+      the salary test) and any state-specific computer-employee rule are
+      not modeled here.</li>
+      <li><strong>Five states only.</strong> Other states may set their own
+      thresholds this tool does not track; if the employee's state is not
+      listed, confirm separately whether that state sets its own figure.</li>
+      <li><strong>Point-in-time figures.</strong> These are the 2026
+      figures as published; a state's threshold can change again in a
+      future year, and Alaska's figure does not take effect until
+      2026-07-01.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the FLSA white-collar exempt salary threshold for 2026?</h3>
+    <p>The federal threshold is $684/week ($35,568/year). The 2024 rule that would have raised it to $1,128/week was vacated by a federal court, and the Department of Labor's May 2026 technical amendment formally confirmed $684 as the operative figure rather than raising it.</p>
+    <h3>Which states have a higher exempt salary threshold than the federal figure?</h3>
+    <p>Five states, all effective 2026: California ($1,352/week), Washington ($1,541.70/week), Maine ($871.16/week), New York ($1,275/week in NYC and Nassau, Suffolk, and Westchester counties, or $1,199.10/week elsewhere in the state), and Alaska ($1,120/week, but not effective until July 1, 2026). An employer must meet whichever of the federal or state figure is higher.</p>
+    <h3>Does New York's higher threshold apply to every exemption category?</h3>
+    <p>No. New York's higher figures apply only to the executive and administrative exemptions. New York sets no state-specific threshold for the professional exemption, so the federal $684/week figure governs a professional-exemption classification even in New York — the detail this tool exists to catch, since every other modeled state uses one figure across all three EAP categories.</p>
+    <h3>If a salary meets the threshold, is the employee definitely exempt?</h3>
+    <p>No. Meeting the salary threshold is necessary but not sufficient. The employee must also be paid on a true salary basis (not reduced for partial-day absences or variations in the amount of work) and must actually perform exempt duties under the executive, administrative, or professional duties test. This tool checks only the salary-level test.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. This tool applies published federal and state salary-threshold figures to the numbers you enter. It does not evaluate job duties, salary basis, or any other element of an exemption determination, and it is not a substitute for reviewing current DOL and state guidance or consulting a qualified employment attorney or HR compliance professional before classifying an employee.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified employment attorney or HR compliance professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming an employee's full exemption status before classifying them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>threshold_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Checking whether a tip pool is FLSA-eligible instead? The <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a> is the one for that — a different FLSA wage-and-hour figure, tip credit eligibility rather than the exempt salary minimum.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Also: <a href="vs-checking-the-threshold-yourself.html">This checker vs. checking the FLSA salary threshold yourself</a></p>
+</footer>
+
+  <script type="module">
+    import { exemptionOutcome, money, weeklyToAnnual } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      jurisdiction: $("#jurisdiction"), category: $("#category"),
+      weeklySalary: $("#weekly-salary"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = exemptionOutcome({
+        jurisdiction: els.jurisdiction.value,
+        category: els.category.value,
+        weeklySalary: Number(els.weeklySalary.value) || 0,
+      });
+
+      els.stats.innerHTML = `Applicable threshold: <strong>${money(result.applicableThreshold)}/week</strong>. This salary ${result.meetsThreshold ? "<strong>meets</strong>" : "<strong>does not meet</strong>"} it.`;
+
+      els.resultTable.innerHTML = `
+        <tr><th scope="row">Weekly salary entered</th><td>${money(result.salary)}</td></tr>
+        <tr><th scope="row">Federal threshold</th><td>${money(result.federalThreshold)}/week</td></tr>
+        ${result.stateThreshold != null ? `<tr><th scope="row">${result.stateName} threshold (effective ${result.stateEffective})</th><td>${money(result.stateThreshold)}/week</td></tr>` : ""}
+        <tr><th scope="row"><strong>Applicable threshold</strong></th><td><strong>${money(result.applicableThreshold)}/week</strong> (${money(weeklyToAnnual(result.applicableThreshold))}/year)</td></tr>
+        <tr><th scope="row">${result.meetsThreshold ? "Above threshold by" : "Shortfall"}</th><td>${money(result.meetsThreshold ? result.salary - result.applicableThreshold : result.shortfall)}</td></tr>`;
+
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("threshold_checked");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.jurisdiction.value = "NY_DOWNSTATE";
+      els.category.value = "professional";
+      els.weeklySalary.value = "900";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a professional-exemption employee in NYC paid $900/week — meets the federal $684 figure even though it is well under New York's own $1,275 executive/administrative threshold, because New York does not set a separate professional-exemption figure.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.jurisdiction.value = "federal-only";
+      els.category.value = "executive_administrative";
+      els.weeklySalary.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Choose a state and exemption category, enter the weekly salary, then click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

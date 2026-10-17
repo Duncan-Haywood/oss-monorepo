@@ -1,0 +1,154 @@
+oracle weights = [1.998, 2.263, -0.019, -6.002]; oracle utility/h on held-out 12.71
+20 seeds, fits at hour 100; scored on fresh 100 h held-out streams, no exploration; '+-' is std over seeds
+hindsight = best cap in the grid by held-out utility (not available to a real assistant)
+prior          eps             fit       utility/h
+uninformed   0.002          biased   1.59 +-  5.70
+uninformed   0.002          clip10 -33.17 +- 22.09
+uninformed   0.002          fixed5 -22.71 +- 22.90
+uninformed   0.002         fixed20 -19.33 +- 18.92
+uninformed   0.002        fixed100 -34.90 +- 55.66
+uninformed   0.002        fixedinf -48.77 +- 72.71
+uninformed   0.002          ips_4c -21.35 +- 51.38
+uninformed   0.002          ips_4r -22.30 +- 55.04
+uninformed   0.002          ips_8c -13.17 +- 17.56
+uninformed   0.002          ips_8r  -5.69 +- 12.97
+uninformed   0.002           dr_4c -15.58 +- 20.20
+uninformed   0.002           dr_4r -11.91 +- 24.81
+uninformed   0.002           dr_8c -10.17 +- 20.47
+uninformed   0.002           dr_8r -11.44 +- 20.18
+uninformed   0.002       hindsight   0.79 +-  7.00
+uninformed   0.002  random_matched  12.15 +-  0.75
+uninformed   0.002            full  12.72 +-  0.58
+uninformed   0.002     ips_4c caps 2:2, 5:2, 20:5, 50:4, 100:2, inf:5
+uninformed   0.002     ips_4r caps 2:2, 5:3, 10:3, 20:2, 50:1, 100:4, inf:5
+uninformed   0.002     ips_8c caps 2:4, 5:1, 10:2, 20:2, 50:4, 100:3, inf:4
+uninformed   0.002     ips_8r caps 5:3, 20:1, 50:1, 100:8, inf:7
+uninformed   0.002      dr_4c caps 2:4, 5:5, 10:2, 20:3, 50:1, inf:5
+uninformed   0.002      dr_4r caps 2:5, 5:2, 10:2, 20:2, 50:1, inf:8
+uninformed   0.002      dr_8c caps 2:4, 5:2, 10:4, 20:1, 50:3, 100:1, inf:5
+uninformed   0.002      dr_8r caps 2:2, 5:3, 10:1, 20:1, 50:1, 100:6, inf:6
+uninformed   0.005          biased  -0.15 +-  6.29
+uninformed   0.005          clip10 -62.95 +- 34.21
+uninformed   0.005          fixed5 -18.23 +- 23.11
+uninformed   0.005         fixed20 -17.66 +- 21.32
+uninformed   0.005        fixed100 -31.14 +- 55.03
+uninformed   0.005        fixedinf -15.89 +- 53.58
+uninformed   0.005          ips_4c -17.70 +- 27.90
+uninformed   0.005          ips_4r -14.19 +- 25.24
+uninformed   0.005          ips_8c -11.87 +- 20.30
+uninformed   0.005          ips_8r -13.99 +- 26.51
+uninformed   0.005           dr_4c -26.92 +- 51.26
+uninformed   0.005           dr_4r -11.48 +- 27.40
+uninformed   0.005           dr_8c -18.55 +- 24.07
+uninformed   0.005           dr_8r  -9.62 +- 24.14
+uninformed   0.005       hindsight   6.49 +-  3.62
+uninformed   0.005  random_matched  12.18 +-  0.75
+uninformed   0.005            full  12.72 +-  0.58
+uninformed   0.005     ips_4c caps 2:5, 10:4, 20:2, 50:3, 100:1, inf:5
+uninformed   0.005     ips_4r caps 2:1, 5:6, 10:3, 20:1, 50:1, 100:2, inf:6
+uninformed   0.005     ips_8c caps 2:6, 5:4, 20:1, 50:1, 100:1, inf:7
+uninformed   0.005     ips_8r caps 2:9, 5:1, 10:4, 20:1, inf:5
+uninformed   0.005      dr_4c caps 2:3, 5:4, 20:2, 50:3, 100:2, inf:6
+uninformed   0.005      dr_4r caps 2:3, 5:2, 10:2, 20:1, 50:1, 100:2, inf:9
+uninformed   0.005      dr_8c caps 2:6, 5:1, 10:1, 20:2, 50:3, 100:1, inf:6
+uninformed   0.005      dr_8r caps 2:9, 5:1, 10:3, 50:1, 100:1, inf:5
+uninformed   0.020          biased -13.08 +-  8.66
+uninformed   0.020          clip10 -96.19 +- 87.83
+uninformed   0.020          fixed5 -29.56 +- 67.25
+uninformed   0.020         fixed20 -18.07 +- 56.84
+uninformed   0.020        fixed100 -49.54 +- 77.25
+uninformed   0.020        fixedinf -49.54 +- 77.25
+uninformed   0.020          ips_4c  -1.43 +- 23.99
+uninformed   0.020          ips_4r   5.57 +-  7.28
+uninformed   0.020          ips_8c   0.63 +- 21.84
+uninformed   0.020          ips_8r   6.33 +-  4.39
+uninformed   0.020           dr_4c  -1.43 +- 24.04
+uninformed   0.020           dr_4r   5.24 +-  7.19
+uninformed   0.020           dr_8c   4.92 +-  6.88
+uninformed   0.020           dr_8r   5.93 +-  4.65
+uninformed   0.020       hindsight   7.44 +-  3.76
+uninformed   0.020  random_matched  12.52 +-  0.65
+uninformed   0.020            full  12.72 +-  0.58
+uninformed   0.020     ips_4c caps 2:2, 5:1, 10:5, 20:5, 50:7
+uninformed   0.020     ips_4r caps 2:3, 5:2, 10:3, 20:3, 50:9
+uninformed   0.020     ips_8c caps 2:3, 5:3, 10:5, 20:4, 50:5
+uninformed   0.020     ips_8r caps 2:1, 5:5, 10:5, 20:3, 50:6
+uninformed   0.020      dr_4c caps 2:4, 10:5, 20:4, 50:7
+uninformed   0.020      dr_4r caps 2:4, 5:3, 10:2, 20:4, 50:7
+uninformed   0.020      dr_8c caps 2:3, 5:5, 10:4, 20:4, 50:4
+uninformed   0.020      dr_8r caps 5:6, 10:5, 20:4, 50:5
+informed     0.002          biased  10.62 +-  0.77
+informed     0.002          clip10  11.70 +-  0.78
+informed     0.002          fixed5  11.68 +-  0.78
+informed     0.002         fixed20  11.74 +-  0.76
+informed     0.002        fixed100  11.84 +-  0.87
+informed     0.002        fixedinf   0.26 +- 41.08
+informed     0.002          ips_4c  11.45 +-  2.60
+informed     0.002          ips_4r  11.30 +-  2.58
+informed     0.002          ips_8c  11.46 +-  2.60
+informed     0.002          ips_8r  11.34 +-  2.58
+informed     0.002           dr_4c  11.43 +-  2.60
+informed     0.002           dr_4r  11.31 +-  2.57
+informed     0.002           dr_8c  11.36 +-  2.59
+informed     0.002           dr_8r  11.34 +-  2.58
+informed     0.002       hindsight  12.11 +-  0.80
+informed     0.002  random_matched  12.48 +-  0.63
+informed     0.002            full  12.72 +-  0.58
+informed     0.002     ips_4c caps 2:2, 10:2, 20:1, 50:2, 100:12, inf:1
+informed     0.002     ips_4r caps 2:1, 5:1, 10:1, 20:1, 50:8, 100:7, inf:1
+informed     0.002     ips_8c caps 2:1, 5:1, 10:1, 50:5, 100:9, inf:3
+informed     0.002     ips_8r caps 2:1, 5:3, 20:2, 50:5, 100:8, inf:1
+informed     0.002      dr_4c caps 2:2, 10:2, 20:2, 50:2, 100:11, inf:1
+informed     0.002      dr_4r caps 2:1, 5:1, 10:1, 20:2, 50:8, 100:6, inf:1
+informed     0.002      dr_8c caps 2:1, 5:2, 10:1, 50:5, 100:9, inf:2
+informed     0.002      dr_8r caps 2:1, 5:3, 20:2, 50:6, 100:7, inf:1
+informed     0.005          biased  10.84 +-  0.81
+informed     0.005          clip10  12.15 +-  0.72
+informed     0.005          fixed5  12.16 +-  0.72
+informed     0.005         fixed20  12.19 +-  0.71
+informed     0.005        fixed100  12.08 +-  0.71
+informed     0.005        fixedinf  11.00 +-  1.27
+informed     0.005          ips_4c  12.23 +-  0.72
+informed     0.005          ips_4r  12.21 +-  0.71
+informed     0.005          ips_8c  12.24 +-  0.65
+informed     0.005          ips_8r  12.17 +-  0.71
+informed     0.005           dr_4c  12.23 +-  0.72
+informed     0.005           dr_4r  12.20 +-  0.70
+informed     0.005           dr_8c  12.24 +-  0.65
+informed     0.005           dr_8r  12.19 +-  0.70
+informed     0.005       hindsight  12.40 +-  0.67
+informed     0.005  random_matched  12.49 +-  0.60
+informed     0.005            full  12.72 +-  0.58
+informed     0.005     ips_4c caps 2:2, 5:3, 10:4, 20:2, 50:7, 100:2
+informed     0.005     ips_4r caps 2:2, 10:3, 20:6, 50:6, 100:3
+informed     0.005     ips_8c caps 2:2, 5:1, 10:1, 20:5, 50:6, 100:5
+informed     0.005     ips_8r caps 2:4, 5:1, 10:1, 20:4, 50:6, 100:3, inf:1
+informed     0.005      dr_4c caps 2:2, 5:3, 10:3, 20:4, 50:6, 100:2
+informed     0.005      dr_4r caps 2:1, 10:3, 20:6, 50:7, 100:3
+informed     0.005      dr_8c caps 2:2, 5:1, 10:1, 20:5, 50:6, 100:5
+informed     0.005      dr_8r caps 2:3, 5:1, 10:2, 20:5, 50:6, 100:2, inf:1
+informed     0.020          biased  11.42 +-  0.77
+informed     0.020          clip10  12.52 +-  0.58
+informed     0.020          fixed5  12.51 +-  0.63
+informed     0.020         fixed20  12.51 +-  0.57
+informed     0.020        fixed100  12.35 +-  0.57
+informed     0.020        fixedinf  12.35 +-  0.57
+informed     0.020          ips_4c  12.56 +-  0.59
+informed     0.020          ips_4r  12.50 +-  0.68
+informed     0.020          ips_8c  12.50 +-  0.66
+informed     0.020          ips_8r  12.47 +-  0.69
+informed     0.020           dr_4c  12.56 +-  0.59
+informed     0.020           dr_4r  12.50 +-  0.68
+informed     0.020           dr_8c  12.54 +-  0.59
+informed     0.020           dr_8r  12.49 +-  0.68
+informed     0.020       hindsight  12.65 +-  0.57
+informed     0.020  random_matched  12.48 +-  0.66
+informed     0.020            full  12.72 +-  0.58
+informed     0.020     ips_4c caps 2:6, 5:4, 10:2, 20:3, 50:5
+informed     0.020     ips_4r caps 2:4, 5:7, 10:2, 20:6, 50:1
+informed     0.020     ips_8c caps 2:6, 5:4, 10:3, 20:3, 50:4
+informed     0.020     ips_8r caps 2:6, 5:3, 10:1, 20:5, 50:5
+informed     0.020      dr_4c caps 2:6, 5:4, 10:2, 20:3, 50:5
+informed     0.020      dr_4r caps 2:4, 5:7, 10:2, 20:6, 50:1
+informed     0.020      dr_8c caps 2:4, 5:4, 10:5, 20:4, 50:3
+informed     0.020      dr_8r caps 2:6, 5:4, 10:1, 20:5, 50:4

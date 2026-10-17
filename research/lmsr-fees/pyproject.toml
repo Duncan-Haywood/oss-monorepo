@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lmsr-fees"
+version = "0.1.0"
+description = "Proportional fees on an LMSR verification market: exact no-trade band, price lag q/(1+f), signal-ignore thresholds, exact fee revenue, and the information lost to fees"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

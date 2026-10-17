@@ -1,0 +1,52 @@
+name: tow-truck-rate-calculator
+description: >-
+  Free browser calculator for independent towing and roadside operators that
+  prices a tow job from the operator's own costs: hook-up fee, loaded per-mile
+  rate, deadhead miles, after-hours, weather and winch surcharges, truck hourly
+  cost and daily storage. Shows true cost, margin, break-even, the price for a
+  target margin and a ranked list of levers. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-03 in a new-venture-first session. The nearest sibling is
+# tow-motor-club-call-calculator, which answers a different question (accept or
+# decline a motor-club dispatch at the club's payout); this one prices a cash
+# job from the operator's own rate card, including surcharges and storage.
+#
+# Distribution: "tow truck rate calculator" and "how much to charge for a tow"
+# are recurring operator queries; first visitors would come from towing and
+# roadside-operator forums and Facebook groups. Search volume was not measured
+# with an external tool.
+#
+# Liability: arithmetic on the user's own inputs; no rate, cap or rule is
+# asserted. Tow rates, storage fees, rotation lists and private-property tows
+# are regulated locally; the page tells the user to check their own rules and
+# makes no legal claim.
+
+hypotheses:
+  - claim: >-
+      Independent tow operators will search for and return to a free,
+      no-signup calculator that shows the true cost and margin of a tow,
+      deadhead included, instead of pricing from what competitors charge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong cost or margin from this tool's output despite the disclaimers, at which point the formula or its wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tow-truck-rate-calculator/
+  analytics: null

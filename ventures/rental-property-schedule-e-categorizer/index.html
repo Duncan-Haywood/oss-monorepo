@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rental Property Schedule E Categorizer — Sort Your Bank CSV Into Schedule E Lines</title>
+  <meta name="description" content="Free tool for landlords: drop in your bank or card CSV and get rental income and expenses sorted into Schedule E lines per property, with mortgage interest split out, repairs-versus-improvement flags, missing-rent months and a CSV to hand your preparer. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Rental Property Schedule E Categorizer — free, private, in your browser">
+  <meta property="og:description" content="Bank CSV to Schedule E lines per rental property: rents, repairs, insurance, taxes, mortgage interest, with improvements and transfers held out. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rental Property Schedule E Categorizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a bank or card CSV and sorts every transaction into an IRS Schedule E Part I line per rental property, holding mortgage principal, improvements, transfers and deposits out of the expenses. Runs entirely in your browser; the file is never uploaded.", "featureList": "Schedule E line totals per property, built-in and custom keyword rules, mortgage interest from Form 1098, repair versus improvement flags, missing rent months, duplicate detection, transfer pairing, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I get my rental income and expenses onto Schedule E from a bank statement?", "acceptedAnswer": {"@type": "Answer", "text": "Export the year's transactions as CSV from each bank or card account you use for the rental, drop them in here, and add a \u201ckeyword => category\u201d rule for anything the built-in rules do not know. The tool sorts every transaction into a Schedule E, Part I line (rents on line 3, advertising line 5, repairs line 14, and so on), shows totals per property, and lists what it could not categorise. You still enter the totals on the form or give them to your preparer."}}, {"@type": "Question", "name": "Is a mortgage payment deductible?", "acceptedAnswer": {"@type": "Answer", "text": "Only the interest part. Principal is not an expense, and an escrowed payment also carries property tax and insurance. That is why mortgage payments are held out of the totals until you type the year's interest for each property from the lender's Form 1098. The tool then shows how much of the payments was principal and escrow."}}, {"@type": "Question", "name": "What is the difference between a repair and an improvement?", "acceptedAnswer": {"@type": "Answer", "text": "A repair keeps the property in ordinary working order and is deducted in the year paid on line 14. An improvement that betters, restores or adapts the property is capitalised and depreciated over years. The tool flags anything over your threshold or worded like a replacement or remodel, such as a new roof, so you can ask your preparer; it does not decide. A de minimis safe-harbor election may allow deducting small items up to a per-item limit."}}, {"@type": "Question", "name": "Does it handle more than one property?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add a property column to your export, or write \u201ckeyword => property name\u201d rules that match the description, for example a street address in the payee text. Totals, line items, interest and missing-rent checks are then per property, which is how Schedule E is filed."}}, {"@type": "Question", "name": "What does it flag?", "acceptedAnswer": {"@type": "Answer", "text": "Transactions it could not categorise, mortgage payments with no interest typed, repair-like items that may be improvements, months with no rent deposit between a property's first and last rent, possible duplicate rows from overlapping exports, transfers between your own accounts, and security deposits, which are neither income nor expense."}}, {"@type": "Question", "name": "Which files does it read?", "acceptedAnswer": {"@type": "Answer", "text": "Comma, semicolon or tab separated text, including UTF-16 files, with dollar signs, parentheses for negatives and thousands separators. A single amount column or separate debit and credit columns, and a tick box for card exports that list charges as positive numbers. Columns are matched by alias and no real bank export was available when this was written, so the aliases are unverified; a file that is not read says which rows were skipped and why."}}, {"@type": "Question", "name": "Is my bank data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors, and no bank login is asked for."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+        .sev-high{color:#9a3412}
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">RENTAL PROPERTY SCHEDULE E CATEGORIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a year of bank transactions into Schedule E lines, per rental property.</h1>
+    <p>Drop in the <strong>CSV from your bank or card</strong>. Every transaction is sorted into a <strong>Schedule E, Part I line</strong> (rents, advertising, repairs, insurance, taxes, utilities…) or held out as something that is <strong>not an expense</strong>: mortgage principal, improvements, transfers, security deposits. You get totals per property, the rows it could <strong>not</strong> categorise, and flags for what looks wrong. Renting out and want the delinquency view instead? See the <a href="../rent-roll-delinquency-analyzer/">rent roll delinquency analyzer</a>.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of every bank, card issuer, property-management app and of the IRS. Figures are estimates from your file and your rules; this is not tax advice.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your transactions and your rules</h2>
+    <p class="note">Needs a <strong>date</strong>, a <strong>description</strong> and an <strong>amount</strong> (or debit and credit) column; a <strong>property</strong> column is used when present. <strong>Column names are matched by alias and are unverified against real bank exports</strong>: if a file is not read, the page says which rows were skipped and why. Money in should be positive; tick the box below for a card export that lists charges as positive.</p>
+    <label for="file">Bank or card CSV</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Description,Amount"></textarea>
+    <label for="props">Property rules, optional: one “keyword => property name” per line (matched against the description)</label>
+    <textarea id="props" spellcheck="false" placeholder="12 oak => 12 Oak St&#10;8 elm => 8 Elm Ave"></textarea>
+    <label for="rules">Category rules, optional: one “keyword => category” per line (yours win over the built-in ones)</label>
+    <textarea id="rules" spellcheck="false" placeholder="keys and locks => repairs&#10;sq *joes plumbing => line 14"></textarea>
+    <label for="interest">Mortgage interest from your lender's year-end statement (Form 1098), one “property, amount” per line</label>
+    <textarea id="interest" spellcheck="false" placeholder="12 Oak St, 3980.25"></textarea>
+    <div class="grid">
+      <div><label for="year">Tax year, optional (other years are left out)</label><input type="number" id="year" value="" min="2000" max="2100" step="1"></div>
+      <div><label for="safe">Flag repairs above, $ per item</label><input type="number" id="safe" value="2500" min="0" step="100"></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="invert"><label for="invert">Card export: charges are listed as positive numbers</label></div>
+    <div class="checkbox-row"><input type="checkbox" id="dayfirst"><label for="dayfirst">Dates are day/month/year</label></div>
+    <p>
+      <button type="button" id="analyze">Categorize</button>
+      <button type="button" class="secondary" id="load-example">Load sample data</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose the export file or paste it, then click Categorize.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By property, by Schedule E line</h3>
+    <div id="by-property"></div>
+    <h3>Not categorised</h3>
+    <p class="note">Add a “keyword => category” rule for each and click Categorize again. Category names you can use: <span id="cat-names"></span>.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th class="n" scope="col">Amount</th></tr></thead><tbody id="uncat"></tbody></table></div>
+    <h3>Repair-like items that may need capitalising</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Date</th><th scope="col">Description</th><th class="n" scope="col">Amount</th><th scope="col">Why flagged</th></tr></thead><tbody id="capex"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <label for="summary">Copyable summary</label>
+    <textarea id="summary" readonly spellcheck="false"></textarea>
+    <p><button type="button" class="secondary" id="copy">Copy summary</button> <button type="button" class="secondary" id="download">Download every transaction with its category as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Lines:</strong> rents are line 3; expenses use lines 5 to 19 of Schedule E, Part I as printed on the form (check the form for your year). Built-in keyword rules are conservative: a description that could fit two lines is left uncategorised rather than guessed.</li>
+      <li><strong>Held out, on purpose:</strong> mortgage payments (only the interest is deductible, and it comes from the figure you type from Form 1098), capital improvements, transfers between your own accounts (also paired automatically when an equal and opposite row appears within three days), security deposits and owner draws.</li>
+      <li><strong>Repairs versus improvements:</strong> the tool flags items over your threshold and items worded like a replacement or remodel. It does not decide; whether an item is a repair, an improvement or covered by a safe-harbor election is for you and your preparer.</li>
+      <li><strong>Rent checks:</strong> a month with no rent deposit between a property's first and last rent is listed. A vacancy, a late payer or a different account all look the same in a file.</li>
+      <li><strong>Reconciles.</strong> Line items add to each property's expenses, properties add to the totals at the top, and the full transaction CSV lists every row with the rule that decided it.</li>
+      <li><strong>Not modelled:</strong> depreciation (line 18), partial-year and personal use, shared costs split across properties, expenses paid in cash or from another account, income reported on a 1099-K or 1099-MISC that differs from deposits, passive-loss and qualified-business-income rules, and state rules.</li>
+      <li><strong>Unverified:</strong> column names are matched by alias and no real bank export was available when this was written.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I get my rental income and expenses onto Schedule E from a bank statement?</h3>
+    <p>Export the year's transactions as CSV from each bank or card account you use for the rental, drop them in here, and add a “keyword => category” rule for anything the built-in rules do not know. The tool sorts every transaction into a Schedule E, Part I line (rents on line 3, advertising line 5, repairs line 14, and so on), shows totals per property, and lists what it could not categorise. You still enter the totals on the form or give them to your preparer.</p>
+    <h3>Is a mortgage payment deductible?</h3>
+    <p>Only the interest part. Principal is not an expense, and an escrowed payment also carries property tax and insurance. That is why mortgage payments are held out of the totals until you type the year's interest for each property from the lender's Form 1098. The tool then shows how much of the payments was principal and escrow.</p>
+    <h3>What is the difference between a repair and an improvement?</h3>
+    <p>A repair keeps the property in ordinary working order and is deducted in the year paid on line 14. An improvement that betters, restores or adapts the property is capitalised and depreciated over years. The tool flags anything over your threshold or worded like a replacement or remodel, such as a new roof, so you can ask your preparer; it does not decide. A de minimis safe-harbor election may allow deducting small items up to a per-item limit.</p>
+    <h3>Does it handle more than one property?</h3>
+    <p>Yes. Add a property column to your export, or write “keyword => property name” rules that match the description, for example a street address in the payee text. Totals, line items, interest and missing-rent checks are then per property, which is how Schedule E is filed.</p>
+    <h3>What does it flag?</h3>
+    <p>Transactions it could not categorise, mortgage payments with no interest typed, repair-like items that may be improvements, months with no rent deposit between a property's first and last rent, possible duplicate rows from overlapping exports, transfers between your own accounts, and security deposits, which are neither income nor expense.</p>
+    <h3>Which files does it read?</h3>
+    <p>Comma, semicolon or tab separated text, including UTF-16 files, with dollar signs, parentheses for negatives and thousands separators. A single amount column or separate debit and credit columns, and a tick box for card exports that list charges as positive numbers. Columns are matched by alias and no real bank export was available when this was written, so the aliases are unverified; a file that is not read says which rows were skipped and why.</p>
+    <h3>Is my bank data uploaded?</h3>
+    <p>No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors, and no bank login is asked for.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the rules you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong> or filing a return.</p>
+    <p><strong>Not affiliated with any bank or the IRS.</strong> Schedule E, Form 1040 and Form 1098 are U.S. tax forms; bank, card, Zelle, Buildium, AppFolio and other names are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way. Forms and rules change; check yours.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_categorized</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../rental-ledger/">Rental Ledger</a> (keeps the year of rent and expenses and works out depreciation), <a href="../rent-roll-delinquency-analyzer/">rent roll delinquency analyzer</a>, <a href="../security-deposit-return-calculator/">security deposit return calculator</a>, <a href="../bonus-depreciation-calculator/">bonus depreciation calculator</a>, <a href="../depreciation-recapture-calculator/">depreciation recapture calculator</a>, <a href="../self-employed-schedule-c-categorizer/">self-employed Schedule C categorizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeBank, parseRules, parsePropertyRules, parseInterest, analyze, reportCsv, summaryText, sampleCsv, money, CATEGORIES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    $("#cat-names").textContent = Object.entries(CATEGORIES).filter(([k]) => k !== "uncategorised").map(([k]) => k).join(", ");
+
+    function run(text) {
+      const d = detectDelimiter(text);
+      const b = normalizeBank(parseCsv(text, d), { decimalComma: d === ";", invertSign: $("#invert").checked, dayFirst: $("#dayfirst").checked });
+      if (b.error) { status.textContent = b.error; report.hidden = true; return false; }
+      const rules = parseRules($("#rules").value), props = parsePropertyRules($("#props").value), interest = parseInterest($("#interest").value);
+      const a = analyze(b.txns, { userRules: rules.rules, propertyRules: props.rules, interestByProperty: interest.map, safeHarbor: num("#safe", 2500), year: num("#year", NaN) });
+      if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
+      last = a;
+      const t = a.totals;
+      $("#report-stats").innerHTML = `${t.txns} transaction(s) from ${t.from} to ${t.to}, <strong>${t.categorisedPct}%</strong> categorised. Income <strong>${usd(t.income)}</strong>, expenses <strong>${usd(t.expenses)}</strong>, net <strong>${usd(t.net)}</strong> before depreciation.`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") : `<p class="note">Nothing stands out in the file.</p>`;
+      $("#by-property").innerHTML = a.properties.map((p) => `<h4>${esc(p.property)}</h4><div class="scroll"><table><thead><tr><th scope="col">Line</th><th scope="col">Item</th><th class="n" scope="col">Amount</th></tr></thead><tbody><tr><td>3</td><th scope="row">Rents received and other rental income</th><td class="n">${money(p.income)}</td></tr>${p.lines.filter((l) => l.amount).map((l) => `<tr><td>${l.line}</td><th scope="row">${esc(l.label)}</th><td class="n">${money(l.amount)}</td></tr>`).join("")}<tr><td></td><th scope="row">Total expenses</th><td class="n">${money(p.expenses)}</td></tr><tr><td></td><th scope="row">Net before depreciation</th><td class="n">${money(p.net)}</td></tr></tbody></table></div><p class="note">${p.needsSplit ? `Mortgage payments of ${usd(p.mortgagePaid)} are <strong>not included</strong>: type the year's interest above.` : p.principalEscrow !== null ? `Mortgage payments ${usd(p.mortgagePaid)}: interest ${usd(p.interest)} on line 12, ${usd(p.principalEscrow)} principal and escrow not on line 12.` : ""}${p.capitalExcluded ? ` Capital improvements ${usd(p.capitalExcluded)} held out.` : ""}</p>`).join("");
+      $("#uncat").innerHTML = a.uncategorised.length ? a.uncategorised.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3">Every transaction was categorised.</td></tr>`;
+      $("#capex").innerHTML = a.capexCandidates.length ? a.capexCandidates.map((r) => `<tr><td>${r.date}</td><td>${esc(r.desc)}</td><td class="n">${money(r.amount)}</td><td>${esc(r.flags.join("; "))}</td></tr>`).join("") : `<tr><td colspan="4">None.</td></tr>`;
+      const notes = [], skipped = b.skipped.concat(rules.skipped, props.skipped, interest.skipped);
+      if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") + ".");
+      notes.push("Columns read: " + Object.entries(b.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
+      $("#skipped").textContent = notes.join(" ");
+      $("#summary").value = summaryText(a);
+      report.hidden = false;
+      status.textContent = `Read ${b.txns.length} transaction(s).`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose the export file or paste it first."; return; }
+      if (run(text)) record("csv_categorized");
+    });
+    $("#load-example").addEventListener("click", () => {
+      const s = sampleCsv();
+      $("#paste").value = s.bank; $("#props").value = s.properties; $("#rules").value = s.rules; $("#interest").value = s.interest; $("#file").value = "";
+      if (run(s.bank)) { record("example_loaded"); status.textContent = "Sample data: two invented rentals, not a real landlord."; }
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#props", "#rules", "#interest", "#file", "#summary"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose the export file or paste it, then click Categorize."; });
+    $("#copy").addEventListener("click", async () => {
+      const box = $("#summary");
+      try { await navigator.clipboard.writeText(box.value); status.textContent = "Summary copied."; }
+      catch { box.select(); status.textContent = "Select the summary text and copy it."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "schedule-e-categorized.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

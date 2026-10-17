@@ -361,3 +361,10 @@ test('index links one hop to the cloud-egress-calculator sibling', async () => {
     'index must link ../cloud-egress-calculator/ so crawlers reach the cloud egress calculator in one hop',
   );
 });
+
+// Closest sibling after signing: this normalizer compares quotes before the
+// contract, the invoice audit checker tests each invoice against it after.
+test('index links one hop to the 3pl-invoice-audit-checker sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\.\/3pl-invoice-audit-checker\/"/);
+});

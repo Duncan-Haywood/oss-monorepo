@@ -1,0 +1,64 @@
+name: espp-tax-calculator
+description: >-
+  Free browser tool for employees in an employee stock purchase plan that shows
+  the after-tax result of selling at purchase, holding a year, or holding to a
+  qualifying sale, the breakeven price for waiting, and the 1099-B cost basis fix.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-30 in a new-venture-first session. duplicate_check.py: top
+# match 0.09 (unrelated); no ESPP tool exists in ventures/. Completes the
+# equity-comp trio with rsu-withholding-gap-calculator and
+# iso-exercise-amt-calculator.
+# ESPP participants make a recurring decision every purchase date (sell now or
+# hold) and routinely overpay by entering the 1099-B basis unadjusted; the tool
+# answers both with a breakeven price found by search rather than a rule of thumb.
+#
+# First visitor: r/personalfinance, r/cscareerquestions, Bogleheads and Blind
+# threads on "ESPP sell immediately or hold", "ESPP cost basis 1099-B wrong",
+# "qualifying disposition"; volume not measured.
+#
+# Privacy is the liability boundary: prices, shares and rates never leave the
+# browser (tests assert no network calls).
+#
+# Path to revenue (payment rails stay off): lead magnet for equity-comp tools;
+# a paid tier, if usage appears, is a saved multi-period ESPP ledger, local
+# only; not built.
+#
+# Liability: illustrative estimates, not advice; omissions stated on the page.
+# Unverified: hand calculation and unit tests only, not Form 8949. The first
+# return that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      ESPP participants will use a no-signup tool that shows the price below
+      which holding loses to selling now, rather than the generic advice to
+      "sell immediately".
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The 1099-B cost basis warning, sized in dollars, is what brings people
+      back at tax time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a Form 8949 basis or ordinary-income figure the tool contradicts on a point of arithmetic, at which point the disposition rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/espp-tax-calculator/
+  analytics: null

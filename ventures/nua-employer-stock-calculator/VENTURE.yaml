@@ -1,0 +1,51 @@
+name: nua-employer-stock-calculator
+description: >-
+  Free browser tool for people with employer stock in a 401(k): enter the stock's market value and the plan's cost
+  basis, and compare an in-kind lump-sum distribution with net unrealized appreciation treatment against a rollover to
+  an IRA, after tax, including the 10% additional tax under 59.5 (and the separation-at-55 exception), a holding
+  period, and a table showing how the answer moves with the basis share. Flags a non-lump-sum distribution and a high
+  basis share. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-06 in a new-venture-first session. duplicate_check.py: top match 0.21 (rmd-calculator, unrelated);
+# no NUA tool in ventures/. High-intent, high-dollar decision (often six figures of tax) made once, often with only a
+# custodian PDF and a CPA appointment to go on; searches like "nua calculator", "net unrealized appreciation vs
+# rollover", "employer stock 401k tax".
+#
+# Path to revenue (payment rails stay off): lead magnet for the retirement-tax cluster (rmd, roth conversion, espp).
+# A paid version, if usage appears, is saved scenarios with multi-year bracket modelling and a printable report for the
+# CPA, behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's figures; carries the no-warranty and not-advice clauses and lists what is not
+# modelled (NIIT, bracket effects, IRMAA, state rules, RMDs, estate) on the page.
+#
+# Unverified: no user has checked a real distribution against it; it applies one flat rate per bucket rather than the
+# bracket schedule, so a large distribution that spans brackets will be mis-stated.
+
+hypotheses:
+  - claim: >-
+      Someone deciding what to do with employer stock at retirement or a job change will use a no-upload page to see
+      NUA against a rollover before paying for planning, because the decision is large, one-off and poorly served by
+      generic retirement calculators.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool by 2027-03-15.
+  - A tax professional reports a result that differs materially from a correct NUA computation on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/nua-employer-stock-calculator/
+  analytics: null

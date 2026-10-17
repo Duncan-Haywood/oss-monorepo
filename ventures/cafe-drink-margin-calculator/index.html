@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cafe Drink Margin Calculator — Free</title>
+  <meta name="description" content="Free calculator for coffee shop owners: what each latte, cold brew and drip coffee really earns after beans, milk, cup, card fee and barista time. Margin per drink, profit per barista-hour, target price, break-even drinks per day. Nothing uploaded.">
+  <meta property="og:title" content="Cafe drink margin calculator">
+  <meta property="og:description" content="See which drinks on your menu earn money after card fees and barista time, and what to charge. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236b3f1d'/%3E%3Cpath d='M9 12h12v7a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM21 14h2a2 2 0 0 1 0 5h-2' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cafe Drink Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Per-drink margin for a coffee shop after beans, milk, cup, card fees and barista make time, with profit per barista-hour, target prices, alternative-milk surcharge and break-even drinks per day. Runs in your browser.","featureList":"Margin per drink, profit per barista-hour, price for target margin, oat milk surcharge, break-even drinks per day, cost sensitivity, CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on a latte?","acceptedAnswer":{"@type":"Answer","text":"Most cafes aim for ingredient and cup cost under 25-30% of the price, which leaves room for labor and rent. This tool goes further than ingredient cost: it subtracts the card fee and the barista's time making the drink, so you see what the drink actually earns. Set your own target margin and it shows the price that reaches it."}},{"@type":"Question","name":"Why does make time matter?","acceptedAnswer":{"@type":"Answer","text":"A barista can only make so many drinks an hour. A flavored 16 oz latte that takes 95 seconds and earns $3 uses the same scarce hour as a drip coffee that takes 25 seconds and earns $2. The per-barista-hour column shows which drinks earn the most from that hour, which matters in a rush when the line, not the milk, is the limit."}},{"@type":"Question","name":"How do I price an oat milk upcharge?","acceptedAnswer":{"@type":"Answer","text":"Enter what you pay per gallon for the alternative milk. The tool computes the extra cost per drink at your average milk pour, adds the card fee on the surcharge, and shows the break-even surcharge. Charging more than that makes alternative milk a profit, charging less makes each one a small loss."}},{"@type":"Question","name":"How many drinks a day do I need to break even?","acceptedAnswer":{"@type":"Answer","text":"Divide daily fixed costs (rent, utilities, base staffing, software) by the average contribution per drink after ingredients, card fees and make-time labor. The result assumes your drink mix stays the same, so check it again if you add a high-margin or low-margin drink."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CAFE DRINK MARGIN · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which drinks on your menu actually make money?</h1>
+    <p>Ingredient cost is only part of it. Type your drinks, what you pay for beans and milk, your card fees and barista wage. The tool shows what each drink earns after the cup, the card fee and the time it takes to make, which drinks earn the most per barista-hour, the price that hits your target margin, and how many drinks a day cover your fixed costs.</p>
+    <p class="note">Arithmetic on the numbers you type. Not tax, legal or financial advice. The values shown are placeholder data, not benchmarks or any real cafe's figures.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">Your costs</h2>
+      <div class="grid">
+        <div><label for="beanLb">Coffee beans ($/lb)</label><input id="beanLb" type="text" value=""><p class="note">What you pay per pound of beans.</p></div>
+        <div><label for="milkGal">Milk ($/gallon)</label><input id="milkGal" type="text" value=""></div>
+        <div><label for="waste">Waste on beans and milk (%)</label><input id="waste" type="text" value=""><p class="note">Shots pulled to dial in, spills, expired milk.</p></div>
+        <div><label for="cardPct">Card fee (%)</label><input id="cardPct" type="text" value=""></div>
+        <div><label for="cardFixed">Card fee per sale ($)</label><input id="cardFixed" type="text" value=""></div>
+        <div><label for="wage">Barista wage ($/hour)</label><input id="wage" type="text" value=""></div>
+        <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" type="text" value=""><p class="note">Employer taxes, workers' comp, paid breaks.</p></div>
+        <div><label for="fixedMonth">Fixed costs ($/month)</label><input id="fixedMonth" type="text" value=""><p class="note">Rent, utilities, base staffing, software, insurance. Not owner pay.</p></div>
+        <div><label for="days">Days open per month</label><input id="days" type="text" value=""></div>
+        <div><label for="target">Target margin per drink (%)</label><input id="target" type="text" value=""><p class="note">After ingredients, cup, card fee and make time.</p></div>
+        <div><label for="altMilkGal">Alternative milk, e.g. oat ($/gallon)</label><input id="altMilkGal" type="text" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">Your drinks</h2>
+      <p class="note">Coffee in grams per drink (about 18 g a shot, so 36 g for a double). Leave a row empty to skip it.</p>
+      <div class="scroll"><table class="menu">
+        <thead><tr><th scope="col">Drink</th><th scope="col" class="n">Price $</th><th scope="col" class="n">Coffee g</th><th scope="col" class="n">Milk oz</th><th scope="col" class="n">Syrup etc $</th><th scope="col" class="n">Cup $</th><th scope="col" class="n">Make sec</th><th scope="col" class="n">Sold/day</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><label class="sr" for="name1">Drink 1 name</label><input id="name1" type="text" value=""></td>
+          <td><label class="sr" for="price1">Drink 1 price ($)</label><input id="price1" type="text" value=""></td>
+          <td><label class="sr" for="beans1">Drink 1 coffee grams</label><input id="beans1" type="text" value=""></td>
+          <td><label class="sr" for="milk1">Drink 1 milk ounces</label><input id="milk1" type="text" value=""></td>
+          <td><label class="sr" for="flavor1">Drink 1 syrup and extras ($)</label><input id="flavor1" type="text" value=""></td>
+          <td><label class="sr" for="pack1">Drink 1 cup, lid, sleeve ($)</label><input id="pack1" type="text" value=""></td>
+          <td><label class="sr" for="secs1">Drink 1 make time (seconds)</label><input id="secs1" type="text" value=""></td>
+          <td><label class="sr" for="perDay1">Drink 1 sold per day</label><input id="perDay1" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name2">Drink 2 name</label><input id="name2" type="text" value=""></td>
+          <td><label class="sr" for="price2">Drink 2 price ($)</label><input id="price2" type="text" value=""></td>
+          <td><label class="sr" for="beans2">Drink 2 coffee grams</label><input id="beans2" type="text" value=""></td>
+          <td><label class="sr" for="milk2">Drink 2 milk ounces</label><input id="milk2" type="text" value=""></td>
+          <td><label class="sr" for="flavor2">Drink 2 syrup and extras ($)</label><input id="flavor2" type="text" value=""></td>
+          <td><label class="sr" for="pack2">Drink 2 cup, lid, sleeve ($)</label><input id="pack2" type="text" value=""></td>
+          <td><label class="sr" for="secs2">Drink 2 make time (seconds)</label><input id="secs2" type="text" value=""></td>
+          <td><label class="sr" for="perDay2">Drink 2 sold per day</label><input id="perDay2" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name3">Drink 3 name</label><input id="name3" type="text" value=""></td>
+          <td><label class="sr" for="price3">Drink 3 price ($)</label><input id="price3" type="text" value=""></td>
+          <td><label class="sr" for="beans3">Drink 3 coffee grams</label><input id="beans3" type="text" value=""></td>
+          <td><label class="sr" for="milk3">Drink 3 milk ounces</label><input id="milk3" type="text" value=""></td>
+          <td><label class="sr" for="flavor3">Drink 3 syrup and extras ($)</label><input id="flavor3" type="text" value=""></td>
+          <td><label class="sr" for="pack3">Drink 3 cup, lid, sleeve ($)</label><input id="pack3" type="text" value=""></td>
+          <td><label class="sr" for="secs3">Drink 3 make time (seconds)</label><input id="secs3" type="text" value=""></td>
+          <td><label class="sr" for="perDay3">Drink 3 sold per day</label><input id="perDay3" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name4">Drink 4 name</label><input id="name4" type="text" value=""></td>
+          <td><label class="sr" for="price4">Drink 4 price ($)</label><input id="price4" type="text" value=""></td>
+          <td><label class="sr" for="beans4">Drink 4 coffee grams</label><input id="beans4" type="text" value=""></td>
+          <td><label class="sr" for="milk4">Drink 4 milk ounces</label><input id="milk4" type="text" value=""></td>
+          <td><label class="sr" for="flavor4">Drink 4 syrup and extras ($)</label><input id="flavor4" type="text" value=""></td>
+          <td><label class="sr" for="pack4">Drink 4 cup, lid, sleeve ($)</label><input id="pack4" type="text" value=""></td>
+          <td><label class="sr" for="secs4">Drink 4 make time (seconds)</label><input id="secs4" type="text" value=""></td>
+          <td><label class="sr" for="perDay4">Drink 4 sold per day</label><input id="perDay4" type="text" value=""></td>
+        </tr>
+        <tr>
+          <td><label class="sr" for="name5">Drink 5 name</label><input id="name5" type="text" value=""></td>
+          <td><label class="sr" for="price5">Drink 5 price ($)</label><input id="price5" type="text" value=""></td>
+          <td><label class="sr" for="beans5">Drink 5 coffee grams</label><input id="beans5" type="text" value=""></td>
+          <td><label class="sr" for="milk5">Drink 5 milk ounces</label><input id="milk5" type="text" value=""></td>
+          <td><label class="sr" for="flavor5">Drink 5 syrup and extras ($)</label><input id="flavor5" type="text" value=""></td>
+          <td><label class="sr" for="pack5">Drink 5 cup, lid, sleeve ($)</label><input id="pack5" type="text" value=""></td>
+          <td><label class="sr" for="secs5">Drink 5 make time (seconds)</label><input id="secs5" type="text" value=""></td>
+          <td><label class="sr" for="perDay5">Drink 5 sold per day</label><input id="perDay5" type="text" value=""></td>
+        </tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Show my margins</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is a good margin on a latte?</h3>
+      <p>Most cafes aim for ingredient and cup cost under 25-30% of the price, which leaves room for labor and rent. This tool goes further than ingredient cost: it subtracts the card fee and the barista's time making the drink, so you see what the drink actually earns. Set your own target margin and it shows the price that reaches it.</p>
+      <h3>Why does make time matter?</h3>
+      <p>A barista can only make so many drinks an hour. A flavored 16 oz latte that takes 95 seconds and earns $3 uses the same scarce hour as a drip coffee that takes 25 seconds and earns $2. The per-barista-hour column shows which drinks earn the most from that hour, which matters in a rush when the line, not the milk, is the limit.</p>
+      <h3>How do I price an oat milk upcharge?</h3>
+      <p>Enter what you pay per gallon for the alternative milk. The tool computes the extra cost per drink at your average milk pour, adds the card fee on the surcharge, and shows the break-even surcharge. Charging more than that makes alternative milk a profit, charging less makes each one a small loss.</p>
+      <h3>How many drinks a day do I need to break even?</h3>
+      <p>Divide daily fixed costs (rent, utilities, base staffing, software) by the average contribution per drink after ingredients, card fees and make-time labor. The result assumes your drink mix stays the same, so check it again if you add a high-margin or low-margin drink.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your prices are right for your neighborhood, what customers will pay, your real make times at peak, tips, sales tax, your lease terms, owner pay, equipment costs and financing, wholesale or catering sales, and how to treat any of this for tax or accounting. Measure make times with a timer on a busy shift, take costs from invoices, and talk to your accountant about the books.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../menu-engineering-calculator/">menu engineering calculator</a>, the <a href="../pour-cost-calculator/">pour cost calculator</a>, the <a href="../coffee-roaster-margin-calculator/">coffee roaster margin calculator</a> the <a href="../recipe-costing-calculator/">recipe costing calculator</a> and the <a href="../ice-cream-shop-seasonal-profit-calculator/">ice cream shop seasonal profit calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are arithmetic on figures you type; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { SHARED_DEFAULTS, EXAMPLE_SHARED, money, money2, pct, analyze, toCsv } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const KEYS = Object.keys(SHARED_DEFAULTS);
+    const fill = () => { for (const k of KEYS) $(k).value = EXAMPLE_SHARED[k]; };
+    const readAll = () => { const o = {}; for (const k of KEYS) o[k] = $(k).value; return o; };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let last = null;
+    function run() {
+      const a = analyze(readAll());
+      let h = "";
+      for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
+      if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
+      last = a;
+      const t = a.totals;
+      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.drinks) + " drinks a day bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after ingredients, card fees and make-time labor, against " + money(t.fixedDay) + " a day of fixed costs. " + (a.breakEvenDrinks == null ? "Contribution per drink is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenDrinks + " drinks a day.") + "</p></div>";
+      h += '<div class="finding"><h4>Each drink</h4>' + table(["Drink", "Price", "Ingredients + cup", "Card fee", "Make-time labor", "Earns", "Margin", "Per barista-hour", "Price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.price), money2(r.ingredients), money2(r.card), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perBaristaHour), r.targetPrice == null ? "—" : money2(r.targetPrice)])) + '<p class="note">Per barista-hour is what the drink earns before labor, if the barista made only that drink for an hour. It shows which drinks best use a busy hour.</p></div>';
+      h += '<div class="finding"><h4>Busy-hour winner and loser</h4><p>' + esc(a.bestPerHour.name) + " earns the most per barista-hour (" + money(a.bestPerHour.perBaristaHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perBaristaHour) + ").</p></div>";
+      h += '<div class="finding"><h4>Alternative milk surcharge</h4><p>At your average pour of ' + (Math.round(a.alt.milkOz * 10) / 10) + " oz, switching a drink costs " + money2(a.alt.delta) + " more. A surcharge of at least " + money2(a.alt.surcharge) + " covers that and the card fee on it.</p></div>";
+      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<p><button type="button" class="secondary" id="csv">Download drink table (CSV)</button></p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      $("csv").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+        const el = document.createElement("a");
+        el.href = url; el.download = "cafe-drink-margins.csv"; el.click();
+        URL.revokeObjectURL(url);
+        record("report_downloaded");
+      });
+      record("analysis_run");
+    }
+    fill();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(); record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

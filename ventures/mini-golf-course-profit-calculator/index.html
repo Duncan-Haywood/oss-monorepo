@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mini-Golf Course Profit Calculator — Payback, Break-Even and Rain</title>
+  <meta name="description" content="Free pro forma for a mini-golf, putt-putt or small family fun center: build cost per hole and shared costs, rounds per day and price by season, parties, concessions and arcade, staff, fixed costs, rain-out days and a loan become operating income, debt coverage, payback and break-even rounds per day. Private, runs in your browser.">
+  <meta property="og:title" content="Mini-golf course profit calculator: does the course pay for itself? Free, private">
+  <meta property="og:description" content="Build cost, rounds, prices, parties, concessions, staff, rain and a loan in; payback, debt coverage and break-even rounds per day out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mini-Golf Course Profit Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does it take a mini-golf course to pay for itself?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what the course keeps from each round, party and snack after staff, card fees, fixed costs and an upkeep reserve, against what the holes and the shared build (clubhouse, landscaping, lighting, permits) cost. Enter your own build cost, rounds per day by season, prices and loan; the page works out operating income, the loan payment, cash left after the loan and payback in years, on the whole investment and on your own money."}}, {"@type": "Question", "name": "How many rounds a day do I need to break even?", "acceptedAnswer": {"@type": "Answer", "text": "Break-even rounds per day is the attendance at which cash after the loan is zero. The page scales rounds per day in every season together (concession sales move with rounds; staff hours, parties and fixed costs do not) and reports the rounds per open day and per year, next to the figure you planned."}}, {"@type": "Question", "name": "How much does rain cost a mini-golf course?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the share of open days you expect to lose to weather. Those days bring no rounds, concessions or card fees and are counted as unstaffed. A weather table shows cash after the loan at 0 to 30 percent lost days so you can see how wet a year the loan can survive. The page does not know your climate."}}, {"@type": "Question", "name": "What price per round do I need?", "acceptedAnswer": {"@type": "Answer", "text": "The page solves for the across-the-board change in price per round that covers the loan, and the change that pays your own money back in the years you set. A grid also shows cash after the loan for price changes from -20 to +20 percent at several attendance levels. It does not know what nearby courses charge, so compare before changing a price."}}, {"@type": "Question", "name": "Can I use it for a batting cage or a small family fun center?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you can describe it in the same terms: count each cage or attraction as a hole with its build cost, rounds as paid sessions or plays, and price per round as the price of a session. Arcade and snack spend go in the per-round concession figure. The arithmetic does not know what you are building."}}, {"@type": "Question", "name": "Does this include income tax or permits?", "acceptedAnswer": {"@type": "Answer", "text": "No. Sales tax is normally collected from customers and passed on, permits and zoning vary by town, and income tax and depreciation depend on your situation. Put permit, design and engineering costs in the shared build cost and talk to an accountant for tax."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1d4f7a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #14283b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14283b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14283b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f7a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf2; color: #14283b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #14283b; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #14283b; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #14283b; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MINI-GOLF COURSE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your mini-golf course pay for itself? Payback, debt coverage and break-even rounds per day</h1>
+    <p>Enter what the holes and the shared build cost, your rounds per day and price by season, parties, concessions, staff, fixed costs, a rain-out allowance and the loan. You get <strong>operating income</strong>, <strong>cash left after the loan</strong>, <strong>payback in years</strong> on the whole investment and on your own money, <strong>debt coverage</strong>, <strong>break-even rounds per day</strong>, the <strong>price change</strong> that hits your payback target, and a price, attendance and weather sensitivity.</p>
+    <p class="note">It works from your own figures. It does not know what nearby courses charge, how many people they draw or what your climate does to a season. It also fits a batting-cage or small family-fun-center build if you count each cage or attraction as a hole.</p>
+  </header>
+
+  <section class="card" id="inputs">
+    <h2>Your course</h2>
+    <div class="grid">
+      <div><label for="holes">Holes (or cages / attractions)</label><input id="holes" inputmode="decimal" value="" placeholder="18"></div>
+      <div><label for="holecost">Build cost of one hole: surface, obstacles, borders, share of paths, dollars</label><input id="holecost" inputmode="decimal" value="" placeholder="12000"></div>
+      <div><label for="sharedcost">Shared build: clubhouse, landscaping, lighting, parking, permits, dollars</label><input id="sharedcost" inputmode="decimal" value="" placeholder="220000"></div>
+      <div><label for="peakdays">Peak season, days open</label><input id="peakdays" inputmode="decimal" value="" placeholder="88"></div>
+      <div><label for="peakrounds">Peak rounds played per open day</label><input id="peakrounds" inputmode="decimal" value="" placeholder="115"></div>
+      <div><label for="peakprice">Peak price per round, dollars</label><input id="peakprice" inputmode="decimal" value="" placeholder="11"></div>
+      <div><label for="shoulderdays">Shoulder season, days open</label><input id="shoulderdays" inputmode="decimal" value="" placeholder="88"></div>
+      <div><label for="shoulderrounds">Shoulder rounds played per open day</label><input id="shoulderrounds" inputmode="decimal" value="" placeholder="55"></div>
+      <div><label for="shoulderprice">Shoulder price per round, dollars</label><input id="shoulderprice" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="offdays">Off season, days open (0 if closed)</label><input id="offdays" inputmode="decimal" value="" placeholder="35"></div>
+      <div><label for="offrounds">Off-season rounds played per open day</label><input id="offrounds" inputmode="decimal" value="" placeholder="20"></div>
+      <div><label for="offprice">Off-season price per round, dollars</label><input id="offprice" inputmode="decimal" value="" placeholder="8"></div>
+      <div><label for="rainpct">Open days lost to rain or weather, %</label><input id="rainpct" inputmode="decimal" value="" placeholder="10"></div>
+      <div><label for="parties">Birthday and group parties per year</label><input id="parties" inputmode="decimal" value="" placeholder="90"></div>
+      <div><label for="partyprice">Price per party package, dollars</label><input id="partyprice" inputmode="decimal" value="" placeholder="180"></div>
+      <div><label for="partycostpct">Party cost: food, favours, host, % of party price</label><input id="partycostpct" inputmode="decimal" value="" placeholder="30"></div>
+      <div><label for="concspend">Concession and arcade spend per round played, dollars</label><input id="concspend" inputmode="decimal" value="" placeholder="4"></div>
+      <div><label for="concmargin">Margin kept on concessions and arcade, %</label><input id="concmargin" inputmode="decimal" value="" placeholder="55"></div>
+      <div><label for="laborhours">Staff hours on each open day</label><input id="laborhours" inputmode="decimal" value="" placeholder="22"></div>
+      <div><label for="wage">Hourly wage including payroll taxes, dollars</label><input id="wage" inputmode="decimal" value="" placeholder="17"></div>
+      <div><label for="cardpct">Card processing fees, % of sales</label><input id="cardpct" inputmode="decimal" value="" placeholder="2.5"></div>
+      <div><label for="fixedyear">Yearly fixed costs: insurance, utilities, property tax, lease, marketing, software, dollars</label><input id="fixedyear" inputmode="decimal" value="" placeholder="60000"></div>
+      <div><label for="maintpct">Yearly upkeep reserve, % of the hole build cost</label><input id="maintpct" inputmode="decimal" value="" placeholder="3"></div>
+      <div><label for="loanpct">Share financed by a loan, %</label><input id="loanpct" inputmode="decimal" value="" placeholder="65"></div>
+      <div><label for="rate">Loan interest rate, % a year</label><input id="rate" inputmode="decimal" value="" placeholder="8.5"></div>
+      <div><label for="loanyears">Loan term, years</label><input id="loanyears" inputmode="decimal" value="" placeholder="15"></div>
+      <div><label for="targetyears">Payback you want on your own money, years</label><input id="targetyears" inputmode="decimal" value="" placeholder="8"></div>
+    </div>
+    <p>
+      <button type="button" id="calc">Work out the profit</button>
+      <button type="button" class="secondary" id="load-ok">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Fill in your course, then click Work out the profit.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="due" id="due"></p>
+    <pre class="sum" id="summary"></pre>
+    <div id="report-findings"></div>
+    <h3>By season</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Season</th><th scope="col" class="n">Days open</th><th scope="col" class="n">Open after weather</th><th scope="col" class="n">Rounds a day</th><th scope="col" class="n">Rounds</th><th scope="col" class="n">Round revenue</th></tr></thead><tbody id="season-rows"></tbody></table></div>
+    <h3>If attendance runs above or below plan</h3>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Versus plan</th><th scope="col" class="n">Rounds per open day</th><th scope="col" class="n">Operating income</th><th scope="col" class="n">Debt coverage</th><th scope="col" class="n">Cash after loan</th><th scope="col" class="n">Payback, own money</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <h3>Cash after the loan: price against attendance</h3>
+    <div class="scroll"><table><thead id="grid-head"></thead><tbody id="grid-rows"></tbody></table></div>
+    <h3>If more open days are lost to weather</h3>
+    <p class="note">Rounds, concessions, card fees and staff hours fall with the open days; parties, fixed costs, the upkeep reserve and the loan payment do not.</p>
+    <div class="scroll"><table><thead><tr><th scope="col" class="n">Days lost</th><th scope="col" class="n">Open days</th><th scope="col" class="n">Rounds</th><th scope="col" class="n">Operating income</th><th scope="col" class="n">Debt coverage</th><th scope="col" class="n">Cash after loan</th></tr></thead><tbody id="rain-rows"></tbody></table></div>
+    <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download attendance table (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>What it does, and what it leaves to you</h2>
+    <ul>
+      <li><strong>Counts:</strong> open days = days x (1 - days lost to weather); rounds = open days x rounds per day; round revenue = rounds x price; concession and arcade sales = rounds x spend per round, of which you keep the margin; party revenue = parties x package price, less party cost; card fees = a percent of all sales; staff = open days x hours x wage; operating income = sales - concession cost - party cost - card fees - staff - yearly fixed costs - upkeep reserve (a percent of the hole build cost, not the shared build); loan payment = the level yearly payment on the share financed; cash after the loan = operating income - payment.</li>
+      <li><strong>Payback</strong> is investment divided by yearly operating income for the whole investment, and your own money divided by cash after the loan for your side. Both ignore growth, rate changes, refinancing and what the money could earn elsewhere.</li>
+      <li><strong>Break-even rounds per day</strong> scales every season's rounds by one factor, with concession sales moving along, until cash after the loan is zero; staff hours, parties and fixed costs stay as entered. <strong>Price change</strong> scales every season's price per round by one factor and leaves party prices and concessions alone.</li>
+      <li><strong>Weather:</strong> parties are entered as the number you expect to hold, so lost days do not reduce them, and lost days are treated as unstaffed. Real rain hits some days of the week and some seasons harder than others; the table is a flat haircut.</li>
+      <li><strong>Not decided:</strong> how many people near you will play and what they will pay, zoning, insurance quotes, sales and income tax, depreciation, your own labour, construction overruns, the first year's ramp-up, and seasonal staff turnover.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>How long does it take a mini-golf course to pay for itself?</h3>
+    <p>It depends on what the course keeps from each round, party and snack after staff, card fees, fixed costs and an upkeep reserve, against what the holes and the shared build (clubhouse, landscaping, lighting, permits) cost. Enter your own build cost, rounds per day by season, prices and loan; the page works out operating income, the loan payment, cash left after the loan and payback in years, on the whole investment and on your own money.</p>
+    <h3>How many rounds a day do I need to break even?</h3>
+    <p>Break-even rounds per day is the attendance at which cash after the loan is zero. The page scales rounds per day in every season together (concession sales move with rounds; staff hours, parties and fixed costs do not) and reports the rounds per open day and per year, next to the figure you planned.</p>
+    <h3>How much does rain cost a mini-golf course?</h3>
+    <p>Enter the share of open days you expect to lose to weather. Those days bring no rounds, concessions or card fees and are counted as unstaffed. A weather table shows cash after the loan at 0 to 30 percent lost days so you can see how wet a year the loan can survive. The page does not know your climate.</p>
+    <h3>What price per round do I need?</h3>
+    <p>The page solves for the across-the-board change in price per round that covers the loan, and the change that pays your own money back in the years you set. A grid also shows cash after the loan for price changes from -20 to +20 percent at several attendance levels. It does not know what nearby courses charge, so compare before changing a price.</p>
+    <h3>Can I use it for a batting cage or a small family fun center?</h3>
+    <p>Yes, if you can describe it in the same terms: count each cage or attraction as a hole with its build cost, rounds as paid sessions or plays, and price per round as the price of a session. Arcade and snack spend go in the per-round concession figure. The arithmetic does not know what you are building.</p>
+    <h3>Does this include income tax or permits?</h3>
+    <p>No. Sales tax is normally collected from customers and passed on, permits and zoning vary by town, and income tax and depreciation depend on your situation. Put permit, design and engineering costs in the shared build cost and talk to an accountant for tax.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Everything is calculated in your browser and nothing is sent; a test in the code asserts there are no network calls.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. You are responsible for reviewing and verifying its output before borrowing, building or changing a price. Treat it as a worksheet to check, not an investment recommendation. The example figures are illustrative only and are not a market rate, an attendance benchmark or a forecast.</p>
+    <p><strong>Your figures.</strong> This page runs in your browser and sends nothing anywhere; closing the tab discards them, and downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../golf-simulator-bay-profit-calculator/">golf simulator bay profit calculator</a>, the <a href="../trampoline-park-profit-calculator/">trampoline park profit calculator</a> and the <a href="../axe-throwing-bar-profit-calculator/">axe-throwing bar profit calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compute, SAMPLE, summaryText, sweepCsv, dollars } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+    const map = { holes: "holes", holecost: "holeCost", sharedcost: "sharedCost", peakdays: "peakDays", peakrounds: "peakRounds", peakprice: "peakPrice", shoulderdays: "shoulderDays", shoulderrounds: "shoulderRounds", shoulderprice: "shoulderPrice", offdays: "offDays", offrounds: "offRounds", offprice: "offPrice", rainpct: "rainPct", parties: "parties", partyprice: "partyPrice", partycostpct: "partyCostPct", concspend: "concSpend", concmargin: "concMargin", laborhours: "laborHours", wage: "wage", cardpct: "cardPct", fixedyear: "fixedYear", maintpct: "maintPct", loanpct: "loanPct", rate: "rate", loanyears: "loanYears", targetyears: "targetYears" };
+    const IDLE = "Fill in your course, then click Work out the profit.";
+    const yrs = (n) => (n === null ? "never" : n.toFixed(1) + " yr");
+    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const cov = (x) => (x === null ? "–" : x.toFixed(2));
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const read = () => { const o = {}; for (const [id, key] of Object.entries(map)) o[key] = $("#" + id).value; return o; };
+    function run() {
+      const r = compute(read());
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      last = r;
+      const t = r.totals;
+      $("#due").textContent = `${whole(t.cashFlow)} a year after the loan; payback ${yrs(r.paybackEquity)} on your own money, ${yrs(r.paybackAll)} on the whole ${whole(t.investment)}; debt coverage ${r.dscr === null ? "n/a (no loan)" : r.dscr.toFixed(2)}`;
+      $("#summary").textContent = summaryText(r);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
+      $("#season-rows").innerHTML = r.seasons.map((s) => `<tr><td>${esc(s.label)}</td><td class="n">${s.days}</td><td class="n">${s.openDays.toFixed(1)}</td><td class="n">${s.roundsPerDay}</td><td class="n">${Math.round(s.rounds)}</td><td class="n">${whole(s.revenue)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.sweep.map((x) => `<tr><td class="n">${Math.round(x.scale * 100)}%</td><td class="n">${x.roundsPerDay.toFixed(0)}</td><td class="n">${whole(x.noi)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cashFlow)}</td><td class="n">${yrs(x.payback)}</td></tr>`).join("");
+      $("#grid-head").innerHTML = `<tr><th scope="col">Price change</th>${r.grid[0].cells.map((c) => `<th scope="col" class="n">${Math.round(c.scale * 100)}% of planned rounds</th>`).join("")}</tr>`;
+      $("#grid-rows").innerHTML = r.grid.map((g) => `<tr><th scope="row">${g.priceChange > 0 ? "+" : ""}${g.priceChange}%</th>${g.cells.map((c) => `<td class="n">${whole(c.cashFlow)}</td>`).join("")}</tr>`).join("");
+      $("#rain-rows").innerHTML = r.rainSweep.map((x) => `<tr><td class="n">${x.rain}%</td><td class="n">${x.openDays.toFixed(0)}</td><td class="n">${Math.round(x.rounds)}</td><td class="n">${whole(x.noi)}</td><td class="n">${cov(x.dscr)}</td><td class="n">${whole(x.cashFlow)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-ok").addEventListener("click", () => {
+      for (const [id, key] of Object.entries(map)) $("#" + id).value = SAMPLE[key];
+      run(); record("example_loaded");
+      status.textContent = "Worked example: 18 holes at $12,000 plus $220,000 shared build, 65% financed. Illustrative figures, not market rates or attendance.";
+    });
+    $("#clear-all").addEventListener("click", () => { for (const id of Object.keys(map)) $("#" + id).value = ""; report.hidden = true; last = null; status.textContent = IDLE; });
+    $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("mini-golf-profit.txt", summaryText(last), "text/plain"); } });
+    $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("mini-golf-profit-by-attendance.csv", sweepCsv(last), "text/csv"); } });
+    $("#print").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
